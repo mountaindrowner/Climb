@@ -273,7 +273,7 @@ The look is a chunky 3D take on Bit.Trip Runner: gritty 3D, deliberately rendere
 
 ## Build status
 
-The game lives in this repository as ES modules under `src/` with no build step (see `docs/architecture.md`). The earlier single-file builds are kept under `prototypes/`.
+The game lives in this repository as ES modules under `src/` with no build step (see `docs/architecture.md`). The current build is playable at [the hosted page](https://claude.ai/artifact/LXYYXmevA9zBdh1QhMqz9Z); the earlier single-file builds are kept under `prototypes/`, and the [v3 spiral prototype](https://claude.ai/artifact/W6v8bcEv2vdyb6o7u6Ea3V) is still up for comparison.
 
 | Version | What changed |
 | --- | --- |

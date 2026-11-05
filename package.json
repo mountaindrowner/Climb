@@ -10,6 +10,7 @@
     "smoke": "node tools/smoke.mjs",
     "pacing": "node tools/pacing.mjs",
     "portraits": "node tools/portrait.mjs",
+    "artifact": "node tools/build-artifact.mjs",
     "check": "npm test && npm run smoke"
   },
   "engines": { "node": ">=18" }

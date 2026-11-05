@@ -2,7 +2,9 @@
 
 A portrait mobile roguelike in chunky 3D. You fight your way up a spiral stair from the bottom of an impossibly deep mine to open sky at the peak, and every death drops you all the way back down. **Height is the score.**
 
-Play it: serve the repository root and open `index.html` (there is no build step).
+**Play it now:** [the hosted build](https://claude.ai/artifact/LXYYXmevA9zBdh1QhMqz9Z) runs on a phone or desktop (private link; share it from the page's menu). It is republished from this repository with `npm run artifact`.
+
+Or serve the repository root and open `index.html` (there is no build step):
 
 ```bash
 npm run dev        # http://localhost:8080, also reachable from a phone on the same network
@@ -55,6 +57,7 @@ npm test           # node --test: path geometry, seeded layout, economy, save mi
 npm run smoke      # Playwright: a bot migrates a prototype save, climbs the tutorial, beats the first Warden, falls, catches a root, splashes into the Pool
 npm run pacing     # how long each zone takes at the current tuning, against the 30-minute target
 npm run portraits  # close-up shots of the warrior and the Warden in their key poses, for art review
+npm run artifact   # builds dist/artifact.html, the hosted-page version of index.html (published with src/ and vendor/)
 ```
 
 The smoke test needs Playwright with Chromium (`npm i -D playwright && npx playwright install chromium`). It writes screenshots to `tools/out/`.
