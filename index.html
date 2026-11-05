@@ -19,15 +19,19 @@
   </div>
   <div id="pad">
     <div class="col left">
-      <button class="btn dir" data-k="up" aria-label="Jump or use">▲<small>jump · use</small></button>
-      <button class="btn dir" data-k="down" aria-label="Duck">▼<small>duck</small></button>
+      <div id="stick" class="stick" role="group" aria-label="Move: left and right along the stair, down to crouch">
+        <span class="arrow l" aria-hidden="true">◀</span><span class="arrow r" aria-hidden="true">▶</span><span class="arrow d" aria-hidden="true">▼</span>
+        <span class="knob" aria-hidden="true"></span>
+      </div>
     </div>
     <div class="col mid">
       <button class="btn flask" data-k="flask" aria-label="Drink flask">flask<span class="pips" id="pips">●●●</span></button>
     </div>
     <div class="col right">
-      <button class="btn round b" data-k="b" aria-label="Block">B<small>block</small></button>
-      <button class="btn round a" data-k="a" aria-label="Attack">A<small>attack</small></button>
+      <button class="btn round b" data-k="block" aria-label="Block">B<small>block</small></button>
+      <button class="btn round roll" data-k="roll" aria-label="Roll">⟳<small>roll</small></button>
+      <button class="btn round a" data-k="attack" aria-label="Attack">A<small>attack</small></button>
+      <button class="btn round jump" data-k="jump" aria-label="Jump or use">▲<small>jump</small></button>
     </div>
   </div>
 </div>

@@ -1,6 +1,7 @@
 // Flitter: a bat-thing roosting head-down on the wall above the stair. It shrieks, drops, loops out over the open
-// shaft and dives at your head; the ring over you closes as it arrives. Answer: A to swat it (gold), or B to block.
-// States: idle -> launch -> dive -> leave | dead
+// shaft and dives at your head. It tracks you until its commit point, then flies straight: a late roll or step dodges.
+// It circles back and dives again until it is swatted. Answer: A as the ring closes (gold), hold B to block, or roll.
+// States: idle -> launch -> dive -> leave -> circle -> dive ...; dead
 import { R, RW, OMEGA } from '../../config/constants.js';
 import { TUNE } from '../../config/tuning.js';
 import { GOLD } from '../../config/economy.js';
@@ -11,12 +12,12 @@ import { mbox, vArc } from '../../render/primitives.js';
 import { flatMat, glowMat, spike, blob, membrane, joint, outline, outlineMat } from '../../render/creature.js';
 import { burst } from '../../render/particles.js';
 import { float, hitstop } from '../../fx/feedback.js';
-import { topAt } from '../../world/path.js';
-import { hurt, head } from '../player/player.js';
+import { topAt, posOf } from '../../world/path.js';
+import { hurt, head, isBlocking, isInvulnerable } from '../player/player.js';
 const THREE = window.THREE;
 const T = TUNE.flitter;
 
-export const hint = 'A flitter dives at your head. Tap A as the ring closes to swat it, or B to block.';
+export const hint = 'A flitter dives at your head. Swat it with A as the ring closes, hold B to block, or roll.';
 
 // +x is the way it faces (its nose), +y its back, ±z its wings.
 function model(glow){
@@ -52,21 +53,45 @@ function bez(p0, p1, p2, u, out){ const v = 1 - u; return out.set(0, 0, 0).addSc
 
 export function update(o, dt){
   const G = ST.G, d = o.s - G.s;
-  if (o.st === 'dead' || o.st === 'leave' || o.st === 'gone'){ o.tm += dt; if (o.tm > 1.6) o.st = 'gone'; return; }
-  if (o.st === 'idle' && d < T.wake){ o.st = 'launch'; o.tm = 0; sfx.shriek(); o.from = o.pos.clone(); }
-  if (o.st === 'launch'){ o.tm += dt; if (o.tm >= T.launch){ o.st = 'dive'; o.tm = 0; o.p0 = o.pos.clone(); o.p1 = vArc(o.s * OMEGA + 0.12, R - 3.8, o.top + 4.6); } }
-  if (o.st === 'dive'){
-    o.tm += dt;
-    if (o.tm >= T.dive){
-      o.done = true; o.st = 'leave'; o.tm = 0;
-      if (G.block > 0){ float('Blocked', head(), '#c9d2e0'); sfx.block(); }
-      else hurt(1, 'Bitten');
+  o.prev = o.prev || o.pos.clone(); o.prev.copy(o.pos);
+  const go = st => { o.st = st; o.tm = 0; };
+  if (o.st === 'gone') return;
+  o.tm += dt;
+  switch (o.st){
+    case 'idle': o.pos.copy(o.roost); if (Math.abs(d) < T.wake){ go('launch'); sfx.shriek(); o.from = o.pos.clone(); } break;
+    case 'launch': { const u = clamp(o.tm / T.launch, 0, 1); o.pos.copy(o.from); o.pos.y -= 0.9 * u * u; if (o.tm >= T.launch) startDive(o); break; }
+    case 'dive': {
+      if (o.tm < T.dive - T.commit) o.target.copy(head(1.2));          // tracks him until the commit point, then flies straight
+      bez(o.p0, o.p1, o.target, Math.pow(clamp(o.tm / T.dive, 0, 1), 1.25), o.pos);
+      if (Math.random() < 0.8) burst(o.pos, 1, o.glow, 0.3, 0, 0.07);
+      if (o.tm >= T.dive){
+        const hp = head(1.2), reach = o.pos.distanceTo(hp) < 0.95;
+        if (reach && isBlocking(G)){ float('Blocked', head(), '#c9d2e0'); sfx.block(); }
+        else if (reach && !isInvulnerable(G)) hurt(1, 'Bitten', o.s);
+        go('leave'); o.vel.set(-o.pos.x * 0.6, 3.5, -o.pos.z * 0.6);
+      }
+      break;
     }
+    case 'leave': o.pos.addScaledVector(o.vel, dt); if (o.tm >= T.leave) go('circle'); break;
+    case 'circle': {
+      // hangs over the shaft a little ahead of him, then comes again
+      const a = (G.s + 1.5 * G.face) * OMEGA + Math.sin(o.tm * 3) * 0.05, want = vArc(a, R - 3.4, posOf(G.s).y + 4 + Math.sin(o.tm * 5) * 0.2);
+      o.pos.lerp(want, Math.min(1, dt * 3));
+      if (o.tm >= T.circle) startDive(o);
+      break;
+    }
+    case 'dead': o.vel.y -= 14 * dt; o.pos.addScaledVector(o.vel, dt); if (o.tm > 1.6) go('gone'); break;
   }
+  if (!o.done && o.st !== 'idle' && Math.abs(d) > 7) o.done = true;
 }
-// Swattable in the last moments of its dive, when it is at your head.
+function startDive(o){
+  o.st = 'dive'; o.tm = 0; o.p0 = o.pos.clone();
+  o.p1 = vArc(o.s * OMEGA + 0.12, R - 3.8, o.p0.y + 1.0);
+  o.target = head(1.2);
+}
+// Swattable in the last moments of its dive, when it is at his head.
 export const hittable = o => o.st === 'dive' && o.tm >= T.dive - T.swat;
-export const inReach = () => true;
+export const inReach = (o, reach) => o.pos.distanceTo(head(1.2)) < reach + 0.6;
 export function hit(o){
   const G = ST.G;
   o.st = 'dead'; o.tm = 0; o.done = true; o.vel.set(-o.pos.x, 2, -o.pos.z).normalize().multiplyScalar(4);
@@ -75,24 +100,17 @@ export function hit(o){
 }
 
 export function draw(o, dt){
-  const t = ST.time, M = o.M, G = ST.G;
+  const t = ST.time, M = o.M;
   M.g.visible = o.st !== 'gone';
   if (!M.g.visible) return;
-  const prev = _p.copy(o.pos);
-  let flap = 0, folded = 0;
-  if (o.st === 'idle'){ o.pos.copy(o.roost); folded = 1; M.g.rotation.set(Math.PI, 0, 0); M.g.position.copy(o.pos); M.body.rotation.z = Math.sin(t * 1.5 + o.s) * 0.06; }
+  let flap = 1, folded = 0;
+  M.g.position.copy(o.pos);
+  if (o.st === 'idle'){ folded = 1; flap = 0; M.g.rotation.set(Math.PI, 0, 0); M.body.rotation.z = Math.sin(t * 1.5 + o.s) * 0.06; }
+  else if (o.st === 'dead'){ M.g.rotation.x += 0.3; flap = 0; folded = 0.5; }
   else {
-    if (o.st === 'launch'){ const u = clamp(o.tm / T.launch, 0, 1); o.pos.copy(o.from).add(new THREE.Vector3(0, -0.9 * u * u, 0)); folded = 1 - u; flap = 1; }
-    else if (o.st === 'dive' && G){ bez(o.p0, o.p1, head(1.2), Math.pow(clamp(o.tm / T.dive, 0, 1), 1.25), o.pos); flap = 1; if (Math.random() < 0.8) burst(o.pos, 1, o.glow, 0.3, 0, 0.07); }
-    else if (o.st === 'leave'){ o.vel.set(-o.pos.x * 0.6, 3.5, -o.pos.z * 0.6); o.pos.addScaledVector(o.vel, dt); flap = 1; }
-    else if (o.st === 'dead'){ o.vel.y -= 14 * dt; o.pos.addScaledVector(o.vel, dt); M.g.rotation.x += 0.3; flap = 0; folded = 0.5; }
-    M.g.position.copy(o.pos);
-    if (o.st !== 'dead'){
-      // face along the flight path
-      const dir = new THREE.Vector3().subVectors(o.pos, prev);
-      if (dir.lengthSq() > 1e-6){ M.g.rotation.set(0, Math.atan2(-dir.z, dir.x), 0); M.body.rotation.z = clamp(dir.y / Math.max(1e-4, Math.hypot(dir.x, dir.z)), -1, 1) * 0.6; }
-      if (o.st === 'launch') M.g.rotation.x = Math.PI * (1 - clamp(o.tm / T.launch, 0, 1));
-    }
+    const dir = new THREE.Vector3().subVectors(o.pos, o.prev || o.pos);
+    if (dir.lengthSq() > 1e-6){ M.g.rotation.set(0, Math.atan2(-dir.z, dir.x), 0); M.body.rotation.z = clamp(dir.y / Math.max(1e-4, Math.hypot(dir.x, dir.z)), -1, 1) * 0.6; }
+    if (o.st === 'launch'){ const u = clamp(o.tm / T.launch, 0, 1); M.g.rotation.x = Math.PI * (1 - u); folded = 1 - u; }
   }
   const beat = Math.sin(t * (o.st === 'dive' ? 26 : 18));
   for (const W of M.wings) W.w.rotation.x = W.s * (folded * 1.35 + flap * (0.15 + beat * 0.75));
@@ -102,5 +120,5 @@ export function draw(o, dt){
 export function hud(o, d, { drawIcon, drawTiming }){
   if (o.st === 'dive') drawTiming('A', o.tm, T.dive);
   else if (o.st === 'launch') drawIcon(o.pos.clone().setY(o.pos.y + 0.6), '!', '#ff6b5a');
-  else if (o.st === 'idle' && d > 0 && d < TUNE.climb.iconRange + 0.6) drawIcon(o.roost.clone().setY(o.roost.y + 0.7), 'A', '#efe6d2');
+  else if (o.st === 'idle' && Math.abs(d) < TUNE.climb.iconRange + 0.6) drawIcon(o.roost.clone().setY(o.roost.y + 0.7), 'A', '#efe6d2');
 }

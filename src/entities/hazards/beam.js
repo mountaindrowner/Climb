@@ -1,6 +1,7 @@
 // Fallen beam: a splintered timber wedged diagonally across the stair, its top end driven into the wall a step up,
 // its broken end resting on the inner edge a step down, crossing your lane at head height. Iron-banded, a frayed rope
-// hanging from the broken end. It creaks and sheds dust as you near. Answer: ▼ duck.
+// hanging from the broken end. It creaks and sheds dust as you near. It is a low ceiling: you cannot pass it standing,
+// and running into it hurts. Answer: hold ▼ to crouch-walk under it, or roll under it.
 import { R, RW, OMEGA } from '../../config/constants.js';
 import { TUNE } from '../../config/tuning.js';
 import { ST } from '../../core/state.js';
@@ -11,10 +12,10 @@ import { rock, rockMaterial } from '../../render/rocks.js';
 import { flatMat, segment, spike, joint } from '../../render/creature.js';
 import { mote } from '../../render/particles.js';
 import { topAt } from '../../world/path.js';
-import { hurt } from '../player/player.js';
+import { hurt, isLow } from '../player/player.js';
 const THREE = window.THREE;
 
-export const hint = 'A fallen beam at head height: tap ▼ to duck under it.';
+export const hint = 'A fallen beam. Hold ▼ to crouch under it, or roll under it. Running into it hurts.';
 
 export function build(o, { z, dyn }){
   const top = topAt(o.s), r = rng(o.k * 331 + 7);
@@ -37,12 +38,20 @@ export function build(o, { z, dyn }){
   // a frayed rope hanging from the broken end (kept upright in draw)
   const rope = new THREE.Group(); rope.position.copy(Bp).add(new THREE.Vector3(0, -0.15, 0)); dyn.add(rope);
   const ropeSeg = segment(flatMat(0x8a7a5a), 0.9, 0.03, 0.02); ropeSeg.rotation.x = Math.PI; rope.add(ropeSeg);
-  o.m = g; o.shake = shake; o.rope = rope; o.mats = [wood, woodHi]; o.top = top; o.A = A; o.Bp = Bp;
+  o.m = g; o.shake = shake; o.rope = rope; o.mats = [wood, woodHi]; o.top = top; o.A = A; o.Bp = Bp; o.halfWidth = 0.38;
 }
-export function update(o){
+export function update(o, dt){
   const G = ST.G, d = o.s - G.s;
-  if (!o.creaked && d < TUNE.beam.creak){ o.creaked = true; sfx.creak(); }
-  if (!o.done && G.prevS < o.s && G.s >= o.s){ o.done = true; if (G.duck <= 0) hurt(1, 'Smack'); }
+  o.bonkT = Math.max(0, (o.bonkT || 0) - dt);
+  if (!o.creaked && Math.abs(d) < TUNE.beam.creak){ o.creaked = true; sfx.creak(); }
+  if (!isLow(G) && Math.abs(G.s - o.s) < o.halfWidth){
+    // standing, or in the air, inside the beam: it stops him at the side he came from
+    const side = Math.sign(G.prevS - o.s) || -G.face, fast = Math.abs(G.v) > TUNE.move.bonkSpeed;
+    G.s = G.prevS = o.s + side * o.halfWidth; G.v = 0;
+    if (fast) hurt(1, 'Smack', o.s);
+    else if (o.bonkT <= 0){ sfx.block(); o.bonkT = 0.5; }
+  }
+  if (!o.done && G.s > o.s + 0.8) o.done = true;
 }
 export function draw(o){
   const G = ST.G, d = G ? o.s - G.s : 99, near = !o.done && d > 0 && d < TUNE.beam.creak, t = ST.time;

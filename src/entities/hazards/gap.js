@@ -1,5 +1,6 @@
-// Broken step. The slab is split by glowing cracks from the start; as you reach it, it crumbles into the shaft.
-// Answer: ▲ jump. Missing it costs 1 health and a stumble. (The stair's own step is removed by the layout.)
+// Broken step. The slab is split by glowing cracks; as you come near it crumbles into the shaft and leaves a real hole.
+// Answer: ▲ jump it. Walk into the hole and you fall through: 1 health, and back on the last solid step.
+// (The stair's own step is removed by the layout; the motor asks world/ground.js whether the hole is open.)
 import { FL, FH, RISE, R, OMEGA } from '../../config/constants.js';
 import { TUNE } from '../../config/tuning.js';
 import { ST } from '../../core/state.js';
@@ -9,10 +10,9 @@ import { mbox, placeArc, vArc } from '../../render/primitives.js';
 import { rock, rockMaterial } from '../../render/rocks.js';
 import { burst } from '../../render/particles.js';
 import { topAt } from '../../world/path.js';
-import { hurt } from '../player/player.js';
 const THREE = window.THREE;
 
-export const hint = 'A broken step. It crumbles as you reach it: tap ▲ to jump it.';
+export const hint = 'A broken step. It crumbles as you come near: tap ▲ to jump the hole.';
 
 export function build(o, { c, z, glow, dyn }){
   const i = Math.floor(o.s - c.k * FL), sa = (c.k * FL + i + 0.5) * OMEGA, st = c.k * FH + (i + 1) * RISE;
@@ -36,18 +36,16 @@ export function build(o, { c, z, glow, dyn }){
   cracks.add(mbox(0.05, 0.03, 2.4, crackMat, 0, 0, 0));
   cracks.add(mbox(1.1, 0.03, 0.05, crackMat, 0, 0, 0.43), mbox(1.1, 0.03, 0.05, crackMat, 0, 0, -0.43));
   placeArc(cracks, sa, R, st + 0.005); dyn.add(cracks);
-  o.chunks = chunks; o.cracks = cracks; o.crackMat = crackMat; o.top = st; o.sa = sa;
+  o.chunks = chunks; o.cracks = cracks; o.crackMat = crackMat; o.top = st; o.sa = sa; o.step0 = c.k * FL + i; o.holeOpen = false;
 }
 export function update(o, dt){
-  const G = ST.G, d = o.s - G.s;
-  if (!o.crumbling && d < TUNE.gap.crumble){
-    o.crumbling = true; o.ct = 0; sfx.crack();
+  const G = ST.G, centre = o.step0 + 0.5;
+  if (!o.crumbling && Math.abs(centre - G.s) < TUNE.gap.crumble){
+    o.crumbling = true; o.ct = 0; o.openT = 0; sfx.crack();
     burst(vArc(o.sa, R, o.top + 0.1), 16, '#8c8298', 2.4, 6, 0.09);
   }
-  if (!o.done && G.prevS < o.s && G.s >= o.s){
-    o.done = true;
-    if (G.jump <= 0){ G.stumble = TUNE.player.stumble; hurt(1, 'Stumbled'); }
-  }
+  if (o.crumbling && !o.holeOpen){ o.openT += dt; if (o.openT > 0.28) o.holeOpen = true; }
+  if (!o.done && Math.abs(G.s - centre) > 1.2 && o.holeOpen && G.grounded) o.done = true;
 }
 export function draw(o, dt){
   const G = ST.G, d = G ? o.s - G.s : 99;

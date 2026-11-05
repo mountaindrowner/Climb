@@ -12,7 +12,13 @@ export function updateCamera(dt){
   if (mode === 'fall' && FALL){ tA = FALL.a; tY = FALL.y + 1.2; lookY = FALL.y - 0.5; tR = CT.fall.back; lookA = FALL.a; }
   else if (mode === 'pool'){ tA = cam.ang; tY = CT.pool.up; lookY = CT.pool.look; lookA = cam.ang; tR = CT.pool.back; }
   else if (mode === 'title'){ tA = cam.ang; tY = CT.title.up; lookY = CT.title.look; lookA = cam.ang; tR = CT.title.back; }
-  else if (G){ const p = posOf(G.s), c = B ? CT.fight : CT.climb; tA = p.a + c.lead; tY = p.y + c.up; lookY = p.y + c.look; lookA = tA + 0.02; tR = c.back; }   // the fight camera pulls out to show the wall
+  else if (G){
+    // lead where he faces (eased, so a turn swings the view rather than snapping it); follow the stair, and only part of a jump
+    const p = posOf(G.s), c = B ? CT.fight : CT.climb;
+    G.camLead += (c.lead * G.face - G.camLead) * Math.min(1, dt * 3.5);
+    const y = p.y + Math.max(0, G.y - p.y) * 0.35;
+    tA = p.a + G.camLead; tY = y + c.up; lookY = y + c.look; lookA = tA + 0.02; tR = c.back;
+  }
   else { tA = cam.ang; tY = cam.y; lookY = cam.y - 2; lookA = cam.ang; }
   const fk = mode === 'fall' ? 1 : Math.min(1, dt * 4);
   let dA = tA - cam.ang; dA = Math.atan2(Math.sin(dA), Math.cos(dA));   // shortest way round: a root one turn down must not spin the camera

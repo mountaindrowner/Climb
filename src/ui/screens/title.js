@@ -14,10 +14,11 @@ export function titleMenu(){
     <button class="choice go" data-act="pool">Wake in the Pool</button>
     <button class="choice" data-act="practice-menu"><span>Practice a threat<small>Climb a short stretch of one hazard or creature</small></span><span class="cost">8</span></button>
     <div class="how">
-      <b>You climb on your own.</b> The camera circles with you. Every heavy step is a beat.<br>
-      <b>▲</b> jump gaps, repair lifts, grab roots while falling<br>
-      <b>▼</b> duck beams and sweeps<br>
-      <b>A</b> attack · <b>B</b> block, tap it right as a hit lands to parry<br>
+      <b>◀ ▶</b> move along the stair; right climbs. Hold <b>▼</b> to crouch.<br>
+      <b>▲</b> jump, repair lifts, grab roots while falling<br>
+      <b>A</b> attack, press again to combo · <b>⟳</b> roll through attacks<br>
+      <b>B</b> hold to block; raise it as a hit lands to parry<br>
+      Keyboard: A/D or arrows, Space jump, J attack, K block, L roll, F flask.<br>
       <b>Flask</b> heals. Only the Pool refills it.<br>
       Fall and you drop all the way down. Repaired lifts stay repaired.
     </div>

@@ -11,13 +11,14 @@ import './world/cavern.js';
 import { setAllFlights } from './world/stair.js';
 import { updateProps } from './world/props.js';
 import { R } from './config/constants.js';
-import { newRunState, tickTimers, press, hurt } from './entities/player/player.js';
+import { newRunState, press, hurt } from './entities/player/player.js';
+import * as input from './core/input.js';
 import { animatePlayer } from './entities/player/animate.js';
 import { animateWarden } from './wardens/visuals.js';
 import { MODES } from './modes/registry.js';
 import { drawHUD } from './ui/hud.js';
 import { titleMenu, updatePips } from './ui/menus.js';
-import { bindInput } from './core/input.js';
+import { bindInput, endFrame, IN } from './core/input.js';
 
 load();
 
@@ -25,8 +26,8 @@ function step(dt){
   ST.time += dt;
   updateFeedback(dt);
   const mode = MODES[ST.mode];
-  tickTimers(dt, !!mode.gameplay);
   mode.update(dt);
+  if (ST.mode !== 'climb' && ST.mode !== 'fall') endFrame();
 }
 function visuals(dt){
   const pw = animatePlayer();
@@ -44,10 +45,11 @@ let last = 0;
 function frame(ts){
   const now = ts / 1000;
   let dt = last ? now - last : 0.016; last = now;
-  dt = Math.min(dt, 0.05);
+  dt = Math.min(dt, 0.05) * ST.timeScale;
   let sdt = dt;
   if (ST.hitstop > 0){ ST.hitstop -= dt; sdt = dt * 0.06; } // freeze-frame
   step(sdt);
+  endFrame();
   visuals(sdt);
   renderer.render(scene, camera);
   drawHUD();
@@ -64,4 +66,4 @@ titleMenu();
 requestAnimationFrame(frame);
 
 // Debug handle for the smoke test and the console. Not part of the game's API.
-window.__climb = { ST, S, TUNE, step, press, hurt };
+window.__climb = { ST, S, TUNE, step, press, hurt, input };

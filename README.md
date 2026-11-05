@@ -10,7 +10,7 @@ Or serve the repository root and open `index.html` (there is no build step):
 npm run dev        # http://localhost:8080, also reachable from a phone on the same network
 ```
 
-Controls: `▲` jump / use, `▼` duck, `A` attack, `B` block (tap just before a hit lands to parry), flask to heal. Keyboard: W/↑/Space, S/↓, J or Z, K or X, F or Q.
+Controls: a stick on the left moves him along the stair (right climbs) and crouches; on the right, `▲` jump, `A` attack (press again to combo), `B` hold to block (raise it as a hit lands to parry), `⟳` roll. Keyboard: A/D or arrows, Space jump, S crouch, J attack, K block, L roll, F flask. See `docs/design/controls.md`.
 
 ## Repository layout
 

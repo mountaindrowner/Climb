@@ -13,6 +13,12 @@ Every value below lives in `src/config/tuning.js` or `src/config/constants.js`. 
 | Metres per zone | 135 m | `MPU` is derived from this, so the height meter stays stable when the rise is tuned |
 | Flights per turn | about 4.5 | one turn is 2π·7 ≈ 44 step units; a root waits every turn during a fall |
 
+## Movement (`TUNE.move`)
+
+See `docs/design/controls.md` for what each does. Run 3.8; accel 60, decel 75, air accel 38; crouch ×0.45, blocking ×0.35; jump height 1.55, gravity up 32 and down 54, max fall 18; apex hang ×0.55 within 1.6; release cut 0.42 after a minimum hop of 0.1 s; coyote 0.1 s; buffer 0.13 s; standable lip 0.2; roll 0.4 s at 6.2, invulnerable 0.03 to 0.32 s, cooldown 0.37 s; knockback 3.2 with a 3.5 hop and a 0.22 s flinch; a beam hurts above 2.6 speed.
+
+The warrior's height for threats: crown 2.45 standing, 1.05 crouched or rolling.
+
 ## Player
 
 | Value | Setting |
@@ -35,12 +41,12 @@ Every value below lives in `src/config/tuning.js` or `src/config/constants.js`. 
 | Crawler | wakes 4.8 steps out, emerges at 3.2 (or after 1.2 s), rears at 1.7, lunges after 0.5 s; a block stuns it 0.7 s; 2 hp from zone 3 |
 | Spitter | charges 0.6 s from 3.7 steps out; orb flies 0.62 s; a parry reflects it in 0.28 s |
 | Hazard icons | shown from 3.8 steps ahead; hints from 4 |
-| Broken step | starts to crumble 2.4 steps ahead |
+| Broken step | crumbles when you come within 1.4; the hole opens 0.28 s later |
 | Fallen beam | creaks from 3.2 steps |
 | Rockfall | warns from 4.6 steps; drops 0.55 s before you arrive, from 9 units up; hits within 0.7 steps |
-| Swinging weight | 4.2-unit chain, cocked at 1.15 rad, 2.8 s period; released a quarter period before you arrive |
-| Burrower | wakes 5.4 steps out, ploughs from 4 steps beyond its mark; jaws rise 0.45 steps before you; linger 0.7 s |
-| Flitter | wakes 4.4 steps out; drops for 0.28 s, dives for 1.0 s; swattable in the last 0.34 s |
+| Swinging weight | 2.8-unit chain (short, so the uphill side of the arc clears a crouch on a rising stair), cocked at 1.15 rad, settling to 0.5 rad, 2.6 s period; the bottom of the arc is 2.6 above its step |
+| Burrower | wakes 5.4 out, ploughs 4 at 4.5/s to its mark, rises in 0.25 s, waits; snaps within 0.45, shut for 0.5 s; 2 hp; sinks once you are 2.6 past |
+| Flitter | wakes 4.4 out; drops 0.28 s, dives 1.0 s (commits 0.35 s before contact), leaves 0.8 s, circles 1.1 s, dives again; swattable in the last 0.34 s |
 
 ## Wardens
 

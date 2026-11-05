@@ -16,7 +16,7 @@ import { zoneOf, topAt } from '../world/path.js';
 import { setAllFlights } from '../world/stair.js';
 import { buildWardenScene, destroyWardenScene, wardenHitPoint } from './visuals.js';
 import * as deep from './movesets/deep.js';
-import { hurt, head } from '../entities/player/player.js';
+import { hurt, head, isAirborne, isLow, isBlocking, isParry } from '../entities/player/player.js';
 const W = TUNE.warden;
 const MOVESETS = { deep };
 
@@ -59,7 +59,7 @@ export function updWarden(dt){
         const atk = B.moves.attacks[B.atk];
         if (atk.answer === 'block'){ B.orb = { t: 0, dur: W.spitFlight }; sfx.spit(); go('orb'); }
         else {
-          const ok = atk.answer === 'jump' ? G.jump > 0 : G.duck > 0;
+          const ok = atk.answer === 'jump' ? isAirborne(G) : isLow(G);
           if (ok) float('Dodged', head(), '#c9f5d9');
           else { hurt(atk.damage, atk.hitText); if (ST.mode !== 'climb') return; }
           go('strike');
@@ -69,9 +69,8 @@ export function updWarden(dt){
     case 'orb':
       B.orb.t += dt;
       if (B.orb.t >= B.orb.dur){
-        const since = ST.time - G.lastBlock;
-        if (G.block > 0 && since <= TUNE.player.parryWindow){ B.orb = { t: 0, dur: W.reflect, back: true }; sfx.parry(); flash(-0.25); hitstop(TUNE.feel.hitstopParry); float('Parry!', head(), '#9fd0ff'); go('reflect'); }
-        else if (G.block > 0){ B.orb = null; sfx.block(); float('Blocked', head(), '#c9d2e0'); go('strike'); }
+        if (isParry(G)){ B.orb = { t: 0, dur: W.reflect, back: true }; sfx.parry(); flash(-0.25); hitstop(TUNE.feel.hitstopParry); float('Parry!', head(), '#9fd0ff'); go('reflect'); }
+        else if (isBlocking(G)){ B.orb = null; sfx.block(); float('Blocked', head(), '#c9d2e0'); go('strike'); }
         else { B.orb = null; hurt(B.moves.attacks.spit.damage, B.moves.attacks.spit.hitText); if (ST.mode !== 'climb') return; go('strike'); }
       }
       break;

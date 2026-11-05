@@ -1,5 +1,6 @@
-// Rockfall. Grit trickles from the dark and a shadow grows on a step; a boulder drops, timed to land as you arrive.
-// Answer: B, shield up (the warrior raises it overhead). A parry as it lands shatters it for gold.
+// Rockfall. Grit trickles from the dark and a shadow grows on a step; the boulder drops when you would arrive under it.
+// Answer: hold B, shield overhead (raise it as it lands to shatter it for gold); or stop short and let it fall; or roll
+// through it.
 // States: idle -> warn -> drop -> done
 import { R, OMEGA } from '../../config/constants.js';
 import { TUNE } from '../../config/tuning.js';
@@ -12,11 +13,11 @@ import { rock, rockMaterial } from '../../render/rocks.js';
 import { burst, mote } from '../../render/particles.js';
 import { float, hitstop } from '../../fx/feedback.js';
 import { topAt } from '../../world/path.js';
-import { hurt, head } from '../player/player.js';
+import { hurt, head, isBlocking, isParry, isRollInvulnerable } from '../player/player.js';
 const THREE = window.THREE;
 const T = TUNE.rockfall;
 
-export const hint = 'Rocks fall where the shadow grows. Tap B to raise your shield as you step under it.';
+export const hint = 'Rocks fall where the shadow grows. Hold B to raise your shield under it, or stop and let it fall.';
 
 export function build(o, { z, dyn }){
   const a = o.s * OMEGA, top = topAt(o.s), r = rng(o.k * 613 + 3);
@@ -35,22 +36,25 @@ export function build(o, { z, dyn }){
 }
 export function update(o, dt){
   const G = ST.G, d = o.s - G.s;
-  if (o.st === 'idle' && d < T.warn){ o.st = 'warn'; sfx.rumble(); }
+  if (o.st === 'idle' && Math.abs(d) < T.warn){ o.st = 'warn'; sfx.rumble(); }
   if (o.st === 'warn'){
-    if (d < 2.8) G.blockHigh = true;
-    if (d <= G.spd * T.fall + 0.05){ o.st = 'drop'; o.tm = 0; sfx.whoosh(); }
+    if (Math.abs(d) < 2.8) G.blockHigh = true;
+    // drop when he would be under it as it lands
+    const toward = Math.abs(G.v) > 0.2 && Math.sign(d) === Math.sign(G.v);
+    const arrive = toward ? Math.abs(d) / Math.abs(G.v) : 99;
+    if (arrive <= T.fall + 0.03 || Math.abs(d) < 0.5){ o.st = 'drop'; o.tm = 0; sfx.whoosh(); }
   } else if (o.st === 'drop'){
-    o.tm += dt; G.blockHigh = true;
+    o.tm += dt; if (Math.abs(d) < 2.5) G.blockHigh = true;
     if (o.tm >= T.fall){
       o.st = 'done'; o.done = true;
-      const under = Math.abs(G.s - o.s) < T.hitRange;
-      if (under && G.block > 0){
-        const parry = ST.time - G.lastBlock <= TUNE.player.parryWindow;
+      const under = Math.abs(G.s - o.s) < T.hitRange && G.y < o.top + 3.2;
+      if (under && isRollInvulnerable(G)){ float('Rolled', head(), '#c9f5d9'); o.rubble.visible = true; sfx.slam(); }
+      else if (under && isBlocking(G)){
         burst(head(1.6), 26, o.color, 4.5, 9, 0.12); ST.shake = Math.max(ST.shake, 0.25); hitstop(0.06);
-        if (parry){ G.gold += GOLD.rockfallParry; float('Shattered +' + GOLD.rockfallParry, head(), '#e8b04a'); sfx.parry(); }
+        if (isParry(G)){ G.gold += GOLD.rockfallParry; float('Shattered +' + GOLD.rockfallParry, head(), '#e8b04a'); sfx.parry(); }
         else { float('Blocked', head(), '#c9d2e0'); sfx.block(); }
       } else if (under){
-        hurt(1, 'Crushed'); o.rubble.visible = true;
+        hurt(1, 'Crushed', o.s); o.rubble.visible = true;
       } else {
         sfx.slam(); ST.shake = Math.max(ST.shake, 0.15); o.rubble.visible = true;
         burst(vArc(o.a, R, o.top + 0.3), 18, o.color, 3, 9, 0.1);
@@ -79,5 +83,5 @@ export function draw(o){
 export function hud(o, d, { drawIcon, drawTiming }){
   if (o.done) return;
   if (o.st === 'drop') drawTiming('B', o.tm, T.fall);
-  else if (d > 0 && d <= TUNE.climb.iconRange) drawIcon(vArc(o.a, R - 0.4, o.top + 2.8), 'B', '#9fd0ff');
+  else if (Math.abs(d) <= TUNE.climb.iconRange && o.st !== 'idle') drawIcon(vArc(o.a, R - 0.4, o.top + 2.8), 'B', '#9fd0ff');
 }

@@ -11,6 +11,7 @@ import { float, setToast } from '../fx/feedback.js';
 import { posOf, topAt, meters } from '../world/path.js';
 import { removeBoss } from '../wardens/warden.js';
 import { playerWorld } from '../entities/player/player.js';
+import { consume } from '../core/input.js';
 const THREE = window.THREE;
 const FT = TUNE.fall;
 
@@ -43,7 +44,8 @@ export function grab(){
   for (const L of FALL.ledges){
     if (FALL.tried.has(L.id)) continue;
     if (Math.abs(FALL.y - L.y) < FT.grabWindow){
-      G.s = L.s; G.prevS = L.s; G.hp = Math.max(1, Math.ceil(G.maxHp * TUNE.player.rootHpFraction)); G.inv = 1.2; G.jump = 0; G.duck = 0;
+      G.s = L.s; G.prevS = L.s; G.hp = Math.max(1, Math.ceil(G.maxHp * TUNE.player.rootHpFraction)); G.inv = 1.2;
+      G.y = posOf(L.s).y; G.vy = 0; G.v = 0; G.grounded = true; G.safeS = L.s; G.roll = 0; G.atk = null; G.hurtT = 0;
       G.thudId = null; ST.mode = 'climb'; ST.slowmo = 1;
       const lost = meters(FALL.y0) - meters(L.y);
       ST.FALL = null; sfx.block(); ST.shake = 0.3;
@@ -56,6 +58,8 @@ export function grab(){
 }
 export function updFall(dt){
   const G = ST.G, FALL = ST.FALL;
+  G.grabCd = Math.max(0, G.grabCd - dt);
+  if (consume('jump')) grab();
   let near = false;
   for (const L of FALL.ledges){
     if (FALL.tried.has(L.id)) continue;

@@ -1,7 +1,7 @@
-// Burrower: something under the stair. A mound of rubble ploughs down the steps toward you, spitting dust; where it
-// stops a ring of teeth breaks the surface, and the jaws snap shut as you cross. Answer: ▲ jump.
-// The mound's position follows yours, so it always arrives as you do, however fast you are climbing.
-// States: idle -> travel -> rise -> snap -> gone
+// Burrower: something under the stair. A ring of glowing cracks marks a step; a mound with a fin of bone ploughs toward
+// it and a ring of teeth breaks the surface there. The jaws wait open on the step and snap at anything that stands in
+// them. Answer: ▲ jump over it, or strike its head with A while it is up.
+// States: idle -> travel -> rise -> up <-> snap; sink -> gone
 import { R, OMEGA } from '../../config/constants.js';
 import { TUNE } from '../../config/tuning.js';
 import { ST } from '../../core/state.js';
@@ -13,11 +13,13 @@ import { flatMat, spike, blob, joint, outline, outlineMat } from '../../render/c
 import { burst } from '../../render/particles.js';
 import { float } from '../../fx/feedback.js';
 import { topAt } from '../../world/path.js';
-import { hurt, head } from '../player/player.js';
+import { hurt, head, isInvulnerable } from '../player/player.js';
+import { GOLD } from '../../config/economy.js';
+import { hitstop } from '../../fx/feedback.js';
 const THREE = window.THREE;
 const T = TUNE.burrower;
 
-export const hint = 'A burrower is ploughing toward you under the stair. Tap ▲ to jump its jaws.';
+export const hint = 'A burrower. Jump its jaws with ▲, or strike its head with A while it is up.';
 
 export function build(o, { z, glow, dyn }){
   const r = rng(o.k * 401 + 9), top = topAt(o.s);
@@ -53,40 +55,56 @@ export function build(o, { z, glow, dyn }){
 }
 export function update(o, dt){
   const G = ST.G, d = o.s - G.s;
-  if (o.st === 'idle' && d < T.wake){ o.st = 'travel'; sfx.rumble(); }
-  if (o.st === 'travel'){
-    o.sm = o.s + T.lead * clamp((d - T.jaws) / (T.wake - T.jaws), 0, 1);
-    if (d <= T.jaws){ o.st = 'rise'; o.tm = 0; sfx.crack(); burst(vArc(o.s * OMEGA, R, o.top + 0.2), 18, o.dustC, 3.5, 9, 0.1); }
+  const go = st => { o.st = st; o.tm = 0; };
+  o.tm += dt;
+  switch (o.st){
+    case 'idle':
+      if (Math.abs(d) < T.wake){ o.side = Math.sign(d) || 1; o.sm = o.s + o.side * T.lead; o.hp = T.hp; go('travel'); sfx.rumble(); }
+      break;
+    case 'travel':
+      o.sm -= o.side * T.plough * dt;
+      if ((o.sm - o.s) * o.side <= 0){ o.sm = o.s; go('rise'); sfx.crack(); burst(vArc(o.s * OMEGA, R, o.top + 0.2), 18, o.dustC, 3.5, 9, 0.1); }
+      break;
+    case 'rise': if (o.tm >= T.rise) go('up'); break;
+    case 'snap': if (o.tm >= T.snapShut) go('up'); break;
+    case 'sink': if (o.tm > 0.7) go('gone'); break;
   }
-  if (o.st === 'rise') o.tm += dt;
-  if ((o.st === 'rise' || o.st === 'travel') && G.prevS < o.s && G.s >= o.s){
-    o.st = 'snap'; o.tm = 0; o.done = true; sfx.snap();
-    if (G.jump <= 0) hurt(1, 'Snapped'); else float('Leapt', head(), '#c9f5d9');
-  }
-  if (o.st === 'snap'){ o.tm += dt; if (o.tm > T.linger) o.st = 'gone'; }
+  if (o.st === 'up' && G.grounded && Math.abs(G.s - o.s) < 0.45 && !isInvulnerable(G)){ go('snap'); sfx.snap(); hurt(1, 'Snapped', o.s); }
+  else if ((o.st === 'up' || o.st === 'rise') && !G.grounded && Math.abs(G.s - o.s) < 0.5 && !o.leapt){ o.leapt = true; float('Leapt', head(), '#c9f5d9'); }
+  // once he is well past it, it sinks back
+  if ((o.st === 'up' || o.st === 'snap') && (G.s - o.s) * o.side > 2.6){ go('sink'); o.done = true; }
+}
+export const hittable = o => o.st === 'up' || o.st === 'snap' || o.st === 'rise';
+export function hit(o, dmg){
+  const G = ST.G;
+  o.hp -= dmg; o.flash = 0.12; sfx.hit(); hitstop(TUNE.feel.hitstopHit);
+  burst(vArc(o.s * OMEGA, R, o.top + 0.8), 12, '#ffd9a8', 3.5);
+  if (o.hp <= 0){ o.st = 'sink'; o.tm = 0; o.done = true; o.killed = true; G.gold += GOLD.burrower; float('+' + GOLD.burrower, head(), '#e8b04a'); sfx.gold(); hitstop(TUNE.feel.hitstopKill); }
 }
 export function draw(o){
   const t = ST.time;
   o.mound.visible = o.st === 'travel';
-  o.markMat.opacity = o.st === 'travel' ? 0.45 + 0.4 * Math.sin(t * 14) : o.st === 'rise' ? 0.9 : 0;
-  // the furrow: from where it surfaced down to the mound
-  const span = o.sm != null ? o.s + T.lead - o.sm : 0;
-  o.furrowMat.opacity = o.st === 'travel' ? 0.55 : o.st === 'rise' || o.st === 'snap' ? Math.max(0, o.furrowMat.opacity - 0.02) : 0;
-  o.furrow.forEach((m, j) => { const s = o.sm + (j + 0.5) / o.furrow.length * span; m.visible = span > 0.1 && o.furrowMat.opacity > 0; if (m.visible){ m.position.copy(vArc(s * OMEGA, R, topAt(s) + 0.02)); m.rotation.z = -s * OMEGA; } });
+  o.markMat.opacity = o.st === 'travel' ? 0.45 + 0.4 * Math.sin(t * 14) : o.st === 'rise' || o.st === 'up' ? 0.75 : 0;
+  // the furrow: from where it surfaced to the mound
+  const start = o.side ? o.s + o.side * T.lead : 0, span = o.st === 'travel' ? Math.abs(start - o.sm) : 0;
+  o.furrowMat.opacity = o.st === 'travel' ? 0.55 : Math.max(0, o.furrowMat.opacity - 0.02);
+  o.furrow.forEach((m, j) => { const s = o.sm + o.side * (j + 0.5) / o.furrow.length * span; m.visible = span > 0.1; if (m.visible){ m.position.copy(vArc(s * OMEGA, R, topAt(s) + 0.02)); m.rotation.z = -s * OMEGA; } });
   if (o.st === 'travel'){
     const a = o.sm * OMEGA;
-    placeArc(o.mound, a, R, topAt(o.sm) + Math.abs(Math.sin(t * 22)) * 0.06, true);
+    placeArc(o.mound, a, R, topAt(o.sm) + Math.abs(Math.sin(t * 22)) * 0.06, o.side > 0);
     if (Math.random() < 0.45) burst(vArc(a, R + (Math.random() - 0.5) * 1.4, topAt(o.sm) + 0.25), 1, o.dustC, 1.6, 7, 0.09);
   }
-  o.jaws.visible = o.st === 'rise' || o.st === 'snap';
+  o.jaws.visible = o.st === 'rise' || o.st === 'up' || o.st === 'snap' || o.st === 'sink';
   if (!o.jaws.visible) return;
-  // rises with the teeth splayed; snaps them shut and lunges; then sinks back
-  let up = 0, open = 0;
-  if (o.st === 'rise'){ up = clamp(o.tm / 0.25, 0, 1) * 0.75; open = 1; }
-  else { const q = o.tm / T.linger; up = o.tm < 0.12 ? 0.75 + o.tm * 4 : Math.max(-0.9, 1.2 - (q - 0.17) * 3.2); open = Math.max(0, 1 - o.tm * 9); }
+  // rises with the teeth splayed, waits breathing, snaps shut and lunges, sinks when dead or left behind
+  let up = 0, open = 1;
+  if (o.st === 'rise') up = clamp(o.tm / T.rise, 0, 1) * 0.75;
+  else if (o.st === 'up'){ up = 0.75 + Math.sin(t * 4) * 0.04; open = 0.85 + Math.sin(t * 6) * 0.15; }
+  else if (o.st === 'snap'){ const q = o.tm / T.snapShut; up = 0.75 + Math.sin(Math.PI * q) * 0.45; open = q < 0.25 ? 0 : (q - 0.25) / 0.75; }
+  else { up = 0.75 - clamp(o.tm / 0.6, 0, 1) * 1.7; open = 0.3; }
   o.rise.position.y = -0.9 + up;
   for (const th of o.teeth){ const tilt = 0.15 + 0.55 * open; th.tj.rotation.set(Math.sin(th.ang) * tilt, 0, -Math.cos(th.ang) * tilt); }
 }
 export function hud(o, d, { drawIcon }){
-  if (!o.done && (o.st === 'travel' || o.st === 'rise') && d > 0 && d <= TUNE.climb.iconRange) drawIcon(vArc(o.s * OMEGA, R - 0.4, o.top + 0.9), '▲', '#e8b04a');
+  if ((o.st === 'travel' || o.st === 'rise' || o.st === 'up') && Math.abs(d) <= TUNE.climb.iconRange) drawIcon(vArc(o.s * OMEGA, R - 0.4, o.top + 1.2), '▲', '#e8b04a');
 }

@@ -1,5 +1,24 @@
 // Every feel number in one place. Times in seconds, distances in step units unless noted.
 export const TUNE = {
+  // Free movement along the stair, tuned for a Dead Cells-tight feel. Distances in world units (one per step along the path).
+  move: {
+    run: 3.8,             // top speed
+    accel: 60,            // reaches top speed in about 0.06 s
+    decel: 75,            // stops in about 0.05 s
+    airAccel: 38,         // full air control, a touch softer
+    crouchMul: 0.45, blockMul: 0.35,
+    jumpHeight: 1.55,
+    gravityUp: 32, gravityDown: 54, maxFall: 18,
+    apexBand: 1.6, apexMul: 0.55,   // holding jump near the top of the arc hangs a moment
+    cutMul: 0.42,          // letting go of jump while rising cuts the jump short
+    minHop: 0.1,           // ...but never before this, so the quickest tap still clears a broken step
+    coyote: 0.1,           // jump still works this long after the ground goes
+    buffer: 0.13,          // a jump pressed this long before landing still happens
+    holeEdge: 0.2,         // you can stand this far over the lip of a broken step
+    roll: { time: 0.4, speed: 6.2, iframeFrom: 0.03, iframeTo: 0.32, cooldown: 0.37 },
+    knock: 3.2, knockUp: 3.5, hurtStun: 0.22,
+    bonkSpeed: 2.6,        // running into a beam faster than this hurts
+  },
   player: {
     hp: 5, flask: 3, flaskHeal: 2,
     jump: 0.5,        // airborne time
@@ -23,19 +42,19 @@ export const TUNE = {
     iconRange: 3.8,
   },
   crawler: {
-    wake: 4.8, emerge: 3.2, emergeMax: 1.2, approach: 0.45,
-    rear: 1.7, lunge: 0.5, stun: 0.7, engageRange: 2.4,
+    wake: 4.8, emerge: 3.2, emergeMax: 1.2, chase: 1.5,
+    reach: 1.5, windup: 0.5, lunge: 0.14, lungeDist: 1.1, recover: 0.6, stun: 0.8, parryStun: 1.3, hitStun: 0.35,
     hpFromZone: 2, // crawlers have 2 hp from this zone index on
   },
   spitter: {
-    range: 3.7, charge: 0.6, flight: 0.62, reflect: 0.28,
+    range: 4.4, charge: 0.6, speed: 8, life: 1.4, cooldown: 1.9, reflect: 0.28,
   },
-  gap: { crumble: 2.4 },                     // the step starts to fall away this many steps ahead
+  gap: { crumble: 1.4 },                     // the step starts to fall away when you come this near                     // the step starts to fall away this many steps ahead
   beam: { creak: 3.2 },
   rockfall: { warn: 4.6, fall: 0.55, height: 9, hitRange: 0.7 },
-  swing: { length: 4.2, angle: 1.15, period: 2.8 },   // released so the weight reaches the bottom as you arrive
-  burrower: { wake: 5.4, lead: 4, jaws: 0.45, linger: 0.7 },
-  flitter: { wake: 4.4, launch: 0.28, dive: 1.0, swat: 0.34 },
+  swing: { length: 2.8, angle: 1.15, settle: 0.5, period: 2.6 },   // a short chain: on a rising stair the arc's uphill side must clear a crouch
+  burrower: { wake: 5.4, lead: 4, plough: 4.5, rise: 0.25, snapShut: 0.5, hp: 2 },
+  flitter: { wake: 4.4, launch: 0.28, dive: 1.0, commit: 0.35, swat: 0.34, leave: 0.8, circle: 1.1 },
   warden: {
     hp: z => 12 + 5 * z,
     lead: 3.2,          // how far up the stair (step units) it strikes ahead of you

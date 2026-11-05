@@ -4,6 +4,7 @@ export const ST = {
   mode: 'title',      // title | menu | climb | boss | fall | pool
   time: 0,
   slowmo: 1,
+  timeScale: 1,       // debug only: tools slow the whole game to catch a pose
   hitstop: 0,
   G: null,
   B: null,

@@ -7,7 +7,7 @@ Nov 4, 2026 · Mark
 Climb from the lowest depth of a forgotten mine shaft to the highest point of the highest mountain peak. That journey, and the wonder of how far it is, is the whole game.
 
 - **The scale is the point.** You start somewhere so deep no one remembers it, and you end in open sky at the summit. Every meter between is earned.
-- **Simple to play, deep to express.** The controls stay simple enough to learn in a minute: climb, jump, duck, strike, block. The variation is what grows: new zones, enemies, hazards, modes, Wardens and combinations that keep reshaping those same few actions over a long journey.
+- **Simple to play, deep to express.** The controls stay simple enough to learn in a minute: move, jump, crouch, strike, block, roll. The variation is what grows: new zones, enemies, hazards, modes, Wardens and combinations that keep reshaping those same few actions over a long journey.
 - **An extensive journey.** The climb should feel long and epic, with each zone a distinct part of the mountain's insides, from flooded halls to forges to the final stair into daylight.
 
 ## Pitch
@@ -34,14 +34,15 @@ Seven rules every feature should serve.
 4. **Heavy, emotive steps.** Every step lands like a beat, with weight, dust and sound. You should see the warrior take every single step.
 5. **Read the tell, punish the opening.** Every attack is telegraphed clearly enough to read on a phone.
 6. **A living shaft.** Layers in front of and behind the stair, with things happening in the background.
-7. **One thumb each side.** Four core buttons, portrait-first, built for mobile.
+7. **One thumb each side.** A stick and four buttons, portrait-first, built for mobile.
+8. **Tight, never the challenge.** Movement is instant and forgiving, like Dead Cells; the difficulty lives in the threats.
 
 ## Core loop
 
 Climb, fall, wake in the Pool, climb again. Each climb starts a little easier than the last.
 
 1. **Wake in the Pool** at the bottom of the shaft. Your flask is full. Pick a weapon off the floor, then start from the bottom or ride a lift you repaired.
-2. **Climb.** The warrior climbs on his own. You jump, duck, attack, block and drink.
+2. **Climb.** You move him up the stair yourself, and jump, crouch, roll, attack, block and drink.
 3. **Make progress.** Collect gold, repair lifts, stop at rest stops, and fight the zone's Warden.
 4. **Fall.** At zero health you plunge down the open center of the shaft. Grab a root to save some of the height.
 5. **Land in the Pool.** Half your carried gold scatters on the way down. Loop back to step 1.
@@ -71,26 +72,24 @@ Failing should still feel like a fight. You fall down the open center of the sha
 
 ## Controls and mobile
 
-The controls are Dead Cells-simple: ▲ and ▼ for movement and interaction, A and B for combat, with cooldown abilities added later.
+You move the warrior yourself, with Dead Cells-tight movement. The full table, the feel techniques and their values are in `docs/design/controls.md`.
 
 | Input | Action | Status |
 | --- | --- | --- |
-| ▲ | Jump; repair a lift on its landing; grab a root while falling | Built |
-| ▼ | Duck under beams and sweeps | Built |
-| A | Attack; only damages a Warden while it kneels | Built |
-| B | Block; tapping it in the last 0.2 s before a hit lands is a parry | Built |
+| Stick ◀ ▶ | Move along the stair; right climbs | Built |
+| Stick ▼ | Crouch; crouch-walk with ◀ ▶ | Built |
+| ▲ | Jump, held for height; repair a lift standing on its landing; grab a root while falling | Built |
+| A | Attack; press again for the weapon's combo | Built |
+| B | Hold to block; raising it as a hit lands is a parry | Built |
+| ⟳ | Roll: invulnerable, under beams and swings, cancels a swing's recovery | Built |
 | Flask | Heal 2 health | Built |
-| Ability slots | Cooldown abilities that unlock later, stacked above A and B | Proposed |
+| Ability slots | Cooldown abilities that unlock later | Proposed |
 
-**Layout:** the left thumb has ▲ over ▼, the right thumb has B and A set like a controller, and the flask sits between them. Portrait-first, tested on a phone. A keyboard map exists for desktop testing: W or ↑ or Space, S or ↓, J or Z, K or X, F or Q.
+**Layout:** the left thumb has a stick, the right thumb has Block and Roll over Attack and Jump, and the flask sits between them. Portrait-first. A keyboard map exists for desktop: A/D or arrows, Space to jump, J attack, K block, L roll, F flask.
 
-**Movement:** the warrior auto-climbs, runner-style, and stops in boss arenas. Free left-right movement like Dead Cells was raised and set aside, then raised again (see Open questions): the current thinking is that the stair could branch, with the player choosing left or right and jumping between platforms, and that Warden fights might happen while walking rather than standing still.
+**Movement:** free, along the stair, Dead Cells-tight (decision 0007). The auto-climb is gone. Branching stairs with left and right routes stay a proposal.
 
-**Dodge is unsolved.** Jump and duck currently act as the dodges. Three options were proposed:
-
-- Down plus B to roll.
-- Double-tap a direction to dash.
-- A B hybrid: a well-timed press parries and a late press rolls. This one keeps it to four buttons, which matters most on mobile.
+**Dodge:** solved with a dedicated Roll button, as in Dead Cells: 0.4 s, invulnerable for most of it, 0.37 s cooldown.
 
 ## Combat, enemies and hazards
 
@@ -320,7 +319,7 @@ Every idea raised so far, who raised it, and where it stands.
 | Different parts of the mine along the path | Mark | Built as 7 zones, tinted; unique content proposed |
 | Roguelike upgrades that improve the further you have played | Mark | Proposed |
 | Layers of difficulty and challenge as you go up | Mark | Built |
-| On-rails climbing: jump and slash at set moments | Mark | Built |
+| On-rails climbing: jump and slash at set moments | Mark | Replaced by free movement |
 | Chunky 3D, in the style of Bit.Trip Runner | Mark | Built |
 | Dead Cells-simple controls: up and down to interact, jump, duck; A and B to attack and block | Mark | Built |
 | Abilities with cooldowns that show up later | Mark | Proposed |
@@ -352,7 +351,8 @@ Every idea raised so far, who raised it, and where it stands.
 | The Pool is why the deep things live at the bottom | Claude | Proposed |
 | Flask upgrades as meta-progression | Claude | Proposed |
 | Ghost of your best run climbing beside you | Claude | Proposed |
-| Dodge options: Down plus B, a double-tap dash, or a B hybrid | Claude | Open |
+| Dodge options: Down plus B, a double-tap dash, or a B hybrid | Claude | Settled: a Roll button |
+| Move him yourself, tight and snappy like Dead Cells | Mark | Built: free movement, roll, combos, a stick and four buttons |
 | Warden glimpsed in the background before you meet it | Claude | Built |
 | Warden phases that change the arena | Claude | Proposed |
 | Something in the background later drops into your lane | Claude | Built for the Wardens; smaller things proposed |
@@ -377,9 +377,9 @@ The core is proven. What's left is variety, unique Wardens, progression and paci
 
 ### Open questions
 
-- [ ] Which dodge input: Down plus B, a double-tap dash, or the B parry-and-roll hybrid?
+- [x] Which dodge input? A Roll button (decision 0007).
 - [ ] Should the stair branch, with left-right choice and jumps between platforms? If so, does the auto-climb stay, or does the player steer?
-- [ ] Now that Warden fights happen on the move, should the stair allow free left-right movement at all?
+- [x] Should the warrior move freely? Yes (decision 0007).
 - [ ] Can players throw gear down the shaft, or only gold?
 - [ ] What is the final title, and what replaces the placeholder "The Long Stair"?
 - [ ] Who is the warrior, why is he at the bottom, and what waits at the Peak?

@@ -56,19 +56,36 @@ for (const [z, off, tag] of [[0, 0.45, 'z1'], [2, -0.45, 'z3'], [0, 2.6, 'z1-bac
 }
 await page.evaluate(() => { window.__studioOff(); document.getElementById('overlay').classList.add('show'); });
 
-// ---- the warrior, close
-await page.evaluate(() => { window.__climb.TUNE.climb.baseSpeed = 0.0001; window.__go(3.3); });
-await cam(3.6, 1.9, 1.15, 0.12);
-await page.waitForTimeout(900); await shot('warrior-climb');
-await page.evaluate(() => window.__climb.press('a')); await page.waitForTimeout(110); await shot('warrior-attack');
-await page.waitForTimeout(400);
-await page.evaluate(() => window.__climb.press('b')); await page.waitForTimeout(120); await shot('warrior-block');
+// ---- the warrior, close: every move, caught mid-motion
+const I = (k, v) => page.evaluate(([k, v]) => window.__climb.input.hold(k, v), [k, v]);
+const T = k => page.evaluate(k => window.__climb.input.tap(k), k);
+let poseN = 0;
+const until = (fn, ms = 4000) => { const n = ++poseN; return page.waitForFunction(fn, null, { timeout: ms, polling: 8 }).catch(async () => console.log('missed pose ' + n, await page.evaluate(() => { const G = window.__climb.ST.G; return JSON.stringify({ atk: G.atk, roll: G.roll, vy: G.vy, g: G.grounded, mode: window.__climb.ST.mode }); }))); };
+await page.evaluate(() => { window.__go(2.3); window.__climb.ST.G.maxHp = 99; window.__climb.ST.G.hp = 99; });
+await cam(3.4, 1.9, 1.15, 0.12);
+await page.waitForTimeout(900); await shot('move-idle');
+await I('right', true); await page.waitForTimeout(260); await shot('move-run');
+await I('jump', true); await until(() => window.__climb.ST.G.vy > 4); await shot('move-jump'); await I('jump', false);
+await until(() => window.__climb.ST.G.grounded); await I('right', false); await page.waitForTimeout(250);
+await page.evaluate(() => { window.__climb.ST.timeScale = 0.2; });
+await T('roll'); await until(() => window.__climb.ST.G.roll > 0 && window.__climb.ST.G.roll < 0.24); await shot('move-roll');
+await page.evaluate(() => { window.__climb.ST.timeScale = 1; });
+await page.waitForTimeout(700);
+await I('down', true); await I('right', true); await page.waitForTimeout(300); await shot('move-crouch'); await I('right', false); await I('down', false);
+await page.waitForTimeout(300);
+// time stands still while each pose is photographed, then runs on slowly to the next one
+const frozen = async name => { await page.evaluate(() => { window.__climb.ST.timeScale = 0; }); await shot(name); await page.evaluate(() => { window.__climb.ST.timeScale = 0.15; }); };
+await page.evaluate(() => { window.__climb.ST.timeScale = 0.15; });
+await T('attack'); await until(() => { const A = window.__climb.ST.G.atk; return A && A.phase === 'wind' && A.t > 0.03; }); await frozen('atk-1-wind');
+await until(() => { const A = window.__climb.ST.G.atk; return A && A.phase === 'active' && A.t > 0.03; }); await frozen('atk-1-strike');
+await T('attack'); await until(() => { const A = window.__climb.ST.G.atk; return A && A.i === 1 && A.phase === 'active' && A.t > 0.03; }); await frozen('atk-2-strike');
+await T('attack'); await until(() => { const A = window.__climb.ST.G.atk; return A && A.i === 2 && A.phase === 'wind' && A.t > 0.07; }); await frozen('atk-3-wind');
+await until(() => { const A = window.__climb.ST.G.atk; return A && A.i === 2 && A.phase === 'active' && A.t > 0.04; }); await frozen('atk-3-strike');
+await page.evaluate(() => { window.__climb.ST.timeScale = 1; });
 await page.waitForTimeout(500);
-await page.evaluate(() => window.__climb.press('down')); await page.waitForTimeout(150); await shot('warrior-duck');
-await page.waitForTimeout(600);
-await page.evaluate(() => { window.__climb.TUNE.climb.baseSpeed = 2.25; });
-await cam(-2.3, 2.9, 1.3, 0.17);
-await page.waitForTimeout(700); await shot('warrior-gameplay');
+await I('block', true); await page.waitForTimeout(200); await shot('move-block'); await I('block', false);
+await cam(-3.4, 3.2, 1.45, 0.17);
+await I('right', true); await page.waitForTimeout(900); await shot('move-gameplay'); await I('right', false);
 
 // ---- the threat catalog: each threat at its tell, at gameplay distance and close up
 await page.addScriptTag({ type: 'module', content: `
@@ -76,7 +93,7 @@ await page.addScriptTag({ type: 'module', content: `
   import { ST } from '/src/core/state.js';
   import { startClimb } from '/src/modes/climb.js';
   import { hideMenu } from '/src/ui/overlay.js';
-  window.__practice = id => { hideMenu(); ST.practice = id; startClimb(0); ST.G.maxHp = 99; ST.G.hp = 99; };
+  window.__practice = id => { hideMenu(); ST.practice = id; startClimb(0); ST.G.maxHp = 99; ST.G.hp = 99; window.__climb.input.hold('right', true); };
   window.__firstOf = id => { const cs = [...content.values()].sort((a, b) => a.k - b.k); for (const c of cs) for (const o of c.obs) if (o.type === id && !o.done && o.st !== 'gone') return o; return null; };
   window.__ready3 = true;` });
 await page.waitForFunction(() => window.__ready3);
@@ -91,7 +108,7 @@ const TELL = {
   flitter:  "o.st === 'dive' && o.tm > 0.5",
 };
 for (const [tag, cam] of [['play', [-3.4, 3.2, 1.45, 0.17]], ['close', [2.4, 2.1, 1.35, 0.22]]]){
-  await page.evaluate(c => { const t = window.__climb.TUNE.camera.climb; [t.back, t.up, t.look, t.lead] = c; window.__climb.ST.cam.r = c[0]; window.__climb.TUNE.climb.baseSpeed = 2.25; }, cam);
+  await page.evaluate(c => { const t = window.__climb.TUNE.camera.climb; [t.back, t.up, t.look, t.lead] = c; window.__climb.ST.cam.r = c[0]; }, cam);
   for (const [id, pred] of Object.entries(TELL)){
     await page.evaluate(id => window.__practice(id), id);
     const ok = await page.waitForFunction(new Function(`const G = window.__climb.ST.G, o = window.__firstOf('${id}'); return !!o && (${pred});`), null, { timeout: 30000, polling: 16 }).then(() => true, () => false);

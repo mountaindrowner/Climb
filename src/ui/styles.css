@@ -40,9 +40,20 @@ body{
 .btn.on{transform:translateY(4px);box-shadow:inset 0 3px 0 var(--btnTop),0 1px 0 var(--btnShadow);background:#2d2839}
 .btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .dir{flex:1;font-size:26px;line-height:1}
+/* the thumb stick: left and right of centre move, below it crouches */
+.stick{flex:1;position:relative;border-radius:18px;background:radial-gradient(circle at 50% 45%, var(--btnTop), var(--btn) 70%);box-shadow:inset 0 3px 0 var(--btnTop),0 5px 0 var(--btnShadow);touch-action:none;cursor:pointer}
+.stick .arrow{position:absolute;color:var(--dim);font-size:22px;line-height:1;pointer-events:none;transition:color .05s}
+.stick .l{left:12%;top:42%;transform:translateY(-50%)}
+.stick .r{right:12%;top:42%;transform:translateY(-50%)}
+.stick .d{left:50%;bottom:10%;transform:translateX(-50%);font-size:18px}
+.stick[data-dir^="l"] .l,.stick[data-dir^="r"] .r,.stick[data-dir$="d"] .d{color:var(--ink)}
+.stick .knob{position:absolute;left:50%;top:45%;width:30%;aspect-ratio:1/1;margin:-15% 0 0 -15%;border-radius:50%;background:var(--panel2);border:2px solid var(--edge);box-shadow:0 3px 0 var(--btnShadow);pointer-events:none;transition:transform .04s}
 .round{border-radius:50%;font-size:28px;font-weight:700;aspect-ratio:1/1;max-height:100%;margin:auto;width:100%}
 .b{grid-column:1;grid-row:1;color:#9fd0ff}
-.a{grid-column:2;grid-row:2;color:#ffb38a}
+.roll{grid-column:2;grid-row:1;color:#c9b8ff}
+.a{grid-column:1;grid-row:2;color:#ffb38a}
+.jump{grid-column:2;grid-row:2;color:var(--ink)}
+.round{font-size:24px}
 .flask{width:58px;height:78px;font-size:13px;color:var(--pool)}
 .flask .pips{font-size:16px;color:var(--pool);margin-top:4px;letter-spacing:1px}
 

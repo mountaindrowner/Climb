@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.11.0 — you move him (2026-11-06)
+
+- Free movement along the stair, Dead Cells-tight: instant acceleration and turning, full air control, variable jump height with heavier fall gravity and a minimum hop, coyote time, a jump buffer, a step-up assist, crouch-walking.
+- New verbs: an invulnerable Roll (0.4 s, 0.37 s cooldown) that cancels attacks; a held shield with a parry window; weapon combos with wind-up, active frames and recovery, lunges, buffering and recovery cancels; knockback and a flinch when hit.
+- A stick and four buttons on the phone (Block and Roll over Attack and Jump); keyboard A/D, Space, S, J, K, L, F.
+- New animation: a running stride, tucked jump and fall, crouch-walk, a full roll, three swing poses per weapon with an overshooting strike and a smear arc, a flinch, landing squash, cape trailing the motion.
+- Camera leads the way he faces and follows the stair rather than every hop.
+- Threats reworked for a player who can stop: broken steps leave real holes; beams are low ceilings; rockfall and the swinging weight trigger as you would arrive; the swinging weight keeps swinging; crawlers chase, commit and recover; spitters fire straight and keep firing; burrowers wait with open jaws and can be killed; flitters commit, circle and dive again.
+- The test bot plays through the real controls. Tests for the movement tuning.
+
 ## 0.10.0 — the threat catalog (2026-11-06)
 
 - Fixed: after catching a root (or waking in the Pool) the warrior kept the fall's spin and came back tumbled or upside down.

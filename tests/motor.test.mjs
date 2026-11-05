@@ -1,0 +1,26 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { TUNE } from '../src/config/tuning.js';
+import { FL, RISE } from '../src/config/constants.js';
+const MV = TUNE.move;
+
+test('a full jump clears a broken step going uphill', () => {
+  // time in the air from a full jump, falling back to a stair that has risen under it
+  const v0 = Math.sqrt(2 * MV.gravityUp * MV.jumpHeight), up = v0 / MV.gravityUp;
+  const fall = Math.sqrt(2 * (MV.jumpHeight - RISE * 2) / MV.gravityDown);
+  // the hole is 0.6 wide (a step less its standable lips); taking off from one lip and landing past the other needs ~1.2
+  assert.ok(MV.run * (up + fall) > 1.4, `covers ${(MV.run * (up + fall)).toFixed(2)} units`);
+});
+test('the quickest tap still hops high enough to clear a set of jaws', () => {
+  const v0 = Math.sqrt(2 * MV.gravityUp * MV.jumpHeight);
+  const h = v0 * MV.minHop - 0.5 * MV.gravityUp * MV.minHop * MV.minHop;
+  assert.ok(h > 0.7, `min hop rises ${h.toFixed(2)} before it can be cut`);
+});
+test('acceleration and stopping are near instant', () => {
+  assert.ok(MV.run / MV.accel < 0.08); assert.ok(MV.run / MV.decel < 0.08);
+});
+test('the roll is invulnerable for most of its length and has a cooldown', () => {
+  const R = MV.roll;
+  assert.ok(R.iframeTo - R.iframeFrom >= R.time * 0.6); assert.ok(R.cooldown > 0);
+  assert.ok(R.speed * R.time > 1.8, 'a roll carries under a beam');
+});

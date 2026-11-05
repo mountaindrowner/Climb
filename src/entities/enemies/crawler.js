@@ -1,6 +1,7 @@
-// Crawler: skitters out of a glowing crack in the wall, rears up with red eyes and open mandibles, then lunges.
-// Answer: A before it lunges, or B to block the lunge (stunning it) and then A.
-// States: idle -> crack -> out -> windup <-> stunned -> spent/dead
+// Crawler: skitters out of a glowing crack in the wall and chases you along the stair. In reach it rears with red eyes
+// and open mandibles, its aim locks, and it lunges. Then it is open for a moment before it goes again.
+// Answer: A (a hit during the wind-up staggers it), hold B to block the lunge (a parry stuns it longer), or roll through.
+// States: idle -> crack -> out -> chase -> windup -> lunge -> recover -> chase ...; stunned; dead
 import { R, RW, OMEGA } from '../../config/constants.js';
 import { TUNE } from '../../config/tuning.js';
 import { GOLD } from '../../config/economy.js';
@@ -12,11 +13,11 @@ import { flatMat, glowMat, segment, spike, blob, joint, outline, outlineMat } fr
 import { burst } from '../../render/particles.js';
 import { float, hitstop, shake } from '../../fx/feedback.js';
 import { posOf, topAt } from '../../world/path.js';
-import { hurt, head } from '../player/player.js';
+import { hurt, head, isBlocking, isParry, isInvulnerable } from '../player/player.js';
 const THREE = window.THREE;
 const T = TUNE.crawler;
 
-export const hint = 'A crawler. Tap A before it lunges. Late? Tap B to block it, then strike.';
+export const hint = 'A crawler. Strike it with A. Hold B to block its lunge, or roll through it, then strike while it recovers.';
 
 // +x faces the warrior, +y up, ±z its sides.
 function model(glow){
@@ -63,27 +64,46 @@ export function build(o, { glow, dyn }){
 export function update(o, dt){
   const G = ST.G, d = o.s - G.s;
   if (!o.alive){ o.dead += dt; return; }
-  if (o.st === 'idle' && d < T.wake){ o.st = 'crack'; o.tm = 0; sfx.crack(); }
-  if (o.st === 'crack'){ o.tm += dt; if (d < T.emerge || o.tm > T.emergeMax){ o.st = 'out'; o.tm = 0; burst(vArc(o.s * OMEGA, RW - 0.4, topAt(o.s) + 0.6), 18, '#6e6680', 3.5, 9, 0.11); } }
-  if (o.st === 'out'){ o.tm += dt; o.s -= T.approach * dt; if (o.s - G.s < T.rear){ o.st = 'windup'; o.tm = 0; sfx.spit(); } }
-  else if (o.st === 'windup'){
-    o.tm += dt; if (d < T.engageRange) G.engaged = true;
-    if (o.tm >= T.lunge){
-      o.s -= 0.35; sfx.hit();
-      if (G.block > 0){ o.st = 'stunned'; o.tm = 0; o.s += 0.9; sfx.block(); float('Blocked', head(), '#c9d2e0'); hitstop(0.06); burst(head(1.2), 8, '#c9d2e0', 2); }
-      else { o.st = 'spent'; hurt(1, 'Bitten'); if (ST.mode !== 'climb') return; o.alive = false; o.dead = 0; o.done = true; }
+  o.face = o.face || -1;
+  const go = st => { o.st = st; o.tm = 0; };
+  o.tm += dt;
+  switch (o.st){
+    case 'idle': if (Math.abs(d) < T.wake){ go('crack'); sfx.crack(); } break;
+    case 'crack': if (Math.abs(d) < T.emerge || o.tm > T.emergeMax){ go('out'); burst(vArc(o.s * OMEGA, RW - 0.4, topAt(o.s) + 0.6), 18, '#6e6680', 3.5, 9, 0.11); } break;
+    case 'out': if (o.tm > 0.24) go('chase'); break;
+    case 'chase': {
+      const dir = Math.sign(G.s - o.s) || o.face; o.face = dir;
+      if (Math.abs(d) > 1.0) o.s += dir * T.chase * dt;
+      if (Math.abs(d) < T.reach){ go('windup'); sfx.spit(); }
+      break;
     }
+    case 'windup': if (o.tm >= T.windup){ go('lunge'); o.hitDone = false; sfx.hit(); } break;   // aim is locked: o.face no longer turns
+    case 'lunge':
+      o.s += o.face * (T.lungeDist / T.lunge) * dt;
+      if (!o.hitDone && Math.abs(G.s - o.s) < 0.6 && G.y < topAt(G.s) + 1.2){
+        o.hitDone = true;
+        if (isBlocking(G) && G.face === -o.face){
+          const parry = isParry(G);
+          go('stunned'); o.stun = parry ? T.parryStun : T.stun; o.s -= o.face * 0.5;
+          sfx[parry ? 'parry' : 'block'](); float(parry ? 'Parry!' : 'Blocked', head(), parry ? '#9fd0ff' : '#c9d2e0'); hitstop(parry ? 0.1 : 0.06); burst(head(1.2), 8, '#c9d2e0', 2);
+          return;
+        }
+        if (!isInvulnerable(G)) hurt(1, 'Bitten', o.s);
+      }
+      if (o.tm >= T.lunge) go('recover');
+      break;
+    case 'recover': if (o.tm >= T.recover) go('chase'); break;
+    case 'stunned': if (o.tm >= (o.stun || T.stun)) go('chase'); break;
   }
-  else if (o.st === 'stunned'){ o.tm += dt; if (d < T.engageRange) G.engaged = true; if (o.tm > T.stun){ o.st = 'windup'; o.tm = 0; } }
-  if (o.alive && o.s - G.s < 0.3){ o.alive = false; o.dead = 0; o.done = true; hurt(1, 'Bitten'); }
+  if (!o.done && Math.abs(d) > 9 && o.st !== 'idle') o.done = true;
 }
 
 export const hittable = o => o.alive && o.st !== 'idle' && o.st !== 'crack';
 export function hit(o, dmg){
   const G = ST.G;
   o.hp -= dmg; o.flash = 0.12; sfx.hit(); hitstop(TUNE.feel.hitstopHit); shake(0.12);
-  if (o.st === 'windup'){ o.st = 'stunned'; o.tm = 0; }
-  o.s += 0.25;
+  if (o.st === 'windup' || o.st === 'chase'){ o.st = 'stunned'; o.tm = 0; o.stun = T.hitStun; }
+  o.s += Math.sign(o.s - G.s || 1) * 0.35;
   const op = vArc(o.s * OMEGA, R, posOf(o.s).y + 0.5); burst(op, 12, '#ffd9a8', 3.5);
   if (o.hp <= 0){ o.alive = false; o.dead = 0; o.done = true; hitstop(TUNE.feel.hitstopKill); G.gold += GOLD.crawler; op.y += 0.6; float('+' + GOLD.crawler, op, '#e8b04a'); sfx.gold(); }
 }
@@ -97,18 +117,19 @@ export function draw(o){
   const pop = o.st === 'out' ? Math.min(1, o.tm / 0.22) : 1;
   const rad = o.alive ? (RW - 0.6) + (R + 0.35 - (RW - 0.6)) * pop : R + 0.35 - o.dead * 4;
   const y = posOf(o.s).y + (o.alive ? 0 : -o.dead * o.dead * 9);
-  placeArc(M.g, a, rad, y, true);
-  const wq = o.st === 'windup' ? Math.min(1, o.tm / 0.35) : 0, stun = o.st === 'stunned';
+  placeArc(M.g, a, rad, y, (o.face || -1) < 0);
+  const wq = o.st === 'windup' ? Math.min(1, o.tm / 0.35) : o.st === 'lunge' ? 1 : 0, stun = o.st === 'stunned' || o.st === 'recover';
   // body: rears for the lunge, sags when stunned, flips over when dead
   M.body.rotation.set(o.alive ? 0 : o.dead * 7, 0, o.alive ? wq * 0.6 - (stun ? 0.2 : 0) + (wq ? Math.sin(t * 40) * 0.03 : 0) : 0);
-  M.body.position.y = 0.34 + wq * 0.16 + (o.st === 'out' ? Math.abs(Math.sin(t * 16)) * 0.03 : 0) - (stun ? 0.06 : 0);
+  M.body.position.y = 0.34 + wq * 0.16 + (o.st === 'chase' ? Math.abs(Math.sin(t * 16)) * 0.03 : 0) - (stun ? 0.06 : 0);
+  M.body.position.x = o.st === 'lunge' ? 0.25 : 0;
   M.headJ.rotation.z = -wq * 0.35;
   for (const md of M.mand) md.j.rotation.y = md.side * (stun ? 0.05 : 0.15 + 0.75 * wq + (o.st === 'out' ? 0.15 * Math.sin(t * 12) : 0));
   // legs: a skittering tripod gait when moving, front pair raised for the lunge, splayed when stunned, curled when dead
   for (const L of M.legs){
     let swing = 0, lift = 0, bend = 1.62;
     if (!o.alive){ lift = -0.4; bend = 2.6; }
-    else if (o.st === 'out'){ const ph = t * 18 + L.phase; swing = Math.sin(ph) * 0.38; lift = Math.max(0, Math.cos(ph)) * 0.35; }
+    else if (o.st === 'out' || o.st === 'chase'){ const ph = t * 18 + L.phase; swing = Math.sin(ph) * 0.38; lift = Math.max(0, Math.cos(ph)) * 0.35; }
     else if (wq){ if (L.i === 0){ lift = 0.95 * wq; bend = 1.62 - 0.6 * wq; swing = -0.3 * wq; } else lift = -0.1 * wq; }
     else if (stun){ lift = -0.25; swing = L.side * 0.1; bend = 1.4; }
     L.swingJ.rotation.y = swing * L.side;
@@ -121,9 +142,8 @@ export function draw(o){
 }
 
 export function hud(o, d, { drawIcon }){
-  if (o.done || !o.alive || d <= 0 || d > TUNE.climb.iconRange) return;
+  if (!o.alive || Math.abs(d) > TUNE.climb.iconRange || o.st === 'idle' || o.st === 'crack') return;
   const cp = vArc(o.s * OMEGA, R, posOf(o.s).y + 1.6);
   if (o.st === 'windup') drawIcon(cp, '!', '#ff6b5a');
-  else if (o.st === 'stunned') drawIcon(cp, 'A', '#e8b04a');
-  else if (o.st === 'out' && d < 3) drawIcon(cp, 'A', '#efe6d2');
+  else if (o.st === 'stunned' || o.st === 'recover') drawIcon(cp, 'A', '#e8b04a');
 }
