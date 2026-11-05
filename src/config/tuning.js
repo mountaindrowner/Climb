@@ -51,12 +51,12 @@ export const TUNE = {
   },
   camera: {
     // climb camera: `back` is the camera's radius on the far side of the shaft centre (negative = opposite the warrior)
-    climb: { back: -2.3, up: 2.9, look: 1.3, lead: 0.17 },
-    fight: { back: -3.6, up: 3.4, look: 1.7, lead: 0.2 },   // during the Warden's stretch: out and up, so the wall and the breach are in frame
+    climb: { back: -3.4, up: 3.2, look: 1.45, lead: 0.17 },
+    fight: { back: -4.6, up: 3.7, look: 1.9, lead: 0.2 },   // during the Warden's stretch: out and up, so the wall and the breach are in frame
     fall:  { back: -4.2 },
     pool:  { back: -2, up: 4.5, look: 0 },
     title: { back: -2.6, up: 3.6, look: 1.4 },
-    fovPortrait: 72, fovLandscape: 55,
+    fovPortrait: 76, fovLandscape: 58,
     fogDensity: 0.05,
   },
   feel: {

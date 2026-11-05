@@ -8,12 +8,12 @@ import { ZONES } from '../zones/index.js';
 import { clamp, yawFor } from '../core/math.js';
 import { ST } from '../core/state.js';
 import { scene } from '../render/renderer.js';
-import { stoneTex } from '../render/textures.js';
+import { rock, rockMaterial } from '../render/rocks.js';
 import { lam, bas, mbox, placeArc, vArc } from '../render/primitives.js';
 import { burst } from '../render/particles.js';
 import { posOf } from '../world/path.js';
 import { head } from '../entities/player/player.js';
-import { makeWarden, WARDEN } from './model.js';
+import { makeWarden, makeWardenArm, makeWardenHead, WARDEN } from './model.js';
 const THREE = window.THREE;
 
 // Faces the shaft centre from angle a (the body behind the wall, the arm coming through it).
@@ -37,10 +37,9 @@ export function buildWardenScene(B){
   const zz = ZONES[B.z], glow = new THREE.Color(zz.glow).getHex();
   const root = new THREE.Group(); scene.add(root);
   const body = makeWarden(B.z); body.G.scale.setScalar(1.7); root.add(body.G);
-  const stone = new THREE.MeshStandardMaterial({ color: new THREE.Color(zz.stone).multiplyScalar(1.05).getHex(), map: stoneTex, roughness: 0.95, emissive: 0x000000 });
-  const dark = new THREE.MeshStandardMaterial({ color: new THREE.Color(zz.stone).multiplyScalar(0.45).getHex(), map: stoneTex, roughness: 0.95, emissive: 0x000000 });
-  const hi = new THREE.MeshStandardMaterial({ color: new THREE.Color(zz.top).multiplyScalar(1.3).getHex(), map: stoneTex, roughness: 0.8, emissive: 0x000000 });
-  const glowMat = new THREE.MeshBasicMaterial({ color: glow });
+  const stone = rockMaterial(new THREE.Color(zz.stone).multiplyScalar(1.05).getHex());
+  const dark = rockMaterial(new THREE.Color(zz.stone).multiplyScalar(0.45).getHex());
+  const hi = rockMaterial(new THREE.Color(zz.top).multiplyScalar(1.3).getHex(), { rough: 0.8 });
   const crackMat = new THREE.MeshBasicMaterial({ color: glow, transparent: true, opacity: 0.6 });
   const holeMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(zz.bg).multiplyScalar(0.6).getHex() });
   // breaches: a dark hole in the wall ringed with glowing cracks and rubble
@@ -54,32 +53,15 @@ export function buildWardenScene(B){
     }
     g.add(cracks);
     const rubble = new THREE.Group();
-    for (let j = 0; j < 7; j++){ const ang = j / 7 * Math.PI * 2; rubble.add(mbox(0.5, 0.45, 0.6, j % 2 ? dark : stone, 0.1, Math.sin(ang) * 1.5, Math.cos(ang) * 1.75)); }
+    for (let j = 0; j < 9; j++){ const ang = j / 9 * Math.PI * 2; rubble.add(rock(j % 2 ? dark : stone, { w: 0.5 + (j % 3) * 0.15, h: 0.45, d: 0.6, jag: 0.4, seed: 90 + j + i * 11 }, 0.1, Math.sin(ang) * 1.5, Math.cos(ang) * 1.75)); }
     g.add(rubble);
     g.visible = false; root.add(g); breaches.push({ g, hole, cracks, rubble });
   }
-  // the arm: shoulder at the wall, forearm and fist reaching across the stair; +x points into the shaft
-  const arm = new THREE.Group();
-  arm.add(mbox(1.6, 0.9, 0.9, stone, -0.6, 0, 0));                           // what shows of the upper arm in the hole
-  const fore = new THREE.Group(); fore.position.set(0.2, 0, 0); arm.add(fore);
-  fore.add(mbox(0.95, 0.75, 0.75, dark, 0.45, 0, 0));                         // elbow
-  fore.add(mbox(2.2, 0.62, 0.62, stone, 1.7, 0, 0));                          // forearm
-  fore.add(mbox(0.3, 0.12, 0.12, glowMat, 1.8, 0.32, 0.1));                   // glowing vein
-  fore.add(mbox(1.15, 1.0, 1.1, hi, 3.2, 0, 0));                              // fist
-  fore.add(mbox(0.3, 0.35, 0.3, dark, 3.65, 0.3, 0.3), mbox(0.3, 0.35, 0.3, dark, 3.65, 0.3, -0.3)); // knuckles
-  arm.visible = false; root.add(arm);
-  // the head, for the spit
-  const headG = new THREE.Group();
-  headG.add(mbox(1.5, 1.2, 1.4, stone, 0.3, 0.6, 0));                         // skull
-  headG.add(mbox(0.7, 0.38, 1.6, dark, 0.9, 1.15, 0));                        // brow
-  headG.add(mbox(0.15, 0.24, 0.34, glowMat, 1.05, 0.82, 0.36), mbox(0.15, 0.24, 0.34, glowMat, 1.05, 0.82, -0.36)); // eyes
-  const mouthMat = new THREE.MeshBasicMaterial({ color: glow }); mouthMat.color.multiplyScalar(0.2);
-  const mouth = mbox(0.12, 0.2, 0.7, mouthMat, 1.06, 0.2, 0); headG.add(mouth);
-  headG.add(mbox(1.2, 0.36, 1.2, dark, 0.45, -0.08, 0));                      // jaw
-  headG.add(mbox(0.3, 0.6, 0.3, glowMat, -0.2, 1.3, 0.3), mbox(0.3, 0.5, 0.3, glowMat, -0.3, 1.25, -0.35)); // crown shards
-  headG.visible = false; root.add(headG);
+  // the arm and the head that come through the wall, built from the same rock kit as the body
+  const A = makeWardenArm(B.z), arm = A.g, fore = A.fore; arm.visible = false; root.add(arm);
+  const Hd = makeWardenHead(B.z), headG = Hd.g, mouth = Hd.mouth, mouthMat = Hd.mouthMat; headG.visible = false; root.add(headG);
   const lamp = new THREE.PointLight(glow, 0, 9, 2); root.add(lamp);
-  V = { root, body, breaches, arm, fore, headG, mouth, mouthMat, glowMat, crackMat, lamp, glow, mats: [stone, dark, hi, ...body.mats], breachAt: new Map() };
+  V = { root, body, breaches, arm, fore, headG, mouth, mouthMat, glowMat: A.glowMat, headGlow: Hd.glowMat, crackMat, lamp, glow, mats: [stone, dark, hi, ...body.mats, ...A.mats, ...Hd.mats], breachAt: new Map() };
 }
 export function destroyWardenScene(){
   if (!V) return;
@@ -134,7 +116,7 @@ export function animateWarden(){
     if (open){
       const emerge = B.st === 'tele' ? clamp((B.tm - (B.T - 0.3)) / 0.25, 0, 1) : B.st === 'withdraw' ? 1 - clamp(B.tm / W.withdraw, 0, 1) : 1;
       V.lamp.position.copy(vArc(B.a, RW - 1.5, B.y + breachH)); V.lamp.color.setHex(V.glow); V.lamp.intensity = 0.8 + (B.st === 'opening' ? 1.6 * pulse : 0.4);
-      V.glowMat.color.setHex(V.glow).multiplyScalar(B.st === 'opening' ? 0.7 + 0.3 * Math.sin(time * 18) : 0.6);
+      const gl = B.st === 'opening' ? 0.7 + 0.3 * Math.sin(time * 18) : 0.6; V.glowMat.color.setHex(V.glow).multiplyScalar(gl); V.headGlow.color.setHex(V.glow).multiplyScalar(gl);
       if (isSpit){
         V.headG.visible = true; placeArc(V.headG, B.a, RW - 0.2 - emerge * 1.2, B.y + breachH - 0.6); faceIn(V.headG, B.a);
         const mq = B.st === 'tele' ? warn : B.st === 'orb' ? 1 : 0.3;

@@ -14,7 +14,7 @@ body{
   touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
   -webkit-tap-highlight-color:transparent;
 }
-#app{display:flex;flex-direction:column;height:100%;max-width:520px;margin:0 auto;position:relative}
+#app{display:flex;flex-direction:column;height:100%;max-width:600px;margin:0 auto;position:relative}
 #stage{flex:1;position:relative;min-height:0;overflow:hidden;background:#000}
 #gl,#hud{position:absolute;inset:0;width:100%;height:100%;display:block}
 #gl{image-rendering:pixelated;image-rendering:crisp-edges}

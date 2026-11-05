@@ -30,8 +30,9 @@ The path distance `s` (in step units) is the one coordinate. `src/world/path.js`
 | Procedural content per flight | `world/layout.js` (pure, seeded, tested) laid out on demand by `world/generate.js`, which also builds the meshes |
 | The instanced stair, arenas, the gate darkness | `world/stair.js`, `world/shaft.js` |
 | Hazards and enemies | `entities/hazards/*`, `entities/enemies/*`, registered in `entities/registry.js` |
+| Craggy rocks (the Wardens, rubble) | `render/rocks.js`: displaced low-poly boulders with flat shading and per-face brightness, seeded; `shard()` for crystals |
 | The warrior | `entities/player/` (model, actions, animation) |
-| Warden fight | `wardens/warden.js` (state machine, driven from `modes/climb.js` while `arenaOf(k)` is the zone's Warden), `wardens/visuals.js` (body behind the wall, breaches, arm, head, markers), `wardens/movesets/*` |
+| Warden fight | `wardens/warden.js` (state machine, driven from `modes/climb.js` while `arenaOf(k)` is the zone's Warden), `wardens/visuals.js` (body behind the wall, breaches, arm, head, markers), `wardens/model.js` (the golem rig and the arm and head props, built from the rock kit with the zone's palette), `wardens/movesets/*` |
 | Falling and root grabs | `modes/fall.js` |
 | Auto-climb, landmarks, the heavy step | `modes/climb.js` |
 | Menus and HUD | `ui/overlay.js` plus one screen per file in `ui/screens/`; `ui/hud.js` |
