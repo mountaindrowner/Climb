@@ -16,35 +16,44 @@ Controls: `▲` jump / use, `▼` duck, `A` attack, `B` block (tap just before a
 index.html            the page shell: canvases, the four-button pad, the menu overlay
 src/
   main.js             boot and the main loop (step, visuals, render, HUD)
-  config/             the numbers: shaft geometry, zones, weapons, economy, every feel value (tuning.js)
-  core/               math, save data, shared runtime state, input
+  config/             geometry (constants), every feel number (tuning), weapons, economy
+  zones/              one module per zone: palette, threat pool, Warden; plus the tutorial table
+  core/               math, shared runtime state, input
+  save/               the save store and versioned migrations (prototype saves carry over)
   audio/              synthesised placeholder sounds (real samples go in assets/audio)
   render/             renderer, camera, generated textures, primitives, particles
-  world/              the spiral path, the shaft, the instanced stair, per-flight generation, props
+  world/              the spiral path, the shaft, the instanced stair, pure seeded layout, meshes
   entities/
     player/           the warrior: model, run state and actions, animation
     hazards/          broken step, fallen beam
     enemies/          crawler, spitter
     registry.js       where new threats are registered
-  wardens/            the Warden fight, its model, visuals, and per-zone movesets
-  modes/              climb (the auto-climb backbone) and fall (root grabs)
-  ui/                 menus (title, Pool, rest stop) and the 2D HUD, styles.css
+  wardens/            the Warden fight, its model and visuals, one moveset per Warden
+  modes/              title, climb, boss, fall, pool, through a registry (minecart, arena, pursuit go here)
+  ui/                 the overlay, one screen per file (title, Pool, rest stop, victory), the 2D HUD, styles
   fx/                 freeze-frames, shake, flashes, toasts, floating text
 vendor/three/         three.js r128, vendored so the game runs offline
-assets/               art, audio, models and fonts (empty folders ready for real assets)
-docs/                 design direction, architecture, tuning reference
+assets/               textures (per zone), models (warrior, enemies, wardens, props), audio (sfx, music, ambience), fonts, ui
+docs/
+  design/             direction, zones (one note each), wardens, enemies, economy, controls, story
+  architecture.md     how the systems fit and how to add a zone, threat, Warden or mode
+  tuning.md           every feel number explained
+  process/            conventions, phone playtest checklist, release checklist
+  decisions/          short records of choices that shape the project
 prototypes/           earlier single-file builds kept for reference
-tools/                dev server and the headless smoke playthrough
-tests/                unit tests for the pure path math
+tools/                dev server, headless smoke playthrough, pacing calculator
+tests/                node --test suites for the pure modules (path, layout, economy, save)
+.github/              CI workflow, issue templates (bug, playtest notes, feature), PR template
 ```
 
-See `docs/architecture.md` for how the systems fit together and how to add a zone, enemy or Warden.
+See `docs/architecture.md` for how the systems fit together and how to add a zone, enemy, Warden or mode, and `CONTRIBUTING.md` for the working rules.
 
 ## Checks
 
 ```bash
-npm test           # node --test: path geometry and zone invariants
-npm run smoke      # Playwright: a bot climbs the tutorial, beats the first Warden, falls, catches a root, splashes into the Pool
+npm test           # node --test: path geometry, seeded layout, economy, save migrations
+npm run smoke      # Playwright: a bot migrates a prototype save, climbs the tutorial, beats the first Warden, falls, catches a root, splashes into the Pool
+npm run pacing     # how long each zone takes at the current tuning, against the 30-minute target
 ```
 
 The smoke test needs Playwright with Chromium (`npm i -D playwright && npx playwright install chromium`). It writes screenshots to `tools/out/`.

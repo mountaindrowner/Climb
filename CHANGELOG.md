@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.0 — structure for a big game (2026-11-05)
+
+- One module per zone in `src/zones/` (palette, threat pool, Warden), plus the tutorial table; `config/zones.js` re-exports.
+- Pure seeded flight layout in `src/world/layout.js`, separated from mesh building and covered by tests.
+- Modes registry (`src/modes/registry.js`); title and pool are modes like the rest.
+- Overlay split into `src/ui/overlay.js` and one screen per file under `src/ui/screens/`.
+- Versioned save in `src/save/` with migrations; saves from the v3 prototype and 0.4.0 carry over.
+- `tools/pacing.mjs` pacing calculator; `npm run pacing`.
+- Tests for layout determinism, economy and migrations (19 total); the smoke test also checks save migration.
+- Docs: per-topic design docs, one note per zone, process (conventions, playtest, release), decision records, issue and PR templates, CONTRIBUTING.
+- Asset folders laid out per zone and per model family.
+
 ## 0.4.0 — repository structure (2026-11-04)
 
 - Split the single-file spiral prototype into ES modules under `src/` (no build step; three.js is vendored).

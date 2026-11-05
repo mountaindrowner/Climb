@@ -3,7 +3,7 @@ import { MAXK, R } from '../config/constants.js';
 import { TUNE } from '../config/tuning.js';
 import { GOLD } from '../config/economy.js';
 import { ZONES } from '../config/zones.js';
-import { S, save } from '../core/save.js';
+import { S, save } from '../save/store.js';
 import { ST } from '../core/state.js';
 import { sfx } from '../audio/sfx.js';
 import { vArc } from '../render/primitives.js';
@@ -15,7 +15,7 @@ import { newRunState, PL } from '../entities/player/player.js';
 import { setWeaponModel } from '../entities/player/model.js';
 import { ENTITIES } from '../entities/registry.js';
 import { startBoss } from '../wardens/warden.js';
-import { openCamp } from '../ui/menus.js';
+import { openCamp } from '../ui/screens/camp.js';
 const C = TUNE.climb;
 
 export function climbSpeed(G, p){

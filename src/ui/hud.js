@@ -2,7 +2,7 @@
 import { FH, ZF, MPU, LIFT_FLIGHT, CAMP_FLIGHT, BOSS_FLIGHT } from '../config/constants.js';
 import { TUNE } from '../config/tuning.js';
 import { clamp } from '../core/math.js';
-import { S } from '../core/save.js';
+import { S } from '../save/store.js';
 import { ST } from '../core/state.js';
 import { hx, view, camera } from '../render/renderer.js';
 import { posOf, zoneOf } from '../world/path.js';

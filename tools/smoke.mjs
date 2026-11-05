@@ -32,9 +32,20 @@ await page.route(/^(?!http:\/\/localhost)/, r => r.abort());
 const shot = name => page.screenshot({ path: fileURLToPath(new URL(`./${name}.png`, out)) });
 const fail = msg => { console.error('SMOKE FAIL:', msg); if (errors.length) console.error(errors.join('\n')); process.exit(1); };
 
-await page.goto(`http://localhost:${PORT}/`, { waitUntil: 'load' });
-await page.waitForFunction(() => window.__climb && window.__climb.ST.mode === 'title', null, { timeout: 10000 }).catch(() => fail('game did not boot'));
-await page.evaluate(() => { localStorage.clear(); });
+// Storage is prepared before the page's scripts run (the game saves on hide, which would otherwise overwrite a seed during reload).
+await page.addInitScript(() => {
+  const plan = sessionStorage.getItem('smoke-seed'); sessionStorage.removeItem('smoke-seed');
+  if (plan === 'legacy'){ localStorage.clear(); localStorage.setItem('the-climb-spiral-v1', JSON.stringify({ best: 77, lifts: [6], bosses: [], falls: 2, gold: 5, stash: 0, weapon: 'pick' })); }
+  if (plan === 'clear') localStorage.clear();
+});
+const boot = async () => { await page.goto(`http://localhost:${PORT}/`, { waitUntil: 'load' }); await page.waitForFunction(() => window.__climb && window.__climb.ST.mode === 'title', null, { timeout: 10000 }).catch(() => fail('game did not boot')); };
+await boot();
+// a save left by the v3 prototype must carry over
+await page.evaluate(() => sessionStorage.setItem('smoke-seed', 'legacy')); await boot();
+const migrated = await page.evaluate(() => ({ best: window.__climb.S.best, weapon: window.__climb.S.weapon, version: window.__climb.S.version }));
+if (migrated.best !== 77 || migrated.weapon !== 'pick' || !migrated.version) fail('prototype save did not migrate: ' + JSON.stringify(migrated));
+console.log('migrated prototype save', migrated);
+await page.evaluate(() => sessionStorage.setItem('smoke-seed', 'clear')); await boot();
 await shot('01-title');
 await page.click('[data-act="pool"]');
 await page.click('[data-act="start"][data-k="-1"]');
@@ -117,7 +128,7 @@ await page.evaluate(() => { window.__botTick = () => {}; });
 await until(() => window.__climb.ST.mode === 'menu', 30000, 'splash into the Pool');
 await shot('05-pool');
 console.log('pool', await st());
-const persisted = await page.evaluate(() => JSON.parse(localStorage.getItem('the-climb-v2')));
+const persisted = await page.evaluate(() => JSON.parse(localStorage.getItem('the-climb')));
 console.log('saved', persisted);
 if (!persisted || !persisted.bosses.length || !persisted.lifts.length) fail('progress did not persist');
 if (errors.length) fail('errors logged');

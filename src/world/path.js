@@ -2,7 +2,7 @@
 import { F, RISE, LAND, FL, FH, ZF, MPU, OMEGA, LIFT_FLIGHT, CAMP_FLIGHT, BOSS_FLIGHT } from '../config/constants.js';
 import { ZONES } from '../config/zones.js';
 import { smooth } from '../core/math.js';
-import { S } from '../core/save.js';
+import { S } from '../save/store.js';
 
 export const zoneOf = k => Math.min(ZONES.length - 1, Math.max(0, Math.floor(k / ZF)));
 export function special(k){

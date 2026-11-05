@@ -1,7 +1,7 @@
 // Falling is gameplay: you drop down the open centre, time slows near each root, tap ▲ to catch one. Miss them all and you splash into the Pool.
 import { R, OMEGA } from '../config/constants.js';
 import { TUNE } from '../config/tuning.js';
-import { S, save } from '../core/save.js';
+import { S, save } from '../save/store.js';
 import { ST } from '../core/state.js';
 import { sfx } from '../audio/sfx.js';
 import { scene } from '../render/renderer.js';

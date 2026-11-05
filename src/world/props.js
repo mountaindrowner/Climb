@@ -1,7 +1,7 @@
 // Meshes for a flight's contents: gold, the broken lift, the rest stop, and each obstacle's own model via the entity registry.
 import { FH, R, OMEGA } from '../config/constants.js';
 import { ZONES } from '../config/zones.js';
-import { S } from '../core/save.js';
+import { S } from '../save/store.js';
 import { ST } from '../core/state.js';
 import { fireLight } from '../render/renderer.js';
 import { lam, bas, mbox, placeArc, vArc } from '../render/primitives.js';

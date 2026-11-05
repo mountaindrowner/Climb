@@ -2,7 +2,7 @@
 import { R, OMEGA } from '../../config/constants.js';
 import { TUNE } from '../../config/tuning.js';
 import { WEAPONS } from '../../config/weapons.js';
-import { S, save } from '../../core/save.js';
+import { S, save } from '../../save/store.js';
 import { ST } from '../../core/state.js';
 import { sfx, buzz, ac } from '../../audio/sfx.js';
 import { scene } from '../../render/renderer.js';
@@ -15,7 +15,7 @@ import { ENTITIES } from '../registry.js';
 import { makePlayer, setWeaponModel } from './model.js';
 import { bossHit } from '../../wardens/warden.js';
 import { startFall, grab } from '../../modes/fall.js';
-import { updatePips } from '../../ui/menus.js';
+import { updatePips } from '../../ui/overlay.js';
 const P = TUNE.player;
 
 export const PL = makePlayer(); scene.add(PL.P); setWeaponModel(PL, S.weapon);

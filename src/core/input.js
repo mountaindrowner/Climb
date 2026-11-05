@@ -1,6 +1,6 @@
 // One thumb each side: ▲▼ on the left, B and A on the right, the flask between. Keyboard map for desktop testing.
 import { press } from '../entities/player/player.js';
-import { menuOpen } from '../ui/menus.js';
+import { menuOpen } from '../ui/overlay.js';
 import { save } from './save.js';
 
 export const KEYMAP = {

@@ -1,5 +1,5 @@
 // Boot and the main loop. Order: gameplay step, visuals, render, HUD.
-import { S, load } from './core/save.js';
+import { S, load } from './save/store.js';
 import { ST } from './core/state.js';
 import { TUNE } from './config/tuning.js';
 import { renderer, scene, camera } from './render/renderer.js';
@@ -12,12 +12,10 @@ import { updateProps } from './world/props.js';
 import { R } from './config/constants.js';
 import { newRunState, tickTimers, press, hurt } from './entities/player/player.js';
 import { animatePlayer } from './entities/player/animate.js';
-import { updBoss } from './wardens/warden.js';
 import { animateWarden } from './wardens/visuals.js';
-import { updClimb } from './modes/climb.js';
-import { updFall } from './modes/fall.js';
+import { MODES } from './modes/registry.js';
 import { drawHUD } from './ui/hud.js';
-import { titleMenu, poolMenu, updatePips } from './ui/menus.js';
+import { titleMenu, updatePips } from './ui/menus.js';
 import { bindInput } from './core/input.js';
 
 load();
@@ -25,12 +23,9 @@ load();
 function step(dt){
   ST.time += dt;
   updateFeedback(dt);
-  tickTimers(dt, ST.mode === 'climb' || ST.mode === 'boss');
-  if (ST.mode === 'climb') updClimb(dt);
-  else if (ST.mode === 'boss') updBoss(dt);
-  else if (ST.mode === 'fall') updFall(dt);
-  else if (ST.mode === 'pool'){ ST.poolT += dt; if (ST.poolT > 1.4){ ST.G.s = 0; ST.G.prevS = 0; poolMenu(); } }
-  else if (ST.mode === 'title'){ ST.cam.ang += dt * 0.12; }
+  const mode = MODES[ST.mode];
+  tickTimers(dt, !!mode.gameplay);
+  mode.update(dt);
 }
 function visuals(dt){
   const pw = animatePlayer();

@@ -3,7 +3,7 @@ import { FH, R, OMEGA } from '../config/constants.js';
 import { TUNE } from '../config/tuning.js';
 import { GOLD } from '../config/economy.js';
 import { ZONES } from '../config/zones.js';
-import { S, save } from '../core/save.js';
+import { S, save } from '../save/store.js';
 import { ST } from '../core/state.js';
 import { sfx } from '../audio/sfx.js';
 import { scene } from '../render/renderer.js';
@@ -16,7 +16,7 @@ import { makeWarden } from './model.js';
 import { hideWardenFx } from './visuals.js';
 import * as deep from './movesets/deep.js';
 import { hurt, head } from '../entities/player/player.js';
-import { showMenu } from '../ui/menus.js';
+import { wardenFellMenu } from '../ui/screens/victory.js';
 const W = TUNE.warden;
 const MOVESETS = { deep };
 
@@ -106,9 +106,5 @@ function bossDefeated(){
   const name = B.name, h = meters(B.y);
   removeBoss(); ST.B = null; ST.mode = 'menu';
   setAllFlights();
-  showMenu(`<div class="card"><h2>${name} falls</h2>
-    <p class="gold">+${g} gold</p>
-    <p>A lift now runs from the Pool to ${h} m.</p>
-    <p class="note">The stair above is open.</p>
-    <button class="choice go" data-act="resume">Keep climbing</button></div>`);
+  wardenFellMenu(name, g, h);
 }

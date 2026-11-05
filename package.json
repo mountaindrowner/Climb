@@ -1,6 +1,6 @@
 {
   "name": "the-climb",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "description": "A portrait mobile roguelike in chunky 3D: climb a spiral stair from the bottom of an impossibly deep mine to the peak.",
   "type": "module",
@@ -8,6 +8,7 @@
     "dev": "node tools/serve.mjs",
     "test": "node --test tests/*.test.mjs",
     "smoke": "node tools/smoke.mjs",
+    "pacing": "node tools/pacing.mjs",
     "check": "npm test && npm run smoke"
   },
   "engines": { "node": ">=18" }
