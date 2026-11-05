@@ -57,7 +57,7 @@ Gravity 34, top speed max(16, height/2.3). Time runs at 0.3× near a root; the g
 | Mode | back | up | look |
 | --- | --- | --- | --- |
 | Climb | −2.3 (was −0.9) | 2.9 | 1.3 |
-| Warden | −4.2 | 3.8 | 2.4 |
+| Warden | −5.2 | 4.2 | 2.6 |
 | Pool | −2 | 4.5 | 0 |
 | Title | −2.6 | 3.6 | 1.4 |
 

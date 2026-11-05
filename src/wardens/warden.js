@@ -79,7 +79,7 @@ export function updBoss(dt){
     case 'dying': if (B.tm > W.dying) bossDefeated(); break;
   }
 }
-export function bossTop(){ const B = ST.B; return vArc(B.a, B.r, B.y + 6.3); }
+export function bossTop(){ const B = ST.B; return vArc(B.a, B.r, B.y + 6.4); }
 // A only damages the Warden while it kneels. Any other time it just clangs.
 export function bossHit(dmg){
   const B = ST.B;

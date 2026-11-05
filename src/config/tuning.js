@@ -48,7 +48,7 @@ export const TUNE = {
   camera: {
     // climb camera: `back` is the camera's radius on the far side of the shaft centre (negative = opposite the warrior)
     climb: { back: -2.3, up: 2.9, look: 1.3, lead: 0.17 },
-    boss:  { back: -4.2, up: 3.8, look: 2.4 },
+    boss:  { back: -5.2, up: 4.2, look: 2.6 },
     fall:  { back: -4.2 },
     pool:  { back: -2, up: 4.5, look: 0 },
     title: { back: -2.6, up: 3.6, look: 1.4 },

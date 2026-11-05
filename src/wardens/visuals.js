@@ -8,6 +8,7 @@ import { lam, mbox, placeArc, vArc } from '../render/primitives.js';
 import { burst } from '../render/particles.js';
 import { posOf } from '../world/path.js';
 import { head } from '../entities/player/player.js';
+import { WARDEN } from './model.js';
 const THREE = window.THREE;
 
 const waves = [0, 1, 2].map(() => { const m = mbox(0.4, 0.8, 2.4, lam(0x8a84a0)); m.visible = false; scene.add(m); return m; });
@@ -39,18 +40,35 @@ export function animateWarden(){
   if (B.st === 'strike' && B.atk === 'slam') slammed = true;
   const dying = B.st === 'dying' ? B.tm / TUNE.warden.dying : 0;
   placeArc(M.G, B.a, B.r, B.y - dying * 2.5 + Math.sin(time * 2) * 0.04, true);
-  M.G.rotation.y += 0.65;
+  M.G.rotation.y += 0.85;
   M.G.position.x += dying ? (Math.random() - 0.5) * 0.15 : 0;
-  M.body.position.y = -kneel * 0.7; M.body.rotation.z = -kneel * 0.15;
   for (const m of M.mats) m.emissive.setHex(B.flash > 0 ? 0xffffff : 0x000000);
+  const breath = Math.sin(time * 1.6) * 0.02;
+  // ---- the body: a hunch that deepens into the kneel, straightens for the slam, twists for the sweep
+  const tilt = WARDEN.spineTilt;
+  M.spine.rotation.z = -tilt + breath - kneel * 0.3 + raise * 0.5 - (slammed ? 0.35 : 0);
+  M.spine.rotation.y = -pull * 0.5 + (sweeping > 0 ? 0.5 * sweeping : 0);
+  M.spine.position.y = WARDEN.hipY + 0.2 - kneel * 0.5;
+  for (const L of M.legs){ L.hip.rotation.z = WARDEN.hipBend + kneel * 0.5 - raise * 0.3; L.knee.rotation.z = WARDEN.kneeBend - kneel * 0.6 + raise * 0.4; }
+  M.G.position.y -= kneel * 0.25;
+  M.neck.rotation.z = tilt - 0.2 + kneel * 0.5 - raise * 0.3 - mouth * 0.15;
+  M.head.rotation.z = -kneel * 0.3 + mouth * 0.25;
   M.coreMat.color.setHex(M.glow).multiplyScalar(B.st === 'stagger' ? 0.7 + 0.3 * Math.sin(time * 18) : 0.4);
-  M.mouthMat.color.setHex(M.glow).multiplyScalar(0.2 + mouth * 0.8); M.mouth.scale.set(1, 1 + mouth * 1.5, 1 + mouth * 0.5);
-  M.crackMat.color.setHex(M.glow).multiplyScalar(0.5 + 0.5 * Math.max(raise, pull, mouth, B.st === 'stagger' ? 1 : 0.3));
-  M.body.rotation.y = -pull * 0.45; M.body.position.y += raise * 0.25; M.body.rotation.z += raise * 0.18;
-  const setArm = (A, rot, len, sh) => { A.pv.rotation.z = rot; A.arm.scale.set(1, len, 1); A.pv.position.y = sh; };
-  if (slammed){ setArm(M.armF, 0.35, 1, 2.55); setArm(M.armB, 0.3, 1, 2.55); }
-  else if (sweeping > 0){ setArm(M.armF, Math.PI / 2, 1 + sweeping * 1.2, 1.35); setArm(M.armB, -0.2, 1, 2.55); }
-  else { const r = raise * Math.PI * 0.95; setArm(M.armF, -0.1 + r - pull * 1.2, 1, 2.55); setArm(M.armB, -0.1 + r, 1, 2.55); }
+  M.mouthMat.color.setHex(M.glow).multiplyScalar(0.2 + mouth * 0.8); M.mouth.scale.set(1, 1 + mouth * 2.2, 1 + mouth * 0.5);
+  const heat = Math.max(raise, pull, mouth, B.st === 'stagger' ? 1 : 0.3);
+  M.crackMat.color.setHex(M.glow).multiplyScalar(0.5 + 0.5 * heat);
+  M.glowMat.color.setHex(M.glow).multiplyScalar(0.55 + 0.45 * heat);
+  M.eyeLight.intensity = 1.2 + 1.4 * heat;
+  // ---- arms: rest on the knuckles; rise overhead for the slam; the front arm pulls back then sweeps across
+  const rest = tilt + 0.2;
+  const setArm = (A, sh, el, twist, stretch) => { A.shoulder.rotation.z = sh; A.shoulder.rotation.x = (A === M.armF ? 1 : -1) * WARDEN.armSplay + (twist || 0); A.elbow.rotation.z = el; A.arm.scale.set(1, stretch || 1, 1); };
+  if (slammed){ setArm(M.armF, rest + 1.1, -0.2, 0); setArm(M.armB, rest + 1.0, -0.2, 0); }
+  else if (sweeping > 0){ setArm(M.armF, rest + 0.9, 0.1, -1.1 + sweeping * 2.2, 1 + sweeping * 0.4); setArm(M.armB, rest - 0.2, 0.3, 0); }
+  else {
+    const r = raise * 2.9;
+    setArm(M.armF, rest + r - pull * 1.6, 0.25 - raise * 0.2 + pull * 0.9, -pull * 1.1); setArm(M.armB, rest + r, 0.25 - raise * 0.2, 0);
+    if (B.st === 'stagger'){ setArm(M.armF, rest + 0.5, 0.1, 0.2); setArm(M.armB, rest + 0.4, 0.1, -0.2); }
+  }
   // danger markers: where the hit will land. Phase 2 only shows them in the last moment.
   const pa = posOf(G.s).a;
   const wStart = B.phase === 1 ? 0 : Math.max(0, B.T - TUNE.warden.lateWarn);
@@ -62,7 +80,7 @@ export function animateWarden(){
   sweepBand.forEach((m, i) => { const on = warn > 0 && B.atk === 'sweep'; m.visible = on; if (on) placeArc(m, a0 + (a1 - a0) * (i + 0.5) / sweepBand.length, R - 1.4, B.y + 2.05); });
   sweepMat.opacity = B.atk === 'sweep' ? (0.12 + 0.45 * warn) * pulse : 0;
   if (warn > 0 && B.atk === 'spit'){
-    const from = vArc(B.a - 0.12, B.r, B.y + 4.3), to = head(1.2);
+    const from = vArc(B.a - 0.12, B.r, B.y + 4.9), to = head(1.2);
     bossAim.visible = true; bossAim.position.lerpVectors(from, to, 0.5); bossAim.lookAt(to); bossAim.scale.z = from.distanceTo(to);
     aimMat.color.setHex(M.glow); aimMat.opacity = (0.15 + 0.55 * warn) * pulse;
   } else bossAim.visible = false;
@@ -73,7 +91,7 @@ export function animateWarden(){
   } else waves.forEach(w => w.visible = false);
   if (B.orb){
     bossOrb.visible = true;
-    const q = B.orb.t / B.orb.dur, mouthP = vArc(B.a - 0.12, B.r, B.y + 4.3), hp = head(1.2);
+    const q = B.orb.t / B.orb.dur, mouthP = vArc(B.a - 0.12, B.r, B.y + 4.9), hp = head(1.2);
     if (B.orb.back) bossOrb.position.lerpVectors(hp, mouthP, q);
     else { bossOrb.position.lerpVectors(mouthP, hp, q); bossOrb.position.y += Math.sin(q * Math.PI) * 1.2; }
     bossOrb.material.color.setHex(B.orb.back ? 0x9fd0ff : M.glow); bossOrb.rotation.y += 0.3;

@@ -40,3 +40,4 @@ scene.add(new THREE.HemisphereLight(0xa8a0d0, 0x141018, 0.28));
 export const torch = new THREE.PointLight(0xffb36b, 1.8, 15, 2); scene.add(torch);
 export const poolLight = new THREE.PointLight(0x5ce1c6, 2, 34, 2); poolLight.position.set(0, 2.5, 0); scene.add(poolLight);
 export const fireLight = new THREE.PointLight(0xff8a3c, 0, 11, 2); scene.add(fireLight);
+export const rimLight = new THREE.PointLight(0xa07cff, 0, 10, 2); scene.add(rimLight);
