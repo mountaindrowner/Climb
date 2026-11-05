@@ -70,26 +70,37 @@ await page.evaluate(() => { window.__climb.TUNE.climb.baseSpeed = 2.25; });
 await cam(-2.3, 2.9, 1.3, 0.17);
 await page.waitForTimeout(700); await shot('warrior-gameplay');
 
-// ---- the Warden's stretch: it hunts from behind the wall while you climb
-await page.evaluate(() => { window.__climb.TUNE.climb.baseSpeed = 0.35; window.__go(window.__landingS(9) + 2); });
-await page.waitForFunction(() => !!window.__climb.ST.B, null, { timeout: 15000 });
-await page.evaluate(() => { const G = window.__climb.ST.G; G.maxHp = 99; G.hp = 99; });
-await page.waitForTimeout(2200); await shot('warden-loom');
-const waitSt = (pred, label) => page.waitForFunction(pred, null, { timeout: 30000 }).catch(() => console.log('no ' + label));
-const force = atk => page.evaluate(a => { const B = window.__climb.ST.B; if (B && B.st === 'idle'){ B.queue = [a]; B.tm = 9; } }, atk);
-await force('slam');
-await waitSt(() => { const B = window.__climb.ST.B; return B && B.atk === 'slam' && (B.st === 'strike' || (B.st === 'tele' && B.slammed)); }, 'slam');
-await page.waitForTimeout(120); await shot('warden-slam');
-await waitSt(() => { const B = window.__climb.ST.B; return B && B.st === 'opening'; }, 'opening');
-await page.waitForTimeout(300); await shot('warden-opening');
-await waitSt(() => { const B = window.__climb.ST.B; return B && B.st === 'idle'; }, 'idle');
-await force('sweep');
-await waitSt(() => { const B = window.__climb.ST.B; return B && B.atk === 'sweep' && B.st === 'strike'; }, 'sweep');
-await page.waitForTimeout(150); await shot('warden-sweep');
-await waitSt(() => { const B = window.__climb.ST.B; return B && B.st === 'idle'; }, 'idle');
-await force('spit');
-await waitSt(() => { const B = window.__climb.ST.B; return B && B.atk === 'spit' && B.st === 'orb'; }, 'spit');
-await page.waitForTimeout(200); await shot('warden-spit');
+// ---- the threat catalog: each threat at its tell, at gameplay distance and close up
+await page.addScriptTag({ type: 'module', content: `
+  import { content } from '/src/world/generate.js';
+  import { ST } from '/src/core/state.js';
+  import { startClimb } from '/src/modes/climb.js';
+  import { hideMenu } from '/src/ui/overlay.js';
+  window.__practice = id => { hideMenu(); ST.practice = id; startClimb(0); ST.G.maxHp = 99; ST.G.hp = 99; };
+  window.__firstOf = id => { const cs = [...content.values()].sort((a, b) => a.k - b.k); for (const c of cs) for (const o of c.obs) if (o.type === id && !o.done && o.st !== 'gone') return o; return null; };
+  window.__ready3 = true;` });
+await page.waitForFunction(() => window.__ready3);
+const TELL = {
+  gap:      'o.s - G.s < 1.7 && o.s - G.s > 0.9',
+  beam:     'o.s - G.s < 1.6 && o.s - G.s > 0.6',
+  rockfall: "o.st === 'drop' && o.tm > 0.32",
+  swing:    "o.st === 'swing' && o.tm > 0.42",
+  crawler:  "o.st === 'windup' && o.tm > 0.3",
+  spitter:  "o.st === 'charge' && o.tm > 0.42",
+  burrower: "o.st === 'travel' && o.s - G.s < 2.4",
+  flitter:  "o.st === 'dive' && o.tm > 0.5",
+};
+for (const [tag, cam] of [['play', [-3.4, 3.2, 1.45, 0.17]], ['close', [2.4, 2.1, 1.35, 0.22]]]){
+  await page.evaluate(c => { const t = window.__climb.TUNE.camera.climb; [t.back, t.up, t.look, t.lead] = c; window.__climb.ST.cam.r = c[0]; window.__climb.TUNE.climb.baseSpeed = 2.25; }, cam);
+  for (const [id, pred] of Object.entries(TELL)){
+    await page.evaluate(id => window.__practice(id), id);
+    const ok = await page.waitForFunction(new Function(`const G = window.__climb.ST.G, o = window.__firstOf('${id}'); return !!o && (${pred});`), null, { timeout: 30000, polling: 16 }).then(() => true, () => false);
+    if (!ok) console.log('no tell for ' + id);
+    await shot(`cat-${tag}-${id}`);
+  }
+}
+await page.evaluate(() => { const t = window.__climb.TUNE.camera.climb; [t.back, t.up, t.look, t.lead] = [-3.4, 3.2, 1.45, 0.17]; });
+
 if (errors.length){ console.error(errors.join('\n')); process.exit(1); }
 console.log('portraits written to tools/out/');
 await browser.close(); server.kill(); process.exit(0);

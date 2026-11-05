@@ -44,5 +44,10 @@ export const sfx = {
   fall(){ tone(500, 1.4, 'sine', 0.05, -440); },
   repair(){ tone(520, 0.08, 'square', 0.05, 0); setTimeout(() => tone(780, 0.12, 'square', 0.05, 0), 90); },
   drink(){ tone(340, 0.25, 'sine', 0.07, 260); },
+  creak(){ tone(130, 0.4, 'sawtooth', 0.025, 70); noise(0.3, 0.03, 420); },
+  shriek(){ tone(1900, 0.16, 'square', 0.03, 900); tone(2500, 0.12, 'sine', 0.02, -700); },
+  rumble(){ noise(0.45, 0.07, 220); tone(52, 0.45, 'sine', 0.12, -10); },
+  whoosh(){ noise(0.28, 0.07, 1700); },
+  snap(){ noise(0.08, 0.1, 3200); tone(300, 0.08, 'square', 0.05, -150); },
 };
 export function buzz(ms){ try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} }

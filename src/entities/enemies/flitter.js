@@ -1,0 +1,106 @@
+// Flitter: a bat-thing roosting head-down on the wall above the stair. It shrieks, drops, loops out over the open
+// shaft and dives at your head; the ring over you closes as it arrives. Answer: A to swat it (gold), or B to block.
+// States: idle -> launch -> dive -> leave | dead
+import { R, RW, OMEGA } from '../../config/constants.js';
+import { TUNE } from '../../config/tuning.js';
+import { GOLD } from '../../config/economy.js';
+import { ST } from '../../core/state.js';
+import { clamp } from '../../core/math.js';
+import { sfx } from '../../audio/sfx.js';
+import { mbox, vArc } from '../../render/primitives.js';
+import { flatMat, glowMat, spike, blob, membrane, joint, outline, outlineMat } from '../../render/creature.js';
+import { burst } from '../../render/particles.js';
+import { float, hitstop } from '../../fx/feedback.js';
+import { topAt } from '../../world/path.js';
+import { hurt, head } from '../player/player.js';
+const THREE = window.THREE;
+const T = TUNE.flitter;
+
+export const hint = 'A flitter dives at your head. Tap A as the ring closes to swat it, or B to block.';
+
+// +x is the way it faces (its nose), +y its back, ±z its wings.
+function model(glow){
+  const fur = flatMat(0x4c3c56, { rough: 0.9 }), skin = new THREE.MeshStandardMaterial({ color: 0x5e4468, emissive: new THREE.Color(glow).multiplyScalar(0.12), flatShading: true, roughness: 0.7, side: THREE.DoubleSide, transparent: true, opacity: 0.94 });
+  const rim = outlineMat(glow, 0.5);
+  const g = new THREE.Group(), body = joint(g);
+  const torso = blob(fur, 0.42, 0.3, 0.32); body.add(torso); outline(torso, rim, 1.2);
+  const h = joint(body, 0.26, 0.05, 0); const skull = blob(fur, 0.24, 0.22, 0.22); h.add(skull); outline(skull, rim, 1.2);
+  const eye = glowMat(glow);
+  h.add(mbox(0.06, 0.06, 0.06, eye, 0.11, 0.03, 0.06), mbox(0.06, 0.06, 0.06, eye, 0.11, 0.03, -0.06));
+  for (const s of [1, -1]){ const ear = spike(fur, 0.2, 0.05); ear.position.set(-0.02, 0.09, s * 0.07); ear.rotation.set(s * 0.35, 0, 0.35); h.add(ear); }
+  const fang = flatMat(0xe6dcc6); h.add(mbox(0.02, 0.05, 0.02, fang, 0.1, -0.07, 0.03), mbox(0.02, 0.05, 0.02, fang, 0.1, -0.07, -0.03));
+  const wings = [];
+  for (const s of [1, -1]){
+    const w = joint(body, 0, 0.06, s * 0.12), mem = membrane(skin, 0.85, 0.55); if (s < 0) mem.scale.z = -1; w.add(mem);
+    const bone = mbox(0.03, 0.03, 0.85, fur, 0.05, 0.01, s * 0.42); w.add(bone);
+    wings.push({ w, s });
+  }
+  const tail = spike(fur, 0.22, 0.04); tail.position.set(-0.2, 0, 0); tail.rotation.z = Math.PI / 2 + 0.2; body.add(tail);
+  g.scale.setScalar(2.0);
+  return { g, body, wings, mats: [fur, skin], eye, rim };
+}
+
+export function build(o, { glow, dyn }){
+  const a = o.s * OMEGA, top = topAt(o.s);
+  const M = model(glow); dyn.add(M.g);
+  o.M = M; o.roost = vArc(a, RW - 0.35, top + 3.4); o.top = top; o.glow = glow;
+  o.pos = o.roost.clone(); o.vel = new THREE.Vector3();
+  M.g.position.copy(o.roost);
+}
+const _p = new THREE.Vector3();
+function bez(p0, p1, p2, u, out){ const v = 1 - u; return out.set(0, 0, 0).addScaledVector(p0, v * v).addScaledVector(p1, 2 * v * u).addScaledVector(p2, u * u); }
+
+export function update(o, dt){
+  const G = ST.G, d = o.s - G.s;
+  if (o.st === 'dead' || o.st === 'leave' || o.st === 'gone'){ o.tm += dt; if (o.tm > 1.6) o.st = 'gone'; return; }
+  if (o.st === 'idle' && d < T.wake){ o.st = 'launch'; o.tm = 0; sfx.shriek(); o.from = o.pos.clone(); }
+  if (o.st === 'launch'){ o.tm += dt; if (o.tm >= T.launch){ o.st = 'dive'; o.tm = 0; o.p0 = o.pos.clone(); o.p1 = vArc(o.s * OMEGA + 0.12, R - 3.8, o.top + 4.6); } }
+  if (o.st === 'dive'){
+    o.tm += dt;
+    if (o.tm >= T.dive){
+      o.done = true; o.st = 'leave'; o.tm = 0;
+      if (G.block > 0){ float('Blocked', head(), '#c9d2e0'); sfx.block(); }
+      else hurt(1, 'Bitten');
+    }
+  }
+}
+// Swattable in the last moments of its dive, when it is at your head.
+export const hittable = o => o.st === 'dive' && o.tm >= T.dive - T.swat;
+export const inReach = () => true;
+export function hit(o){
+  const G = ST.G;
+  o.st = 'dead'; o.tm = 0; o.done = true; o.vel.set(-o.pos.x, 2, -o.pos.z).normalize().multiplyScalar(4);
+  G.gold += GOLD.flitter; float('Swat +' + GOLD.flitter, head(), '#e8b04a'); sfx.hit(); hitstop(TUNE.feel.hitstopKill);
+  burst(o.pos, 14, '#3e2a44', 3);
+}
+
+export function draw(o, dt){
+  const t = ST.time, M = o.M, G = ST.G;
+  M.g.visible = o.st !== 'gone';
+  if (!M.g.visible) return;
+  const prev = _p.copy(o.pos);
+  let flap = 0, folded = 0;
+  if (o.st === 'idle'){ o.pos.copy(o.roost); folded = 1; M.g.rotation.set(Math.PI, 0, 0); M.g.position.copy(o.pos); M.body.rotation.z = Math.sin(t * 1.5 + o.s) * 0.06; }
+  else {
+    if (o.st === 'launch'){ const u = clamp(o.tm / T.launch, 0, 1); o.pos.copy(o.from).add(new THREE.Vector3(0, -0.9 * u * u, 0)); folded = 1 - u; flap = 1; }
+    else if (o.st === 'dive' && G){ bez(o.p0, o.p1, head(1.2), Math.pow(clamp(o.tm / T.dive, 0, 1), 1.25), o.pos); flap = 1; if (Math.random() < 0.8) burst(o.pos, 1, o.glow, 0.3, 0, 0.07); }
+    else if (o.st === 'leave'){ o.vel.set(-o.pos.x * 0.6, 3.5, -o.pos.z * 0.6); o.pos.addScaledVector(o.vel, dt); flap = 1; }
+    else if (o.st === 'dead'){ o.vel.y -= 14 * dt; o.pos.addScaledVector(o.vel, dt); M.g.rotation.x += 0.3; flap = 0; folded = 0.5; }
+    M.g.position.copy(o.pos);
+    if (o.st !== 'dead'){
+      // face along the flight path
+      const dir = new THREE.Vector3().subVectors(o.pos, prev);
+      if (dir.lengthSq() > 1e-6){ M.g.rotation.set(0, Math.atan2(-dir.z, dir.x), 0); M.body.rotation.z = clamp(dir.y / Math.max(1e-4, Math.hypot(dir.x, dir.z)), -1, 1) * 0.6; }
+      if (o.st === 'launch') M.g.rotation.x = Math.PI * (1 - clamp(o.tm / T.launch, 0, 1));
+    }
+  }
+  const beat = Math.sin(t * (o.st === 'dive' ? 26 : 18));
+  for (const W of M.wings) W.w.rotation.x = W.s * (folded * 1.35 + flap * (0.15 + beat * 0.75));
+  M.eye.color.setHex(o.st === 'dive' ? 0xff4a3a : o.glow);
+  M.rim.color.setHex(o.st === 'dive' ? 0xff4a3a : o.glow);
+}
+export function hud(o, d, { drawIcon, drawTiming }){
+  if (o.st === 'dive') drawTiming('A', o.tm, T.dive);
+  else if (o.st === 'launch') drawIcon(o.pos.clone().setY(o.pos.y + 0.6), '!', '#ff6b5a');
+  else if (o.st === 'idle' && d > 0 && d < TUNE.climb.iconRange + 0.6) drawIcon(o.roost.clone().setY(o.roost.y + 0.7), 'A', '#efe6d2');
+}

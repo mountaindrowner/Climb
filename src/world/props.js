@@ -46,7 +46,7 @@ export function updateProps(dt, pw){
   const { time } = ST;
   let fireTarget = null, fireDist = 1e9;
   for (const c of content.values()){
-    for (const o of c.obs){ const e = ENTITIES[o.type]; if (e && e.draw) e.draw(o); }
+    for (const o of c.obs){ const e = ENTITIES[o.type]; if (e && e.draw) e.draw(o, dt); }
     for (const g of c.gold){ if (g.m){ g.m.visible = !g.taken; g.m.rotation.y += dt * 2; g.m.position.y = topAt(g.s) + 0.42 + Math.sin(time * 4 + g.s) * 0.08; } }
     for (const ex of c.extras){
       if (ex.type === 'lift'){

@@ -35,6 +35,12 @@ Every value below lives in `src/config/tuning.js` or `src/config/constants.js`. 
 | Crawler | wakes 4.8 steps out, emerges at 3.2 (or after 1.2 s), rears at 1.7, lunges after 0.5 s; a block stuns it 0.7 s; 2 hp from zone 3 |
 | Spitter | charges 0.6 s from 3.7 steps out; orb flies 0.62 s; a parry reflects it in 0.28 s |
 | Hazard icons | shown from 3.8 steps ahead; hints from 4 |
+| Broken step | starts to crumble 2.4 steps ahead |
+| Fallen beam | creaks from 3.2 steps |
+| Rockfall | warns from 4.6 steps; drops 0.55 s before you arrive, from 9 units up; hits within 0.7 steps |
+| Swinging weight | 4.2-unit chain, cocked at 1.15 rad, 2.8 s period; released a quarter period before you arrive |
+| Burrower | wakes 5.4 steps out, ploughs from 4 steps beyond its mark; jaws rise 0.45 steps before you; linger 0.7 s |
+| Flitter | wakes 4.4 steps out; drops for 0.28 s, dives for 1.0 s; swattable in the last 0.34 s |
 
 ## Wardens
 

@@ -2,6 +2,8 @@
 export const GOLD = {
   nugget: 1,
   crawler: 3,
+  flitter: 2,
+  rockfallParry: 2,
   spitterParry: 4,
   warden: z => 25 + 10 * z,
 };

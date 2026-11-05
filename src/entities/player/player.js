@@ -26,6 +26,7 @@ export function newRunState(startS){
     gold: S.gold, weapon: S.weapon, bonusDmg: 0, hearts: 0,
     jump: 0, duck: 0, block: 0, lastBlock: -9, atk: 0, atkCd: 0, inv: 0, squash: 0, thudId: null, stumble: 0,
     campDone: new Set(), zoneShown: -1, grabCd: 0, engaged: false, fightSlow: false, slowK: 0,
+    spd: 2.25, blockHigh: false, lastAtk: -9,
   };
 }
 export function tickTimers(dt, gameplay){
@@ -61,7 +62,7 @@ export function drink(){
 export function attack(){
   const G = ST.G;
   if (G.atkCd > 0) return;
-  const w = WEAPONS[G.weapon]; G.atkCd = w.cd; G.atk = 0.2; sfx.slash();
+  const w = WEAPONS[G.weapon]; G.atkCd = w.cd; G.atk = 0.2; G.lastAtk = ST.time; sfx.slash();
   const dmg = w.dmg + G.bonusDmg;
   if (ST.B && bossHit(dmg)) return;   // the Warden's arm or head is in the lane and takes the hit
   const p = posOf(G.s); let tgt = null, best = 1e9;
@@ -70,8 +71,10 @@ export function attack(){
     for (const o of flight(kk).obs){
       const e = ENTITIES[o.type];
       if (!e.hittable || !e.hittable(o)) continue;
-      const d = o.s - G.s;
-      if (d > -0.3 && d < w.reach && d < best){ best = d; tgt = o; }
+      // most threats are reached along the stair; a flier says for itself whether it is within the swing
+      const d = e.inReach ? (e.inReach(o, w.reach) ? 0 : null) : o.s - G.s;
+      if (d === null || (!e.inReach && (d <= -0.3 || d >= w.reach))) continue;
+      if (d < best){ best = d; tgt = o; }
     }
   }
   if (tgt) ENTITIES[tgt.type].hit(tgt, dmg);
@@ -90,7 +93,7 @@ export function press(k){
   if (mode === 'climb'){
     if (k === 'up'){
       const p = posOf(G.s);
-      if (p.land && special(p.k) === 'lift' && !S.lifts.includes(p.k)){ repairLift(p.k, p.y); return; }
+      if (!ST.practice && p.land && special(p.k) === 'lift' && !S.lifts.includes(p.k)){ repairLift(p.k, p.y); return; }
       if (G.jump <= 0){ G.jump = P.jump; sfx.jump(); }
     } else if (k === 'down'){ G.duck = P.duck; }
     else if (k === 'a'){ attack(); }

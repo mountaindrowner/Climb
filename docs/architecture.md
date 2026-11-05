@@ -29,7 +29,10 @@ The path distance `s` (in step units) is the one coordinate. `src/world/path.js`
 | Weapons, gold values, rest stop prices | `config/weapons.js`, `config/economy.js` |
 | Procedural content per flight | `world/layout.js` (pure, seeded, tested) laid out on demand by `world/generate.js`, which also builds the meshes |
 | The instanced stair, arenas, the gate darkness | `world/stair.js`, `world/shaft.js` |
-| Hazards and enemies | `entities/hazards/*`, `entities/enemies/*`, registered in `entities/registry.js` |
+| Hazards and enemies | `entities/hazards/*`, `entities/enemies/*`, registered in `entities/registry.js`, described in `entities/catalog.js` (pure data for the Practice screen, the layout's spacing and the tests) |
+| Creature parts | `render/creature.js`: flat-shaded limb segments, spikes, blobs, wing membranes, glowing outlines |
+| Feature switches | `config/features.js` (the Wardens are parked; `?wardens=1` or `#wardens` turns them on) |
+| Practice runs | `ui/screens/practice.js`; `ST.practice` makes the layout place only that threat and stops anything being saved |
 | Craggy rocks (the Wardens, rubble) | `render/rocks.js`: displaced low-poly boulders with flat shading and per-face brightness, seeded; `shard()` for crystals |
 | The warrior | `entities/player/` (model, actions, animation) |
 | Warden fight | `wardens/warden.js` (state machine, driven from `modes/climb.js` while `arenaOf(k)` is the zone's Warden), `wardens/visuals.js` (body behind the wall, breaches, arm, head, markers), `wardens/model.js` (the golem rig and the arm and head props, built from the rock kit with the zone's palette), `wardens/movesets/*` |
@@ -39,7 +42,7 @@ The path distance `s` (in step units) is the one coordinate. `src/world/path.js`
 
 ## Adding things
 
-**A new enemy or hazard.** Create `src/entities/enemies/<name>.js` exporting `build(o, ctx)`, `update(o, dt)`, `draw(o)` and optionally `hud(o, d, api)`, `hittable(o)` and `hit(o, dmg)`. Register it in `entities/registry.js`, then add its type to the zone pools in `world/generate.js`. The object `o` carries `s` (path distance), `st` (its state), `tm` (time in state), `hp`, `alive`, `done`.
+**A new enemy or hazard.** Create `src/entities/enemies/<name>.js` exporting `build(o, ctx)`, `update(o, dt)`, `draw(o, dt)`, a `hint` string, and optionally `hud(o, d, api)`, `hittable(o)`, `hit(o, dmg)` and `inReach(o, reach)` (for things A reaches that are not on the stair, like a flier). Register it in `entities/registry.js`, describe it in `entities/catalog.js`, add it to zone pools in `src/zones/*.js`, and teach the bot in `tools/smoke.mjs` to answer it. The object `o` carries `s` (path distance), `st` (its state), `tm` (time in state), `hp`, `alive`, `done`. `ST.G.spd` is the warrior's current speed, for threats that time their motion to his arrival.
 
 **A unique Warden.** Write `src/wardens/movesets/<zone>.js` exporting `attacks` (each with `answer` of `jump`, `duck` or `block`, a `prompt`, `damage` and `hitText`) and `pick()`. Point `ZONES[z].warden` at it. A new attack shape (a new thing coming through the wall) needs a prop and a pose in `wardens/visuals.js`.
 

@@ -74,7 +74,7 @@ export function updFall(dt){
     burst(vArc(FALL.a, FALL.r, 0), 40, '#5ce1c6', 6, 8);
     const lost = G.gold - Math.floor(G.gold / 2);
     ST.lastFall = { h: meters(FALL.y0), lost };
-    S.falls++; S.gold = Math.floor(G.gold / 2); save();
+    if (!ST.practice){ S.falls++; S.gold = Math.floor(G.gold / 2); save(); }
     clearRoots();
     ST.mode = 'pool'; ST.poolT = 0;
   }

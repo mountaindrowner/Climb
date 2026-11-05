@@ -14,6 +14,9 @@ import { flight, newRun } from '../world/generate.js';
 import { newRunState, PL } from '../entities/player/player.js';
 import { setWeaponModel } from '../entities/player/model.js';
 import { ENTITIES } from '../entities/registry.js';
+import { FEATURES } from '../config/features.js';
+import { PRACTICE_FLIGHTS } from '../world/layout.js';
+import { practiceDone } from '../ui/screens/practice.js';
 import { startBoss, updWarden } from '../wardens/warden.js';
 import { startFall } from './fall.js';
 import { openCamp } from '../ui/screens/camp.js';
@@ -33,9 +36,10 @@ export function updClimb(dt){
   const spd = climbSpeed(G, p0);
   G.engaged = false;
   G.slowK += ((G.fightSlow ? 1 : 0) - G.slowK) * Math.min(1, dt * 6); G.fightSlow = false;
+  G.spd = spd; G.blockHigh = false;
   G.prevS = G.s; G.s += spd * dt;
   // the Warden's stretch: it hunts you from behind the wall while you keep climbing
-  const kb = arenaOf(p0.k);
+  const kb = FEATURES.wardens ? arenaOf(p0.k) : -1;
   if (kb >= 0 && !S.bosses.includes(kb) && !ST.B) startBoss(kb);
   if (ST.B){
     if (G.s >= (kb + 1) * FL){ ST.G.s = (kb + 1) * FL - 0.01; setToast('The stair gives way', 'It tore the steps out from under you', 2); startFall(); return; }
@@ -45,7 +49,8 @@ export function updClimb(dt){
   const ls = landingS(p0.k);
   if (G.prevS < ls && G.s >= ls){
     const sp = special(p0.k);
-    if (sp === 'camp' && !G.campDone.has(p0.k)){ G.s = ls; G.campDone.add(p0.k); S.gold = G.gold; save(); openCamp(p0.k); return; }
+    if (ST.practice && p0.k >= PRACTICE_FLIGHTS){ G.s = ls; practiceDone(); return; }
+    if (sp === 'camp' && !G.campDone.has(p0.k) && !ST.practice){ G.s = ls; G.campDone.add(p0.k); S.gold = G.gold; save(); openCamp(p0.k); return; }
   }
   const p = posOf(G.s);
   if (zoneOf(p.k) !== G.zoneShown){ G.zoneShown = zoneOf(p.k); setToast(ZONES[G.zoneShown].name, 'Zone ' + (G.zoneShown + 1) + ' of ' + ZONES.length, 2.6); }
@@ -64,6 +69,7 @@ export function updClimb(dt){
       if (o.hint && !o.done && o.alive && d > -0.2 && d < C.hintRange) ST.hint = o.hint;
       o.flash = Math.max(0, o.flash - dt);
       ENTITIES[o.type].update(o, dt);
+      if (o.hint && o.done && !ST.practice && !S.seen.includes(o.type)){ S.seen.push(o.type); save(); }
       if (ST.mode !== 'climb') return;
     }
     for (const g of c.gold){
@@ -71,8 +77,8 @@ export function updClimb(dt){
     }
   }
   const lp = posOf(G.s);
-  if (lp.land && special(lp.k) === 'lift' && !S.lifts.includes(lp.k)) ST.hint = 'Tap ▲ to repair the lift. It becomes a shortcut from the Pool.';
-  const m = meters(lp.y); if (m > S.best) S.best = m;
+  if (!ST.practice && lp.land && special(lp.k) === 'lift' && !S.lifts.includes(lp.k)) ST.hint = 'Tap ▲ to repair the lift. It becomes a shortcut from the Pool.';
+  const m = meters(lp.y); if (m > S.best && !ST.practice) S.best = m;
 }
 
 // Begin a climb from path distance startS (0 for the bottom, or a repaired lift's landing).

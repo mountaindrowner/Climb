@@ -98,10 +98,16 @@ Every threat has one clear answer and a visible tell that comes before it.
 
 | Threat | Answer | Tell | Damage | Status |
 | --- | --- | --- | --- | --- |
-| Broken step | ▲ jump | Pulsing ▲ icon and a glowing edge about 4 steps out | 1, plus a stumble | Built |
-| Fallen beam | ▼ duck | ▼ icon, the beam flickers as you approach | 1 | Built |
-| Crawler | A before it lunges, or B to block and then A | Wall crack glows, it emerges, rears up with red eyes and a red "!", lunges after 0.5 s | 1 | Built |
-| Spitter | B to block; a parry reflects the orb and kills it | "!" and an aim line to you while it charges; orb trail; shrinking timing ring | 1 | Built |
+| Broken step | ▲ jump | Glowing cracks in the slab; it crumbles into the shaft as you reach it | 1, plus a stumble | Built |
+| Fallen beam | ▼ duck | A splintered timber wedged diagonally across the stair; it creaks and sheds dust | 1 | Built |
+| Rockfall | B, shield overhead | Grit falls, a shadow ringed in amber grows on the step, the boulder drops | 1; a parry shatters it for gold | Built |
+| Swinging weight | ▼ duck | A chained boulder cocked up the stair; the rope snaps and it swings down at head height | 1 | Built |
+| Crawler | A before it lunges, or B to block and then A | Wall crack glows, it skitters out on six legs, rears with red eyes, lunges after 0.5 s | 1 | Built |
+| Spitter | B to block; a parry reflects the glob and kills it | Its sac swells and glows, an aim line finds you, it recoils as it spits | 1 | Built |
+| Burrower | ▲ jump | A ring of glowing cracks marks a step; a bone fin ploughs toward it; jaws burst up as you cross | 1 | Built |
+| Flitter | A to swat, or B to block | Shrieks, drops from the wall, loops out over the shaft and dives at your head | 1 | Built |
+
+The full catalog, with the fairness rules and how to add a threat, is in `docs/design/enemies.md`. The title screen's **Practice a threat** runs any one of them on its own.
 
 **Readability rules in the build:** a hazard icon appears about 4 steps ahead. The climb slows to a quarter speed while a crawler is dueling you. Every hit, parry and hurt has a short freeze-frame and screen shake, and your swings leave a visible arc. The first five flights are a tutorial, one threat each, with a hint bar.
 
@@ -133,6 +139,8 @@ Enemies come out of the environment in a way that fits the place, which doubles 
 | Repair moments | A quick-time interaction under pressure that earns a permanent shortcut | Built as a single ▲ tap |
 
 ## Bosses
+
+**Parked (decision 0006).** The Warden fight is behind a feature switch while the threat catalog is built out; with it off the whole shaft is open. What follows describes the fight as built, for when it returns.
 
 Each zone ends with its Warden, and the fight is a running fight. The climb never stops. Along the last five flights the shaft wall has collapsed: rubble slopes away behind the stair into the open cavern, and the Warden, which has been climbing behind the wall all zone, is out in the open beside you, keeping pace on the rubble and reaching across to get at you. That makes seven Wardens in all. One is built; the other six reuse its moveset with new names and faster timing.
 
@@ -358,6 +366,10 @@ Every idea raised so far, who raised it, and where it stands.
 | Low-resolution pixel render with a sharp HUD | Claude | Built |
 | Hidden halls and secrets off the main climb | Claude | Proposed |
 | Per-zone Warden movesets and an entity registry in the code | Claude | Built as structure; content to come |
+| Skip the boss for now; improve the enemy catalog and the obstacles | Mark | Built: Wardens parked, eight threats, Practice mode |
+| Rockfall, swinging weight, burrower and flitter | Claude | Built |
+| Practice a single threat from the title screen | Claude | Built |
+| First-sight hints for each threat | Claude | Built |
 
 ## Open questions and roadmap
 
@@ -379,9 +391,10 @@ The core is proven. What's left is variety, unique Wardens, progression and paci
 
 1. **Feel pass on a phone:** camera speed and distance (now pulled out; confirm on device), ramp angle (now shallower), button sizes, freeze-frame strength, fall length, and the precision of the step animation so every step reads.
 2. **Weapon animations:** a distinct swing per weapon with real weight, in the Dead Cells spirit.
-3. **Unique Wardens for zones 2 to 7,** each with its own moveset and its own way of breaking through the wall.
-4. **Zone identity:** each zone's spawns and hazards, from rising water to spore pods.
-5. **Mode variety:** branching stair sections with left-right choice, minecart rails, arena holds, pursuit sections, real repair interactions.
-6. **Progression:** height-based unlocks, flask upgrades, cooldown abilities, a ghost of your best run.
-7. **Pacing to the 30-minute run:** zone length, speed, rest stop spacing.
-8. **Story, art and audio:** the warrior's reason to climb, the Pool's secret, real sound and music.
+3. **Threat catalog:** keep growing it per zone (shapes from the water, constructs from casting molds, spore pods), and tune each in Practice on a phone.
+4. **Wardens, revisited:** bring them back from the switch once the catalog is solid, each with its own moveset.
+5. **Zone identity:** each zone's spawns and hazards, from rising water to spore pods.
+6. **Mode variety:** branching stair sections with left-right choice, minecart rails, arena holds, pursuit sections, real repair interactions.
+7. **Progression:** height-based unlocks, flask upgrades, cooldown abilities, a ghost of your best run.
+8. **Pacing to the 30-minute run:** zone length, speed, rest stop spacing.
+9. **Story, art and audio:** the warrior's reason to climb, the Pool's secret, real sound and music.

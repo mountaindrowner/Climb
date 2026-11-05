@@ -1,6 +1,7 @@
 // The round shaft: wall, outer caverns, floor, the Pool, chains in the open centre, dust, the giant silhouette and the darkness above.
 import { MAXK, FH, RW, RP, R, ZF, BOSS_FLIGHT, ARENA_FLIGHTS } from '../config/constants.js';
 import { hash } from '../core/math.js';
+import { FEATURES } from '../config/features.js';
 import { ZONES } from '../config/zones.js';
 import { ST } from '../core/state.js';
 import { scene, poolLight, fogCol } from '../render/renderer.js';
@@ -38,7 +39,7 @@ function shaftCylinder(radius, tex, repU, key, f, alphaTest, open){
   const m = new THREE.MeshLambertMaterial({ map: t, vertexColors: true, side: THREE.DoubleSide, alphaTest: alphaTest || 0 });
   return new THREE.Mesh(geo, m);
 }
-scene.add(shaftCylinder(RW, wallTex, 5, 'wall', 0.68, 0.5, true));   // the wall, with openings, gone along the Wardens' stretches
+scene.add(shaftCylinder(RW, wallTex, 5, 'wall', 0.68, 0.5, FEATURES.wardens));   // the wall, with openings, gone along the Wardens' stretches
 scene.add(shaftCylinder(17, outerTex, 18, 'wall', 0.4));       // deeper caverns seen through them
 
 const floor = new THREE.Mesh(new THREE.RingGeometry(RP, RW + 0.2, 64), lam(0x55506a));

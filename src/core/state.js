@@ -9,6 +9,7 @@ export const ST = {
   B: null,
   FALL: null,
   poolT: 0,
+  practice: null,     // a threat id while a Practice run is on
   lastFall: null,
   // feedback
   shake: 0, dip: 0, flash: 0,

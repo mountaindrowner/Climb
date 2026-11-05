@@ -27,8 +27,9 @@ src/
   world/              the spiral path, the shaft, the instanced stair, pure seeded layout, meshes
   entities/
     player/           the warrior: model, run state and actions, animation
-    hazards/          broken step, fallen beam
-    enemies/          crawler, spitter
+    hazards/          broken step, fallen beam, rockfall, swinging weight
+    enemies/          crawler, spitter, burrower, flitter
+    catalog.js        what each threat is, its tell and its answer
     registry.js       where new threats are registered
   wardens/            the Warden fight, its model and visuals, one moveset per Warden
   modes/              title, climb, boss, fall, pool, through a registry (minecart, arena, pursuit go here)
@@ -54,7 +55,7 @@ See `docs/architecture.md` for how the systems fit together and how to add a zon
 
 ```bash
 npm test           # node --test: path geometry, seeded layout, economy, save migrations
-npm run smoke      # Playwright: a bot migrates a prototype save, climbs the tutorial, beats the first Warden, falls, catches a root, splashes into the Pool
+npm run smoke      # Playwright: a bot migrates a prototype save, climbs into the second zone, falls and catches a root, then plays a Practice run of every threat
 npm run pacing     # how long each zone takes at the current tuning, against the 30-minute target
 npm run portraits  # close-up shots of the warrior and the Warden in their key poses, for art review
 npm run artifact   # builds dist/artifact.html, the hosted-page version of index.html (published with src/ and vendor/)

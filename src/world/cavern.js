@@ -6,11 +6,12 @@ import { rng } from '../core/math.js';
 import { scene } from '../render/renderer.js';
 import { rock, rockMaterial } from '../render/rocks.js';
 import { OPEN_BANDS } from './shaft.js';
+import { FEATURES } from '../config/features.js';
 const THREE = window.THREE;
 
 export const CAVERN_R = 10.4;       // where the Warden walks
 const group = new THREE.Group(); scene.add(group);
-for (const b of OPEN_BANDS){
+for (const b of FEATURES.wardens ? OPEN_BANDS : []){
   const zz = ZONES[b.z], r = rng(4000 + b.z * 61);
   // rubble is darker and duller than the Warden's stone, so the golem reads against it
   const stone = rockMaterial(new THREE.Color(zz.wall).multiplyScalar(0.42).getHex());

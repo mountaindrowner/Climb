@@ -30,6 +30,12 @@ export const TUNE = {
   spitter: {
     range: 3.7, charge: 0.6, flight: 0.62, reflect: 0.28,
   },
+  gap: { crumble: 2.4 },                     // the step starts to fall away this many steps ahead
+  beam: { creak: 3.2 },
+  rockfall: { warn: 4.6, fall: 0.55, height: 9, hitRange: 0.7 },
+  swing: { length: 4.2, angle: 1.15, period: 2.8 },   // released so the weight reaches the bottom as you arrive
+  burrower: { wake: 5.4, lead: 4, jaws: 0.45, linger: 0.7 },
+  flitter: { wake: 4.4, launch: 0.28, dive: 1.0, swat: 0.34 },
   warden: {
     hp: z => 12 + 5 * z,
     lead: 3.2,          // how far up the stair (step units) it strikes ahead of you

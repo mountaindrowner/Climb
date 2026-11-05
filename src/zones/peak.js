@@ -9,5 +9,5 @@ export default {
   warden: 'deep',          // moveset module in src/wardens/movesets (every zone reuses the Deep's until it has its own)
   bg: '#0b1222', wall: '#6a7496', stone: '#5a6282', top: '#8e97ba', glow: '#ffffff',
   // Threat pool drawn from after the tutorial; repeats weight a type. Add this zone's own spawns here as they are built.
-  threats: ['gap', 'beam', 'crawler', 'crawler', 'spitter', 'spitter'],
+  threats: ['gap', 'beam', 'flitter', 'flitter', 'rockfall', 'rockfall', 'swing', 'spitter', 'crawler'],
 };

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.10.0 — the threat catalog (2026-11-06)
+
+- Fixed: after catching a root (or waking in the Pool) the warrior kept the fall's spin and came back tumbled or upside down.
+- The Warden fight is parked behind a feature switch; the whole shaft is open climbing. `?wardens=1` or `#wardens` brings it back.
+- Rebuilt the four threats as real models with clearer tells: the broken step crumbles into the shaft, the beam is a splintered timber wedged diagonally across the stair, the crawler skitters on six jointed legs with mandibles, the spitter is a swelling sac on spindly legs.
+- Four new threats: rockfall (shield overhead), swinging weight (duck), burrower (jump) and flitter (swat or block), each timed to the warrior's arrival.
+- Creatures carry a faint outline in the zone's glow so they read on dark stone.
+- Practice mode on the title screen: nine flights of any single threat, nothing saved.
+- First-sight hints the first time you meet each threat; seen threats are saved.
+- Every zone draws from the catalog with its own weights.
+- The smoke test's bot now runs every frame in the page and plays a Practice run of every threat: no hits when answering correctly, and each must hurt when ignored. Tests check the catalog matches the code.
+
 ## 0.9.0 — the open cavern (2026-11-05)
 
 - From the first phone playtest: the Warden no longer punches through the wall. Along its stretch the wall has collapsed (ragged vertex-alpha cut) and a rubble cavern is built behind the stair; the golem climbs it in the open beside you.

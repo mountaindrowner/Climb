@@ -6,7 +6,8 @@ export const SAVE_KEY = 'the-climb';
 // Older keys are read once and migrated, so progress from the prototypes carries over.
 const LEGACY_KEYS = ['the-climb-v2', 'the-climb-spiral-v1'];
 
-export const fresh = () => ({ version: SAVE_VERSION, best: 0, lifts: [], bosses: [], falls: 0, gold: 0, stash: 0, weapon: DEFAULT_WEAPON });
+// `seen` lists the threats whose first-sight hint has been shown.
+export const fresh = () => ({ version: SAVE_VERSION, best: 0, lifts: [], bosses: [], falls: 0, gold: 0, stash: 0, weapon: DEFAULT_WEAPON, seen: [] });
 export const S = fresh();
 
 function read(key){ try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }

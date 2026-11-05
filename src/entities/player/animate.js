@@ -28,7 +28,7 @@ export function animatePlayer(){
   else if (G){
     const p = posOf(G.s);
     PL.P.position.copy(playerWorld()); PL.P.rotation.set(0, yawFor(p.a), 0);
-    PL.body.position.y = 0;
+    PL.body.position.y = 0; PL.body.rotation.set(0, 0, 0);   // clear the fall's spin, or a root grab leaves him tumbled
     PL.P.visible = !(G.inv > 0 && Math.floor(time * 20) % 2 === 0) && mode !== 'title';
     const sq = G.squash, ducking = G.duck > 0, climbing = mode === 'climb';
     PL.body.scale.set(1 + sq * 0.06, 1 - sq * 0.08, 1 + sq * 0.06);
@@ -71,7 +71,10 @@ export function animatePlayer(){
       PL.torso.rotation.y = climbing ? swing * 0.08 : 0;
       PL.pivot.rotation.z = -1.5;                                  // blade held low and forward
     }
-    if (G.block > 0){
+    if (G.block > 0 && G.blockHigh){
+      setArm(PL.armL, 2.9, 0.4, -0.2);                             // shield overhead against falling rock
+      PL.shield.position.set(0.02, -0.16, -0.04); PL.shield.rotation.set(Math.PI / 2, 0, 0.1);
+    } else if (G.block > 0){
       setArm(PL.armL, 1.3, 1.0, -0.35);
       PL.shield.position.set(0.04, -0.14, -0.08); PL.shield.rotation.set(0.2, Math.PI / 2 + 0.3, 0);
     } else {

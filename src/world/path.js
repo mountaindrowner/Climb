@@ -3,6 +3,7 @@ import { F, RISE, LAND, FL, FH, ZF, MPU, OMEGA, LIFT_FLIGHT, CAMP_FLIGHT, BOSS_F
 import { ZONES } from '../config/zones.js';
 import { smooth } from '../core/math.js';
 import { S } from '../save/store.js';
+import { FEATURES } from '../config/features.js';
 
 export const zoneOf = k => Math.min(ZONES.length - 1, Math.max(0, Math.floor(k / ZF)));
 export function special(k){
@@ -33,6 +34,7 @@ export function topAt(s){
 }
 // The first unbeaten Warden's flight. Everything above it is hidden in darkness.
 export function gateK(){
+  if (!FEATURES.wardens) return Infinity;   // with the Wardens parked, the whole shaft is open
   for (let z = 0; z < ZONES.length; z++){ const k = bossFlight(z); if (!S.bosses.includes(k)) return k; }
   return Infinity;
 }
