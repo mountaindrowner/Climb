@@ -7,6 +7,16 @@ const html = readFileSync(root + 'index.html', 'utf8');
 const css = readFileSync(root + 'src/ui/styles.css', 'utf8');
 const body = html.slice(html.indexOf('<body>') + 6, html.lastIndexOf('</body>'));
 const fonts = html.match(/<link[^>]+fonts\.googleapis\.com\/css2[^>]+>/)[0];
+// The hosted page cannot serve .glb, so the warrior goes as glTF JSON with its binary chunk embedded as base64.
+function glbToEmbeddedJson(glbPath){
+  const d = readFileSync(glbPath), jsonLen = d.readUInt32LE(12), json = JSON.parse(d.subarray(20, 20 + jsonLen).toString('utf8'));
+  const binStart = 20 + jsonLen + 8, binLen = d.readUInt32LE(20 + jsonLen), bin = d.subarray(binStart, binStart + binLen);
+  json.buffers = [{ byteLength: binLen, uri: 'data:application/octet-stream;base64,' + bin.toString('base64') }];
+  return JSON.stringify(json);
+}
+mkdirSync(root + 'dist/assets/models/warrior', { recursive: true });
+writeFileSync(root + 'dist/assets/models/warrior/warrior.json', glbToEmbeddedJson(root + 'assets/models/warrior/warrior.glb'));
+
 const page = `<title>The Climb</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0d0b12">
@@ -20,7 +30,8 @@ ${css}
 html,body{height:100%}
 #app{padding-left:max(0px, env(safe-area-inset-left, 0px));padding-right:max(0px, env(safe-area-inset-right, 0px))}
 </style>
+<script>window.CLIMB_WARRIOR_URL = 'assets/models/warrior/warrior.json';</script>
 ${body}`;
 mkdirSync(root + 'dist', { recursive: true });
 writeFileSync(root + 'dist/artifact.html', page);
-console.log('dist/artifact.html', page.length, 'bytes');
+console.log('dist/artifact.html', page.length, 'bytes; dist/assets/models/warrior/warrior.json written');

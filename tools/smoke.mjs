@@ -134,7 +134,11 @@ await until(() => window.__climb.ST.mode === 'fall', 3000, 'the fall');
 await page.waitForTimeout(300); await shot('03-fall');
 await until(() => window.__climb.ST.mode === 'climb', 25000, 'the root grab');
 await page.waitForTimeout(1500); await shot('04-recovered');   // after the invulnerability flicker
-const pose = await page.evaluate(() => import('/src/entities/player/player.js').then(m => ({ spin: +m.PL.body.rotation.z.toFixed(3), tip: +m.PL.body.rotation.x.toFixed(3) })));
+const pose = await page.evaluate(async () => {
+  const { PL } = await import('/src/entities/player/player.js'), { GLB } = await import('/src/entities/player/glbRig.js');
+  const r = GLB.root ? GLB.root.rotation : { x: 0, z: 0 };
+  return { spin: +(PL.body.rotation.z + r.z).toFixed(3), tip: +(PL.body.rotation.x + r.x).toFixed(3), blender: !!GLB.ready };
+});
 if (Math.abs(pose.spin) > 0.01 || Math.abs(pose.tip) > 0.01) fail('the warrior came back from the fall tumbled: ' + JSON.stringify(pose));
 console.log('caught a root, upright', await st());
 await page.evaluate(() => { window.__bot.grabRoot = 0; window.__climb.ST.G.inv = 0; window.__climb.hurt(99, 'test'); });

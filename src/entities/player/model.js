@@ -104,7 +104,7 @@ export function makePlayer(){
   // swing arc
   const trailMat = new THREE.MeshBasicMaterial({ color: 0xfff0d2, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false });
   const trail = new THREE.Mesh(new THREE.TorusGeometry(0.95, 0.07, 3, 14, 2.4), trailMat);
-  trail.position.set(0.1, 1.0, 0.3); trail.rotation.z = -0.75; body.add(trail);
+  trail.position.set(0.1, 1.0, 0.3); trail.rotation.z = -0.75; P.add(trail);   // on the root, so it shows with either rig
   P.scale.setScalar(1.5);
   return { P, body, torso, neck, head, armR, armL, legR, legL, shield, pivot, cape, mats, trail, trailMat, wep: null, wepId: null };
 }

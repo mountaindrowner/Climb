@@ -11,6 +11,7 @@ import { posOf, zoneOf } from '../../world/path.js';
 import { PL, playerWorld } from './player.js';
 import { TORSO_Y } from './model.js';
 import { swingInfo } from './motor.js';
+import { usingGlb, animateGlb, GLB } from './glbRig.js';
 const MV = TUNE.move;
 
 function setLeg(leg, hip, knee){ leg.hip.rotation.z = hip; leg.knee.rotation.z = knee; }
@@ -26,11 +27,12 @@ const SWING = {
   thrust: { wind: [-0.5, 1.8, 0.1, -0.35, -0.2], hit: [1.55, 0.0, 0.05, 0.3, 0.4], blade: -1.57, trail: null },
 };
 
-export function animatePlayer(){
+export function animatePlayer(dt = 1 / 60){
   const { mode, time, G, FALL } = ST;
   if (mode === 'fall' && FALL){
     PL.P.position.set(FALL.r * Math.cos(FALL.a), FALL.y, FALL.r * Math.sin(FALL.a));
     PL.P.rotation.set(0, yawFor(FALL.a), 0); PL.body.rotation.set(0, 0, FALL.spin); PL.body.position.set(0, 0.6, 0); PL.P.visible = true;
+    if (usingGlb()){ animateGlb(G, dt); GLB.root.rotation.set(0, 0, FALL.spin); GLB.root.position.set(0, 0.6, 0); return torchAt(PL.P.position, time); }
     setArm(PL.armR, 2.6 + Math.sin(time * 9) * 0.4, 0.6, 0); setArm(PL.armL, 2.4 + Math.cos(time * 8) * 0.4, 0.6, 0);
     setLeg(PL.legR, 0.6 + Math.sin(time * 7) * 0.3, -0.8); setLeg(PL.legL, -0.4 + Math.cos(time * 7) * 0.3, -0.5);
     return torchAt(PL.P.position, time);
@@ -41,6 +43,12 @@ export function animatePlayer(){
   PL.P.position.copy(playerWorld());
   PL.P.rotation.set(0, yawFor(a) + (G.face < 0 ? Math.PI : 0), 0);
   PL.P.visible = !(G.inv > 0 && Math.floor(time * 20) % 2 === 0) && mode !== 'title';
+  // reset the root of the pose each frame, for both rigs (a fall's spin must never survive into a climb)
+  PL.body.rotation.set(0, 0, 0); PL.body.position.set(0, 0, 0); PL.body.scale.set(1, 1, 1);
+  if (usingGlb()){
+    GLB.root.rotation.set(0, 0, 0); GLB.root.position.set(0, 0, 0);
+    animateGlb(G, dt); swingTrail(G); return torchAt(PL.P.position, time, G);
+  }
   // reset the root of the pose each frame (a fall's spin must never survive into a climb)
   PL.body.rotation.set(0, 0, 0); PL.body.position.set(0, 0, 0); PL.body.scale.set(1, 1, 1);
   PL.torso.rotation.set(0, 0, 0); PL.torso.position.y = TORSO_Y;
@@ -130,6 +138,14 @@ export function animatePlayer(){
   const sway = Math.sin(time * 3.1) * 0.05;
   PL.cape.forEach((seg, i) => { seg.rotation.z = (i ? 0.1 : -0.25) + speed * 0.35 * (i + 1) + (G.vy < 0 ? -0.2 : G.vy > 0 ? 0.25 : 0) + sway * (i + 1); });
   return torchAt(PL.P.position, time, G);
+}
+
+// The smear arc for the Blender rig: the same bright arc, shown on the strike frames.
+function swingTrail(G){
+  const A = swingInfo(G);
+  if (A && SWING[A.sw.pose].trail && A.phase === 'active'){ const P = SWING[A.sw.pose]; PL.trailMat.opacity = 0.85 * (1 - clamp(A.t / A.sw.active, 0, 1) * 0.5); PL.trail.rotation.set(P.trail[1], 0, P.trail[0]); }
+  else if (A && SWING[A.sw.pose].trail && A.phase === 'rec' && A.t < 0.06) PL.trailMat.opacity = 0.4 * (1 - A.t / 0.06);
+  else PL.trailMat.opacity = 0;
 }
 
 function torchAt(pw, time, G){

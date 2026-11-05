@@ -125,7 +125,7 @@ The bar is the current jump animation. What exists for Claude to make models and
 | **three.js animation skills** | Community skill files on animation mixers and procedural motion | Knowledge only; read before installing, as with the last repo we reviewed |
 
 **Proof of concept, in order:**
-1. Rebuild the warrior in headless Blender: same proportions, a proper rig, a run cycle and a jump, exported as glTF and played in the game beside the current procedural one. Compare on the phone.
+1. **Done (Nov 6).** The warrior rebuilt in headless Blender (`tools/blender/warrior.py` → `assets/models/warrior/warrior.glb`): shaped low-poly parts in the same proportions, a joint rig, and 14 keyframed clips (idle, run, crouch-walk, rise, fall, roll, four swings, block, block high, hurt, flail). The game plays them frame-locked to gameplay state, with the cape and squash-and-stretch layered on in code. The title screen toggles between this warrior and the hand-built one for comparison on the phone. Verdict pending your playtest.
 2. One enemy from a generative service (the crawler), rigged and animated, to compare quality, style and cost. Needs a key and the service's host allowed.
 3. Pick the pipeline per asset type: likely Blender scripts for characters and props, procedural code for small effects.
 

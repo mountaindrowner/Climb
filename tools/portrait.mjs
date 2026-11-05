@@ -12,6 +12,8 @@ function loadPlaywright(){
 const { chromium } = loadPlaywright();
 const out = new URL('./out/', import.meta.url); mkdirSync(out, { recursive: true });
 const PORT = 8124;
+// RIG=hand or RIG=blender picks the warrior; its move and attack shots are prefixed with it
+const RIG = process.env.RIG || 'blender';
 const server = spawn(process.execPath, [fileURLToPath(new URL('./serve.mjs', import.meta.url))], { env: { ...process.env, PORT }, stdio: 'ignore' });
 await new Promise(r => setTimeout(r, 600));
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox'] });
@@ -19,8 +21,10 @@ const page = await browser.newPage({ viewport: { width: 390, height: 844 }, devi
 const errors = [];
 page.on('pageerror', e => errors.push(e.message));
 await page.route(/^(?!http:\/\/localhost)/, r => r.abort());
+await page.addInitScript(rig => { try { localStorage.setItem('the-climb-rig', rig); } catch (e) {} }, RIG);
 await page.goto(`http://localhost:${PORT}/`, { waitUntil: 'load' });
 await page.waitForFunction(() => window.__climb && window.__climb.ST.mode === 'title');
+if (RIG === 'blender') await page.waitForFunction(() => import('/src/entities/player/glbRig.js').then(m => m.GLB.ready), null, { timeout: 15000, polling: 200 }).catch(() => console.log('the Blender model did not load'));
 await page.addScriptTag({ type: 'module', content: `
   import { startClimb } from '/src/modes/climb.js';
   import { landingS } from '/src/world/path.js';
@@ -63,29 +67,29 @@ let poseN = 0;
 const until = (fn, ms = 4000) => { const n = ++poseN; return page.waitForFunction(fn, null, { timeout: ms, polling: 8 }).catch(async () => console.log('missed pose ' + n, await page.evaluate(() => { const G = window.__climb.ST.G; return JSON.stringify({ atk: G.atk, roll: G.roll, vy: G.vy, g: G.grounded, mode: window.__climb.ST.mode }); }))); };
 await page.evaluate(() => { window.__go(2.3); window.__climb.ST.G.maxHp = 99; window.__climb.ST.G.hp = 99; });
 await cam(3.4, 1.9, 1.15, 0.12);
-await page.waitForTimeout(900); await shot('move-idle');
-await I('right', true); await page.waitForTimeout(260); await shot('move-run');
-await I('jump', true); await until(() => window.__climb.ST.G.vy > 4); await shot('move-jump'); await I('jump', false);
+await page.waitForTimeout(900); await shot(RIG + '-move-idle');
+await I('right', true); await page.waitForTimeout(260); await shot(RIG + '-move-run');
+await I('jump', true); await until(() => window.__climb.ST.G.vy > 4); await shot(RIG + '-move-jump'); await I('jump', false);
 await until(() => window.__climb.ST.G.grounded); await I('right', false); await page.waitForTimeout(250);
 await page.evaluate(() => { window.__climb.ST.timeScale = 0.2; });
-await T('roll'); await until(() => window.__climb.ST.G.roll > 0 && window.__climb.ST.G.roll < 0.24); await shot('move-roll');
+await T('roll'); await until(() => window.__climb.ST.G.roll > 0 && window.__climb.ST.G.roll < 0.24); await shot(RIG + '-move-roll');
 await page.evaluate(() => { window.__climb.ST.timeScale = 1; });
 await page.waitForTimeout(700);
-await I('down', true); await I('right', true); await page.waitForTimeout(300); await shot('move-crouch'); await I('right', false); await I('down', false);
+await I('down', true); await I('right', true); await page.waitForTimeout(300); await shot(RIG + '-move-crouch'); await I('right', false); await I('down', false);
 await page.waitForTimeout(300);
 // time stands still while each pose is photographed, then runs on slowly to the next one
 const frozen = async name => { await page.evaluate(() => { window.__climb.ST.timeScale = 0; }); await shot(name); await page.evaluate(() => { window.__climb.ST.timeScale = 0.15; }); };
 await page.evaluate(() => { window.__climb.ST.timeScale = 0.15; });
-await T('attack'); await until(() => { const A = window.__climb.ST.G.atk; return A && A.phase === 'wind' && A.t > 0.03; }); await frozen('atk-1-wind');
-await until(() => { const A = window.__climb.ST.G.atk; return A && A.phase === 'active' && A.t > 0.03; }); await frozen('atk-1-strike');
-await T('attack'); await until(() => { const A = window.__climb.ST.G.atk; return A && A.i === 1 && A.phase === 'active' && A.t > 0.03; }); await frozen('atk-2-strike');
-await T('attack'); await until(() => { const A = window.__climb.ST.G.atk; return A && A.i === 2 && A.phase === 'wind' && A.t > 0.07; }); await frozen('atk-3-wind');
-await until(() => { const A = window.__climb.ST.G.atk; return A && A.i === 2 && A.phase === 'active' && A.t > 0.04; }); await frozen('atk-3-strike');
+await T('attack'); await until(() => { const A = window.__climb.ST.G.atk; return A && A.phase === 'wind' && A.t > 0.03; }); await frozen(RIG + '-atk-1-wind');
+await until(() => { const A = window.__climb.ST.G.atk; return A && A.phase === 'active' && A.t > 0.03; }); await frozen(RIG + '-atk-1-strike');
+await T('attack'); await until(() => { const A = window.__climb.ST.G.atk; return A && A.i === 1 && A.phase === 'active' && A.t > 0.03; }); await frozen(RIG + '-atk-2-strike');
+await T('attack'); await until(() => { const A = window.__climb.ST.G.atk; return A && A.i === 2 && A.phase === 'wind' && A.t > 0.07; }); await frozen(RIG + '-atk-3-wind');
+await until(() => { const A = window.__climb.ST.G.atk; return A && A.i === 2 && A.phase === 'active' && A.t > 0.04; }); await frozen(RIG + '-atk-3-strike');
 await page.evaluate(() => { window.__climb.ST.timeScale = 1; });
 await page.waitForTimeout(500);
-await I('block', true); await page.waitForTimeout(200); await shot('move-block'); await I('block', false);
+await I('block', true); await page.waitForTimeout(200); await shot(RIG + '-move-block'); await I('block', false);
 await cam(-3.4, 3.2, 1.45, 0.17);
-await I('right', true); await page.waitForTimeout(900); await shot('move-gameplay'); await I('right', false);
+await I('right', true); await page.waitForTimeout(900); await shot(RIG + '-move-gameplay'); await I('right', false);
 
 // ---- the threat catalog: each threat at its tell, at gameplay distance and close up
 await page.addScriptTag({ type: 'module', content: `

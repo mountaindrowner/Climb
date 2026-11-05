@@ -14,6 +14,7 @@ import { R } from './config/constants.js';
 import { newRunState, press, hurt } from './entities/player/player.js';
 import * as input from './core/input.js';
 import { animatePlayer } from './entities/player/animate.js';
+import { loadWarriorGlb } from './entities/player/glbRig.js';
 import { animateWarden } from './wardens/visuals.js';
 import { MODES } from './modes/registry.js';
 import { drawHUD } from './ui/hud.js';
@@ -30,7 +31,7 @@ function step(dt){
   if (ST.mode !== 'climb' && ST.mode !== 'fall') endFrame();
 }
 function visuals(dt){
-  const pw = animatePlayer();
+  const pw = animatePlayer(dt);
   if (ST.mode === 'climb' && Math.random() < dt * 7 && parts.length < PMAX){
     const ga = ST.cam.ang + (Math.random() - 0.5) * 0.9, gr = R - 2 + Math.random() * 3.5;
     mote(gr * Math.cos(ga), ST.cam.y + 5, gr * Math.sin(ga), 0x4a4452); // grit falling from above
@@ -61,6 +62,7 @@ ST.G = newRunState(0); ST.G.gold = 0; ST.G.zoneShown = 0;
 setAllFlights();
 ST.cam.y = 3; ST.cam.ang = 0.3;
 bindInput();
+loadWarriorGlb();
 updatePips();
 titleMenu();
 requestAnimationFrame(frame);

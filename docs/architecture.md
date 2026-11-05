@@ -30,6 +30,7 @@ The path distance `s` (in step units) is the one coordinate. `src/world/path.js`
 | Procedural content per flight | `world/layout.js` (pure, seeded, tested) laid out on demand by `world/generate.js`, which also builds the meshes |
 | The instanced stair, arenas, the gate darkness | `world/stair.js`, `world/shaft.js` |
 | Hazards and enemies | `entities/hazards/*`, `entities/enemies/*`, registered in `entities/registry.js`, described in `entities/catalog.js` (pure data for the Practice screen, the layout's spacing and the tests) |
+| The Blender warrior | `tools/blender/warrior.py` builds and animates him in headless Blender (`pip install bpy`) and exports `assets/models/warrior/warrior.glb`; `entities/player/glbRig.js` loads it (with `vendor/three/GLTFLoader.js`) and sets each clip's playhead from gameplay state; the title screen toggles rigs |
 | Creature parts | `render/creature.js`: flat-shaded limb segments, spikes, blobs, wing membranes, glowing outlines |
 | The warrior's movement and actions | `entities/player/motor.js` (physics, jump, roll, block, combos), `entities/player/animate.js` (pose), `core/input.js` (held and pressed), `world/ground.js` (holes and low ceilings the motor asks about) |
 | Feature switches | `config/features.js` (the Wardens are parked; `?wardens=1` or `#wardens` turns them on) |

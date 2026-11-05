@@ -14,6 +14,7 @@ import { stepMotor } from '../entities/player/motor.js';
 import { flight, newRun } from '../world/generate.js';
 import { newRunState, PL } from '../entities/player/player.js';
 import { setWeaponModel } from '../entities/player/model.js';
+import { showWeapon } from '../entities/player/glbRig.js';
 import { release } from '../core/input.js';
 import { ENTITIES } from '../entities/registry.js';
 import { FEATURES } from '../config/features.js';
@@ -70,7 +71,7 @@ export function updClimb(dt){
 export function startClimb(startS){
   newRun();
   ST.G = newRunState(startS);
-  setWeaponModel(PL, ST.G.weapon);
+  setWeaponModel(PL, ST.G.weapon); showWeapon(ST.G.weapon);
   const p = posOf(startS); ST.cam.y = p.y + 2.6; ST.cam.ang = p.a + 0.14;
   release();
   ST.mode = 'climb'; ST.B = null; ST.FALL = null;

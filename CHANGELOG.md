@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.12.0 — the Blender warrior (2026-11-06)
+
+- Proof of concept for Claude-made models and animation: the warrior is built and animated in headless Blender (the official `bpy` package) by `tools/blender/warrior.py` and exported to glTF. Shaped low-poly parts in the same proportions (lathed helmet with nose guard and cheek guards, beard, layered pauldrons, curved banded shield, three-part cape, hip lantern, three weapons), baked vertex colour with cheap occlusion, and 14 keyframed clips.
+- The game loads it with the vendored r128 glTF loader and plays the clips frame-locked to gameplay (swing phase, stride, roll progress), cross-fading quickly; cape and squash-and-stretch layer on in code.
+- Title screen toggle between the Blender warrior and the hand-built one.
+- Fixed: the hidden rig kept a fall's spin under the other rig; the smoke test checks whichever rig is drawn.
+- Concept v2 and the lore landed earlier today (see 0.11.x notes in git).
+
 ## 0.11.0 — you move him (2026-11-06)
 
 - Free movement along the stair, Dead Cells-tight: instant acceleration and turning, full air control, variable jump height with heavier fall gravity and a minimum hop, coyote time, a jump buffer, a step-up assist, crouch-walking.
