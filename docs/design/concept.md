@@ -17,19 +17,21 @@ A warrior wakes in a healing Pool at the bottom of a mountain and climbs, by han
 
 ## The mountain
 
-The climb is a trunk of regions with side branches. You always move up in time: the bottom is the oldest catastrophe, the summit the most recent. Each region is several tiers of stair, ends at a Warden, and has two exits, one of which may need a route-opener (see Progression). Names come from `lore.md`.
+The mountain is **Orrow** and its stair is **the Wending**. The climb is a trunk of regions with side branches. You always move up in time: the bottom is the oldest catastrophe, the summit the most recent. Each region is several tiers of stair, ends at a Warden, and has two exits, one of which may need a route-opener (see The run). The Pool keeps what stops moving: *keep climbing, or become a Warden.* History, Wardens and item fragments for every region are in `lore.md`.
 
-| Tier | Region | What it is | Character of the stair |
-| --- | --- | --- | --- |
-| 1 | The Deep | Caves and caverns, nameless things, where you wake | Rough-cut rock, steep and narrow |
-| 2 | The Mid Caverns | Wider caves, fungus, water, first signs of builders | Gentle ramps, wide ledges, first forks |
-| 3 | The Dwarf Mines | Workings, rails, lifts, collapse | Steep timber stairs, mine-cart lines, crumbling sections |
-| 4 | The Dwarf Empire | Halls, forges, aqueducts, a civilisation at its height | Grand shallow stairs, double spirals, galleries |
-| 5 | The Dwarf Throne | The seat of the empire and how it fell | A processional stair to a ring arena |
-| 6 | The Dragon's Roost | Burned halls the dragons took | Broken stair over open shafts, heat updrafts |
-| 7 | The Troll Colony | Squatters in the ruins, crude and dangerous | Rubble ramps, scaffolds, traps |
-| 8 | The Lich Castle | A tower built inside the mountain by the dead | Spiral towers, switchbacks, cold |
-| 9+ | Above the castle, to the Peak | Proposed in `lore.md` | Thin air, wind, the first daylight |
+| Tier | Region | Name | What it is | Character of the stair |
+| --- | --- | --- | --- | --- |
+| 1 | The Deep | the Lowmost | Caves and caverns, nameless things, where you wake | Rough-cut rock, steep and narrow |
+| 2 | The Mid Caverns | Gutterlight | Wider caves, fungus, rising water, first signs of builders | Gentle ramps, wide ledges, first forks |
+| 3 | The Dwarf Mines | the Wellseams | Workings, rails, lifts, collapse | Steep timber stairs, mine-cart lines, crumbling sections |
+| 4 | The Dwarf Empire | Haldmarrow | Halls, forges, aqueducts, a civilisation at its height | Grand shallow stairs, double spirals, galleries |
+| 5 | The Dwarf Throne | the Abiding Seat | The seat of the empire and how it fell | A processional stair to a ring arena |
+| 6 | The Dragon's Roost | Hearthroost | Burned halls the dragons took | Broken stair over open shafts, heat updrafts |
+| 7 | The Troll Colony | Crookwarren | Squatters in the ruins, crude and dangerous | Rubble ramps, scaffolds, traps |
+| 8 | The Lich Castle | Morrowkeep | A tower the dead built to sell years | Spiral towers, switchbacks, cold |
+| 9 | The Bell Tower | Knellspire | Where the Lantern Watch kept its vigil | Bell ropes, ladders, the tallest climb indoors |
+| 10 | The Outer Face | Whitherwind | Out onto the mountain's face, wind and first sky | Ledges and handholds on open rock |
+| 11 | The Peak | Skysill | The held moment at the summit | A last short stair into dawn |
 
 Side branches hang off the trunk (flooded galleries, a forgotten chapel, a dragon's hoard): optional, richer loot, harder, and they rejoin above.
 
@@ -142,7 +144,8 @@ The bar is the current jump animation. What exists for Claude to make models and
 
 ## Open questions
 
-- The names for Echoes, the three oaths and the route-openers (`lore.md` proposes some).
+- The names for Echoes, the three oaths and the route-openers; `lore.md` has the vocabulary to draw them from (the Welling, the casting of the tithe, the Lantern Watch).
+- The lore's own open questions, chiefly the ending: let go, drink again, or give the flask to the one at the top (`lore.md`, last section).
 - How long a full climb should take now that the pace is the player's: 30 minutes still?
 - Do lifts survive, or does the climb always start from the bottom as in Dead Cells? (The concept keeps them, with the loot trade-off.)
 - On the phone, is ◀ / ▶ enough to choose at forks, or does it need a dedicated prompt?
