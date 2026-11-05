@@ -1,0 +1,18 @@
+// Mutable runtime state shared by every system. Modules import ST and read or assign its fields.
+// G: the current climb (player). B: the active Warden fight. FALL: the active fall.
+export const ST = {
+  mode: 'title',      // title | menu | climb | boss | fall | pool
+  time: 0,
+  slowmo: 1,
+  hitstop: 0,
+  G: null,
+  B: null,
+  FALL: null,
+  poolT: 0,
+  lastFall: null,
+  // feedback
+  shake: 0, dip: 0, flash: 0,
+  toast: null, hint: null, floats: [],
+  // camera
+  cam: { ang: 0, y: 1.5, r: -3.2 },
+};

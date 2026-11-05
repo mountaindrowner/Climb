@@ -1,0 +1,72 @@
+// Boot and the main loop. Order: gameplay step, visuals, render, HUD.
+import { S, load } from './core/save.js';
+import { ST } from './core/state.js';
+import { TUNE } from './config/tuning.js';
+import { renderer, scene, camera } from './render/renderer.js';
+import { updateParticles, mote, parts, PMAX } from './render/particles.js';
+import { updateCamera } from './render/camera.js';
+import { updateFeedback } from './fx/feedback.js';
+import { updateShaft } from './world/shaft.js';
+import { setAllFlights, updateArenas } from './world/stair.js';
+import { updateProps } from './world/props.js';
+import { R } from './config/constants.js';
+import { newRunState, tickTimers, press, hurt } from './entities/player/player.js';
+import { animatePlayer } from './entities/player/animate.js';
+import { updBoss } from './wardens/warden.js';
+import { animateWarden } from './wardens/visuals.js';
+import { updClimb } from './modes/climb.js';
+import { updFall } from './modes/fall.js';
+import { drawHUD } from './ui/hud.js';
+import { titleMenu, poolMenu, updatePips } from './ui/menus.js';
+import { bindInput } from './core/input.js';
+
+load();
+
+function step(dt){
+  ST.time += dt;
+  updateFeedback(dt);
+  tickTimers(dt, ST.mode === 'climb' || ST.mode === 'boss');
+  if (ST.mode === 'climb') updClimb(dt);
+  else if (ST.mode === 'boss') updBoss(dt);
+  else if (ST.mode === 'fall') updFall(dt);
+  else if (ST.mode === 'pool'){ ST.poolT += dt; if (ST.poolT > 1.4){ ST.G.s = 0; ST.G.prevS = 0; poolMenu(); } }
+  else if (ST.mode === 'title'){ ST.cam.ang += dt * 0.12; }
+}
+function visuals(dt){
+  const pw = animatePlayer();
+  if ((ST.mode === 'climb' || ST.mode === 'boss') && Math.random() < dt * 7 && parts.length < PMAX){
+    const ga = ST.cam.ang + (Math.random() - 0.5) * 0.9, gr = R - 2 + Math.random() * 3.5;
+    mote(gr * Math.cos(ga), ST.cam.y + 5, gr * Math.sin(ga), 0x4a4452); // grit falling from above
+  }
+  updateCamera(dt);
+  updateShaft(dt);
+  updateArenas();
+  updateProps(dt, pw);
+  animateWarden();
+  updateParticles(dt);
+}
+let last = 0;
+function frame(ts){
+  const now = ts / 1000;
+  let dt = last ? now - last : 0.016; last = now;
+  dt = Math.min(dt, 0.05);
+  let sdt = dt;
+  if (ST.hitstop > 0){ ST.hitstop -= dt; sdt = dt * 0.06; } // freeze-frame
+  step(sdt);
+  visuals(sdt);
+  renderer.render(scene, camera);
+  drawHUD();
+  requestAnimationFrame(frame);
+}
+
+// A resting warrior for the title screen; replaced when a climb starts.
+ST.G = newRunState(0); ST.G.gold = 0; ST.G.zoneShown = 0;
+setAllFlights();
+ST.cam.y = 3; ST.cam.ang = 0.3;
+bindInput();
+updatePips();
+titleMenu();
+requestAnimationFrame(frame);
+
+// Debug handle for the smoke test and the console. Not part of the game's API.
+window.__climb = { ST, S, TUNE, step, press, hurt };

@@ -1,0 +1,13 @@
+# Assets
+
+Everything the game draws and plays today is generated in code (`src/render/textures.js`, `src/audio/sfx.js`). These folders are where real assets go as they arrive.
+
+| Folder | What belongs here | Loaded by |
+| --- | --- | --- |
+| `textures/` | Per-zone stone, wall, grime and crystal textures; the Warden silhouette | `src/render/textures.js` |
+| `models/` | Warrior, enemies, Wardens, props (glTF preferred) | `src/entities/*`, `src/wardens/model.js` |
+| `audio/sfx/` | Step, slash, hit, parry, block, hurt, roar, slam, splash, repair, drink | `src/audio/sfx.js` |
+| `audio/music/` | Per-zone ambience and the Warden themes | `src/audio/` (to come) |
+| `fonts/` | A self-hosted copy of the HUD font so the game works offline | `src/ui/styles.css` |
+
+Keep sources (`.blend`, `.aseprite`, `.wav` masters) out of the repository or under a `source/` subfolder with Git LFS.
