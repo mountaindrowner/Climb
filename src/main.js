@@ -7,6 +7,7 @@ import { updateParticles, mote, parts, PMAX } from './render/particles.js';
 import { updateCamera } from './render/camera.js';
 import { updateFeedback } from './fx/feedback.js';
 import { updateShaft } from './world/shaft.js';
+import './world/cavern.js';
 import { setAllFlights } from './world/stair.js';
 import { updateProps } from './world/props.js';
 import { R } from './config/constants.js';
@@ -36,7 +37,7 @@ function visuals(dt){
   updateCamera(dt);
   updateShaft(dt);
   updateProps(dt, pw);
-  animateWarden();
+  animateWarden(dt);
   updateParticles(dt);
 }
 let last = 0;

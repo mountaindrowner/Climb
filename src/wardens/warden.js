@@ -1,7 +1,8 @@
-// The Warden fight is a running fight. It keeps pace behind the wall over the last flights of its zone while you climb,
-// breaking through to swipe, slam and spit. After each attack the arm or head is stuck in the breach for a moment:
-// that is the opening, and you hit it as you pass. Reach the top of its stretch alive and it tears the stair out.
-import { OMEGA, R, RW } from '../config/constants.js';
+// The Warden fight is a running fight. Along the last flights of its zone the wall has collapsed, and the Warden climbs
+// the rubble beside the stair, keeping pace while you climb, reaching across to swipe, slam and spit. After each attack
+// its fist (or head) hangs over the stair for a moment: that is the opening, and you hit it as you pass.
+// Reach the top of its stretch alive and it tears the stair out.
+import { OMEGA } from '../config/constants.js';
 import { TUNE } from '../config/tuning.js';
 import { GOLD } from '../config/economy.js';
 import { ZONES } from '../zones/index.js';
@@ -13,7 +14,7 @@ import { burst } from '../render/particles.js';
 import { float, setToast, hitstop, flash } from '../fx/feedback.js';
 import { zoneOf, topAt } from '../world/path.js';
 import { setAllFlights } from '../world/stair.js';
-import { buildWardenScene, destroyWardenScene } from './visuals.js';
+import { buildWardenScene, destroyWardenScene, wardenHitPoint } from './visuals.js';
 import * as deep from './movesets/deep.js';
 import { hurt, head } from '../entities/player/player.js';
 const W = TUNE.warden;
@@ -22,11 +23,11 @@ const MOVESETS = { deep };
 export function startBoss(k){
   const z = zoneOf(k), zone = ZONES[z], hp = W.hp(z), G = ST.G;
   ST.B = { k, z, name: zone.boss, moves: MOVESETS[zone.warden] || deep, hp, max: hp, phase: 1, st: 'intro', tm: 0, atk: null, queue: [], T: 1,
-    s: G.s + W.lead, a: 0, y: 0, flash: 0, orb: null, stg: W.kneel1, slammed: false, scars: 0 };
+    s: G.s + W.lead, a: 0, y: 0, flash: 0, orb: null, stg: W.kneel1, slammed: false };
   anchor();
   buildWardenScene(ST.B);
   sfx.roar(); ST.shake = 0.5;
-  setToast(zone.boss, 'It is behind the wall. Keep climbing. Strike what it puts through.', 3);
+  setToast(zone.boss, 'Keep climbing. Strike its fist when it rests on the stair.', 3);
 }
 // Where the next attack lands: a little way up the stair from where you are now.
 function anchor(){ const B = ST.B; B.s = ST.G.s + W.lead; B.a = B.s * OMEGA; B.y = topAt(B.s); }
@@ -40,7 +41,7 @@ function next(){
   }
   B.atk = B.queue.shift();
   B.T = B.phase === 1 ? W.windup1(B.z) : W.windup2(B.z);
-  anchor(); B.scars++;
+  anchor();
   sfx.crack();
   go('tele');
 }
@@ -52,7 +53,7 @@ export function updWarden(dt){
     case 'intro': if (B.tm > W.intro) go('idle'); break;
     case 'idle': if (B.tm > (B.queue.length ? 0.25 : (B.phase === 1 ? 0.75 : 0.45))) next(); break;
     case 'tele':
-      if (B.tm >= B.T - 0.3 && !B.slammed){ B.slammed = true; burst(vArc(B.a, RW - 0.5, B.y + 2.2), 22, ZONES[B.z].wall, 4, 7, 0.14); ST.shake = Math.max(ST.shake, 0.25); if (B.atk === 'slam') sfx.slam(); else sfx.hit(); }
+      if (B.tm >= B.T - 0.3 && !B.slammed){ B.slammed = true; if (B.atk === 'slam'){ burst(vArc(B.a, 7, B.y + 0.6), 22, ZONES[B.z].wall, 4, 7, 0.14); ST.shake = Math.max(ST.shake, 0.3); sfx.slam(); } }
       if (B.tm >= B.T){
         B.slammed = false;
         const atk = B.moves.attacks[B.atk];
@@ -80,13 +81,13 @@ export function updWarden(dt){
       break;
     case 'strike': if (B.tm > W.strike){ if (B.queue.length) go('withdraw'); else go('opening', kneelTime(B)); } break;
     case 'opening': if (B.tm > B.stg) go('withdraw'); break;
-    case 'withdraw': if (B.tm > W.withdraw){ burst(vArc(B.a, RW - 0.4, B.y + 2), 10, ZONES[B.z].wall, 2.5, 7, 0.1); go('idle'); } break;
+    case 'withdraw': if (B.tm > W.withdraw) go('idle'); break;
     case 'dying': if (B.tm > W.dying) bossDefeated(); break;
   }
 }
 // Is a part of it in the lane right now, and where.
 export const exposed = B => B.st === 'strike' || B.st === 'opening' || B.st === 'orb' || B.st === 'reflect' || (B.st === 'tele' && B.slammed);
-export function bossTop(){ const B = ST.B; return B.atk === 'spit' ? vArc(B.a, RW - 1.3, B.y + 4.3) : vArc(B.a, R + 0.2, B.y + (B.atk === 'slam' ? 1.6 : 2.6)); }
+export function bossTop(){ const p = wardenHitPoint(); p.y += 0.9; return p; }
 // A swing while it is stuck in the breach and you are close enough hits it. Returns whether the swing was spent on it.
 export function bossHit(dmg){
   const B = ST.B;
@@ -111,7 +112,7 @@ export function removeBoss(){
 }
 function bossDefeated(){
   const B = ST.B, G = ST.G, g = GOLD.warden(B.z); G.gold += g;
-  burst(vArc(B.a, RW - 1, B.y + 3), 50, ZONES[B.z].glow, 6);
+  burst(wardenHitPoint(), 50, ZONES[B.z].glow, 6);
   S.bosses.push(B.k); S.gold = G.gold; save();
   const name = B.name;
   removeBoss();

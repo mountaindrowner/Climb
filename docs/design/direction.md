@@ -134,30 +134,28 @@ Enemies come out of the environment in a way that fits the place, which doubles 
 
 ## Bosses
 
-Each zone ends with its Warden, and the fight is a running fight. The climb never stops. The Warden lives in the cavern behind the wall, where its silhouette has been climbing all zone, and over the last five flights it keeps pace with you and breaks through the layers to get at you. That makes seven Wardens in all. One is built; the other six reuse its moveset with new names and faster timing.
+Each zone ends with its Warden, and the fight is a running fight. The climb never stops. Along the last five flights the shaft wall has collapsed: rubble slopes away behind the stair into the open cavern, and the Warden, which has been climbing behind the wall all zone, is out in the open beside you, keeping pace on the rubble and reaching across to get at you. That makes seven Wardens in all. One is built; the other six reuse its moveset with new names and faster timing.
 
 | Attack | Tell | Answer | Marker | Damage |
 | --- | --- | --- | --- | --- |
-| Swipe | Cracks glow on the wall a few steps ahead, bricks shake, then an arm bursts through at head height and sweeps the stair | ▼ duck | Red band at head height | 1 |
-| Slam | Cracks glow higher up; a fist punches through and smashes down on the stair ahead; a shockwave rolls down the steps at you | ▲ jump as the shockwave reaches you | Red strip down the steps and the rolling shockwave | 2 |
-| Spit | Its head shoves through a breach above and its mouth glows | B to block; a parry reflects it for 3 damage | Aim line from the breach to you | 1 |
+| Swipe | It draws an arm back and up, twisting away, then sweeps it across the stair at head height a few steps ahead | ▼ duck | Red band at head height | 1 |
+| Slam | Both fists rise and it rears back, then a fist hammers the step ahead; a shockwave rolls down the steps at you | ▲ jump as the shockwave reaches you | Red strip down the steps and the rolling shockwave | 2 |
+| Spit | It leans in, braces on the rubble and its mouth glows | B to block; a parry reflects it for 3 damage | Aim line from its mouth to you | 1 |
 
-**The opening:** after each attack the arm or head is stuck in the breach for a moment, in your lane. That is when A does damage, and only while you are close enough to it, so you hit it as you pass. The opening lasts 1.5 s in phase 1 and 1.1 s in phase 2. A swing at it any other time just clangs.
+**The opening:** after each attack its fist rests on the stair (or hangs across it) for a moment, in your lane, and after a spit its head stays leaned in. That is when A does damage, and only while you are close enough to it, so you hit it as you pass. The opening lasts 1.5 s in phase 1 and 1.1 s in phase 2. A swing at it any other time just clangs.
 
 **The race:** reach the top of its stretch with it still alive and it tears the stair out from under you. You fall, and the roots and the Pool apply as always. Catch a root one turn down and you land near the start of its stretch to try again.
 
-**Phase 2 starts at half health.** The button prompts and timing rings disappear, the cracks only glow in the last 0.42 s, and 55% of its turns are two-attack combos.
+**Phase 2 starts at half health.** The button prompts and timing rings disappear, the floor and head-height markers only show in the last 0.42 s, and 55% of its turns are two-attack combos.
 
-**Rewards:** 25 gold plus 10 per zone, a permanent lift past it, and the darkness above lifts to open the stair. It collapses behind the wall while you keep running; nothing interrupts the climb. Its health is 12 plus 5 per zone.
+**Rewards:** 25 gold plus 10 per zone, a permanent lift past it, and the darkness above lifts to open the stair. It sinks into the rubble while you keep running; nothing interrupts the climb. Its health is 12 plus 5 per zone.
 
-**The wall remembers:** every breach it punches stays as a scar for the rest of the fight.
-
-**Foreshadowing (built):** the silhouette climbing the cavern behind the wall is the same creature; when its stretch begins it is simply closer, and the breaches are where it comes through.
+**Foreshadowing (built):** the silhouette climbing the cavern behind the wall is the same creature; when the wall falls away at its stretch, there it is.
 
 ### Proposed for bosses
 
 - A unique Warden per zone, each with its own moveset. The code reads movesets from `src/wardens/movesets/`, so this is a content job.
-- Attacks that change the stair itself: a slam that breaks steps you then have to jump, a breach that spills water or spores into the lane.
+- Attacks that change the stair itself: a slam that breaks steps you then have to jump, a swipe that sends rubble onto the stair.
 - A pursuer that hunts you up the shaft and closes in during chase sections.
 - Background-to-foreground moments beyond the Wardens: smaller things in the back layer that later jump into your lane.
 
@@ -197,6 +195,7 @@ The scene runs in multiple layers, with things happening behind the stair.
 | Midground | The stair, the warrior, enemies, lifts and campfires | Built |
 | Wall | Cracked, grimy brick with glints of crystal and openings into deeper caverns | Built |
 | Deep background | Darker caverns behind the wall, with the Warden's silhouette climbing | Built |
+| Collapsed sections | Along each Warden's stretch the wall is gone: a rubble slope, broken edges, stubs of wall, the cavern floor the Warden walks | Built |
 | Above | Darkness hides everything above the next unbeaten Warden | Built |
 | Crossing layers | Something seen in the background later drops into your lane | Proposed |
 

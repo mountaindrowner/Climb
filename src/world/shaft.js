@@ -1,5 +1,6 @@
 // The round shaft: wall, outer caverns, floor, the Pool, chains in the open centre, dust, the giant silhouette and the darkness above.
-import { MAXK, FH, RW, RP, R } from '../config/constants.js';
+import { MAXK, FH, RW, RP, R, ZF, BOSS_FLIGHT, ARENA_FLIGHTS } from '../config/constants.js';
+import { hash } from '../core/math.js';
 import { ZONES } from '../config/zones.js';
 import { ST } from '../core/state.js';
 import { scene, poolLight, fogCol } from '../render/renderer.js';
@@ -10,18 +11,34 @@ const THREE = window.THREE;
 
 const TOTAL_H = MAXK * FH + 30;
 function zoneColorAtY(y, key, f){ const z = ZONES[zoneOf(Math.floor(y / FH))]; return new THREE.Color(z[key]).multiplyScalar(f); }
-function shaftCylinder(radius, tex, repU, key, f, alphaTest){
-  const segs = MAXK + 4;
+// The collapsed sections: along each Warden's stretch the wall has fallen away and the cavern behind is open.
+export const OPEN_BANDS = [];
+for (let z = 0; z < ZONES.length; z++){ const k0 = z * ZF + BOSS_FLIGHT - ARENA_FLIGHTS + 1; OPEN_BANDS.push({ z, y0: k0 * FH + 1.5, y1: (z * ZF + BOSS_FLIGHT + 1) * FH - 0.5 }); }
+export const inOpenBand = y => OPEN_BANDS.some(b => y > b.y0 && y < b.y1);
+function shaftCylinder(radius, tex, repU, key, f, alphaTest, open){
+  const segs = MAXK * 2;
   const geo = new THREE.CylinderGeometry(radius, radius, TOTAL_H, 72, segs, true);
   geo.translate(0, TOTAL_H / 2 - 10, 0);
-  const pos = geo.attributes.position, cols = new Float32Array(pos.count * 3);
-  for (let i = 0; i < pos.count; i++){ const c = zoneColorAtY(pos.getY(i), key, f); cols[i * 3] = c.r; cols[i * 3 + 1] = c.g; cols[i * 3 + 2] = c.b; }
-  geo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+  const pos = geo.attributes.position, cols = new Float32Array(pos.count * 4);
+  for (let i = 0; i < pos.count; i++){
+    const y = pos.getY(i), c = zoneColorAtY(y, key, f);
+    cols[i * 4] = c.r; cols[i * 4 + 1] = c.g; cols[i * 4 + 2] = c.b;
+    // alpha 0 inside an open band; the ring nearest each edge is torn at random so the break is ragged
+    let a = 1;
+    if (open){
+      for (const b of OPEN_BANDS){
+        if (y > b.y0 && y < b.y1) a = 0;
+        else if (Math.abs(y - b.y0) < 2.2 || Math.abs(y - b.y1) < 2.2){ if (hash(Math.round(pos.getX(i) * 7), Math.round(pos.getZ(i) * 7) + Math.round(y)) < 0.45) a = 0; }
+      }
+    }
+    cols[i * 4 + 3] = a;
+  }
+  geo.setAttribute('color', new THREE.BufferAttribute(cols, 4));
   const t = tex.clone(); t.needsUpdate = true; t.repeat.set(repU, TOTAL_H / 24);
   const m = new THREE.MeshLambertMaterial({ map: t, vertexColors: true, side: THREE.DoubleSide, alphaTest: alphaTest || 0 });
   return new THREE.Mesh(geo, m);
 }
-scene.add(shaftCylinder(RW, wallTex, 5, 'wall', 0.68, 0.5));   // the wall, with openings
+scene.add(shaftCylinder(RW, wallTex, 5, 'wall', 0.68, 0.5, true));   // the wall, with openings, gone along the Wardens' stretches
 scene.add(shaftCylinder(17, outerTex, 18, 'wall', 0.4));       // deeper caverns seen through them
 
 const floor = new THREE.Mesh(new THREE.RingGeometry(RP, RW + 0.2, 64), lam(0x55506a));

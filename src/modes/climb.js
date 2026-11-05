@@ -23,7 +23,7 @@ export function climbSpeed(G, p){
   let spd = C.baseSpeed + C.speedPerZone * zoneOf(p.k);
   if (G.stumble > 0) spd *= C.stumbleMul;
   if (G.engaged) spd *= C.engagedMul;
-  if (G.fightSlow) spd *= TUNE.warden.fightSlowMul;
+  spd *= 1 - G.slowK * (1 - TUNE.warden.fightSlowMul);   // the Warden's slow-down, blended so it never snaps
   if (p.land && special(p.k) === 'lift' && !S.lifts.includes(p.k)) spd *= C.brokenLiftMul;
   return spd;
 }
@@ -31,7 +31,8 @@ export function climbSpeed(G, p){
 export function updClimb(dt){
   const G = ST.G, p0 = posOf(G.s);
   const spd = climbSpeed(G, p0);
-  G.engaged = false; G.fightSlow = false;
+  G.engaged = false;
+  G.slowK += ((G.fightSlow ? 1 : 0) - G.slowK) * Math.min(1, dt * 6); G.fightSlow = false;
   G.prevS = G.s; G.s += spd * dt;
   // the Warden's stretch: it hunts you from behind the wall while you keep climbing
   const kb = arenaOf(p0.k);

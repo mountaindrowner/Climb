@@ -129,24 +129,3 @@ export function makeWarden(z){
   G0.scale.setScalar(W.scale);
   return { G: G0, spine, legs, neck, head, armF, armB, mats: P.mats, coreMat, mouthMat: H.mouthMat, mouth: H.mouth, glow: P.glow, crackMat: P.crackMat, spikes, glowMat: P.glowMat, eyeLight: H.eyeLight };
 }
-
-// The arm that comes through the wall: along +x, shoulder stub behind, elbow, forearm, fist. `fore` is what emerges.
-export function makeWardenArm(z, seed){
-  const P = palette(z), r = rng(seed || (500 + z * 31));
-  const g = new THREE.Group();
-  g.add(rock(P.stone, { w: 1.6, h: 1.0, d: 1.0, jag: 0.3 }, -0.6, 0, 0, r));
-  const fore = new THREE.Group(); fore.position.set(0.2, 0, 0); g.add(fore);
-  fore.add(rock(P.dark, { w: 1.0, h: 0.85, d: 0.85, jag: 0.35 }, 0.45, 0, 0, r));                              // elbow
-  fore.add(rock(P.stone, { w: 1.3, h: 0.7, d: 0.72, jag: 0.3 }, 1.3, 0.02, 0, r), rock(P.dark, { w: 1.2, h: 0.62, d: 0.65, jag: 0.3 }, 2.3, -0.02, 0, r)); // forearm
-  fore.add(mbox(0.3, 0.06, 0.06, P.crackMat, 1.85, 0.34, 0.12), mbox(0.25, 0.06, 0.06, P.crackMat, 2.4, -0.3, -0.1));
-  fore.add(rock(P.lichen, { w: 0.35, h: 0.1, d: 0.3, jag: 0.4 }, 1.6, 0.3, 0.25, r));
-  const f = fist(fore, P, r, 1.15, 3.3, 0, 0); f.rotation.y = -Math.PI / 2;                                    // knuckles forward
-  return { g, fore, mats: P.mats, glowMat: P.glowMat, crackMat: P.crackMat, glow: P.glow };
-}
-// The head that shoves through a breach to spit.
-export function makeWardenHead(z, seed){
-  const P = palette(z), r = rng(seed || (700 + z * 13));
-  const H = buildHead(P, r);
-  H.head.scale.setScalar(1.25);
-  return { g: H.head, mouth: H.mouth, mouthMat: H.mouthMat, eyeLight: H.eyeLight, mats: P.mats, glowMat: P.glowMat, crackMat: P.crackMat, glow: P.glow };
-}

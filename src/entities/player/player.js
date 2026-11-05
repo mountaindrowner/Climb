@@ -25,7 +25,7 @@ export function newRunState(startS){
     s: startS, prevS: startS, hp: P.hp, maxHp: P.hp, flask: P.flask, flaskMax: P.flask,
     gold: S.gold, weapon: S.weapon, bonusDmg: 0, hearts: 0,
     jump: 0, duck: 0, block: 0, lastBlock: -9, atk: 0, atkCd: 0, inv: 0, squash: 0, thudId: null, stumble: 0,
-    campDone: new Set(), zoneShown: -1, grabCd: 0, engaged: false,
+    campDone: new Set(), zoneShown: -1, grabCd: 0, engaged: false, fightSlow: false, slowK: 0,
   };
 }
 export function tickTimers(dt, gameplay){

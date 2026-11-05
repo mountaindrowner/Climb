@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.0 — the open cavern (2026-11-05)
+
+- From the first phone playtest: the Warden no longer punches through the wall. Along its stretch the wall has collapsed (ragged vertex-alpha cut) and a rubble cavern is built behind the stair; the golem climbs it in the open beside you.
+- Its attacks are its own arms, aimed at the stair with two-bone inverse kinematics and eased between poses; the swipe draws back and sweeps, the slam rears both fists up and hammers the step, the spit leans in. The opening is its fist resting on the stair.
+- Camera turns the shortest way round, so catching a root one turn down no longer spins it.
+- The Warden's slow-down blends instead of snapping.
+- Rubble is darker than the Warden's stone so the golem reads; the body climbs closer to the stair.
+
 ## 0.8.0 — the golem (2026-11-05)
 
 - The Warden is a golem of broken stone. New rock kit (`src/render/rocks.js`): displaced low-poly boulders with flat shading and per-face brightness, seeded so every Warden's rocks fall differently. Every body part is a cluster of boulders: layered plates down the back, knuckle clusters for fists, a brow slab and jutting jaw, lichen, crystal shards along the spine and crown, glowing cracks between the rocks, and eyes that are hot crystals set in near-black sockets under the brow. The arm and head that come through the wall are built from the same kit; breach rubble too.

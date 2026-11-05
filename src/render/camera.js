@@ -15,7 +15,8 @@ export function updateCamera(dt){
   else if (G){ const p = posOf(G.s), c = B ? CT.fight : CT.climb; tA = p.a + c.lead; tY = p.y + c.up; lookY = p.y + c.look; lookA = tA + 0.02; tR = c.back; }   // the fight camera pulls out to show the wall
   else { tA = cam.ang; tY = cam.y; lookY = cam.y - 2; lookA = cam.ang; }
   const fk = mode === 'fall' ? 1 : Math.min(1, dt * 4);
-  cam.ang += (tA - cam.ang) * fk; cam.y += (tY - cam.y) * (mode === 'fall' ? 1 : Math.min(1, dt * 5));
+  let dA = tA - cam.ang; dA = Math.atan2(Math.sin(dA), Math.cos(dA));   // shortest way round: a root one turn down must not spin the camera
+  cam.ang += dA * fk; cam.y += (tY - cam.y) * (mode === 'fall' ? 1 : Math.min(1, dt * 5));
   cam.r += (tR - cam.r) * Math.min(1, dt * 3);
   const shx = (Math.random() - 0.5) * ST.shake, shy = (Math.random() - 0.5) * ST.shake;
   camera.position.set(cam.r * Math.cos(cam.ang) + shx, cam.y - ST.dip + shy, cam.r * Math.sin(cam.ang));
