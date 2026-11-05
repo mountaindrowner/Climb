@@ -15,7 +15,7 @@ test('Warden gold rises per zone', () => {
 test('every weapon has reach and a combo of complete swings', () => {
   for (const w of Object.values(WEAPONS)){
     assert.ok(w.reach > 0 && w.combo.length >= 2);
-    for (const sw of w.combo){ assert.ok(sw.dmg > 0 && sw.wind > 0 && sw.active > 0 && sw.rec > 0 && sw.lunge >= 0); assert.ok(['slash', 'back', 'chop', 'thrust'].includes(sw.pose)); }
+    for (const sw of w.combo){ assert.ok(sw.dmg > 0 && sw.wind > 0 && sw.active > 0 && sw.rec > 0 && sw.lunge >= 0); assert.ok(['slash', 'back', 'chop', 'thrust', 'jab', 'lunge'].includes(sw.pose)); }
     // a combo's last hit is its heaviest
     assert.ok(w.combo[w.combo.length - 1].dmg >= w.combo[0].dmg);
   }

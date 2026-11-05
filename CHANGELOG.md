@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.13.0 — the knight (2026-11-06)
+
+- A new default warrior: the CC0 KayKit knight, rebuilt in headless Blender by `tools/blender/knight_kaykit.py`. Re-proportioned from chibi (two heads tall) to heroic (about four): a smaller head, longer legs, arms and trunk, posed and baked into a new rest pose so the pack's clips carry over. The cartoon face became a dark visor with two cold eye-slits. Our three weapons: the pack's sword (scaled to the new frame), its one-handed axe as the war pick, and a spear built in the script.
+- `tools/blender/posekit.py`: pose authoring for headless Blender (aim bones at directions, point a held blade, plant feet with two-bone IK, key poses into actions). With it, clips authored for the side-on camera: the four swings as arcs the camera can see (a forward cut, a rising backhand, an overhead chop, a thrust), a guard stance, crouch and crouch walk, the roll's tuck, a high block, and the jump clips with the sword carried upright.
+- Facing down the stair, GLB rigs are mirrored like a 2D sprite flip, so the sword arm stays on the camera's side.
+- The blade trail is now swept by the real blade (hilt to tip) over the last frames of a strike, for any rig, instead of a fixed arc.
+- Title toggle cycles Knight → Blender warrior → hand-built. The hosted build ships both models as embedded-JSON glTF.
+- Art review tools: `tools/rig-review.mjs` (every move mid-motion in game, close and at gameplay distance, contact sheets) and `tools/rig-studio.mjs` (turnaround, face close-up and clip filmstrips outside the game).
+- Fixed: changing weapon during a combo crashed the frame loop (the swing index ran past the new weapon's combo).
+
 ## 0.12.0 — the Blender warrior (2026-11-06)
 
 - Proof of concept for Claude-made models and animation: the warrior is built and animated in headless Blender (the official `bpy` package) by `tools/blender/warrior.py` and exported to glTF. Shaped low-poly parts in the same proportions (lathed helmet with nose guard and cheek guards, beard, layered pauldrons, curved banded shield, three-part cape, hip lantern, three weapons), baked vertex colour with cheap occlusion, and 14 keyframed clips.

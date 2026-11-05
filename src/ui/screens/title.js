@@ -5,7 +5,7 @@ import { setAllFlights } from '../../world/stair.js';
 import { showMenu, registerActions } from '../overlay.js';
 import { poolMenu } from './pool.js';
 import './practice.js';
-import { rigChoice, setRigChoice } from '../../entities/player/glbRig.js';
+import { rigChoice, setRigChoice, RIG_ORDER, RIG_LABEL } from '../../entities/player/glbRig.js';
 
 export function titleMenu(){
   ST.mode = 'title';
@@ -24,12 +24,13 @@ export function titleMenu(){
       Fall and you drop all the way down. Repaired lifts stay repaired.
     </div>
     ${S.best ? `<p class="note">Best height ${S.best} m · Falls ${S.falls}</p>` : ''}
-    <button class="link" data-act="rig">Warrior: ${rigChoice() === 'blender' ? 'Blender model (tap for hand-built)' : 'hand-built (tap for Blender model)'}</button>
+    <button class="link" data-act="rig">Warrior: ${RIG_LABEL[rigChoice()]} (tap for ${RIG_LABEL[nextRig()]})</button>
     <button class="link" data-act="reset">Reset progress</button>
   </div>`);
 }
+const nextRig = () => RIG_ORDER[(RIG_ORDER.indexOf(rigChoice()) + 1) % RIG_ORDER.length];
 registerActions({
   pool(){ ST.lastFall = null; poolMenu(); },
   reset(){ resetSave(); setAllFlights(); titleMenu(); },
-  rig(){ setRigChoice(rigChoice() === 'blender' ? 'hand' : 'blender'); titleMenu(); },
+  rig(){ setRigChoice(nextRig()); titleMenu(); },
 });

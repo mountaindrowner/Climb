@@ -94,6 +94,7 @@ export function repairLift(k){
   burst(vArc(landingS(k) * OMEGA, R - 1.0, y + 2.2), 18, '#e8b04a', 3);
   setToast('Lift repaired', 'It now runs from the Pool to ' + meters(y) + ' m', 2.4);
 }
-export function setWeapon(id){ ST.G && (ST.G.weapon = id); S.weapon = id; save(); setWeaponModel(PL, id); showWeapon(id); }
+export function setWeapon(id){ if (ST.G){ ST.G.weapon = id; ST.G.atk = null; }   // a swing in progress belongs to the old weapon's combo
+  S.weapon = id; save(); setWeaponModel(PL, id); showWeapon(id); }
 // Older callers and tools: a single tap of a button.
 export function press(k){ tap({ up: 'jump', down: 'down', a: 'attack', b: 'block' }[k] || k); }

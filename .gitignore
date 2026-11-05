@@ -4,3 +4,4 @@ node_modules/
 /dist/
 /tools/out/
 /.playwright/
+__pycache__/

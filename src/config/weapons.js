@@ -9,12 +9,12 @@ export const WEAPONS = {
   ] },
   pick:  { name: 'War pick', desc: 'Slow, heavy blows', reach: 1.6, combo: [
     { dmg: 2, wind: 0.14, active: 0.09, rec: 0.3, lunge: 0.3, pose: 'chop' },
-    { dmg: 3, wind: 0.18, active: 0.1, rec: 0.42, lunge: 0.5, pose: 'chop' },
+    { dmg: 3, wind: 0.18, active: 0.1, rec: 0.42, lunge: 0.5, pose: 'back' },
   ] },
   spear: { name: 'Spear', desc: 'Long reach, lunging', reach: 2.5, combo: [
-    { dmg: 1, wind: 0.08, active: 0.09, rec: 0.2, lunge: 0.5, pose: 'thrust' },
+    { dmg: 1, wind: 0.08, active: 0.09, rec: 0.2, lunge: 0.5, pose: 'jab' },
     { dmg: 1, wind: 0.06, active: 0.09, rec: 0.2, lunge: 0.5, pose: 'thrust' },
-    { dmg: 2, wind: 0.12, active: 0.1, rec: 0.3, lunge: 0.9, pose: 'thrust' },
+    { dmg: 2, wind: 0.12, active: 0.1, rec: 0.3, lunge: 0.9, pose: 'lunge' },
   ] },
 };
 export const DEFAULT_WEAPON = 'sword';

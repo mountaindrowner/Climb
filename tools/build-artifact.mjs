@@ -7,15 +7,20 @@ const html = readFileSync(root + 'index.html', 'utf8');
 const css = readFileSync(root + 'src/ui/styles.css', 'utf8');
 const body = html.slice(html.indexOf('<body>') + 6, html.lastIndexOf('</body>'));
 const fonts = html.match(/<link[^>]+fonts\.googleapis\.com\/css2[^>]+>/)[0];
-// The hosted page cannot serve .glb, so the warrior goes as glTF JSON with its binary chunk embedded as base64.
+// The hosted page cannot serve .glb, so each warrior model goes as glTF JSON with its binary chunk embedded as base64.
 function glbToEmbeddedJson(glbPath){
   const d = readFileSync(glbPath), jsonLen = d.readUInt32LE(12), json = JSON.parse(d.subarray(20, 20 + jsonLen).toString('utf8'));
   const binStart = 20 + jsonLen + 8, binLen = d.readUInt32LE(20 + jsonLen), bin = d.subarray(binStart, binStart + binLen);
   json.buffers = [{ byteLength: binLen, uri: 'data:application/octet-stream;base64,' + bin.toString('base64') }];
   return JSON.stringify(json);
 }
-mkdirSync(root + 'dist/assets/models/warrior', { recursive: true });
-writeFileSync(root + 'dist/assets/models/warrior/warrior.json', glbToEmbeddedJson(root + 'assets/models/warrior/warrior.glb'));
+const MODELS = { knight: 'knight/knight', blender: 'warrior/warrior' };
+const urls = {};
+for (const [rig, path] of Object.entries(MODELS)){
+  mkdirSync(root + 'dist/assets/models/' + path.split('/')[0], { recursive: true });
+  writeFileSync(root + `dist/assets/models/${path}.json`, glbToEmbeddedJson(root + `assets/models/${path}.glb`));
+  urls[rig] = `assets/models/${path}.json`;
+}
 
 const page = `<title>The Climb</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -30,8 +35,8 @@ ${css}
 html,body{height:100%}
 #app{padding-left:max(0px, env(safe-area-inset-left, 0px));padding-right:max(0px, env(safe-area-inset-right, 0px))}
 </style>
-<script>window.CLIMB_WARRIOR_URL = 'assets/models/warrior/warrior.json';</script>
+<script>window.CLIMB_MODEL_URLS = ${JSON.stringify(urls)};</script>
 ${body}`;
 mkdirSync(root + 'dist', { recursive: true });
 writeFileSync(root + 'dist/artifact.html', page);
-console.log('dist/artifact.html', page.length, 'bytes; dist/assets/models/warrior/warrior.json written');
+console.log('dist/artifact.html', page.length, 'bytes; models:', Object.values(urls).join(', '));
