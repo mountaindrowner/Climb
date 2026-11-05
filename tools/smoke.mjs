@@ -72,13 +72,14 @@ await page.evaluate(() => {
       }
       const p = window.__posOf(G.s);
       if (p.land && window.__special(p.k) === 'lift') press('up');
-    } else if (mode === 'boss' && B){
-      if (B.st === 'tele'){
-        if (B.atk === 'slam' && B.tm > B.T - 0.2 && G.jump <= 0) press('up');
-        if (B.atk === 'sweep' && B.tm > B.T - 0.25 && G.duck <= 0) press('down');
+      if (B){ // the running fight: answer the tell, hit what is stuck in the breach as you pass it
+        if (B.st === 'tele'){
+          if (B.atk === 'slam' && B.tm > B.T - 0.2 && G.jump <= 0) press('up');
+          if (B.atk === 'sweep' && B.tm > B.T - 0.25 && G.duck <= 0) press('down');
+        }
+        if (B.st === 'orb' && B.orb && B.orb.t > B.orb.dur - 0.12 && G.block <= 0) press('b');
+        if (B.st === 'opening' && Math.abs(B.s - G.s) < 2.1 && G.atkCd <= 0) press('a');
       }
-      if (B.st === 'orb' && B.orb && B.orb.t > B.orb.dur - 0.12 && G.block <= 0) press('b');
-      if (B.st === 'stagger' && G.atkCd <= 0) press('a');
     } else if (mode === 'fall'){
       const F = ST.FALL;
       for (const L of F.ledges){ if (!F.tried.has(L.id) && Math.abs(F.y - L.y) < 0.8 && L.id === 2){ press('up'); } }
@@ -111,11 +112,11 @@ await until(() => window.__climb.S.lifts.length > 0, 60000, 'lift repair');
 console.log('lift repaired', await st());
 await until(() => window.__bot.log.includes('resume'), 60000, 'rest stop');
 console.log('rest stop passed', await st());
-await until(() => window.__climb.ST.mode === 'boss', 60000, 'reaching the Warden');
+await until(() => !!window.__climb.ST.B, 60000, 'reaching the Warden');
+await page.evaluate(() => { window.__climb.TUNE.climb.baseSpeed = 2.25; }); // its stretch is a race: at the fast test speed you would outrun it
 await page.waitForTimeout(2500); await shot('03-warden');
 await until(() => window.__climb.S.bosses.length > 0, 90000, 'beating the Warden');
 console.log('Warden beaten', await st());
-await until(() => window.__climb.ST.mode === 'climb', 5000, 'resume after Warden');
 // now fall and catch a root
 await page.evaluate(() => { window.__climb.ST.G.inv = 0; window.__climb.hurt(99, 'test'); });
 await until(() => window.__climb.ST.mode === 'fall', 2000, 'fall start');

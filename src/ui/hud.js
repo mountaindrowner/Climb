@@ -100,7 +100,7 @@ export function drawHUD(){
       const e = ENTITIES[o.type]; if (e.hud) e.hud(o, o.s - G.s, HUD_API);
     }
   }
-  if (B && mode === 'boss'){
+  if (B){
     const bw = W * 0.7, bx = (W - bw) / 2, by = 66;
     hx.fillStyle = '#efe6d2'; hx.font = `600 14px ${FONT}`; hx.textAlign = 'center';
     hx.fillText(B.name, W / 2, by - 4); hx.textAlign = 'left';
@@ -111,7 +111,7 @@ export function drawHUD(){
       const prompt = B.moves.attacks[B.atk] && B.moves.attacks[B.atk].prompt;
       if (B.st === 'tele') drawTiming(prompt, B.tm, B.atk === 'spit' ? B.T + TUNE.warden.spitFlight : B.T);
       if (B.st === 'orb' && B.orb && !B.orb.back) drawTiming('B', B.T + B.orb.t, B.T + B.orb.dur);
-      if (B.st === 'stagger'){ const s = toScreen(bossTop()); hx.fillStyle = '#efe6d2'; hx.font = `700 17px ${FONT}`; hx.textAlign = 'center'; hx.fillText('A  strike now', s.x, s.y); hx.textAlign = 'left'; }
+      if (B.st === 'opening' && Math.abs(B.s - G.s) < TUNE.warden.hitRange + 1.5) drawIcon(bossTop(), 'A', '#e8b04a');
     }
   }
   hx.textAlign = 'center';

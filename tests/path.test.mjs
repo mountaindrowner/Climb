@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { F, FL, FH, ZF, ZONE_METERS, MPU, R, MAXK } from '../src/config/constants.js';
 import { ZONES } from '../src/config/zones.js';
-import { posOf, topAt, landingS, zoneOf, special, meters, bossFlight } from '../src/world/path.js';
+import { posOf, topAt, landingS, zoneOf, special, meters, bossFlight, arenaOf } from '../src/world/path.js';
 
 test('a zone is 15 flights and measures ZONE_METERS in game metres', () => {
   assert.equal(meters(ZF * FH), ZONE_METERS);
@@ -20,10 +20,13 @@ test('a landing sits at the top of its flight', () => {
 });
 test('every zone has a lift, a rest stop and a Warden at fixed flights', () => {
   for (let z = 0; z < ZONES.length; z++){
-    assert.equal(special(z * ZF + 6), 'lift');
-    assert.equal(special(z * ZF + 10), 'camp');
+    assert.equal(special(z * ZF + 5), 'lift');
+    assert.equal(special(z * ZF + 8), 'camp');
     assert.equal(special(bossFlight(z)), 'boss');
     assert.equal(zoneOf(bossFlight(z)), z);
+    assert.equal(arenaOf(z * ZF + 9), -1);
+    for (let l = 10; l <= 14; l++) assert.equal(arenaOf(z * ZF + l), bossFlight(z));
+    assert.equal(arenaOf(z * ZF + 15), z + 1 < ZONES.length ? -1 : -1);
   }
   assert.equal(zoneOf(MAXK + 50), ZONES.length - 1);
 });

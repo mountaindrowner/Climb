@@ -1,5 +1,5 @@
 // The backbone mode: the warrior auto-climbs, you answer what comes. Stops at rest stops and Warden arenas.
-import { MAXK, R } from '../config/constants.js';
+import { MAXK, R, FL } from '../config/constants.js';
 import { TUNE } from '../config/tuning.js';
 import { GOLD } from '../config/economy.js';
 import { ZONES } from '../config/zones.js';
@@ -9,12 +9,13 @@ import { sfx } from '../audio/sfx.js';
 import { vArc } from '../render/primitives.js';
 import { burst } from '../render/particles.js';
 import { setToast } from '../fx/feedback.js';
-import { posOf, zoneOf, special, landingS, meters } from '../world/path.js';
+import { posOf, zoneOf, special, landingS, meters, arenaOf } from '../world/path.js';
 import { flight, newRun } from '../world/generate.js';
 import { newRunState, PL } from '../entities/player/player.js';
 import { setWeaponModel } from '../entities/player/model.js';
 import { ENTITIES } from '../entities/registry.js';
-import { startBoss } from '../wardens/warden.js';
+import { startBoss, updWarden } from '../wardens/warden.js';
+import { startFall } from './fall.js';
 import { openCamp } from '../ui/screens/camp.js';
 const C = TUNE.climb;
 
@@ -22,6 +23,7 @@ export function climbSpeed(G, p){
   let spd = C.baseSpeed + C.speedPerZone * zoneOf(p.k);
   if (G.stumble > 0) spd *= C.stumbleMul;
   if (G.engaged) spd *= C.engagedMul;
+  if (G.fightSlow) spd *= TUNE.warden.fightSlowMul;
   if (p.land && special(p.k) === 'lift' && !S.lifts.includes(p.k)) spd *= C.brokenLiftMul;
   return spd;
 }
@@ -29,14 +31,20 @@ export function climbSpeed(G, p){
 export function updClimb(dt){
   const G = ST.G, p0 = posOf(G.s);
   const spd = climbSpeed(G, p0);
-  G.engaged = false;
+  G.engaged = false; G.fightSlow = false;
   G.prevS = G.s; G.s += spd * dt;
+  // the Warden's stretch: it hunts you from behind the wall while you keep climbing
+  const kb = arenaOf(p0.k);
+  if (kb >= 0 && !S.bosses.includes(kb) && !ST.B) startBoss(kb);
+  if (ST.B){
+    if (G.s >= (kb + 1) * FL){ ST.G.s = (kb + 1) * FL - 0.01; setToast('The stair gives way', 'It tore the steps out from under you', 2); startFall(); return; }
+    updWarden(dt); if (ST.mode !== 'climb') return;
+  }
   // landmarks on this flight's landing
   const ls = landingS(p0.k);
   if (G.prevS < ls && G.s >= ls){
     const sp = special(p0.k);
     if (sp === 'camp' && !G.campDone.has(p0.k)){ G.s = ls; G.campDone.add(p0.k); S.gold = G.gold; save(); openCamp(p0.k); return; }
-    if (sp === 'boss' && !S.bosses.includes(p0.k)){ G.s = ls; startBoss(p0.k); return; }
   }
   const p = posOf(G.s);
   if (zoneOf(p.k) !== G.zoneShown){ G.zoneShown = zoneOf(p.k); setToast(ZONES[G.zoneShown].name, 'Zone ' + (G.zoneShown + 1) + ' of ' + ZONES.length, 2.6); }

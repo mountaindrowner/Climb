@@ -1,6 +1,6 @@
 # Zones
 
-One round shaft, seven zones stacked bottom to top. The oldest, scariest things live at the bottom, where you start. Each zone is 15 flights (135 m): a broken lift on flight 6, a rest stop on flight 10, the Warden's arena on flight 14. Code: one module per zone in `src/zones/`; per-zone notes in `docs/design/zones/`.
+One round shaft, seven zones stacked bottom to top. The oldest, scariest things live at the bottom, where you start. Each zone is 15 flights (135 m): a broken lift on flight 5, a rest stop on flight 8, and the Warden's stretch over flights 10 to 14, fought on the move. Code: one module per zone in `src/zones/`; per-zone notes in `docs/design/zones/`.
 
 | # | Zone | Flavour | Spawn | Warden | Status |
 | --- | --- | --- | --- | --- | --- |

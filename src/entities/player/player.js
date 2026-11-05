@@ -52,7 +52,7 @@ export function hurt(n, msg){
 }
 export function drink(){
   const G = ST.G;
-  if (!G || (ST.mode !== 'climb' && ST.mode !== 'boss')) return;
+  if (!G || ST.mode !== 'climb') return;
   if (G.flask <= 0){ float('Flask empty', head(), '#968ca3'); return; }
   if (G.hp >= G.maxHp){ float('Already full', head(), '#968ca3'); return; }
   G.flask--; G.hp = Math.min(G.maxHp, G.hp + P.flaskHeal); sfx.drink(); updatePips();
@@ -63,7 +63,7 @@ export function attack(){
   if (G.atkCd > 0) return;
   const w = WEAPONS[G.weapon]; G.atkCd = w.cd; G.atk = 0.2; sfx.slash();
   const dmg = w.dmg + G.bonusDmg;
-  if (ST.mode === 'boss'){ bossHit(dmg); return; }
+  if (ST.B && bossHit(dmg)) return;   // the Warden's arm or head is in the lane and takes the hit
   const p = posOf(G.s); let tgt = null, best = 1e9;
   for (let kk = p.k - 1; kk <= p.k + 1; kk++){
     if (kk < 0) continue;
@@ -87,10 +87,10 @@ export function setWeapon(id){ ST.G && (ST.G.weapon = id); S.weapon = id; save()
 export function press(k){
   ac();
   const G = ST.G, mode = ST.mode;
-  if (mode === 'climb' || mode === 'boss'){
+  if (mode === 'climb'){
     if (k === 'up'){
       const p = posOf(G.s);
-      if (mode === 'climb' && p.land && special(p.k) === 'lift' && !S.lifts.includes(p.k)){ repairLift(p.k, p.y); return; }
+      if (p.land && special(p.k) === 'lift' && !S.lifts.includes(p.k)){ repairLift(p.k, p.y); return; }
       if (G.jump <= 0){ G.jump = P.jump; sfx.jump(); }
     } else if (k === 'down'){ G.duck = P.duck; }
     else if (k === 'a'){ attack(); }

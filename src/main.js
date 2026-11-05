@@ -7,7 +7,7 @@ import { updateParticles, mote, parts, PMAX } from './render/particles.js';
 import { updateCamera } from './render/camera.js';
 import { updateFeedback } from './fx/feedback.js';
 import { updateShaft } from './world/shaft.js';
-import { setAllFlights, updateArenas } from './world/stair.js';
+import { setAllFlights } from './world/stair.js';
 import { updateProps } from './world/props.js';
 import { R } from './config/constants.js';
 import { newRunState, tickTimers, press, hurt } from './entities/player/player.js';
@@ -29,13 +29,12 @@ function step(dt){
 }
 function visuals(dt){
   const pw = animatePlayer();
-  if ((ST.mode === 'climb' || ST.mode === 'boss') && Math.random() < dt * 7 && parts.length < PMAX){
+  if (ST.mode === 'climb' && Math.random() < dt * 7 && parts.length < PMAX){
     const ga = ST.cam.ang + (Math.random() - 0.5) * 0.9, gr = R - 2 + Math.random() * 3.5;
     mote(gr * Math.cos(ga), ST.cam.y + 5, gr * Math.sin(ga), 0x4a4452); // grit falling from above
   }
   updateCamera(dt);
   updateShaft(dt);
-  updateArenas();
   updateProps(dt, pw);
   animateWarden();
   updateParticles(dt);

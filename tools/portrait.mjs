@@ -45,18 +45,26 @@ await page.evaluate(() => { window.__climb.TUNE.climb.baseSpeed = 2.25; });
 await cam(-2.3, 2.9, 1.3, 0.17);
 await page.waitForTimeout(700); await shot('warrior-gameplay');
 
-// ---- the Warden
-await page.evaluate(() => { window.__climb.TUNE.climb.baseSpeed = 6; window.__go(window.__landingS(14) - 2); });
-await page.waitForFunction(() => window.__climb.ST.mode === 'boss', null, { timeout: 15000 });
+// ---- the Warden's stretch: it hunts from behind the wall while you climb
+await page.evaluate(() => { window.__climb.TUNE.climb.baseSpeed = 0.35; window.__go(window.__landingS(9) + 2); });
+await page.waitForFunction(() => !!window.__climb.ST.B, null, { timeout: 15000 });
 await page.evaluate(() => { const G = window.__climb.ST.G; G.maxHp = 99; G.hp = 99; });
-await page.waitForTimeout(2300); await shot('warden-idle');
-const waitSt = (pred, label) => page.waitForFunction(pred, null, { timeout: 20000 }).catch(() => console.log('no ' + label));
-await waitSt(() => { const B = window.__climb.ST.B; return B && B.st === 'tele' && B.atk === 'slam' && B.tm > B.T * 0.4; }, 'slam');
-await shot('warden-slam');
-await waitSt(() => { const B = window.__climb.ST.B; return B && B.st === 'tele' && B.atk === 'sweep' && B.tm > B.T * 0.4; }, 'sweep');
-await shot('warden-sweep');
-await page.evaluate(() => { const B = window.__climb.ST.B; B.st = 'stagger'; B.tm = 0.3; B.stg = 9; });
-await page.waitForTimeout(400); await shot('warden-kneel');
+await page.waitForTimeout(1200); await shot('warden-loom');
+const waitSt = (pred, label) => page.waitForFunction(pred, null, { timeout: 30000 }).catch(() => console.log('no ' + label));
+const force = atk => page.evaluate(a => { const B = window.__climb.ST.B; if (B && B.st === 'idle'){ B.queue = [a]; B.tm = 9; } }, atk);
+await force('slam');
+await waitSt(() => { const B = window.__climb.ST.B; return B && B.atk === 'slam' && (B.st === 'strike' || (B.st === 'tele' && B.slammed)); }, 'slam');
+await page.waitForTimeout(120); await shot('warden-slam');
+await waitSt(() => { const B = window.__climb.ST.B; return B && B.st === 'opening'; }, 'opening');
+await page.waitForTimeout(300); await shot('warden-opening');
+await waitSt(() => { const B = window.__climb.ST.B; return B && B.st === 'idle'; }, 'idle');
+await force('sweep');
+await waitSt(() => { const B = window.__climb.ST.B; return B && B.atk === 'sweep' && B.st === 'strike'; }, 'sweep');
+await page.waitForTimeout(150); await shot('warden-sweep');
+await waitSt(() => { const B = window.__climb.ST.B; return B && B.st === 'idle'; }, 'idle');
+await force('spit');
+await waitSt(() => { const B = window.__climb.ST.B; return B && B.atk === 'spit' && B.st === 'orb'; }, 'spit');
+await page.waitForTimeout(200); await shot('warden-spit');
 if (errors.length){ console.error(errors.join('\n')); process.exit(1); }
 console.log('portraits written to tools/out/');
 await browser.close(); server.kill(); process.exit(0);

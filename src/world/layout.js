@@ -5,7 +5,7 @@ import { TUNE } from '../config/tuning.js';
 import { rng } from '../core/math.js';
 import { ZONES } from '../zones/index.js';
 import { TUTORIAL } from '../zones/tutorial.js';
-import { zoneOf, special } from './path.js';
+import { zoneOf, special, arenaOf } from './path.js';
 
 export function layoutFlight(seed, k){
   const r = rng(seed * 7919 + k * 104729);
@@ -19,8 +19,8 @@ export function layoutFlight(seed, k){
   };
   if (k < TUTORIAL.length){
     const tut = TUTORIAL[k]; if (tut) add(tut.type, tut.t, { hint: tut.hint });
-  } else if (c.sp === 'boss'){
-    add('crawler', 3.4, { hp: 1 }); // one last thing on the way up to the arena
+  } else if (arenaOf(k) >= 0){
+    // the Warden's stretch: it is the only threat here
   } else {
     const n = 1 + (r() < 0.55 ? 1 : 0) + (z > 0 ? 1 : 0), types = ZONES[z].threats;
     let t = 1.2;

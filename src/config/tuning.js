@@ -32,6 +32,10 @@ export const TUNE = {
   },
   warden: {
     hp: z => 12 + 5 * z,
+    lead: 3.2,          // how far up the stair (step units) it strikes ahead of you
+    hitRange: 2.2,      // how close (step units) you must be to the stuck arm or head to hit it
+    fightSlowMul: 0.55, // the climb slows this much while it is winding up or exposed, so the tells read
+    intro: 1.4,
     windup1: z => Math.max(0.75, 1.15 - 0.06 * z),
     windup2: z => Math.max(0.5, 0.78 - 0.04 * z),
     kneel1: 1.5, kneel2: 1.1, parryKneelBonus: 0.5,
@@ -39,7 +43,7 @@ export const TUNE = {
     comboChance: 0.55, // phase 2 two-attack turns
     lateWarn: 0.42,    // phase 2 floor markers only flash this long before impact
     slamDamage: 2, sweepDamage: 1, spitDamage: 1,
-    intro: 2, strike: 0.35, dying: 2.2,
+    strike: 0.35, withdraw: 0.4, dying: 2.2,
   },
   fall: {
     slowmo: 0.3, grabWindow: 1.4, gravity: 34, startSpeed: 2,
@@ -48,7 +52,7 @@ export const TUNE = {
   camera: {
     // climb camera: `back` is the camera's radius on the far side of the shaft centre (negative = opposite the warrior)
     climb: { back: -2.3, up: 2.9, look: 1.3, lead: 0.17 },
-    boss:  { back: -5.2, up: 4.2, look: 2.6 },
+    fight: { back: -3.6, up: 3.4, look: 1.7, lead: 0.2 },   // during the Warden's stretch: out and up, so the wall and the breach are in frame
     fall:  { back: -4.2 },
     pool:  { back: -2, up: 4.5, look: 0 },
     title: { back: -2.6, up: 3.6, look: 1.4 },

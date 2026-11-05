@@ -1,10 +1,10 @@
 // The whole stair (about 945 steps) drawn as two instanced meshes, plus the Warden arenas.
-import { F, FL, FH, RISE, LAND, MAXK, R, OMEGA, ZF, BOSS_FLIGHT } from '../config/constants.js';
+import { F, FL, FH, RISE, LAND, MAXK, R, OMEGA } from '../config/constants.js';
 import { ZONES } from '../config/zones.js';
 import { hash, yawFor } from '../core/math.js';
 import { scene } from '../render/renderer.js';
 import { stoneTex } from '../render/textures.js';
-import { bgeo, lam, mbox, placeArc, dummy, tmpC } from '../render/primitives.js';
+import { bgeo, dummy, tmpC } from '../render/primitives.js';
 import { zoneOf, landingS, gateK } from './path.js';
 import { content } from './generate.js';
 const THREE = window.THREE;
@@ -35,23 +35,3 @@ export function setFlight(k){
   stepMesh.instanceMatrix.needsUpdate = true; landMesh.instanceMatrix.needsUpdate = true;
 }
 export function setAllFlights(){ for (let k = 0; k < MAXK; k++) setFlight(k); }
-
-// Warden arenas: a wide platform jutting out from the spiral at the top of each zone.
-export const bossPlats = {};
-for (let z = 0; z < ZONES.length; z++){
-  const k = z * ZF + BOSS_FLIGHT, g = new THREE.Group(), a0 = (k * FL + F) * OMEGA, top = k * FH + FH, segs = 7, span = 0.95;
-  const mat = new THREE.MeshLambertMaterial({ color: new THREE.Color(ZONES[z].top).getHex(), map: stoneTex });
-  for (let j = 0; j < segs; j++){
-    const a = a0 + (j + 0.5) * span / segs, rc = R - 0.9;
-    const m = mbox(span / segs * rc * 1.12, 1.8, 4.8, mat); placeArc(m, a, rc, top - 0.9); g.add(m);
-  }
-  for (const side of [0, 1]){
-    const a = a0 + span * (side ? 0.98 : 0.05), m = mbox(0.7, 5.5, 0.7, lam(new THREE.Color(ZONES[z].stone).getHex()));
-    placeArc(m, a, R + 1.2, top + 2.75); g.add(m);
-  }
-  scene.add(g); bossPlats[k] = g;
-}
-export function updateArenas(){
-  const gk = gateK();
-  for (const k in bossPlats) bossPlats[k].visible = gk === Infinity || +k <= gk;
-}

@@ -36,6 +36,7 @@ test('gold never sits on a broken step', () => {
     for (const g of c.gold) assert.ok(!c.gaps.has(Math.floor(g.s - k * FL)));
   }
 });
-test('Warden flights hold only the one crawler before the arena', () => {
-  for (let z = 0; z < MAXK / ZF; z++){ const c = layoutFlight(5, z * ZF + 14); assert.equal(c.sp, 'boss'); assert.equal(c.obs.length, 1); }
+test("the Warden's stretch holds no other threats", () => {
+  for (let z = 0; z < MAXK / ZF; z++) for (let l = 10; l <= 14; l++){ const c = layoutFlight(5, z * ZF + l); assert.equal(c.obs.length, 0, `zone ${z} flight ${l}`); }
+  assert.equal(layoutFlight(5, 14).sp, 'boss');
 });

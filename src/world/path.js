@@ -1,5 +1,5 @@
 // The spiral path: where a distance `s` along the stair sits in the world, and the fixed landmarks on it.
-import { F, RISE, LAND, FL, FH, ZF, MPU, OMEGA, LIFT_FLIGHT, CAMP_FLIGHT, BOSS_FLIGHT } from '../config/constants.js';
+import { F, RISE, LAND, FL, FH, ZF, MPU, OMEGA, LIFT_FLIGHT, CAMP_FLIGHT, BOSS_FLIGHT, ARENA_FLIGHTS } from '../config/constants.js';
 import { ZONES } from '../config/zones.js';
 import { smooth } from '../core/math.js';
 import { S } from '../save/store.js';
@@ -10,6 +10,8 @@ export function special(k){
   return l === LIFT_FLIGHT ? 'lift' : l === CAMP_FLIGHT ? 'camp' : l === BOSS_FLIGHT ? 'boss' : null;
 }
 export const bossFlight = z => z * ZF + BOSS_FLIGHT;
+// The Warden's flight if k lies in its stretch, else -1. The stretch is the ARENA_FLIGHTS flights ending at the gate.
+export function arenaOf(k){ const l = k % ZF; return l > BOSS_FLIGHT - ARENA_FLIGHTS && l <= BOSS_FLIGHT ? k - l + BOSS_FLIGHT : -1; }
 export const landingS = k => k * FL + F + LAND * 0.5;   // path distance of the middle of flight k's landing
 export const landingY = k => k * FH + FH;               // height of flight k's landing
 export const meters = y => Math.max(0, Math.floor(y * MPU));

@@ -66,14 +66,14 @@ export function updateShaft(dt){
   poolLight.intensity = 1.8 + 0.3 * Math.sin(time * 1.7);
   // chains follow the camera height, snapped so the links stay put in the world
   const snap = Math.round(cam.y);
-  for (const c of chains){ c.position.y = snap; c.visible = mode !== 'boss'; }
+  for (const c of chains){ c.position.y = snap; }
   for (let i = 0; i < dustN; i++){
     const d = dustSeed[i]; const yy = ((d.y + time * d.v) % 24 + 24) % 24;
     dustPos[i * 3] = d.r * Math.cos(d.a + time * 0.05); dustPos[i * 3 + 1] = cam.y - 12 + yy; dustPos[i * 3 + 2] = d.r * Math.sin(d.a + time * 0.05);
   }
   dustGeo.attributes.position.needsUpdate = true;
   const gk = gateK();
-  if (gk !== Infinity && mode !== 'fall'){
+  if (gk !== Infinity && mode !== 'fall' && !ST.B){   // the Warden itself replaces the silhouette during its fight
     const ph = (time % 30) / 30;
     sil.visible = true;
     const sa = cam.ang + 0.35 * Math.sin(time * 0.07), sy = cam.y - 14 + ph * 26;

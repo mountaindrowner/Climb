@@ -17,6 +17,7 @@ export const RW = R + 1.8;       // radius of the shaft wall
 export const RP = R - 1.3;       // radius of the open centre (and the Pool)
 
 // Fixed landmarks within every zone, by flight index inside the zone.
-export const LIFT_FLIGHT = 6;
-export const CAMP_FLIGHT = 10;
-export const BOSS_FLIGHT = 14;
+export const LIFT_FLIGHT = 5;
+export const CAMP_FLIGHT = 8;
+export const BOSS_FLIGHT = 14;     // the gate: the Warden's flight; beating it opens the stair above
+export const ARENA_FLIGHTS = 5;    // the Warden's stretch: it hunts you over the last flights of the zone, BOSS_FLIGHT - 4 .. BOSS_FLIGHT

@@ -6,7 +6,7 @@ One web page, ES modules, no build step. three.js r128 is vendored and exposed a
 
 `src/main.js` runs one `requestAnimationFrame` loop:
 
-1. **step(dt)** — feedback timers, player timers, then the active mode's `update` from `src/modes/registry.js` (`title`, `menu`, `climb`, `boss`, `fall`, `pool`). A freeze-frame (`ST.hitstop`) scales `dt` down to 6% for a few frames.
+1. **step(dt)** — feedback timers, player timers, then the active mode's `update` from `src/modes/registry.js` (`title`, `menu`, `climb`, `fall`, `pool`). The Warden fight is not a mode: it runs inside `climb` while the warrior is on the Warden's stretch. A freeze-frame (`ST.hitstop`) scales `dt` down to 6% for a few frames.
 2. **visuals(dt)** — warrior pose, grit, camera, shaft tint and dust, arena visibility, props and entity draws, the Warden pose, particles.
 3. **render** the 3D scene at low resolution, then **drawHUD** on the sharp 2D canvas.
 
@@ -31,7 +31,7 @@ The path distance `s` (in step units) is the one coordinate. `src/world/path.js`
 | The instanced stair, arenas, the gate darkness | `world/stair.js`, `world/shaft.js` |
 | Hazards and enemies | `entities/hazards/*`, `entities/enemies/*`, registered in `entities/registry.js` |
 | The warrior | `entities/player/` (model, actions, animation) |
-| Warden fight | `wardens/warden.js` (state machine), `wardens/visuals.js`, `wardens/movesets/*` |
+| Warden fight | `wardens/warden.js` (state machine, driven from `modes/climb.js` while `arenaOf(k)` is the zone's Warden), `wardens/visuals.js` (body behind the wall, breaches, arm, head, markers), `wardens/movesets/*` |
 | Falling and root grabs | `modes/fall.js` |
 | Auto-climb, landmarks, the heavy step | `modes/climb.js` |
 | Menus and HUD | `ui/overlay.js` plus one screen per file in `ui/screens/`; `ui/hud.js` |
@@ -40,7 +40,7 @@ The path distance `s` (in step units) is the one coordinate. `src/world/path.js`
 
 **A new enemy or hazard.** Create `src/entities/enemies/<name>.js` exporting `build(o, ctx)`, `update(o, dt)`, `draw(o)` and optionally `hud(o, d, api)`, `hittable(o)` and `hit(o, dmg)`. Register it in `entities/registry.js`, then add its type to the zone pools in `world/generate.js`. The object `o` carries `s` (path distance), `st` (its state), `tm` (time in state), `hp`, `alive`, `done`.
 
-**A unique Warden.** Write `src/wardens/movesets/<zone>.js` exporting `attacks` (each with `answer` of `jump`, `duck` or `block`, a `prompt`, `damage` and `hitText`) and `pick()`. Point `ZONES[z].warden` at it. New attack shapes that need new animation go in `wardens/visuals.js`.
+**A unique Warden.** Write `src/wardens/movesets/<zone>.js` exporting `attacks` (each with `answer` of `jump`, `duck` or `block`, a `prompt`, `damage` and `hitText`) and `pick()`. Point `ZONES[z].warden` at it. A new attack shape (a new thing coming through the wall) needs a prop and a pose in `wardens/visuals.js`.
 
 **A zone's own spawn.** The spawn is just an enemy whose `build` and `draw` make it come out of the zone's feature (water, a casting mold, a spore pod). Add its type to that zone's `threats` in `src/zones/<zone>.js`; the zone's colours are on the same object.
 

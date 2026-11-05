@@ -33,7 +33,7 @@ export function startFall(){
     placeArc(g, L.s * OMEGA, R - 1.25, L.y); rootGroup.add(g); L.g = g; L.mat = mat;
   }
   ST.FALL = { y: pw.y, a: p.a, r: R, v: FT.startSpeed, y0: pw.y, vmax: FT.maxSpeed(pw.y), ledges, tried: new Set(), spin: 0 };
-  ST.mode = 'fall'; removeBoss(); ST.B = null; sfx.fall(); ST.hint = null;
+  ST.mode = 'fall'; removeBoss(); sfx.fall(); ST.hint = null;
   setToast('You fall', 'Grab a root with ▲ as it passes', 2);
 }
 export function grab(){

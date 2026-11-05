@@ -3,4 +3,3 @@ export { showMenu, hideMenu, menuOpen, updatePips, registerActions } from './ove
 export { titleMenu } from './screens/title.js';
 export { poolMenu } from './screens/pool.js';
 export { openCamp } from './screens/camp.js';
-export { wardenFellMenu } from './screens/victory.js';

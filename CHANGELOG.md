@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.0 — the running Warden fight (2026-11-05)
+
+- The Warden fight is no longer a stop on a platform. The Warden hunts from behind the wall over the last five flights of its zone while you keep climbing, breaking through to swipe (duck), slam (jump the shockwave rolling down the steps) and spit (block or parry). The stuck arm or head in the breach is the opening; you hit it as you pass.
+- Reach the top of its stretch with it alive and it tears the stair out from under you. Kill it and it collapses behind the wall with no menu; the lift and the open stair follow.
+- Breaches stay as scars on the wall. The silhouette behind the wall is hidden while the real body looms there.
+- Landmarks per zone: lift on flight 5, rest stop on flight 8, the Warden's stretch over flights 10 to 14. The arena platforms are gone.
+- Fight camera: the climb camera pulls out and up so the wall and the breach are in frame.
+- Smoke bot and portrait tool updated for the new fight; layout and path tests cover the stretch.
+
 ## 0.6.0 — character pass (2026-11-05)
 
 - The warrior is a jointed human rig: hips, knees, shoulders, elbows, neck, about 7.5 heads tall with long limbs, a beard, nose-guard helmet, three-segment cape, shield on the forearm, weapon in the hand. The climb is a real step cycle (high knee, plant on the thud, push-off, counter-swinging arms, a lean into the stair), with an overhead chop, a raised-shield block, a crouch and a flailing fall.

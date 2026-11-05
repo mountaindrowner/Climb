@@ -4,13 +4,11 @@ import * as climb from './climb.js';
 import * as fall from './fall.js';
 import * as pool from './pool.js';
 import * as title from './title.js';
-import { updBoss } from '../wardens/warden.js';
 
 export const MODES = {
   title: { update: title.update },
   menu:  { update: () => {} },
   climb: { update: climb.updClimb, gameplay: true },
-  boss:  { update: updBoss, gameplay: true },
   fall:  { update: fall.updFall },
   pool:  { update: pool.update },
 };

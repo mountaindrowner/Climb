@@ -125,6 +125,7 @@ Enemies come out of the environment in a way that fits the place, which doubles 
 | Mode | What it is | Status |
 | --- | --- | --- |
 | Auto-climb runner | The backbone: timed jump, duck, slash, block | Built |
+| Running Warden fight | The Warden attacks from behind the wall while you keep climbing | Built |
 | Branching stair | The stair forks; choose left or right, jump to other platforms, find side routes | Proposed |
 | Minecart rails | Fast, rhythm-heavy rides that fit a mine | Proposed |
 | Arena holds | The climb stops; survive waves until a door or lift opens | Proposed |
@@ -133,29 +134,32 @@ Enemies come out of the environment in a way that fits the place, which doubles 
 
 ## Bosses
 
-Each zone ends with a cinematic Warden fight built on timing, dodging and learning its patterns. That makes seven Wardens in all. One is built; the other six reuse its moveset with new names and faster timing.
+Each zone ends with its Warden, and the fight is a running fight. The climb never stops. The Warden lives in the cavern behind the wall, where its silhouette has been climbing all zone, and over the last five flights it keeps pace with you and breaks through the layers to get at you. That makes seven Wardens in all. One is built; the other six reuse its moveset with new names and faster timing.
 
 | Attack | Tell | Answer | Marker | Damage |
 | --- | --- | --- | --- | --- |
-| Slam | Both arms rise overhead and the body lifts | ▲ jump as the shockwave reaches you | Red strip on the floor and a rolling shockwave | 2 |
-| Sweep | One arm pulls back and the body twists | ▼ duck | Red band at head height | 1 |
-| Spit | The mouth glows brighter | B to block; a parry reflects it for 3 damage | Aim line from mouth to you | 1 |
+| Swipe | Cracks glow on the wall a few steps ahead, bricks shake, then an arm bursts through at head height and sweeps the stair | ▼ duck | Red band at head height | 1 |
+| Slam | Cracks glow higher up; a fist punches through and smashes down on the stair ahead; a shockwave rolls down the steps at you | ▲ jump as the shockwave reaches you | Red strip down the steps and the rolling shockwave | 2 |
+| Spit | Its head shoves through a breach above and its mouth glows | B to block; a parry reflects it for 3 damage | Aim line from the breach to you | 1 |
 
-**The opening:** after each attack the Warden kneels and its core glows. A only does damage during that kneel, which lasts 1.5 s in phase 1 and 1.1 s in phase 2. Hitting it at any other time just clangs.
+**The opening:** after each attack the arm or head is stuck in the breach for a moment, in your lane. That is when A does damage, and only while you are close enough to it, so you hit it as you pass. The opening lasts 1.5 s in phase 1 and 1.1 s in phase 2. A swing at it any other time just clangs.
 
-**Phase 2 starts at half health.** The button prompts and timing rings disappear, the floor markers only flash in the last 0.42 s, and 55% of its turns are two-attack combos.
+**The race:** reach the top of its stretch with it still alive and it tears the stair out from under you. You fall, and the roots and the Pool apply as always. Catch a root one turn down and you land near the start of its stretch to try again.
 
-**Rewards:** 25 gold plus 10 per zone, a permanent lift past it, and the darkness above lifts to open the stair. Its health is 12 plus 5 per zone.
+**Phase 2 starts at half health.** The button prompts and timing rings disappear, the cracks only glow in the last 0.42 s, and 55% of its turns are two-attack combos.
 
-**Foreshadowing (built):** a giant silhouette climbs a parallel cavern behind the wall, glimpsed through openings in it, before you ever meet the Warden.
+**Rewards:** 25 gold plus 10 per zone, a permanent lift past it, and the darkness above lifts to open the stair. It collapses behind the wall while you keep running; nothing interrupts the climb. Its health is 12 plus 5 per zone.
+
+**The wall remembers:** every breach it punches stays as a scar for the rest of the fight.
+
+**Foreshadowing (built):** the silhouette climbing the cavern behind the wall is the same creature; when its stretch begins it is simply closer, and the breaches are where it comes through.
 
 ### Proposed for bosses
 
-- A unique Warden per zone, each with its own moveset. The code now reads movesets from `src/wardens/movesets/`, so this is a content job.
-- 2 to 3 phases that change the arena: the floor collapses, water rises, the lights go out.
-- Fights that happen while walking, instead of on a fixed platform.
+- A unique Warden per zone, each with its own moveset. The code reads movesets from `src/wardens/movesets/`, so this is a content job.
+- Attacks that change the stair itself: a slam that breaks steps you then have to jump, a breach that spills water or spores into the lane.
 - A pursuer that hunts you up the shaft and closes in during chase sections.
-- Background-to-foreground moments, where something you saw far off in the back layer later jumps into your lane.
+- Background-to-foreground moments beyond the Wardens: smaller things in the back layer that later jump into your lane.
 
 ## World
 
@@ -181,7 +185,7 @@ The stair hugs the inside wall of a round shaft. The camera sits near the center
 - One zone is 15 flights and always measures 135 in-game metres; the metre scale is derived from the geometry so tuning the ramp never changes the height numbers.
 - The climb camera now sits further back so more of the shaft and the scenery is in view.
 
-**Fixed spots in every zone:** a broken lift on flight 6 (54 m in zone 1), a rest stop on flight 10 (99 m), and the Warden's arena on flight 14 (135 m). The arena is a wide platform jutting out from the spiral.
+**Fixed spots in every zone:** a broken lift on flight 5 (54 m in zone 1), a rest stop on flight 8 (81 m), and the Warden's stretch over flights 10 to 14 (99 m to 135 m). There is no arena platform: the fight happens on the stair.
 
 ### Scene layers
 
@@ -273,6 +277,7 @@ The game lives in this repository as ES modules under `src/` with no build step 
 
 | Version | What changed |
 | --- | --- |
+| 5, characters and the running fight | Human warrior rig and a hunched giant Warden; the Warden fight moved into the wall: it hunts you over the last five flights while you climb |
 | 4, repository | Split into modules; shallower ramp; camera pulled out; alternating step animation; moveset and entity registries ready for per-zone content; tests and a headless playthrough |
 | 3, gritty pass | Warrior 1.5 times larger with a closer camera, detailed models, cracked stone textures, fog, grain, crawler duels, hazard icons, Warden danger markers, freeze-frames on hits |
 | 2, spiral | Rebuilt in 3D: a spiral stair, a camera that circles with the warrior, background layers, roots to catch during the fall |
@@ -280,7 +285,7 @@ The game lives in this repository as ES modules under `src/` with no build step 
 
 ### What works in the build
 
-Auto-climb with heavy steps. Gaps, beams, crawlers and spitters, with a five-flight tutorial. Block and parry. Lifts that stay repaired. A rest stop with upgrades, weapon swaps and the gold throw. The Warden fight with two phases. Falling with root grabs. The Pool with weapon choice and lift starts. All seven zones are reachable, with the boss reused.
+Auto-climb with heavy steps. Gaps, beams, crawlers and spitters, with a five-flight tutorial. Block and parry. Lifts that stay repaired. A rest stop with upgrades, weapon swaps and the gold throw. The running Warden fight with two phases, breaches in the wall and a race to the top of its stretch. Falling with root grabs. The Pool with weapon choice and lift starts. All seven zones are reachable, with the boss reused.
 
 ### Tech
 
@@ -325,7 +330,8 @@ Every idea raised so far, who raised it, and where it stands.
 | A bigger warrior, more grit, realism and detail | Mark | Built |
 | Clearer reads on attacks | Mark | Built |
 | Hidden things deep in the mine | Mark | Proposed |
-| Fight the Wardens while walking, not on a fixed platform | Mark | Proposed |
+| Fight the Wardens while walking, not on a fixed platform | Mark | Built as the running fight |
+| The Warden is part of the backdrop, smashing through the layers to swipe at you while you climb | Mark | Built |
 | The stair branches: go left or right, jump to other platforms | Mark | Proposed |
 | A shallower ramp, less sharp an angle | Mark | Built (step rise 0.75 → 0.55) |
 | Camera pulled out a little to see more scenery | Mark | Built |
@@ -342,7 +348,7 @@ Every idea raised so far, who raised it, and where it stands.
 | Dodge options: Down plus B, a double-tap dash, or a B hybrid | Claude | Open |
 | Warden glimpsed in the background before you meet it | Claude | Built |
 | Warden phases that change the arena | Claude | Proposed |
-| Something in the background later drops into your lane | Claude | Proposed |
+| Something in the background later drops into your lane | Claude | Built for the Wardens; smaller things proposed |
 | Sync enemy attacks to the step rhythm | Claude | Proposed |
 | Half your carried gold scatters on each fall | Claude | Built |
 | Whetstone, iron heart and flask refills at rest stops | Claude | Built |
@@ -362,7 +368,7 @@ The core is proven. What's left is variety, unique Wardens, progression and paci
 
 - [ ] Which dodge input: Down plus B, a double-tap dash, or the B parry-and-roll hybrid?
 - [ ] Should the stair branch, with left-right choice and jumps between platforms? If so, does the auto-climb stay, or does the player steer?
-- [ ] Should Warden fights happen while walking, and should arenas allow free left-right movement?
+- [ ] Now that Warden fights happen on the move, should the stair allow free left-right movement at all?
 - [ ] Can players throw gear down the shaft, or only gold?
 - [ ] What is the final title, and what replaces the placeholder "The Long Stair"?
 - [ ] Who is the warrior, why is he at the bottom, and what waits at the Peak?
@@ -374,7 +380,7 @@ The core is proven. What's left is variety, unique Wardens, progression and paci
 
 1. **Feel pass on a phone:** camera speed and distance (now pulled out; confirm on device), ramp angle (now shallower), button sizes, freeze-frame strength, fall length, and the precision of the step animation so every step reads.
 2. **Weapon animations:** a distinct swing per weapon with real weight, in the Dead Cells spirit.
-3. **Unique Wardens for zones 2 to 7,** each with its own moveset and arena changes between phases. Explore fights that happen while walking.
+3. **Unique Wardens for zones 2 to 7,** each with its own moveset and its own way of breaking through the wall.
 4. **Zone identity:** each zone's spawns and hazards, from rising water to spore pods.
 5. **Mode variety:** branching stair sections with left-right choice, minecart rails, arena holds, pursuit sections, real repair interactions.
 6. **Progression:** height-based unlocks, flask upgrades, cooldown abilities, a ghost of your best run.

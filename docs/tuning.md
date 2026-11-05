@@ -9,7 +9,7 @@ Every value below lives in `src/config/tuning.js` or `src/config/constants.js`. 
 | Steps per flight | 8 | plus a landing of 1.8 step units |
 | Step rise | 0.55 units | was 0.75 in prototype v3; lowered so the ramp is shallower (about 29° instead of 37°) |
 | Path radius | 7 units | steps 2.6 units wide |
-| Flights per zone | 15 | lift on flight 6, rest stop on 10, Warden on 14 |
+| Flights per zone | 15 | lift on flight 5, rest stop on 8, the Warden's stretch over flights 10 to 14 |
 | Metres per zone | 135 m | `MPU` is derived from this, so the height meter stays stable when the rise is tuned |
 | Flights per turn | about 4.5 | one turn is 2π·7 ≈ 44 step units; a root waits every turn during a fall |
 
@@ -38,15 +38,17 @@ Every value below lives in `src/config/tuning.js` or `src/config/constants.js`. 
 
 ## Wardens
 
+The fight runs over the last five flights of the zone while you climb. Each attack is anchored 3.2 steps ahead of you; the stuck arm or head can be hit from within 2.2 steps. The climb slows to 55% while it winds up or is exposed.
+
 | Value | Phase 1 | Phase 2 (from half health) |
 | --- | --- | --- |
 | Wind-up | 1.15 s − 0.06/zone, min 0.75 | 0.78 s − 0.04/zone, min 0.5 |
-| Kneel (the opening) | 1.5 s | 1.1 s |
-| Floor markers | whole wind-up | last 0.42 s only |
+| The opening (stuck in the breach) | 1.5 s | 1.1 s |
+| Cracks and markers | whole wind-up | last 0.42 s only |
 | Prompts and timing rings | shown | hidden |
 | Combos | none | 55% of turns are two attacks |
 
-Spit orb flies 0.5 s; a parry reflects it for 3 and adds 0.5 s to the kneel. Slam 2 damage, sweep 1, spit 1. Health 12 + 5 per zone. Reward 25 + 10 per zone gold.
+Intro 1.4 s, strike 0.35 s, withdraw 0.4 s, death 2.2 s. Spit orb flies 0.5 s; a parry reflects it for 3 and adds 0.5 s to the opening. Slam 2 damage, swipe 1, spit 1. Health 12 + 5 per zone. Reward 25 + 10 per zone gold. Reaching the top of the stretch with it alive drops you into a fall.
 
 ## Fall
 
@@ -57,7 +59,7 @@ Gravity 34, top speed max(16, height/2.3). Time runs at 0.3× near a root; the g
 | Mode | back | up | look |
 | --- | --- | --- | --- |
 | Climb | −2.3 (was −0.9) | 2.9 | 1.3 |
-| Warden | −5.2 | 4.2 | 2.6 |
+| Warden's stretch | −3.6 | 3.4 | 1.7 |
 | Pool | −2 | 4.5 | 0 |
 | Title | −2.6 | 3.6 | 1.4 |
 

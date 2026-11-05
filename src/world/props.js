@@ -43,7 +43,7 @@ export function buildFlightMeshes(c){
 
 // Animate gold, lifts and campfires; point the shared fire light at the nearest source (or the Warden).
 export function updateProps(dt, pw){
-  const { time, B } = ST;
+  const { time } = ST;
   let fireTarget = null, fireDist = 1e9;
   for (const c of content.values()){
     for (const o of c.obs){ const e = ENTITIES[o.type]; if (e && e.draw) e.draw(o); }
@@ -62,7 +62,6 @@ export function updateProps(dt, pw){
       }
     }
   }
-  if (B && B.model){ fireLight.position.copy(vArc(B.a - 0.2, R - 3.5, B.y + 3)); fireLight.color.set(ZONES[B.z].glow); fireLight.intensity = 2.2; fireLight.distance = 14; }
-  else if (fireTarget && fireDist < 16){ fireLight.distance = 11; fireLight.position.copy(fireTarget.p); fireLight.position.y += fireTarget.y; fireLight.intensity = fireTarget.i; fireLight.color.setHex(fireTarget.c); }
+  if (fireTarget && fireDist < 16){ fireLight.distance = 11; fireLight.position.copy(fireTarget.p); fireLight.position.y += fireTarget.y; fireLight.intensity = fireTarget.i; fireLight.color.setHex(fireTarget.c); }
   else fireLight.intensity = 0;
 }
