@@ -1,5 +1,7 @@
 # The Climb — Full Project Direction
 
+> **Superseded in shape by [`concept.md`](concept.md) (Concept v2, Nov 6 2026).** This document stays as the record of what was built and decided up to then; the idea ledger and decisions here still hold where the concept does not change them.
+
 Nov 4, 2026 · Mark
 
 ## The core idea

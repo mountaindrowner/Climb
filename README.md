@@ -65,4 +65,4 @@ The smoke test needs Playwright with Chromium (`npm i -D playwright && npx playw
 
 ## Design
 
-The full direction lives in `docs/design/direction.md`: pillars, core loop, zones, Wardens, economy, the idea ledger and the roadmap. Short version: seven zones stacked in one round shaft, a Warden at the top of each, lifts you repair and Wardens you beat stay beaten, falling is a fight for roots, and the Pool at the bottom never lets you die.
+The current concept lives in `docs/design/concept.md`, the world in `docs/design/lore.md`, and the earlier full direction in `docs/design/direction.md`. Short version: you climb a mountain by hand from the oldest caves to open sky, region by region (the Deep, the Mid Caverns, the Dwarf Mines, the Dwarf Empire and Throne, the Dragon's Roost, the Troll Colony, the Lich Castle and beyond), on a stair that varies in grade and forks. Each region ends at a Warden. Death is a fall back to the Pool, and every run leaves blueprints, routes and shortcuts behind.
