@@ -9,7 +9,12 @@ import { rng } from '../core/math.js';
 import { ZONES } from '../zones/index.js';
 import { TUTORIAL } from '../zones/tutorial.js';
 import { catalogById } from '../entities/catalog.js';
-import { zoneOf, special, arenaOf } from './path.js';
+import { zoneOf, special, arenaOf, riseOf } from './path.js';
+
+// Threats that need a gentle enough flight: a full jump must clear a hole going uphill, and a swing's uphill arc must
+// pass over a crouch. Elsewhere the layout draws another threat (or leaves the slot empty).
+export const MAX_RISE_FOR = { gap: 0.6, swing: 0.6 };
+export const suits = (type, k) => !(type in MAX_RISE_FOR) || riseOf(k) <= MAX_RISE_FOR[type];
 
 export const PRACTICE_FLIGHTS = 9;
 
@@ -31,13 +36,15 @@ export function layoutFlight(seed, k, opts = {}){
     for (let j = 0; j < n; j++){
       t += 0.8 + r() * 1.4;
       if (t > 7.2) break;
-      const ty = types[(r() * types.length) | 0];
+      const ok = types.filter(ty => suits(ty, k)), pick = (r() * types.length) | 0;
+      if (!ok.length) break;
+      const ty = suits(types[pick], k) ? types[pick] : ok[pick % ok.length];
       add(ty, t, { hp: hpFor(ty) });
       t += 1.5 + (catalogById(ty) ? catalogById(ty).space : 0);
     }
   };
   if (opts.only){
-    if (k >= 1 && k <= PRACTICE_FLIGHTS && c.sp !== 'camp') scatter(1 + (r() < 0.6 ? 1 : 0), [opts.only]);
+    if (k >= 1 && k <= PRACTICE_FLIGHTS && c.sp !== 'camp') scatter(2, [opts.only]);   // two a flight: flights too steep for it are skipped
   } else if (k < TUTORIAL.length){
     const tut = TUTORIAL[k]; if (tut) add(tut.type, tut.t, { hint: tut.hint });
   } else if (wardens && arenaOf(k) >= 0){

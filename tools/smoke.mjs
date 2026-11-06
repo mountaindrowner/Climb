@@ -101,7 +101,31 @@ await page.addScriptTag({ type: 'module', content: `
     if (crouch) block = false;
     I.hold('right', move > 0); I.hold('left', move < 0); I.hold('down', crouch); I.hold('block', block);
   }
-  const loop = () => { try { tick(); } catch (e) { console.error('bot: ' + e.message); } requestAnimationFrame(loop); };
+  // the clipping test: every frame of play, each sole against the step under it, and the blade's tip against the stone
+  const rig = await import('/src/entities/player/glbRig.js'), path = await import('/src/world/path.js'), C = await import('/src/config/constants.js');
+  const clip = window.__clip = { frames: 0, worstFoot: 0, footBad: 0, footAt: '', swings: 0, worstBlade: 0, bladeBad: 0, bladeAt: '' };
+  function sample(){
+    const G = ST.G; if (!G || ST.mode !== 'climb' || !rig.usingGlb()) return;
+    if (G.grounded && G.roll <= 0 && rig.FOOT.w > 0.98){
+      clip.frames++;
+      for (const f of rig.footClearance()) if (!f.hole){
+        if (f.clear < clip.worstFoot){ clip.worstFoot = f.clear; clip.footAt = 's ' + f.s.toFixed(2) + ' rise ' + path.riseOf(Math.floor(f.s / C.FL)); }
+        if (f.clear < -0.1) clip.footBad++;
+      }
+    }
+    const tip = G.atk ? rig.bladeTip() : null;
+    if (tip){
+      clip.swings++;
+      const r = Math.hypot(tip.x, tip.z);
+      if (Math.abs(r - C.R) < 1.25){   // over the stair, not out over the shaft
+        let da = Math.atan2(tip.z, tip.x) - path.posOf(G.s).a; da = Math.atan2(Math.sin(da), Math.cos(da));
+        const ts = G.s + da / C.OMEGA, pen = path.topAt(ts) - tip.y;
+        if (pen > clip.worstBlade){ clip.worstBlade = pen; clip.bladeAt = (G.atk.sw ? G.atk.sw.pose : '') + ' s ' + ts.toFixed(2) + ' rise ' + path.riseOf(Math.floor(ts / C.FL)); }
+        if (pen > 0.05) clip.bladeBad++;
+      }
+    }
+  }
+  const loop = () => { try { tick(); sample(); } catch (e) { console.error('bot: ' + e.message); } requestAnimationFrame(loop); };
   requestAnimationFrame(loop);
   window.__ready = true;` });
 await page.waitForFunction(() => window.__ready);
@@ -183,6 +207,11 @@ const after = await page.evaluate(() => JSON.parse(localStorage.getItem('the-cli
 if (after.falls !== saved.falls || after.best !== saved.best) fail('practice changed the save');
 const unfair = report.filter(r => r.hitsTaken > 0);
 if (unfair.length) fail('threats hit the bot while it answered them correctly: ' + unfair.map(r => r.id).join(', '));
+const clipR = await page.evaluate(() => window.__clip);
+console.log('clipping:', JSON.stringify(clipR));
+if (clipR.frames < 500) fail('the clipping test saw too little grounded play: ' + clipR.frames + ' frames');
+if (clipR.footBad) fail(`a foot sank into a step on ${clipR.footBad} frames (worst ${clipR.worstFoot.toFixed(2)} at ${clipR.footAt})`);
+if (clipR.bladeBad) fail(`the blade cut into stone on ${clipR.bladeBad} frames (worst ${clipR.worstBlade.toFixed(2)} at ${clipR.bladeAt})`);
 if (errors.length) fail('errors logged');
 console.log('SMOKE OK');
 await browser.close(); server.kill(); process.exit(0);

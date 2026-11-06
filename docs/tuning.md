@@ -76,3 +76,18 @@ Gravity 34, top speed max(16, height/2.3). Time runs at 0.3× near a root; the g
 | Title | −5 | 4.4 | 1.6 |
 
 `back` is the camera's radius measured from the shaft centre; negative puts it on the far side of the centre from the warrior, so a larger magnitude pulls it out. With the shaft at R 11 the climb camera is about 17.5 units from the warrior; screens under about 900 px tall bring it in (to 62% at 420 px). Landscape FOV 50° (portrait 76° is kept but unused), fog density 0.032, internal render height 720 lines. The page fills the window (decision 0008).
+
+## Grade (`GRADE` in `src/config/constants.js`)
+
+The rise of one step, flight by flight through a zone: `0.45, 0.35, 0.3, 0.6, 0.75, 0, 0.35, 0.45, 0.3, 0.75, 0.6, 0, 0.35, 0.45, 0.55`. Zone z plays it rotated by 4z. A zone is 8 × the sum = 50 units tall (135 m); the mean rise is 0.42 (one rise of 0.55 everywhere until 0.17). Broken steps and swings only on flights of 0.6 or less (`MAX_RISE_FOR` in `src/world/layout.js`).
+
+## Camera v2 (`src/render/camera.js`)
+
+| Framing | Rule |
+| --- | --- |
+| Grade zoom | 1.25 − 0.5 × the mean rise over the next 6 steps ahead, clamped 0.88 to 1.15 (a gallery or gentle ramp pulls out, a steep flight pushes in) |
+| Slope tilt | look up by (rise − 0.45) × 2.2, clamped −0.6 to 0.8, the way he faces |
+| Combat | lead toward the awake creatures within 7 steps (70%), zoom × (1 + 0.06 per creature up to 3 + 0.02 × the farthest one's distance) |
+| Punch | kills and parries (hit-stop ≥ 0.09 s) push in 7%, decaying in about 0.17 s |
+
+The zoom scales his distance from the camera; the camera stays at least 1.2 inside the wall.

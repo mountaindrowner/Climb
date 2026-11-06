@@ -4,7 +4,7 @@ import { ST } from '../core/state.js';
 
 export function setToast(text, sub, dur){ ST.toast = { text, sub: sub || '', t: 0, dur: dur || 2.2 }; }
 export function float(text, p, color){ ST.floats.push({ text, p: p.clone(), t: 0, color: color || '#efe6d2' }); }
-export function hitstop(t){ ST.hitstop = Math.max(ST.hitstop, t); rumble(0.15 + t * 3, 0.3 + t * 4, 60 + t * 600); }
+export function hitstop(t){ ST.hitstop = Math.max(ST.hitstop, t); rumble(0.15 + t * 3, 0.3 + t * 4, 60 + t * 600); if (t >= 0.09) ST.punch = 1; }   // kills and parries punch the camera in
 export function shake(v){ ST.shake = Math.max(ST.shake, v); rumble(v * 1.4, v, 160); }
 export function flash(v){ ST.flash = v; }
 

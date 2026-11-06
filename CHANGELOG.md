@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.17.0 — milestone 1, the foundation (2026-11-06)
+
+- **Variable grade.** Every flight has its own rise per step: mostly gentle ramps (0.3 to 0.45), two steep flights (0.75), two at 0.6 and two flat galleries per zone, the pattern rotated zone to zone so no two climb alike. Every zone is the same height, so the metre count stays 135 per zone. Heights come from a per-flight table (`flightY`, `landingY`, `riseOf`, `kAtY` in `src/world/path.js`) instead of a fixed flight height. Broken steps and swinging weights only go on flights of 0.6 or gentler (a full jump must clear a hole uphill; a swing's uphill arc must pass over a crouch).
+- **Feet on the steps.** Foot IK for the knight: each foot is lifted or lowered by how far the step under it sits from the ground the body stands on, the hips ride the lower foot's step, and thigh and shin are re-solved as a two-bone chain in the body's own frame, soles kept flat. A foot rises onto a step at once and eases down, so it never sinks into stone. Measured across a steep step: worst foot −0.64 inside the stone without it, 0.00 with it.
+- **Swings respect stone.** A cut that would bury the blade in the steps ahead (forward-down swings on steep flights) lifts the sword arm about the shoulder just enough to keep the tip on the surface, and the blade sparks off it with a clang.
+- **The clipping test.** The smoke bot measures each sole against the step under it on every grounded frame of play, and the blade's tip against the stone during swings; a foot more than 0.1 inside a step, or a blade more than 0.05 into stone, fails the build. Its first run found both: feet sinking while walking with the shield up (the IK was building on itself in held poses, because the mixer skips writing values that did not change; the clip's own values are now restored before every update) and blades cutting into steep stairs (now deflected).
+- **Camera v2.** Explore framing leads the way he faces, pulls out on gentle grades and galleries, pushes in on steep flights and looks up (or down) the slope; combat framing shifts to take in the awake creatures near him and pulls out as more join; kills and parries punch it in. All blended slowly.
+
 ## 0.16.0 — PC controls (2026-11-06)
 
 - Gamepad support (standard mapping; Xbox and PlayStation pads): left stick and d-pad move and crouch, A/✕ jump, X/□ and RT/R2 attack, LB/LT block, B/○ and RB roll, Y/△ flask, Start pauses. Rumble on hits and hit-stop.

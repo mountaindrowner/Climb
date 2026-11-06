@@ -1,6 +1,6 @@
 // Pacing calculator: how long each zone and the whole climb take at the current tuning, with no falls.
 // Pure: reads config only. Usage: node tools/pacing.mjs [--flights-per-zone N] [--speed S]
-import { FL, ZF, FH, ZONE_METERS } from '../src/config/constants.js';
+import { FL, ZF, ZH, ZONE_METERS } from '../src/config/constants.js';
 import { TUNE } from '../src/config/tuning.js';
 import { ZONES } from '../src/zones/index.js';
 
@@ -10,7 +10,7 @@ const W = TUNE.warden;
 // a rough Warden fight: hp / damage-per-opening attacks, each a wind-up + strike + kneel, plus the intro and death
 const wardenSeconds = z => { const turns = Math.ceil(W.hp(z) / 2); return W.intro + turns * (W.windup1(z) + W.strike + W.kneel1 + 0.75) + W.dying; };
 let total = 0;
-console.log(`flights per zone ${flights} · base speed ${base} steps/s · ${ZONE_METERS} m per zone (${(flights * FH).toFixed(1)} units)`);
+console.log(`flights per zone ${flights} · base speed ${base} steps/s · ${ZONE_METERS} m per zone (${ZH.toFixed(1)} units)`);
 console.log('zone                       climb   warden   total');
 ZONES.forEach((z, i) => {
   const spd = base + TUNE.climb.speedPerZone * i, climb = flights * FL / spd, boss = wardenSeconds(i), t = climb + boss;

@@ -2,13 +2,18 @@
 import { ZONES } from './zones.js';
 
 export const F = 8;              // steps per flight
-export const RISE = 0.55;        // height of one step (was 0.75 in the v3 prototype; lowered for a shallower ramp)
 export const LAND = 1.8;         // length of the landing at the top of each flight, in step units
 export const FL = F + LAND;      // path length of one flight, in step units
-export const FH = F * RISE;      // height of one flight
 export const ZF = 15;            // flights per zone
-export const ZONE_METERS = 135;  // in-game metres per zone; MPU is derived so the height meter stays stable when RISE is tuned
-export const MPU = ZONE_METERS / (ZF * FH); // in-game metres per world unit
+// Variable grade: the rise of one step, flight by flight through a zone. Mostly gentle ramps, two steep flights, two
+// at 0.6 and two flat galleries (rise 0). Each zone plays the pattern rotated, so no two zones climb alike; every
+// zone sums to the same height, so the metre count per zone stays fixed. (A single rise of 0.55 everywhere until 0.17.)
+export const GRADE = [0.45, 0.35, 0.3, 0.6, 0.75, 0, 0.35, 0.45, 0.3, 0.75, 0.6, 0, 0.35, 0.45, 0.55];
+export const MAX_RISE = Math.max(...GRADE);
+export const ZH = F * GRADE.reduce((a, b) => a + b, 0);   // the height of one zone
+export const FH = ZH / ZF;       // the mean height of a flight (for sizing things; a flight's own height is flightRise)
+export const ZONE_METERS = 135;  // in-game metres per zone; MPU is derived so the height meter stays stable when grades are tuned
+export const MPU = ZONE_METERS / ZH; // in-game metres per world unit
 export const MAXK = ZONES.length * ZF;      // total flights in the shaft
 
 export const R = 11;             // radius of the stair path (7 in portrait; widened for the landscape camera, which sits

@@ -1,7 +1,7 @@
 // Broken step. The slab is split by glowing cracks; as you come near it crumbles into the shaft and leaves a real hole.
 // Answer: ▲ jump it. Walk into the hole and you fall through: 1 health, and back on the last solid step.
 // (The stair's own step is removed by the layout; the motor asks world/ground.js whether the hole is open.)
-import { FL, FH, RISE, R, OMEGA } from '../../config/constants.js';
+import { FL, R, OMEGA } from '../../config/constants.js';
 import { TUNE } from '../../config/tuning.js';
 import { ST } from '../../core/state.js';
 import { rng } from '../../core/math.js';
@@ -9,13 +9,13 @@ import { sfx } from '../../audio/sfx.js';
 import { mbox, placeArc, vArc } from '../../render/primitives.js';
 import { rock, rockMaterial } from '../../render/rocks.js';
 import { burst } from '../../render/particles.js';
-import { topAt } from '../../world/path.js';
+import { topAt, flightY, riseOf } from '../../world/path.js';
 const THREE = window.THREE;
 
 export const hint = 'A broken step. It crumbles as you come near: press {jump} to jump the hole.';
 
 export function build(o, { c, z, glow, dyn }){
-  const i = Math.floor(o.s - c.k * FL), sa = (c.k * FL + i + 0.5) * OMEGA, st = c.k * FH + (i + 1) * RISE;
+  const i = Math.floor(o.s - c.k * FL), sa = (c.k * FL + i + 0.5) * OMEGA, st = flightY(c.k) + (i + 1) * riseOf(c.k);
   const r = rng(o.k * 977 + i * 31);
   const stone = rockMaterial(new THREE.Color(z.stone).multiplyScalar(0.95).getHex()), dark = rockMaterial(new THREE.Color(z.stone).multiplyScalar(0.6).getHex());
   // the slab, in pieces: two along the stair, three across it, and a heavy underside

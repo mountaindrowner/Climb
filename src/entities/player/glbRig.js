@@ -12,6 +12,11 @@ import { scene } from '../../render/renderer.js';
 import { PL } from './player.js';
 import { swingInfo } from './motor.js';
 import { makeCloth } from './cloth.js';
+import { OMEGA, R } from '../../config/constants.js';
+import { posOf, topAt } from '../../world/path.js';
+import { holeAt } from '../../world/ground.js';
+import { burst } from '../../render/particles.js';
+import { sfx } from '../../audio/sfx.js';
 const THREE = window.THREE;
 const MV = TUNE.move;
 const loop = x => x - Math.floor(x);
@@ -113,6 +118,7 @@ export function animateGlb(G, dt){
     GLB.weights[name] = w < 0.002 ? 0 : w;
     GLB.act[name].setEffectiveWeight(GLB.weights[name]);
   }
+  undoIK();                       // the legs as the clip left them: the mixer skips values it did not change
   GLB.mixer.update(0);
   cfg.after(G, dt);
   bladeTrail(G);
@@ -199,6 +205,130 @@ function knightSetup(R){
     R.cloth = makeCloth({ cols: COLS, rows: 9, width: wTop * 1.1, length: h * 1.3, flare: Math.max(1.15, Math.min(1.6, wBot / wTop)), color: [0.2, 0.1, 0.08] });   // dried-blood rag: the torch warms it
     PL.P.add(R.cloth.mesh); cape.visible = false;
   }
+  // the ankle's height above the floor in the standing pose: the sole is that far below it
+  if (R.node.footl){
+    for (const n in R.act) R.act[n].setEffectiveWeight(n === 'K_Guard' ? 1 : 0);
+    R.act.K_Guard && (R.act.K_Guard.time = 0); R.mixer.update(0); model.updateMatrixWorld(true);
+    R.ankleH = new THREE.Vector3().setFromMatrixPosition(R.node.footl.matrixWorld).applyMatrix4(new THREE.Matrix4().copy(model.matrixWorld).invert()).y;
+    for (const n in R.act) R.act[n].setEffectiveWeight(0);
+  }
+}
+// ---------------------------------------------------------------------------------------------------------------------
+// Feet on the steps. The clips are authored on flat ground; on a stair each foot is lifted or lowered by how far the
+// step under it sits from the ground the body stands on, the hips ride the lower foot's step, and the thigh and
+// shin are re-solved as a two-bone chain. Done in the body's own frame (the facing mirror is above it), the feet keep
+// their angle so the soles stay flat on the step, and it is blended in only on the ground and smoothed step to step.
+const IKV = [0, 1, 2, 3, 4, 5, 6, 7].map(() => new THREE.Vector3()), IKQ = [0, 1, 2, 3].map(() => new THREE.Quaternion());
+const IKM = new THREE.Matrix4(), IKM2 = new THREE.Matrix4(), IKS = new THREE.Vector3();
+function modelPos(b, inv, out){ return out.setFromMatrixPosition(b.matrixWorld).applyMatrix4(inv); }
+function modelRot(b, inv, out){ IKM2.multiplyMatrices(inv, b.matrixWorld).decompose(IKS, out, IKS); return out; }
+function rotateBone(b, q, inv){                                 // turn bone b by q, a rotation in the body's frame
+  const qb = modelRot(b, inv, IKQ[2]), qp = modelRot(b.parent, inv, IKQ[3]);
+  b.quaternion.copy(qp.invert().multiply(q.clone().multiply(qb)));
+  b.updateMatrixWorld(true);
+}
+export const FOOT = { offL: 0, offR: 0, w: 0, drop: 0, err: 0 };   // read by the clipping test
+// The IK bends bones after the mixer has posed them. The mixer only writes a value when it changes, so in a held pose
+// (block, crouch) it would not overwrite last frame's bend and the IK would build on itself frame after frame, driving
+// a foot into the stone. So the clip's own values are kept and put back before every mixer update.
+const IK_SAVED = [];
+function keep(b, pos){ if (b && !IK_SAVED.some(e => e[0] === b && !!e[2] === !!pos)) IK_SAVED.push([b, pos ? null : b.quaternion.clone(), pos ? b.position.clone() : null]); }
+function saveForIK(bones, hips){ for (const b of bones) keep(b); keep(hips, true); }
+function undoIK(){
+  for (const [b, q, p] of IK_SAVED){ if (q) b.quaternion.copy(q); if (p) b.position.copy(p); }
+  IK_SAVED.length = 0;
+}
+// Each sole against the step under it, in world units: positive is clear of the stone, negative is inside it.
+// The sole is the ankle less its height above the ground in the standing pose (measured once).
+export function footClearance(){
+  const N = GLB.node, G = ST.G, out = [];
+  if (!N.footl || !G) return out;
+  GLB.root.updateWorldMatrix(true, true);
+  const model = GLB.inner.children[0], S = Math.abs(model.getWorldScale(IKS).z), a0 = posOf(G.s).a;
+  for (const f of ['footl', 'footr']){
+    const w = new THREE.Vector3().setFromMatrixPosition(N[f].matrixWorld);
+    let da = Math.atan2(w.z, w.x) - a0; da = Math.atan2(Math.sin(da), Math.cos(da));
+    const fs = G.s + da / OMEGA, hole = !!holeAt(fs), ground = topAt(fs), sole = w.y - (GLB.ankleH || 0) * S;
+    out.push({ foot: f, s: fs, sole, ground, clear: sole - ground, hole });
+  }
+  return out;
+}
+function footIK(G, dt){
+  const N = GLB.node, legs = [['upperlegl', 'lowerlegl', 'footl', 'offL'], ['upperlegr', 'lowerlegr', 'footr', 'offR']];
+  if (!N.upperlegl || !N.footr || FOOT.disabled) return;   // FOOT.disabled: a switch for comparisons
+  const on = G.grounded && G.roll <= 0 && ST.mode === 'climb';
+  FOOT.w += ((on ? 1 : 0) - FOOT.w) * Math.min(1, dt * 14);
+  if (FOOT.w < 0.01){ FOOT.offL = FOOT.offR = FOOT.drop = 0; return; }
+  const model = GLB.inner.children[0];
+  GLB.root.updateWorldMatrix(true, true);
+  const inv = IKM.copy(model.matrixWorld).invert(), S = Math.abs(model.getWorldScale(IKS).z);
+  const p0 = posOf(G.s), a0 = p0.a;
+  saveForIK([...legs.flatMap(([u, l, f]) => [N[u], N[l], N[f]]), N.upperarmr].filter(Boolean), N.hips);
+  // the step under each foot, as an offset from the ground the body stands on (world units -> body units)
+  for (const [, , foot, key] of legs){
+    const w = IKV[0].setFromMatrixPosition(N[foot].matrixWorld);
+    let da = Math.atan2(w.z, w.x) - a0; da = Math.atan2(Math.sin(da), Math.cos(da));
+    const fs = G.s + da / OMEGA, ground = holeAt(fs) ? G.y : topAt(fs);
+    const want = clamp((ground - G.y) / S, -0.8, 0.8);
+    FOOT[key] = want > FOOT[key] ? want : FOOT[key] + (want - FOOT[key]) * Math.min(1, dt * 22);   // up at once (never into the stone), down eased
+  }
+  // the hips ride the lower foot's step: up onto a step both feet are on, down so a leg reaching a lower step can reach
+  const drop = Math.min(FOOT.offL, FOOT.offR) * FOOT.w;
+  FOOT.drop = drop;
+  if (drop){   // move the hips straight down in the body's frame, then back into their parent's frame
+    const hp = modelPos(N.hips, inv, IKV[0]); hp.y += drop;
+    hp.applyMatrix4(model.matrixWorld).applyMatrix4(IKM2.copy(N.hips.parent.matrixWorld).invert());
+    N.hips.position.copy(hp); N.hips.updateMatrixWorld(true);
+  }
+  let err = 0;
+  for (const [up, lo, foot, key] of legs){
+    const U = N[up], L = N[lo], Fo = N[foot];
+    const H = modelPos(U, inv, IKV[1]), K = modelPos(L, inv, IKV[2]), A = modelPos(Fo, inv, IKV[3]);
+    const footQ = modelRot(Fo, inv, IKQ[0]).clone();
+    const T = IKV[4].copy(A); T.y += (FOOT[key] - drop) * FOOT.w;     // where the ankle should be
+    const L1 = K.distanceTo(H), L2 = A.distanceTo(K), d = Math.min(T.distanceTo(H), (L1 + L2) * 0.999), u = IKV[5].copy(T).sub(H).normalize();
+    // keep the knee bending the way the clip bends it
+    const bend = IKV[6].copy(K).sub(H); bend.addScaledVector(u, -bend.dot(u));
+    if (bend.lengthSq() < 1e-8) bend.set(0, 0, 1).addScaledVector(u, -u.z);
+    bend.normalize();
+    const ca = clamp((L1 * L1 + d * d - L2 * L2) / (2 * L1 * d), -1, 1), K2 = IKV[7].copy(H).addScaledVector(u, L1 * ca).addScaledVector(bend, L1 * Math.sqrt(1 - ca * ca));
+    rotateBone(U, IKQ[1].setFromUnitVectors(K.clone().sub(H).normalize(), K2.clone().sub(H).normalize()), inv);
+    const K3 = modelPos(L, inv, new THREE.Vector3()), A3 = modelPos(Fo, inv, new THREE.Vector3());
+    rotateBone(L, IKQ[1].setFromUnitVectors(A3.clone().sub(K3).normalize(), T.clone().sub(K3).normalize()), inv);
+    // the foot keeps the angle the clip gave it: soles flat
+    const qp = modelRot(Fo.parent, inv, IKQ[3]); Fo.quaternion.copy(qp.invert().multiply(footQ)); Fo.updateMatrixWorld(true);
+    err = Math.max(err, modelPos(Fo, inv, new THREE.Vector3()).distanceTo(T) * S);
+  }
+  FOOT.err = err;
+}
+
+// Swings respect stone: if a cut would bury the blade's tip in the steps ahead, the sword arm lifts about the shoulder
+// just enough to keep the tip on the surface, and the blade sparks off it (once a swing).
+export const BLADE = { lift: 0, sparked: null };
+function bladeOffStone(G){
+  BLADE.lift = 0;
+  const N = GLB.node, arm = N.upperarmr, tip = G.atk ? bladeTip() : null;
+  if (!arm || !tip) { if (!G.atk) BLADE.sparked = null; return; }
+  const r = Math.hypot(tip.x, tip.z);
+  if (Math.abs(r - R) > 1.25) return;                         // out over the shaft, nothing to hit
+  let da = Math.atan2(tip.z, tip.x) - posOf(G.s).a; da = Math.atan2(Math.sin(da), Math.cos(da));
+  const ts = G.s + da / OMEGA; if (holeAt(ts)) return;
+  const pen = topAt(ts) + 0.04 - tip.y;
+  if (pen <= 0) return;
+  const model = GLB.inner.children[0];
+  keep(arm);
+  BLADE.lift = pen;
+  if (BLADE.sparked !== G.atk){ BLADE.sparked = G.atk; burst(tip.clone().setY(tip.y + pen), 10, '#ffd27a', 3.2, 6, 0.06); sfx.clang(); }
+  // lift, then look again: the lift swings the tip along an arc, and on a steep flight that can carry it over a higher step
+  for (let pass = 0, p = pen, t = tip; pass < 3 && p > 0; pass++){
+    GLB.root.updateWorldMatrix(true, true);
+    const inv = IKM.copy(model.matrixWorld).invert(), S = Math.abs(model.getWorldScale(IKS).z);
+    const sh = modelPos(arm, inv, IKV[0]), t0 = IKV[1].copy(t).applyMatrix4(inv), t1 = IKV[2].copy(t0); t1.y += (p + 0.03) / S;
+    rotateBone(arm, IKQ[1].setFromUnitVectors(t0.sub(sh).normalize(), t1.sub(sh).normalize()), inv);
+    t = bladeTip(); if (!t) break;
+    let d2 = Math.atan2(t.z, t.x) - posOf(G.s).a; d2 = Math.atan2(Math.sin(d2), Math.cos(d2));
+    p = topAt(G.s + d2 / OMEGA) + 0.04 - t.y;
+  }
 }
 const _w = [], _cap = [0, 1, 2, 3, 4].map(() => ({ a: new THREE.Vector3(), b: new THREE.Vector3(), r: 0 }));
 const _plane = { point: new THREE.Vector3(), normal: new THREE.Vector3() }, _sc = new THREE.Vector3();
@@ -263,6 +393,8 @@ function knightAfter(G, dt){
     const q = 1 - G.roll / MV.roll.time, ang = -Math.PI * 2 * smooth(clamp(q * 1.15, 0, 1)), c = 0.45;
     GLB.root.rotation.z = ang; GLB.root.position.set(c * Math.sin(-ang), c - c * Math.cos(ang) - 0.3 * Math.sin(Math.PI * q), 0);
   }
+  footIK(G, dt);
+  bladeOffStone(G);
   stepCloth(dt);
 }
 
@@ -281,6 +413,8 @@ const trail = (() => {
   return { m, pts: [], fade: 0 };
 })();
 const tipCache = new WeakMap();
+// The blade's tip in the world, while a weapon is out (for the clipping test).
+export function bladeTip(){ const w = GLB.node && GLB.node['wep_' + (PL.wepId || 'sword')]; return w && w.visible ? bladeEnds(w).tip.clone().applyMatrix4(w.matrixWorld) : null; }
 function bladeEnds(w){
   // the blade runs along the weapon's longest local axis, from the grip out to the far end
   let c = tipCache.get(w);

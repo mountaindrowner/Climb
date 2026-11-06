@@ -7,14 +7,14 @@ import { ST } from '../core/state.js';
 import { scene, poolLight, fogCol, camera } from '../render/renderer.js';
 import { wallTex, outerTex, chainTex, silTex } from '../render/textures.js';
 import { bgeo, lam, bas, tmpC } from '../render/primitives.js';
-import { zoneOf, gateK } from './path.js';
+import { zoneOf, gateK, kAtY, flightY, landingY } from './path.js';
 const THREE = window.THREE;
 
-const TOTAL_H = MAXK * FH + 30;
-function zoneColorAtY(y, key, f){ const z = ZONES[zoneOf(Math.floor(y / FH))]; return new THREE.Color(z[key]).multiplyScalar(f); }
+const TOTAL_H = flightY(MAXK) + 30;
+function zoneColorAtY(y, key, f){ const z = ZONES[zoneOf(kAtY(y))]; return new THREE.Color(z[key]).multiplyScalar(f); }
 // The collapsed sections: along each Warden's stretch the wall has fallen away and the cavern behind is open.
 export const OPEN_BANDS = [];
-for (let z = 0; z < ZONES.length; z++){ const k0 = z * ZF + BOSS_FLIGHT - ARENA_FLIGHTS + 1; OPEN_BANDS.push({ z, y0: k0 * FH + 1.5, y1: (z * ZF + BOSS_FLIGHT + 1) * FH - 0.5 }); }
+for (let z = 0; z < ZONES.length; z++){ const k0 = z * ZF + BOSS_FLIGHT - ARENA_FLIGHTS + 1; OPEN_BANDS.push({ z, y0: flightY(k0) + 1.5, y1: flightY(z * ZF + BOSS_FLIGHT + 1) - 0.5 }); }
 export const inOpenBand = y => OPEN_BANDS.some(b => y > b.y0 && y < b.y1);
 function shaftCylinder(radius, tex, repU, key, f, alphaTest, open){
   const segs = MAXK * 2;
@@ -77,7 +77,7 @@ ceil.rotation.x = Math.PI / 2; scene.add(ceil);
 export function updateShaft(dt){
   const { cam, time, mode } = ST;
   // zone tint follows the camera height
-  const zNow = ZONES[zoneOf(Math.floor(Math.max(0, cam.y - 2) / FH))];
+  const zNow = ZONES[zoneOf(kAtY(Math.max(0, cam.y - 2)))];
   tmpC.set(zNow.bg); fogCol.lerp(tmpC, Math.min(1, dt * 1.5)); scene.fog.color.copy(fogCol); scene.background.copy(fogCol);
   dustMat.color.set(zNow.glow);
   poolMat.color.setHSL(0.47, 0.6, 0.38 + 0.05 * Math.sin(time * 2));
@@ -106,7 +106,7 @@ export function updateShaft(dt){
     silEyes.position.copy(sil.position).multiplyScalar(0.98); silEyes.position.y += 4.8;
     silEyes.color.set(ZONES[zoneOf(gk)].glow); silEyes.intensity = 1.2;
   } else { sil.visible = false; silEyes.intensity = 0; }
-  if (gk !== Infinity){ ceil.visible = true; ceil.position.y = gk * FH + FH + 7.5; }
+  if (gk !== Infinity){ ceil.visible = true; ceil.position.y = landingY(gk) + 7.5; }
   else ceil.visible = false;
 }
 export { R };

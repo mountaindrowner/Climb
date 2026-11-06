@@ -14,7 +14,7 @@ export const ST = {
   practice: null,     // a threat id while a Practice run is on
   lastFall: null,
   // feedback
-  shake: 0, dip: 0, flash: 0,
+  shake: 0, dip: 0, flash: 0, punch: 0,
   toast: null, hint: null, floats: [],
   // camera
   cam: { ang: 0, y: 1.5, r: -3.2 },

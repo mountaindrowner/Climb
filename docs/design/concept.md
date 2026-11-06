@@ -134,7 +134,7 @@ The bar is the current jump animation. What exists for Claude to make models and
 | # | Milestone | Delivers |
 | --- | --- | --- |
 | 0 | Pipeline proof of concept | Answers how models and animation get made (runs in parallel) |
-| 1 | Foundation | Path graph with variable grade, true step collision and foot IK, the clipping test, camera system v2 |
+| 1 | Foundation | Path graph with variable grade, true step collision and foot IK, the clipping test, camera system v2 (built in 0.17: variable grade, foot IK, the clipping test, camera explore and combat framing; forks wait for milestone 2) |
 | 2 | Routes | Forks, counter-spirals, the crumbling handoff, side halls |
 | 3 | The run | Echoes, blueprints at the Pool, oaths, marks, two exits per region; regions 1 to 4 |
 | 4 | Weapons v2 | Six families, crit conditions, two tool slots, shaft kills |

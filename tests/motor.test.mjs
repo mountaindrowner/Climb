@@ -1,13 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { TUNE } from '../src/config/tuning.js';
-import { FL, RISE } from '../src/config/constants.js';
+import { FL } from '../src/config/constants.js';
+import { MAX_RISE_FOR } from '../src/world/layout.js';
 const MV = TUNE.move;
 
 test('a full jump clears a broken step going uphill', () => {
   // time in the air from a full jump, falling back to a stair that has risen under it
   const v0 = Math.sqrt(2 * MV.gravityUp * MV.jumpHeight), up = v0 / MV.gravityUp;
-  const fall = Math.sqrt(2 * (MV.jumpHeight - RISE * 2) / MV.gravityDown);
+  const fall = Math.sqrt(2 * (MV.jumpHeight - MAX_RISE_FOR.gap * 2) / MV.gravityDown);   // the steepest flight a broken step may be on
   // the hole is 0.6 wide (a step less its standable lips); taking off from one lip and landing past the other needs ~1.2
   assert.ok(MV.run * (up + fall) > 1.4, `covers ${(MV.run * (up + fall)).toFixed(2)} units`);
 });

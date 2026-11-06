@@ -1,12 +1,12 @@
 // Meshes for a flight's contents: gold, the broken lift, the rest stop, and each obstacle's own model via the entity registry.
-import { FH, R, OMEGA } from '../config/constants.js';
+import { R, OMEGA } from '../config/constants.js';
 import { ZONES } from '../config/zones.js';
 import { S } from '../save/store.js';
 import { ST } from '../core/state.js';
 import { fireLight } from '../render/renderer.js';
 import { lam, bas, mbox, placeArc, vArc } from '../render/primitives.js';
 import { burst } from '../render/particles.js';
-import { zoneOf, landingS, topAt } from './path.js';
+import { zoneOf, landingS, topAt, landingY } from './path.js';
 import { dyn, content } from './generate.js';
 import { ENTITIES } from '../entities/registry.js';
 const THREE = window.THREE;
@@ -19,7 +19,7 @@ export function buildFlightMeshes(c){
     const m = mbox(0.24, 0.24, 0.24, new THREE.MeshLambertMaterial({ color: 0xe8b04a, emissive: 0x5a3a00 }));
     m.position.copy(vArc(gd.s * OMEGA, R + 0.3, topAt(gd.s) + 0.4)); dyn.add(m); gd.m = m;
   }
-  const k = c.k, a = landingS(k) * OMEGA, top = k * FH + FH;
+  const k = c.k, a = landingS(k) * OMEGA, top = landingY(k);
   if (c.sp === 'lift'){
     const g = new THREE.Group(), steel = 0x8d96a8;
     g.add(mbox(0.14, 2.2, 0.14, lam(steel), -0.55, 1.1, 0)); g.add(mbox(0.14, 2.2, 0.14, lam(steel), 0.55, 1.1, 0));
@@ -54,7 +54,7 @@ export function updateProps(dt, pw){
         ex.lampMat.color.setHex(ok ? 0xffd88a : 0x3a3a40);
         ex.bar.rotation.z = ok ? 0 : 0.22;
         if (ok){ const d = ex.g.position.distanceTo(pw); if (d < fireDist){ fireDist = d; fireTarget = { p: ex.g.position, y: 2.4, i: 1.3, c: 0xffc070 }; } }
-        else if (Math.random() < 0.05) burst(vArc(landingS(ex.k) * OMEGA, R - 1.0, ex.k * FH + FH + 2.1), 2, '#ffcf6b', 2, 6, 0.05); // sparks from the broken lamp
+        else if (Math.random() < 0.05) burst(vArc(landingS(ex.k) * OMEGA, R - 1.0, landingY(ex.k) + 2.1), 2, '#ffcf6b', 2, 6, 0.05); // sparks from the broken lamp
       } else if (ex.type === 'camp'){
         const fl = 0.7 + 0.3 * Math.sin(time * 9) * Math.sin(time * 5.3);
         ex.f1.scale.set(1, fl, 1); ex.f2.scale.set(1, 0.6 + fl * 0.6, 1);

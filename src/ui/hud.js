@@ -6,7 +6,7 @@ import { clamp } from '../core/math.js';
 import { S } from '../save/store.js';
 import { ST } from '../core/state.js';
 import { hx, view, camera } from '../render/renderer.js';
-import { posOf, zoneOf } from '../world/path.js';
+import { posOf, zoneOf, kAtY, flightY, landingY } from '../world/path.js';
 import { content } from '../world/generate.js';
 import { ENTITIES } from '../entities/registry.js';
 import { head } from '../entities/player/player.js';
@@ -45,15 +45,15 @@ const HUD_API = { drawIcon, drawTiming };
 // The height meter down the right edge: this zone's lift, rest stop and Warden, your best, and you.
 function drawMeter(y){
   const { W, H } = view;
-  const zk = zoneOf(Math.floor(y / FH)), k0 = zk * ZF, k1 = k0 + BOSS_FLIGHT;
-  const y0 = k0 * FH, y1 = k1 * FH + FH;
+  const zk = zoneOf(kAtY(y)), k0 = zk * ZF, k1 = k0 + BOSS_FLIGHT;
+  const y0 = flightY(k0), y1 = landingY(k1);
   const X = W - 14, T = 64, Bm = H - 70;
   const map = v => Bm - clamp((v - y0) / (y1 - y0), 0, 1) * (Bm - T);
   hx.fillStyle = 'rgba(9,8,12,0.6)'; hx.fillRect(X - 3, T - 4, 6, Bm - T + 8);
   hx.fillStyle = '#3a3448'; hx.fillRect(X - 1, T, 2, Bm - T);
   const lk = k0 + LIFT_FLIGHT, ck = k0 + CAMP_FLIGHT;
-  hx.fillStyle = S.lifts.includes(lk) ? '#e8b04a' : '#6b6378'; hx.fillRect(X - 5, map(lk * FH + FH) - 3, 10, 6);
-  hx.fillStyle = '#ff9a3c'; hx.fillRect(X - 4, map(ck * FH + FH) - 4, 8, 8);
+  hx.fillStyle = S.lifts.includes(lk) ? '#e8b04a' : '#6b6378'; hx.fillRect(X - 5, map(landingY(lk)) - 3, 10, 6);
+  hx.fillStyle = '#ff9a3c'; hx.fillRect(X - 4, map(landingY(ck)) - 4, 8, 8);
   hx.fillStyle = S.bosses.includes(k1) ? '#6b6378' : '#d9483b'; hx.fillRect(X - 6, T - 6, 12, 12);
   hx.fillStyle = '#09080c'; hx.fillRect(X - 3, T - 3, 2, 2); hx.fillRect(X + 1, T - 3, 2, 2);
   if (S.best > 0){ const by = map(S.best / MPU); hx.fillStyle = 'rgba(239,230,210,0.6)'; hx.fillRect(X - 7, by, 14, 2); }
