@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.13.1 — the knight, worn down (2026-11-06)
+
+- Taller and less toy-like: a smaller head, longer and leaner limbs, a chest that tapers to the waist and narrower hips (about five and a half heads tall), and a head taller in game.
+- Beaten up: dented, hammered metal (position-hashed so seams never crack), the helmet's crest knocked off flush with a dent in the brow, the cape torn short with a ragged hem, a chipped shield and blade.
+- Grimy: the pack's palette dulled (dark iron for steel, dried oxblood for the reds, old leather for the gold), and grime baked as vertex colour: uneven dirt, mud caked up from the boots, rust patches, darker undersides, a filthy hem.
+- A tired guard: sword low, shield hanging, shoulders and head down. The crouch is deeper to stay under the beams at the new height.
+
 ## 0.13.0 — the knight (2026-11-06)
 
 - A new default warrior: the CC0 KayKit knight, rebuilt in headless Blender by `tools/blender/knight_kaykit.py`. Re-proportioned from chibi (two heads tall) to heroic (about four): a smaller head, longer legs, arms and trunk, posed and baked into a new rest pose so the pack's clips carry over. The cartoon face became a dark visor with two cold eye-slits. Our three weapons: the pack's sword (scaled to the new frame), its one-handed axe as the war pick, and a spear built in the script.

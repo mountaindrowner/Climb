@@ -20,7 +20,7 @@ const loop = x => x - Math.floor(x);
 const RIGS = {
   knight: {
     url: 'assets/models/knight/knight.glb', label: 'Knight',
-    yaw: Math.PI / 2, height: 1.66,          // glTF faces +Z; stand as tall as the hand-built warrior
+    yaw: Math.PI / 2, height: 1.8,           // glTF faces +Z; a head taller than the hand-built warrior
     targets: knightTargets, after: knightAfter, setup: knightSetup,
   },
   blender: {
@@ -172,8 +172,9 @@ function knightSetup(R){
   const face = R.node.Knight_Head;
   if (face) face.material = new THREE.MeshBasicMaterial({ color: 0x040306, skinning: true });
   for (const n of ['eye_l', 'eye_r']) if (R.node[n]) R.node[n].material = new THREE.MeshBasicMaterial({ color: 0xa9d6ff });
-  // armour: a touch warm, so the cave's teal and violet fill reads as light on steel, not as the steel's colour
-  R.inner.traverse(o => { if (o.isMesh && o.material && /knight_texture/.test(o.material.name)) o.material.color.setRGB(1.16, 1.0, 0.86); });
+  // lift the grimy armour (texture x baked grime is dark) so it reads as dirt on iron under the cave light, not as a
+  // silhouette; a touch warm so the cave's teal and violet fill reads as light, not as the iron's colour
+  R.inner.traverse(o => { if (o.isMesh && o.material && /knight_texture|barbarian_texture/.test(o.material.name)) o.material.color.setRGB(1.55, 1.42, 1.28); });
   // the cape: remember how it hangs relative to the body in the rest pose (see knightAfter)
   const cape = R.node.Knight_Cape, model = R.inner.children[0];
   if (cape){

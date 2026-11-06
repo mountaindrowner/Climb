@@ -19,8 +19,9 @@ ASSETS = os.path.join(PACK, 'Assets', 'gltf')
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'assets', 'models', 'knight', 'knight.glb')
 
 # proportions, as multipliers on the pack's: the head (uniform), and lengths along the bones
-SHAPE = {'head': float(os.environ.get('K_HEAD', 0.47)), 'leg': float(os.environ.get('K_LEG', 1.85)),
-         'trunk': float(os.environ.get('K_TRUNK', 1.2)), 'arm': float(os.environ.get('K_ARM', 1.3)),
+SHAPE = {'head': float(os.environ.get('K_HEAD', 0.38)), 'leg': float(os.environ.get('K_LEG', 2.2)),
+         'trunk': float(os.environ.get('K_TRUNK', 1.32)), 'arm': float(os.environ.get('K_ARM', 1.5)),
+         'waist': 0.8, 'chest': 0.9, 'hips': 0.88, 'limb': 0.9,
          'sword': float(os.environ.get('K_SWORD', 0.7)), 'shield': float(os.environ.get('K_SHIELD', 0.8))}
 # the pack's clips we keep; the swings, crouch, tuck and guard are authored below for a side-on camera
 KEEP_CLIPS = {'Idle', 'Running_A', 'Jump_Start', 'Jump_Idle', 'Jump_Land', 'Blocking', 'Block_Hit', 'Hit_A', 'Hit_B'}
@@ -46,9 +47,12 @@ for pb in P:
     pb.location = (0, 0, 0); pb.rotation_mode = 'QUATERNION'; pb.rotation_quaternion = (1, 0, 0, 0); pb.scale = (1, 1, 1)
 for b in arm.data.bones: b.inherit_scale = 'NONE'      # each bone takes only its own stretch
 for s in 'lr':
-    P['upperleg.' + s].scale = (1, SHAPE['leg'], 1); P['lowerleg.' + s].scale = (1, SHAPE['leg'], 1)
-    P['upperarm.' + s].scale = (1, SHAPE['arm'], 1); P['lowerarm.' + s].scale = (1, SHAPE['arm'], 1)
-P['spine'].scale = (1, SHAPE['trunk'], 1); P['chest'].scale = (1, SHAPE['trunk'], 1)
+    k = SHAPE['limb']                                   # limbs a little leaner as they get longer
+    P['upperleg.' + s].scale = (k, SHAPE['leg'], k); P['lowerleg.' + s].scale = (k, SHAPE['leg'], k)
+    P['upperarm.' + s].scale = (k, SHAPE['arm'], k); P['lowerarm.' + s].scale = (k, SHAPE['arm'], k)
+# a torso that tapers to the waist instead of a barrel: narrow hips and waist, the chest a little less
+P['hips'].scale = (SHAPE['hips'], 1, SHAPE['hips'])
+P['spine'].scale = (SHAPE['waist'], SHAPE['trunk'], SHAPE['waist']); P['chest'].scale = (SHAPE['chest'], SHAPE['trunk'], SHAPE['chest'])
 P['head'].scale = (SHAPE['head'],) * 3
 B = arm.data.bones
 leg = (B['upperleg.l'].head_local - B['lowerleg.l'].tail_local).length
@@ -124,6 +128,107 @@ turn = {0: Matrix.Rotation(tip * 1.5708, 4, 'Y'), 1: Matrix.Rotation(-tip * 1.57
 spear.parent = arm; spear.parent_type = 'BONE'; spear.parent_bone = 'handslot.r'
 spear.matrix_world = sword.matrix_world @ turn
 
+# ---- 3a. weathering: a long climb's worth of wear. Dented metal, the crest knocked flat, the cape torn short; the
+# pack's bright palette dulled to old iron, dried oxblood and worn leather; grime, mud and rust baked as vertex colour.
+import math
+import numpy as np
+def hsh(x, y, z, seed=0.0):
+    h = math.sin(x * 127.1 + y * 311.7 + z * 74.7 + seed * 19.19) * 43758.5453
+    return h - math.floor(h)
+def vnoise(p, cell, seed=0.0):
+    """Smooth value noise at a cell size: blotches rather than speckle."""
+    x, y, z = p.x / cell, p.y / cell, p.z / cell; ix, iy, iz = math.floor(x), math.floor(y), math.floor(z)
+    fx, fy, fz = x - ix, y - iy, z - iz; fx, fy, fz = fx * fx * (3 - 2 * fx), fy * fy * (3 - 2 * fy), fz * fz * (3 - 2 * fz)
+    acc = 0.0
+    for dx in (0, 1):
+        for dy in (0, 1):
+            for dz in (0, 1):
+                w = (fx if dx else 1 - fx) * (fy if dy else 1 - fy) * (fz if dz else 1 - fz)
+                acc += w * hsh(ix + dx, iy + dy, iz + dz, seed)
+    return acc
+
+# the palette: every texture's colours pushed from parade-ground to field-worn
+def weather_image(img):
+    px = np.array(img.pixels[:], dtype=np.float32).reshape(-1, 4); rgb = px[:, :3]
+    mx, mn = rgb.max(1), rgb.min(1); sat = np.where(mx > 1e-4, (mx - mn) / np.maximum(mx, 1e-4), 0); lum = rgb @ np.array([0.3, 0.59, 0.11], dtype=np.float32)
+    r, g, b = rgb[:, 0], rgb[:, 1], rgb[:, 2]
+    red = (sat > 0.45) & (r > g * 1.5) & (r > b * 1.3)
+    gold = (sat > 0.35) & (r >= g) & (g > b * 1.25) & ~red
+    grey = sat < 0.22
+    out = rgb.copy()
+    out[red] = lum[red, None] * np.array([0.62, 0.3, 0.24]) * 0.95           # dried oxblood
+    out[gold] = lum[gold, None] * np.array([0.6, 0.44, 0.3]) * 0.8           # worn leather, old brass
+    out[grey] = lum[grey, None] * np.array([0.78, 0.76, 0.72]) * 0.7 + 0.015  # dark iron, not polished steel
+    rest = ~(red | gold | grey)
+    out[rest] = out[rest] * 0.55 + lum[rest, None] * 0.45 * np.array([0.95, 0.88, 0.78])   # everything else dulled, warmed
+    px[:, :3] = np.clip(out, 0, 1); img.pixels[:] = px.ravel().tolist(); img.update()
+    try: img.pack()
+    except Exception: pass
+for img in bpy.data.images:
+    if img.size[0] > 0: weather_image(img); print('weathered texture', img.name)
+
+def mesh_objects():
+    return [o for o in bpy.data.objects if o.type == 'MESH' and o.name not in ('Knight_Head',) and not o.name.startswith('eye')]
+
+# battered geometry: every vertex nudged by a position hash (coincident seam vertices move together, so nothing cracks)
+def batter(o, amp):
+    k = 1.0 / max(1e-6, o.matrix_world.to_scale().x)
+    for v in o.data.vertices:
+        w = o.matrix_world @ v.co
+        d = Vector((hsh(w.x, w.y, w.z, 1) - 0.5, hsh(w.x, w.y, w.z, 2) - 0.5, hsh(w.x, w.y, w.z, 3) - 0.5))
+        big = vnoise(w, 0.18, 4) - 0.5                       # broad dents, not just jitter
+        v.co += (d * amp + d.normalized() * big * amp * 1.6) * k
+AMP = {'Knight_Helmet': 0.016, 'shield': 0.02, 'wep_sword': 0.01, 'wep_pick': 0.01, 'Knight_Cape': 0.008}
+for o in mesh_objects():
+    batter(o, AMP.get(o.name, 0.009))
+
+# the helmet: the crest and spikes knocked off flush, one hard dent on the brow
+hel = bpy.data.objects['Knight_Helmet']
+hw = [hel.matrix_world @ v.co for v in hel.data.vertices]; hz1 = max(p.z for p in hw); hz0 = min(p.z for p in hw)
+cut = hz1 - (hz1 - hz0) * 0.12; inv = hel.matrix_world.inverted()
+for v, p in zip(hel.data.vertices, hw):
+    if p.z > cut: v.co = inv @ Vector((p.x * 0.92, p.y * 0.92, cut + (p.z - cut) * 0.15))
+dent = Vector((-0.09, min(p.y for p in hw) + 0.05, hz0 + (hz1 - hz0) * 0.72))
+for v in hel.data.vertices:
+    p = hel.matrix_world @ v.co; d = (p - dent).length
+    if d < 0.1: v.co = inv @ (p + Vector((0, 0.035, -0.012)) * (1 - d / 0.1) ** 2)
+
+# the cape: torn short and ragged, a jagged hem
+cape = bpy.data.objects['Knight_Cape']
+bm = bmesh.new(); bm.from_mesh(cape.data)
+bmesh.ops.subdivide_edges(bm, edges=bm.edges[:], cuts=2, use_grid_fill=True)
+cw = cape.matrix_world; ci = cw.inverted()
+zs = [(cw @ v.co).z for v in bm.verts]; cz0, cz1 = min(zs), max(zs)
+for v in bm.verts:
+    p = cw @ v.co; t = (cz1 - p.z) / max(1e-4, cz1 - cz0)                  # 0 at the shoulders, 1 at the hem
+    t2 = t * 0.72                                                          # shorter
+    rag = (hsh(round(p.x, 2), 0, 0, 7) * 0.22 + vnoise(p, 0.07, 8) * 0.12) * max(0, t - 0.55) / 0.45
+    nz = cz1 - (t2 - rag * 0.72) * (cz1 - cz0)
+    v.co = ci @ Vector((p.x, p.y + 0.02 * math.sin(p.x * 31) * t, nz))
+bm.to_mesh(cape.data); bm.free()
+
+# grime as vertex colour: crevices and undersides darker, mud up the legs, rust in patches, every surface uneven
+for o in mesh_objects():
+    me = o.data
+    attr = me.color_attributes.new('Col', 'BYTE_COLOR', 'CORNER')
+    me.color_attributes.active_color = attr; me.color_attributes.render_color_index = me.color_attributes.find('Col')
+    for poly in me.polygons:
+        n = (o.matrix_world.to_3x3() @ poly.normal).normalized()
+        for li in poly.loop_indices:
+            p = o.matrix_world @ me.vertices[me.loops[li].vertex_index].co
+            f = 0.55 + 0.45 * vnoise(p, 0.06, 11) ** 0.8                                 # uneven grime, in blotches
+            f *= 0.72 + 0.28 * hsh(round(p.x, 3), round(p.y, 3), round(p.z, 3), 12)      # speckle
+            f *= 0.8 + 0.2 * min(1.0, p.z / 2.4)                                         # dirtier toward the ground
+            if n.z < -0.3: f *= 0.78                                                     # undersides in shadow
+            c = Vector((f, f, f))
+            mud = max(0.0, min(1.0, (1.05 - p.z + 0.25 * vnoise(p, 0.09, 14)) / 0.8))   # caked up from the boots, ragged edge
+            if mud: c = c.lerp(Vector((0.3, 0.22, 0.14)) * (0.6 + 0.4 * f), mud * 0.95)
+            rust = vnoise(p, 0.1, 13)
+            if rust > 0.55 and o.name not in ('Knight_Cape',): c = c.lerp(Vector((0.5, 0.24, 0.1)) * (0.7 + 0.3 * f), min(1, (rust - 0.55) * 4) * 0.9)
+            if o.name == 'Knight_Cape': c *= 0.75 + 0.25 * min(1.0, (p.z - 0.9) / 1.2)                  # the hem filthiest
+            attr.data[li].color = (min(1, c.x), min(1, c.y), min(1, c.z), 1.0)
+print('weathered', [o.name for o in mesh_objects()])
+
 # ---- 3b. the face: a dark visor with two cold glints in it, instead of the pack's cartoon face; matte armour
 def material(name, rgb, rough=0.8, metal=0.0, glow=None):
     m = bpy.data.materials.new(name); m.use_nodes = True
@@ -135,7 +240,7 @@ for m in bpy.data.materials:
     if m.node_tree and 'Principled BSDF' in m.node_tree.nodes:
         b = m.node_tree.nodes['Principled BSDF']
         print('material', m.name, 'metal', round(b.inputs['Metallic'].default_value, 2), 'rough', round(b.inputs['Roughness'].default_value, 2))
-        if m.name.startswith('knight_texture'): b.inputs['Metallic'].default_value = 0.1; b.inputs['Roughness'].default_value = 0.55   # steel that catches the torch, not lacquer
+        if m.name.startswith('knight_texture'): b.inputs['Metallic'].default_value = 0.05; b.inputs['Roughness'].default_value = 0.8   # old iron under grime
 face = bpy.data.objects['Knight_Head']
 face.data.materials.clear(); face.data.materials.append(material('visor_dark', (0.012, 0.011, 0.016), 1.0))
 vs = [face.matrix_world @ v.co for v in face.data.vertices]
@@ -163,9 +268,10 @@ idle = bpy.data.actions['Idle']
 f0, f1 = int(idle.frame_range[0]), int(idle.frame_range[1])
 base = po.sample(idle, f0)
 feet0 = po.ankles(base)
-GUARD_R, GUARD_BLADE = [D(0.25, -1, 0.35), D(1, 0.45, 0.1)], D(0.5, 1)
-SHIELD_L = [D(0.45, -1, 0.4, 'l'), D(1, 0.3, -0.25, 'l')]
-guard = {'armR': GUARD_R, 'blade': GUARD_BLADE, 'armL': SHIELD_L}
+# a tired guard: sword low and forward, shield hanging, shoulders and head down
+GUARD_R, GUARD_BLADE = [D(0.15, -1, 0.3), D(1, 0.15, 0.12)], D(1, 0.6)
+SHIELD_L = [D(0.25, -1, 0.35, 'l'), D(1, -0.1, -0.2, 'l')]
+guard = {'armR': GUARD_R, 'blade': GUARD_BLADE, 'armL': SHIELD_L, 'chest': D(0.14, 1), 'head': D(0.2, 1)}
 def P_(spec, b=None): return po.pose(b or base, {**guard, **spec}, feet0)
 
 # guard idle: the pack's breathing idle with the sword held ready and the shield up
@@ -179,7 +285,7 @@ for src in ('Jump_Start', 'Jump_Idle', 'Jump_Land'):
     po.make_action('K_' + src, [(f, po.pose(po.sample(a, f), {'armR': [D(-0.1, -1, 0.45), D(0.5, 0.6, 0.2)], 'blade': D(0.2, 1)}, feet0, plant=False))
                                 for f in list(range(s0, s1, 3)) + [s1]])
 # crouch, and the crouch walk (the feet trade places over 24 frames)
-CROUCH = {'hips': (0.08, -0.52), 'spine': D(0.95, 1), 'chest': D(0.45, 1), 'head': D(-0.3, 1),
+CROUCH = {'hips': (0.1, -0.74), 'spine': D(0.95, 1), 'chest': D(0.45, 1), 'head': D(-0.3, 1),
           'armR': [D(0.3, -1, 0.35), D(0.7, 0.8, 0.1)], 'blade': D(0.15, 1)}     # the blade kept upright, clear of the step ahead
 c = P_({**CROUCH, 'feet': {'l': (0.12, 0), 'r': (-0.12, 0)}})
 po.make_action('K_Crouch', [(0, c), (12, c)])
@@ -189,7 +295,7 @@ print('crouch crown / standing crown: %.2f' % (crown(c) / crown(base)))
 steps = [((0.14, 0), (-0.14, 0), 0), ((0, 0), (0, 0.08), 0.025), ((-0.14, 0), (0.14, 0), 0), ((0, 0.08), (0, 0), 0.025)]
 keys = []
 for i, (l, r, bob) in enumerate(steps + steps[:1]):
-    keys.append((i * 6, P_({**CROUCH, 'hips': (0.08, -0.52 + bob), 'feet': {'l': l, 'r': r}})))
+    keys.append((i * 6, P_({**CROUCH, 'hips': (0.1, -0.74 + bob), 'feet': {'l': l, 'r': r}})))
 po.make_action('K_CrouchWalk', keys)
 # the roll's tuck: knees to the chest, head down, arms wrapped, the blade laid back along the body
 t = P_({'hips': (0.0, -0.22), 'spine': D(1.0, 0.8), 'chest': D(1.6, 0.6), 'head': D(1.2, -0.3),
@@ -238,7 +344,7 @@ SWINGS = {
         {'hips': (0.28, -0.24), 'spine': D(0.5, 1), 'chest': (D(0.55, 1), 0.3), 'armR': [D(1, 0.0, 0.3), D(1, 0.05, 0.2)], 'blade': D(1, 0.12), **DEEP},
         {'hips': (0.27, -0.25), 'spine': D(0.5, 1), 'chest': (D(0.52, 1), 0.25), 'armR': [D(1, -0.05, 0.32), D(1, 0.05, 0.2)], 'blade': D(1, 0.12), **DEEP}],
 }
-GUARD_SPEC = {'hips': (0, 0), 'chest': (D(0, 1), 0.0), 'spine': D(0, 1), 'armR': GUARD_R, 'blade': GUARD_BLADE, 'feet': {'l': (0, 0), 'r': (0, 0)}}
+GUARD_SPEC = {'hips': (0, 0), 'chest': (D(0.14, 1), 0.0), 'spine': D(0, 1), 'armR': GUARD_R, 'blade': GUARD_BLADE, 'feet': {'l': (0, 0), 'r': (0, 0)}}
 def between(a, b, up=0.5):
     """A pose halfway between two specs, so big turns of the blade go round over the top and the arm passes outside
     the helmet, never through the body."""
@@ -266,6 +372,6 @@ print('clips', sorted(a.name for a in bpy.data.actions))
 # ---- 4. export
 for a in bpy.data.actions: a.use_fake_user = True
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
-bpy.ops.export_scene.gltf(filepath=OUT, export_format='GLB', export_animations=True, export_animation_mode='ACTIONS',
+bpy.ops.export_scene.gltf(filepath=OUT, export_format='GLB', export_animations=True, export_animation_mode='ACTIONS', export_vertex_color='ACTIVE',
                           export_yup=True, export_cameras=False, export_lights=False, export_optimize_animation_size=False)
 print('wrote', os.path.normpath(OUT), os.path.getsize(OUT), 'bytes', SHAPE)
