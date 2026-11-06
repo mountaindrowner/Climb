@@ -30,11 +30,13 @@ export function updClimb(dt){
   const G = ST.G, k0 = posOf(G.s).k;
   G.blockHigh = false;
   // movement steps at no more than 1/60 s whatever the frame rate, so a slow frame never carries him over a hole
-  const n = Math.max(1, Math.ceil(dt * 60 - 1e-6)), h = dt / n;
+  const s0 = G.s, n = Math.max(1, Math.ceil(dt * 60 - 1e-6)), h = dt / n;
   for (let i = 0; i < n && ST.mode === 'climb' && ST.G === G; i++){
     updateHandoffs(h);         // the slab at a high road's foot moves before he does, so he rides it
     stepMotor(G, h);
   }
+  // what reads G.prevS after this (landmarks, beams, crawlers) means where he was at the start of the frame
+  if (branchOf(s0) === branchOf(G.s)) G.prevS = s0;
   if (ST.mode !== 'climb') return;
   // the parked Warden fight
   const kb = FEATURES.wardens ? arenaOf(k0) : -1;
