@@ -117,9 +117,18 @@ function at(name, frac){ const a = GLB.act[name]; if (a) a.time = clamp(frac, 0,
 export function animateGlb(G, dt){
   if (!usingGlb()) return;
   const cfg = GLB.cfg;
-  const { T, rate } = cfg.targets(G, dt);
+  const { T, rate, blend } = cfg.targets(G, dt);
   const k = Math.min(1, rate * Math.max(dt, 1 / 120));
-  for (const name in GLB.act){
+  if (blend){
+    // a cross-fade by the clock, not the usual easing: the weights as they stood when the swing began fade out as the
+    // swing fades in (their playheads are left where they were, so the old pose holds still while it fades)
+    if (GLB.blendId !== blend.id){ GLB.blendId = blend.id; GLB.fromW = { ...GLB.weights }; }
+    for (const name in GLB.act){
+      const w = (GLB.fromW[name] || 0) * (1 - blend.b) + (name === blend.name ? blend.b : 0);
+      GLB.weights[name] = w < 0.002 ? 0 : w; GLB.act[name].setEffectiveWeight(GLB.weights[name]);
+    }
+  }
+  else for (const name in GLB.act){
     const w = GLB.weights[name] + ((T[name] || 0) - GLB.weights[name]) * k;
     GLB.weights[name] = w < 0.002 ? 0 : w;
     GLB.act[name].setEffectiveWeight(GLB.weights[name]);
@@ -440,6 +449,13 @@ function knightTargets(G){
   const A = swingInfo(G);
   if (A){
     const name = ATTACK[A.sw.pose], [h0, h1] = HIT;
+    // the wind-up starts from wherever he is (mid-stride, mid-swing): that pose, held, fades out as the clip's own
+    // wind-up fades in (played from halfway into it), all of it there just before the strike. No snap back to guard.
+    if (A.phase === 'wind'){
+      const x = clamp(A.t / A.sw.wind, 0, 1);
+      at(name, h0 * (0.5 + 0.5 * smooth(x)));
+      return { T: { [name]: 1 }, rate: 60, blend: { id: G.atk, name, b: smooth(clamp(x * 1.25, 0, 1)) } };
+    }
     const p = A.phase === 'wind' ? h0 * smooth(clamp(A.t / A.sw.wind, 0, 1))
       : A.phase === 'active' ? h0 + (h1 - h0) * clamp(A.t / A.sw.active, 0, 1)
       : h1 + (1 - h1) * smooth(clamp(A.t / A.sw.rec, 0, 1));

@@ -2,7 +2,7 @@
 // drinking, and landing blows. Movement and the action verbs live in motor.js; the pose in animate.js.
 import { R, OMEGA } from '../../config/constants.js';
 import { TUNE } from '../../config/tuning.js';
-import { WEAPONS } from '../../config/weapons.js';
+import { WEAPONS, usable } from '../../config/weapons.js';
 import { S, save } from '../../save/store.js';
 import { ST } from '../../core/state.js';
 import { sfx, buzz } from '../../audio/sfx.js';
@@ -21,7 +21,7 @@ import { tap } from '../../core/input.js';
 import { showWeapon } from './glbRig.js';
 const P = TUNE.player, MV = TUNE.move;
 
-export const PL = makePlayer(); scene.add(PL.P); setWeaponModel(PL, S.weapon);
+export const PL = makePlayer(); scene.add(PL.P); setWeaponModel(PL, usable(S.weapon));
 
 export function newRunState(startS){
   return {
@@ -30,7 +30,7 @@ export function newRunState(startS){
     atk: null, blocking: false, blockAt: -9, blockHigh: false, hurtT: 0, inv: 0, landT: 0, jumpT: 0,
     runPhase: 0, plantSide: 0, camLead: 0.17,
     hp: P.hp, maxHp: P.hp, flask: P.flask, flaskMax: P.flask,
-    gold: S.gold, weapon: S.weapon, bonusDmg: 0, hearts: 0,
+    gold: S.gold, weapon: usable(S.weapon), bonusDmg: 0, hearts: 0,
     campDone: new Set(), zoneShown: -1, grabCd: 0, lastAtk: -9,
     // kept for the parked Warden fight
     fightSlow: false, slowK: 0,

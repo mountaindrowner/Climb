@@ -1,5 +1,5 @@
 // The Pool: wake, pick a weapon off the floor, start from the bottom or ride a repaired lift.
-import { WEAPONS } from '../../config/weapons.js';
+import { WEAPONS, OFFERED, usable } from '../../config/weapons.js';
 import { S, save } from '../../save/store.js';
 import { ST } from '../../core/state.js';
 import { setToast } from '../../fx/feedback.js';
@@ -18,9 +18,9 @@ export function poolMenu(){
   render(msg);
 }
 function render(msg){
-  const weps = Object.keys(WEAPONS).map(id => {
+  const weps = OFFERED.length < 2 ? '' : OFFERED.map(id => {
     const w = WEAPONS[id];
-    return `<button class="choice ${S.weapon === id ? 'sel' : ''}" data-act="wep" data-id="${id}">${w.name}<small>${w.desc}</small></button>`;
+    return `<button class="choice ${usable(S.weapon) === id ? 'sel' : ''}" data-act="wep" data-id="${id}">${w.name}<small>${w.desc}</small></button>`;
   }).join('');
   const lifts = [];
   for (const k of S.lifts) lifts.push({ k, y: landingY(k), label: 'Ride the lift' });
@@ -32,8 +32,8 @@ function render(msg){
     <p class="sub">It will not let you die. Your flask is full again.</p>
     ${msg || ''}
     <p class="note"><span class="gold">${S.gold} gold</span> · Best ${S.best} m · Falls ${S.falls}</p>
-    <div class="grp">Weapons on the floor</div>
-    <div class="weps">${weps}</div>
+    ${weps ? `<div class="grp">Weapons on the floor</div>
+    <div class="weps">${weps}</div>` : ''}
     <div class="grp">Start</div>
     <button class="choice go" data-act="start" data-k="-1">Climb from the bottom</button>
     ${liftBtns}

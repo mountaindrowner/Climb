@@ -1,3 +1,4 @@
+import { FEATURES } from './features.js';
 // Weapons found on the floor of the Pool. Each has a combo: A presses chain through its swings.
 // Per swing: damage, wind-up (anticipation), active (when it hits), recovery, the lunge forward, and the pose.
 // Times in seconds, reach and lunge in world units. Deliberate, weighty swings: a clear wind-up, a quick strike, and a
@@ -19,3 +20,7 @@ export const WEAPONS = {
   ] },
 };
 export const DEFAULT_WEAPON = 'sword';
+// the weapons on offer: only the sword for now (FEATURES.allWeapons brings the others back); a save holding another
+// keeps it, and plays the sword
+export const OFFERED = FEATURES.allWeapons ? Object.keys(WEAPONS) : ['sword'];
+export const usable = id => OFFERED.includes(id) ? id : DEFAULT_WEAPON;

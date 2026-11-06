@@ -1,5 +1,5 @@
 // The rest stop: refill a flask charge, whetstone, iron heart, swap weapons, or throw your gold down the shaft.
-import { WEAPONS } from '../../config/weapons.js';
+import { WEAPONS, OFFERED } from '../../config/weapons.js';
 import { CAMP, burstChance } from '../../config/economy.js';
 import { S, save } from '../../save/store.js';
 import { ST } from '../../core/state.js';
@@ -12,7 +12,7 @@ let campMsg = '';
 export function openCamp(k){ ST.mode = 'menu'; campMsg = ''; render(k); }
 function render(k){
   const G = ST.G, h = meters(posOf(G.s).y), pct = burstChance(h);
-  const others = Object.keys(WEAPONS).filter(id => id !== G.weapon).map(id =>
+  const others = OFFERED.filter(id => id !== G.weapon).map(id =>
     `<button class="choice" data-act="swap" data-id="${id}" data-k="${k}"><span>Swap to ${WEAPONS[id].name}<small>${WEAPONS[id].desc}</small></span><span class="cost">free</span></button>`).join('');
   const opt = (act, label, sub, cost, ok) =>
     `<button class="choice" data-act="${act}" data-k="${k}" ${(!ok || G.gold < cost) ? 'disabled' : ''}><span>${label}<small>${sub}</small></span><span class="cost">${cost}g</span></button>`;
