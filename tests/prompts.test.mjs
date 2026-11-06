@@ -35,3 +35,12 @@ test('every {token} in the game text is an action', () => {
   }
   assert.ok(n > 20, 'found the prompts');
 });
+test('icons and timing rings name actions, not fixed letters', () => {
+  const files = [];
+  const walk = d => { for (const f of readdirSync(new URL(d, import.meta.url), { withFileTypes: true })) f.isDirectory() ? walk(d + f.name + '/') : f.name.endsWith('.js') && files.push(d + f.name); };
+  walk('../src/entities/');
+  for (const f of files){
+    const src = readFileSync(new URL(f, import.meta.url), 'utf8');
+    for (const m of src.matchAll(/draw(?:Icon|Timing)\([^;]*?'([^']*)'/g)) if (m[1] !== '!' && !m[1].startsWith('#')) assert.match(m[1], /^\{\w+\}$/, `${f}: '${m[1]}' should be an action token`);
+  }
+});

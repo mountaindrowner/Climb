@@ -138,6 +138,6 @@ export function draw(o, dt){
 
 export function hud(o, d, { drawIcon, drawTiming }){
   const eta = orbEta(o);
-  if (eta != null && eta < 0.5) drawTiming('B', 0.5 - eta, 0.5);
+  if (eta != null && eta < 0.5) drawTiming('{block}', 0.5 - eta, 0.5);
   if (o.alive && o.st === 'charge') drawIcon(o.M.g.position.clone().setY(o.M.g.position.y + 1.1), '!', '#ff6b5a');
 }

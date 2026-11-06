@@ -82,6 +82,6 @@ export function draw(o){
 }
 export function hud(o, d, { drawIcon, drawTiming }){
   if (o.done) return;
-  if (o.st === 'drop') drawTiming('B', o.tm, T.fall);
-  else if (Math.abs(d) <= TUNE.climb.iconRange && o.st !== 'idle') drawIcon(vArc(o.a, R - 0.4, o.top + 2.8), 'B', '#9fd0ff');
+  if (o.st === 'drop') drawTiming('{block}', o.tm, T.fall);
+  else if (Math.abs(d) <= TUNE.climb.iconRange && o.st !== 'idle') drawIcon(vArc(o.a, R - 0.4, o.top + 2.8), '{block}', '#9fd0ff');
 }

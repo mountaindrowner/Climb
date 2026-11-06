@@ -145,5 +145,5 @@ export function hud(o, d, { drawIcon }){
   if (!o.alive || Math.abs(d) > TUNE.climb.iconRange || o.st === 'idle' || o.st === 'crack') return;
   const cp = vArc(o.s * OMEGA, R, posOf(o.s).y + 1.6);
   if (o.st === 'windup') drawIcon(cp, '!', '#ff6b5a');
-  else if (o.st === 'stunned' || o.st === 'recover') drawIcon(cp, 'A', '#e8b04a');
+  else if (o.st === 'stunned' || o.st === 'recover') drawIcon(cp, '{attack}', '#e8b04a');
 }
