@@ -12,10 +12,10 @@ PC is the main platform (decision 0008): keyboard or a gamepad. Phones play on t
 | Sprint (hold while moving) | Shift | click the left stick (LS) | L3 | the stick pushed all the way |
 | Crouch (hold); crouch-walk while moving | S or ↓ | stick down, d-pad ↓ | stick down, d-pad ↓ | stick ▼ |
 | Jump (hold for height); repair a lift on its landing; grab a root while falling | Space, W or ↑ | A | ✕ | ▲ |
-| Attack; press again to chain the combo | J or Z | X, RT | □, R2 | A |
-| Block (hold); raise it as a hit lands to parry | K or X | LB, LT | L1, L2 | B |
-| Roll: invulnerable for most of it, under beams and swings, out of a swing's recovery | L or C | B, RB | ○, R1 | ⟳ |
-| Drink the flask: heals 2 | F or Q | Y | △ | flask |
+| Attack; press again to chain the combo | left mouse or J | X, RT | □, R2 | A |
+| Block (hold); raise it as a hit lands to parry | right mouse or K | LB, LT | L1, L2 | B |
+| Roll: invulnerable for most of it, under beams and swings, out of a swing's recovery | C or L | B, RB | ○, R1 | ⟳ |
+| Drink the flask: heals 2 | Q or F | Y | △ | flask |
 | Pause | Esc | Start (Menu) | Options | — |
 
 Keys are bound by position (`KeyboardEvent.code`), so they sit in the same place on any keyboard layout. Every action's keys and pad buttons can be rebound under Controls (from the title or the pause menu): pick the action, press the new key or button. Taking a key from another action removes it there, so one input never does two things. Moving always uses the stick and the d-pad.

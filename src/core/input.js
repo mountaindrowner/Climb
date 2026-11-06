@@ -55,7 +55,7 @@ function nudge(dir){   // left / right on a focused slider
 function pick(){ const el = document.activeElement; if (el && focusables().includes(el)) el.click(); else moveFocus(1); }
 function back(){ const b = document.querySelector('#overlay [data-back]'); if (b) b.click(); }
 
-// ---- keyboard, by physical key
+// ---- keyboard (by physical key) and mouse buttons (Mouse0 left, Mouse1 middle, Mouse2 right)
 function actionOf(code){ for (const a in SET.keys) if (SET.keys[a].includes(code)) return a; return null; }
 function key(e, down){
   if (down) setDevice('keys');
@@ -76,6 +76,14 @@ function key(e, down){
   e.preventDefault(); if (e.repeat) return;
   ac(); keyHeld[a] = down; sync(a);
   const b = document.querySelector(`.btn[data-k="${a}"]`); if (b) b.classList.toggle('on', down);
+}
+function mouse(e, down){
+  if (e.pointerType && e.pointerType !== 'mouse') return;          // a finger on a touch screen is the touch pad's
+  const code = 'Mouse' + e.button;
+  if (capture && capture.kind === 'key' && down){ e.preventDefault(); const c = capture; capture = null; c.fn(code); return; }
+  if (menuOpen() || (down && e.target && e.target.closest && e.target.closest('button, input, a, #overlay'))) return;   // clicks in menus are the menu's
+  const a = actionOf(code); if (!a) return;
+  setDevice('keys'); ac(); keyHeld[a] = down; sync(a);
 }
 
 // ---- gamepad: polled once a frame from the main loop
@@ -148,6 +156,8 @@ export function bindInput(){
   document.addEventListener('contextmenu', e => e.preventDefault());
   document.addEventListener('visibilitychange', () => { if (document.hidden){ save(); release(); if (hooks.pause) hooks.pause(true); } });
   window.addEventListener('blur', () => { release(); if (hooks.pause) hooks.pause(true); });
+  window.addEventListener('pointerdown', e => mouse(e, true));
+  window.addEventListener('pointerup', e => mouse(e, false));
   window.addEventListener('keydown', e => key(e, true));
   window.addEventListener('keyup', e => key(e, false));
 }

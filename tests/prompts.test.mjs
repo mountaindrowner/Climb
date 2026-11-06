@@ -12,11 +12,11 @@ test('every action has a prompt on every device', () => {
     const l = label(a, kind); assert.ok(l && l !== '?' && l !== '—', `${a} on ${kind}`);
   }
   assert.equal(label('jump', 'keys'), 'Space'); assert.equal(label('attack', 'xbox'), 'X'); assert.equal(label('attack', 'ps'), '□');
-  assert.equal(keyName('KeyJ'), 'J'); assert.equal(keyName('ShiftLeft'), 'Shift');
+  assert.equal(keyName('KeyJ'), 'J'); assert.equal(keyName('ShiftLeft'), 'Shift'); assert.equal(keyName('Mouse0'), 'LMB'); assert.equal(keyName('Mouse2'), 'RMB');
 });
 test('say() fills tokens for the current device', () => {
   const was = DEVICE.kind; DEVICE.kind = 'keys';
-  assert.equal(say('Press {jump} then {attack}'), 'Press Space then J');
+  assert.equal(say('Press {jump} then {attack}'), 'Press Space then LMB');
   DEVICE.kind = was;
 });
 test('no key or pad button does two things in the defaults', () => {
