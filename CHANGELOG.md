@@ -6,7 +6,9 @@
 - You cannot walk off the slab while it moves, only jump from it, so holding left as you land does not run you off its edge. While it rests level with the landing you can step back off it onto the fork landing.
 - Broken stubs of the fallen steps still stick out of the rock behind the gap. A hint explains the slab the first time you stand on it.
 - Falling through a hole on the crumbling foot puts you back on the fork landing, never on the slab (it may be gone). On a high road, ground under a spot now comes from the path, which asks the slab (`src/world/handoff.js`) what is there: its top, or a hole.
-- Tests: the gap is a real gap but jumpable with a running jump from the slab's top, the slab is wide enough to land on from the fork landing, and it tops out just over the lip of the first intact step. The smoke run now rides the slab up and leaps across before taking the high road to its end, and fails if he is hurt on the way.
+- Movement now steps at no more than 1/60 s whatever the frame rate. On a slow machine a long frame could carry him clean over a broken step.
+- Fixed: stopped by the riser at the far edge of a hole, he could keep falling forever, never hurt and never put back. The fall-through check now looks again after the riser stops him.
+- Tests: the gap is a real gap but jumpable with a running jump from the slab's top, the slab is wide enough to land on from the fork landing, and it tops out just over the lip of the first intact step. The smoke run now rides the slab up and leaps across before taking the high road to its end, and fails if he is hurt on the way. Its "every threat hurts when ignored" check now walks in at the real run speed; the sped-up bot reached a broken step before it had opened, which no player can.
 
 ## 0.18.0 — forks: the high road (2026-11-06)
 

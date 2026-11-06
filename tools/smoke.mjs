@@ -137,6 +137,7 @@ const until = async (pred, timeout, label, arg) => {
 };
 const st = () => page.evaluate(() => { const { ST, S } = window.__climb; return { mode: ST.mode, hp: ST.G.hp, gold: ST.G.gold, s: +ST.G.s.toFixed(1), best: S.best, lifts: S.lifts, falls: S.falls, seen: S.seen, hits: window.__bot.hits }; });
 const setSpeed = v => page.evaluate(v => { window.__climb.TUNE.move.run = v; }, v);
+const RUN = await page.evaluate(() => window.__climb.TUNE.move.run);   /* the real run speed */
 
 // ---- 2. a climb from the bottom
 await page.click('[data-act="pool"]');
@@ -190,7 +191,9 @@ for (const id of ids){
   if (!done) fail(`the bot could not clear practice of ${id}: ${JSON.stringify(r)}`);
 }
 console.table(report);
-// and each one must actually hurt a warrior who walks straight into it
+// and each one must actually hurt a warrior who walks straight into it, at the real run speed (a sped-up bot reaches
+// a broken step before it has opened, which no player can)
+await setSpeed(RUN);
 const toothless = [];
 for (const id of ids){
   await page.evaluate(() => import('/src/ui/screens/practice.js').then(m => m.practiceMenu()));

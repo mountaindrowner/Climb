@@ -106,12 +106,12 @@ export function stepMotor(G, dt){
     else if (u < 0){ G.s = G.prevS = landingS(br.kA) - u; G.hop = 1; }
   }
   if (!G.grounded) G.y += G.vy * dt;
-  const hole = holeAt(G.s), gy = posOf(G.s).y;
+  let hole = holeAt(G.s); const gy = posOf(G.s).y;
   if (G.grounded){
     if (hole){ G.grounded = false; G.vy = 0; G.coyote = MV.coyote; }              // the step is gone: fall, but a jump still works for a moment
     else { G.y = gy; G.safeS = G.s; }
   } else if (!hole && G.vy <= 0 && G.y <= gy + 0.02 && gy - G.y > 0.45 && holeAt(G.prevS)){
-    G.s = G.prevS; G.v = 0;                                                       // sunk too far into a hole to step out: the riser stops him
+    G.s = G.prevS; G.v = 0; hole = holeAt(G.s);                                   // sunk too far into a hole to step out: the riser stops him
   } else if (!hole && G.vy <= 0 && G.y <= gy + 0.02){                            // landing; a riser a little above the feet is stepped up onto
     G.y = gy; G.vy = 0; G.grounded = true; G.landT = 0.12; G.safeS = G.s;
     if (!wasGrounded){ sfx.step(); dust(G, 8, 1.8); ST.dip = Math.max(ST.dip, TUNE.feel.stepDip * 0.8); }
