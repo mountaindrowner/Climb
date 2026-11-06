@@ -1,6 +1,6 @@
 # Controls and movement
 
-You move the warrior yourself. Right along the stair climbs, left goes back down. The feel follows Dead Cells: the controls should never be the challenge, so movement is instant and forgiving and the difficulty lives in the threats. Code: `src/core/input.js` (what is held and pressed), `src/entities/player/motor.js` (movement and actions), `src/entities/player/animate.js` (the pose), numbers in `TUNE.move` in `src/config/tuning.js`.
+You move the warrior yourself. Right along the stair climbs, left goes back down. The feel follows Dead Cells: the controls should never be the challenge, so movement is responsive and forgiving and the difficulty lives in the threats. Code: `src/core/input.js` (what is held and pressed), `src/entities/player/motor.js` (movement and actions), `src/entities/player/animate.js` (the pose), numbers in `TUNE.move` in `src/config/tuning.js`.
 
 ## Devices
 
@@ -31,7 +31,7 @@ These are the techniques used, with their values. Motion Twin has described Dead
 
 | Technique | What it does | Value |
 | --- | --- | --- |
-| Instant acceleration | Top speed almost at once, stop almost at once | run 3.8, accel 60, decel 75 (≈0.06 s and 0.05 s) |
+| Quick acceleration | A step or two of walk into the run; stopping, turning and slowing are almost instant. A stick pushed part way walks | run 3.8, accel 19, decel 75 (≈0.2 s and 0.05 s) |
 | Instant turn | Facing flips the frame you press the other way; a skid puff if you were running | — |
 | Full air control | Steer in the air, a touch softer than on the ground | air accel 38 |
 | Variable jump | Hold for full height; let go to cut it short | height 1.55, cut 0.42 |

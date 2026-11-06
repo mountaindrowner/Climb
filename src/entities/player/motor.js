@@ -70,8 +70,8 @@ export function stepMotor(G, dt){
   if (G.roll > 0){ G.v = G.rollDir * MV.roll.speed * (G.roll > MV.roll.time * 0.25 ? 1 : 0.5); }
   else if (G.atk && G.atk.phase !== 'rec'){ target = 0; accel = MV.decel * 0.35; }    // planted while swinging; the lunge carries him
   else {
-    target = dir * MV.run * (G.crouch ? MV.crouchMul : 1) * (G.blocking ? MV.blockMul : 1);
-    if (dir === 0 && G.grounded) accel = MV.decel;
+    target = dir * MV.run * IN.mag * (G.crouch ? MV.crouchMul : 1) * (G.blocking ? MV.blockMul : 1);   // IN.mag: how far a stick is pushed
+    if (G.grounded && (dir === 0 || Math.sign(G.v) === -dir || Math.abs(G.v) > Math.abs(target))) accel = MV.decel;   // stopping, turning and slowing are instant
     if (dir !== 0 && dir !== G.face && !G.atk){ G.face = dir; if (G.grounded && Math.abs(G.v) > 1.5) dust(G, 5, 1.8); }   // instant turn, a skid puff
   }
   if (G.roll <= 0 && !stunned){ const dv = target - G.v; G.v += Math.sign(dv) * Math.min(Math.abs(dv), accel * dt); }
@@ -127,7 +127,7 @@ export function stepMotor(G, dt){
   // ---- footfalls: a heavy step lands every half stride
   if (G.grounded && Math.abs(G.v) > 0.4 && G.roll <= 0){
     const before = Math.sin(G.runPhase);
-    G.runPhase += Math.abs(G.v) * dt * (G.crouch ? 3.4 : 2.6);
+    G.runPhase += Math.abs(G.v) * dt * (G.stepRate || (G.crouch ? 3.4 : 2.6));   // a rig with measured strides sets stepRate: a footfall per real step
     if (Math.sign(Math.sin(G.runPhase)) !== Math.sign(before)){
       sfx.step(); if (!G.crouch){ ST.dip = Math.max(ST.dip, TUNE.feel.stepDip * 0.5); if (Math.random() < 0.6) dust(G, 3, 1); }
     }

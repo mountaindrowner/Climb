@@ -28,7 +28,7 @@ const RIGS = {
   skeleton: {
     url: 'assets/models/skeleton/skeleton.glb', label: 'Skeleton',
     yaw: Math.PI / 2, height: 1.85,          // the knight's clip set and driver, on the designer's own body
-    targets: knightTargets, after: knightAfter, setup: skeletonSetup,
+    targets: skeletonTargets, after: knightAfter, setup: skeletonSetup,
   },
   knight: {
     url: 'assets/models/knight/knight.glb', label: 'Knight',
@@ -117,7 +117,7 @@ function at(name, frac){ const a = GLB.act[name]; if (a) a.time = clamp(frac, 0,
 export function animateGlb(G, dt){
   if (!usingGlb()) return;
   const cfg = GLB.cfg;
-  const { T, rate } = cfg.targets(G);
+  const { T, rate } = cfg.targets(G, dt);
   const k = Math.min(1, rate * Math.max(dt, 1 / 120));
   for (const name in GLB.act){
     const w = GLB.weights[name] + ((T[name] || 0) - GLB.weights[name]) * k;
@@ -228,6 +228,10 @@ function measureAnkle(R){
 // simulated: it rides the chest and swings from the shoulders by one angle, sprung so it lags and settles. It trails
 // back as he runs, lifts as he falls, dips as he jumps, and stirs a little standing; the hem bends most.
 function skeletonSetup(R){
+  // his gait, measured by the build: how far a loop of each walking clip carries him (model units), how many steps
+  // that is, and where in the loop the left foot strikes
+  try { R.gait = JSON.parse((R.node.Rig && R.node.Rig.userData.climb_gait) || 'null'); } catch (e) { R.gait = null; }
+  R.gaitPh = 0;
   const cape = R.node.Cape;
   if (cape){
     const g = cape.geometry, p = g.attributes.position.array;
@@ -238,6 +242,35 @@ function skeletonSetup(R){
     R.capeSway = { rest: p.slice(), nrest: g.attributes.normal ? g.attributes.normal.array.slice() : null, top, h: top - bot, z0: z0 / n, a: 0, w: 0 };
   }
   measureAnkle(R);
+}
+// Feet that match the ground. Idle, walk and run are blended by speed, walk and run kept in step (each played from its
+// own left-foot strike), and the playhead moves by distance over the blended stride, so a step covers the ground he
+// actually covers. At his size the game's top speed falls between Tripo's walk and run: a jog, a blend of the two.
+function skeletonTargets(G, dt){
+  const g = GLB.gait;
+  if (!g || ST.mode === 'fall' || G.hurtT > 0 || G.roll > 0 || swingInfo(G) || !G.grounded || G.blocking){ G.stepRate = 0; return knightTargets(G); }
+  GLB.airT = 0;
+  const T = {}, model = GLB.inner.children[0], S = Math.abs(model.getWorldScale(_sc).z), v = Math.abs(G.v);
+  const clipLen = n => GLB.act[n] ? GLB.act[n].getClip().duration : 1;
+  if (G.crouch){
+    const c = g.K_CrouchWalk, stride = c.stride * S;
+    GLB.gaitPh = loop(GLB.gaitPh + v * dt / stride);
+    at('K_Crouch', 0.5); at('K_CrouchWalk', loop(GLB.gaitPh + c.strike));
+    T.K_CrouchWalk = clamp(v / 0.25, 0, 1); T.K_Crouch = 1 - T.K_CrouchWalk;
+    G.stepRate = Math.PI * 2 / stride;
+    return { T, rate: 30 };
+  }
+  const W = g.K_Walk, Rn = g.Running_A;
+  const vW = W.stride * S / clipLen('K_Walk'), vR = Rn.stride * S / clipLen('Running_A');   // each clip's own pace
+  const r = smooth(clamp((v - vW) / (vR - vW), 0, 1)), still = 1 - smooth(clamp(v / 0.9, 0, 1));
+  const stride = (W.stride + (Rn.stride - W.stride) * r) * S;                            // a loop: four steps, both clips
+  GLB.gaitPh = loop(GLB.gaitPh + v * dt / stride);
+  G.stepRate = Math.PI * 4 / stride;
+  GLB.idleT += dt; at('K_Guard', loop(GLB.idleT / clipLen('K_Guard') / 1.6));
+  at('K_Walk', loop(GLB.gaitPh + W.strike)); at('Running_A', loop(GLB.gaitPh + Rn.strike));
+  T.K_Guard = still; T.K_Walk = (1 - still) * (1 - r); T.Running_A = (1 - still) * r;
+  if (G.landT > 0){ at('K_Jump_Land', 0.15 + 0.5 * (1 - G.landT / 0.12)); T.K_Jump_Land = 0.6; for (const n of ['K_Guard', 'K_Walk', 'Running_A']) T[n] *= 0.4; }
+  return { T, rate: 14 };
 }
 const CAPE = { run: 0.75, fall: 0.55, rise: -0.2, crouch: -0.15, sway: 0.05, stiff: 60, damp: 7 };
 function swayCape(G, dt){

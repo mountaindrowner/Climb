@@ -9,14 +9,19 @@ import { SET } from './settings.js';
 import { setDevice } from './prompts.js';
 
 export const ACTIONS = ['left', 'right', 'down', 'jump', 'attack', 'block', 'roll', 'flask'];
-export const IN = { held: Object.fromEntries(ACTIONS.map(a => [a, false])), pressed: new Set(), at: {} };
+// mag: how hard he is asked to move, 0..1 (a stick pushed part way walks; keys and the d-pad are always 1)
+export const IN = { held: Object.fromEntries(ACTIONS.map(a => [a, false])), pressed: new Set(), at: {}, mag: 1 };
 const blank = () => Object.fromEntries(ACTIONS.map(a => [a, false]));
 const keyHeld = blank(), padHeld = blank(), gpHeld = blank(), botHeld = blank();
+let gpMag = 1, padMag = 1;
 function sync(a){
   const was = IN.held[a];
   IN.held[a] = keyHeld[a] || padHeld[a] || gpHeld[a] || botHeld[a];
+  const digital = keyHeld.left || keyHeld.right || botHeld.left || botHeld.right;
+  IN.mag = digital ? 1 : gpHeld.left || gpHeld.right ? gpMag : padHeld.left || padHeld.right ? padMag : 1;
   if (IN.held[a] && !was){ IN.pressed.add(a); IN.at[a] = performance.now() / 1000; }
 }
+const clamp01 = (x, lo) => Math.max(lo, Math.min(1, x));
 export function consume(a){ if (IN.pressed.has(a)){ IN.pressed.delete(a); return true; } return false; }
 export function endFrame(){ IN.pressed.clear(); }
 // for scripted play (the test bot) and older callers
@@ -99,6 +104,7 @@ export function pollPads(){
     if (edge(1)) back();
   } else {
     const dirs = { left: ax < -0.35 || btn(14), right: ax > 0.35 || btn(15), down: ay > 0.55 || btn(13) };
+    gpMag = btn(14) || btn(15) ? 1 : clamp01((Math.abs(ax) - 0.25) / 0.6, 0.3);   // the stick part way: a walk
     for (const a of ACTIONS){
       const v = a in dirs ? dirs[a] : (SET.pad[a] || []).some(btn);
       if (v !== gpHeld[a]){ gpHeld[a] = v; if (v) ac(); sync(a); }
@@ -128,6 +134,7 @@ export function bindInput(){
     const read = e => {
       const r = stick.getBoundingClientRect(), dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2), dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
       padHeld.left = dx < -0.2; padHeld.right = dx > 0.2; padHeld.down = dy > 0.38;
+      padMag = clamp01((Math.abs(dx) - 0.2) / 0.5, 0.3);
       if (knob) knob.style.transform = `translate(${Math.max(-1, Math.min(1, dx)) * 36}%, ${Math.max(-1, Math.min(1, dy)) * 30}%)`;
       ['left', 'right', 'down'].forEach(sync);
       stick.dataset.dir = (padHeld.left ? 'l' : padHeld.right ? 'r' : '') + (padHeld.down ? 'd' : '');

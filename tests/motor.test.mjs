@@ -17,8 +17,9 @@ test('the quickest tap still hops high enough to clear a set of jaws', () => {
   const h = v0 * MV.minHop - 0.5 * MV.gravityUp * MV.minHop * MV.minHop;
   assert.ok(h > 0.7, `min hop rises ${h.toFixed(2)} before it can be cut`);
 });
-test('acceleration and stopping are near instant', () => {
-  assert.ok(MV.run / MV.accel < 0.08); assert.ok(MV.run / MV.decel < 0.08);
+test('starting takes a step or two; stopping and turning are near instant', () => {
+  assert.ok(MV.run / MV.accel > 0.12 && MV.run / MV.accel < 0.3, `top speed in ${(MV.run / MV.accel).toFixed(2)} s`);
+  assert.ok(MV.run / MV.decel < 0.08);
 });
 test('the roll is invulnerable for most of its length and has a cooldown', () => {
   const R = MV.roll;

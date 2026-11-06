@@ -96,8 +96,30 @@ def detrend(act):
             if horiz: d += mean - (v1 - v0) / 2
             k.co.y -= d; k.handle_left.y -= d; k.handle_right.y -= d
         fc.update()
+# first, how far each loop carries him: his stride (a loop is one full cycle, two steps)
+def set_act(a):
+    ad = arm.animation_data or arm.animation_data_create(); ad.action = a
+    if hasattr(ad, 'action_slot') and a and a.slots: ad.action_slot = a.slots[0]
+def hips_at(f): bpy.context.scene.frame_set(f); return arm.matrix_world @ arm.pose.bones['hips'].head
+GAIT = {}
+for n in ('walk', 'run'):
+    a = bpy.data.actions[n]; f0_, f1_ = int(a.frame_range[0]), int(a.frame_range[1]); set_act(a)
+    d = hips_at(f1_) - hips_at(f0_); GAIT[n] = {'stride': round((d.x ** 2 + d.y ** 2) ** 0.5, 4)}
 for n in ('walk', 'run', 'run_upstairs'):
     if n in bpy.data.actions: detrend(bpy.data.actions[n])
+# then where in the loop the left foot strikes (furthest forward of the hips): walk and run are played in step by it
+for n in ('walk', 'run'):
+    a = bpy.data.actions[n]; f0_, f1_ = int(a.frame_range[0]), int(a.frame_range[1]); set_act(a)
+    fw = []
+    for f in range(f0_, f1_):
+        bpy.context.scene.frame_set(f); P_ = arm.pose.bones
+        fw.append(((arm.matrix_world @ P_['hips'].head).y - (arm.matrix_world @ P_['foot.l'].head).y, f))
+    GAIT[n]['strike'] = round((max(fw)[1] - f0_) / (f1_ - f0_), 4)
+    ups = sum(1 for i in range(len(fw)) if fw[i - 1][0] < fw[i][0] >= fw[(i + 1) % len(fw)][0])
+    print('gait', n, GAIT[n], 'left-foot peaks per loop', ups)
+set_act(None)
+for pb in arm.pose.bones: pb.location = (0, 0, 0); pb.rotation_quaternion = (1, 0, 0, 0); pb.scale = (1, 1, 1)
+bpy.context.view_layer.update()
 
 # ---- 5. weapons: the knight's three, out of our own knight.glb, scaled to this body and closed in his right fist
 before, acts_before = set(bpy.data.objects), set(bpy.data.actions)
@@ -208,7 +230,11 @@ keyed('K_Guard', [(f, fist(po.pose(fist(po.sample(idle, f)), guard, feet0))) for
 # the run: Tripo's, with the sword carried forward and up, clear of the steps
 run = bpy.data.actions['run']; r0, r1 = int(run.frame_range[0]), int(run.frame_range[1])
 CARRY = {'armR': [D(0.25, -1, 0.35), D(1, 0.45, 0.15)], 'blade': D(0.9, 0.8)}
-keyed('Running_A', [(f, fist(po.pose(fist(po.sample(run, f)), CARRY, feet0, plant=False))) for f in range(r0, r1 + 1)])
+# the walk and the run: Tripo's own, arms swinging naturally, the weapon riding in the swinging fist
+keyed('Running_A', [(f, fist(po.sample(run, f))) for f in range(r0, r1 + 1)])
+walk = bpy.data.actions['walk']; w0, w1 = int(walk.frame_range[0]), int(walk.frame_range[1])
+keyed('K_Walk', [(f, fist(po.sample(walk, f))) for f in range(w0, w1 + 1)])
+GAIT['Running_A'] = GAIT.pop('run'); GAIT['K_Walk'] = GAIT.pop('walk')
 # the flinch: Tripo's hit, the sword held
 hit = bpy.data.actions['hit_to_side']; h0, h1 = int(hit.frame_range[0]), int(hit.frame_range[1])
 keyed('Hit_A', [(f, fist(po.pose(fist(po.sample(hit, f)), CARRY, feet0, plant=False))) for f in range(h0, h1 + 1, 2)])
@@ -236,6 +262,7 @@ CROUCH = {'hips': (0.12, -0.86), 'spine': D(0.95, 1), 'chest': D(0.45, 1), 'head
 c = P_({**CROUCH, 'feet': {'l': (0.12, 0), 'r': (-0.12, 0)}})
 keyed('K_Crouch', [(0, c), (12, c)])
 steps = [((0.14, 0), (-0.14, 0), 0), ((0, 0), (0, 0.08), 0.025), ((-0.14, 0), (0.14, 0), 0), ((0, 0.08), (0, 0), 0.025)]
+GAIT['K_CrouchWalk'] = {'stride': round(4 * 0.14 * K, 4), 'strike': 0.0}   # the feet trade 0.14 each way, twice a loop
 keyed('K_CrouchWalk', [(i * 6, P_({**CROUCH, 'hips': (0.12, -0.86 + bob), 'feet': {'l': l, 'r': r}})) for i, (l, r, bob) in enumerate(steps + steps[:1])])
 t = P_({'hips': (0.0, -0.22), 'spine': D(1.0, 0.8), 'chest': D(1.6, 0.6), 'head': D(1.2, -0.3), 'feet': {'l': (0.3, 0.42), 'r': (0.25, 0.38)},
         'armR': [D(0.9, -0.6, 0.45), D(-0.3, 1, 0.35)], 'blade': D(-0.25, 1), 'armL': [D(0.9, -0.6, 0.2, 'l'), D(-0.2, 1, -0.3, 'l')]})
@@ -290,12 +317,15 @@ for name, (wind, strike, follow) in SWINGS.items():
 po.restore(base)
 for a in list(bpy.data.actions):
     if not (a.name.startswith('K_') or a.name in ('Running_A', 'Hit_A', 'Hit_B', 'Blocking')): bpy.data.actions.remove(a)
+import json
+arm['climb_gait'] = json.dumps(GAIT)     # read by the game (glTF extras on the Rig node): stride per loop in model units
+print('gait', GAIT)
 print('clips', sorted(a.name for a in bpy.data.actions))
 for pb in arm.pose.bones: pb.location = (0, 0, 0); pb.rotation_quaternion = (1, 0, 0, 0); pb.scale = (1, 1, 1)
 
 # ---- 8. export
 for a in bpy.data.actions: a.use_fake_user = True
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
-bpy.ops.export_scene.gltf(filepath=OUT, export_format='GLB', export_animations=True, export_animation_mode='ACTIONS', export_image_format='JPEG',
+bpy.ops.export_scene.gltf(filepath=OUT, export_format='GLB', export_animations=True, export_animation_mode='ACTIONS', export_image_format='JPEG', export_extras=True,
                           export_jpeg_quality=85, export_yup=True, export_cameras=False, export_lights=False, export_optimize_animation_size=False)
 print('wrote', os.path.normpath(OUT), os.path.getsize(OUT), 'bytes')
