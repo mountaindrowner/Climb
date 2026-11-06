@@ -9,7 +9,7 @@ test('the catalog and the registry list the same threats', () => {
 });
 test('every threat has one answer on the four buttons, a tell and a hint', () => {
   for (const t of CATALOG){
-    assert.ok(['▲', '▼', 'A', 'B'].includes(t.answer), t.id);
+    assert.ok(['{jump}', '{down}', '{attack}', '{block}'].includes(t.answer), t.id);   // an action token, shown as the player's own button
     assert.ok(t.tell.length > 20 && t.name && t.verb, t.id);
     const dir = t.kind === 'enemy' ? 'enemies' : 'hazards';
     const src = readFileSync(new URL(`../src/entities/${dir}/${t.id}.js`, import.meta.url), 'utf8');

@@ -5,8 +5,8 @@ import { TUNE } from '../../config/tuning.js';
 const W = TUNE.warden;
 
 export const attacks = {
-  slam:  { answer: 'jump', prompt: '▲', damage: W.slamDamage,  hitText: 'Crushed' }, // both arms rise, shockwave rolls along the floor
-  sweep: { answer: 'duck', prompt: '▼', damage: W.sweepDamage, hitText: 'Swept' },   // one arm pulls back, red band at head height
+  slam:  { answer: 'jump', prompt: '{jump}', damage: W.slamDamage,  hitText: 'Crushed' }, // both arms rise, shockwave rolls along the floor
+  sweep: { answer: 'duck', prompt: '{down}', damage: W.sweepDamage, hitText: 'Swept' },   // one arm pulls back, red band at head height
   spit:  { answer: 'block', prompt: 'B', damage: W.spitDamage, hitText: 'Burned' },  // mouth glows, aim line to the warrior
 };
 export const order = ['slam', 'sweep', 'spit'];

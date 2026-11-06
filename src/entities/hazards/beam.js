@@ -15,7 +15,7 @@ import { topAt } from '../../world/path.js';
 import { hurt, isLow } from '../player/player.js';
 const THREE = window.THREE;
 
-export const hint = 'A fallen beam. Hold ▼ to crouch under it, or roll under it. Running into it hurts.';
+export const hint = 'A fallen beam. Hold {down} to crouch under it, or {roll} to roll under it. Running into it hurts.';
 
 export function build(o, { z, dyn }){
   const top = topAt(o.s), r = rng(o.k * 331 + 7);
@@ -62,5 +62,5 @@ export function draw(o){
   if (near && Math.random() < 0.35){ const p = new THREE.Vector3().lerpVectors(o.A, o.Bp, Math.random()); mote(p.x, p.y - 0.2, p.z, 0x8a7a6a); }
 }
 export function hud(o, d, { drawIcon }){
-  if (!o.done && d > 0 && d <= TUNE.climb.iconRange) drawIcon(vArc(o.s * OMEGA, R - 1.2, topAt(o.s) + 2.7), '▼', '#e8b04a');
+  if (!o.done && d > 0 && d <= TUNE.climb.iconRange) drawIcon(vArc(o.s * OMEGA, R - 1.2, topAt(o.s) + 2.7), '{down}', '#e8b04a');
 }

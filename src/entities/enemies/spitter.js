@@ -16,7 +16,7 @@ import { hurt, head, isBlocking, isParry, isInvulnerable, playerWorld, crownY, m
 const THREE = window.THREE;
 const T = TUNE.spitter, _v = new THREE.Vector3();
 
-export const hint = 'A spitter. Hold B to block its spit, or roll. Raise the shield just as it lands to parry it back.';
+export const hint = 'A spitter. Hold {block} to block its spit, or {roll}. Raise the shield just as it lands to parry it back.';
 
 // +z faces out from the wall toward the shaft, +y up.
 function model(glow){

@@ -16,7 +16,7 @@ import { hurt, head, isLow, crownY } from '../player/player.js';
 const THREE = window.THREE;
 const T = TUNE.swing;
 
-export const hint = 'A swinging weight. Crouch under it with ▼, roll under it, or time your run past it.';
+export const hint = 'A swinging weight. Crouch under it with {down}, roll under it with {roll}, or time your run past it.';
 
 const _a = new THREE.Vector3(), _b = new THREE.Vector3();
 function stretch(mesh, from, to){ mesh.position.lerpVectors(from, to, 0.5); mesh.lookAt(to); mesh.scale.z = from.distanceTo(to); }
@@ -69,6 +69,6 @@ export function update(o, dt){
 export function draw(o){ place(o); }
 export function hud(o, d, { drawIcon, drawTiming }){
   if (o.done) return;
-  if (o.st === 'swing' && o.tm < T.period / 4) drawTiming('▼', o.tm, T.period / 4);
-  else if (Math.abs(d) <= TUNE.climb.iconRange) drawIcon(vArc(o.s * OMEGA, R - 1.2, o.top + 2.6), '▼', '#e8b04a');
+  if (o.st === 'swing' && o.tm < T.period / 4) drawTiming('{down}', o.tm, T.period / 4);
+  else if (Math.abs(d) <= TUNE.climb.iconRange) drawIcon(vArc(o.s * OMEGA, R - 1.2, o.top + 2.6), '{down}', '#e8b04a');
 }

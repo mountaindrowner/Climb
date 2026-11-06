@@ -1,4 +1,5 @@
 // The sharp 2D layer over the pixelated 3D view: health, gold, height, the height meter, prompts, timing rings, toasts and hints.
+import { say } from '../core/prompts.js';
 import { FH, ZF, MPU, LIFT_FLIGHT, CAMP_FLIGHT, BOSS_FLIGHT } from '../config/constants.js';
 import { TUNE } from '../config/tuning.js';
 import { clamp } from '../core/math.js';
@@ -22,19 +23,21 @@ function wrap(text, maxW){
 }
 // A shrinking ring over the warrior's head that closes at the moment to press `label`.
 export function drawTiming(label, t, dur){
+  label = say(label);
   const s = toScreen(head(3.2)); if (!s.ok) return;
   const q = clamp(t / dur, 0, 1), r = 14 + (1 - q) * 34;
   hx.strokeStyle = 'rgba(239,230,210,0.9)'; hx.lineWidth = 2; hx.beginPath(); hx.arc(s.x, s.y, r, 0, 7); hx.stroke();
   hx.strokeStyle = 'rgba(232,176,74,0.95)'; hx.beginPath(); hx.arc(s.x, s.y, 14, 0, 7); hx.stroke();
-  hx.fillStyle = '#efe6d2'; hx.font = `700 16px ${FONT}`; hx.textAlign = 'center'; hx.textBaseline = 'middle';
+  hx.fillStyle = '#efe6d2'; hx.font = `700 ${label.length > 2 ? 11 : 16}px ${FONT}`; hx.textAlign = 'center'; hx.textBaseline = 'middle';
   hx.fillText(label, s.x, s.y + 1); hx.textAlign = 'left'; hx.textBaseline = 'alphabetic';
 }
 export function drawIcon(p, label, color){
+  label = say(label);
   const s = toScreen(p); if (!s.ok) return;
   const pz = 1 + 0.12 * Math.sin(ST.time * 14);
   hx.fillStyle = 'rgba(9,8,12,0.78)'; hx.beginPath(); hx.arc(s.x, s.y, 15 * pz, 0, 7); hx.fill();
   hx.strokeStyle = color; hx.lineWidth = 2.5; hx.stroke();
-  hx.fillStyle = color; hx.font = `700 16px ${FONT}`; hx.textAlign = 'center'; hx.textBaseline = 'middle';
+  hx.fillStyle = color; hx.font = `700 ${label.length > 2 ? 11 : 16}px ${FONT}`;   // a key name (Space, Shift) is longer than a glyph hx.textAlign = 'center'; hx.textBaseline = 'middle';
   hx.fillText(label, s.x, s.y + 1); hx.textAlign = 'left'; hx.textBaseline = 'alphabetic';
 }
 const HUD_API = { drawIcon, drawTiming };
@@ -121,18 +124,18 @@ export function drawHUD(){
     hx.fillStyle = '#09080c'; hx.fillText(f.text, s.x, s.y + 2); hx.fillStyle = f.color; hx.fillText(f.text, s.x, s.y);
   }
   hx.globalAlpha = 1; hx.textAlign = 'left';
-  const toast = ST.toast;
+  const toast = ST.paused ? null : ST.toast;   // paused: the menu has the screen
   if (toast){
     const a = toast.t < 0.25 ? toast.t / 0.25 : toast.t > toast.dur - 0.4 ? (toast.dur - toast.t) / 0.4 : 1;
     hx.globalAlpha = clamp(a, 0, 1); hx.textAlign = 'center';
-    hx.fillStyle = '#09080c'; hx.font = `700 30px ${FONT}`; hx.fillText(toast.text, W / 2, H * 0.2 + 3);
-    hx.fillStyle = '#efe6d2'; hx.fillText(toast.text, W / 2, H * 0.2);
-    if (toast.sub){ hx.fillStyle = '#c7bed2'; hx.font = `400 15px ${FONT}`; hx.fillText(toast.sub, W / 2, H * 0.2 + 24); }
+    hx.fillStyle = '#09080c'; hx.font = `700 30px ${FONT}`; hx.fillText(say(toast.text), W / 2, H * 0.2 + 3);
+    hx.fillStyle = '#efe6d2'; hx.fillText(say(toast.text), W / 2, H * 0.2);
+    if (toast.sub){ hx.fillStyle = '#c7bed2'; hx.font = `400 15px ${FONT}`; hx.fillText(say(toast.sub), W / 2, H * 0.2 + 24); }
     hx.textAlign = 'left'; hx.globalAlpha = 1;
   }
-  if (ST.hint && mode === 'climb'){
+  if (ST.hint && mode === 'climb' && !ST.paused){
     hx.font = `600 15px ${FONT}`;
-    const lines = wrap(ST.hint, W - 64), lh = 19, bh = lines.length * lh + 16, by = H - bh - 14;
+    const lines = wrap(say(ST.hint), W - 64), lh = 19, bh = lines.length * lh + 16, by = H - bh - 14;
     hx.fillStyle = 'rgba(9,8,12,0.82)'; hx.fillRect(20, by, W - 40, bh);
     hx.fillStyle = '#e8b04a'; hx.fillRect(20, by, 4, bh);
     hx.fillStyle = '#efe6d2'; lines.forEach((l, i) => hx.fillText(l, 34, by + 22 + i * lh));
@@ -140,6 +143,6 @@ export function drawHUD(){
   if (mode === 'fall'){
     hx.fillStyle = 'rgba(9,8,12,0.7)'; hx.fillRect(0, H - 44, W, 44);
     hx.fillStyle = '#e8b04a'; hx.font = `600 16px ${FONT}`; hx.textAlign = 'center';
-    hx.fillText('Tap ▲ as a root passes your hands', W / 2, H - 17); hx.textAlign = 'left';
+    hx.fillText(say('Press {jump} as a root passes your hands'), W / 2, H - 17); hx.textAlign = 'left';
   }
 }

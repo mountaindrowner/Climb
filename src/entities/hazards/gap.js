@@ -12,7 +12,7 @@ import { burst } from '../../render/particles.js';
 import { topAt } from '../../world/path.js';
 const THREE = window.THREE;
 
-export const hint = 'A broken step. It crumbles as you come near: tap ▲ to jump the hole.';
+export const hint = 'A broken step. It crumbles as you come near: press {jump} to jump the hole.';
 
 export function build(o, { c, z, glow, dyn }){
   const i = Math.floor(o.s - c.k * FL), sa = (c.k * FL + i + 0.5) * OMEGA, st = c.k * FH + (i + 1) * RISE;
@@ -62,5 +62,5 @@ export function draw(o, dt){
   }
 }
 export function hud(o, d, { drawIcon }){
-  if (!o.done && d > 0 && d <= TUNE.climb.iconRange) drawIcon(vArc(o.s * OMEGA, R - 0.4, topAt(o.s) + 0.7), '▲', '#e8b04a');
+  if (!o.done && d > 0 && d <= TUNE.climb.iconRange) drawIcon(vArc(o.s * OMEGA, R - 0.4, topAt(o.s) + 0.7), '{jump}', '#e8b04a');
 }

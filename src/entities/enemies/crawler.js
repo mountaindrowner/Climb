@@ -17,7 +17,7 @@ import { hurt, head, isBlocking, isParry, isInvulnerable } from '../player/playe
 const THREE = window.THREE;
 const T = TUNE.crawler;
 
-export const hint = 'A crawler. Strike it with A. Hold B to block its lunge, or roll through it, then strike while it recovers.';
+export const hint = 'A crawler. Strike it with {attack}. Hold {block} to block its lunge, or {roll} through it, then strike while it recovers.';
 
 // +x faces the warrior, +y up, ±z its sides.
 function model(glow){

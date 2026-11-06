@@ -2,19 +2,28 @@
 
 You move the warrior yourself. Right along the stair climbs, left goes back down. The feel follows Dead Cells: the controls should never be the challenge, so movement is instant and forgiving and the difficulty lives in the threats. Code: `src/core/input.js` (what is held and pressed), `src/entities/player/motor.js` (movement and actions), `src/entities/player/animate.js` (the pose), numbers in `TUNE.move` in `src/config/tuning.js`.
 
-## The pad
+## Devices
 
-Left thumb: a stick. Left or right of its centre moves; below it crouches; both together crouch-walk. Right thumb: four buttons, Block and Roll above, Attack and Jump below, like a controller's face buttons. The flask sits between.
+PC is the main platform (decision 0008): keyboard or a gamepad. Phones play on their side with a touch pad. All four sources (keyboard, gamepad, touch pad, the test bot) feed the same eight actions, so gameplay never knows which one you used. Code: `src/core/input.js` (sources and menus), `src/core/settings.js` (bindings and settings, stored apart from the save), `src/core/prompts.js` (button prompts), `src/ui/screens/settings.js` (pause, settings, controls).
 
-| Input | Action | Keyboard |
-| --- | --- | --- |
-| Stick ◀ ▶ | Move along the stair | A / D or ← → |
-| Stick ▼ | Crouch (hold); crouch-walk with ◀ ▶ | S or ↓ |
-| ▲ Jump | Jump (hold for height); repair a lift standing on its landing; grab a root while falling | Space, W or ↑ |
-| A Attack | Swing; press again to chain the weapon's combo | J or Z |
-| B Block | Hold to raise the shield; raising it as a hit lands is a parry | K or X |
-| ⟳ Roll | Roll, invulnerable for most of it, under beams and swings, out of a swing's recovery | L, C or Shift |
-| Flask | Heal 2 | F or Q |
+| Action | Keyboard (default) | Xbox pad | PlayStation pad | Touch |
+| --- | --- | --- | --- | --- |
+| Move along the stair | A / D or ← → | left stick, d-pad | left stick, d-pad | stick ◀ ▶ |
+| Crouch (hold); crouch-walk while moving | S or ↓ | stick down, d-pad ↓ | stick down, d-pad ↓ | stick ▼ |
+| Jump (hold for height); repair a lift on its landing; grab a root while falling | Space, W or ↑ | A | ✕ | ▲ |
+| Attack; press again to chain the combo | J or Z | X, RT | □, R2 | A |
+| Block (hold); raise it as a hit lands to parry | K or X | LB, LT | L1, L2 | B |
+| Roll: invulnerable for most of it, under beams and swings, out of a swing's recovery | L, Shift or C | B, RB | ○, R1 | ⟳ |
+| Drink the flask: heals 2 | F or Q | Y | △ | flask |
+| Pause | Esc | Start (Menu) | Options | — |
+
+Keys are bound by position (`KeyboardEvent.code`), so they sit in the same place on any keyboard layout. Every action's keys and pad buttons can be rebound under Controls (from the title or the pause menu): pick the action, press the new key or button. Taking a key from another action removes it there, so one input never does two things. Moving always uses the stick and the d-pad.
+
+**Prompts match your hands.** Text in the game names actions as tokens (`{jump}`, `{attack}`, ...). Whatever you used last decides how they read: your bound key (Space, J), the Xbox button (A, X) or the PlayStation one (✕, □), or the touch glyph (▲, A). Hints, the icons over hazards, the timing rings, the practice list and the title's help all follow it, and switch as soon as you pick up a different device.
+
+**Menus without a mouse.** ↑ ↓ or the d-pad move between choices, ← → or the stick nudge sliders, Enter or Ⓐ picks, Esc or Ⓑ goes back. Esc or Start pauses the climb; the game also pauses itself when the window loses focus.
+
+**Settings.** Pixels (the internal render height: Chunky 540, Classic 720, Fine 1080 lines), volume, screen shake (scales every shake), pad rumble (hits and hit-stop buzz the pad).
 
 ## What makes it tight
 

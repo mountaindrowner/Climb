@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.16.0 — PC controls (2026-11-06)
+
+- Gamepad support (standard mapping; Xbox and PlayStation pads): left stick and d-pad move and crouch, A/✕ jump, X/□ and RT/R2 attack, LB/LT block, B/○ and RB roll, Y/△ flask, Start pauses. Rumble on hits and hit-stop.
+- Rebinding: every action's keys and pad buttons, under Controls (from the title or the pause menu); stored apart from the save. Keys are bound by position, so they sit in the same place on any layout.
+- Prompts match the device in your hands: text names actions as tokens and renders them as your key, the Xbox or PlayStation button, or the touch glyph; hints, hazard icons, timing rings, the practice list and the title's help all follow it and switch the moment you pick up another device.
+- Pause (Esc / Start; also when the window loses focus) with Resume, Settings, Controls and Leave the climb. Settings: pixels (540 / 720 / 1080 lines), volume, screen shake, pad rumble.
+- Every menu works without a mouse: ↑ ↓ / d-pad to move, Enter / Ⓐ to pick, Esc / Ⓑ to go back, ← → on sliders.
+- Fixed: menus focused the first choice in the page rather than the main one (the Pool focused a weapon, so Enter re-picked it instead of starting the climb); picking a weapon now keeps focus on it.
+- Tests: prompts render for every action on every device, every token in the game's text is an action, the default bindings never share an input.
+
 ## 0.15.0 — landscape, PC first (2026-11-06)
 
 - Landscape everywhere, PC (1920×1080) the main target (decision 0008). The page fills the window; the HUD sits in the corners; the touch pad shows only on touch screens, over the bottom corners, its buttons sized from the space so all four fit; a phone held upright is asked to turn.

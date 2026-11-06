@@ -19,7 +19,8 @@ import { animateWarden } from './wardens/visuals.js';
 import { MODES } from './modes/registry.js';
 import { drawHUD } from './ui/hud.js';
 import { titleMenu, updatePips } from './ui/menus.js';
-import { bindInput, endFrame, IN } from './core/input.js';
+import { bindInput, endFrame, IN, pollPads } from './core/input.js';
+import './ui/screens/settings.js';   // pause, settings, controls (registers the pause hook)
 
 load();
 
@@ -47,6 +48,8 @@ function frame(ts){
   const now = ts / 1000;
   let dt = last ? now - last : 0.016; last = now;
   dt = Math.min(dt, 0.05) * ST.timeScale;
+  pollPads();                          // the gamepad drives play and menus alike
+  if (ST.paused) dt = 0;               // paused: the world holds still, the menus still work
   let sdt = dt;
   if (ST.hitstop > 0){ ST.hitstop -= dt; sdt = dt * 0.06; } // freeze-frame
   step(sdt);

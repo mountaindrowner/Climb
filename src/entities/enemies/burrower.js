@@ -19,7 +19,7 @@ import { hitstop } from '../../fx/feedback.js';
 const THREE = window.THREE;
 const T = TUNE.burrower;
 
-export const hint = 'A burrower. Jump its jaws with ▲, or strike its head with A while it is up.';
+export const hint = 'A burrower. Jump its jaws with {jump}, or strike its head with {attack} while it is up.';
 
 export function build(o, { z, glow, dyn }){
   const r = rng(o.k * 401 + 9), top = topAt(o.s);
@@ -106,5 +106,5 @@ export function draw(o){
   for (const th of o.teeth){ const tilt = 0.15 + 0.55 * open; th.tj.rotation.set(Math.sin(th.ang) * tilt, 0, -Math.cos(th.ang) * tilt); }
 }
 export function hud(o, d, { drawIcon }){
-  if ((o.st === 'travel' || o.st === 'rise' || o.st === 'up') && Math.abs(d) <= TUNE.climb.iconRange) drawIcon(vArc(o.s * OMEGA, R - 0.4, o.top + 1.2), '▲', '#e8b04a');
+  if ((o.st === 'travel' || o.st === 'rise' || o.st === 'up') && Math.abs(d) <= TUNE.climb.iconRange) drawIcon(vArc(o.s * OMEGA, R - 0.4, o.top + 1.2), '{jump}', '#e8b04a');
 }

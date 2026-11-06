@@ -3,6 +3,7 @@ import { R } from '../config/constants.js';
 import { TUNE } from '../config/tuning.js';
 import { ST } from '../core/state.js';
 import { camera, view } from './renderer.js';
+import { SET } from '../core/settings.js';
 import { posOf } from '../world/path.js';
 const CT = TUNE.camera;
 
@@ -26,7 +27,7 @@ export function updateCamera(dt){
   let dA = tA - cam.ang; dA = Math.atan2(Math.sin(dA), Math.cos(dA));   // shortest way round: a root one turn down must not spin the camera
   cam.ang += dA * fk; cam.y += (tY - cam.y) * (mode === 'fall' ? 1 : Math.min(1, dt * 5));
   cam.r += (tR - cam.r) * Math.min(1, dt * 3);
-  const shx = (Math.random() - 0.5) * ST.shake, shy = (Math.random() - 0.5) * ST.shake;
+  const sk = ST.shake * SET.shake, shx = (Math.random() - 0.5) * sk, shy = (Math.random() - 0.5) * sk;   // the screen-shake setting scales every shake
   camera.position.set(cam.r * Math.cos(cam.ang) + shx, cam.y - ST.dip + shy, cam.r * Math.sin(cam.ang));
   const lookAng = mode === 'fall' ? lookA : cam.ang + 0.02;
   camera.lookAt(R * Math.cos(lookAng), lookY - ST.dip * 0.5, R * Math.sin(lookAng));

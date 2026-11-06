@@ -17,7 +17,7 @@ import { hurt, head, isBlocking, isParry, isRollInvulnerable } from '../player/p
 const THREE = window.THREE;
 const T = TUNE.rockfall;
 
-export const hint = 'Rocks fall where the shadow grows. Hold B to raise your shield under it, or stop and let it fall.';
+export const hint = 'Rocks fall where the shadow grows. Hold {block} to raise your shield under it, or stop and let it fall.';
 
 export function build(o, { z, dyn }){
   const a = o.s * OMEGA, top = topAt(o.s), r = rng(o.k * 613 + 3);

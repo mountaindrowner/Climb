@@ -5,6 +5,7 @@ export const ST = {
   time: 0,
   slowmo: 1,
   timeScale: 1,       // debug only: tools slow the whole game to catch a pose
+  paused: false,      // the pause menu is up (Esc / Start); the world holds still
   hitstop: 0,
   G: null,
   B: null,

@@ -1,6 +1,7 @@
 // WebGL renderer, scene, camera and the 2D HUD canvas. The 3D view renders at roughly 600px tall and is scaled up with hard pixel edges.
 import { clamp } from '../core/math.js';
 import { TUNE } from '../config/tuning.js';
+import { SET } from '../core/settings.js';
 import { ZONES } from '../config/zones.js';
 const THREE = window.THREE;
 
@@ -22,7 +23,7 @@ export const view = { W: 300, H: 500, dpr: 1 };
 export function resize(){
   const r = stageEl.getBoundingClientRect();
   view.W = Math.max(200, r.width); view.H = Math.max(200, r.height);
-  const pr = clamp(TUNE.camera.lines / view.H, 0.3, 1.5);
+  const pr = clamp((SET.lines || TUNE.camera.lines) / view.H, 0.25, 2);
   renderer.setPixelRatio(pr); renderer.setSize(view.W, view.H, false);
   camera.aspect = view.W / view.H;
   camera.fov = view.W / view.H > 1 ? TUNE.camera.fovLandscape : TUNE.camera.fovPortrait;

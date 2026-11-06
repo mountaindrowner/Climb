@@ -1,7 +1,8 @@
 // Placeholder sounds synthesised in the browser. Real samples will live in assets/audio and load through this same API.
-let AC = null;
+import { SET } from '../core/settings.js';
+let AC = null, OUT = null;   // OUT: the master gain every sound goes through (the volume setting)
 export function ac(){
-  if (!AC){ try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+  if (!AC){ try { AC = new (window.AudioContext || window.webkitAudioContext)(); OUT = AC.createGain(); OUT.gain.value = SET.volume; OUT.connect(AC.destination); } catch (e) {} }
   if (AC && AC.state === 'suspended') AC.resume();
   return AC;
 }
@@ -11,7 +12,7 @@ function tone(freq, dur, type, vol, slide){
   o.type = type || 'square'; o.frequency.setValueAtTime(freq, t);
   if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(20, freq + slide), t + dur);
   g.gain.setValueAtTime(vol || 0.08, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur + 0.02);
+  o.connect(g).connect(OUT); o.start(t); o.stop(t + dur + 0.02);
 }
 let noiseBuf = null;
 function noise(dur, vol, freq){
@@ -24,8 +25,9 @@ function noise(dur, vol, freq){
   const s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain(), t = a.currentTime;
   s.buffer = noiseBuf; f.type = 'lowpass'; f.frequency.value = freq || 1200;
   g.gain.setValueAtTime(vol || 0.1, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  s.connect(f).connect(g).connect(a.destination); s.start(t); s.stop(t + dur + 0.02);
+  s.connect(f).connect(g).connect(OUT); s.start(t); s.stop(t + dur + 0.02);
 }
+export function setVolume(v){ if (OUT) OUT.gain.value = v; }
 export const sfx = {
   step(){ tone(72, 0.09, 'sine', 0.22, -30); noise(0.05, 0.05, 380); },
   jump(){ tone(260, 0.12, 'square', 0.04, 220); },

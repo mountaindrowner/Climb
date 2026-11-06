@@ -62,8 +62,8 @@ export function updClimb(dt){
       if (!g.taken && Math.abs(g.s - G.s) < 0.45 && G.y < topAt(g.s) + 1.6){ g.taken = true; G.gold += GOLD.nugget; sfx.gold(); burst(g.m.position, 6, '#e8b04a', 2); }
     }
   }
-  if (!ST.hint && G.s < 6 && !ST.practice && !S.best) ST.hint = 'Hold ▶ to climb, ◀ to go back down. ▲ jumps, hold ▼ to crouch.';
-  if (!ST.practice && p.land && special(p.k) === 'lift' && !S.lifts.includes(p.k)) ST.hint = 'Stand on the landing and tap ▲ to repair the lift. It becomes a shortcut from the Pool.';
+  if (!ST.hint && G.s < 6 && !ST.practice && !S.best) ST.hint = 'Hold {right} to climb, {left} to go back down. {jump} jumps, hold {down} to crouch.';
+  if (!ST.practice && p.land && special(p.k) === 'lift' && !S.lifts.includes(p.k)) ST.hint = 'Stand on the landing and press {jump} to repair the lift. It becomes a shortcut from the Pool.';
   const m = meters(G.y); if (m > S.best && !ST.practice) S.best = m;
 }
 

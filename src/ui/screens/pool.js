@@ -42,7 +42,7 @@ function render(msg){
   overlayData.msg = msg || '';
 }
 registerActions({
-  wep(b){ setWeapon(b.dataset.id); render(overlayData.msg); },
+  wep(b){ setWeapon(b.dataset.id); render(overlayData.msg); const again = document.querySelector(`#overlay [data-act="wep"][data-id="${b.dataset.id}"]`); if (again) again.focus(); },   // stay where you were
   start(b){
     const k = +b.dataset.k;
     hideMenu();

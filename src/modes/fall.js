@@ -35,7 +35,7 @@ export function startFall(){
   }
   ST.FALL = { y: pw.y, a: p.a, r: R, v: FT.startSpeed, y0: pw.y, vmax: FT.maxSpeed(pw.y), ledges, tried: new Set(), spin: 0 };
   ST.mode = 'fall'; removeBoss(); sfx.fall(); ST.hint = null;
-  setToast('You fall', 'Grab a root with ▲ as it passes', 2);
+  setToast('You fall', 'Grab a root with {jump} as it passes', 2);
 }
 export function grab(){
   const G = ST.G, FALL = ST.FALL;

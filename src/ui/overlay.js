@@ -9,7 +9,8 @@ const ACTIONS = {};
 export function registerActions(map){ Object.assign(ACTIONS, map); }
 export function showMenu(html){
   overlay.innerHTML = html; overlay.classList.add('show');
-  const b = overlay.querySelector('.choice.go, .choice'); if (b) b.focus({ preventScroll: true });
+  // the main choice first (a selector list would take whichever comes first in the page, e.g. a weapon above it)
+  const b = overlay.querySelector('.choice.go') || overlay.querySelector('.choice, button'); if (b) b.focus({ preventScroll: true });
 }
 export function hideMenu(){ overlay.classList.remove('show'); overlay.innerHTML = ''; }
 export const menuOpen = () => overlay.classList.contains('show');

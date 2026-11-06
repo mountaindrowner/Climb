@@ -17,7 +17,7 @@ import { hurt, head, isBlocking, isInvulnerable } from '../player/player.js';
 const THREE = window.THREE;
 const T = TUNE.flitter;
 
-export const hint = 'A flitter dives at your head. Swat it with A as the ring closes, hold B to block, or roll.';
+export const hint = 'A flitter dives at your head. Swat it with {attack} as the ring closes, hold {block} to block, or {roll}.';
 
 // +x is the way it faces (its nose), +y its back, ±z its wings.
 function model(glow){
