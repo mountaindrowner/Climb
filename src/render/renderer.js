@@ -22,7 +22,7 @@ export const view = { W: 300, H: 500, dpr: 1 };
 export function resize(){
   const r = stageEl.getBoundingClientRect();
   view.W = Math.max(200, r.width); view.H = Math.max(200, r.height);
-  const pr = clamp(600 / view.H, 0.4, 1.5);
+  const pr = clamp(TUNE.camera.lines / view.H, 0.3, 1.5);
   renderer.setPixelRatio(pr); renderer.setSize(view.W, view.H, false);
   camera.aspect = view.W / view.H;
   camera.fov = view.W / view.H > 1 ? TUNE.camera.fovLandscape : TUNE.camera.fovPortrait;
@@ -37,7 +37,7 @@ resize();
 // Lights. The torch follows the warrior, the Pool glows up the shaft, fireLight is borrowed by whichever campfire, lift lamp or Warden is nearest.
 scene.add(new THREE.AmbientLight(0x8a84a8, 0.3));
 scene.add(new THREE.HemisphereLight(0xa8a0d0, 0x141018, 0.28));
-export const torch = new THREE.PointLight(0xffb36b, 1.8, 15, 2); scene.add(torch);
+export const torch = new THREE.PointLight(0xffb36b, 1.8, 19, 2); scene.add(torch);
 export const poolLight = new THREE.PointLight(0x5ce1c6, 2, 34, 2); poolLight.position.set(0, 2.5, 0); scene.add(poolLight);
 export const fireLight = new THREE.PointLight(0xff8a3c, 0, 11, 2); scene.add(fireLight);
 export const rimLight = new THREE.PointLight(0xa07cff, 0, 10, 2); scene.add(rimLight);

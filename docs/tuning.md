@@ -70,9 +70,9 @@ Gravity 34, top speed max(16, height/2.3). Time runs at 0.3× near a root; the g
 
 | Mode | back | up | look |
 | --- | --- | --- | --- |
-| Climb | −3.4 (was −0.9 in v3, −2.3 in 0.4) | 3.2 | 1.45 |
-| Warden's stretch | −4.6 | 3.7 | 1.9 |
-| Pool | −2 | 4.5 | 0 |
-| Title | −2.6 | 3.6 | 1.4 |
+| Climb | −6.5 (−3.4 in portrait, R 7) | 4.2 | 1.7 |
+| Warden's stretch | −7.5 | 4.8 | 2.1 |
+| Pool | −4 | 5.5 | 0 |
+| Title | −5 | 4.4 | 1.6 |
 
-`back` is the camera's radius measured from the shaft centre; negative puts it on the far side of the centre from the warrior, so a larger magnitude pulls it out. Portrait FOV 76°, landscape 58°, fog density 0.05. The stage is capped at 600 px wide on desktop.
+`back` is the camera's radius measured from the shaft centre; negative puts it on the far side of the centre from the warrior, so a larger magnitude pulls it out. With the shaft at R 11 the climb camera is about 17.5 units from the warrior; screens under about 900 px tall bring it in (to 62% at 420 px). Landscape FOV 50° (portrait 76° is kept but unused), fog density 0.032, internal render height 720 lines. The page fills the window (decision 0008).

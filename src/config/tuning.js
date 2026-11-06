@@ -76,13 +76,14 @@ export const TUNE = {
   },
   camera: {
     // climb camera: `back` is the camera's radius on the far side of the shaft centre (negative = opposite the warrior)
-    climb: { back: -3.4, up: 3.2, look: 1.45, lead: 0.17 },
-    fight: { back: -4.6, up: 3.7, look: 1.9, lead: 0.2 },   // during the Warden's stretch: out and up, so the wall and the breach are in frame
-    fall:  { back: -4.2 },
-    pool:  { back: -2, up: 4.5, look: 0 },
-    title: { back: -2.6, up: 3.6, look: 1.4 },
-    fovPortrait: 76, fovLandscape: 58,
-    fogDensity: 0.05,
+    climb: { back: -6.5, up: 4.2, look: 1.7, lead: 0.15 },   // landscape: well back across the open centre
+    fight: { back: -7.5, up: 4.8, look: 2.1, lead: 0.17 },   // during the Warden's stretch: out and up, so the wall and the breach are in frame
+    fall:  { back: -6.5 },
+    pool:  { back: -4, up: 5.5, look: 0 },
+    title: { back: -5, up: 4.4, look: 1.6 },
+    fovPortrait: 76, fovLandscape: 50,
+    lines: 720,          // the internal render height: the chunky pixel look at any window size
+    fogDensity: 0.032,   // thinner: the camera is twice as far back
   },
   feel: {
     hitstopHurt: 0.08, hitstopHit: 0.05, hitstopKill: 0.09, hitstopParry: 0.12,

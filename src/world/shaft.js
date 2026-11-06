@@ -4,7 +4,7 @@ import { hash } from '../core/math.js';
 import { FEATURES } from '../config/features.js';
 import { ZONES } from '../config/zones.js';
 import { ST } from '../core/state.js';
-import { scene, poolLight, fogCol } from '../render/renderer.js';
+import { scene, poolLight, fogCol, camera } from '../render/renderer.js';
 import { wallTex, outerTex, chainTex, silTex } from '../render/textures.js';
 import { bgeo, lam, bas, tmpC } from '../render/primitives.js';
 import { zoneOf, gateK } from './path.js';
@@ -39,8 +39,8 @@ function shaftCylinder(radius, tex, repU, key, f, alphaTest, open){
   const m = new THREE.MeshLambertMaterial({ map: t, vertexColors: true, side: THREE.DoubleSide, alphaTest: alphaTest || 0 });
   return new THREE.Mesh(geo, m);
 }
-scene.add(shaftCylinder(RW, wallTex, 5, 'wall', 0.68, 0.5, FEATURES.wardens));   // the wall, with openings, gone along the Wardens' stretches
-scene.add(shaftCylinder(17, outerTex, 18, 'wall', 0.4));       // deeper caverns seen through them
+scene.add(shaftCylinder(RW, wallTex, 5 * RW / 8.8, 'wall', 0.68, 0.5, FEATURES.wardens));   // tiling scales with the radius: bricks keep their size   // the wall, with openings, gone along the Wardens' stretches
+scene.add(shaftCylinder(RW + 8.2, outerTex, 18 * (RW + 8.2) / 17, 'wall', 0.4));       // deeper caverns seen through them
 
 const floor = new THREE.Mesh(new THREE.RingGeometry(RP, RW + 0.2, 64), lam(0x55506a));
 floor.rotation.x = -Math.PI / 2; scene.add(floor);
@@ -84,7 +84,14 @@ export function updateShaft(dt){
   poolLight.intensity = 1.8 + 0.3 * Math.sin(time * 1.7);
   // chains follow the camera height, snapped so the links stay put in the world
   const snap = Math.round(cam.y);
-  for (const c of chains){ c.position.y = snap; }
+  // the camera looks across the open centre at him: a chain between the two would cut through the view, so it goes
+  for (const c of chains){
+    c.position.y = snap;
+    const ex = R * Math.cos(cam.ang), ez = R * Math.sin(cam.ang), cx = camera.position.x, cz = camera.position.z;
+    const dx = ex - cx, dz = ez - cz, L2 = dx * dx + dz * dz || 1;
+    const t = Math.max(0, Math.min(1, ((c.position.x - cx) * dx + (c.position.z - cz) * dz) / L2));
+    c.visible = Math.hypot(c.position.x - (cx + dx * t), c.position.z - (cz + dz * t)) > 2.2;
+  }
   for (let i = 0; i < dustN; i++){
     const d = dustSeed[i]; const yy = ((d.y + time * d.v) % 24 + 24) % 24;
     dustPos[i * 3] = d.r * Math.cos(d.a + time * 0.05); dustPos[i * 3 + 1] = cam.y - 12 + yy; dustPos[i * 3 + 2] = d.r * Math.sin(d.a + time * 0.05);
@@ -95,7 +102,7 @@ export function updateShaft(dt){
     const ph = (time % 30) / 30;
     sil.visible = true;
     const sa = cam.ang + 0.35 * Math.sin(time * 0.07), sy = cam.y - 14 + ph * 26;
-    sil.position.set(12.5 * Math.cos(sa), sy, 12.5 * Math.sin(sa)); sil.lookAt(0, sy, 0);
+    sil.position.set((RW + 3.7) * Math.cos(sa), sy, (RW + 3.7) * Math.sin(sa)); sil.lookAt(0, sy, 0);
     silEyes.position.copy(sil.position).multiplyScalar(0.98); silEyes.position.y += 4.8;
     silEyes.color.set(ZONES[zoneOf(gk)].glow); silEyes.intensity = 1.2;
   } else { sil.visible = false; silEyes.intensity = 0; }

@@ -3,7 +3,7 @@
 Run through this after any change to feel, and before a build goes to anyone else. File findings as a "Playtest notes" issue.
 
 **Setup**
-- Serve the repo (`npm run dev`) and open it on the phone over the local network, portrait, full screen.
+- Serve the repo (`npm run dev`) and open it on a PC at 1920×1080 (the main target) and on a phone over the local network, held sideways, full screen.
 - Reset progress from the title screen for a first-run read; do a second pass with progress kept.
 
 **The step**

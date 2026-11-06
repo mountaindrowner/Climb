@@ -2,10 +2,12 @@
 import { R } from '../config/constants.js';
 import { TUNE } from '../config/tuning.js';
 import { ST } from '../core/state.js';
-import { camera } from './renderer.js';
+import { camera, view } from './renderer.js';
 import { posOf } from '../world/path.js';
 const CT = TUNE.camera;
 
+// On a small screen (a phone on its side) the camera comes in, so he is not a speck; full size from about 900 px tall.
+const near = () => 0.62 + 0.38 * Math.max(0, Math.min(1, (view.H - 420) / 480));
 export function updateCamera(dt){
   const { mode, G, B, FALL, cam } = ST;
   let tA, tY, lookY, tR = -3.2, lookA;
@@ -17,7 +19,7 @@ export function updateCamera(dt){
     const p = posOf(G.s), c = B ? CT.fight : CT.climb;
     G.camLead += (c.lead * G.face - G.camLead) * Math.min(1, dt * 3.5);
     const y = p.y + Math.max(0, G.y - p.y) * 0.35;
-    tA = p.a + G.camLead; tY = y + c.up; lookY = y + c.look; lookA = tA + 0.02; tR = c.back;
+    tA = p.a + G.camLead; tY = y + c.up; lookY = y + c.look; lookA = tA + 0.02; tR = c.back * near();
   }
   else { tA = cam.ang; tY = cam.y; lookY = cam.y - 2; lookA = cam.ang; }
   const fk = mode === 'fall' ? 1 : Math.min(1, dt * 4);

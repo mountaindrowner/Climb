@@ -14,18 +14,29 @@ body{
   touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
   -webkit-tap-highlight-color:transparent;
 }
-#app{display:flex;flex-direction:column;height:100%;max-width:600px;margin:0 auto;position:relative}
+#app{display:flex;flex-direction:column;height:100%;position:relative}   /* landscape, full window: PC first */
 #stage{flex:1;position:relative;min-height:0;overflow:hidden;background:#000}
 #gl,#hud{position:absolute;inset:0;width:100%;height:100%;display:block}
 #gl{image-rendering:pixelated;image-rendering:crisp-edges}
 #hud{pointer-events:none}
 
-/* the pad: one thumb each side */
+/* the pad: touch screens only, laid over the bottom corners of the game, one thumb each side */
 #pad{
-  flex:0 0 auto;height:clamp(160px,24vh,200px);display:grid;
-  grid-template-columns:1fr 64px 1fr;gap:6px;padding:10px 12px 12px;
-  background:linear-gradient(var(--panel2),var(--panel));border-top:3px solid var(--edge);
+  position:absolute;left:0;right:0;bottom:0;height:clamp(150px,38vh,230px);display:grid;
+  grid-template-columns:minmax(170px,24vw) 1fr minmax(190px,26vw);gap:6px;
+  padding:0 max(14px,env(safe-area-inset-right,0px)) 14px max(14px,env(safe-area-inset-left,0px));
+  pointer-events:none;
 }
+#pad .col{pointer-events:auto;opacity:.78}
+#pad .mid{align-items:flex-end;justify-content:center}
+#pad .right{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr))}
+#pad .round{width:auto;height:100%;max-width:100%;font-size:22px}       /* sized from the space, so all four fit */
+@media (hover:hover) and (pointer:fine){ #pad{display:none} }       /* keyboard and mouse: no pad */
+/* a phone held upright: ask for landscape */
+#rotate{display:none;position:absolute;inset:0;z-index:20;background:var(--bg);color:var(--ink);
+  flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;font-size:20px}
+#rotate .icon{font-size:56px;color:var(--gold)}
+@media (orientation:portrait) and (pointer:coarse){ #rotate{display:flex} }
 .col{position:relative;display:flex}
 .left{flex-direction:column;gap:8px}
 .mid{align-items:center;justify-content:center}

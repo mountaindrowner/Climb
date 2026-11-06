@@ -17,6 +17,7 @@ const RIG = process.env.RIG || 'blender';
 const server = spawn(process.execPath, [fileURLToPath(new URL('./serve.mjs', import.meta.url))], { env: { ...process.env, PORT }, stdio: 'ignore' });
 await new Promise(r => setTimeout(r, 600));
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox'] });
+// note: framed for the old portrait layout and a radius-7 shaft; tools/rig-review.mjs is the current art review
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
 const errors = [];
 page.on('pageerror', e => errors.push(e.message));

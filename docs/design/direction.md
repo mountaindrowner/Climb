@@ -14,7 +14,7 @@ Climb from the lowest depth of a forgotten mine shaft to the highest point of th
 
 ## Pitch
 
-The Climb is a portrait mobile roguelike in chunky 3D. You fight your way up a spiral stair from the bottom of an impossibly deep mine, and every death drops you all the way back down.
+The Climb is a roguelike in chunky 3D, landscape, PC first (phones play on their side; decision 0008). You fight your way up a spiral stair from the bottom of an impossibly deep mine, and every death drops you all the way back down.
 
 **The hook:** how high can you get? Height is the score, not kills.
 
@@ -36,7 +36,7 @@ Seven rules every feature should serve.
 4. **Heavy, emotive steps.** Every step lands like a beat, with weight, dust and sound. You should see the warrior take every single step.
 5. **Read the tell, punish the opening.** Every attack is telegraphed clearly enough to read on a phone.
 6. **A living shaft.** Layers in front of and behind the stair, with things happening in the background.
-7. **One thumb each side.** A stick and four buttons, portrait-first, built for mobile.
+7. **Keyboard or pad first, one thumb each side on a phone.** Landscape; a stick and four buttons on touch screens.
 8. **Tight, never the challenge.** Movement is instant and forgiving, like Dead Cells; the difficulty lives in the threats.
 
 ## Core loop
@@ -87,7 +87,7 @@ You move the warrior yourself, with Dead Cells-tight movement. The full table, t
 | Flask | Heal 2 health | Built |
 | Ability slots | Cooldown abilities that unlock later | Proposed |
 
-**Layout:** the left thumb has a stick, the right thumb has Block and Roll over Attack and Jump, and the flask sits between them. Portrait-first. A keyboard map exists for desktop: A/D or arrows, Space to jump, J attack, K block, L roll, F flask.
+**Layout:** the left thumb has a stick, the right thumb has Block and Roll over Attack and Jump, and the flask sits between them, over the bottom corners of a landscape screen, on touch screens only. On PC (the main platform) the keyboard: A/D or arrows, Space to jump, J attack, K block, L roll, F flask.
 
 **Movement:** free, along the stair, Dead Cells-tight (decision 0007). The auto-climb is gone. Branching stairs with left and right routes stay a proposal.
 
@@ -333,7 +333,7 @@ Every idea raised so far, who raised it, and where it stands.
 | A full run without stops takes about 30 minutes | Mark | Target; build is shorter |
 | Big cinematic boss fights: timed attacks, dodges, learning mechanics | Mark | Built, one Warden |
 | A healing pool at the bottom that revives you and refills your flask | Mark | Built |
-| Portrait phone layout | Mark | Built |
+| Portrait phone layout | Mark | Replaced by landscape, PC first (0008) |
 | A spiral climb with the camera circling the warrior and the background passing | Mark | Built |
 | A bigger warrior, more grit, realism and detail | Mark | Built |
 | Clearer reads on attacks | Mark | Built |

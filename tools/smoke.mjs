@@ -22,7 +22,7 @@ const PORT = 8123, fast = process.argv.includes('--fast');
 const server = spawn(process.execPath, [fileURLToPath(new URL('./serve.mjs', import.meta.url))], { env: { ...process.env, PORT }, stdio: 'ignore' });
 await new Promise(r => setTimeout(r, 600));
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox'] });
-const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+const page = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1 });
 const errors = [];
 page.on('pageerror', e => errors.push('pageerror: ' + (e.stack || e.message)));
 page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push('console: ' + m.text()); });
@@ -53,6 +53,7 @@ await page.addScriptTag({ type: 'module', content: `
   import { content } from '/src/world/generate.js';
   import { posOf, special } from '/src/world/path.js';
   import { TUNE } from '/src/config/tuning.js';
+  import { R } from '/src/config/constants.js';
   const { ST, input: I } = window.__climb;
   const bot = window.__bot = { on: true, answer: true, hits: 0, lastHp: null, log: [], grabRoot: 2, hitLog: [], jumpHold: 0 };
   const jump = () => { if (bot.jumpHold <= 0){ I.hold('jump', true); bot.jumpHold = 11; } };   // a thumb tap: held for about 0.18 s
@@ -90,7 +91,7 @@ await page.addScriptTag({ type: 'module', content: `
               else if (Math.abs(d) < 1.6 && !G.atk) I.tap('attack');
             }
             break;
-          case 'spitter': if (o.orb && !o.orb.back){ const pw = o.orb.p; const dd = Math.hypot(pw.x - Math.cos(G.s / 7) * 7, pw.z - Math.sin(G.s / 7) * 7); if (dd < 3.2) block = true; } break;
+          case 'spitter': if (o.orb && !o.orb.back){ const pw = o.orb.p; const dd = Math.hypot(pw.x - Math.cos(G.s / R) * R, pw.z - Math.sin(G.s / R) * R); /* the shaft real radius */ if (dd < 3.2) block = true; } break;
           case 'flitter': if (o.st === 'dive' && o.tm > TUNE.flitter.dive - 0.22 && !G.atk) I.tap('attack'); break;
         }
       }

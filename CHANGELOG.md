@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.15.0 — landscape, PC first (2026-11-06)
+
+- Landscape everywhere, PC (1920×1080) the main target (decision 0008). The page fills the window; the HUD sits in the corners; the touch pad shows only on touch screens, over the bottom corners, its buttons sized from the space so all four fit; a phone held upright is asked to turn.
+- A bigger world for a camera pulled well back: the shaft grows from radius 7 to 11 (wall and cavern tiling scale with it, so bricks keep their size), one turn of the spiral is about seven flights, and the climb camera sits about 17.5 units from the warrior (was about 10) with a 50° field of view, thinner fog and a 720-line internal render. Small screens bring the camera in.
+- Chains in the open centre hide when they would cross between the camera and the warrior; the torch and rim light are stronger so he lifts off the wall at the new distance.
+- Tools: the smoke test runs landscape (1280×720) and its bot reads the real shaft radius (its spitter answer had 7 built in); the art review frames by the radius and the game's own climb camera.
+
 ## 0.14.0 — cloth (2026-11-06)
 
 - The knight's cape is real cloth: `src/entities/player/cloth.js`, a small Verlet cloth (7 x 9 particles; structural, shear and bend constraints; four solver passes at 90 Hz) simulated in world space, pinned across the shoulders on the chest bone, with gravity, air drag, a little turbulence and a ragged hem. It is kept behind the body's back plane and pushed out of capsules around the torso, thighs and shins, so it trails a run, streams up in a fall, wraps a roll and drapes over a crouched back without passing through him. The rigid cape is measured for size and placement, then hidden.

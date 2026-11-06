@@ -30,9 +30,9 @@ test('every zone has a lift, a rest stop and a Warden at fixed flights', () => {
   }
   assert.equal(zoneOf(MAXK + 50), ZONES.length - 1);
 });
-test('one full turn of the spiral is a round number of flights', () => {
+test('one full turn of the spiral is about seven flights', () => {
   const turnSteps = 2 * Math.PI * R;
-  assert.ok(turnSteps / FL > 4 && turnSteps / FL < 5, 'about 4.5 flights per turn');
+  assert.ok(turnSteps / FL > 6.5 && turnSteps / FL < 7.5, 'about 7 flights per turn (the widened landscape shaft)');
 });
 test('zone names avoid borrowed terms', () => {
   for (const z of ZONES) assert.ok(!/endless stair|moria|balrog|durin|gandalf/i.test(z.name + z.boss), z.name);

@@ -11,7 +11,8 @@ export const ZONE_METERS = 135;  // in-game metres per zone; MPU is derived so t
 export const MPU = ZONE_METERS / (ZF * FH); // in-game metres per world unit
 export const MAXK = ZONES.length * ZF;      // total flights in the shaft
 
-export const R = 7;              // radius of the stair path
+export const R = 11;             // radius of the stair path (7 in portrait; widened for the landscape camera, which sits
+                                 // well back across the open centre: a grander shaft, a gentler curve, ~7 flights a turn)
 export const OMEGA = 1 / R;      // radians per step unit along the path
 export const RW = R + 1.8;       // radius of the shaft wall
 export const RP = R - 1.3;       // radius of the open centre (and the Pool)

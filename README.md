@@ -1,6 +1,6 @@
 # The Climb
 
-A portrait mobile roguelike in chunky 3D. You fight your way up a spiral stair from the bottom of an impossibly deep mine to open sky at the peak, and every death drops you all the way back down. **Height is the score.**
+A roguelike in chunky 3D, landscape and PC first (phones play on their side). You fight your way up a spiral stair from the bottom of an impossibly deep mine to open sky at the peak, and every death drops you all the way back down. **Height is the score.**
 
 **Play it now:** [the hosted build](https://claude.ai/artifact/LXYYXmevA9zBdh1QhMqz9Z) runs on a phone or desktop (private link; share it from the page's menu). It is republished from this repository with `npm run artifact`.
 

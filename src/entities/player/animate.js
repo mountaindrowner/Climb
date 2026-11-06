@@ -143,8 +143,8 @@ export function animatePlayer(dt = 1 / 60){
 }
 
 function torchAt(pw, time, G){
-  torch.position.set(pw.x * 0.62, pw.y + 2.6, pw.z * 0.62);
-  torch.intensity = 1.75 + 0.22 * Math.sin(time * 13) * Math.sin(time * 7.3) + Math.random() * 0.08;
-  if (G){ const p = posOf(G.s), ra = p.a + 0.45 * G.face; rimLight.position.set((R + 0.9) * Math.cos(ra), pw.y + 3.6, (R + 0.9) * Math.sin(ra)); rimLight.color.set(ZONES[zoneOf(p.k)].glow); rimLight.intensity = 1.1; }
+  const tk = (R - 2.7) / R; torch.position.set(pw.x * tk, pw.y + 2.6, pw.z * tk);   // a little in from him, toward the camera
+  torch.intensity = 2.3 + 0.22 * Math.sin(time * 13) * Math.sin(time * 7.3) + Math.random() * 0.08;
+  if (G){ const p = posOf(G.s), ra = p.a + 0.45 * G.face; rimLight.position.set((R + 0.9) * Math.cos(ra), pw.y + 3.6, (R + 0.9) * Math.sin(ra)); rimLight.color.set(ZONES[zoneOf(p.k)].glow); rimLight.intensity = 1.8; }   // stronger with the camera farther back: he must lift off the wall
   return pw;
 }

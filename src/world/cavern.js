@@ -9,7 +9,7 @@ import { OPEN_BANDS } from './shaft.js';
 import { FEATURES } from '../config/features.js';
 const THREE = window.THREE;
 
-export const CAVERN_R = 10.4;       // where the Warden walks
+export const CAVERN_R = RW + 1.6;       // where the Warden walks
 const group = new THREE.Group(); scene.add(group);
 for (const b of FEATURES.wardens ? OPEN_BANDS : []){
   const zz = ZONES[b.z], r = rng(4000 + b.z * 61);

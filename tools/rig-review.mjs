@@ -16,7 +16,7 @@ const PORT = 8125, RIG = process.env.RIG || 'knight';
 const server = spawn(process.execPath, [fileURLToPath(new URL('./serve.mjs', import.meta.url))], { env: { ...process.env, PORT }, stdio: 'ignore' });
 await new Promise(r => setTimeout(r, 600));
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox'] });
-const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+const page = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1.5 });
 const errors = [];
 page.on('pageerror', e => errors.push(e.message));
 await page.route(/^(?!http:\/\/localhost)/, r => r.abort());
@@ -34,14 +34,17 @@ await page.addScriptTag({ type: 'module', content: `
 await page.waitForFunction(() => window.__ready);
 
 const shots = [];
-const shot = async (name, label) => { const path = `${outDir}review-${RIG}-${name}.png`; await page.screenshot({ path, clip: { x: 0, y: 40, width: 390, height: 560 } }); shots.push([path, label || name]); };
+const shot = async (name, label) => { const path = `${outDir}review-${RIG}-${name}.png`; await page.screenshot({ path, clip: { x: 280, y: 40, width: 720, height: 640 } });   // the middle of the landscape frame shots.push([path, label || name]); };
 const cam = (back, up, look, lead) => page.evaluate(([b, u, l, d]) => { const c = window.__climb.TUNE.camera.climb; c.back = b; c.up = u; c.look = l; c.lead = d; window.__climb.ST.cam.r = b; }, [back, up, look, lead]);
 const I = (k, v) => page.evaluate(([k, v]) => window.__climb.input.hold(k, v), [k, v]);
 const T = k => page.evaluate(k => window.__climb.input.tap(k), k);
 const speed = v => page.evaluate(v => { window.__climb.ST.timeScale = v; }, v);
 const until = (fn, arg, ms = 5000) => page.waitForFunction(fn, arg, { timeout: ms, polling: 8 }).then(() => true, () => { console.log('missed', String(fn).slice(0, 90)); return false; });
 const frozen = async (name, label) => { await speed(0); await page.waitForTimeout(60); await shot(name, label); await speed(0.15); };
-const CLOSE = [3.0, 1.6, 1.1, 0.0], HIGH = [2.6, 2.4, 1.3, 0.1], PLAY = [-3.4, 3.2, 1.45, 0.17];
+// camera presets as radii from the shaft's centre: positive is on his side of the centre (close), negative the far side
+const { R } = await page.evaluate(() => import('/src/config/constants.js').then(m => ({ R: m.R })));
+const CLOSE = [R - 4.2, 1.6, 1.1, 0.0], HIGH = [R - 4.6, 2.6, 1.3, 0.1];
+const PLAY = await page.evaluate(() => { const c = window.__climb.TUNE.camera.climb; return [c.back, c.up, c.look, c.lead]; });
 
 await page.evaluate(() => window.__go(2.3));
 await cam(...CLOSE);
@@ -99,8 +102,8 @@ await until(() => window.__climb.ST.mode === 'fall'); await page.waitForTimeout(
 const per = 12;
 for (let p = 0; p * per < shots.length; p++){
   const set = shots.slice(p * per, p * per + per);
-  const html = `<body style="margin:0;background:#111;display:grid;grid-template-columns:repeat(4,195px);gap:4px;padding:4px;font:12px sans-serif;color:#ddd">${set.map(([f, l]) => `<figure style="margin:0"><img src="data:image/png;base64,${readFileSync(f).toString('base64')}" style="width:195px;display:block"><figcaption>${l}</figcaption></figure>`).join('')}</body>`;
-  const sheet = await browser.newPage({ viewport: { width: 4 * 199 + 4, height: 400 }, deviceScaleFactor: 1.5 });
+  const html = `<body style="margin:0;background:#111;display:grid;grid-template-columns:repeat(4,240px);gap:4px;padding:4px;font:12px sans-serif;color:#ddd">${set.map(([f, l]) => `<figure style="margin:0"><img src="data:image/png;base64,${readFileSync(f).toString('base64')}" style="width:240px;display:block"><figcaption>${l}</figcaption></figure>`).join('')}</body>`;
+  const sheet = await browser.newPage({ viewport: { width: 4 * 244 + 4, height: 400 }, deviceScaleFactor: 1.5 });
   await sheet.setContent(html); await sheet.waitForTimeout(200);
   await sheet.screenshot({ path: `${outDir}review-${RIG}-sheet-${p + 1}.png`, fullPage: true }); await sheet.close();
 }
