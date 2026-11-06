@@ -133,7 +133,7 @@ await page.waitForFunction(() => window.__ready);
 const until = async (pred, timeout, label, arg) => {
   const ok = await page.waitForFunction(pred, arg, { timeout, polling: 100 }).then(() => true, () => false);
   if (errors.length) fail('errors during ' + label);
-  if (!ok) fail('timeout waiting for ' + label);
+  if (!ok){ console.log('state at the timeout:', JSON.stringify(await page.evaluate(() => { const { ST } = window.__climb, G = ST.G, ov = document.getElementById('overlay'); return { mode: ST.mode, paused: ST.paused, practice: ST.practice && ST.practice.id, s: G && +G.s.toFixed(2), y: G && +G.y.toFixed(2), grounded: G && G.grounded, hp: G && G.hp, overlay: ov && ov.classList.contains('show') ? ov.textContent.replace(/\s+/g, ' ').slice(0, 160) : '', bot: window.__bot.log.slice(-5) }; }).catch(e => e.message))); fail('timeout waiting for ' + label); }
 };
 const st = () => page.evaluate(() => { const { ST, S } = window.__climb; return { mode: ST.mode, hp: ST.G.hp, gold: ST.G.gold, s: +ST.G.s.toFixed(1), best: S.best, lifts: S.lifts, falls: S.falls, seen: S.seen, hits: window.__bot.hits }; });
 const setSpeed = v => page.evaluate(v => { window.__climb.TUNE.move.run = v; }, v);
