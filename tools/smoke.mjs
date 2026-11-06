@@ -222,8 +222,14 @@ const fork = await page.evaluate(async () => {
 await page.waitForTimeout(600);
 await page.evaluate(() => { window.__climb.input.hold('left', true); window.__climb.input.tap('jump'); });
 await until(() => !!window.__P.branchOf(window.__climb.ST.G.s), 5000, 'hopping onto the high road');   // (synchronous: a promise would count as true at once)
+// the crumbling foot: ride the slab up (still holding left: he cannot walk off it), and leap across while it holds
+await until(() => window.__P.BRANCHES[0].hs.st === 'hold', 30000, 'riding the slab up to the intact steps');
+await page.evaluate(() => window.__climb.input.hold('jump', true));
+await until(() => !window.__climb.ST.G.grounded && window.__climb.ST.G.vy < 0, 5000, 'leaping from the slab');
+await page.evaluate(() => window.__climb.input.hold('jump', false));
 await until(() => !window.__P.branchOf(window.__climb.ST.G.s) && window.__climb.ST.G.grounded, 90000, 'climbing the high road to its end');
-const forkEnd = await page.evaluate(() => { window.__climb.input.hold('left', false); const G = window.__climb.ST.G; return { s: G.s, y: G.y, k: Math.floor(G.s / 9.8) }; });
+const forkEnd = await page.evaluate(() => { window.__climb.input.hold('left', false); const G = window.__climb.ST.G; return { s: G.s, y: G.y, k: Math.floor(G.s / 9.8), hp: G.hp }; });
+if (forkEnd.hp !== 99) fail('the high road hurt him on the way (the slab leap?): ' + (99 - forkEnd.hp) + ' hits');
 if (Math.abs(forkEnd.s - fork.sB) > 1.5) fail('the high road did not bring him out at the landing it rejoins: ' + JSON.stringify({ forkEnd, fork }));
 console.log('took the high road from flight ' + fork.kA + ' to ' + fork.kB);
 await page.evaluate(() => { window.__bot.on = true; });

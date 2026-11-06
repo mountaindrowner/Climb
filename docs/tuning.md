@@ -91,3 +91,13 @@ The rise of one step, flight by flight through a zone: `0.45, 0.35, 0.3, 0.6, 0.
 | Punch | kills and parries (hit-stop ≥ 0.09 s) push in 7%, decaying in about 0.17 s |
 
 The zoom scales his distance from the camera; the camera stays at least 1.2 inside the wall.
+
+## The crumbling handoff (`HANDOFF` in `src/world/handoff.js`, geometry in `src/world/path.js`)
+
+| Value | Setting |
+| --- | --- |
+| Slab | from the high road's foot to 1.5 short of the first intact step; rests level with the fork landing |
+| First intact step | the first step boundary at least 4.6 along the high road |
+| Rises to | 0.15 under the first intact step's top |
+| Timing | shudder 0.6 s, rise 1.3 s, hold 1.1 s (it shakes for the last 0.45), fall, gone 2.2 s, a new slab rises in 1.0 s |
+| Miss | one health; back on the fork landing |

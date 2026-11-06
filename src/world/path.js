@@ -42,7 +42,7 @@ export function posOf(s){
 }
 // Height of the step surface under distance s.
 export function topAt(s){
-  if (s >= BR_BASE){ const b = branchOf(s), u = s - b.s0; return u < b.len - b.flat ? b.yA + (Math.floor(Math.max(0, u) / b.stepL) + 1) * b.rise : b.yB; }
+  if (s >= BR_BASE){ const b = branchOf(s), u = s - b.s0, d = dyn(b, u); if (d !== undefined) return d == null ? b.yA - 8 : d; /* a hole: nothing to stand on for a long way down */ return u < b.len - b.flat ? b.yA + (Math.floor(Math.max(0, u) / b.stepL) + 1) * b.rise : b.yB; }
   const k = Math.floor(s / FL), t = s - k * FL;
   return t < F ? flightY(k) + (Math.floor(t) + 1) * riseOf(k) : flightY(k + 1);
 }
@@ -69,7 +69,12 @@ for (let z = 0; z < ZONES.length; z++){
     const len = (2 * Math.PI - dMain) * BRANCH_R, flat = 1.6, yA = landingY(kA), yB = landingY(kB);
     const nSteps = Math.max(1, Math.floor(len - flat)), stepL = (len - flat) / nSteps, rise = (yB - yA) / nSteps;
     if (rise > BRANCH_MAX_RISE) continue;
-    BRANCHES.push({ j: BRANCHES.length, kA, kB, s0: BR_BASE + BRANCHES.length * 1000, len, flat, aA, yA, yB, nSteps, stepL, rise, r: BRANCH_R });
+    // the crumbling handoff at its foot: the first steps are gone but for one slab on a beam (platFrom..platTo), level
+    // with the fork landing at rest; the intact steps resume at crumbleTo (a step boundary), a jumpable gap beyond it.
+    // The slab rises to just under the first intact step (slabTop) and holds there a moment before it falls.
+    const iC = Math.ceil(4.6 / stepL), crumbleTo = iC * stepL, gap = 1.5;
+    BRANCHES.push({ j: BRANCHES.length, kA, kB, s0: BR_BASE + BRANCHES.length * 1000, len, flat, aA, yA, yB, nSteps, stepL, rise, r: BRANCH_R,
+      iC, platFrom: 0, platTo: crumbleTo - gap, crumbleTo, gap, slabTop: yA + (iC + 1) * rise - 0.15 });
     break;
   }
 }
@@ -77,8 +82,13 @@ export const branchOf = s => s >= BR_BASE ? BRANCHES[Math.floor((s - BR_BASE) / 
 export const forkFrom = k => BRANCHES.find(b => b.kA === k) || null;
 // +1 where pressing right climbs (the main stair), -1 where it goes back down (a high road winds the other way)
 export const routeSign = s => s >= BR_BASE ? -1 : 1;
+// Ground that moves: handoff.js reports the slab's height (a number), a hole (null), or nothing to say (undefined).
+export const DYN = { top: null };
+const dyn = (b, u) => u < b.crumbleTo - 1e-6 && DYN.top ? DYN.top(b, u) : undefined;
 function branchPos(s){
   const b = branchOf(s), u = Math.min(b.len, Math.max(0, s - b.s0)), a = b.aA - u / b.r;
+  const d = dyn(b, u);
+  if (d !== undefined) return { k: b.kA, t: u, i: 0, fr: 0, a, y: d == null ? b.yA + b.rise : d, land: false, rise: b.rise, r: b.r, branch: b, slab: d != null };
   if (u < b.len - b.flat){
     const i = Math.floor(u / b.stepL), fr = u / b.stepL - i, e = smooth(Math.min(1, fr / 0.42));
     return { k: b.kA, t: u, i, fr, a, y: b.yA + b.rise * (i + e), land: false, rise: b.rise, r: b.r, branch: b };
@@ -90,3 +100,6 @@ export function sAt(sRef, angle){
   const p = posOf(sRef); let da = angle - p.a; da = Math.atan2(Math.sin(da), Math.cos(da));
   const b = branchOf(sRef); return sRef + da * (b ? -b.r : R);
 }
+// Where to put him back after a fall through a hole: never on the crumbling foot of a high road (its slab may be
+// gone); there, back on the fork landing.
+export function safeSpot(s){ const b = branchOf(s); return b && s - b.s0 < b.crumbleTo ? landingS(b.kA) : s; }

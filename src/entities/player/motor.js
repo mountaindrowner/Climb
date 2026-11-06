@@ -10,9 +10,10 @@ import { clamp } from '../../core/math.js';
 import { sfx } from '../../audio/sfx.js';
 import { vArc } from '../../render/primitives.js';
 import { burst } from '../../render/particles.js';
-import { posOf, special, landingS, branchOf, forkFrom, routeSign } from '../../world/path.js';
+import { posOf, special, landingS, branchOf, forkFrom, routeSign, safeSpot } from '../../world/path.js';
 import { IN, consume } from '../../core/input.js';
 import { holeAt, ceilingAt } from '../../world/ground.js';
+import { slabLets } from '../../world/handoff.js';
 import { strike, drink, repairLift, hurt } from './player.js';
 const MV = TUNE.move;
 const dust = (G, n, spd, c) => { const p = posOf(G.s); burst(vArc(p.a, p.r, G.y + 0.05), n, c || '#b4aac8', spd || 1.4, 5, 0.08); };
@@ -97,6 +98,8 @@ export function stepMotor(G, dt){
   if (G.s < 0.05) G.s = 0.05;
   // the ends of a high road: walk off its top onto the landing it rejoins, or back off its foot onto the fork landing
   const br = branchOf(G.prevS);
+  // the slab at a high road's foot: he cannot walk off it (only jump), save back onto the fork landing while it rests
+  if (br && G.grounded && posOf(G.prevS).slab && !slabLets(br, G.s - br.s0)){ G.s = G.prevS; G.v = 0; }
   if (br){
     const u = G.s - br.s0;
     if (u > br.len){ G.s = G.prevS = landingS(br.kB) - (u - br.len); G.hop = 1; }
@@ -118,7 +121,7 @@ export function stepMotor(G, dt){
   if (hole && !G.grounded && G.y < hole.top - 1.4){
     // fell through a broken step: hurt, and back on the last solid ground
     hurt(1, 'Fell', null);
-    G.s = G.prevS = G.safeS - G.face * 0.15; G.y = posOf(G.s).y; G.vy = 0; G.v = 0; G.grounded = true; G.inv = Math.max(G.inv, 0.8);
+    G.s = G.prevS = safeSpot(G.safeS - G.face * 0.15 * routeSign(G.safeS)); G.y = posOf(G.s).y; G.vy = 0; G.v = 0; G.grounded = true; G.inv = Math.max(G.inv, 0.8);
   }
 
   // ---- footfalls: a heavy step lands every half stride

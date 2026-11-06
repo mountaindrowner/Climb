@@ -70,3 +70,16 @@ test('every high road leaves its fork landing and rejoins the main stair at a la
     assert.ok(Math.abs(P.sAt(b.s0 + 5, P.posOf(b.s0 + 6).a) - (b.s0 + 6)) < 1e-6, 'sAt finds positions along it');
   }
 });
+test('the crumbling foot of each high road: a slab level with the fork landing, a jumpable gap, the slab rising to just under the first intact step', async () => {
+  const P = await import('../src/world/path.js'), { TUNE } = await import('../src/config/tuning.js');
+  const M = TUNE.move, vy = Math.sqrt(2 * M.gravityUp * M.jumpHeight);
+  for (const b of P.BRANCHES){
+    assert.ok(Math.abs(b.crumbleTo - b.iC * b.stepL) < 1e-9 && b.iC < b.nSteps, `high road ${b.j}: intact steps resume on a step boundary`);
+    assert.ok(b.platTo - b.platFrom >= 2.5, `high road ${b.j}: the slab is wide enough to land on from the fork landing`);
+    // from the slab at its top, a running jump crosses the gap before he comes back down to the step's lip
+    const drop = b.slabTop - (b.yA + b.iC * b.rise), tUp = vy / M.gravityUp, tDown = Math.sqrt(2 * (M.jumpHeight + drop) / M.gravityDown);
+    assert.ok(drop > 0 && drop < 0.75, `high road ${b.j}: the slab tops out just over the lip of the first step (${drop.toFixed(2)})`);
+    assert.ok(M.run * (tUp + tDown) * 0.85 > b.gap + 0.3, `high road ${b.j}: the gap ${b.gap} is jumpable`);
+    assert.ok(b.gap > 1, `high road ${b.j}: but it is a real gap`);
+  }
+});

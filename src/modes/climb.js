@@ -11,6 +11,7 @@ import { burst } from '../render/particles.js';
 import { setToast } from '../fx/feedback.js';
 import { posOf, zoneOf, special, landingS, meters, arenaOf, topAt, forkFrom, branchOf } from '../world/path.js';
 import { stepMotor } from '../entities/player/motor.js';
+import { updateHandoffs, handoffHint } from '../world/handoff.js';
 import { flight, newRun } from '../world/generate.js';
 import { newRunState, PL } from '../entities/player/player.js';
 import { setWeaponModel } from '../entities/player/model.js';
@@ -28,6 +29,7 @@ const C = TUNE.climb;
 export function updClimb(dt){
   const G = ST.G, k0 = posOf(G.s).k;
   G.blockHigh = false;
+  updateHandoffs(dt);          // the slab at a high road's foot moves before he does, so he rides it
   stepMotor(G, dt);
   if (ST.mode !== 'climb') return;
   // the parked Warden fight
@@ -67,6 +69,7 @@ export function updClimb(dt){
   // a fork: the high road climbs off the other way behind this landing
   if (!ST.practice && !branchOf(G.s) && p.land && forkFrom(p.k) && !S.seen.includes('fork')) ST.hint = 'A stair climbs the other way behind you: steep, but a shortcut. Hold {left} and press {jump} to hop onto it.';
   if (branchOf(G.s) && !S.seen.includes('fork')){ S.seen.push('fork'); save(); }
+  const hh = handoffHint(G); if (hh) ST.hint = hh;
   const m = meters(G.y); if (m > S.best && !ST.practice) S.best = m;
 }
 

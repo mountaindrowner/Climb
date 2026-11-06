@@ -9,13 +9,13 @@ import { BRANCHES, zoneOf } from './path.js';
 const THREE = window.THREE;
 const STEP_H = 1.4, DEPTH = 1.8;
 
-const total = BRANCHES.reduce((n, b) => n + b.nSteps + 1, 0);
+const total = BRANCHES.reduce((n, b) => n + b.nSteps + 1 - b.iC, 0);
 const mat = new THREE.MeshLambertMaterial({ color: 0xffffff, map: stoneTex });
 const steps = new THREE.InstancedMesh(bgeo(1, STEP_H, DEPTH), mat, total);
 let n = 0;
 for (const b of BRANCHES){
   const z = ZONES[zoneOf(b.kA)];
-  for (let i = 0; i <= b.nSteps; i++){
+  for (let i = b.iC; i <= b.nSteps; i++){        // the first iC steps have crumbled away (handoff.js)
     const last = i === b.nSteps, len = last ? b.flat + 0.2 : b.stepL * 1.02;
     const u = last ? b.len - b.flat / 2 : (i + 0.5) * b.stepL, a = b.aA - u / b.r;
     const top = last ? b.yB : b.yA + (i + 1) * b.rise;

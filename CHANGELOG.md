@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.19.0 — the crumbling handoff (2026-11-06)
+
+- The foot of every high road has crumbled away. Its first steps are gone; one slab is left, on a beam, level with the fork landing. Hop onto it and it shudders, then rises on its groaning beam to just under the first intact step, holds there for about a second, and falls. Jump across (hold left, press jump) while it holds. Miss, and you drop and land back on the fork landing, one health down; a new slab comes up from below a few seconds later for another try. Timing and nerve, not reflex: the gap is a comfortable running jump and the shaking warns you before it goes.
+- You cannot walk off the slab while it moves, only jump from it, so holding left as you land does not run you off its edge. While it rests level with the landing you can step back off it onto the fork landing.
+- Broken stubs of the fallen steps still stick out of the rock behind the gap. A hint explains the slab the first time you stand on it.
+- Falling through a hole on the crumbling foot puts you back on the fork landing, never on the slab (it may be gone). On a high road, ground under a spot now comes from the path, which asks the slab (`src/world/handoff.js`) what is there: its top, or a hole.
+- Tests: the gap is a real gap but jumpable with a running jump from the slab's top, the slab is wide enough to land on from the fork landing, and it tops out just over the lip of the first intact step. The smoke run now rides the slab up and leaps across before taking the high road to its end, and fails if he is hurt on the way.
+
 ## 0.18.0 — forks: the high road (2026-11-06)
 
 - Milestone 2 begins. Every zone has a fork: from landing 9 a second stair, the high road, climbs off the other way round the shaft, cut into the wall behind the main stair, and rejoins the main stair at landing 14 (13 where 14 would be too steep). It is shorter and steeper than the main route and skips the zone's lift and rest stop: a shortcut, at a price still to come (milestone 3 puts its own threats and rewards on it).
