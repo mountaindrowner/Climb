@@ -19,9 +19,9 @@ ASSETS = os.path.join(PACK, 'Assets', 'gltf')
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'assets', 'models', 'knight', 'knight.glb')
 
 # proportions, as multipliers on the pack's: the head (uniform), and lengths along the bones
-SHAPE = {'head': float(os.environ.get('K_HEAD', 0.38)), 'leg': float(os.environ.get('K_LEG', 2.2)),
+SHAPE = {'head': float(os.environ.get('K_HEAD', 0.35)), 'leg': float(os.environ.get('K_LEG', 2.35)),
          'trunk': float(os.environ.get('K_TRUNK', 1.32)), 'arm': float(os.environ.get('K_ARM', 1.5)),
-         'waist': 0.8, 'chest': 0.9, 'hips': 0.88, 'limb': 0.9,
+         'waist': 0.6, 'chest': 1.12, 'hips': 0.8, 'limb': 0.9, 'bicep': 1.12,
          'sword': float(os.environ.get('K_SWORD', 0.7)), 'shield': float(os.environ.get('K_SHIELD', 0.8))}
 # the pack's clips we keep; the swings, crouch, tuck and guard are authored below for a side-on camera
 KEEP_CLIPS = {'Idle', 'Running_A', 'Jump_Start', 'Jump_Idle', 'Jump_Land', 'Blocking', 'Block_Hit', 'Hit_A', 'Hit_B'}
@@ -49,10 +49,10 @@ for b in arm.data.bones: b.inherit_scale = 'NONE'      # each bone takes only it
 for s in 'lr':
     k = SHAPE['limb']                                   # limbs a little leaner as they get longer
     P['upperleg.' + s].scale = (k, SHAPE['leg'], k); P['lowerleg.' + s].scale = (k, SHAPE['leg'], k)
-    P['upperarm.' + s].scale = (k, SHAPE['arm'], k); P['lowerarm.' + s].scale = (k, SHAPE['arm'], k)
+    P['upperarm.' + s].scale = (SHAPE['bicep'], SHAPE['arm'], SHAPE['bicep']); P['lowerarm.' + s].scale = (1.0, SHAPE['arm'], 1.0)   # built arms
 # a torso that tapers to the waist instead of a barrel: narrow hips and waist, the chest a little less
 P['hips'].scale = (SHAPE['hips'], 1, SHAPE['hips'])
-P['spine'].scale = (SHAPE['waist'], SHAPE['trunk'], SHAPE['waist']); P['chest'].scale = (SHAPE['chest'], SHAPE['trunk'], SHAPE['chest'])
+P['spine'].scale = (SHAPE['waist'], SHAPE['trunk'], SHAPE['waist'] * 1.1); P['chest'].scale = (SHAPE['chest'], SHAPE['trunk'], SHAPE['chest'] * 1.05)   # V-taper
 P['head'].scale = (SHAPE['head'],) * 3
 B = arm.data.bones
 leg = (B['upperleg.l'].head_local - B['lowerleg.l'].tail_local).length
@@ -128,13 +128,82 @@ turn = {0: Matrix.Rotation(tip * 1.5708, 4, 'Y'), 1: Matrix.Rotation(-tip * 1.57
 spear.parent = arm; spear.parent_type = 'BONE'; spear.parent_bone = 'handslot.r'
 spear.matrix_world = sword.matrix_world @ turn
 
+# ---- 3. bis: kit. Cloth wraps on the forearms and shins, a scarf wound over the collar, a pouch on the hip: rigid
+# pieces on the bones they sit on, sized from the body mesh around each bone so they hug it without cutting in.
+import math
+def hsh(x, y, z, seed=0.0):
+    h = math.sin(x * 127.1 + y * 311.7 + z * 74.7 + seed * 19.19) * 43758.5453
+    return h - math.floor(h)
+def plain(name, rgb, rough=0.9):
+    m = bpy.data.materials.new(name); m.use_nodes = True
+    b = m.node_tree.nodes['Principled BSDF']; b.inputs['Base Color'].default_value = (*rgb, 1)
+    b.inputs['Roughness'].default_value = rough; b.inputs['Metallic'].default_value = 0.0
+    return m
+LINEN, LEATHER = plain('kit_linen', (0.33, 0.28, 0.21)), plain('kit_leather', (0.3, 0.2, 0.13))   # old, dirty cloth
+def girth(mesh_name, bone, frac):
+    """The body's radius around a bone at a fraction of its length (rest pose, armature space)."""
+    o = bpy.data.objects[mesh_name]; vg = o.vertex_groups.get(bone); b = arm.data.bones[bone]
+    h, t = b.head_local, b.tail_local; ax = (t - h); L = ax.length; ax = ax / L
+    rs = []
+    for v in o.data.vertices:
+        if vg is None or not any(g.group == vg.index and g.weight > 0.4 for g in v.groups): continue
+        p = o.matrix_world @ v.co; u = (p - h).dot(ax) / L
+        if abs(u - frac) < 0.1: rs.append(((p - h) - ax * (p - h).dot(ax)).length)
+    rs.sort()
+    best = rs[int(len(rs) * 0.7)] if rs else 0.0      # a typical radius: the max catches guards and flares
+    return best, h + (t - h) * frac, ax
+def on_bone(obj, bone):
+    mw = obj.matrix_world.copy(); obj.parent = arm; obj.parent_type = 'BONE'; obj.parent_bone = bone; obj.matrix_world = mw
+# the waist: the pack's torso is a straight block; pull it in around the belt so the chest reads broad above it
+sb = arm.data.bones['spine']; zc = sb.head_local.z + (sb.tail_local.z - sb.head_local.z) * 0.15; sg = (sb.tail_local.z - sb.head_local.z) * 0.45
+for name in ('Knight_Body',):
+    o = bpy.data.objects[name]
+    for v in o.data.vertices:
+        p = o.matrix_world @ v.co; k = 1 - 0.26 * math.exp(-((p.z - zc) / sg) ** 2)
+        v.co = o.matrix_world.inverted() @ Vector((p.x * k, p.y * (0.55 + 0.45 * k), p.z))
+def wrap(mesh_name, bone, fracs, name, thick=1.04):
+    bm = bmesh.new()
+    for i, f in enumerate(fracs):
+        r, c, ax = girth(mesh_name, bone, f)
+        if r <= 0: continue
+        rr = r * (thick + 0.04 * hsh(i, f, 3))
+        res = bmesh.ops.create_cone(bm, cap_ends=False, segments=9, radius1=rr, radius2=rr * 0.96, depth=r * 0.38)
+        tilt = Matrix.Rotation((hsh(i, f, 5) - 0.5) * 0.35, 4, 'X')        # each turn of cloth a little askew
+        rot = Vector((0, 0, 1)).rotation_difference(ax).to_matrix().to_4x4()
+        bmesh.ops.transform(bm, matrix=Matrix.Translation(c) @ rot @ tilt, verts=res['verts'])
+    me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free(); me.materials.append(LINEN)
+    for p in me.polygons: p.use_smooth = False
+    o = bpy.data.objects.new(name, me); bpy.context.collection.objects.link(o); on_bone(o, bone); return o
+for s_ in 'lr':
+    side = 'Right' if s_ == 'r' else 'Left'
+    wrap('Knight_Arm' + side, 'lowerarm.' + s_, (0.42, 0.52, 0.62, 0.72, 0.82), 'kit_wrist_' + s_)
+    wrap('Knight_Leg' + side, 'lowerleg.' + s_, (0.3, 0.42, 0.54, 0.66), 'kit_shin_' + s_, 1.04)
+# the scarf: two loose turns over the collar
+nb = arm.data.bones['head']; neck = nb.head_local
+body = bpy.data.objects['Knight_Body']
+rs = [((body.matrix_world @ v.co) - neck).xy.length for v in body.data.vertices if abs((body.matrix_world @ v.co).z - (neck.z - 0.06)) < 0.05]
+cr = max(rs) if rs else 0.25
+bm = bmesh.new()
+for i, (dz, k, tl) in enumerate(((-0.1, 0.74, 0.1), (-0.05, 0.66, -0.08))):   # snug to the neck, not a ruff
+    res = bmesh.ops.create_cone(bm, cap_ends=False, segments=12, radius1=cr * k * 1.02, radius2=cr * k * 0.9, depth=0.06)
+    bmesh.ops.transform(bm, matrix=Matrix.Translation(neck + Vector((0, 0.01, dz))) @ Matrix.Rotation(tl, 4, 'X'), verts=res['verts'])
+me = bpy.data.meshes.new('kit_scarf'); bm.to_mesh(me); bm.free(); me.materials.append(LINEN)
+scarf = bpy.data.objects.new('kit_scarf', me); bpy.context.collection.objects.link(scarf); on_bone(scarf, 'chest')
+# a pouch on the far hip, away from the sword arm and clear of the swinging thigh
+hb = arm.data.bones['hips']; hip = hb.head_local
+bm = bmesh.new(); bmesh.ops.create_cube(bm, size=1.0)
+bmesh.ops.scale(bm, vec=(0.11, 0.07, 0.12), verts=bm.verts)
+lw = [ (bpy.data.objects['Knight_Body'].matrix_world @ v.co) for v in bpy.data.objects['Knight_Body'].data.vertices]
+hx = max(p.x for p in lw if abs(p.z - hip.z) < 0.08) if lw else 0.25
+bmesh.ops.translate(bm, vec=Vector((hx + 0.03, 0.06, hip.z - 0.04)), verts=bm.verts)
+me = bpy.data.meshes.new('kit_pouch'); bm.to_mesh(me); bm.free(); me.materials.append(LEATHER)
+pouch = bpy.data.objects.new('kit_pouch', me); bpy.context.collection.objects.link(pouch); on_bone(pouch, 'hips')
+print('kit: collar r %.3f, hip x %.3f' % (cr, hx))
+
 # ---- 3a. weathering: a long climb's worth of wear. Dented metal, the crest knocked flat, the cape torn short; the
 # pack's bright palette dulled to old iron, dried oxblood and worn leather; grime, mud and rust baked as vertex colour.
 import math
 import numpy as np
-def hsh(x, y, z, seed=0.0):
-    h = math.sin(x * 127.1 + y * 311.7 + z * 74.7 + seed * 19.19) * 43758.5453
-    return h - math.floor(h)
 def vnoise(p, cell, seed=0.0):
     """Smooth value noise at a cell size: blotches rather than speckle."""
     x, y, z = p.x / cell, p.y / cell, p.z / cell; ix, iy, iz = math.floor(x), math.floor(y), math.floor(z)
@@ -195,6 +264,8 @@ for v in hel.data.vertices:
 
 # the cape: torn short and ragged, a jagged hem
 cape = bpy.data.objects['Knight_Cape']
+cape.scale = (cape.scale.x * 0.86, cape.scale.y, cape.scale.z)        # it widened with the chest; a rag, not a mantle
+bpy.context.view_layer.update()
 bm = bmesh.new(); bm.from_mesh(cape.data)
 bmesh.ops.subdivide_edges(bm, edges=bm.edges[:], cuts=2, use_grid_fill=True)
 cw = cape.matrix_world; ci = cw.inverted()
@@ -271,7 +342,7 @@ feet0 = po.ankles(base)
 # a tired guard: sword low and forward, shield hanging, shoulders and head down
 GUARD_R, GUARD_BLADE = [D(0.15, -1, 0.3), D(1, 0.15, 0.12)], D(1, 0.6)
 SHIELD_L = [D(0.25, -1, 0.35, 'l'), D(1, -0.1, -0.2, 'l')]
-guard = {'armR': GUARD_R, 'blade': GUARD_BLADE, 'armL': SHIELD_L, 'chest': D(0.14, 1), 'head': D(0.2, 1)}
+guard = {'armR': GUARD_R, 'blade': GUARD_BLADE, 'armL': SHIELD_L, 'chest': D(0.3, 1), 'spine': D(0.12, 1), 'head': D(0.05, 1)}   # hunched, ready
 def P_(spec, b=None): return po.pose(b or base, {**guard, **spec}, feet0)
 
 # guard idle: the pack's breathing idle with the sword held ready and the shield up
@@ -285,7 +356,7 @@ for src in ('Jump_Start', 'Jump_Idle', 'Jump_Land'):
     po.make_action('K_' + src, [(f, po.pose(po.sample(a, f), {'armR': [D(-0.1, -1, 0.45), D(0.5, 0.6, 0.2)], 'blade': D(0.2, 1)}, feet0, plant=False))
                                 for f in list(range(s0, s1, 3)) + [s1]])
 # crouch, and the crouch walk (the feet trade places over 24 frames)
-CROUCH = {'hips': (0.1, -0.74), 'spine': D(0.95, 1), 'chest': D(0.45, 1), 'head': D(-0.3, 1),
+CROUCH = {'hips': (0.12, -0.86), 'spine': D(0.95, 1), 'chest': D(0.45, 1), 'head': D(-0.3, 1),
           'armR': [D(0.3, -1, 0.35), D(0.7, 0.8, 0.1)], 'blade': D(0.15, 1)}     # the blade kept upright, clear of the step ahead
 c = P_({**CROUCH, 'feet': {'l': (0.12, 0), 'r': (-0.12, 0)}})
 po.make_action('K_Crouch', [(0, c), (12, c)])
@@ -295,7 +366,7 @@ print('crouch crown / standing crown: %.2f' % (crown(c) / crown(base)))
 steps = [((0.14, 0), (-0.14, 0), 0), ((0, 0), (0, 0.08), 0.025), ((-0.14, 0), (0.14, 0), 0), ((0, 0.08), (0, 0), 0.025)]
 keys = []
 for i, (l, r, bob) in enumerate(steps + steps[:1]):
-    keys.append((i * 6, P_({**CROUCH, 'hips': (0.1, -0.74 + bob), 'feet': {'l': l, 'r': r}})))
+    keys.append((i * 6, P_({**CROUCH, 'hips': (0.12, -0.86 + bob), 'feet': {'l': l, 'r': r}})))
 po.make_action('K_CrouchWalk', keys)
 # the roll's tuck: knees to the chest, head down, arms wrapped, the blade laid back along the body
 t = P_({'hips': (0.0, -0.22), 'spine': D(1.0, 0.8), 'chest': D(1.6, 0.6), 'head': D(1.2, -0.3),
@@ -344,7 +415,7 @@ SWINGS = {
         {'hips': (0.28, -0.24), 'spine': D(0.5, 1), 'chest': (D(0.55, 1), 0.3), 'armR': [D(1, 0.0, 0.3), D(1, 0.05, 0.2)], 'blade': D(1, 0.12), **DEEP},
         {'hips': (0.27, -0.25), 'spine': D(0.5, 1), 'chest': (D(0.52, 1), 0.25), 'armR': [D(1, -0.05, 0.32), D(1, 0.05, 0.2)], 'blade': D(1, 0.12), **DEEP}],
 }
-GUARD_SPEC = {'hips': (0, 0), 'chest': (D(0.14, 1), 0.0), 'spine': D(0, 1), 'armR': GUARD_R, 'blade': GUARD_BLADE, 'feet': {'l': (0, 0), 'r': (0, 0)}}
+GUARD_SPEC = {'hips': (0, 0), 'chest': (D(0.3, 1), 0.0), 'spine': D(0, 1), 'armR': GUARD_R, 'blade': GUARD_BLADE, 'feet': {'l': (0, 0), 'r': (0, 0)}}
 def between(a, b, up=0.5):
     """A pose halfway between two specs, so big turns of the blade go round over the top and the arm passes outside
     the helmet, never through the body."""

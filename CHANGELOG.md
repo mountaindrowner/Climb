@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.13.2 — the knight, leaner and built (2026-11-06)
+
+- A V-taper: the waist pulled in on the body mesh around the belt, a broader and deeper chest, thicker upper arms, longer legs, a smaller head; taller again in game (1.9 units).
+- More detail: cloth wraps along the forearms and shins and a scarf wound over the collar (rigid pieces on their bones, sized from the body's typical girth so they hug it without cutting in), a pouch on the far hip. All battered and grimed with the rest.
+- A hunched, knees-bent ready stance. The crouch is deeper again to stay under the beams.
+- The studio sheets apply the same armour lift as the game.
+
 ## 0.13.1 — the knight, worn down (2026-11-06)
 
 - Taller and less toy-like: a smaller head, longer and leaner limbs, a chest that tapers to the waist and narrower hips (about five and a half heads tall), and a head taller in game.

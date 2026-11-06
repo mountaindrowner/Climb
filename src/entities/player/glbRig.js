@@ -20,7 +20,7 @@ const loop = x => x - Math.floor(x);
 const RIGS = {
   knight: {
     url: 'assets/models/knight/knight.glb', label: 'Knight',
-    yaw: Math.PI / 2, height: 1.8,           // glTF faces +Z; a head taller than the hand-built warrior
+    yaw: Math.PI / 2, height: 1.9,           // glTF faces +Z; well over a head taller than the hand-built warrior
     targets: knightTargets, after: knightAfter, setup: knightSetup,
   },
   blender: {
