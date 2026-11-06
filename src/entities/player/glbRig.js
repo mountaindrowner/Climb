@@ -365,6 +365,9 @@ function footIK(G, dt){
     const H = modelPos(U, inv, IKV[1]), K = modelPos(L, inv, IKV[2]), A = modelPos(Fo, inv, IKV[3]);
     const footQ = modelRot(Fo, inv, IKQ[0]).clone();
     const T = IKV[4].copy(A); T.y += (FOOT[key] - drop) * FOOT.w;     // where the ankle should be
+    // never below its standing height over the step under it: blending two clips (guard into walk) can straighten a
+    // bent leg and reach lower than either clip does
+    if (GLB.ankleH && FOOT.w > 0.5) T.y = Math.max(T.y, GLB.ankleH + FOOT[key]);
     const L1 = K.distanceTo(H), L2 = A.distanceTo(K), d = Math.min(T.distanceTo(H), (L1 + L2) * 0.999), u = IKV[5].copy(T).sub(H).normalize();
     // keep the knee bending the way the clip bends it
     const bend = IKV[6].copy(K).sub(H); bend.addScaledVector(u, -bend.dot(u));
