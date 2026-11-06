@@ -11,6 +11,7 @@ import { ST } from '../../core/state.js';
 import { scene } from '../../render/renderer.js';
 import { PL } from './player.js';
 import { swingInfo } from './motor.js';
+import { makeCloth } from './cloth.js';
 const THREE = window.THREE;
 const MV = TUNE.move;
 const loop = x => x - Math.floor(x);
@@ -67,7 +68,7 @@ export function loadRig(name){
       // measure the standing pose, then scale it to the wanted height
       for (const n in R.act) R.act[n].setEffectiveWeight(n === 'Idle' ? 1 : 0);
       R.act.Idle && (R.act.Idle.time = 0); R.mixer.update(0); model.updateMatrixWorld(true);
-      R.inner.scale.setScalar(cfg.height / skinnedHeight(model));
+      R.modelH = skinnedHeight(model); R.inner.scale.setScalar(cfg.height / R.modelH);
     }
     R.base = R.inner.scale.x;
     if (cfg.setup) cfg.setup(R);
@@ -91,6 +92,7 @@ export function applyRigChoice(){
   if (STATE[c] && STATE[c].ready) GLB = STATE[c];
   const on = usingGlb();
   if (on) GLB.root.visible = true;
+  for (const n in STATE) if (STATE[n].cloth){ STATE[n].cloth.mesh.visible = on && GLB === STATE[n]; STATE[n].cloth.live = false; }
   PL.body.visible = !on;
   showWeapon(PL.wepId);
 }
@@ -175,23 +177,51 @@ function knightSetup(R){
   // lift the grimy armour (texture x baked grime is dark) so it reads as dirt on iron under the cave light, not as a
   // silhouette; a touch warm so the cave's teal and violet fill reads as light, not as the iron's colour
   R.inner.traverse(o => { if (o.isMesh && o.material && /knight_texture|barbarian_texture/.test(o.material.name)) o.material.color.setRGB(1.55, 1.42, 1.28); });
-  // the cape: remember how it hangs relative to the body in the rest pose (see knightAfter)
+  // the cape becomes cloth: measure the authored cape in the body's frame (where it pins across the shoulders, how wide
+  // and long it is), pin a simulated cloth there on the chest bone, and hide the rigid one
   const cape = R.node.Knight_Cape, model = R.inner.children[0];
   if (cape){
     for (const n in R.act) R.act[n].setEffectiveWeight(0);
     R.mixer.update(0); model.updateMatrixWorld(true);
-    R.capeRel = relQuat(model, cape, new THREE.Quaternion());
+    const chest = cape.parent, toModel = new THREE.Matrix4().copy(model.matrixWorld).invert();
+    const capeToModel = toModel.clone().multiply(cape.matrixWorld), pa = cape.geometry.attributes.position, pts = [];
+    for (let i = 0; i < pa.count; i++) pts.push(new THREE.Vector3().fromBufferAttribute(pa, i).applyMatrix4(capeToModel));
+    const top = Math.max(...pts.map(p => p.y)), bot = Math.min(...pts.map(p => p.y)), h = top - bot;
+    const topPts = pts.filter(p => p.y > top - 0.12 * h), botPts = pts.filter(p => p.y < bot + 0.25 * h);
+    const x0 = Math.min(...topPts.map(p => p.x)), x1 = Math.max(...topPts.map(p => p.x));
+    const zTop = topPts.reduce((a, p) => a + p.z, 0) / topPts.length;
+    const wTop = (x1 - x0) * 0.9, wBot = Math.max(...botPts.map(p => p.x)) - Math.min(...botPts.map(p => p.x));
+    const COLS = 7, chestInv = new THREE.Matrix4().copy(chest.matrixWorld).invert(), chestFromModel = chestInv.clone().multiply(model.matrixWorld);
+    R.clothPins = [];
+    for (let i = 0; i < COLS; i++) R.clothPins.push(new THREE.Vector3(x0 + (x1 - x0) * (-0.02 + 1.04 * i / (COLS - 1)), top - 0.04 * h, zTop - 0.01).applyMatrix4(chestFromModel));
+    const chestZ = new THREE.Vector3().setFromMatrixPosition(chest.matrixWorld).applyMatrix4(toModel).z;
+    R.clothR = { torso: Math.abs(zTop - chestZ) * 0.85, leg: 0.05 * (R.modelH || 2.8) };
+    R.cloth = makeCloth({ cols: COLS, rows: 9, width: wTop * 1.1, length: h * 1.3, flare: Math.max(1.15, Math.min(1.6, wBot / wTop)), color: [0.2, 0.1, 0.08] });   // dried-blood rag: the torch warms it
+    PL.P.add(R.cloth.mesh); cape.visible = false;
   }
 }
-// An object's orientation in the body's own frame. Taken from matrices relative to the body, so the mirror applied above
-// the body (facing down the stair) cancels out.
-const _m = new THREE.Matrix4(), _p = new THREE.Vector3(), _s = new THREE.Vector3();
-function relQuat(model, o, out){
-  o.updateWorldMatrix(true, false);
-  _m.copy(model.matrixWorld).invert().multiply(o.matrixWorld).decompose(_p, out, _s);
-  return out;
+const _w = [], _cap = [0, 1, 2, 3, 4].map(() => ({ a: new THREE.Vector3(), b: new THREE.Vector3(), r: 0 }));
+const _plane = { point: new THREE.Vector3(), normal: new THREE.Vector3() }, _sc = new THREE.Vector3();
+function bonePos(name, out){ return out.setFromMatrixPosition(GLB.node[name].matrixWorld); }
+function stepCloth(dt){
+  const C = GLB.cloth, cape = GLB.node.Knight_Cape;
+  if (!C || !cape) return;
+  GLB.root.updateWorldMatrix(true, true);
+  const chest = cape.parent, model = GLB.inner.children[0], S = Math.abs(model.getWorldScale(_sc).z);
+  GLB.clothPins.forEach((p, i) => (_w[i] || (_w[i] = new THREE.Vector3())).copy(p).applyMatrix4(chest.matrixWorld));
+  // the back plane faces the body's forward, not the chest's: a hunched chest tilts its own forward down, and that
+  // plane, extended down past the shoulders, slants backward and the cloth slides up it like a sail
+  _plane.normal.set(0, 0, 1).transformDirection(model.matrixWorld);
+  _plane.point.set(0, 0, 0); _w.forEach(p => _plane.point.add(p)); _plane.point.multiplyScalar(1 / _w.length);
+  const { torso, leg } = GLB.clothR;
+  bonePos('hips', _cap[0].a); bonePos('head', _cap[0].b); _cap[0].r = torso * S;
+  bonePos('upperlegl', _cap[1].a); bonePos('lowerlegl', _cap[1].b); _cap[1].r = leg * S;
+  bonePos('upperlegr', _cap[2].a); bonePos('lowerlegr', _cap[2].b); _cap[2].r = leg * S;
+  bonePos('lowerlegl', _cap[3].a); bonePos('footl', _cap[3].b); _cap[3].r = leg * 0.8 * S;
+  bonePos('lowerlegr', _cap[4].a); bonePos('footr', _cap[4].b); _cap[4].r = leg * 0.8 * S;
+  C.step(dt, _w, _cap, _plane, S);
+  C.draw(PL.P);
 }
-const _q = [new THREE.Quaternion(), new THREE.Quaternion(), new THREE.Quaternion()], _v = new THREE.Vector3(), X = new THREE.Vector3(1, 0, 0);
 function knightTargets(G){
   const T = {};
   if (ST.mode === 'fall'){ GLB.idleT += 1 / 60; at('K_Jump_Idle', loop(GLB.idleT)); at('Hit_B', 0.35); T.K_Jump_Idle = 0.5; T.Hit_B = 0.5; return { T, rate: 30 }; }
@@ -223,7 +253,7 @@ function knightTargets(G){
   if (G.landT > 0){ at('K_Jump_Land', 0.15 + 0.5 * (1 - G.landT / 0.12)); T.K_Jump_Land = 0.6; T.K_Guard *= 0.4; T.Running_A *= 0.4; }
   return { T, rate: 22 };
 }
-function knightAfter(G){
+function knightAfter(G, dt){
   // keep the measured scale; squash only the height; facing down the stair, mirror him so the sword arm stays on the
   // camera's side (a 2D flip: every swing reads the same both ways)
   const sy = squash(G)[1], s = GLB.base;
@@ -233,17 +263,7 @@ function knightAfter(G){
     const q = 1 - G.roll / MV.roll.time, ang = -Math.PI * 2 * smooth(clamp(q * 1.15, 0, 1)), c = 0.45;
     GLB.root.rotation.z = ang; GLB.root.position.set(c * Math.sin(-ang), c - c * Math.cos(ang) - 0.3 * Math.sin(Math.PI * q), 0);
   }
-  // the cape hangs from the shoulders and follows only the back's forward lean (never the chest's twist, which swung
-  // the rigid cape round through the body), swings back with speed and lifts on the way down; never forward of the back
-  const cape = GLB.node.Knight_Cape;
-  if (cape && GLB.capeRel){
-    const qc = relQuat(GLB.inner.children[0], cape.parent, _q[0]);              // the chest, in the body's frame
-    _v.set(0, 1, 0).applyQuaternion(qc);
-    const lean = Math.max(0, Math.atan2(_v.z, _v.y)), speed = Math.abs(G.v) / MV.run;
-    const a = lean + 0.3 * speed + (G.grounded ? 0 : G.vy < 0 ? 0.4 : 0.12) + Math.sin(ST.time * 3.1) * 0.035;
-    const want = _q[1].setFromAxisAngle(X, a).multiply(GLB.capeRel);          // body frame: rest hang, swung back by a
-    cape.quaternion.copy(qc.invert().multiply(want));
-  }
+  stepCloth(dt);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------

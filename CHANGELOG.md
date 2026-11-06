@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.14.0 — cloth (2026-11-06)
+
+- The knight's cape is real cloth: `src/entities/player/cloth.js`, a small Verlet cloth (7 x 9 particles; structural, shear and bend constraints; four solver passes at 90 Hz) simulated in world space, pinned across the shoulders on the chest bone, with gravity, air drag, a little turbulence and a ragged hem. It is kept behind the body's back plane and pushed out of capsules around the torso, thighs and shins, so it trails a run, streams up in a fall, wraps a roll and drapes over a crouched back without passing through him. The rigid cape is measured for size and placement, then hidden.
+- Resets itself on teleports (catching a root, the Pool) and when switching warriors.
+
 ## 0.13.2 — the knight, leaner and built (2026-11-06)
 
 - A V-taper: the waist pulled in on the body mesh around the belt, a broader and deeper chest, thicker upper arms, longer legs, a smaller head; taller again in game (1.9 units).
