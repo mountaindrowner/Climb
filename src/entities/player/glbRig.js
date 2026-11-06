@@ -13,7 +13,7 @@ import { PL } from './player.js';
 import { swingInfo } from './motor.js';
 import { makeCloth } from './cloth.js';
 import { OMEGA, R } from '../../config/constants.js';
-import { posOf, topAt } from '../../world/path.js';
+import { posOf, topAt, sAt } from '../../world/path.js';
 import { holeAt } from '../../world/ground.js';
 import { burst } from '../../render/particles.js';
 import { sfx } from '../../audio/sfx.js';
@@ -247,8 +247,7 @@ export function footClearance(){
   const model = GLB.inner.children[0], S = Math.abs(model.getWorldScale(IKS).z), a0 = posOf(G.s).a;
   for (const f of ['footl', 'footr']){
     const w = new THREE.Vector3().setFromMatrixPosition(N[f].matrixWorld);
-    let da = Math.atan2(w.z, w.x) - a0; da = Math.atan2(Math.sin(da), Math.cos(da));
-    const fs = G.s + da / OMEGA, hole = !!holeAt(fs), ground = topAt(fs), sole = w.y - (GLB.ankleH || 0) * S;
+    const fs = sAt(G.s, Math.atan2(w.z, w.x)), hole = !!holeAt(fs), ground = topAt(fs), sole = w.y - (GLB.ankleH || 0) * S;
     out.push({ foot: f, s: fs, sole, ground, clear: sole - ground, hole });
   }
   return out;
@@ -267,8 +266,7 @@ function footIK(G, dt){
   // the step under each foot, as an offset from the ground the body stands on (world units -> body units)
   for (const [, , foot, key] of legs){
     const w = IKV[0].setFromMatrixPosition(N[foot].matrixWorld);
-    let da = Math.atan2(w.z, w.x) - a0; da = Math.atan2(Math.sin(da), Math.cos(da));
-    const fs = G.s + da / OMEGA, ground = holeAt(fs) ? G.y : topAt(fs);
+    const fs = sAt(G.s, Math.atan2(w.z, w.x)), ground = holeAt(fs) ? G.y : topAt(fs);
     const want = clamp((ground - G.y) / S, -0.8, 0.8);
     FOOT[key] = want > FOOT[key] ? want : FOOT[key] + (want - FOOT[key]) * Math.min(1, dt * 22);   // up at once (never into the stone), down eased
   }
@@ -310,9 +308,8 @@ function bladeOffStone(G){
   const N = GLB.node, arm = N.upperarmr, tip = G.atk ? bladeTip() : null;
   if (!arm || !tip) { if (!G.atk) BLADE.sparked = null; return; }
   const r = Math.hypot(tip.x, tip.z);
-  if (Math.abs(r - R) > 1.25) return;                         // out over the shaft, nothing to hit
-  let da = Math.atan2(tip.z, tip.x) - posOf(G.s).a; da = Math.atan2(Math.sin(da), Math.cos(da));
-  const ts = G.s + da / OMEGA; if (holeAt(ts)) return;
+  if (Math.abs(r - posOf(G.s).r) > 1.25) return;              // out over the shaft, nothing to hit
+  const ts = sAt(G.s, Math.atan2(tip.z, tip.x)); if (holeAt(ts)) return;
   const pen = topAt(ts) + 0.04 - tip.y;
   if (pen <= 0) return;
   const model = GLB.inner.children[0];
@@ -326,8 +323,7 @@ function bladeOffStone(G){
     const sh = modelPos(arm, inv, IKV[0]), t0 = IKV[1].copy(t).applyMatrix4(inv), t1 = IKV[2].copy(t0); t1.y += (p + 0.03) / S;
     rotateBone(arm, IKQ[1].setFromUnitVectors(t0.sub(sh).normalize(), t1.sub(sh).normalize()), inv);
     t = bladeTip(); if (!t) break;
-    let d2 = Math.atan2(t.z, t.x) - posOf(G.s).a; d2 = Math.atan2(Math.sin(d2), Math.cos(d2));
-    p = topAt(G.s + d2 / OMEGA) + 0.04 - t.y;
+    p = topAt(sAt(G.s, Math.atan2(t.z, t.x))) + 0.04 - t.y;
   }
 }
 const _w = [], _cap = [0, 1, 2, 3, 4].map(() => ({ a: new THREE.Vector3(), b: new THREE.Vector3(), r: 0 }));

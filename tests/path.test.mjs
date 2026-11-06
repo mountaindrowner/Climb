@@ -57,3 +57,16 @@ test('broken steps and swings only on flights gentle enough for them', () => {
   for (let seed = 1; seed < 6; seed++) for (let k = 0; k < MAXK; k++)
     for (const o of layoutFlight(seed, k).obs) assert.ok(suits(o.type, k), `${o.type} on flight ${k} (rise ${riseOf(k)})`);
 });
+test('every high road leaves its fork landing and rejoins the main stair at a landing above, at the same height and angle', async () => {
+  const P = await import('../src/world/path.js');
+  assert.ok(P.BRANCHES.length >= 5, 'a fork in most zones');
+  for (const b of P.BRANCHES){
+    const start = P.posOf(b.s0), end = P.posOf(b.s0 + b.len), A = P.posOf(P.landingS(b.kA)), B = P.posOf(P.landingS(b.kB));
+    const ang = (x, y) => Math.abs(Math.atan2(Math.sin(x - y), Math.cos(x - y)));
+    assert.ok(Math.abs(start.y - A.y) < 1e-6 && ang(start.a, A.a) < 1e-6, `high road ${b.j} starts at its fork landing`);
+    assert.ok(Math.abs(end.y - B.y) < 1e-6 && ang(end.a, B.a) < 1e-6, `high road ${b.j} ends at the landing it rejoins`);
+    assert.ok(b.rise > 0 && b.rise <= P.BRANCH_MAX_RISE, `high road ${b.j} rise ${b.rise.toFixed(2)} is climbable`);
+    for (let u = 0.1; u < b.len; u += 0.5) assert.ok(P.topAt(b.s0 + u) >= P.posOf(b.s0 + u).y - 1e-6, 'never below its own steps');
+    assert.ok(Math.abs(P.sAt(b.s0 + 5, P.posOf(b.s0 + 6).a) - (b.s0 + 6)) < 1e-6, 'sAt finds positions along it');
+  }
+});

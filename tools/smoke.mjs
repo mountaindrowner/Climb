@@ -56,7 +56,7 @@ await page.addScriptTag({ type: 'module', content: `
   import { R } from '/src/config/constants.js';
   const { ST, input: I } = window.__climb;
   const bot = window.__bot = { on: true, answer: true, hits: 0, lastHp: null, log: [], grabRoot: 2, hitLog: [], jumpHold: 0 };
-  const jump = () => { if (bot.jumpHold <= 0){ I.hold('jump', true); bot.jumpHold = 11; } };   // a thumb tap: held for about 0.18 s
+  const jump = (frames = 11) => { if (bot.jumpHold <= 0){ I.hold('jump', true); bot.jumpHold = frames; } };   // a thumb tap (about 0.18 s), or held longer
   function tick(){
     const G = ST.G, mode = ST.mode;
     if (!bot.on || !G){ return; }
@@ -78,7 +78,7 @@ await page.addScriptTag({ type: 'module', content: `
       for (const c of content.values()) for (const o of c.obs){
         const d = o.s - G.s;
         switch (o.type){
-          case 'gap': { const dc = d + 0.25; if (!o.done && dc > 0.55 && dc < 1.15 && G.grounded) jump(); break; }
+          case 'gap': { const dc = d + 0.25; if (!o.done && dc > 0.55 && dc < 1.15 && G.grounded) jump(26); break; }   // a hole wants a held, full jump
           case 'beam': if (d > -0.6 && d < 1.3) crouch = true; break;
           case 'rockfall': if ((o.st === 'warn' || o.st === 'drop') && d > -0.8 && d < 2.0) block = true; break;
           case 'swing': if (d > -3.2 && d < 2.8) crouch = true; break;   // the whole arc, both sides of the pivot
@@ -197,7 +197,9 @@ for (const id of ids){
   await page.click(`[data-act="practice-go"][data-id="${id}"]`);
   await page.evaluate(() => { window.__bot.answer = false; window.__bot.hits = 0; });
   const hp0 = await page.evaluate(() => window.__climb.ST.G.hp);
-  const hurtIt = await page.waitForFunction(h => window.__climb.ST.G.hp < h || window.__climb.ST.mode !== 'climb', hp0, { timeout: 60000, polling: 50 }).then(() => true, () => false);
+  // only real damage counts: reaching the end of the practice run unhurt means the threat was toothless
+  await page.waitForFunction(h => window.__climb.ST.G.hp < h || window.__climb.ST.mode !== 'climb', hp0, { timeout: 150000, polling: 50 }).catch(() => {});
+  const hurtIt = await page.evaluate(h => window.__climb.ST.G.hp < h, hp0);
   if (!hurtIt) toothless.push(id);
   await page.evaluate(() => { window.__bot.answer = true; });
 }
@@ -207,6 +209,24 @@ const after = await page.evaluate(() => JSON.parse(localStorage.getItem('the-cli
 if (after.falls !== saved.falls || after.best !== saved.best) fail('practice changed the save');
 const unfair = report.filter(r => r.hitsTaken > 0);
 if (unfair.length) fail('threats hit the bot while it answered them correctly: ' + unfair.map(r => r.id).join(', '));
+// ---- a fork: hop onto the high road from the fork landing, climb it, and step off onto the main stair above
+const fork = await page.evaluate(async () => {
+  const { startClimb } = await import('/src/modes/climb.js'), { hideMenu } = await import('/src/ui/overlay.js'), P = await import('/src/world/path.js');
+  window.__bot.on = false; window.__climb.input.release(); hideMenu(); window.__climb.ST.practice = null;   // the bot lets go of everything it held
+  window.__P = P;
+  const b = P.BRANCHES[0]; startClimb(P.landingS(b.kA) + 0.3);
+  const G = window.__climb.ST.G; G.maxHp = G.hp = 99;
+  const gen = await import('/src/world/generate.js'); for (const c of gen.content.values()) for (const o of c.obs){ o.done = true; o.alive = false; o.st = 'gone'; }
+  return { kA: b.kA, kB: b.kB, sB: P.landingS(b.kB) };
+});
+await page.waitForTimeout(600);
+await page.evaluate(() => { window.__climb.input.hold('left', true); window.__climb.input.tap('jump'); });
+await until(() => !!window.__P.branchOf(window.__climb.ST.G.s), 5000, 'hopping onto the high road');   // (synchronous: a promise would count as true at once)
+await until(() => !window.__P.branchOf(window.__climb.ST.G.s) && window.__climb.ST.G.grounded, 90000, 'climbing the high road to its end');
+const forkEnd = await page.evaluate(() => { window.__climb.input.hold('left', false); const G = window.__climb.ST.G; return { s: G.s, y: G.y, k: Math.floor(G.s / 9.8) }; });
+if (Math.abs(forkEnd.s - fork.sB) > 1.5) fail('the high road did not bring him out at the landing it rejoins: ' + JSON.stringify({ forkEnd, fork }));
+console.log('took the high road from flight ' + fork.kA + ' to ' + fork.kB);
+await page.evaluate(() => { window.__bot.on = true; });
 const clipR = await page.evaluate(() => window.__clip);
 console.log('clipping:', JSON.stringify(clipR));
 if (clipR.frames < 500) fail('the clipping test saw too little grounded play: ' + clipR.frames + ' frames');

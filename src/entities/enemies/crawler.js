@@ -95,6 +95,11 @@ export function update(o, dt){
     case 'recover': if (o.tm >= T.recover) go('chase'); break;
     case 'stunned': if (o.tm >= (o.stun || T.stun)) go('chase'); break;
   }
+  // a body, not a point: standing up, he cannot walk through it (a roll or a jump over still passes)
+  if (o.alive && o.st !== 'idle' && o.st !== 'crack' && o.st !== 'out' && G.roll <= 0 && G.y < topAt(G.s) + 0.9){
+    const gap = G.s - o.s, BODY = 0.6;
+    if (Math.abs(gap) < BODY){ const side = Math.sign(G.prevS - o.s) || -o.face || -1; G.s = o.s + side * BODY; if (Math.sign(G.v) !== side) G.v = 0; }
+  }
   if (!o.done && Math.abs(d) > 9 && o.st !== 'idle') o.done = true;
 }
 

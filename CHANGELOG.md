@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.18.0 — forks: the high road (2026-11-06)
+
+- Milestone 2 begins. Every zone has a fork: from landing 9 a second stair, the high road, climbs off the other way round the shaft, cut into the wall behind the main stair, and rejoins the main stair at landing 14 (13 where 14 would be too steep). It is shorter and steeper than the main route and skips the zone's lift and rest stop: a shortcut, at a price still to come (milestone 3 puts its own threats and rewards on it).
+- Take it by holding left and jumping from the fork landing: he hops across onto its first step. An icon marks the step; a hint explains it the first time. Climb it by holding left (it winds the other way); walk off its top onto the landing it rejoins, or back off its foot onto the fork landing.
+- Under the hood, positions on a high road live in their own range of path distance, so anything on one route is simply far from anything on the other; every system that turns a position into the world (the warrior, the camera, foot IK, the blade, dust) asks the path for the route's angle and radius. The shaft wall is carved open along each high road (and drawn finer, so the cut is clean), with a rough face of rock behind it.
+- Tests: every high road starts at its fork landing and ends at the landing it rejoins (height and angle), climbs no steeper than the steepest main flight, and the smoke run takes one end to end.
+- Crawlers have bodies: standing up, you cannot run through one (roll or jump over instead), so walking into one stops you and it bites. Flitters lead their dive to where your head will be. Before this, a player who simply kept running could not be hurt by either: the smoke test's "every threat hurts when ignored" check had been passing only because it also counted the practice run ending as a hit. It now counts real damage only, which also showed that a sprinting player glided over broken steps (the landing snapped him up onto the next step from well below it); now, sunk more than about half a step into a hole, the riser stops him and he falls.
+
 ## 0.17.0 — milestone 1, the foundation (2026-11-06)
 
 - **Variable grade.** Every flight has its own rise per step: mostly gentle ramps (0.3 to 0.45), two steep flights (0.75), two at 0.6 and two flat galleries per zone, the pattern rotated zone to zone so no two climb alike. Every zone is the same height, so the metre count stays 135 per zone. Heights come from a per-flight table (`flightY`, `landingY`, `riseOf`, `kAtY` in `src/world/path.js`) instead of a fixed flight height. Broken steps and swinging weights only go on flights of 0.6 or gentler (a full jump must clear a hole uphill; a swing's uphill arc must pass over a crouch).

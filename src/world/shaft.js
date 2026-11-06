@@ -8,6 +8,7 @@ import { scene, poolLight, fogCol, camera } from '../render/renderer.js';
 import { wallTex, outerTex, chainTex, silTex } from '../render/textures.js';
 import { bgeo, lam, bas, tmpC } from '../render/primitives.js';
 import { zoneOf, gateK, kAtY, flightY, landingY } from './path.js';
+import { carveFor } from './branches.js';
 const THREE = window.THREE;
 
 const TOTAL_H = flightY(MAXK) + 30;
@@ -16,9 +17,9 @@ function zoneColorAtY(y, key, f){ const z = ZONES[zoneOf(kAtY(y))]; return new T
 export const OPEN_BANDS = [];
 for (let z = 0; z < ZONES.length; z++){ const k0 = z * ZF + BOSS_FLIGHT - ARENA_FLIGHTS + 1; OPEN_BANDS.push({ z, y0: flightY(k0) + 1.5, y1: flightY(z * ZF + BOSS_FLIGHT + 1) - 0.5 }); }
 export const inOpenBand = y => OPEN_BANDS.some(b => y > b.y0 && y < b.y1);
-function shaftCylinder(radius, tex, repU, key, f, alphaTest, open){
-  const segs = MAXK * 2;
-  const geo = new THREE.CylinderGeometry(radius, radius, TOTAL_H, 72, segs, true);
+function shaftCylinder(radius, tex, repU, key, f, alphaTest, open, carve){
+  const segs = MAXK * (carve ? 4 : 2);   // the carved wall is finer, so the openings along the high roads are cleaner
+  const geo = new THREE.CylinderGeometry(radius, radius, TOTAL_H, carve ? 144 : 72, segs, true);
   geo.translate(0, TOTAL_H / 2 - 10, 0);
   const pos = geo.attributes.position, cols = new Float32Array(pos.count * 4);
   for (let i = 0; i < pos.count; i++){
@@ -32,6 +33,7 @@ function shaftCylinder(radius, tex, repU, key, f, alphaTest, open){
         else if (Math.abs(y - b.y0) < 2.2 || Math.abs(y - b.y1) < 2.2){ if (hash(Math.round(pos.getX(i) * 7), Math.round(pos.getZ(i) * 7) + Math.round(y)) < 0.45) a = 0; }
       }
     }
+    if (carve && carveFor(Math.atan2(pos.getZ(i), pos.getX(i)), y)) a = 0;   // the opening along a high road
     cols[i * 4 + 3] = a;
   }
   geo.setAttribute('color', new THREE.BufferAttribute(cols, 4));
@@ -39,7 +41,7 @@ function shaftCylinder(radius, tex, repU, key, f, alphaTest, open){
   const m = new THREE.MeshLambertMaterial({ map: t, vertexColors: true, side: THREE.DoubleSide, alphaTest: alphaTest || 0 });
   return new THREE.Mesh(geo, m);
 }
-scene.add(shaftCylinder(RW, wallTex, 5 * RW / 8.8, 'wall', 0.68, 0.5, FEATURES.wardens));   // tiling scales with the radius: bricks keep their size   // the wall, with openings, gone along the Wardens' stretches
+scene.add(shaftCylinder(RW, wallTex, 5 * RW / 8.8, 'wall', 0.68, 0.5, FEATURES.wardens, true));   // tiling scales with the radius: bricks keep their size   // the wall, with openings, gone along the Wardens' stretches
 scene.add(shaftCylinder(RW + 8.2, outerTex, 18 * (RW + 8.2) / 17, 'wall', 0.4));       // deeper caverns seen through them
 
 const floor = new THREE.Mesh(new THREE.RingGeometry(RP, RW + 0.2, 64), lam(0x55506a));

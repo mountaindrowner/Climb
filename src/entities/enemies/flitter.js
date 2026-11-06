@@ -13,7 +13,7 @@ import { flatMat, glowMat, spike, blob, membrane, joint, outline, outlineMat } f
 import { burst } from '../../render/particles.js';
 import { float, hitstop } from '../../fx/feedback.js';
 import { topAt, posOf } from '../../world/path.js';
-import { hurt, head, isBlocking, isInvulnerable } from '../player/player.js';
+import { hurt, head, headAhead, isBlocking, isInvulnerable } from '../player/player.js';
 const THREE = window.THREE;
 const T = TUNE.flitter;
 
@@ -61,7 +61,7 @@ export function update(o, dt){
     case 'idle': o.pos.copy(o.roost); if (Math.abs(d) < T.wake){ go('launch'); sfx.shriek(); o.from = o.pos.clone(); } break;
     case 'launch': { const u = clamp(o.tm / T.launch, 0, 1); o.pos.copy(o.from); o.pos.y -= 0.9 * u * u; if (o.tm >= T.launch) startDive(o); break; }
     case 'dive': {
-      if (o.tm < T.dive - T.commit) o.target.copy(head(1.2));          // tracks him until the commit point, then flies straight
+      if (o.tm < T.dive - T.commit) o.target.copy(headAhead(T.dive - o.tm, 1.2));   // leads him until the commit point, then flies straight
       bez(o.p0, o.p1, o.target, Math.pow(clamp(o.tm / T.dive, 0, 1), 1.25), o.pos);
       if (Math.random() < 0.8) burst(o.pos, 1, o.glow, 0.3, 0, 0.07);
       if (o.tm >= T.dive){

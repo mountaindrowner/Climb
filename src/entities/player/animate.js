@@ -41,8 +41,10 @@ export function animatePlayer(dt = 1 / 60){
   }
   if (mode === 'pool'){ PL.P.visible = false; return PL.P.position; }
   if (!G) return PL.P.position;
-  const a = posOf(G.s).a;
-  PL.P.position.copy(playerWorld());
+  const pp = posOf(G.s), a = pp.a;
+  // between routes (a fork's hop, a high road's ends) his radius slides across rather than snapping
+  PL.rad = PL.rad == null || mode !== 'climb' ? pp.r : PL.rad + (pp.r - PL.rad) * Math.min(1, dt * 9);
+  PL.P.position.set(PL.rad * Math.cos(a), G.y, PL.rad * Math.sin(a));
   PL.P.rotation.set(0, yawFor(a) + (G.face < 0 ? Math.PI : 0), 0);
   PL.P.visible = !(G.inv > 0 && Math.floor(time * 20) % 2 === 0) && mode !== 'title';
   // reset the root of the pose each frame, for both rigs (a fall's spin must never survive into a climb)

@@ -10,12 +10,12 @@ import { clamp } from '../../core/math.js';
 import { sfx } from '../../audio/sfx.js';
 import { vArc } from '../../render/primitives.js';
 import { burst } from '../../render/particles.js';
-import { posOf, special } from '../../world/path.js';
+import { posOf, special, landingS, branchOf, forkFrom, routeSign } from '../../world/path.js';
 import { IN, consume } from '../../core/input.js';
 import { holeAt, ceilingAt } from '../../world/ground.js';
 import { strike, drink, repairLift, hurt } from './player.js';
 const MV = TUNE.move;
-const dust = (G, n, spd, c) => burst(vArc(G.s * OMEGA, R, G.y + 0.05), n, c || '#b4aac8', spd || 1.4, 5, 0.08);
+const dust = (G, n, spd, c) => { const p = posOf(G.s); burst(vArc(p.a, p.r, G.y + 0.05), n, c || '#b4aac8', spd || 1.4, 5, 0.08); };
 
 export function stepMotor(G, dt){
   const H = IN.held;
@@ -82,6 +82,9 @@ export function stepMotor(G, dt){
     G.jumpBuf = 0; G.coyote = 0; G.grounded = false; G.crouch = false; G.jumpT = 0;
     G.vy = Math.sqrt(2 * MV.gravityUp * MV.jumpHeight); sfx.jump(); dust(G, 6, 1.6);
     if (G.atk && G.atk.phase === 'rec') G.atk = null;
+    // a fork: jumping left from the fork landing hops across onto the high road behind it
+    const p = posOf(G.s), b = !branchOf(G.s) && p.land && H.left && forkFrom(p.k);
+    if (b){ G.s = G.prevS = b.s0 + 0.25; G.safeS = G.s; G.hop = 1; sfx.whoosh(); }
   }
   if (!G.grounded){
     let g = G.vy > 0 ? MV.gravityUp : MV.gravityDown;
@@ -90,12 +93,22 @@ export function stepMotor(G, dt){
     G.vy = Math.max(-MV.maxFall, G.vy - g * dt);
   }
   // ---- move, then find the ground
-  G.prevS = G.s; G.s = Math.max(0.05, G.s + G.v * dt);
+  G.prevS = G.s; G.s += G.v * dt * routeSign(G.s);   // a high road winds the other way round: right goes back down it
+  if (G.s < 0.05) G.s = 0.05;
+  // the ends of a high road: walk off its top onto the landing it rejoins, or back off its foot onto the fork landing
+  const br = branchOf(G.prevS);
+  if (br){
+    const u = G.s - br.s0;
+    if (u > br.len){ G.s = G.prevS = landingS(br.kB) - (u - br.len); G.hop = 1; }
+    else if (u < 0){ G.s = G.prevS = landingS(br.kA) - u; G.hop = 1; }
+  }
   if (!G.grounded) G.y += G.vy * dt;
   const hole = holeAt(G.s), gy = posOf(G.s).y;
   if (G.grounded){
     if (hole){ G.grounded = false; G.vy = 0; G.coyote = MV.coyote; }              // the step is gone: fall, but a jump still works for a moment
     else { G.y = gy; G.safeS = G.s; }
+  } else if (!hole && G.vy <= 0 && G.y <= gy + 0.02 && gy - G.y > 0.45 && holeAt(G.prevS)){
+    G.s = G.prevS; G.v = 0;                                                       // sunk too far into a hole to step out: the riser stops him
   } else if (!hole && G.vy <= 0 && G.y <= gy + 0.02){                            // landing; a riser a little above the feet is stepped up onto
     G.y = gy; G.vy = 0; G.grounded = true; G.landT = 0.12; G.safeS = G.s;
     if (!wasGrounded){ sfx.step(); dust(G, 8, 1.8); ST.dip = Math.max(ST.dip, TUNE.feel.stepDip * 0.8); }

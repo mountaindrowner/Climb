@@ -10,7 +10,7 @@ import { scene } from '../../render/renderer.js';
 import { vArc } from '../../render/primitives.js';
 import { burst } from '../../render/particles.js';
 import { float, setToast, hitstop } from '../../fx/feedback.js';
-import { posOf, landingS, meters } from '../../world/path.js';
+import { posOf, landingS, meters, routeSign } from '../../world/path.js';
 import { flight } from '../../world/generate.js';
 import { ENTITIES } from '../registry.js';
 import { makePlayer, setWeaponModel } from './model.js';
@@ -48,8 +48,10 @@ export const isParry = G => isBlocking(G) && ST.time - G.blockAt <= P.parryWindo
 export const crownY = G => G.y + (isLow(G) ? 1.05 : 2.45);
 export const midY = G => G.y + (isLow(G) ? 0.75 : 1.4);
 
-export function playerWorld(out){ const G = ST.G; return vArc(G.s * OMEGA, R, G.y, out); }
+export function playerWorld(out){ const G = ST.G, p = posOf(G.s); return vArc(p.a, p.r, G.y, out); }
 export const head = h => { const v = playerWorld(); v.y += (h == null ? 2.5 : h); return v; };
+// Where his head will be in t seconds if he keeps going as he is (for things that lead their aim).
+export function headAhead(t, h){ const G = ST.G, s = G.s + G.v * t * routeSign(G.s), p = posOf(s); return vArc(p.a, p.r, (G.grounded ? posOf(s).y : G.y) + (h == null ? 2.5 : h)); }
 
 // Take a hit from something at path distance fromS. Knocks you away from it. Returns whether it landed.
 export function hurt(n, msg, fromS){
@@ -57,7 +59,7 @@ export function hurt(n, msg, fromS){
   if (!G || isInvulnerable(G)) return false;
   G.hp -= n; G.inv = P.invuln; G.hurtT = MV.hurtStun; G.atk = null;
   const away = fromS == null ? -G.face : Math.sign(G.s - fromS) || -G.face;
-  G.v = away * MV.knock; if (G.grounded){ G.vy = MV.knockUp; G.grounded = false; }
+  G.v = away * MV.knock * routeSign(G.s); if (G.grounded){ G.vy = MV.knockUp; G.grounded = false; }   // away along the path, as a screen direction
   ST.shake = TUNE.feel.shakeHurt; ST.flash = 0.35; sfx.hurt(); buzz(50); hitstop(TUNE.feel.hitstopHurt);
   float(msg || ('-' + n), head(), '#ff8a78');
   if (G.hp <= 0){ G.hp = 0; startFall(); }

@@ -6,7 +6,7 @@ import { clamp } from '../core/math.js';
 import { S } from '../save/store.js';
 import { ST } from '../core/state.js';
 import { hx, view, camera } from '../render/renderer.js';
-import { posOf, zoneOf, kAtY, flightY, landingY } from '../world/path.js';
+import { posOf, zoneOf, kAtY, flightY, landingY, forkFrom, branchOf } from '../world/path.js';
 import { content } from '../world/generate.js';
 import { ENTITIES } from '../entities/registry.js';
 import { head } from '../entities/player/player.js';
@@ -139,6 +139,11 @@ export function drawHUD(){
     hx.fillStyle = 'rgba(9,8,12,0.82)'; hx.fillRect(20, by, W - 40, bh);
     hx.fillStyle = '#e8b04a'; hx.fillRect(20, by, 4, bh);
     hx.fillStyle = '#efe6d2'; lines.forEach((l, i) => hx.fillText(l, 34, by + 22 + i * lh));
+  }
+  // a fork: mark the high road's first step while he stands on the fork landing
+  if (mode === 'climb' && G && !branchOf(G.s)){
+    const p = posOf(G.s), b = p.land && forkFrom(p.k);
+    if (b){ const a = b.aA - 1 / b.r; drawIcon(new THREE.Vector3(b.r * Math.cos(a), b.yA + b.rise + 1.3, b.r * Math.sin(a)), '{jump}', '#e8b04a'); }
   }
   if (mode === 'fall'){
     hx.fillStyle = 'rgba(9,8,12,0.7)'; hx.fillRect(0, H - 44, W, 44);

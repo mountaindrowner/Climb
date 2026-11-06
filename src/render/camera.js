@@ -79,5 +79,6 @@ export function updateCamera(dt){
   const sk = ST.shake * SET.shake, shx = (Math.random() - 0.5) * sk, shy = (Math.random() - 0.5) * sk;   // the screen-shake setting scales every shake
   camera.position.set(cam.r * Math.cos(cam.ang) + shx, cam.y - ST.dip + shy, cam.r * Math.sin(cam.ang));
   const lookAng = mode === 'fall' ? lookA : cam.ang + 0.02;
-  camera.lookAt(R * Math.cos(lookAng), lookY - ST.dip * 0.5, R * Math.sin(lookAng));
+  const lr = G && mode !== 'fall' && mode !== 'title' && mode !== 'pool' ? posOf(G.s).r : R;   // a high road runs further out
+  camera.lookAt(lr * Math.cos(lookAng), lookY - ST.dip * 0.5, lr * Math.sin(lookAng));
 }

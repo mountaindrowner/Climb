@@ -9,7 +9,7 @@ import { sfx } from '../audio/sfx.js';
 import { vArc } from '../render/primitives.js';
 import { burst } from '../render/particles.js';
 import { setToast } from '../fx/feedback.js';
-import { posOf, zoneOf, special, landingS, meters, arenaOf, topAt } from '../world/path.js';
+import { posOf, zoneOf, special, landingS, meters, arenaOf, topAt, forkFrom, branchOf } from '../world/path.js';
 import { stepMotor } from '../entities/player/motor.js';
 import { flight, newRun } from '../world/generate.js';
 import { newRunState, PL } from '../entities/player/player.js';
@@ -64,6 +64,9 @@ export function updClimb(dt){
   }
   if (!ST.hint && G.s < 6 && !ST.practice && !S.best) ST.hint = 'Hold {right} to climb, {left} to go back down. {jump} jumps, hold {down} to crouch.';
   if (!ST.practice && p.land && special(p.k) === 'lift' && !S.lifts.includes(p.k)) ST.hint = 'Stand on the landing and press {jump} to repair the lift. It becomes a shortcut from the Pool.';
+  // a fork: the high road climbs off the other way behind this landing
+  if (!ST.practice && !branchOf(G.s) && p.land && forkFrom(p.k) && !S.seen.includes('fork')) ST.hint = 'A stair climbs the other way behind you: steep, but a shortcut. Hold {left} and press {jump} to hop onto it.';
+  if (branchOf(G.s) && !S.seen.includes('fork')){ S.seen.push('fork'); save(); }
   const m = meters(G.y); if (m > S.best && !ST.practice) S.best = m;
 }
 
