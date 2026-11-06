@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.20.0 — the skeleton (2026-11-06)
+
+- The player's warrior is now the skeleton: the designer's own model, made in Tripo. He wears a bucket helm, a ragged red scarf and cape, belt and pouches, and heavy boots. He is the default warrior; the knight, the Blender warrior and the hand-built one are still on the title screen's warrior switch.
+- `tools/blender/skeleton_tripo.py` makes him ready for the game from the Tripo export (kept in `assets/source/`). It renames his Mixamo-style bones to the game's names, cuts the cape free of the body, brings the textures from 2K down to 1K (the model goes from 9.2 MB to 4.1 MB), takes the travel out of Tripo's walk and run (the game moves him), and gives him the knight's full clip set by name. Tripo's idle, run and flinch become the guard, run and hurt clips; the jump, block, crouch, roll tuck and every swing are authored for his body from the knight's own pose specs, scaled to his size.
+- His hands: both fists closed, the fingers curled toward the palm (measured from his bones, not guessed), the weapon's handle seated in the hole of the fist along the knuckle line, the blade out past the thumb, flat to the side camera. A rigid wrist: the hand bends no more than 15° off the forearm, and the forearm turns to carry the rest of every aim (`max_wrist` in posekit; the knight's clips are unchanged).
+- His cape swings rather than simulating: it rides his chest and turns about the shoulder line on one sprung angle. It trails back as he runs, lifts as he falls, dips as he takes off, stirs a little when he stands, and bends most at the hem.
+- Fixed: `tools/rig-review.mjs` would not run (a comment swallowed the end of a line).
+
 ## 0.19.0 — the crumbling handoff (2026-11-06)
 
 - The foot of every high road has crumbled away. Its first steps are gone; one slab is left, on a beam, level with the fork landing. Hop onto it and it shudders, then rises on its groaning beam to just under the first intact step, holds there for about a second, and falls. Jump across (hold left, press jump) while it holds. Miss, and you drop and land back on the fork landing, one health down; a new slab comes up from below a few seconds later for another try. Timing and nerve, not reflex: the gap is a comfortable running jump and the shaking warns you before it goes.

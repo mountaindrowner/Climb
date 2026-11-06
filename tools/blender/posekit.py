@@ -16,6 +16,7 @@ class Poser:
         self.arm, self.P, self.B = arm, arm.pose.bones, arm.data.bones
         self.keyed = [b.name for b in arm.data.bones if b.use_deform or b.name in ('hips', 'root')]
         self.hand = hand
+        self.max_wrist = None      # radians: if set, the wrist bends at most this far and the forearm turns for the rest
         # the weapon's blade axis, in the hand bone's frame
         self.blade_local = None
         if weapon is not None:
@@ -72,8 +73,23 @@ class Poser:
                 ang = n.angle(x); sgn = 1 if n.cross(x).dot(d) > 0 else -1
                 r = Matrix.Rotation(sgn * ang, 3, d) @ r
         if twist: r = Matrix.Rotation(twist, 3, d) @ r
+        if self.max_wrist is not None: return self._rigid_wrist(r)
         new = r.to_4x4(); new.translation = m.translation
         pb.matrix = new; self.update()
+    def _rigid_wrist(self, want):
+        """Give the hand the orientation `want` with the wrist bent no more than max_wrist from its rest line along the
+        forearm: the forearm turns about the elbow (and rolls) to carry the rest."""
+        hn = self.hand; fn = self.B[hn].parent.name
+        fa, hb = self.P[fn], self.P[hn]
+        rest_rel = self.B[fn].matrix_local.to_3x3().inverted() @ self.B[hn].matrix_local.to_3x3()
+        F = fa.matrix.to_3x3().normalized()
+        dev = (rest_rel.inverted() @ F.inverted() @ want).to_quaternion()
+        ang = dev.angle if dev.angle <= 3.14159 else 6.28318 - dev.angle
+        if ang > self.max_wrist:
+            dev_c = Quaternion().slerp(dev, self.max_wrist / ang).to_matrix()
+            F2 = want @ (rest_rel @ dev_c).inverted()
+            m = F2.to_4x4(); m.translation = fa.matrix.translation.copy(); fa.matrix = m; self.update()
+        new = want.to_4x4(); new.translation = hb.matrix.translation.copy(); hb.matrix = new; self.update()
     def shift_hips(self, fwd=0.0, up=0.0):
         pb = self.P['hips']; m = pb.matrix.copy(); m.translation += Vector((0, -fwd, up)); pb.matrix = m; self.update()
     def flat(self, name):

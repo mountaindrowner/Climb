@@ -1,6 +1,6 @@
 // Art review of one warrior rig: every move caught mid-motion, close up from both sides and at gameplay distance, each
 // weapon's strike, the fall and the hurt flinch; then contact sheets of them. Writes tools/out/review-<rig>-*.png.
-// Usage: RIG=knight node tools/rig-review.mjs   (RIG = knight | blender | hand)
+// Usage: RIG=skeleton node tools/rig-review.mjs   (RIG = skeleton | knight | blender | hand)
 import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
 import { mkdirSync, readFileSync } from 'node:fs';
@@ -12,7 +12,7 @@ function loadPlaywright(){
 }
 const { chromium } = loadPlaywright();
 const outDir = fileURLToPath(new URL('./out/', import.meta.url)); mkdirSync(outDir, { recursive: true });
-const PORT = 8125, RIG = process.env.RIG || 'knight';
+const PORT = 8125, RIG = process.env.RIG || 'skeleton';
 const server = spawn(process.execPath, [fileURLToPath(new URL('./serve.mjs', import.meta.url))], { env: { ...process.env, PORT }, stdio: 'ignore' });
 await new Promise(r => setTimeout(r, 600));
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox'] });
@@ -34,7 +34,7 @@ await page.addScriptTag({ type: 'module', content: `
 await page.waitForFunction(() => window.__ready);
 
 const shots = [];
-const shot = async (name, label) => { const path = `${outDir}review-${RIG}-${name}.png`; await page.screenshot({ path, clip: { x: 280, y: 40, width: 720, height: 640 } });   // the middle of the landscape frame shots.push([path, label || name]); };
+const shot = async (name, label) => { const path = `${outDir}review-${RIG}-${name}.png`; await page.screenshot({ path, clip: { x: 280, y: 40, width: 720, height: 640 } }); /* the middle of the landscape frame */ shots.push([path, label || name]); };
 const cam = (back, up, look, lead) => page.evaluate(([b, u, l, d]) => { const c = window.__climb.TUNE.camera.climb; c.back = b; c.up = u; c.look = l; c.lead = d; window.__climb.ST.cam.r = b; }, [back, up, look, lead]);
 const I = (k, v) => page.evaluate(([k, v]) => window.__climb.input.hold(k, v), [k, v]);
 const T = k => page.evaluate(k => window.__climb.input.tap(k), k);

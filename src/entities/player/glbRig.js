@@ -2,6 +2,7 @@
 // own clock: each frame the playhead is set from what the warrior is actually doing (the swing's phase, the stride, the
 // roll's progress), so the animation stays locked to the controls. Clips cross-fade quickly; squash, the cape and the
 // blade's trail are layered on in code.
+//   skeleton: the player's warrior, the designer's own model (Tripo), made ready by tools/blender/skeleton_tripo.py
 //   knight:  the KayKit knight (CC0), re-proportioned and armed by tools/blender/knight_kaykit.py
 //   blender: our own warrior, built and animated by tools/blender/warrior.py
 //   hand:    the hand-built three.js warrior in model.js (no GLB)
@@ -24,6 +25,11 @@ const loop = x => x - Math.floor(x);
 // Per rig: where it loads from, how it sits in the warrior's frame (+X is forward, 1 unit = the hand-built body's
 // unit), and how gameplay state picks its clips.
 const RIGS = {
+  skeleton: {
+    url: 'assets/models/skeleton/skeleton.glb', label: 'Skeleton',
+    yaw: Math.PI / 2, height: 1.85,          // the knight's clip set and driver, on the designer's own body
+    targets: knightTargets, after: knightAfter, setup: skeletonSetup,
+  },
   knight: {
     url: 'assets/models/knight/knight.glb', label: 'Knight',
     yaw: Math.PI / 2, height: 1.9,           // glTF faces +Z; well over a head taller than the hand-built warrior
@@ -35,15 +41,15 @@ const RIGS = {
     targets: warriorTargets, after: warriorAfter,
   },
 };
-export const RIG_ORDER = ['knight', 'blender', 'hand'];
-export const RIG_LABEL = { knight: 'Knight', blender: 'Blender warrior', hand: 'hand-built' };
+export const RIG_ORDER = ['skeleton', 'knight', 'blender', 'hand'];
+export const RIG_LABEL = { skeleton: 'Skeleton', knight: 'Knight', blender: 'Blender warrior', hand: 'hand-built' };
 const STATE = {};
 const blank = name => ({ name, ready: false, failed: false, loading: false, root: null, inner: null, mixer: null, act: {}, node: {}, weights: {}, idleT: 0, airT: 0, cfg: RIGS[name] });
 // GLB is the rig on screen (a live binding, so importers always see the current one)
 export let GLB = blank('none');
 
 const KEY = 'the-climb-rig';
-export function rigChoice(){ try { const v = localStorage.getItem(KEY); return RIG_ORDER.includes(v) ? v : 'knight'; } catch (e) { return 'knight'; } }
+export function rigChoice(){ try { const v = localStorage.getItem(KEY); return RIG_ORDER.includes(v) ? v : 'skeleton'; } catch (e) { return 'skeleton'; } }
 export function setRigChoice(v){ try { localStorage.setItem(KEY, v); } catch (e) {} if (RIGS[v]) loadRig(v); applyRigChoice(); }
 export const usingGlb = () => GLB.ready && GLB.name === rigChoice();
 
@@ -203,15 +209,57 @@ function knightSetup(R){
     const chestZ = new THREE.Vector3().setFromMatrixPosition(chest.matrixWorld).applyMatrix4(toModel).z;
     R.clothR = { torso: Math.abs(zTop - chestZ) * 0.85, leg: 0.05 * (R.modelH || 2.8) };
     R.cloth = makeCloth({ cols: COLS, rows: 9, width: wTop * 1.1, length: h * 1.3, flare: Math.max(1.15, Math.min(1.6, wBot / wTop)), color: [0.2, 0.1, 0.08] });   // dried-blood rag: the torch warms it
-    PL.P.add(R.cloth.mesh); cape.visible = false;
+    PL.P.add(R.cloth.mesh); cape.visible = false; R.clothBone = chest;
   }
-  // the ankle's height above the floor in the standing pose: the sole is that far below it
-  if (R.node.footl){
-    for (const n in R.act) R.act[n].setEffectiveWeight(n === 'K_Guard' ? 1 : 0);
-    R.act.K_Guard && (R.act.K_Guard.time = 0); R.mixer.update(0); model.updateMatrixWorld(true);
-    R.ankleH = new THREE.Vector3().setFromMatrixPosition(R.node.footl.matrixWorld).applyMatrix4(new THREE.Matrix4().copy(model.matrixWorld).invert()).y;
-    for (const n in R.act) R.act[n].setEffectiveWeight(0);
+  measureAnkle(R);
+}
+// the ankle's height above the floor in the standing pose: the sole is that far below it
+function measureAnkle(R){
+  const model = R.inner.children[0];
+  if (!R.node.footl) return;
+  for (const n in R.act) R.act[n].setEffectiveWeight(n === 'K_Guard' ? 1 : 0);
+  R.act.K_Guard && (R.act.K_Guard.time = 0); R.mixer.update(0); model.updateMatrixWorld(true);
+  R.ankleH = new THREE.Vector3().setFromMatrixPosition(R.node.footl.matrixWorld).applyMatrix4(new THREE.Matrix4().copy(model.matrixWorld).invert()).y;
+  for (const n in R.act) R.act[n].setEffectiveWeight(0);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// The skeleton: the knight's clips (same names, authored for this body) on the designer's own model. His cape is not
+// simulated: it rides the chest and swings from the shoulders by one angle, sprung so it lags and settles. It trails
+// back as he runs, lifts as he falls, dips as he jumps, and stirs a little standing; the hem bends most.
+function skeletonSetup(R){
+  const cape = R.node.Cape;
+  if (cape){
+    const g = cape.geometry, p = g.attributes.position.array;
+    let top = -Infinity, bot = Infinity;
+    for (let i = 1; i < p.length; i += 3){ top = Math.max(top, p[i]); bot = Math.min(bot, p[i]); }
+    let z0 = 0, n = 0;
+    for (let i = 0; i < p.length; i += 3) if (p[i + 1] > top - 0.08 * (top - bot)){ z0 += p[i + 2]; n++; }
+    R.capeSway = { rest: p.slice(), nrest: g.attributes.normal ? g.attributes.normal.array.slice() : null, top, h: top - bot, z0: z0 / n, a: 0, w: 0 };
   }
+  measureAnkle(R);
+}
+const CAPE = { run: 0.75, fall: 0.55, rise: -0.2, crouch: -0.15, sway: 0.05, stiff: 60, damp: 7 };
+function swayCape(G, dt){
+  const C = GLB.capeSway, cape = GLB.node.Cape;
+  if (!C || !cape) return;
+  const speed = clamp(Math.abs(G.v) / MV.run, 0, 1.4);
+  let want = CAPE.run * speed + Math.sin(ST.time * 2.3) * CAPE.sway * (1 + speed);
+  if (!G.grounded) want += G.vy < 0 ? CAPE.fall * clamp(-G.vy / 8, 0, 1) : CAPE.rise * clamp(G.vy / 8, 0, 1);
+  if (G.crouch) want += CAPE.crouch;
+  if (G.roll > 0) want = 0.4;
+  // a damped spring: it lags behind a change and settles, with a little overshoot
+  const h = Math.min(dt, 1 / 30);
+  C.w += (want - C.a) * CAPE.stiff * h; C.w *= Math.exp(-CAPE.damp * h); C.a += C.w * h;
+  const g = cape.geometry, P = g.attributes.position, A = P.array, N = g.attributes.normal, R0 = C.rest, N0 = C.nrest;
+  const flutter = 0.06 * speed, t = ST.time;
+  for (let i = 0; i < A.length; i += 3){
+    const y = R0[i + 1] - C.top, z = R0[i + 2] - C.z0, d = clamp(-y / C.h, 0, 1);
+    const ang = C.a * Math.pow(d, 1.3) + flutter * d * Math.sin(t * 9 + R0[i] * 25), c = Math.cos(ang), s = Math.sin(ang);
+    A[i] = R0[i]; A[i + 1] = C.top + y * c - z * s; A[i + 2] = C.z0 + y * s + z * c;   // turned about the shoulder line
+    if (N0){ const ny = N0[i + 1], nz = N0[i + 2]; N.array[i + 1] = ny * c - nz * s; N.array[i + 2] = ny * s + nz * c; }
+  }
+  P.needsUpdate = true; if (N0) N.needsUpdate = true;
 }
 // ---------------------------------------------------------------------------------------------------------------------
 // Feet on the steps. The clips are authored on flat ground; on a stair each foot is lifted or lowered by how far the
@@ -330,10 +378,10 @@ const _w = [], _cap = [0, 1, 2, 3, 4].map(() => ({ a: new THREE.Vector3(), b: ne
 const _plane = { point: new THREE.Vector3(), normal: new THREE.Vector3() }, _sc = new THREE.Vector3();
 function bonePos(name, out){ return out.setFromMatrixPosition(GLB.node[name].matrixWorld); }
 function stepCloth(dt){
-  const C = GLB.cloth, cape = GLB.node.Knight_Cape;
-  if (!C || !cape) return;
+  const C = GLB.cloth, chest = GLB.clothBone;
+  if (!C || !chest) return;
   GLB.root.updateWorldMatrix(true, true);
-  const chest = cape.parent, model = GLB.inner.children[0], S = Math.abs(model.getWorldScale(_sc).z);
+  const model = GLB.inner.children[0], S = Math.abs(model.getWorldScale(_sc).z);
   GLB.clothPins.forEach((p, i) => (_w[i] || (_w[i] = new THREE.Vector3())).copy(p).applyMatrix4(chest.matrixWorld));
   // the back plane faces the body's forward, not the chest's: a hunched chest tilts its own forward down, and that
   // plane, extended down past the shoulders, slants backward and the cloth slides up it like a sail
@@ -392,6 +440,7 @@ function knightAfter(G, dt){
   footIK(G, dt);
   bladeOffStone(G);
   stepCloth(dt);
+  swayCape(G, dt);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
