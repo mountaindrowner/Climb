@@ -14,7 +14,7 @@ function glbToEmbeddedJson(glbPath){
   json.buffers = [{ byteLength: binLen, uri: 'data:application/octet-stream;base64,' + bin.toString('base64') }];
   return JSON.stringify(json);
 }
-const MODELS = { skeleton: 'skeleton/skeleton', knight: 'knight/knight', blender: 'warrior/warrior' };
+const MODELS = { skeleton: 'skeleton/skeleton', knight: 'knight/knight', blender: 'warrior/warrior', bat: 'bat/bat' };
 const urls = {};
 for (const [rig, path] of Object.entries(MODELS)){
   mkdirSync(root + 'dist/assets/models/' + path.split('/')[0], { recursive: true });

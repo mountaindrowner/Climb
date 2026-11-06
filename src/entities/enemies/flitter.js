@@ -14,6 +14,7 @@ import { burst } from '../../render/particles.js';
 import { float, hitstop } from '../../fx/feedback.js';
 import { topAt, posOf } from '../../world/path.js';
 import { hurt, head, headAhead, isBlocking, isInvulnerable } from '../player/player.js';
+import { BAT, makeBat, pose as batPose } from './batModel.js';
 const THREE = window.THREE;
 const T = TUNE.flitter;
 
@@ -99,7 +100,30 @@ export function hit(o){
   burst(o.pos, 14, '#3e2a44', 3);
 }
 
+// The bat model, once it has loaded: posed from the flitter's state. Until then, the box-built flitter above stands in.
+function drawBat(o, dt){
+  if (!o.B){ o.B = makeBat(2.1); (o.M.g.parent || o.M.g).add(o.B.g); o.M.g.visible = false; }
+  const B = o.B, t = ST.time, a = o.s * OMEGA;
+  B.g.visible = o.st !== 'gone'; o.M.g.visible = false;
+  if (!B.g.visible) return;
+  B.g.position.copy(o.pos);
+  const inward = Math.atan2(-Math.cos(a), -Math.sin(a));                          // facing the shaft's centre: its back to the wall
+  if (o.st === 'idle'){ B.g.rotation.set(0, inward, 0); B.pitch.rotation.set(0, 0, 0); batPose(B, 'Roost', t / 2 + o.s * 0.37, dt, 30); }
+  else if (o.st === 'launch'){ B.g.rotation.set(0, inward, 0); batPose(B, 'Unfurl', Math.min(0.999, o.tm / T.launch), dt, 40); }
+  else if (o.st === 'dead'){ B.pitch.rotation.x += dt * 9; B.pitch.rotation.z += dt * 4; batPose(B, 'Hit', Math.min(0.999, o.tm * 1.5), dt, 30); }
+  else {
+    const dir = new THREE.Vector3().subVectors(o.pos, o.prev || o.pos);
+    if (dir.lengthSq() > 1e-6){
+      B.g.rotation.set(0, Math.atan2(dir.x, dir.z), 0);                            // nose along its flight
+      B.pitch.rotation.x = clamp(-dir.y / Math.max(1e-4, Math.hypot(dir.x, dir.z)), -1.2, 1.2) * 0.6;
+    }
+    if (o.st === 'dive') batPose(B, 'Dive', t * 5, dt, 20);
+    else batPose(B, 'Fly', t * 2.9, dt, 12);                                       // a wingbeat about three times a second
+  }
+  if (B.eye){ const c = o.st === 'dive' ? 0xff4a3a : o.glow; B.eye.color.setHex(c); if (B.eye.emissive) B.eye.emissive.setHex(c); }
+}
 export function draw(o, dt){
+  if (BAT.ready) return drawBat(o, dt);
   const t = ST.time, M = o.M;
   M.g.visible = o.st !== 'gone';
   if (!M.g.visible) return;
