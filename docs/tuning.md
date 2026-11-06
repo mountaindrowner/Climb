@@ -15,7 +15,7 @@ Every value below lives in `src/config/tuning.js` or `src/config/constants.js`. 
 
 ## Movement (`TUNE.move`)
 
-See `docs/design/controls.md` for what each does. Run 3.8; accel 19 (top speed in 0.2 s), decel 75 (also used for turning and slowing), air accel 38; crouch ×0.45, blocking ×0.35; jump height 1.55, gravity up 32 and down 54, max fall 18; apex hang ×0.55 within 1.6; release cut 0.42 after a minimum hop of 0.1 s; coyote 0.1 s; buffer 0.13 s; standable lip 0.2; roll 0.4 s at 6.2, invulnerable 0.03 to 0.32 s, cooldown 0.37 s; knockback 3.2 with a 3.5 hop and a 0.22 s flinch; a beam hurts above 2.6 speed.
+See `docs/design/controls.md` for what each does. Run 3.8, sprint 6.0; accel 19 (top speed in 0.2 s), decel 75 (also used for turning and slowing), air accel 38; crouch ×0.45, blocking ×0.35; jump height 1.55, gravity up 32 and down 54, max fall 18; apex hang ×0.55 within 1.6; release cut 0.42 after a minimum hop of 0.1 s; coyote 0.1 s; buffer 0.13 s; standable lip 0.2; roll 0.4 s at 6.2, invulnerable 0.03 to 0.32 s, cooldown 0.37 s; knockback 3.2 with a 3.5 hop and a 0.22 s flinch; a beam hurts above 2.6 speed.
 
 The warrior's height for threats: crown 2.45 standing, 1.05 crouched or rolling.
 

@@ -3,6 +3,7 @@ export const TUNE = {
   // Free movement along the stair, tuned for a Dead Cells-tight feel. Distances in world units (one per step along the path).
   move: {
     run: 3.8,             // top speed
+    sprint: 6.0,          // holding sprint: close to the pace of his real run
     accel: 19,            // gets up to top speed in about 0.2 s: a step or two of walk before the run (braking and turning stay instant)
     decel: 75,            // stops in about 0.05 s
     airAccel: 38,         // full air control, a touch softer

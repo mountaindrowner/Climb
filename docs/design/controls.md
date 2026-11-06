@@ -9,11 +9,12 @@ PC is the main platform (decision 0008): keyboard or a gamepad. Phones play on t
 | Action | Keyboard (default) | Xbox pad | PlayStation pad | Touch |
 | --- | --- | --- | --- | --- |
 | Move along the stair | A / D or ← → | left stick, d-pad | left stick, d-pad | stick ◀ ▶ |
+| Sprint (hold while moving) | Shift | click the left stick (LS) | L3 | the stick pushed all the way |
 | Crouch (hold); crouch-walk while moving | S or ↓ | stick down, d-pad ↓ | stick down, d-pad ↓ | stick ▼ |
 | Jump (hold for height); repair a lift on its landing; grab a root while falling | Space, W or ↑ | A | ✕ | ▲ |
 | Attack; press again to chain the combo | J or Z | X, RT | □, R2 | A |
 | Block (hold); raise it as a hit lands to parry | K or X | LB, LT | L1, L2 | B |
-| Roll: invulnerable for most of it, under beams and swings, out of a swing's recovery | L, Shift or C | B, RB | ○, R1 | ⟳ |
+| Roll: invulnerable for most of it, under beams and swings, out of a swing's recovery | L or C | B, RB | ○, R1 | ⟳ |
 | Drink the flask: heals 2 | F or Q | Y | △ | flask |
 | Pause | Esc | Start (Menu) | Options | — |
 
@@ -32,6 +33,7 @@ These are the techniques used, with their values. Motion Twin has described Dead
 | Technique | What it does | Value |
 | --- | --- | --- |
 | Quick acceleration | A step or two of walk into the run; stopping, turning and slowing are almost instant. A stick pushed part way walks | run 3.8, accel 19, decel 75 (≈0.2 s and 0.05 s) |
+| Sprint | Hold to run at nearly his real running pace; carries into a jump; not while crouching or blocking | sprint 6.0 |
 | Instant turn | Facing flips the frame you press the other way; a skid puff if you were running | — |
 | Full air control | Steer in the air, a touch softer than on the ground | air accel 38 |
 | Variable jump | Hold for full height; let go to cut it short | height 1.55, cut 0.42 |
@@ -48,7 +50,8 @@ These are the techniques used, with their values. Motion Twin has described Dead
 | Lunge | Each swing steps you forward | per swing, 0.3 to 0.9 |
 | Hit-stop and knockback | Hits freeze for a few frames; being hit knocks you back and up | knock 3.2, hop 3.5, flinch 0.22 s |
 | Commit points | Enemies lock their aim before the hit, so a late roll or step still works | crawler at wind-up, flitter 0.35 s before contact, spitter at the spit |
-| Camera lead | The view leads the way you face and swings over when you turn | — |
+| Camera lead | The view leads the way you face (further while sprinting) and swings over when you turn | — |
+| Smooth camera | The camera's height follows the slope of the stair through a spring, not each step; footfalls do not dip it, landings do | about 0.35 s to catch up |
 
 ## Weapons
 

@@ -1,5 +1,5 @@
 // Button prompts that match the device in your hands. Text names actions as tokens, {jump} {attack} {block} {roll}
-// {down} {left} {right} {flask}; say() renders them for whatever was used last: the touch pad's glyphs, your keys
+// {down} {left} {right} {flask} {sprint}; say() renders them for whatever was used last: the touch pad's glyphs, your keys
 // (as you bound them), or the buttons on an Xbox or PlayStation pad.
 import { SET } from './settings.js';
 
@@ -9,7 +9,7 @@ const listeners = new Set();
 export const onDeviceChange = f => listeners.add(f);
 export function setDevice(kind){ if (DEVICE.kind === kind) return; DEVICE.kind = kind; for (const f of listeners) f(kind); }
 
-const TOUCH = { left: '◀', right: '▶', down: '▼', jump: '▲', attack: 'A', block: 'B', roll: '⟳', flask: 'flask' };
+const TOUCH = { left: '◀', right: '▶', down: '▼', jump: '▲', attack: 'A', block: 'B', roll: '⟳', flask: 'flask', sprint: 'push ◀ ▶ all the way' };
 const XBOX = ['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT', 'View', 'Menu', 'LS', 'RS', '↑', '↓', '←', '→'];
 const PS = ['✕', '○', '□', '△', 'L1', 'R1', 'L2', 'R2', 'Share', 'Options', 'L3', 'R3', '↑', '↓', '←', '→'];
 const STICK = { left: '←', right: '→', down: '↓' };

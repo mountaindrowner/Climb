@@ -8,7 +8,7 @@ import { ac } from '../audio/sfx.js';
 import { SET } from './settings.js';
 import { setDevice } from './prompts.js';
 
-export const ACTIONS = ['left', 'right', 'down', 'jump', 'attack', 'block', 'roll', 'flask'];
+export const ACTIONS = ['left', 'right', 'down', 'jump', 'attack', 'block', 'roll', 'flask', 'sprint'];
 // mag: how hard he is asked to move, 0..1 (a stick pushed part way walks; keys and the d-pad are always 1)
 export const IN = { held: Object.fromEntries(ACTIONS.map(a => [a, false])), pressed: new Set(), at: {}, mag: 1 };
 const blank = () => Object.fromEntries(ACTIONS.map(a => [a, false]));
@@ -134,12 +134,12 @@ export function bindInput(){
     const read = e => {
       const r = stick.getBoundingClientRect(), dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2), dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
       padHeld.left = dx < -0.2; padHeld.right = dx > 0.2; padHeld.down = dy > 0.38;
-      padMag = clamp01((Math.abs(dx) - 0.2) / 0.5, 0.3);
+      padMag = clamp01((Math.abs(dx) - 0.2) / 0.5, 0.3); padHeld.sprint = Math.abs(dx) > 0.9;   // the touch stick all the way out sprints
       if (knob) knob.style.transform = `translate(${Math.max(-1, Math.min(1, dx)) * 36}%, ${Math.max(-1, Math.min(1, dy)) * 30}%)`;
-      ['left', 'right', 'down'].forEach(sync);
+      ['left', 'right', 'down', 'sprint'].forEach(sync);
       stick.dataset.dir = (padHeld.left ? 'l' : padHeld.right ? 'r' : '') + (padHeld.down ? 'd' : '');
     };
-    const end = () => { id = null; padHeld.left = padHeld.right = padHeld.down = false; ['left', 'right', 'down'].forEach(sync); if (knob) knob.style.transform = ''; stick.dataset.dir = ''; };
+    const end = () => { id = null; padHeld.left = padHeld.right = padHeld.down = padHeld.sprint = false; ['left', 'right', 'down', 'sprint'].forEach(sync); if (knob) knob.style.transform = ''; stick.dataset.dir = ''; };
     stick.addEventListener('pointerdown', e => { e.preventDefault(); ac(); setDevice('touch'); id = e.pointerId; stick.setPointerCapture?.(id); read(e); });
     stick.addEventListener('pointermove', e => { if (e.pointerId === id) read(e); });
     stick.addEventListener('pointerup', e => { if (e.pointerId === id) end(); });

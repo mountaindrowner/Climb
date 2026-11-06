@@ -10,7 +10,7 @@ import { setVolume } from '../../audio/sfx.js';
 import { resize } from '../../render/renderer.js';
 
 const NAMES = { left: 'Move left (down the stair)', right: 'Move right (up the stair)', down: 'Crouch', jump: 'Jump · repair · grab a root',
-  attack: 'Attack', block: 'Block (hold) · parry', roll: 'Roll', flask: 'Drink the flask' };
+  attack: 'Attack', block: 'Block (hold) · parry', roll: 'Roll', flask: 'Drink the flask', sprint: 'Sprint (hold)' };
 const LINES = [[540, 'Chunky'], [720, 'Classic'], [1080, 'Fine']];
 let backTo = 'pause';                 // where settings and controls go back to: the pause menu or the title
 

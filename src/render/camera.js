@@ -10,7 +10,7 @@ import { TUNE } from '../config/tuning.js';
 import { ST } from '../core/state.js';
 import { camera, view } from './renderer.js';
 import { SET } from '../core/settings.js';
-import { posOf, riseOf } from '../world/path.js';
+import { posOf, riseOf, rampY } from '../world/path.js';
 import { content } from '../world/generate.js';
 import { catalogById } from '../entities/catalog.js';
 import { clamp } from '../core/math.js';
@@ -37,7 +37,8 @@ function foesNear(G){
   }
   return out;
 }
-export const FRAME = { zoom: 1, lead: 0, look: 0, state: 'explore' };   // the blended framing (read by tests and tools)
+export const FRAME = { zoom: 1, lead: 0, look: 0, state: 'explore', y: null, vy: 0 };   // the blended framing (read by tests and tools)
+const FOLLOW = 5.5;   // how quickly the camera's height follows him (a critically damped spring, about 0.35 s to catch up)
 
 export function updateCamera(dt){
   const { mode, G, B, FALL, cam } = ST;
@@ -49,7 +50,7 @@ export function updateCamera(dt){
     const p = posOf(G.s), c = B ? CT.fight : CT.climb, k = Math.min(1, dt);
     // explore: the grade ahead sets the zoom and the tilt
     const g = gradeAhead(G);
-    let zoom = clamp(1.25 - 0.5 * g, 0.88, 1.15), lead = c.lead * G.face;
+    let zoom = clamp(1.25 - 0.5 * g, 0.88, 1.15), lead = c.lead * G.face * (G.sprinting ? 1.6 : 1);   // a sprint looks further ahead
     const look = clamp((g - 0.45) * 2.2, -0.6, 0.8) * G.face;
     // combat: frame him and what is coming for him
     const foes = foesNear(G);
@@ -66,7 +67,11 @@ export function updateCamera(dt){
     FRAME.lead += (lead - FRAME.lead) * Math.min(1, k * 2.5);
     FRAME.look += (look - FRAME.look) * Math.min(1, k * 2);
     G.camLead = FRAME.lead;
-    const y = p.y + Math.max(0, G.y - p.y) * 0.35;
+    // height: the slope line under him (not the steps), a little of any jump, through a spring: no hop per step
+    const yWant = rampY(G.s) + Math.max(0, G.y - p.y) * 0.35;
+    if (FRAME.y == null || Math.abs(yWant - FRAME.y) > 4){ FRAME.y = yWant; FRAME.vy = 0; }   // a cut: start, respawn, a lift
+    FRAME.vy += ((yWant - FRAME.y) * FOLLOW * FOLLOW - 2 * FOLLOW * FRAME.vy) * k; FRAME.y += FRAME.vy * k;
+    const y = FRAME.y;
     // the zoom scales his distance from the camera (the camera stays inside the shaft)
     const dist = (R - c.back * near()) * FRAME.zoom, back = -Math.min(RW - 1.2, Math.max(0, dist - R));
     tA = p.a + FRAME.lead; tY = y + c.up + FRAME.look * 0.5; lookY = y + c.look + FRAME.look; lookA = tA + 0.02; tR = back;

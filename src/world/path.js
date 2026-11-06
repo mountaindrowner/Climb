@@ -95,6 +95,14 @@ function branchPos(s){
   }
   return { k: b.kA, t: u, i: -1, fr: 0, a, y: b.yB, land: true, rise: b.rise, r: b.r, branch: b };
 }
+// The line up the stair's slope under s: no steps in it, from landing to landing (the camera follows this, so it rises
+// smoothly instead of hopping a step at a time).
+export function rampY(s){
+  const p = posOf(s);
+  if (p.land || p.slab) return p.y;
+  if (p.branch){ const b = p.branch; return b.yA + b.rise * p.t / b.stepL; }
+  return flightY(p.k) + p.rise * p.t;
+}
 // The path position near sRef (on the same route) at a world angle: for a foot or a blade tip beside him.
 export function sAt(sRef, angle){
   const p = posOf(sRef); let da = angle - p.a; da = Math.atan2(Math.sin(da), Math.cos(da));
