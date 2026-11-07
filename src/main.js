@@ -1,4 +1,5 @@
 // Boot and the main loop. Order: gameplay step, visuals, render, HUD.
+import { updateImpacts } from './fx/impact.js';
 import { S, load } from './save/store.js';
 import { ST } from './core/state.js';
 import { TUNE } from './config/tuning.js';
@@ -55,6 +56,7 @@ function frame(ts){
   step(sdt);
   endFrame();
   visuals(sdt);
+  updateImpacts(dt);                   // hit juice runs on real time, across the freeze-frame
   renderer.render(scene, camera);
   drawHUD();
   requestAnimationFrame(frame);

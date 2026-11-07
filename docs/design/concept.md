@@ -143,13 +143,13 @@ The bar is the current jump animation. What exists for Claude to make models and
 
 ## Build order
 
-Built so far: the foundation (0.17), forks as the high road (0.18), a first crumbling handoff (0.19, to be replaced), and the skeleton as the player with measured strides, sprint, the smooth camera, mouse controls and the bat (0.20). The designer's notes of Nov 7 are folded in below; most are feel, so feel comes next.
+Built so far: the foundation (0.17), forks as the high road (0.18), a first crumbling handoff (0.19, to be replaced), and the skeleton as the player with measured strides, sprint, the smooth camera, mouse controls and the bat (0.20). The designer's notes of Nov 7 are folded in below; most are feel, so feel came next (0.21). Stair and routes v2 is next.
 
 | # | Milestone | Delivers |
 | --- | --- | --- |
 | 0 | Pipeline (runs in parallel) | Settled: the designer's own models from Tripo, made ready by Blender scripts (the skeleton), and creatures built in Blender scripts (the bat). Next creatures and props come through the same two paths |
 | 1 | Foundation | Built in 0.17: variable grade, foot IK, the clipping test, camera explore and combat framing |
-| 2 | **Feel and juice (next)** | Climbing that rises with the stride instead of popping up each step; a nuanced crouch and a creeping crouch-walk (its footsteps and their sound fixed); idle variations (looking around, up the shaft); a longer, two-handed sword; the warrior 10% taller; hit juice (flash, swipe, sparks, freeze, camera kick, sound); wider, more daunting broken-step gaps; prompts fixed (the ring and its arrow centred); beams pointing out toward the shaft's centre instead of at an odd angle |
+| 2 | **Feel and juice (built in 0.21)** | Climbing that rises with the stride instead of popping up each step; a nuanced crouch and a creeping crouch-walk (its footsteps and their sound fixed); idle variations (looking around, up the shaft); a longer, two-handed sword; the warrior 10% taller; hit juice (flash, swipe, sparks, freeze, camera kick, sound); wider, more daunting broken-step gaps; prompts fixed (the ring and its arrow centred); beams pointing out toward the shaft's centre instead of at an odd angle |
 | 3 | Stair and routes v2 | Fewer, more varied steps: slopes with the occasional step, broad runs, tall steps (tested region by region); routes that differ per run; the crumbling handoff redone as designed (keep running on the failing stair and leap to the higher one before it goes); side halls and ledges |
 | 4 | Threats and places v2 | Every threat rebuilt to the bat's standard, starting with the burrower (the stair trap with the spiked jaws), then crawler, spitter, rockfall, swing; the rest stop's campfire rebuilt; more kinds of crouch obstacle than the beam (a low arch, a hanging chain curtain, a collapsed lintel, roots) |
 | 5 | The run | The Dead Cells layer: Echoes, blueprints at the Pool, oaths, marks, two exits per region; regions 1 to 4 |

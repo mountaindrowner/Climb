@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.21.0 — feel and juice (2026-11-07)
+
+Milestone 2, from the designer's notes after playing the skeleton.
+
+- **Climbing that rises with the stride.** His body no longer pops up a whole step the moment a foot arrives. It rides a smooth line up the stair (the step tops averaged over one step's length around him, worked out exactly), while foot IK puts each foot on its real step and lowers the hips toward the lower foot. Measured on a steep flight: the spread of his rising speed down from 3.2 to 1.7, its peak from 10 to 3.4 (the stair's own slope).
+- **A crouch with nuance.** Coiled, not squashed: hips down and forward over bent knees, head up looking ahead, the sword low and ready, the off hand down on the stone. The crouch-walk is a slow creep, a long low step at a time with the off hand padding forward, at ×0.38 of run speed (was ×0.45). Its footfalls were coming five a second with the full step sound; now about two a second, with a soft creep sound.
+- **Idles.** Standing a while, he now and then looks up the shaft, or round at the camera and back down the stair behind him.
+- **A longer sword, held two-handed.** 30% longer (a hand-and-a-half sword), with both fists on the grip in the guard, every swing and the blocks. His arms are short, so where the off hand cannot reach, both hands bring the sword in toward his body. Jumps, the crouch, the roll and the run stay one-handed, so his arms still swing free.
+- **He is 10% taller.**
+- **Hit juice.** A landed blow now has a white-gold flash and a shock ring at the point of contact, two slash streaks along the swing's line, sparks, the struck creature flashing white, a freeze, a shake and a push in, and a weighty thump under the hit sound. The combo's finisher hits harder on every count. It runs on real time, so it plays across the freeze it starts.
+- **More daunting broken steps.** Where the grade allows a running jump across (0.45 or gentler, with a step beyond), two steps go at once: 1.6 of hole instead of 0.6, a bigger collapse with a rumble. Jump from the edge and you clear it with height to spare; jump early and you hit the far riser.
+- **Beams point out toward the shaft's centre**, end-on to the camera, instead of lying diagonally along the stair. They sit a little higher, above his crouch and below a standing head.
+- **Fixed: prompt icons were off-centre.** A comment had swallowed the code that centres their text, so every key or glyph sat left and high in its ring.
+- Tests: wide broken steps only on gentle flights, with a step beyond, and jumpable from the edge. `tools/model-review.mjs` can hide nodes (`HIDE`), show only some clips (`CLIPS`), and frame clips on one node (`FOCUS`, `FIT`).
+
 ## 0.20.0 — the skeleton (2026-11-06)
 
 - The player's warrior is now the skeleton: the designer's own model, made in Tripo. He wears a bucket helm, a ragged red scarf and cape, belt and pouches, and heavy boots. He is the default warrior; the knight, the Blender warrior and the hand-built one are still on the title screen's warrior switch.

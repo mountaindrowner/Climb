@@ -10,7 +10,7 @@ PC is the main platform (decision 0008): keyboard or a gamepad. Phones play on t
 | --- | --- | --- | --- | --- |
 | Move along the stair | A / D or ← → | left stick, d-pad | left stick, d-pad | stick ◀ ▶ |
 | Sprint (hold while moving) | Shift | click the left stick (LS) | L3 | the stick pushed all the way |
-| Crouch (hold); crouch-walk while moving | S or ↓ | stick down, d-pad ↓ | stick down, d-pad ↓ | stick ▼ |
+| Crouch (hold); creep (a slow crouch-walk) while moving | S or ↓ | stick down, d-pad ↓ | stick down, d-pad ↓ | stick ▼ |
 | Jump (hold for height); repair a lift on its landing; grab a root while falling | Space, W or ↑ | A | ✕ | ▲ |
 | Attack; press again to chain the combo | left mouse or J | X, RT | □, R2 | A |
 | Block (hold); raise it as a hit lands to parry | right mouse or K | LB, LT | L1, L2 | B |

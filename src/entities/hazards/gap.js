@@ -1,4 +1,5 @@
 // Broken step. The slab is split by glowing cracks; as you come near it crumbles into the shaft and leaves a real hole.
+// Two steps go at once where the grade allows a running jump across (o.wide, set by the layout).
 // Answer: ▲ jump it. Walk into the hole and you fall through: 1 health, and back on the last solid step.
 // (The stair's own step is removed by the layout; the motor asks world/ground.js whether the hole is open.)
 import { FL, R, OMEGA } from '../../config/constants.js';
@@ -9,17 +10,21 @@ import { sfx } from '../../audio/sfx.js';
 import { mbox, placeArc, vArc } from '../../render/primitives.js';
 import { rock, rockMaterial } from '../../render/rocks.js';
 import { burst } from '../../render/particles.js';
+import { shake } from '../../fx/feedback.js';
 import { topAt, flightY, riseOf } from '../../world/path.js';
 const THREE = window.THREE;
 
 export const hint = 'A broken step. It crumbles as you come near: press {jump} to jump the hole.';
 
 export function build(o, { c, z, glow, dyn }){
-  const i = Math.floor(o.s - c.k * FL), sa = (c.k * FL + i + 0.5) * OMEGA, st = flightY(c.k) + (i + 1) * riseOf(c.k);
-  const r = rng(o.k * 977 + i * 31);
+  const i0 = Math.floor(o.s - c.k * FL), n = o.wide ? 2 : 1, r = rng(o.k * 977 + i0 * 31);
   const stone = rockMaterial(new THREE.Color(z.stone).multiplyScalar(0.95).getHex()), dark = rockMaterial(new THREE.Color(z.stone).multiplyScalar(0.6).getHex());
+  const chunks = [], crackMat = new THREE.MeshBasicMaterial({ color: glow, transparent: true, opacity: 0.35 }), cracks = new THREE.Group();
+  let sa0 = 0, st0 = 0;
+  for (let j = 0; j < n; j++){
+  const i = i0 + j, sa = (c.k * FL + i + 0.5) * OMEGA, st = flightY(c.k) + (i + 1) * riseOf(c.k);
+  if (!j){ sa0 = sa; st0 = st; }
   // the slab, in pieces: two along the stair, three across it, and a heavy underside
-  const chunks = [];
   for (let u = 0; u < 2; u++) for (let v = 0; v < 3; v++){
     const m = rock(u + v & 1 ? stone : dark, { w: 0.56, h: 0.5, d: 0.82, jag: 0.16 }, 0, 0, 0, r);
     const dx = (u - 0.5) * 0.6, dz = (v - 1) * 0.86;
@@ -31,21 +36,23 @@ export function build(o, { c, z, glow, dyn }){
   // a jagged stub that stays in the wall
   const stub = rock(dark, { w: 0.5, h: 0.45, d: 0.4, jag: 0.4 }, 0, 0, 0, r); placeArc(stub, sa + 0.03, R + 1.2, st - 0.35); dyn.add(stub);
   // glowing cracks across the top
-  const crackMat = new THREE.MeshBasicMaterial({ color: glow, transparent: true, opacity: 0.35 });
-  const cracks = new THREE.Group();
-  cracks.add(mbox(0.05, 0.03, 2.4, crackMat, 0, 0, 0));
-  cracks.add(mbox(1.1, 0.03, 0.05, crackMat, 0, 0, 0.43), mbox(1.1, 0.03, 0.05, crackMat, 0, 0, -0.43));
-  placeArc(cracks, sa, R, st + 0.005); dyn.add(cracks);
-  o.chunks = chunks; o.cracks = cracks; o.crackMat = crackMat; o.top = st; o.sa = sa; o.step0 = c.k * FL + i; o.holeOpen = false;
+  const ck = new THREE.Group();
+  ck.add(mbox(0.05, 0.03, 2.4, crackMat, 0, 0, 0));
+  ck.add(mbox(1.1, 0.03, 0.05, crackMat, 0, 0, 0.43), mbox(1.1, 0.03, 0.05, crackMat, 0, 0, -0.43));
+  placeArc(ck, sa, R, st + 0.005); cracks.add(ck);
+  }
+  dyn.add(cracks);
+  o.chunks = chunks; o.cracks = cracks; o.crackMat = crackMat; o.top = st0; o.sa = sa0; o.width = n; o.step0 = c.k * FL + i0; o.holeOpen = false;
 }
 export function update(o, dt){
-  const G = ST.G, centre = o.step0 + 0.5;
+  const G = ST.G, centre = o.step0 + (o.width || 1) / 2;
   if (!o.crumbling && Math.abs(centre - G.s) < TUNE.gap.crumble){
     o.crumbling = true; o.ct = 0; o.openT = 0; sfx.crack();
-    burst(vArc(o.sa, R, o.top + 0.1), 16, '#8c8298', 2.4, 6, 0.09);
+    burst(vArc(o.sa, R, o.top + 0.1), 16 * (o.width || 1), '#8c8298', 2.4, 6, 0.09);
+    if (o.width > 1){ sfx.rumble(); shake(0.12); }                                // two steps going is a bigger collapse
   }
   if (o.crumbling && !o.holeOpen){ o.openT += dt; if (o.openT > 0.28) o.holeOpen = true; }
-  if (!o.done && Math.abs(G.s - centre) > 1.2 && o.holeOpen && G.grounded) o.done = true;
+  if (!o.done && Math.abs(G.s - centre) > 0.7 + (o.width || 1) / 2 && o.holeOpen && G.grounded) o.done = true;
 }
 export function draw(o, dt){
   const G = ST.G, d = G ? o.s - G.s : 99;

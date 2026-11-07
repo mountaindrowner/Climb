@@ -22,7 +22,7 @@ export function makeBat(scale = 2){
   model.traverse(o => {
     if (!o.isMesh) return;
     o.frustumCulled = false;
-    if (o.material && o.material.name === 'bat_eye'){ o.material = o.material.clone(); eye = o.material; }
+    if (o.material){ o.material = o.material.clone(); if (o.material.name === 'bat_eye') eye = o.material; }   // its own materials: a hit flashes only this one
   });
   const mixer = new THREE.AnimationMixer(model), act = {};
   for (const c of BAT.clips){ const a = mixer.clipAction(c); a.play(); a.setEffectiveWeight(0); act[c.name] = a; }

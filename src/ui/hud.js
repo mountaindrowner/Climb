@@ -37,7 +37,7 @@ export function drawIcon(p, label, color){
   const pz = 1 + 0.12 * Math.sin(ST.time * 14);
   hx.fillStyle = 'rgba(9,8,12,0.78)'; hx.beginPath(); hx.arc(s.x, s.y, 15 * pz, 0, 7); hx.fill();
   hx.strokeStyle = color; hx.lineWidth = 2.5; hx.stroke();
-  hx.fillStyle = color; hx.font = `700 ${label.length > 2 ? 11 : 16}px ${FONT}`;   // a key name (Space, Shift) is longer than a glyph hx.textAlign = 'center'; hx.textBaseline = 'middle';
+  hx.fillStyle = color; hx.font = `700 ${label.length > 2 ? 11 : 16}px ${FONT}`; /* a key name (Space, Shift) is longer than a glyph */ hx.textAlign = 'center'; hx.textBaseline = 'middle';
   hx.fillText(label, s.x, s.y + 1); hx.textAlign = 'left'; hx.textBaseline = 'alphabetic';
 }
 const HUD_API = { drawIcon, drawTiming };

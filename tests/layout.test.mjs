@@ -63,3 +63,17 @@ test('a practice run holds only its threat, on flights 1 to 9 and never on the r
 test('every zone draws from catalogued threats only', () => {
   for (const z of ZONES) for (const ty of z.threats) assert.ok(CATALOG.some(t => t.id === ty), `${z.id}: ${ty}`);
 });
+test('broken steps go two at a time only where a running jump clears the hole: gentle flights, with a step beyond', async () => {
+  const { riseOf } = await import('../src/world/path.js'), { F } = await import('../src/config/constants.js');
+  const M = (await import('../src/config/tuning.js')).TUNE.move;
+  let wide = 0;
+  for (let seed = 1; seed < 6; seed++) for (let k = 0; k < 30; k++) for (const o of layoutFlight(seed, k).obs){
+    if (o.type !== 'gap' || !o.wide) continue; wide++;
+    assert.ok(riseOf(k) <= 0.45, `wide gap on flight ${k} (rise ${riseOf(k)})`);
+    assert.ok(Math.floor(o.s - k * 9.8) + 1 < F, 'a wide gap needs its second step inside the flight');
+  }
+  assert.ok(wide > 0, 'some broken steps are wide');
+  // from the hole's near edge, a full jump is still well above the far step's lip when it gets there (1.6 of hole)
+  const vy = Math.sqrt(2 * M.gravityUp * M.jumpHeight), t = (2 - 2 * M.holeEdge) / M.run, y = vy * t - 0.5 * M.gravityUp * t * t;
+  assert.ok(y > 1.6 * 0.45 - 0.45, `at the far lip the jump is ${y.toFixed(2)} up`);
+});

@@ -34,6 +34,7 @@ export const sfx = {
   jump(){ tone(260, 0.12, 'square', 0.04, 220); },
   slash(){ noise(0.09, 0.09, 2600); },
   hit(){ tone(170, 0.1, 'square', 0.07, -90); noise(0.06, 0.07, 1500); },
+  impact(heavy){ tone(heavy ? 70 : 92, heavy ? 0.18 : 0.12, 'sine', heavy ? 0.4 : 0.3, -55); noise(heavy ? 0.1 : 0.07, heavy ? 0.12 : 0.09, 750); tone(1400, 0.05, 'triangle', 0.03, -500); },   // the weight under a landed blow
   clang(){ tone(620, 0.12, 'triangle', 0.06, -200); },
   parry(){ tone(1150, 0.16, 'triangle', 0.1, 600); tone(1700, 0.1, 'sine', 0.05, 300); },
   block(){ tone(300, 0.08, 'square', 0.05, -100); noise(0.05, 0.06, 900); },

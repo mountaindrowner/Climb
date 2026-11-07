@@ -2,7 +2,7 @@
 // Deterministic for (seed, k, opts), so a climb can be replayed and tests can check it.
 //   opts.only     a threat id: a Practice run, every flight from 1 to 9 holds that threat and nothing else
 //   opts.wardens  whether the Warden's stretch is reserved for its fight (defaults to the feature switch)
-import { FL } from '../config/constants.js';
+import { FL, F } from '../config/constants.js';
 import { TUNE } from '../config/tuning.js';
 import { FEATURES } from '../config/features.js';
 import { rng } from '../core/math.js';
@@ -26,7 +26,10 @@ export function layoutFlight(seed, k, opts = {}){
   const add = (type, t, extra) => {
     if (type === 'gap' || type === 'beam' || type === 'rockfall' || type === 'swing' || type === 'burrower') t = Math.floor(t) + (type === 'gap' ? 0.25 : 0.5);
     const o = Object.assign({ type, s: base + t, k, alive: true, done: false, st: 'idle', tm: 0, hp: 1, flash: 0, dead: 0 }, extra || {});
-    if (type === 'gap') c.gaps.add(Math.floor(t));
+    if (type === 'gap'){   // two steps gone where the grade allows a running jump across (1.6 of hole), else one
+      const i = Math.floor(t); o.wide = riseOf(k) <= 0.45 && i + 1 < F;
+      c.gaps.add(i); if (o.wide) c.gaps.add(i + 1);
+    }
     c.obs.push(o); return o;
   };
   const hpFor = ty => ty === 'crawler' ? (z >= TUNE.crawler.hpFromZone ? 2 : 1) : 1;

@@ -18,8 +18,9 @@ import { bossHit } from '../../wardens/warden.js';
 import { startFall } from '../../modes/fall.js';
 import { updatePips } from '../../ui/overlay.js';
 import { tap } from '../../core/input.js';
-import { showWeapon } from './glbRig.js';
-const P = TUNE.player, MV = TUNE.move;
+import { showWeapon, bladeTip } from './glbRig.js';
+import { impact } from '../../fx/impact.js';
+const P = TUNE.player, MV = TUNE.move, THREE = window.THREE;
 
 export const PL = makePlayer(); scene.add(PL.P); setWeaponModel(PL, usable(S.weapon));
 
@@ -85,7 +86,15 @@ export function strike(swing){
       if (!e.hittable || !e.hittable(o)) continue;
       const ahead = (o.s - G.s) * G.face;
       const inReach = e.inReach ? e.inReach(o, w.reach) : (ahead > -0.3 && ahead < w.reach);
-      if (inReach){ e.hit(o, dmg); any = true; }
+      if (inReach){
+        const root = (o.B && o.B.g) || (o.M && o.M.g) || o.m || o.jaws;
+        e.hit(o, dmg); any = true;
+        // the juice: at the point of contact, along the swing's line on screen, heavier for the finisher
+        const at = root ? new THREE.Box3().setFromObject(root).getCenter(new THREE.Vector3()) : (o.pos ? o.pos.clone() : head(1.2));
+        const tip = bladeTip(); if (tip) at.lerp(tip, 0.35);
+        const ang = ({ slash: -0.6, back: 0.6, chop: -1.3 }[swing.pose] || 0) * G.face;
+        impact(at, ang, { heavy: swing.dmg >= 2, target: root });
+      }
     }
   }
   return any;
