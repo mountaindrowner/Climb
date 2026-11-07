@@ -184,7 +184,9 @@ for (const id of ids){
   await page.evaluate(() => { window.__bot.hits = 0; window.__bot.lastHp = null; window.__bot.hitLog = []; window.__bot.grabRoot = 2; });
   if (fast) await setSpeed(4.6);
   const t0 = Date.now();
-  await until(() => window.__climb.ST.mode === 'menu', 120000, 'practice of ' + id);
+  // by the wall clock, and GitHub's runners draw frames far slower than a desktop (the game's step is capped at 1/20 s, so
+  // a slow machine plays in slow motion): the beam's practice takes 1.5 minutes here and over 3 there
+  await until(() => window.__climb.ST.mode === 'menu', 420000, 'practice of ' + id);
   const done = await page.evaluate(() => !!document.querySelector('[data-act="practice-go"]') && /cleared/.test(document.getElementById('overlay').textContent));
   const r = await st();
   const hitLog = await page.evaluate(() => window.__bot.hitLog.join(' '));
