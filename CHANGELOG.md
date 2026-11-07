@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.24.0 — threats and places v2 (2026-11-07)
+
+Milestone 4: every threat rebuilt to the bat's standard, the campfire, and more to crouch under than the beam.
+
+- **The burrower**, built in Blender (`tools/blender/burrower.py`): a blind, armoured grub, ringed segments shingled with chitin, a collar of glowing pits, and a head of five jaw plates that shut into a spiked drill and splay open into a crown of teeth, more teeth down the throat. It ploughs the rubble with only the drill's point showing, bursts up and opens, waits swaying, snaps shut and lunges, recoils when struck and sinks shut. It is cut off at the step's surface, so it comes up out of the stone.
+- **The crawler** (`crawler.py`): a cave scuttler on six spined legs, a plated abdomen banded in old-blood red, four glowing eyes, horns and hooked mandibles. It skitters, rears on its hind legs with its front legs high for the wind-up (eyes going red), strikes, reels when stunned, and dies on its back with its legs curling.
+- **The spitter** (`spitter.py`): a bloated tick flat to the wall on six hooked legs, a veined sac glowing in the zone's colour, three eyes and a puckered mouth of hooked lips. The sac swells and brightens through the charge, clenches as it spits, and collapses when it is burst.
+- **The swinging weight** is an iron-bound, spiked boulder on a chain of links; **rockfall** drops painted boulders.
+- **The campfire**: a ring of stones, a teepee of logs charred at the tips, glowing embers, licking flames with sparks, a log seat, the trader's pack with a bedroll and a lantern hung from a staff, a pot on a hook.
+- **More to crouch under.** Besides the beam: a broken vault springing from the wall, a curtain of chains, a fallen carved lintel, roots grown across from high in the wall. Each region deals its own mix, tinted to its stone (the Deep: roots, the beam, the vault; the dwarf halls: lintels and chains; and so on). The tutorial keeps the beam. Same rules as the beam: crouch or roll under, running into it hurts.
+- Under the hood: `tools/blender/creaturekit.py` (shared modelling, painting and export for creatures and props), `src/render/glbModel.js` (load once, clone per creature with its own bones and materials, pose by clip and fraction, cut off below a surface), `src/render/props.js` (clone a named prop, tinted). Each creature keeps its built-in shapes as a stand-in until its model has loaded.
+
 ## 0.23.0 — hidden halls (2026-11-07)
 
 The last of milestone 3: side halls and ledges.

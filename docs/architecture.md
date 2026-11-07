@@ -29,6 +29,7 @@ The path distance `s` (in step units) is the one coordinate. `src/world/path.js`
 | Weapons, gold values, rest stop prices | `config/weapons.js`, `config/economy.js` |
 | Procedural content per flight | `world/layout.js` (pure, seeded, tested) laid out on demand by `world/generate.js`, which also builds the meshes |
 | The instanced stair, arenas, the gate darkness | `world/stair.js`, `world/shaft.js` |
+| Creatures and props from Blender | `tools/blender/*.py` build the GLBs (`creaturekit.py` shared); `render/glbModel.js` loads and clones them per creature and poses them by clip; `render/props.js` clones named props; each entity keeps built-in shapes until its model loads |
 | Routes off the main stair: forks (spur and high road) and hidden halls | geometry in `world/path.js` (each route has its own range of `s`); drawn and played by `world/branches.js`, `world/spur.js`, `world/halls.js`; the wall opens along them in `world/shaft.js` |
 | Hazards and enemies | `entities/hazards/*`, `entities/enemies/*`, registered in `entities/registry.js`, described in `entities/catalog.js` (pure data for the Practice screen, the layout's spacing and the tests) |
 | The Blender warrior | `tools/blender/warrior.py` builds and animates him in headless Blender (`pip install bpy`) and exports `assets/models/warrior/warrior.glb`; `entities/player/glbRig.js` loads it (with `vendor/three/GLTFLoader.js`) and sets each clip's playhead from gameplay state; the title screen toggles rigs |
