@@ -124,12 +124,12 @@ for (const h of HALLS){
   const backPts = [], roofPts = [];
   for (let i = 0; i <= N; i++){
     const u = -0.3 + (h.len + 0.3) * i / N, a = hallA(h, u), yl = hallLine(h, Math.max(0, u)), jag = (hash(h.j, i) - 0.5) * 0.2, c = Math.cos(a), s = Math.sin(a);
-    backPts.push([[(back + jag) * c, yl - 1.4, (back + jag) * s], [(back + jag) * c, yl + (u < roofEnd ? 3.6 : 2.4 + (hash(i, h.j) - 0.5) * 0.8), (back + jag) * s]]);
-    if (u <= roofEnd + 0.2) roofPts.push([[inner * c, yl + 3.4 + jag, inner * s], [back * c, yl + 3.5, back * s]]);
+    backPts.push([[(back + jag) * c, yl - 1.4, (back + jag) * s], [(back + jag) * c, yl + (u < roofEnd ? 4.1 : 2.6 + (hash(i, h.j) - 0.5) * 0.8), (back + jag) * s]]);
+    if (u <= roofEnd + 0.2) roofPts.push([[inner * c, yl + 3.9 + jag, inner * s], [back * c, yl + 4.0, back * s]]);
   }
   ribbon(backPts, rockMat); ribbon(roofPts, rockMat);
   { const a = hallA(h, -0.3), c = Math.cos(a), s = Math.sin(a);   // the hall's blind end, behind the mouth
-    ribbon([[[inner * c, h.yA - 1.4, inner * s], [inner * c, h.yA + 3.5, inner * s]], [[back * c, h.yA - 1.4, back * s], [back * c, h.yA + 3.5, back * s]]], rockMat); }
+    ribbon([[[inner * c, h.yA - 1.4, inner * s], [inner * c, h.yA + 4.0, inner * s]], [[back * c, h.yA - 1.4, back * s], [back * c, h.yA + 4.0, back * s]]], rockMat); }
   // the ledge's broken lip
   for (let k = 0; k < 3; k++){ const a = hallA(h, h.len - 0.05), p = vArc(a, h.r - 1 + k * 0.9, h.yTop - 0.2); g.add(rock(pm, { w: 0.4, h: 0.45, d: 0.5, jag: 0.4 }, p.x, p.y, p.z, rr)); }
   // the carving on the back wall of the chamber

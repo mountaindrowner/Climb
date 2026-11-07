@@ -180,7 +180,7 @@ for (let z = 0; z < ZONES.length; z++){
     const h = { j: HALLS.length, z, kH, s0: HALL_BASE + HALLS.length * 1000, a0: landingS(kH) * OMEGA, r, yA, yTop: yA + drop, entry: HALL.entry, run, nSteps, stepL, rise, len,
       chestU: len - HALL.ledge - 0.7, tabletU: HALL.entry + run + 0.9, sOut: landingS(kH) + (len - HALL.mouth) * R / r, open: false, broken: false, looted: false, hits: 0 };
     let ok = true;
-    for (let u = -0.5; u <= len + 0.5 && ok; u += 0.25) ok = clearOfRoutes(hallA(h, u), hallLine(h, Math.max(0, Math.min(len, u))) - 1.2, hallLine(h, Math.max(0, Math.min(len, u))) + 3.6);
+    for (let u = -0.5; u <= len + 0.5 && ok; u += 0.25) ok = clearOfRoutes(hallA(h, u), hallLine(h, Math.max(0, Math.min(len, u))) - 1.2, hallLine(h, Math.max(0, Math.min(len, u))) + 4.1);
     if (!ok) continue;
     HALLS.push(h); mine.push(h);
     if (mine.length === 2) break;

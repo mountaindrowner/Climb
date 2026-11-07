@@ -24,7 +24,7 @@ function hallBand(angle, y){
   for (const h of HALLS){
     const da = ((angle - hallA(h, 0)) % turn + turn) % turn, u = da * h.r;
     if (u > h.len + 0.3) continue;
-    const yl = hallLine(h, u); if (y > yl - 0.9 && y < yl + 3.5) return { h, u };
+    const yl = hallLine(h, u); if (y > yl - 0.9 && y < yl + 4.0) return { h, u };
   }
   return null;
 }
