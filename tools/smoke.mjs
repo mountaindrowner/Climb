@@ -79,7 +79,7 @@ await page.addScriptTag({ type: 'module', content: `
       for (const c of content.values()) for (const o of c.obs){
         const d = o.s - G.s;
         switch (o.type){
-          case 'gap': { const dc = d + 0.25; if (!o.done && dc > 0.55 && dc < 1.15 && G.grounded) jump(26); break; }   // a hole wants a held, full jump
+          case 'gap': { const dc = d + 0.25; if (!o.done && dc > 0.3 && dc < 1.15 && G.grounded) jump(26); break; }   // up to the lip: landing a jump just short of the next hole, jump again   // a hole wants a held, full jump
           case 'beam': if (d > -0.6 && d < 1.3) crouch = true; break;
           case 'rockfall': if ((o.st === 'warn' || o.st === 'drop') && d > -0.8 && d < 2.0) block = true; break;
           case 'swing': if (d > -3.2 && d < 2.8) crouch = true; break;   // the whole arc, both sides of the pivot
