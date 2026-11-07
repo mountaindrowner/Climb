@@ -1,3 +1,4 @@
+import { surfaceOf } from '../src/world/path.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { F, FL, FH, ZF, ZH, ZONE_METERS, MPU, R, MAXK, GRADE, MAX_RISE } from '../src/config/constants.js';
@@ -49,7 +50,7 @@ test('variable grade: gentle on the whole, steep and flat in places, every zone 
 test('heights are continuous: each flight starts where the last landing ended, and kAtY inverts flightY', () => {
   for (let k = 0; k < MAXK; k++){
     assert.ok(Math.abs(posOf(k * FL).y - flightY(k)) < 1e-9, `flight ${k} start`);
-    assert.ok(Math.abs(topAt(k * FL + F - 0.01) - landingY(k)) < 1e-9, `flight ${k} last step`);
+    assert.ok(Math.abs(topAt(k * FL + F - 1e-7) - landingY(k)) < 1e-5, `flight ${k} meets its landing`);
     assert.equal(kAtY(flightY(k) + 1e-6), riseOf(k) === 0 && k > 0 ? kAtY(flightY(k) + 1e-6) : k);
   }
 });
@@ -91,3 +92,38 @@ test('the leap: a running jump off the spur\'s top step reaches the high road\'s
   assert.ok(COLLAPSE.speed < M.run * 0.9 && COLLAPSE.delay > 0.3, 'a runner stays ahead of the collapse');
 });
 
+
+test('surfaces: every flight meets both its landings, tall and broad steps only on gentle flights, the regions themed', async () => {
+  const P = await import('../src/world/path.js');
+  const n = {}, byZone = [{}, {}, {}];
+  for (let k = 0; k < MAXK; k++){
+    const kind = P.surfaceOf(k); n[kind] = (n[kind] || 0) + 1; const z = Math.min(2, Math.floor(k / 15));
+    if (k >= 5 && riseOf(k) > 0) byZone[z][kind] = (byZone[z][kind] || 0) + 1;   // the flights that can vary
+    assert.ok(Math.abs(P.topAt(k * FL + 1e-7) - (kind === 'steps' || kind === 'broad' ? flightY(k) + P.surfTop(k, 0) : flightY(k))) < 1e-5, `flight ${k} (${kind}) starts on its base`);
+    if (kind === 'tall' || kind === 'broad') assert.ok(riseOf(k) <= 0.45, `${kind} on flight ${k} (rise ${riseOf(k)})`);
+    for (let t = 0.05; t < F; t += 0.25) assert.ok(P.topAt(k * FL + t) >= flightY(k) - 1e-9 && P.topAt(k * FL + t) <= landingY(k) + 1e-9, `flight ${k} stays between its landings`);
+    // the walking line never runs off the stair: between its lowest and highest point
+    for (let t = 0.5; t < F; t += 0.5){ const w = P.walkY(k * FL + t); assert.ok(w >= flightY(k) - 1e-6 && w <= landingY(k) + 1e-6, `walk line on flight ${k}`); }
+  }
+  for (const kind of P.SURFACES) assert.ok(n[kind] > 3, `some ${kind} flights (${n[kind] || 0})`);
+  assert.ok((byZone[0].slope || 0) + (byZone[0].tall || 0) > (byZone[0].steps || 0), 'the Deep is mostly slopes');
+  assert.ok((byZone[2].steps || 0) + (byZone[2].broad || 0) > (byZone[2].slope || 0), 'the dwarf halls are mostly built stairs');
+});
+test('broken steps only where there are steps to break', () => {
+  for (let seed = 1; seed < 6; seed++) for (let k = 0; k < MAXK; k++)
+    for (const o of layoutFlight(seed, k).obs) if (o.type === 'gap') assert.equal(surfaceOf(k), 'steps', `gap on flight ${k}`);
+});
+test('routes change from run to run: every zone keeps a way across, and both forks get their turn', async () => {
+  const P = await import('../src/world/path.js');
+  assert.ok(P.BRANCHES.some(b => b.early) && P.BRANCHES.some(b => !b.early), 'early and late forks are built');
+  const seen = new Set();
+  for (let seed = 0; seed < 40; seed++){
+    P.setRoutes(seed);
+    const zones = new Set(P.BRANCHES.map(b => b.z));
+    for (const z of zones) assert.ok(P.BRANCHES.some(b => b.z === z && b.open), `zone ${z} has an open fork (seed ${seed})`);
+    seen.add(P.BRANCHES.filter(b => b.z === 0).map(b => b.open ? 1 : 0).join(''));
+    for (const b of P.BRANCHES) assert.equal(P.forkFrom(b.kA) === b, b.open, 'a closed fork cannot be taken');
+  }
+  assert.ok(seen.size >= 3, 'the first zone opens its forks in different ways across runs: ' + [...seen].join(' '));
+  for (const b of P.BRANCHES) b.open = true;
+});

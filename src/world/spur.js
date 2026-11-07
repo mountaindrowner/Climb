@@ -9,6 +9,8 @@ import { S, save } from '../save/store.js';
 import { scene } from '../render/renderer.js';
 import { stoneTex } from '../render/textures.js';
 import { bgeo, vArc } from '../render/primitives.js';
+import { rock, rockMaterial } from '../render/rocks.js';
+import { rng } from '../core/math.js';
 import { burst } from '../render/particles.js';
 import { sfx } from '../audio/sfx.js';
 import { rumble } from '../core/input.js';
@@ -34,6 +36,13 @@ for (const sp of SPURS){
     const a = sp.tipA + 0.02, st = new THREE.Mesh(bgeo(0.35 + 0.2 * k, 0.5, 0.4), mat);
     vArc(a, sp.r + (k - 0.5) * 0.4, sp.topY - 0.3 - 0.2 * k, st.position); st.rotation.set(0.2 * k, yawFor(a), 0.5 - k); scene.add(st);
   }
+  // a closed fork (not open this run): the spur long fallen, a heap of rubble at the back of the landing instead
+  const heap = new THREE.Group(), rm = rockMaterial(new THREE.Color(z.stone).multiplyScalar(0.7).getHex()), r = rng(sp.j * 131 + 7);
+  for (let k = 0; k < 9; k++){
+    const u = r() * 2.2, a = sp.a0 + u / sp.r, h = 0.25 + r() * 0.9 * (1 - u / 3);
+    heap.add(rock(rm, { w: 0.5 + r() * 0.5, h: 0.4 + r() * 0.5, d: 0.5 + r() * 0.4, jag: 0.35 }, (sp.r + (r() - 0.5) * 0.6) * Math.cos(a), sp.yA + h * 0.5, (sp.r + (r() - 0.5) * 0.6) * Math.sin(a), r));
+  }
+  heap.visible = false; scene.add(heap); sp.heap = heap;
   sp.cs = { t: null, gone: new Array(sp.steps).fill(false), regrow: 0, off: 0 };
 }
 DYN.gone = (sp, i) => !!(sp.cs && sp.cs.gone[i]);
@@ -43,7 +52,9 @@ export function updateSpurs(dt){
   const G = ST.G;
   if (G !== lastG){ lastG = G; for (const sp of SPURS) reset(sp); }
   for (const sp of SPURS){
-    const c = sp.cs, on = G && spurOf(G.s) === sp;
+    const c = sp.cs, on = G && spurOf(G.s) === sp, open = sp.road.open;
+    sp.heap.visible = !open;
+    if (!open){ for (const s3 of sp.steps3) s3.m.visible = false; continue; }
     if (on && G.grounded && c.t == null && !c.regrow){ c.t = 0; sfx.crack(); sfx.rumble(); if (Math.abs(G.y - sp.yA) < 6) rumble(0.35, 0.25, 220); }
     if (c.t != null){
       c.t += dt;
@@ -58,7 +69,7 @@ export function updateSpurs(dt){
     draw(sp, dt);
   }
 }
-function reset(sp){ const c = sp.cs; c.t = null; c.off = 0; c.gone.fill(false); for (const s3 of sp.steps3){ s3.m.position.copy(s3.home); s3.m.rotation.set(0, yawFor(s3.a), 0); s3.m.visible = true; } }
+function reset(sp){ const c = sp.cs; c.t = null; c.off = 0; c.regrow = 0; c.gone.fill(false); for (const s3 of sp.steps3){ s3.m.position.copy(s3.home); s3.m.rotation.set(0, yawFor(s3.a), 0); s3.m.visible = true; } }
 function draw(sp, dt){
   const c = sp.cs;
   for (let i = 0; i < sp.steps; i++){

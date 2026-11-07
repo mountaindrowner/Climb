@@ -9,12 +9,13 @@ import { rng } from '../core/math.js';
 import { ZONES } from '../zones/index.js';
 import { TUTORIAL } from '../zones/tutorial.js';
 import { catalogById } from '../entities/catalog.js';
-import { zoneOf, special, arenaOf, riseOf } from './path.js';
+import { zoneOf, special, arenaOf, riseOf, surfaceOf } from './path.js';
 
 // Threats that need a gentle enough flight: a full jump must clear a hole going uphill, and a swing's uphill arc must
 // pass over a crouch. Elsewhere the layout draws another threat (or leaves the slot empty).
 export const MAX_RISE_FOR = { gap: 0.6, swing: 0.6 };
-export const suits = (type, k) => !(type in MAX_RISE_FOR) || riseOf(k) <= MAX_RISE_FOR[type];
+// A broken step also needs steps: a slope or broad flight has none to break.
+export const suits = (type, k) => (!(type in MAX_RISE_FOR) || riseOf(k) <= MAX_RISE_FOR[type]) && (type !== 'gap' || surfaceOf(k) === 'steps');
 
 export const PRACTICE_FLIGHTS = 9;
 

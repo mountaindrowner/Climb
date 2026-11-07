@@ -16,6 +16,31 @@ export function arenaOf(k){ const l = k % ZF; return l > BOSS_FLIGHT - ARENA_FLI
 export const landingS = k => k * FL + F + LAND * 0.5;   // path distance of the middle of flight k's landing
 // The grade: flight k's rise per step (the zone's pattern, rotated by zone), and the height its first step starts from.
 export const riseOf = k => { const z = Math.max(0, Math.floor(k / ZF)), l = ((k % ZF) + ZF) % ZF; return GRADE[(l + z * 4) % ZF]; };
+// ---- Surfaces. A flight's rise is fixed (its landings stay put), but not how it is climbed: a run of steps, a slope
+// of worn rock, a slope broken by one tall step, or broad steps twice the length and height. Long runs of identical
+// short steps read as constant bumping, so the regions mix them: the Deep is mostly rough slopes, the caverns add broad
+// runs, the dwarf halls are built stairs. The tutorial's first flights stay plain steps; flat galleries are flat.
+export const SURFACES = ['steps', 'slope', 'tall', 'broad'];
+// each region's rotation, dealt in order to the flights it can vary (not the tutorial's, not flat galleries)
+const SURF_DEAL = [['slope', 'tall', 'slope', 'broad', 'slope', 'steps', 'tall'], ['slope', 'broad', 'steps', 'slope', 'broad', 'tall'], ['steps', 'broad', 'steps', 'tall', 'broad', 'steps', 'slope']];
+export function surfaceOf(k){
+  const r = riseOf(k);
+  if (k < 5 || r === 0) return 'steps';
+  const z = Math.floor(k / ZF), deal = SURF_DEAL[Math.min(2, z)];
+  let n = 0; for (let j = z * ZF; j < k; j++) if (j >= 5 && riseOf(j) !== 0) n++;
+  let pick = deal[(n + z) % deal.length];
+  if ((pick === 'tall' || pick === 'broad') && r > 0.45) pick = 'slope';   // no step taller than about 0.9
+  return pick;
+}
+const SURF = []; for (let k = 0; k <= MAXK + 1; k++) SURF.push(surfaceOf(k));
+// the top of flight k's surface t into it (0..F), above the flight's base
+export function surfTop(k, t){
+  const r = riseOf(k), kind = SURF[Math.max(0, Math.min(SURF.length - 1, k))];
+  if (kind === 'slope') return r * t;
+  if (kind === 'tall') return t < 4 ? 0.75 * r * t : 5 * r + 0.75 * r * (t - 4);
+  if (kind === 'broad') return (Math.floor(t / 2) + 1) * 2 * r;
+  return (Math.floor(t) + 1) * r;
+}
 const BASE = new Float64Array(MAXK + 2);
 for (let k = 0; k <= MAXK; k++) BASE[k + 1] = BASE[k] + F * riseOf(k);
 export const flightY = k => k <= 0 ? 0 : k <= MAXK + 1 ? BASE[k] : BASE[MAXK + 1] + (k - MAXK - 1) * ZH / ZF;
@@ -35,7 +60,10 @@ export function posOf(s){
   if (s < 0) s = 0;
   const k = Math.floor(s / FL), t = s - k * FL, base = flightY(k), rise = riseOf(k), a = s * OMEGA;
   if (t < F){
-    const i = Math.floor(t), fr = t - i, e = smooth(Math.min(1, fr / 0.42));
+    const i = Math.floor(t), fr = t - i;
+    if (SURF[k] === 'broad'){ const v = t / 2, j = Math.floor(v), e = smooth(Math.min(1, (v - j) / 0.42)); return { k, t, i, fr, a, y: base + 2 * rise * (j + e), land: false, rise, r: R, surface: 'broad' }; }
+    if (SURF[k] !== 'steps') return { k, t, i, fr, a, y: base + surfTop(k, t), land: false, rise, r: R, surface: SURF[k] };
+    const e = smooth(Math.min(1, fr / 0.42));
     return { k, t, i, fr, a, y: base + rise * (i + e), land: false, rise, r: R };
   }
   return { k, t, i: -1, fr: 0, a, y: base + F * rise, land: true, u: (t - F) / LAND, rise, r: R };
@@ -44,7 +72,7 @@ export function posOf(s){
 export function topAt(s){
   if (s >= BR_BASE){ const sp = spurOf(s); if (sp) return spurTop(sp, s - sp.s0); const b = branchOf(s); return roadTop(b, Math.max(0, s - b.s0)); }
   const k = Math.floor(s / FL), t = s - k * FL;
-  return t < F ? flightY(k) + (Math.floor(t) + 1) * riseOf(k) : flightY(k + 1);
+  return t < F ? flightY(k) + surfTop(k, t) : flightY(k + 1);
 }
 // The first unbeaten Warden's flight. Everything above it is hidden in darkness.
 export function gateK(){
@@ -60,17 +88,19 @@ export function gateK(){
 // shortcut that skips the zone's lift and rest stop. So: hop onto the spur, keep running, leap at its end.
 // Positions on a route live in their own range of s (the high road at BR_BASE + 1000 j + u, its spur at
 // BR_BASE + 1000 j + 500 + u, u the distance along it), so anything on one route is simply far from anything on another.
-export const BR_BASE = 100000, BRANCH_R = R + 2.9, SPUR_R = R + 1.75, FORK_FROM = 9, FORK_TO = 14;
+// Two forks a zone are built: an early one from landing 3 (it skips the lift and comes out at the rest stop) and a late
+// one from landing 9. Which are open changes from run to run (setRoutes): a closed fork's spur is a heap of rubble.
+export const BR_BASE = 100000, BRANCH_R = R + 2.9, SPUR_R = R + 1.75, FORKS = [[3, 8], [9, 14]];
 // the spur's steps; the leap (the foot is `lip` above the spur's end, its landing window gapFrom..gapTo past it); the
 // collapse (step i falls `delay` after he first stands on it plus its distance over `speed`: he runs 3.8)
 export const SPUR = { steps: 6, stepL: 1.0, rise: 0.5, lip: 1.1, gapFrom: 0.6, gapTo: 2.6, footL: 2.2,
   collapse: { delay: 0.55, speed: 3.2, shake: 0.35, regrow: 0.8, rest: 1.6 } };
 export const BRANCHES = [], SPURS = [];
 export const BRANCH_MAX_RISE = 0.75;   // no steeper than the steepest main flight
-for (let z = 0; z < ZONES.length; z++){
-  // rejoin at landing 14 if that is climbable, else lower (a shorter skip: a longer, gentler high road)
-  for (let kB = z * ZF + FORK_TO; kB > z * ZF + FORK_FROM + 1; kB--){
-    const kA = z * ZF + FORK_FROM; if (kB >= MAXK) break;
+for (let z = 0; z < ZONES.length; z++) for (const [fFrom, fTo] of FORKS){
+  // rejoin at its landing if that is climbable, else lower (a shorter skip: a longer, gentler high road)
+  for (let kB = z * ZF + fTo; kB > z * ZF + fFrom + 1; kB--){
+    const kA = z * ZF + fFrom; if (kB >= MAXK) break;
     const j = BRANCHES.length, sA = landingS(kA), sB = landingS(kB), yA = landingY(kA), yB = landingY(kB);
     // the spur: from the middle of the fork landing, climbing right
     const sp = { j, kA, s0: BR_BASE + j * 1000 + 500, a0: sA * OMEGA, yA, steps: SPUR.steps, stepL: SPUR.stepL, rise: SPUR.rise, len: SPUR.steps * SPUR.stepL, r: SPUR_R };
@@ -82,7 +112,7 @@ for (let z = 0; z < ZONES.length; z++){
     const len = dLeft * BRANCH_R, flat = 1.6, footL = SPUR.footL, run = len - flat - footL;
     const nSteps = Math.max(1, Math.floor(run)), stepL = run / nSteps, rise = (yB - yF) / nSteps;
     if (rise > BRANCH_MAX_RISE || rise <= 0) continue;
-    const b = { j, kA, kB, s0: BR_BASE + j * 1000, len, flat, footL, aA: aFoot, yA: yF, yB, nSteps, stepL, rise, r: BRANCH_R, spur: sp };
+    const b = { j, z, early: fFrom < 6, open: true, kA, kB, s0: BR_BASE + j * 1000, len, flat, footL, aA: aFoot, yA: yF, yB, nSteps, stepL, rise, r: BRANCH_R, spur: sp };
     sp.road = b; BRANCHES.push(b); SPURS.push(sp);
     break;
   }
@@ -90,7 +120,17 @@ for (let z = 0; z < ZONES.length; z++){
 const blockOf = s => Math.floor((s - BR_BASE) / 1000), offOf = s => s - BR_BASE - blockOf(s) * 1000;
 export const branchOf = s => s >= BR_BASE && offOf(s) < 500 ? BRANCHES[blockOf(s)] || null : null;
 export const spurOf = s => s >= BR_BASE && offOf(s) >= 500 ? SPURS[blockOf(s)] || null : null;
-export const forkFrom = k => BRANCHES.find(b => b.kA === k) || null;
+export const forkFrom = k => BRANCHES.find(b => b.kA === k && b.open) || null;
+// Which forks are open this run: in each zone the late one, the early one, or both, drawn from the run's seed. Every
+// zone keeps at least one way across.
+export function setRoutes(seed){
+  for (let z = 0; z < ZONES.length; z++){
+    const h = Math.sin((seed + 1) * 12.9898 + z * 78.233) * 43758.5453, u = h - Math.floor(h);
+    const pick = u < 0.4 ? 'late' : u < 0.75 ? 'early' : 'both', mine = BRANCHES.filter(b => b.z === z);
+    for (const b of mine) b.open = pick === 'both' || (pick === 'early') === b.early;
+    if (mine.length && !mine.some(b => b.open)) mine[0].open = true;
+  }
+}
 // +1 where pressing right climbs (the main stair, the spur), -1 where it goes back down (a high road winds the other way)
 export const routeSign = s => branchOf(s) ? -1 : 1;
 // Ground that moves: spur.js says which of a spur's steps have fallen.
@@ -125,7 +165,7 @@ export function walkY(s){
   const lo = b ? b.s0 : sp ? sp.s0 : 0, hi = b ? b.s0 + b.len : sp ? sp.s0 + sp.len - 1e-6 : Infinity;
   if (b){ for (let i = 0; b.s0 + b.footL + i * b.stepL < a1 && i <= b.nSteps; i++){ const x = b.s0 + b.footL + i * b.stepL; if (x > a0) cuts.push(x); } }
   else if (sp){ for (let i = 1; i < sp.steps; i++){ const x = sp.s0 + i * sp.stepL; if (x > a0 && x < a1) cuts.push(x); } }
-  else for (let k = Math.floor(a0 / FL); k * FL <= a1; k++) for (let i = 0; i < F; i++){ const x = k * FL + i; if (x > a0 && x < a1) cuts.push(x); }
+  else for (let k = Math.floor(a0 / FL); k * FL <= a1; k++) for (let i = 0; i <= F; i++){ const x = k * FL + i; if (x > a0 && x < a1) cuts.push(x); }   // step edges, and where a slope meets its landing
   cuts.sort((p, q) => p - q);
   const top = x => sp ? spurBuilt(sp, x - sp.s0) : topAt(x);
   let sum = 0;

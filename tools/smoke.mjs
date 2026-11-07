@@ -219,14 +219,15 @@ const fork = await page.evaluate(async () => {
   const { startClimb } = await import('/src/modes/climb.js'), { hideMenu } = await import('/src/ui/overlay.js'), P = await import('/src/world/path.js');
   window.__bot.on = false; window.__climb.input.release(); hideMenu(); window.__climb.ST.practice = null;   // the bot lets go of everything it held
   window.__P = P;
-  const b = P.BRANCHES[0]; startClimb(P.landingS(b.kA) - 0.3);
+  const b = P.BRANCHES[0]; startClimb(P.landingS(b.kA) - 0.3); b.open = true;   /* the run draws which forks are open: this one is, for the test */
   const G = window.__climb.ST.G; G.maxHp = G.hp = 99;
   const gen = await import('/src/world/generate.js'); for (const c of gen.content.values()) for (const o of c.obs){ o.done = true; o.alive = false; o.st = 'gone'; }
   return { kA: b.kA, kB: b.kB, sB: P.landingS(b.kB) };
 });
 await page.waitForTimeout(600);
 await page.evaluate(() => {
-  const I = window.__climb.input, P = window.__P; window.__fork = { phase: 'hop', log: [] };
+  const I = window.__climb.input, P = window.__P; window.__fork = { phase: 'hop', log: [], clear: true };
+  import('/src/world/generate.js').then(gen => { const clr = () => { for (const c of gen.content.values()) for (const o of c.obs){ o.done = true; o.alive = false; o.st = 'gone'; } if (window.__fork.clear) requestAnimationFrame(clr); }; clr(); });   /* no threats on this test, including on flights that load as he climbs */
   const f = () => { const G = window.__climb.ST.G, sp = P.spurOf(G.s), b = P.branchOf(G.s), F = window.__fork;
     if (F.phase === 'hop' && sp) F.phase = 'run';
     else if (F.phase === 'run' && sp && G.grounded && G.s - sp.s0 >= sp.len - 0.9){ I.hold('jump', true); F.phase = 'up'; F.log.push('jump ' + (G.s - sp.s0).toFixed(2)); }
@@ -240,7 +241,7 @@ await until(() => window.__fork.phase === 'road' || window.__fork.phase === 'mis
 const leap = await page.evaluate(() => window.__fork);
 if (leap.phase !== 'road') fail('missed the leap from the spur to the high road: ' + JSON.stringify(leap));
 await until(() => !window.__P.branchOf(window.__climb.ST.G.s) && !window.__P.spurOf(window.__climb.ST.G.s) && window.__climb.ST.G.grounded, 90000, 'climbing the high road to its end');   // (synchronous: a promise would count as true at once)
-const forkEnd = await page.evaluate(() => { window.__climb.input.hold('left', false); const G = window.__climb.ST.G; return { s: G.s, y: G.y, k: Math.floor(G.s / 9.8), hp: G.hp }; });
+const forkEnd = await page.evaluate(() => { window.__climb.input.hold('left', false); window.__fork.clear = false; const G = window.__climb.ST.G; return { s: G.s, y: G.y, k: Math.floor(G.s / 9.8), hp: G.hp }; });
 if (forkEnd.hp !== 99) fail('the fork hurt him on the way: ' + (99 - forkEnd.hp) + ' hits');
 if (Math.abs(forkEnd.s - fork.sB) > 1.5) fail('the high road did not bring him out at the landing it rejoins: ' + JSON.stringify({ forkEnd, fork }));
 console.log('took the fork from flight ' + fork.kA + ' to ' + fork.kB + ': ' + leap.log.join(', '));

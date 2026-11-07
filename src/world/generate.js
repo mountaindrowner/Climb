@@ -1,3 +1,4 @@
+import { setRoutes } from './path.js';
 // Per-climb content: lays out each flight on demand (src/world/layout.js) and builds its meshes once.
 // The first time a player meets a threat type, that instance carries its first-sight hint.
 import { scene } from '../render/renderer.js';
@@ -29,6 +30,7 @@ export function flight(k){
 }
 export function newRun(seed){
   runSeed = seed == null ? (Math.random() * 1e9) | 0 : seed;
+  setRoutes(runSeed);                                  // which forks are open this climb
   content.clear(); hinted.clear();
   while (dyn.children.length) dyn.remove(dyn.children[0]);
   setAllFlights();
