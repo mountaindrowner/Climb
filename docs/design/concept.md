@@ -40,14 +40,24 @@ Side branches hang off the trunk (flooded galleries, a forgotten chapel, a drago
 The stair stops being one uniform spiral. It becomes a **path graph**: segments of stair joined at landings, each with its own settings.
 
 - **Variable grade.** Each segment has its own rise per step, from gentle ramps (about 0.3) to steep flights (about 0.75), with flat galleries between. Most of the climb is gentler than now. The camera pulls further out on gentle stretches to show the space and options ahead.
-- **Two directions.** Some segments spiral the other way. An inner and an outer spiral run counter to each other and meet at landings, so at a fork you choose by pressing ◀ or ▶: one route climbs to the left, one to the right.
-- **The crumbling handoff.** The designer's example: the right stair has begun to crumble. You stand on its last high step while it shudders and rises on a groaning beam for a beat, then jump across to the left stair before it falls. Timing and nerve, not reflex.
+- **Fewer, more varied steps (designer's note, Nov 7).** A long run of short, identical steps reads as constant bumping. Mix the surfaces instead: sloped ramps of worn rock with the occasional step, runs of broad steps, now and then one tall step to climb. Steps should feel placed, not tiled. To be tested: it may not suit every region (dwarf halls want real stairs; the Deep wants rough slopes).
+- **Two directions.** Some segments spiral the other way. An inner and an outer spiral run counter to each other and meet at landings, so at a fork you choose by pressing ◀ or ▶: one route climbs to the left, one to the right. The routes differ from run to run (procedurally placed), so which way you go, and when you are forced across, changes every climb.
+- **The crumbling handoff (corrected, Nov 7).** Not a rising platform. You are running one way (say right) and the stair runs out or starts to crumble under you. The other stair, running the other way, is higher, too high to reach from a standing jump. The only way across is to keep running along the failing stair and leap at its last moment, before it falls away. Speed and nerve. The rising slab built in 0.19 is replaced.
 - **Ledges and drops.** Short side ledges, gaps you can only cross with a route-opener, and drops that send you down a tier on purpose to reach a branch.
 - **Hidden halls.** Cracked walls and side passages off landings, leading to secrets, blueprints and lore.
 
 ## Movement and feel (built, keep)
 
 Free movement with a stick and four buttons: jump (variable height, coyote time, buffer, minimum hop), crouch-walk, an invulnerable roll, a held shield with parry, combos with wind-up, strike and recovery, knockback and hit-stop. Values in `controls.md`. The jump animation is the reference for the quality bar everywhere else.
+
+The designer's notes after playing the skeleton (Nov 7): the concept, the climbing and the rooms are right; what is left is mastering the effect and feel. Specifically:
+
+- **Climbing steps.** Today his whole body pops up a step the moment a foot touches it. The body should rise with the stride: the leading foot steps up, the hips follow through the step, so a flight is climbed, not teleported up.
+- **Crouch with nuance.** Not flattened or shrunk: a low, coiled crouch, weight forward, maybe a hand down; a crouch-walk that looks like creeping. The crouch-walk's footsteps currently come too fast and their sound is too obvious.
+- **Idle that lives.** Looking around, glancing up the shaft, shifting weight, now and then.
+- **The sword.** Longer, held two-handed (a hand-and-a-half sword), which also gives the swings more weight.
+- **Size.** He is 10% taller.
+- **Hit juice.** A landed hit should feel special: a flash on the enemy, a swipe trail, sparks, a short freeze, a kick of the camera, a meaty sound.
 
 ## No clipping (the rules)
 
@@ -100,7 +110,9 @@ Every region alternates between the two types, and each Warden has its own moves
 ## Presentation
 
 - **Intro cinematic.** A fall from the summit to the Pool: the whole mountain in a few seconds, every region flashing past (the castle, the roost, the throne), then the splash, the dark, and the warrior heaving out of the water. It shows the scale before the first step.
+- **The intro story sequence.** Before the first climb: who he is and why he climbs, told briefly (see `lore.md`), ending in the fall and the wake in the Pool.
 - **The death crash.** Bulky and a little comic, as in Dead Cells. Slow motion on the killing blow, the camera snaps out, the body tumbles past the stair layers, bounces off a beam, and hits the Pool hard. A beat, then the warrior drags themselves out. The root-catch stays in the fall as a last chance. Skippable after the first time.
+- **The climb back out.** After every fall you see him haul himself out of the Pool and walk back to the start of the stair, so the loop is shown, not cut.
 - **Simple storytelling.** Item descriptions, inscriptions, the keeper's few lines, environmental scenes. No cutscene dumps.
 - **The camera system.** States with framing rules, blended smoothly:
 
@@ -131,16 +143,21 @@ The bar is the current jump animation. What exists for Claude to make models and
 
 ## Build order
 
+Built so far: the foundation (0.17), forks as the high road (0.18), a first crumbling handoff (0.19, to be replaced), and the skeleton as the player with measured strides, sprint, the smooth camera, mouse controls and the bat (0.20). The designer's notes of Nov 7 are folded in below; most are feel, so feel comes next.
+
 | # | Milestone | Delivers |
 | --- | --- | --- |
-| 0 | Pipeline proof of concept | Answers how models and animation get made (runs in parallel) |
-| 1 | Foundation | Path graph with variable grade, true step collision and foot IK, the clipping test, camera system v2 (built in 0.17: variable grade, foot IK, the clipping test, camera explore and combat framing; forks wait for milestone 2) |
-| 2 | Routes | Forks, counter-spirals, the crumbling handoff, side halls (forks and counter-spirals built in 0.18 as the high road; the choice is a jump left from the fork landing. The crumbling handoff built in 0.19 at the foot of each high road: ride the rising slab, leap before it falls. Side halls next) |
-| 3 | The run | Echoes, blueprints at the Pool, oaths, marks, two exits per region; regions 1 to 4 |
-| 4 | Weapons v2 | Six families, crit conditions, two tool slots, shaft kills |
-| 5 | Wardens | The Ring and the Colossus, one of each |
-| 6 | Presentation | Intro cinematic, death crash |
-| 7 | The upper mountain | Regions 5 to 9, deeper falls |
+| 0 | Pipeline (runs in parallel) | Settled: the designer's own models from Tripo, made ready by Blender scripts (the skeleton), and creatures built in Blender scripts (the bat). Next creatures and props come through the same two paths |
+| 1 | Foundation | Built in 0.17: variable grade, foot IK, the clipping test, camera explore and combat framing |
+| 2 | **Feel and juice (next)** | Climbing that rises with the stride instead of popping up each step; a nuanced crouch and a creeping crouch-walk (its footsteps and their sound fixed); idle variations (looking around, up the shaft); a longer, two-handed sword; the warrior 10% taller; hit juice (flash, swipe, sparks, freeze, camera kick, sound); wider, more daunting broken-step gaps; prompts fixed (the ring and its arrow centred); beams pointing out toward the shaft's centre instead of at an odd angle |
+| 3 | Stair and routes v2 | Fewer, more varied steps: slopes with the occasional step, broad runs, tall steps (tested region by region); routes that differ per run; the crumbling handoff redone as designed (keep running on the failing stair and leap to the higher one before it goes); side halls and ledges |
+| 4 | Threats and places v2 | Every threat rebuilt to the bat's standard, starting with the burrower (the stair trap with the spiked jaws), then crawler, spitter, rockfall, swing; the rest stop's campfire rebuilt; more kinds of crouch obstacle than the beam (a low arch, a hanging chain curtain, a collapsed lintel, roots) |
+| 5 | The run | The Dead Cells layer: Echoes, blueprints at the Pool, oaths, marks, two exits per region; regions 1 to 4 |
+| 6 | Weapons v2 | Six families, crit conditions, two tool slots, shaft kills (the pick and spear come back here) |
+| 7 | Wardens | The Ring and the Colossus, one of each |
+| 8 | Presentation | The intro story sequence, the death crash, the climb back out of the Pool to the start every time |
+| 9 | The upper mountain | Regions 5 to 9, deeper falls |
+| S | Sound (runs in parallel) | Better effects: find and vet sources (licences that allow a commercial game, for example CC0 libraries, Sonniss's free GDC bundles, Kenney), keep the procedural sounds as a base, and replace the most-heard ones first (footsteps, swings, hits, the flitter) |
 
 ## Open questions
 
@@ -151,3 +168,5 @@ The bar is the current jump animation. What exists for Claude to make models and
 - On the phone, is ◀ / ▶ enough to choose at forks, or does it need a dedicated prompt?
 - Art direction: keep the low-resolution pixel look, or render cleaner once real models arrive?
 - Which Warden type comes first: the Ring (new) or the Colossus (reuses the parked work)?
+- Slopes with the occasional step, or stairs throughout? The designer is unsure it suits the larger game; milestone 3 tests a mix region by region.
+- Two-handed sword: does the off hand leave the blade for the block, or does he block with the blade itself?
