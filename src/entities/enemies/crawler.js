@@ -14,8 +14,11 @@ import { burst } from '../../render/particles.js';
 import { float, hitstop, shake } from '../../fx/feedback.js';
 import { posOf, topAt } from '../../world/path.js';
 import { hurt, head, isBlocking, isParry, isInvulnerable } from '../player/player.js';
+import { loadModel, instance, pose, poseOnce } from '../../render/glbModel.js';
 const THREE = window.THREE;
 const T = TUNE.crawler;
+// the body from tools/blender/crawler.py; until it has loaded (or if it cannot), the built-in shapes stand in
+export const CRAWLER = loadModel('crawler', 'assets/models/crawler/crawler.glb');
 
 export const hint = 'A crawler. Strike it with {attack}. Hold {block} to block its lunge, or {roll} through it, then strike while it recovers.';
 
@@ -113,12 +116,13 @@ export function hit(o, dmg){
   if (o.hp <= 0){ o.alive = false; o.dead = 0; o.done = true; hitstop(TUNE.feel.hitstopKill); G.gold += GOLD.crawler; op.y += 0.6; float('+' + GOLD.crawler, op, '#e8b04a'); sfx.gold(); }
 }
 
-export function draw(o){
+export function draw(o, dt = 1 / 60){
   const t = ST.time, a = o.s * OMEGA, M = o.M;
   o.crackMat.opacity = o.st === 'crack' ? 0.5 + 0.5 * Math.sin(t * 20) : o.st === 'idle' ? 0.25 : 0.12;
   if (o.st === 'idle' || o.st === 'crack'){ M.g.visible = false; return; }
   if (!o.alive && o.dead > 1.2){ M.g.visible = false; return; }
   M.g.visible = true;
+  if (CRAWLER.ready) return drawModel(o, dt);
   const pop = o.st === 'out' ? Math.min(1, o.tm / 0.22) : 1;
   const rad = o.alive ? (RW - 0.6) + (R + 0.35 - (RW - 0.6)) * pop : R + 0.35 - o.dead * 4;
   const y = posOf(o.s).y + (o.alive ? 0 : -o.dead * o.dead * 9);
@@ -146,6 +150,29 @@ export function draw(o){
   for (const m of M.mats) m.emissive.setHex(o.flash > 0 ? 0xffffff : wq && Math.sin(t * 30) > 0 ? 0x401010 : 0x000000);
 }
 
+// The modelled body: skittering as it comes, rearing on its hind legs with its front legs high for the wind-up, the
+// strike, reeling when stunned or recovering, flipped on its back and curling when dead.
+function drawModel(o, dt){
+  const t = ST.time, a = o.s * OMEGA, M = o.M;
+  if (!o.B){
+    o.B = instance(CRAWLER, 1.2 / 1.7, 'crawler_eye'); o.B.g.rotation.y = Math.PI / 2;   // its face (+z) along +x, the way M faces
+    M.body.visible = false; M.g.add(o.B.g);
+  }
+  const B = o.B, pop = o.st === 'out' ? Math.min(1, o.tm / 0.22) : 1;
+  const rad = o.alive ? (RW - 0.6) + (R + 0.35 - (RW - 0.6)) * pop : R + 0.35 - Math.max(0, o.dead - 0.5) * 3;
+  const y = posOf(o.s).y + (o.alive ? 0 : -(Math.max(0, o.dead - 0.5) ** 2) * 9);
+  placeArc(M.g, a, rad, y, (o.face || -1) < 0);
+  let clip = 'Idle', frac = t / 1, once = false;
+  if (!o.alive){ clip = 'Death'; frac = o.dead / 0.5; once = true; }
+  else if (o.st === 'out'){ clip = 'Skitter'; frac = t * 3; }
+  else if (o.st === 'chase'){ const moving = Math.abs(o.s - ST.G.s) > 1.0; clip = moving ? 'Skitter' : 'Idle'; frac = moving ? t * T.chase * 0.55 : t; }
+  else if (o.st === 'windup'){ clip = 'Rear'; frac = o.tm / T.windup; once = true; }
+  else if (o.st === 'lunge'){ clip = 'Lunge'; frac = o.tm / T.lunge; once = true; }
+  else if (o.st === 'stunned' || o.st === 'recover'){ clip = 'Stun'; frac = t * 1.4; }
+  (once ? poseOnce : pose)(B, clip, frac, dt, 20);
+  const wq = o.st === 'windup' || o.st === 'lunge', stun = o.st === 'stunned' || o.st === 'recover';
+  if (B.glow){ B.glow.emissive.setHex(wq ? 0xff3020 : stun ? 0x553344 : o.glow); B.glow.color.copy(B.glow.emissive).multiplyScalar(0.4); }
+}
 export function hud(o, d, { drawIcon }){
   if (!o.alive || Math.abs(d) > TUNE.climb.iconRange || o.st === 'idle' || o.st === 'crack') return;
   const cp = vArc(o.s * OMEGA, R, posOf(o.s).y + 1.6);
