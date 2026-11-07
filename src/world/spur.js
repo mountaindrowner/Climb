@@ -96,7 +96,7 @@ export function hitRubble(G, swing){
   const sp = closedHere(G); if (!sp) return false;
   sp.rubHits = (sp.rubHits || 0) + 1;
   const at = sp.heap.children[0] ? sp.heap.children[0].getWorldPosition(new THREE.Vector3()) : G.s;
-  at.y += 0.4; impact(at, ({ slash: -0.6, back: 0.6, chop: -1.3 }[swing.pose] || 0) * G.face, { heavy: sp.rubHits >= 3 });
+  at.y += 0.4; impact(at, ({ slash: -1.25, back: -1.1, chop: 1.0 }[swing.pose] || 0) * G.face, { heavy: sp.rubHits >= 3 });
   burst(at, 12, '#8c8298', 3, 8, 0.08); sfx.crack();
   if (sp.rubHits >= 3){ sp.road.open = true; sfx.rumble(); rumble(0.5, 0.4, 260); burst(at, 30, '#8c8298', 4, 7, 0.1); setToast('The ram breaks through', 'The old stair is open: hold {right} and press {jump}', 2.6); }
   return true;

@@ -96,7 +96,7 @@ export function strike(swing, finisher){
         // the juice: at the point of contact, along the swing's line on screen, heavier for the finisher
         const at = e.hitAt ? e.hitAt(o) : root ? new THREE.Box3().setFromObject(root).getCenter(new THREE.Vector3()) : (o.pos ? o.pos.clone() : head(1.2));
         const tip = bladeTip(); if (tip) at.lerp(tip, 0.35);
-        const ang = ({ slash: -0.6, back: 0.6, chop: -1.3 }[swing.pose] || 0) * G.face;
+        const ang = ({ slash: -1.25, back: -1.1, chop: 1.0 }[swing.pose] || 0) * G.face;
         impact(at, ang, { heavy: swing.dmg >= 2, target: root });
       }
     }

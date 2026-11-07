@@ -324,18 +324,21 @@ keyed('K_Tuck', [(0, t), (12, t)])
 LUNGE = {'feet': {'l': (-0.1, 0), 'r': (0.24, 0)}}
 DEEP = {'feet': {'l': (-0.14, 0), 'r': (0.34, 0)}}
 SWINGS = {
+    # the sword combo, in front of him and in the plane the camera sees (sword in the right hand, both hands where they
+    # reach): a cut down from high on his right; reset high and down again; then a rising cut from low on his left up to
+    # high on his right, the finisher
     'K_Slash': [
-        {'hips': (-0.04, 0), 'chest': (D(-0.1, 1), -0.25), 'armR': [D(-0.8, 0.45, 0.6), D(-0.8, 0.6, 0.25)], 'blade': D(-1, 0.45)},
-        {'hips': (0.12, -0.08), 'spine': D(0.25, 1), 'chest': (D(0.3, 1), 0.2), 'armR': [D(1, 0.25, 0.35), D(1, -0.1, 0.15)], 'blade': D(1, -0.3), **LUNGE},
-        {'hips': (0.13, -0.1), 'spine': D(0.3, 1), 'chest': (D(0.32, 1), 0.25), 'armR': [D(0.9, -0.5, 0.4), D(0.8, -0.6, 0.2)], 'blade': D(1, -0.6), **LUNGE}],
+        {'hips': (-0.04, 0.02), 'spine': D(-0.05, 1), 'chest': (D(-0.05, 1), -0.15), 'armR': [D(0.15, 1, 0.45), D(0.1, 1, 0.15)], 'blade': D(-0.1, 1, 0.05)},
+        {'hips': (0.12, -0.08), 'spine': D(0.3, 1), 'chest': (D(0.35, 1), 0.15), 'armR': [D(1, 0.35, 0.3), D(1, 0.05, 0.12)], 'blade': D(1, -0.15), **LUNGE},
+        {'hips': (0.14, -0.12), 'spine': D(0.4, 1), 'chest': (D(0.45, 1), 0.2), 'armR': [D(0.7, -0.7, 0.3), D(0.5, -0.9, 0.12)], 'blade': D(0.55, -1), **LUNGE}],
     'K_Back': [
-        {'hips': (0, -0.06), 'chest': (D(0.1, 1), -0.25), 'armR': [D(-0.4, -1, 0.45), D(-0.7, -0.6, 0.25)], 'blade': D(-1, 0.0)},
-        {'hips': (0.08, -0.04), 'spine': D(0.1, 1), 'chest': (D(-0.05, 1), 0.2), 'armR': [D(1, 0.5, 0.35), D(0.8, 0.8, 0.15)], 'blade': D(1, 0.7), **LUNGE},
-        {'hips': (0.09, -0.04), 'spine': D(0.05, 1), 'chest': (D(-0.1, 1), 0.25), 'armR': [D(1, 0.75, 0.4), D(0.7, 1, 0.2)], 'blade': D(0.8, 1), **LUNGE}],
+        {'hips': (-0.03, 0.02), 'spine': D(0.0, 1), 'chest': (D(0.0, 1), -0.1), 'armR': [D(0.3, 1, 0.4), D(0.25, 1, 0.12)], 'blade': D(0.1, 1)},
+        {'hips': (0.1, -0.06), 'spine': D(0.25, 1), 'chest': (D(0.3, 1), 0.12), 'armR': [D(1, 0.45, 0.28), D(1, 0.15, 0.1)], 'blade': D(1, 0.0), **LUNGE},
+        {'hips': (0.12, -0.1), 'spine': D(0.35, 1), 'chest': (D(0.4, 1), 0.15), 'armR': [D(0.75, -0.6, 0.28), D(0.6, -0.8, 0.1)], 'blade': D(0.7, -1), **LUNGE}],
     'K_Chop': [
-        {'hips': (-0.05, 0.03), 'spine': D(-0.25, 1), 'chest': (D(-0.3, 1), -0.15), 'armR': [D(-0.3, 1, 0.65), D(-0.6, 1, 0.3)], 'blade': D(-0.6, -1)},
-        {'hips': (0.16, -0.2), 'spine': D(0.55, 1), 'chest': (D(0.6, 1), 0.15), 'armR': [D(1, -0.1, 0.3), D(1, -0.4, 0.15)], 'blade': D(1, -0.3), **DEEP},
-        {'hips': (0.17, -0.22), 'spine': D(0.6, 1), 'chest': (D(0.65, 1), 0.15), 'armR': [D(0.9, -0.4, 0.35), D(1, -0.5, 0.2)], 'blade': D(1, -0.45), **DEEP}],
+        {'hips': (-0.06, -0.12), 'spine': D(0.35, 1), 'chest': (D(0.3, 1), 0.35), 'armR': [D(-0.1, -1, -0.25), D(-0.5, -0.8, -0.35)], 'blade': D(-0.7, -0.75, -0.25)},
+        {'hips': (0.16, -0.14), 'spine': D(0.4, 1), 'chest': (D(0.4, 1), 0.0), 'armR': [D(1, -0.2, 0.2), D(1, 0.1, 0.1)], 'blade': D(1, 0.2, 0.05), **DEEP},
+        {'hips': (0.14, -0.02), 'spine': D(0.05, 1), 'chest': (D(-0.1, 1), -0.25), 'armR': [D(0.45, 1, 0.45), D(0.3, 1, 0.3)], 'blade': D(0.35, 1, 0.2), **DEEP}],
     'K_Thrust': [
         {'hips': (-0.06, -0.04), 'chest': (D(-0.05, 1), -0.35), 'armR': [D(-0.8, -0.5, 0.4), D(1, 0.15, 0.3)], 'blade': D(1, 0.12)},
         {'hips': (0.18, -0.1), 'spine': D(0.25, 1), 'chest': (D(0.3, 1), 0.25), 'armR': [D(1, 0.2, 0.3), D(1, 0.15, 0.2)], 'blade': D(1, 0.18), **LUNGE},
@@ -364,7 +367,7 @@ def between(a, b, up=0.5):
     return out
 g = P_({})
 for name, (wind, strike, follow) in SWINGS.items():
-    over = 0.0 if name in ('K_Thrust', 'K_Jab', 'K_Lunge') else 0.8
+    over = {'K_Thrust': 0.0, 'K_Jab': 0.0, 'K_Lunge': 0.0, 'K_Chop': -0.5, 'K_Slash': 0.35, 'K_Back': 0.35}.get(name, 0.8)   # how far the arc bows up between the wind-up and the cut (the finisher bows low: it rises)
     keyed(name, [(0, g), (4, P_(between(GUARD_SPEC, wind))), (8, P_(wind)), (11, P_(between(wind, strike, over))),
                  (14, P_(strike)), (18, P_(follow)), (24, P_(between(follow, GUARD_SPEC))), (32, g)])
 po.restore(base)

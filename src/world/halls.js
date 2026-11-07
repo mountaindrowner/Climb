@@ -165,7 +165,7 @@ export function hitHall(G, swing){
   const h = hallAt(G.s); if (!h || h.broken) return false;
   h.hits++;
   const v = h.vis, at = vArc(h.a0, RW - 0.15, h.yA + 1.2 + (Math.random() - 0.5) * 0.4), last = h.hits >= HALL.hits;
-  impact(at, ({ slash: -0.6, back: 0.6, chop: -1.3 }[swing.pose] || 0) * G.face, { heavy: last });
+  impact(at, ({ slash: -1.25, back: -1.1, chop: 1.0 }[swing.pose] || 0) * G.face, { heavy: last });
   burst(at, 10, '#9a8f84', 2.4, 9, 0.07); sfx.crack();
   const st = Math.min(STAGES.length - 1, h.hits); v.dark.material.map = CRACK[st]; v.glow.material.map = GLOW[st]; 
   if (last) breakHall(h);
