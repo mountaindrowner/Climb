@@ -16,7 +16,9 @@ import { sfx } from '../audio/sfx.js';
 import { rumble } from '../core/input.js';
 import { hash, yawFor } from '../core/math.js';
 import { ZONES } from '../config/zones.js';
-import { zoneOf } from './path.js';
+import { zoneOf, posOf, landingS, BR_BASE } from './path.js';
+import { impact } from '../fx/impact.js';
+import { setToast } from '../fx/feedback.js';
 const THREE = window.THREE;
 
 const COLLAPSE = SPUR.collapse;
@@ -69,7 +71,7 @@ export function updateSpurs(dt){
     draw(sp, dt);
   }
 }
-function reset(sp){ const c = sp.cs; c.t = null; c.off = 0; c.regrow = 0; c.gone.fill(false); for (const s3 of sp.steps3){ s3.m.position.copy(s3.home); s3.m.rotation.set(0, yawFor(s3.a), 0); s3.m.visible = true; } }
+function reset(sp){ sp.rubHits = 0; const c = sp.cs; c.t = null; c.off = 0; c.regrow = 0; c.gone.fill(false); for (const s3 of sp.steps3){ s3.m.position.copy(s3.home); s3.m.rotation.set(0, yawFor(s3.a), 0); s3.m.visible = true; } }
 function draw(sp, dt){
   const c = sp.cs;
   for (let i = 0; i < sp.steps; i++){
@@ -87,6 +89,26 @@ function draw(sp, dt){
   }
 }
 
+// The ram (a rune): strike the rubble over a closed fork three times and it gives, opening the fork for this climb.
+const closedHere = G => { if (G.s >= BR_BASE || !G.grounded) return null; const p = posOf(G.s); if (!p.land) return null; const sp = SPURS.find(s => s.kA === p.k && !s.road.open); return sp && Math.abs(G.s - landingS(sp.kA)) < 1.5 ? sp : null; };
+export function hitRubble(G, swing){
+  if (ST.practice || !S.runes.includes('ram')) return false;
+  const sp = closedHere(G); if (!sp) return false;
+  sp.rubHits = (sp.rubHits || 0) + 1;
+  const at = sp.heap.children[0] ? sp.heap.children[0].getWorldPosition(new THREE.Vector3()) : G.s;
+  at.y += 0.4; impact(at, ({ slash: -0.6, back: 0.6, chop: -1.3 }[swing.pose] || 0) * G.face, { heavy: sp.rubHits >= 3 });
+  burst(at, 12, '#8c8298', 3, 8, 0.08); sfx.crack();
+  if (sp.rubHits >= 3){ sp.road.open = true; sfx.rumble(); rumble(0.5, 0.4, 260); burst(at, 30, '#8c8298', 4, 7, 0.1); setToast('The ram breaks through', 'The old stair is open: hold {right} and press {jump}', 2.6); }
+  return true;
+}
+let nearRubble = null;   // which hint was showing: it counts as seen once he has walked on from it
+export function rubbleHint(G){
+  const here = ST.practice ? null : closedHere(G), key = S.runes.includes('ram') ? 'rubble' : 'rubble0';
+  if (!here){ if (nearRubble && !S.seen.includes(nearRubble)){ S.seen.push(nearRubble); save(); } nearRubble = null; return null; }
+  if (S.seen.includes(key)) return null;
+  nearRubble = key;
+  return key === 'rubble' ? 'Rubble over the old stair. It is loose: strike it three times with {attack} and the ram breaks through.' : 'Rubble chokes an old stair here. Something heavier than a sword could break it.';
+}
 // the first time on a spur: say what to do
 export function spurHint(G){
   const sp = spurOf(G.s); if (!sp || ST.practice) return null;

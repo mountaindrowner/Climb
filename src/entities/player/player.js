@@ -21,12 +21,14 @@ import { tap } from '../../core/input.js';
 import { showWeapon, bladeTip } from './glbRig.js';
 import { impact } from '../../fx/impact.js';
 import { hitHall } from '../../world/halls.js';
+import { runState, damage, parryBonus, flaskHeal, afterHurt } from '../../run/run.js';
+import { hitRubble } from '../../world/spur.js';
 const P = TUNE.player, MV = TUNE.move, THREE = window.THREE;
 
 export const PL = makePlayer(); scene.add(PL.P); setWeaponModel(PL, usable(S.weapon));
 
 export function newRunState(startS){
-  return {
+  return runState({
     s: startS, prevS: startS, v: 0, y: posOf(startS).y, vy: 0, grounded: true, face: 1, safeS: startS,
     coyote: 0, jumpBuf: 0, crouch: false, roll: 0, rollCd: 0, rollDir: 1,
     atk: null, blocking: false, blockAt: -9, blockHigh: false, hurtT: 0, inv: 0, landT: 0, jumpT: 0,
@@ -36,7 +38,7 @@ export function newRunState(startS){
     campDone: new Set(), zoneShown: -1, grabCd: 0, lastAtk: -9,
     // kept for the parked Warden fight
     fightSlow: false, slowK: 0,
-  };
+  });
 }
 
 // ---- what threats ask
@@ -45,7 +47,7 @@ export const isLow = G => G.crouch || G.roll > 0;                   // under a b
 export const isRollInvulnerable = G => G.roll > 0 && (MV.roll.time - G.roll) >= MV.roll.iframeFrom && (MV.roll.time - G.roll) <= MV.roll.iframeTo;
 export const isInvulnerable = G => G.inv > 0 || isRollInvulnerable(G);
 export const isBlocking = G => G.blocking && G.roll <= 0;
-export const isParry = G => isBlocking(G) && ST.time - G.blockAt <= P.parryWindow;
+export const isParry = G => isBlocking(G) && ST.time - G.blockAt <= P.parryWindow + parryBonus(G);
 // The warrior's crown and middle, for things that hit at a height.
 export const crownY = G => G.y + (isLow(G) ? 1.05 : 2.45);
 export const midY = G => G.y + (isLow(G) ? 0.75 : 1.4);
@@ -59,7 +61,7 @@ export function headAhead(t, h){ const G = ST.G, s = G.s + G.v * t * routeSign(G
 export function hurt(n, msg, fromS){
   const G = ST.G;
   if (!G || isInvulnerable(G)) return false;
-  G.hp -= n; G.inv = P.invuln; G.hurtT = MV.hurtStun; G.atk = null;
+  G.hp -= n; if (G.hp > 0) afterHurt(G); G.inv = P.invuln; G.hurtT = MV.hurtStun; G.atk = null;
   const away = fromS == null ? -G.face : Math.sign(G.s - fromS) || -G.face;
   G.v = away * MV.knock * routeSign(G.s); if (G.grounded){ G.vy = MV.knockUp; G.grounded = false; }   // away along the path, as a screen direction
   ST.shake = TUNE.feel.shakeHurt; ST.flash = 0.35; sfx.hurt(); buzz(50); hitstop(TUNE.feel.hitstopHurt);
@@ -72,12 +74,13 @@ export function drink(){
   if (!G || ST.mode !== 'climb') return;
   if (G.flask <= 0){ float('Flask empty', head(), '#968ca3'); return; }
   if (G.hp >= G.maxHp){ float('Already full', head(), '#968ca3'); return; }
-  G.flask--; G.hp = Math.min(G.maxHp, G.hp + P.flaskHeal); sfx.drink(); updatePips();
-  burst(head(0.6), 12, '#5ce1c6', 2, -2); float('+' + P.flaskHeal, head(), '#5ce1c6');
+  const heal = flaskHeal(G, P.flaskHeal);
+  G.flask--; G.hp = Math.min(G.maxHp, G.hp + heal); sfx.drink(); updatePips();
+  burst(head(0.6), 12, '#5ce1c6', 2, -2); float('+' + heal, head(), '#5ce1c6');
 }
 // The active frames of a swing: strike everything hittable within reach in front of him.
-export function strike(swing){
-  const G = ST.G, w = WEAPONS[G.weapon], dmg = swing.dmg + G.bonusDmg;
+export function strike(swing, finisher){
+  const G = ST.G, w = WEAPONS[G.weapon], dmg = damage(G, swing, finisher);
   if (ST.B && bossHit(dmg)) return true;
   const k = posOf(G.s).k; let any = false;
   for (let kk = k - 2; kk <= k + 2; kk++){
@@ -99,6 +102,7 @@ export function strike(swing){
     }
   }
   if (!any && hitHall(G, swing)) any = true;   // nothing else in reach: a cracked wall behind him takes the blow
+  if (!any && hitRubble(G, swing)) any = true; // or the rubble over a closed fork, with the ram
   return any;
 }
 export function repairLift(k){

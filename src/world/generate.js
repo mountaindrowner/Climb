@@ -8,6 +8,7 @@ import { setFlight, setAllFlights } from './stair.js';
 import { buildFlightMeshes } from './props.js';
 import { layoutFlight } from './layout.js';
 import { ENTITIES } from '../entities/registry.js';
+import { setOaths } from './oaths.js';
 const THREE = window.THREE;
 
 export let runSeed = 1;
@@ -33,5 +34,6 @@ export function newRun(seed){
   setRoutes(runSeed);                                  // which forks are open this climb
   content.clear(); hinted.clear();
   while (dyn.children.length) dyn.remove(dyn.children[0]);
+  setOaths(runSeed, dyn);                              // where this climb's oath stones stand
   setAllFlights();
 }

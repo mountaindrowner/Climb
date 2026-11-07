@@ -14,6 +14,7 @@ import { float, hitstop, flash } from '../../fx/feedback.js';
 import { topAt } from '../../world/path.js';
 import { hurt, head, isBlocking, isParry, isInvulnerable, playerWorld, crownY, midY } from '../player/player.js';
 import { loadModel, instance, pose, poseOnce } from '../../render/glbModel.js';
+import { killed, addGold, onParry } from '../../run/run.js';
 const THREE = window.THREE;
 const T = TUNE.spitter, _v = new THREE.Vector3();
 // the body from tools/blender/spitter.py; until it has loaded (or if it cannot), the built-in shapes stand in
@@ -83,7 +84,7 @@ function flyOrb(o, dt){
   if (O.back){
     if (O.t >= T.reflect){
       o.orb = null;
-      if (o.alive){ o.alive = false; o.dead = 0; o.done = true; const sp = sacWorld(o); burst(sp, 24, o.glow, 4.5); G.gold += GOLD.spitterParry; float('+' + GOLD.spitterParry, sp, '#e8b04a'); sfx.hit(); }
+      if (o.alive){ o.alive = false; o.dead = 0; o.done = true; const sp = sacWorld(o); burst(sp, 24, o.glow, 4.5); killed('spitter', sp.clone()); const gg = addGold(GOLD.spitterParry); float('+' + gg, sp, '#e8b04a'); sfx.hit(); }
     }
     return;
   }
@@ -93,7 +94,7 @@ function flyOrb(o, dt){
   const pw = playerWorld(); _q.set(pw.x, Math.max(G.y + 0.3, Math.min(crownY(G), O.p.y)), pw.z);
   if (O.p.distanceTo(_q) < 0.5){
     if (isBlocking(G)){
-      if (isParry(G)){ o.orb = { back: true, t: 0, from: O.p.clone() }; sfx.parry(); flash(-0.25); hitstop(TUNE.feel.hitstopParry); float('Parry!', head(), '#9fd0ff'); burst(head(1.2), 14, '#9fd0ff', 3); return; }
+      if (isParry(G)){ onParry(G, head(1.6)); o.orb = { back: true, t: 0, from: O.p.clone() }; sfx.parry(); flash(-0.25); hitstop(TUNE.feel.hitstopParry); float('Parry!', head(), '#9fd0ff'); burst(head(1.2), 14, '#9fd0ff', 3); return; }
       sfx.block(); float('Blocked', head(), '#c9d2e0'); burst(O.p, 8, o.glow, 2); o.orb = null; return;
     }
     if (!isInvulnerable(G)){ hurt(1, 'Hit', o.s); burst(O.p, 10, o.glow, 2.5); o.orb = null; return; }

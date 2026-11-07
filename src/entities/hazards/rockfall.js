@@ -15,6 +15,7 @@ import { float, hitstop } from '../../fx/feedback.js';
 import { topAt } from '../../world/path.js';
 import { hurt, head, isBlocking, isParry, isRollInvulnerable } from '../player/player.js';
 import { prop } from '../../render/props.js';
+import { addGold, onParry } from '../../run/run.js';
 const THREE = window.THREE;
 const T = TUNE.rockfall;
 
@@ -52,7 +53,7 @@ export function update(o, dt){
       if (under && isRollInvulnerable(G)){ float('Rolled', head(), '#c9f5d9'); o.rubble.visible = true; sfx.slam(); }
       else if (under && isBlocking(G)){
         burst(head(1.6), 26, o.color, 4.5, 9, 0.12); ST.shake = Math.max(ST.shake, 0.25); hitstop(0.06);
-        if (isParry(G)){ G.gold += GOLD.rockfallParry; float('Shattered +' + GOLD.rockfallParry, head(), '#e8b04a'); sfx.parry(); }
+        if (isParry(G)){ onParry(G, head(1.6)); const gg = addGold(GOLD.rockfallParry); float('Shattered +' + gg, head(), '#e8b04a'); sfx.parry(); }
         else { float('Blocked', head(), '#c9d2e0'); sfx.block(); }
       } else if (under){
         hurt(1, 'Crushed', o.s); o.rubble.visible = true;

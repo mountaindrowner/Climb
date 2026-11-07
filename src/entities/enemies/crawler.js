@@ -15,6 +15,7 @@ import { float, hitstop, shake } from '../../fx/feedback.js';
 import { posOf, topAt } from '../../world/path.js';
 import { hurt, head, isBlocking, isParry, isInvulnerable } from '../player/player.js';
 import { loadModel, instance, pose, poseOnce } from '../../render/glbModel.js';
+import { killed, addGold, onParry } from '../../run/run.js';
 const THREE = window.THREE;
 const T = TUNE.crawler;
 // the body from tools/blender/crawler.py; until it has loaded (or if it cannot), the built-in shapes stand in
@@ -86,7 +87,7 @@ export function update(o, dt){
       if (!o.hitDone && Math.abs(G.s - o.s) < 0.6 && G.y < topAt(G.s) + 1.2){
         o.hitDone = true;
         if (isBlocking(G) && G.face === -o.face){
-          const parry = isParry(G);
+          const parry = isParry(G); if (parry) onParry(G, head(1.6));
           go('stunned'); o.stun = parry ? T.parryStun : T.stun; o.s -= o.face * 0.5;
           sfx[parry ? 'parry' : 'block'](); float(parry ? 'Parry!' : 'Blocked', head(), parry ? '#9fd0ff' : '#c9d2e0'); hitstop(parry ? 0.1 : 0.06); burst(head(1.2), 8, '#c9d2e0', 2);
           return;
@@ -113,7 +114,7 @@ export function hit(o, dmg){
   if (o.st === 'windup' || o.st === 'chase'){ o.st = 'stunned'; o.tm = 0; o.stun = T.hitStun; }
   o.s += Math.sign(o.s - G.s || 1) * 0.35;
   const op = vArc(o.s * OMEGA, R, posOf(o.s).y + 0.5); burst(op, 12, '#ffd9a8', 3.5);
-  if (o.hp <= 0){ o.alive = false; o.dead = 0; o.done = true; hitstop(TUNE.feel.hitstopKill); G.gold += GOLD.crawler; op.y += 0.6; float('+' + GOLD.crawler, op, '#e8b04a'); sfx.gold(); }
+  if (o.hp <= 0){ o.alive = false; o.dead = 0; o.done = true; hitstop(TUNE.feel.hitstopKill); killed('crawler', op.clone()); const gg = addGold(GOLD.crawler); op.y += 0.6; float('+' + gg, op, '#e8b04a'); sfx.gold(); }
 }
 
 export function draw(o, dt = 1 / 60){

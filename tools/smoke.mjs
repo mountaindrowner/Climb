@@ -149,7 +149,7 @@ await until(() => window.__climb.ST.G.s > 50, 90000, 'the tutorial flights');
 await shot('02-climb');
 console.log('after tutorial', await st());
 await until(() => window.__climb.S.lifts.length > 0, 90000, 'the lift repair');
-await until(() => window.__bot.log.includes('resume'), 90000, 'the rest stop');
+await until(() => window.__climb.ST.G.campDone.size > 0 && window.__climb.ST.mode === 'climb', 120000, 'the rest stop');   // (the bot also walks past oath stones)
 console.log('rest stop passed', await st());
 await until(() => window.__climb.ST.G.s > 15 * 9.8 + 2, 300000, 'reaching the second zone');
 console.log('second zone', await st());
@@ -273,6 +273,30 @@ if (!hallEnd.looted || hallEnd.gold !== hallT.gold0 + hallT.pay || hallEnd.flask
 if (hallEnd.hp !== 99) fail('the hall hurt him: ' + (99 - hallEnd.hp) + ' hits');
 if (Math.abs(hallEnd.s - hallT.out) > 2) fail('the hall\'s ledge did not drop him onto the next landing: ' + JSON.stringify({ hallEnd, hallT }));
 console.log('broke into the hidden hall on landing ' + hallT.kH + ', took ' + hallT.pay + ' gold, dropped out at ' + (hallEnd.s - hallT.out).toFixed(2) + ' from landing ' + (hallT.kH + 1));
+// ---- the run layer: an oath stone offers its choice and the oath holds; with the ram, three blows on a closed fork's
+// rubble open it; a fall loses the wellstone carried and the Pool says so
+const runL = await page.evaluate(async () => {
+  const { startClimb } = await import('/src/modes/climb.js'), P = window.__P, O = await import('/src/world/oaths.js');
+  startClimb(0.5); const st = O.STONES.find(x => x.k > 5) || O.STONES[0], G = window.__climb.ST.G; G.maxHp = G.hp = 99;
+  G.s = G.prevS = P.landingS(st.k) - 1.2; G.y = P.walkY(G.s); window.__fork.clear = true;
+  const gen = await import('/src/world/generate.js'); const clr = () => { for (const c of gen.content.values()) for (const o of c.obs){ o.done = true; o.alive = false; o.st = 'gone'; } if (window.__fork.clear) requestAnimationFrame(clr); }; clr();
+  window.__climb.input.hold('right', true); return { k: st.k };
+});
+await until(() => window.__climb.ST.mode === 'menu' && !!document.querySelector('[data-act="swear"]'), 8000, 'the oath stone\'s choice');
+await page.evaluate(() => window.__climb.input.hold('right', false));
+await page.click('[data-act="swear"]');
+const sworn = await page.evaluate(() => Object.values(window.__climb.ST.G.oaths).reduce((a, b) => a + b, 0));
+if (sworn !== 1) fail('the oath was not sworn: ' + sworn);
+await page.evaluate(() => { const P = window.__P, G = window.__climb.ST.G, S = window.__climb.S; if (!S.runes.includes('ram')) S.runes.push('ram'); const b = P.BRANCHES[0]; b.open = false; G.s = G.prevS = P.landingS(b.kA) - 0.2; G.y = P.walkY(G.s); G.v = 0; window.__B0 = b; });
+await page.waitForTimeout(400);
+for (let i = 0; i < 3; i++){ await page.evaluate(() => window.__climb.input.tap('attack')); await page.waitForTimeout(900); }
+if (!(await page.evaluate(() => window.__B0.open))) fail('the ram did not break the rubble over the closed fork');
+await page.evaluate(async () => { const run = await import('/src/run/run.js'); run.killed('crawler', null); window.__fork.clear = false; const G = window.__climb.ST.G; G.inv = 0; window.__climb.hurt(999, 'test'); });
+await until(() => window.__climb.ST.mode === 'menu', 40000, 'the fall to the Pool');
+const poolTxt = await page.evaluate(() => document.getElementById('overlay').textContent);
+if (!/wellstone you carried is gone/.test(poolTxt)) fail('the Pool did not report the wellstone lost: ' + poolTxt.slice(0, 200));
+await page.evaluate(async () => { const { hideMenu } = await import('/src/ui/overlay.js'); hideMenu(); });
+console.log('the run layer: swore an oath on landing ' + runL.k + ', the ram broke the rubble, the fall cost the wellstone carried');
 await page.evaluate(() => { window.__bot.on = true; });
 const clipR = await page.evaluate(() => window.__clip);
 console.log('clipping:', JSON.stringify(clipR));

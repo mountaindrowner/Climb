@@ -11,7 +11,7 @@ import { burst } from '../render/particles.js';
 import { setToast } from '../fx/feedback.js';
 import { posOf, zoneOf, special, landingS, meters, arenaOf, topAt, forkFrom, branchOf, routeOf } from '../world/path.js';
 import { stepMotor } from '../entities/player/motor.js';
-import { updateSpurs, spurHint } from '../world/spur.js';
+import { updateSpurs, spurHint, rubbleHint } from '../world/spur.js';
 import { updateHalls, hallHint } from '../world/halls.js';
 import { flight, newRun } from '../world/generate.js';
 import { newRunState, PL } from '../entities/player/player.js';
@@ -25,6 +25,9 @@ import { practiceDone } from '../ui/screens/practice.js';
 import { startBoss, updWarden } from '../wardens/warden.js';
 import { startFall } from './fall.js';
 import { openCamp } from '../ui/screens/camp.js';
+import { addGold } from '../run/run.js';
+import { stoneAt, updateOaths } from '../world/oaths.js';
+import { openOath } from '../ui/screens/oath.js';
 const C = TUNE.climb;
 
 export function updClimb(dt){
@@ -39,7 +42,7 @@ export function updClimb(dt){
   // what reads G.prevS after this (landmarks, beams, crawlers) means where he was at the start of the frame
   if (routeOf(s0) === routeOf(G.s)) G.prevS = s0;
   if (ST.mode !== 'climb') return;
-  updateHalls(dt);
+  updateHalls(dt); updateOaths(ST.time);
   // the parked Warden fight
   const kb = FEATURES.wardens ? arenaOf(k0) : -1;
   if (kb >= 0 && !S.bosses.includes(kb) && !ST.B) startBoss(kb);
@@ -53,6 +56,8 @@ export function updClimb(dt){
     const sp = special(k0);
     if (ST.practice && k0 >= PRACTICE_FLIGHTS){ practiceDone(); return; }
     if (sp === 'camp' && !G.campDone.has(k0) && !ST.practice){ G.campDone.add(k0); G.v = 0; S.gold = G.gold; save(); openCamp(k0); return; }
+    const st = !ST.practice && stoneAt(k0);
+    if (st && !st.used){ st.used = true; st.usedAt = ST.time; G.v = 0; openOath(st); return; }
   }
   const p = posOf(G.s);
   if (zoneOf(p.k) !== G.zoneShown){ G.zoneShown = zoneOf(p.k); setToast(ZONES[G.zoneShown].name, 'Zone ' + (G.zoneShown + 1) + ' of ' + ZONES.length, 2.6); }
@@ -69,7 +74,7 @@ export function updClimb(dt){
       if (ST.mode !== 'climb') return;
     }
     for (const g of c.gold){
-      if (!g.taken && Math.abs(g.s - G.s) < 0.45 && G.y < topAt(g.s) + 1.6){ g.taken = true; G.gold += GOLD.nugget; sfx.gold(); burst(g.m.position, 6, '#e8b04a', 2); }
+      if (!g.taken && Math.abs(g.s - G.s) < 0.45 && G.y < topAt(g.s) + 1.6){ g.taken = true; addGold(GOLD.nugget); sfx.gold(); burst(g.m.position, 6, '#e8b04a', 2); }
     }
   }
   if (!ST.hint && G.s < 6 && !ST.practice && !S.best) ST.hint = 'Hold {right} to climb, {left} to go back down. {jump} jumps, hold {down} to crouch.';
@@ -77,7 +82,8 @@ export function updClimb(dt){
   // a fork: the high road climbs off the other way behind this landing
   if (!ST.practice && !branchOf(G.s) && p.land && forkFrom(p.k) && !S.seen.includes('fork')) ST.hint = 'A crumbling stair climbs behind you to the high road, a shortcut. Hold {right} and press {jump} to hop onto it, then keep running and leap at its end.';
   if (branchOf(G.s) && !S.seen.includes('fork')){ S.seen.push('fork'); save(); }
-  const hh = spurHint(G) || hallHint(G); if (hh) ST.hint = hh;
+  const hh = spurHint(G) || hallHint(G) || rubbleHint(G); if (hh) ST.hint = hh;
+  if (G.y > (G.peakY || 0)) G.peakY = G.y;
   if (branchOf(G.s) && !S.seen.includes('handoff')){ S.seen.push('handoff'); save(); }
   const m = meters(G.y); if (m > S.best && !ST.practice) S.best = m;
 }

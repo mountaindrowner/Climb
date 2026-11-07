@@ -17,6 +17,7 @@ import { hurt, head, isInvulnerable } from '../player/player.js';
 import { GOLD } from '../../config/economy.js';
 import { hitstop } from '../../fx/feedback.js';
 import { loadModel, instance, pose, poseOnce, clipBelow } from '../../render/glbModel.js';
+import { killed, addGold } from '../../run/run.js';
 const THREE = window.THREE;
 // the body from tools/blender/burrower.py; until it has loaded (or if it cannot), the built-in shapes stand in
 export const BURROWER = loadModel('burrower', 'assets/models/burrower/burrower.glb');
@@ -85,7 +86,7 @@ export function hit(o, dmg){
   const G = ST.G;
   o.hp -= dmg; o.flash = 0.12; o.hitT = ST.time; sfx.hit(); hitstop(TUNE.feel.hitstopHit);
   burst(vArc(o.s * OMEGA, R, o.top + 0.8), 12, '#ffd9a8', 3.5);
-  if (o.hp <= 0){ o.st = 'sink'; o.tm = 0; o.done = true; o.killed = true; G.gold += GOLD.burrower; float('+' + GOLD.burrower, head(), '#e8b04a'); sfx.gold(); hitstop(TUNE.feel.hitstopKill); }
+  if (o.hp <= 0){ o.st = 'sink'; o.tm = 0; o.done = true; o.killed = true; const gg = addGold(GOLD.burrower); float('+' + gg, head(), '#e8b04a'); killed('burrower', vArc(o.s * OMEGA, R, o.top + 0.8)); sfx.gold(); hitstop(TUNE.feel.hitstopKill); }
 }
 // where a blow lands: its head, wherever the body has it
 export const hitAt = o => o.B ? o.B.head.getWorldPosition(new THREE.Vector3()) : vArc(o.s * OMEGA, R, o.top + 0.8);

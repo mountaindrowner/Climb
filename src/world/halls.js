@@ -20,6 +20,8 @@ import { impact } from '../fx/impact.js';
 import { shake, setToast, float } from '../fx/feedback.js';
 import { openHallWall } from './shaft.js';
 import { updatePips } from '../ui/overlay.js';
+import { addGold, findBlueprint, giveRune } from '../run/run.js';
+import { WELL } from '../config/run.js';
 import { runSeed } from './generate.js';
 const THREE = window.THREE;
 
@@ -218,12 +220,15 @@ export function updateHalls(dt){
 }
 const routeOfOther = G => G.s >= 100000 && !hallOf(G.s);   // on a high road or a spur: the crack is not his business
 function loot(G, h){
-  h.looted = true; const n = GOLD.hall(h.z), v = h.vis;
-  G.gold += n; G.flask = G.flaskMax; updatePips(); v.gold.visible = false;
+  h.looted = true; const v = h.vis, n = addGold(GOLD.hall(h.z)), w = WELL.hall(h.z);
+  G.well += w; G.flask = G.flaskMax; updatePips(); v.gold.visible = false;
+  // and something to keep: the ram, the first time a hall above the Deep is opened; else a blueprint if any is left
+  const p0 = v.chest.position.clone(); p0.y += 0.8;
+  setTimeout(() => { if (h.z >= 1 && giveRune('ram')) return; findBlueprint(p0); }, 900);
   sfx.repair(); for (let k = 0; k < 4; k++) setTimeout(() => sfx.gold(), 80 * k);
   const p = v.chest.position.clone(); p.y += 0.6; burst(p, 18, '#e8b04a', 3, 6, 0.08);
   float('+' + n + ' gold', p, '#e8b04a');
-  setToast('+' + n + ' gold', 'and the flask filled', 2.2);
+  setToast('+' + n + ' gold, +' + w + ' wellstone', 'and the flask filled', 2.2);
 }
 
 // What to say: at a cracked wall, at a broken one, at the carving (its words), and on the ledge the first time.

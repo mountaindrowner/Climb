@@ -14,6 +14,7 @@ import { posOf, walkY, special, landingS, branchOf, spurOf, forkFrom, routeSign,
 import { IN, consume } from '../../core/input.js';
 import { holeAt, ceilingAt } from '../../world/ground.js';
 import { strike, drink, repairLift, hurt } from './player.js';
+import { swingRate, rollCooldown, sprintMul } from '../../run/run.js';
 const MV = TUNE.move;
 const dust = (G, n, spd, c) => { const p = posOf(G.s); burst(vArc(p.a, p.r, G.y + 0.05), n, c || '#b4aac8', spd || 1.4, 5, 0.08); };
 
@@ -22,7 +23,7 @@ export function stepMotor(G, dt){
   // ---- timers
   G.inv = Math.max(0, G.inv - dt); G.hurtT = Math.max(0, G.hurtT - dt); G.rollCd = Math.max(0, G.rollCd - dt);
   G.coyote = Math.max(0, G.coyote - dt); G.jumpBuf = Math.max(0, G.jumpBuf - dt); G.landT = Math.max(0, G.landT - dt); G.jumpT += dt;
-  if (G.roll > 0){ G.roll = Math.max(0, G.roll - dt); if (G.roll === 0) G.rollCd = MV.roll.cooldown; }
+  if (G.roll > 0){ G.roll = Math.max(0, G.roll - dt); if (G.roll === 0) G.rollCd = rollCooldown(G, MV.roll.cooldown); }
   const stunned = G.hurtT > 0;
 
   // ---- presses
@@ -48,10 +49,10 @@ export function stepMotor(G, dt){
   // ---- the swing
   if (G.atk){
     const A = G.atk, w = WEAPONS[G.weapon], sw = w.combo[A.i];
-    A.t += dt;
+    A.t += dt * swingRate(G);                       // the oath of the Knell quickens every phase
     if (A.phase === 'wind' && A.t >= sw.wind){ A.phase = 'active'; A.t = 0; G.v += G.face * sw.lunge / sw.active; sfx.slash(); }
     if (A.phase === 'active'){
-      if (!A.hit){ A.hit = true; if (strike(sw)){ A.landed = true; } }
+      if (!A.hit){ A.hit = true; if (strike(sw, A.i === w.combo.length - 1)){ A.landed = true; } }
       if (A.t >= sw.active){ A.phase = 'rec'; A.t = 0; }
     }
     if (A.phase === 'rec'){
@@ -72,7 +73,7 @@ export function stepMotor(G, dt){
   else if (G.atk && G.atk.phase !== 'rec'){ target = 0; accel = MV.decel * 0.35; }    // planted while swinging; the lunge carries him
   else {
     G.sprinting = !!(H.sprint && dir && !G.crouch && !G.blocking && (G.grounded || G.sprinting));   // a sprint carries into a jump, not out of one
-    target = dir * (G.sprinting ? MV.sprint : MV.run * IN.mag) * (G.crouch ? MV.crouchMul : 1) * (G.blocking ? MV.blockMul : 1);   // IN.mag: how far a stick is pushed
+    target = dir * (G.sprinting ? MV.sprint * sprintMul(G) : MV.run * IN.mag) * (G.crouch ? MV.crouchMul : 1) * (G.blocking ? MV.blockMul : 1);   // IN.mag: how far a stick is pushed
     if (G.grounded && (dir === 0 || Math.sign(G.v) === -dir || Math.abs(G.v) > Math.abs(target))) accel = MV.decel;   // stopping, turning and slowing are instant
     if (dir !== 0 && dir !== G.face && !G.atk){ G.face = dir; if (G.grounded && Math.abs(G.v) > 1.5) dust(G, 5, 1.8); }   // instant turn, a skid puff
   }

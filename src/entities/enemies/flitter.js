@@ -15,6 +15,7 @@ import { float, hitstop } from '../../fx/feedback.js';
 import { topAt, posOf } from '../../world/path.js';
 import { hurt, head, headAhead, isBlocking, isInvulnerable } from '../player/player.js';
 import { BAT, makeBat, pose as batPose } from './batModel.js';
+import { killed, addGold } from '../../run/run.js';
 const THREE = window.THREE;
 const T = TUNE.flitter;
 
@@ -96,7 +97,7 @@ export const inReach = (o, reach) => o.pos.distanceTo(head(1.2)) < reach + 0.6;
 export function hit(o){
   const G = ST.G;
   o.st = 'dead'; o.tm = 0; o.done = true; o.vel.set(-o.pos.x, 2, -o.pos.z).normalize().multiplyScalar(4);
-  G.gold += GOLD.flitter; float('Swat +' + GOLD.flitter, head(), '#e8b04a'); sfx.hit(); hitstop(TUNE.feel.hitstopKill);
+  const gg = addGold(GOLD.flitter); float('Swat +' + gg, head(), '#e8b04a'); killed('flitter', o.pos.clone()); sfx.hit(); hitstop(TUNE.feel.hitstopKill);
   burst(o.pos, 14, '#3e2a44', 3);
 }
 

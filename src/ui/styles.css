@@ -81,6 +81,7 @@ body{
 .card p{font-size:15px;line-height:1.4;margin:6px 0}
 .card .note{color:var(--dim);font-size:13px}
 .card .gold{color:var(--gold)}
+.card .well{color:#5ce1c6}
 .card .pool{color:var(--pool)}
 .card .bad{color:#ff8a78}
 .grp{margin:14px 0 6px;color:var(--dim);font-size:13px;text-align:left}

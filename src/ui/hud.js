@@ -7,6 +7,7 @@ import { S } from '../save/store.js';
 import { ST } from '../core/state.js';
 import { hx, view, camera } from '../render/renderer.js';
 import { posOf, zoneOf, kAtY, flightY, landingY, forkFrom, branchOf } from '../world/path.js';
+import { OATHS, OATH_IDS, MARK_SLOTS } from '../config/run.js';
 import { content } from '../world/generate.js';
 import { ENTITIES } from '../entities/registry.js';
 import { head } from '../entities/player/player.js';
@@ -88,7 +89,15 @@ export function drawHUD(){
     }
     hx.font = `600 15px ${FONT}`;
     hx.fillStyle = '#e8b04a'; hx.fillText('◆ ' + G.gold, 12, 48);
-    hx.fillStyle = '#5ce1c6'; hx.fillText('flask ' + G.flask, 64, 48);
+    let hxX = 12 + hx.measureText('◆ ' + G.gold).width + 14;
+    hx.fillStyle = '#5ce1c6'; hx.fillText('flask ' + G.flask, hxX, 48); hxX += hx.measureText('flask ' + G.flask).width + 14;
+    if (G.well != null){ hx.fillStyle = '#7cf0d8'; hx.fillText('✦ ' + G.well, hxX, 48); }
+    // the oaths sworn this climb, and the marks carried
+    if (G.oaths){
+      hx.font = `600 12px ${FONT}`; let ox = 12;
+      for (const id of OATH_IDS){ const n = G.oaths[id]; if (!n) continue; const t = OATHS[id].name + ' ' + n; hx.fillStyle = OATHS[id].color; hx.fillText(t, ox, 66); ox += hx.measureText(t).width + 12; }
+      if (G.marks && G.marks.length){ hx.fillStyle = '#c7bed2'; hx.fillText('marks ' + G.marks.length + '/' + MARK_SLOTS, ox, 66); }
+    }
     const y = mode === 'fall' && FALL ? FALL.y : mode === 'pool' ? 0 : posOf(G.s).y;
     const m = Math.max(0, Math.floor(y * MPU));
     hx.textAlign = 'right';
