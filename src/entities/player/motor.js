@@ -10,7 +10,7 @@ import { clamp } from '../../core/math.js';
 import { sfx } from '../../audio/sfx.js';
 import { vArc } from '../../render/primitives.js';
 import { burst } from '../../render/particles.js';
-import { posOf, special, landingS, branchOf, forkFrom, routeSign, safeSpot } from '../../world/path.js';
+import { posOf, walkY, special, landingS, branchOf, forkFrom, routeSign, safeSpot } from '../../world/path.js';
 import { IN, consume } from '../../core/input.js';
 import { holeAt, ceilingAt } from '../../world/ground.js';
 import { slabLets } from '../../world/handoff.js';
@@ -107,7 +107,7 @@ export function stepMotor(G, dt){
     else if (u < 0){ G.s = G.prevS = landingS(br.kA) - u; G.hop = 1; }
   }
   if (!G.grounded) G.y += G.vy * dt;
-  let hole = holeAt(G.s); const gy = posOf(G.s).y;
+  let hole = holeAt(G.s); const gy = walkY(G.s);   // the ground he rides: the stair's slope, not each step
   if (G.grounded){
     if (hole){ G.grounded = false; G.vy = 0; G.coyote = MV.coyote; }              // the step is gone: fall, but a jump still works for a moment
     else { G.y = gy; G.safeS = G.s; }
@@ -122,7 +122,7 @@ export function stepMotor(G, dt){
   if (hole && !G.grounded && G.y < hole.top - 1.4){
     // fell through a broken step: hurt, and back on the last solid ground
     hurt(1, 'Fell', null);
-    G.s = G.prevS = safeSpot(G.safeS - G.face * 0.15 * routeSign(G.safeS)); G.y = posOf(G.s).y; G.vy = 0; G.v = 0; G.grounded = true; G.inv = Math.max(G.inv, 0.8);
+    G.s = G.prevS = safeSpot(G.safeS - G.face * 0.15 * routeSign(G.safeS)); G.y = walkY(G.s); G.vy = 0; G.v = 0; G.grounded = true; G.inv = Math.max(G.inv, 0.8);
   }
 
   // ---- footfalls: a heavy step lands every half stride
@@ -130,7 +130,7 @@ export function stepMotor(G, dt){
     const before = Math.sin(G.runPhase);
     G.runPhase += Math.abs(G.v) * dt * (G.stepRate || (G.crouch ? 3.4 : 2.6));   // a rig with measured strides sets stepRate: a footfall per real step
     if (Math.sign(Math.sin(G.runPhase)) !== Math.sign(before)){
-      sfx.step(); if (!G.crouch && Math.random() < 0.6) dust(G, 3, 1);   // footfalls no longer dip the camera; landings still do
+      if (G.crouch) sfx.creep(); else { sfx.step(); if (Math.random() < 0.6) dust(G, 3, 1); }   // footfalls no longer dip the camera; landings still do
     }
   } else if (G.grounded && G.roll <= 0) G.runPhase = 0;
 }

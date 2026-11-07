@@ -27,7 +27,7 @@ const loop = x => x - Math.floor(x);
 const RIGS = {
   skeleton: {
     url: 'assets/models/skeleton/skeleton.glb', label: 'Skeleton',
-    yaw: Math.PI / 2, height: 1.85,          // the knight's clip set and driver, on the designer's own body
+    yaw: Math.PI / 2, height: 2.04,          // the knight's clip set and driver, on the designer's own body (10% up from 1.85)
     targets: skeletonTargets, after: knightAfter, setup: skeletonSetup,
   },
   knight: {
@@ -278,6 +278,15 @@ function skeletonTargets(G, dt){
   GLB.idleT += dt; at('K_Guard', loop(GLB.idleT / clipLen('K_Guard') / 1.6));
   at('K_Walk', loop(GLB.gaitPh + W.strike)); at('Running_A', loop(GLB.gaitPh + Rn.strike));
   T.K_Guard = still; T.K_Walk = (1 - still) * (1 - r); T.Running_A = (1 - still) * r;
+  // standing a while, now and then he looks up the shaft or round about him
+  const L = GLB.look || (GLB.look = { wait: 4, name: null, t: 0, n: 0 });
+  if (still < 0.95){ L.name = null; L.wait = Math.max(L.wait, 2.5); }
+  else if (L.name){
+    L.t += dt; const len = clipLen(L.name), u = L.t / len;
+    if (u >= 1){ L.name = null; L.wait = 5 + 4 * ((L.n * 0.618) % 1); }
+    else { at(L.name, u); const w = Math.min(1, u * 6, (1 - u) * 6); T[L.name] = w; T.K_Guard *= 1 - w; }
+  }
+  else if ((L.wait -= dt) <= 0 && GLB.act.K_LookUp){ L.name = L.n++ % 2 ? 'K_LookAround' : 'K_LookUp'; L.t = 0; }
   if (G.landT > 0){ at('K_Jump_Land', 0.15 + 0.5 * (1 - G.landT / 0.12)); T.K_Jump_Land = 0.6; for (const n of ['K_Guard', 'K_Walk', 'Running_A']) T[n] *= 0.4; }
   return { T, rate: 14 };
 }

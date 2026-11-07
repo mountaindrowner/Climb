@@ -19,8 +19,9 @@ export const hint = 'A fallen beam. Hold {down} to crouch under it, or {roll} to
 
 export function build(o, { z, dyn }){
   const top = topAt(o.s), r = rng(o.k * 331 + 7);
-  // the line it lies along: crosses radius R at path distance o.s, about head height
-  const A = vArc((o.s + 1.1) * OMEGA, RW + 0.2, top + 2.5), Bp = vArc((o.s - 0.9) * OMEGA, R - 1.6, top + 1.45);
+  // the line it lies along: straight out from the wall toward the shaft's centre (across the stair, as the camera sees
+  // it end-on), sloping down to its broken end; it crosses the path at o.s, above a crouch and below a standing head
+  const A = vArc(o.s * OMEGA, RW + 0.2, top + 2.9), Bp = vArc(o.s * OMEGA, R - 2.0, top + 2.25);
   const len = A.distanceTo(Bp);
   const g = new THREE.Group(); g.position.lerpVectors(A, Bp, 0.5); g.lookAt(Bp); dyn.add(g);   // local +z runs from the wall end to the broken end
   const shake = joint(g);

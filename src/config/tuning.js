@@ -7,7 +7,7 @@ export const TUNE = {
     accel: 19,            // gets up to top speed in about 0.2 s: a step or two of walk before the run (braking and turning stay instant)
     decel: 75,            // stops in about 0.05 s
     airAccel: 38,         // full air control, a touch softer
-    crouchMul: 0.45, blockMul: 0.35,
+    crouchMul: 0.38, blockMul: 0.35,   // a crouch-walk is a slow creep
     jumpHeight: 1.55,
     gravityUp: 32, gravityDown: 54, maxFall: 18,
     apexBand: 1.6, apexMul: 0.55,   // holding jump near the top of the arc hangs a moment

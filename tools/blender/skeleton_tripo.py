@@ -172,7 +172,7 @@ grip = K_ + pn * (L1 * 0.55) - fd * (L2 * 0.45)
 want_b, want_f = kline, pn
 src = Matrix((blade, flatn, blade.cross(flatn))).transposed(); dst = Matrix((want_b, want_f, want_b.cross(want_f))).transposed()
 rot = (dst @ src.inverted()).to_4x4()
-sc = sword.matrix_world.to_scale().x * K * float(os.environ.get('S_WEP', 0.85))   # a touch shorter than the knight's
+sc = sword.matrix_world.to_scale().x * K * float(os.environ.get('S_WEP', 1.1))    # a hand-and-a-half sword: room on the grip for both fists
 new_sw = Matrix.Translation(arm.matrix_world @ grip) @ rot @ Matrix.Scale(sc, 4)
 for n, o in weps.items():
     o.matrix_world = new_sw @ rel[n] if n != 'wep_sword' else new_sw
@@ -223,10 +223,54 @@ def sk(spec):
 GUARD_R, GUARD_BLADE = [D(0.15, -1, 0.3), D(1, 0.15, 0.12)], D(1, 0.6)
 FIST_L = [D(0.2, -1, 0.3, 'l'), D(0.9, -0.3, 0.1, 'l')]                   # no shield: the off hand a loose fist, forward
 guard = {'armR': GUARD_R, 'blade': GUARD_BLADE, 'armL': FIST_L, 'chest': D(0.3, 1), 'spine': D(0.12, 1), 'head': D(0.05, 1)}
-def P_(spec, b=None, plant=True): return fist(po.pose(b or base, sk({**guard, **spec}), feet0, plant))
+# ---- two hands on the grip. The left fist closes on the handle just below the right, its knuckles along the handle
+# like the right's and its fingers curling the same way (so its palm faces the other way, as in any two-handed grip).
+# His arms are short: where the left hand cannot reach, both hands bring the sword in toward the body until it can.
+KL, fdl, klinel, pnl, L1l, L2l = hand_frame('l')
+Lrest, Rrest = B['hand.l'].matrix_local.to_3x3(), B['hand.r'].matrix_local.to_3x3()
+grip_l_local = Lrest.inverted() @ (KL + pnl * (L1l * 0.55) - fdl * (L2l * 0.45) - B['hand.l'].head_local)
+grip_r_local = Rrest.inverted() @ (grip - B['hand.r'].head_local)
+fd_r_local, fd_l_local, kl_l_local = Rrest.inverted() @ fd, Lrest.inverted() @ fdl, Lrest.inverted() @ klinel
+FIST_W = (B['index1.r'].head_local - B['pinky1.r'].head_local).length
+def basis(a, b):
+    a = a.normalized(); b = (b - b.dot(a) * a).normalized(); return Matrix((a, b, a.cross(b))).transposed()
+def arm_ik(s, A, hint):
+    up_n, lo_n = 'upperarm.' + s, 'lowerarm.' + s
+    H = po.P[up_n].head.copy(); L1_, L2_ = B[up_n].length, B[lo_n].length
+    dv = A - H; d = max(1e-4, min(dv.length, (L1_ + L2_) * 0.999)); u = dv.normalized()
+    n = (hint - hint.dot(u) * u).normalized()
+    ca = max(-1.0, min(1.0, (L1_ * L1_ + d * d - L2_ * L2_) / (2 * L1_ * d))); sa = (1 - ca * ca) ** 0.5
+    E = H + (ca * u + sa * n) * L1_
+    po.aim(up_n, E - H); po.aim(lo_n, H + u * d - E)
+def set_rot(name, R):
+    pb = po.P[name]; m = R.to_4x4(); m.translation = pb.matrix.translation.copy(); pb.matrix = m; po.update()
+def two_hand():
+    hr = po.P['hand.r']; Rr = hr.matrix.to_3x3().normalized()
+    bd = (Rr @ po.blade_local).normalized(); fdr = (Rr @ fd_r_local).normalized()
+    reach = (B['upperarm.l'].length + B['lowerarm.l'].length) * 0.96
+    for _ in range(3):                                                             # bring the sword in until the off hand reaches it
+        gl = (hr.matrix @ grip_r_local) - bd * (FIST_W * 1.15)
+        R = basis(fdr, bd) @ basis(fd_l_local, kl_l_local).inverted()
+        H = gl - R @ grip_l_local; sh = po.P['upperarm.l'].head
+        over = (H - sh).length - reach
+        if over <= 0: break
+        shift = (sh - H).normalized() * (over + 0.005)
+        arm_ik('r', hr.head + shift, Vector((-0.5, 0.2, -1))); set_rot('hand.r', Rr)
+    arm_ik('l', H, Vector((0.6, 0.2, -1))); set_rot('hand.l', R)
+def P_(spec, b=None, plant=True, two=True):
+    po.pose(b or base, sk({**guard, **spec}), feet0, plant)
+    if two: two_hand()
+    return fist(po.snapshot())
 def keyed(name, keys): po.make_action(name, keys)
 # the guard: Tripo's breathing idle with the sword held ready, hunched
-keyed('K_Guard', [(f, fist(po.pose(fist(po.sample(idle, f)), guard, feet0))) for f in list(range(f0, f1, 6)) + [f1]])
+def guard_at(f, extra=None):
+    po.pose(fist(po.sample(idle, f)), {**guard, **(extra or {})}, feet0); two_hand(); return fist(po.snapshot())
+keyed('K_Guard', [(f, guard_at(f)) for f in list(range(f0, f1, 6)) + [f1]])
+# idles: now and then he looks up the shaft, or round at the camera and back down the stair behind him
+look_keys = lambda heads: [(f, guard_at(f0 + f, h)) for f, h in heads]
+keyed('K_LookUp', look_keys([(0, {}), (14, {'head': D(-0.45, 1), 'chest': D(0.05, 1)}), (44, {'head': (D(-0.5, 1), 0.25), 'chest': D(0.0, 1)}), (60, {})]))
+keyed('K_LookAround', look_keys([(0, {}), (12, {'head': (D(0.1, 1), -0.9)}), (30, {'head': (D(0.1, 1), -0.95)}), (44, {'head': (D(0.05, 1), 0.85), 'chest': (D(0.25, 1), 0.3)}),
+                                 (60, {'head': (D(0.05, 1), 0.9), 'chest': (D(0.25, 1), 0.3)}), (72, {})]))
 # the run: Tripo's, with the sword carried forward and up, clear of the steps
 run = bpy.data.actions['run']; r0, r1 = int(run.frame_range[0]), int(run.frame_range[1])
 CARRY = {'armR': [D(0.25, -1, 0.35), D(1, 0.45, 0.15)], 'blade': D(0.9, 0.8)}
@@ -241,31 +285,40 @@ keyed('Hit_A', [(f, fist(po.pose(fist(po.sample(hit, f)), CARRY, feet0, plant=Fa
 keyed('Hit_B', [(f, fist(po.pose(fist(po.sample(hit, f)), CARRY, feet0, plant=False))) for f in range(h0, h1 + 1, 2)])
 # the jump: off the toes, knees up in the air, a soft landing; the blade upright so it never spears the next step
 UP = {'armR': [D(-0.1, -1, 0.45), D(0.5, 0.6, 0.2)], 'blade': D(0.2, 1), 'armL': [D(0.5, 0.4, 0.4, 'l'), D(0.9, 0.5, 0.1, 'l')]}
-j_start = P_({**UP, 'hips': (0.02, -0.06), 'chest': D(0.35, 1), 'feet': {'l': (0.05, 0.04), 'r': (-0.12, 0.08)}})
-j_go = P_({**UP, 'hips': (0, 0.04), 'chest': D(0.15, 1), 'feet': {'l': (0.08, 0.22), 'r': (-0.1, 0.12)}})
-j_air = P_({**UP, 'chest': D(0.2, 1), 'feet': {'l': (0.16, 0.36), 'r': (0.02, 0.24)}})
-j_air2 = P_({**UP, 'chest': D(0.22, 1), 'feet': {'l': (0.12, 0.32), 'r': (0.04, 0.28)}})
-j_land = P_({**UP, 'hips': (0.06, -0.22), 'chest': D(0.5, 1), 'feet': {'l': (0.1, 0), 'r': (-0.1, 0)}})
+j_start = P_({**UP, 'hips': (0.02, -0.06), 'chest': D(0.35, 1), 'feet': {'l': (0.05, 0.04), 'r': (-0.12, 0.08)}}, two=False)
+j_go = P_({**UP, 'hips': (0, 0.04), 'chest': D(0.15, 1), 'feet': {'l': (0.08, 0.22), 'r': (-0.1, 0.12)}}, two=False)
+j_air = P_({**UP, 'chest': D(0.2, 1), 'feet': {'l': (0.16, 0.36), 'r': (0.02, 0.24)}}, two=False)
+j_air2 = P_({**UP, 'chest': D(0.22, 1), 'feet': {'l': (0.12, 0.32), 'r': (0.04, 0.28)}}, two=False)
+j_land = P_({**UP, 'hips': (0.06, -0.22), 'chest': D(0.5, 1), 'feet': {'l': (0.1, 0), 'r': (-0.1, 0)}}, two=False)
 keyed('K_Jump_Start', [(0, j_start), (8, j_go)])
 keyed('K_Jump_Idle', [(0, j_air), (12, j_air2), (24, j_air)])
-keyed('K_Jump_Land', [(0, j_land), (8, P_({**UP, 'hips': (0.03, -0.1), 'feet': {'l': (0.06, 0), 'r': (-0.06, 0)}})), (16, P_({}))])
+keyed('K_Jump_Land', [(0, j_land), (8, P_({**UP, 'hips': (0.03, -0.1), 'feet': {'l': (0.06, 0), 'r': (-0.06, 0)}}, two=False)), (16, P_({}))])
 # the block: the blade held across in front, point up, the off hand braced behind it; the high block: overhead
-blk = P_({'armR': [D(0.6, -0.5, 0.3), D(0.6, 0.8, -0.35)], 'blade': D(0.2, 1, -0.1), 'armL': [D(0.5, -0.4, 0.2, 'l'), D(0.8, 0.5, 0.45, 'l')],
+blk = P_({'armR': [D(0.6, -0.5, 0.15), D(0.6, 0.8, -0.35)], 'blade': D(0.2, 1, -0.1), 'armL': [D(0.5, -0.4, 0.2, 'l'), D(0.8, 0.5, 0.45, 'l')],
           'hips': (-0.03, -0.06), 'feet': {'l': (0.1, 0), 'r': (-0.1, 0)}})
 keyed('Blocking', [(0, blk), (12, blk)])
 hb_ = P_({'armR': [D(0.4, 1, 0.55), D(0.8, 0.5, -0.6)], 'blade': D(1, 0.12), 'armL': [D(0.4, 0.9, 0.3, 'l'), D(0.4, 0.6, -0.9, 'l')],
           'hips': (0, -0.08), 'feet': {'l': (0.1, 0), 'r': (-0.1, 0)}})
 keyed('K_BlockHigh', [(0, hb_), (12, hb_)])
 # crouch, crouch walk and the roll's tuck: the knight's
-CROUCH = {'hips': (0.12, -0.86), 'spine': D(0.95, 1), 'chest': D(0.45, 1), 'head': D(-0.3, 1),
-          'armR': [D(0.3, -1, 0.35), D(0.7, 0.8, 0.1)], 'blade': D(0.15, 1)}
-c = P_({**CROUCH, 'feet': {'l': (0.12, 0), 'r': (-0.12, 0)}})
-keyed('K_Crouch', [(0, c), (12, c)])
-steps = [((0.14, 0), (-0.14, 0), 0), ((0, 0), (0, 0.08), 0.025), ((-0.14, 0), (0.14, 0), 0), ((0, 0.08), (0, 0), 0.025)]
-GAIT['K_CrouchWalk'] = {'stride': round(4 * 0.14 * K, 4), 'strike': 0.0}   # the feet trade 0.14 each way, twice a loop
-keyed('K_CrouchWalk', [(i * 6, P_({**CROUCH, 'hips': (0.12, -0.86 + bob), 'feet': {'l': l, 'r': r}})) for i, (l, r, bob) in enumerate(steps + steps[:1])])
+# crouch: coiled, not squashed. Hips down and forward, the back bent over the knees, the head up looking ahead, the
+# blade held low and ready, and the off hand reaching down to the stone
+HAND_DOWN = [D(0.55, -1, 0.3, 'l'), D(0.35, -1, 0.05, 'l')]
+CROUCH = {'hips': (0.2, -0.62), 'spine': D(0.95, 1), 'chest': D(0.7, 1), 'head': D(0.1, 1),
+          'armR': [D(0.35, -1, 0.3), D(0.85, 0.55, 0.1)], 'blade': D(0.75, 0.7), 'armL': HAND_DOWN}
+c = P_({**CROUCH, 'feet': {'l': (0.2, 0), 'r': (-0.16, 0)}}, two=False)
+keyed('K_Crouch', [(0, c), (24, P_({**CROUCH, 'hips': (0.2, -0.6), 'feet': {'l': (0.2, 0), 'r': (-0.16, 0)}}, two=False)), (48, c)])
+print('crouch crown / standing crown: %.2f' % ((lambda sn: (po.restore(sn), (po.P['head'].matrix @ Vector((0, B['head'].length * 1.9, 0))).z)[1])(c) /
+      (lambda sn: (po.restore(sn), (po.P['head'].matrix @ Vector((0, B['head'].length * 1.9, 0))).z)[1])(base)))
+# the crouch walk: a slow creep, a long low step at a time, the off hand padding forward with the opposite foot
+F_ = 0.24
+creep = [((F_, 0), (-F_, 0), 0.0, 0.4), ((0, 0), (0, 0.1), 0.02, 0.0), ((-F_, 0), (F_, 0), 0.0, -0.4), ((0, 0.1), (0, 0), 0.02, 0.0)]
+GAIT['K_CrouchWalk'] = {'stride': round(4 * F_ * K, 4), 'strike': 0.0}         # the feet trade F_ each way, twice a loop
+keyed('K_CrouchWalk', [(i * 8, P_({**CROUCH, 'hips': (0.2, -0.62 + bob), 'feet': {'l': l, 'r': r},
+                                    'armL': [D(0.55 + reach, -1, 0.3, 'l'), D(0.35 + reach, -1, 0.05, 'l')]}, two=False))
+                       for i, (l, r, bob, reach) in enumerate(creep + creep[:1])])
 t = P_({'hips': (0.0, -0.22), 'spine': D(1.0, 0.8), 'chest': D(1.6, 0.6), 'head': D(1.2, -0.3), 'feet': {'l': (0.3, 0.42), 'r': (0.25, 0.38)},
-        'armR': [D(0.9, -0.6, 0.45), D(-0.3, 1, 0.35)], 'blade': D(-0.25, 1), 'armL': [D(0.9, -0.6, 0.2, 'l'), D(-0.2, 1, -0.3, 'l')]})
+        'armR': [D(0.9, -0.6, 0.45), D(-0.3, 1, 0.35)], 'blade': D(-0.25, 1), 'armL': [D(0.9, -0.6, 0.2, 'l'), D(-0.2, 1, -0.3, 'l')]}, two=False)
 keyed('K_Tuck', [(0, t), (12, t)])
 # the swings: the knight's specs, keyed the same (guard 0, wind-up 8, strike 14, follow-through 18, guard 32)
 LUNGE = {'feet': {'l': (-0.1, 0), 'r': (0.24, 0)}}

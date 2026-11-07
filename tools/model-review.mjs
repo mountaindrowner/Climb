@@ -1,6 +1,7 @@
 // Art review of a GLB through the game's own three.js: a turnaround at rest, then frames from every clip, lit like the
 // shaft (a warm torch, a cold fill). Writes tools/out/model-<name>-sheet.png.
-// Usage: MODEL=assets/models/bat/bat.glb node tools/model-review.mjs   (FRAMES=4 frames per clip, VIEW=side|34|front)
+// Usage: MODEL=assets/models/bat/bat.glb node tools/model-review.mjs   (FRAMES=4 frames per clip, CLIPS=a,b only those clips, HIDE=node,node,
+// FOCUS=node to frame the clips on one node, FIT=0.45 how much of the model the frame holds)
 import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -23,7 +24,7 @@ await page.route(/^(?!http:\/\/localhost)/, r => r.abort());
 await page.goto(`http://localhost:${PORT}/index.html`, { waitUntil: "domcontentloaded" });   /* a page of the server: the review then shares its origin */
 await page.setContent(`<body style="margin:0;background:#111"><script src="http://localhost:${PORT}/vendor/three/three.min.js"></script><script src="http://localhost:${PORT}/vendor/three/GLTFLoader.js"></script></body>`);
 await page.waitForFunction(() => window.THREE && THREE.GLTFLoader);
-const shots = await page.evaluate(async ({ url, FRAMES, HEAD }) => { const process = { env: { HEAD } };
+const shots = await page.evaluate(async ({ url, FRAMES, HEAD, CLIPS, HIDE, FOCUS, FIT }) => { const process = { env: { HEAD } };
   const W = 400, H = 360, r = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); r.setSize(W, H); document.body.appendChild(r.domElement);
   /* colour goes to the screen as the game sends it: linear, no sRGB curve */
   const scene = new THREE.Scene(); scene.background = new THREE.Color(0x2a2630);
@@ -32,7 +33,7 @@ const shots = await page.evaluate(async ({ url, FRAMES, HEAD }) => { const proce
   const rim = new THREE.DirectionalLight(0x7fb6d8, 0.7); rim.position.set(-3, 2, -2); scene.add(rim);
   const gltf = await new Promise((res, rej) => new THREE.GLTFLoader().load(url, res, undefined, rej));
   const model = gltf.scene; scene.add(model);
-  model.traverse(o => { if (o.isMesh){ o.frustumCulled = false; } });
+  model.traverse(o => { if (o.isMesh){ o.frustumCulled = false; } if (HIDE.includes(o.name)) o.visible = false; });
   const mixer = new THREE.AnimationMixer(model), cam = new THREE.PerspectiveCamera(35, W / H, 0.01, 100);
   const box = new THREE.Box3().setFromObject(model), c = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3()).length();
   const shoot = (az, el, label, fit = 1.15) => {
@@ -46,15 +47,17 @@ const shots = await page.evaluate(async ({ url, FRAMES, HEAD }) => { const proce
   const hd = model.getObjectByName(process.env.HEAD || 'head');
   if (hd){ const hc = new THREE.Vector3(); hd.getWorldPosition(hc); const keep = c.clone(); c.copy(hc); out.push(shoot(0.25, 0.15, 'head, front', 0.32), shoot(-0.9, 0.25, 'head, three-quarter', 0.32)); c.copy(keep); }
   for (const clip of gltf.animations){
+    if (CLIPS && !CLIPS.includes(clip.name)) continue;
     const a = mixer.clipAction(clip); a.play();
     for (let i = 0; i < FRAMES; i++){
       a.time = clip.duration * i / FRAMES; mixer.update(0); model.updateMatrixWorld(true);
-      out.push(shoot(-0.7, 0.3, `${clip.name} ${i + 1}/${FRAMES}`));
+      if (FOCUS){ const f = model.getObjectByName(FOCUS); if (f){ f.getWorldPosition(c); } }
+      out.push(shoot(FOCUS ? -1.25 : -0.7, FOCUS ? 0.15 : 0.3, `${clip.name} ${i + 1}/${FRAMES}`, FOCUS ? FIT : 1.15));
     }
     a.stop();
   }
   return out;
-}, { url: `http://localhost:${PORT}/${MODEL}`, FRAMES, HEAD: process.env.HEAD || 'head' });
+}, { url: `http://localhost:${PORT}/${MODEL}`, FRAMES, HEAD: process.env.HEAD || 'head', CLIPS: process.env.CLIPS ? process.env.CLIPS.split(',') : null, HIDE: (process.env.HIDE || '').split(','), FOCUS: process.env.FOCUS || '', FIT: +(process.env.FIT || 0.45) });
 const html = `<body style="margin:0;background:#111;display:grid;grid-template-columns:repeat(5,280px);gap:4px;padding:4px;font:12px sans-serif;color:#ddd">${shots.map(([l, d]) => `<figure style="margin:0"><img src="${d}" style="width:280px;display:block"><figcaption>${l}</figcaption></figure>`).join('')}</body>`;
 const sheet = await browser.newPage({ viewport: { width: 5 * 284 + 4, height: 300 } });
 await sheet.setContent(html); await sheet.waitForTimeout(200);

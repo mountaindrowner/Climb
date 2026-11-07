@@ -95,6 +95,22 @@ function branchPos(s){
   }
   return { k: b.kA, t: u, i: -1, fr: 0, a, y: b.yB, land: true, rise: b.rise, r: b.r, branch: b };
 }
+// The height his body rides at s: the step tops averaged over one step's length around him. Up a flight that is a
+// line through the middle of each step, easing into the landings, so he climbs on a slope while his feet (foot IK)
+// land on the real steps, instead of his whole body popping up a step each time a foot arrives. The crumbling foot of
+// a high road (slab or hole) is taken as it is.
+export function walkY(s){
+  const b = branchOf(s);
+  if (b && s - b.s0 < b.crumbleTo) return topAt(s);
+  // exactly: the step tops are flat between step edges, so cut the window at every edge and sum the pieces
+  const a0 = s - 0.5, a1 = s + 0.5, cuts = [a0, a1], lo = b ? b.s0 : 0, hi = b ? b.s0 + b.len : Infinity;
+  if (b){ for (let i = Math.max(1, Math.ceil((a0 - b.s0) / b.stepL)); b.s0 + i * b.stepL < a1 && i * b.stepL < b.len - b.flat; i++) cuts.push(b.s0 + i * b.stepL); }
+  else for (let k = Math.floor(a0 / FL); k * FL <= a1; k++) for (let i = 0; i < F; i++){ const x = k * FL + i; if (x > a0 && x < a1) cuts.push(x); }
+  cuts.sort((p, q) => p - q);
+  let sum = 0;
+  for (let i = 1; i < cuts.length; i++) sum += (cuts[i] - cuts[i - 1]) * topAt(Math.min(hi, Math.max(lo, (cuts[i - 1] + cuts[i]) / 2)));
+  return sum;
+}
 // The line up the stair's slope under s: no steps in it, from landing to landing (the camera follows this, so it rises
 // smoothly instead of hopping a step at a time).
 export function rampY(s){

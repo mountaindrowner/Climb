@@ -30,6 +30,7 @@ function noise(dur, vol, freq){
 export function setVolume(v){ if (OUT) OUT.gain.value = v; }
 export const sfx = {
   step(){ tone(72, 0.09, 'sine', 0.22, -30); noise(0.05, 0.05, 380); },
+  creep(){ tone(64, 0.06, 'sine', 0.06, -16); noise(0.035, 0.015, 300); },   // a crouched, careful footfall: barely there
   jump(){ tone(260, 0.12, 'square', 0.04, 220); },
   slash(){ noise(0.09, 0.09, 2600); },
   hit(){ tone(170, 0.1, 'square', 0.07, -90); noise(0.06, 0.07, 1500); },
