@@ -67,6 +67,13 @@ test('broken steps go two at a time only where a running jump clears the hole: g
   const { riseOf } = await import('../src/world/path.js'), { F } = await import('../src/config/constants.js');
   const M = (await import('../src/config/tuning.js')).TUNE.move;
   let wide = 0;
+  for (let seed = 1; seed < 6; seed++) for (let k = 0; k < 30; k++){
+    const gs = layoutFlight(seed, k).obs.filter(o => o.type === 'gap').sort((a, b) => a.s - b.s);
+    gs.forEach((o, n) => {
+      if (o.wide && gs[n + 1]) assert.ok(gs[n + 1].s - o.s >= 4 - 1e-9, `two solid steps after a wide gap on flight ${k}`);
+      if (o.wide && gs[n - 1]) assert.ok(o.s - gs[n - 1].s >= (gs[n - 1].wide ? 5 : 4) - 1e-9, `three solid steps before a wide gap on flight ${k}`);
+    });
+  }
   for (let seed = 1; seed < 6; seed++) for (let k = 0; k < 30; k++) for (const o of layoutFlight(seed, k).obs){
     if (o.type !== 'gap' || !o.wide) continue; wide++;
     assert.ok(riseOf(k) <= 0.45, `wide gap on flight ${k} (rise ${riseOf(k)})`);

@@ -69,6 +69,7 @@ await page.addScriptTag({ type: 'module', content: `
     }
     if (mode !== 'climb') return;
     if (bot.jumpHold > 0 && --bot.jumpHold === 0) I.hold('jump', false);
+    if (bot.jumpHold > 0 && G.grounded && G.jumpT > 0.15){ I.hold('jump', false); bot.jumpHold = 0; }   /* landed: let go, so a hole one step on can be jumped at once */
     if (bot.lastHp == null || G.hp > bot.lastHp) bot.lastHp = G.hp;
     if (G.hp < bot.lastHp){ bot.hits += bot.lastHp - G.hp; bot.hitLog.push(ST.floats.length ? ST.floats[ST.floats.length - 1].text : '?'); }
     bot.lastHp = G.hp;

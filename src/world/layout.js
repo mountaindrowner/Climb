@@ -60,5 +60,11 @@ export function layoutFlight(seed, k, opts = {}){
     const i = 1 + ((r() * 6) | 0);
     if (!c.gaps.has(i)) c.gold.push({ s: base + i + 0.6, taken: false });
   }
+  // a wide broken step needs room: three whole steps of solid stair before it (a jump over a hole can land two steps on) and two after it, or it stays one step wide
+  const gs = c.obs.filter(o => o.type === 'gap').sort((a, b) => a.s - b.s), at = o => Math.floor(o.s - base);
+  gs.forEach((o, n) => {
+    const pv = gs[n - 1], nx = gs[n + 1];
+    if (o.wide && ((nx && at(nx) < at(o) + 4) || (pv && at(pv) + (pv.wide ? 2 : 1) > at(o) - 3))){ o.wide = false; c.gaps.delete(at(o) + 1); }
+  });
   return c;
 }

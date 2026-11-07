@@ -52,7 +52,7 @@ export function update(o, dt){
     if (o.width > 1){ sfx.rumble(); shake(0.12); }                                // two steps going is a bigger collapse
   }
   if (o.crumbling && !o.holeOpen){ o.openT += dt; if (o.openT > 0.28) o.holeOpen = true; }
-  if (!o.done && Math.abs(G.s - centre) > 0.7 + (o.width || 1) / 2 && o.holeOpen && G.grounded) o.done = true;
+  if (!o.done && G.s - centre > 0.7 + (o.width || 1) / 2 && o.holeOpen && G.grounded) o.done = true;   // passed: beyond it, not just away from it
 }
 export function draw(o, dt){
   const G = ST.G, d = G ? o.s - G.s : 99;

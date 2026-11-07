@@ -122,7 +122,10 @@ export function stepMotor(G, dt){
   if (hole && !G.grounded && G.y < hole.top - 1.4){
     // fell through a broken step: hurt, and back on the last solid ground
     hurt(1, 'Fell', null);
-    G.s = G.prevS = safeSpot(G.safeS - G.face * 0.15 * routeSign(G.safeS)); G.y = walkY(G.s); G.vy = 0; G.v = 0; G.grounded = true; G.inv = Math.max(G.inv, 0.8);
+    let back = safeSpot(G.safeS - G.face * 0.15 * routeSign(G.safeS));
+    // the last solid ground may have crumbled since: step back off the hole, and keep a step's run-up before it
+    for (let i = 0; i < 24 && (holeAt(back) || holeAt(back + G.face * routeSign(back)) || holeAt(back + 0.5 * G.face * routeSign(back))); i++) back -= 0.25 * G.face * routeSign(back);
+    G.s = G.prevS = back; G.y = walkY(G.s); G.vy = 0; G.v = 0; G.grounded = true; G.inv = Math.max(G.inv, 0.8);
   }
 
   // ---- footfalls: a heavy step lands every half stride
