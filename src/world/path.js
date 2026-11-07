@@ -33,13 +33,17 @@ export function surfaceOf(k){
   return pick;
 }
 const SURF = []; for (let k = 0; k <= MAXK + 1; k++) SURF.push(surfaceOf(k));
+// Steps per unit of stair. Until 0.26 a step was a whole unit, up to 0.75 high on a 2-unit man, more than a third of
+// his height (real risers are about a tenth), so every step was a high-knee lift. Now each unit is two steps; 'broad'
+// steps are the old whole-unit ones, on gentle flights only.
+export const HALF = 2;
 // the top of flight k's surface t into it (0..F), above the flight's base
 export function surfTop(k, t){
   const r = riseOf(k), kind = SURF[Math.max(0, Math.min(SURF.length - 1, k))];
   if (kind === 'slope') return r * t;
   if (kind === 'tall') return t < 4 ? 0.75 * r * t : 5 * r + 0.75 * r * (t - 4);
-  if (kind === 'broad') return (Math.floor(t / 2) + 1) * 2 * r;
-  return (Math.floor(t) + 1) * r;
+  if (kind === 'broad') return (Math.floor(t) + 1) * r;
+  return (Math.floor(t * HALF) + 1) * r / HALF;   // two steps to a unit: each rise a tenth or so of his height, as real stairs are
 }
 const BASE = new Float64Array(MAXK + 2);
 for (let k = 0; k <= MAXK; k++) BASE[k + 1] = BASE[k] + F * riseOf(k);
@@ -62,10 +66,10 @@ export function posOf(s){
   const k = Math.floor(s / FL), t = s - k * FL, base = flightY(k), rise = riseOf(k), a = s * OMEGA;
   if (t < F){
     const i = Math.floor(t), fr = t - i;
-    if (SURF[k] === 'broad'){ const v = t / 2, j = Math.floor(v), e = smooth(Math.min(1, (v - j) / 0.42)); return { k, t, i, fr, a, y: base + 2 * rise * (j + e), land: false, rise, r: R, surface: 'broad' }; }
+    if (SURF[k] === 'broad'){ const e = smooth(Math.min(1, fr / 0.42)); return { k, t, i, fr, a, y: base + rise * (i + e), land: false, rise, r: R, surface: 'broad' }; }
     if (SURF[k] !== 'steps') return { k, t, i, fr, a, y: base + surfTop(k, t), land: false, rise, r: R, surface: SURF[k] };
-    const e = smooth(Math.min(1, fr / 0.42));
-    return { k, t, i, fr, a, y: base + rise * (i + e), land: false, rise, r: R };
+    const v = t * HALF, j = Math.floor(v), e = smooth(Math.min(1, (v - j) / 0.42));
+    return { k, t, i, fr, a, y: base + rise / HALF * (j + e), land: false, rise, r: R };
   }
   return { k, t, i: -1, fr: 0, a, y: base + F * rise, land: true, u: (t - F) / LAND, rise, r: R };
 }
@@ -237,7 +241,7 @@ export function walkY(s){
   if (hl){ for (let i = 0; i <= hl.nSteps; i++){ const x = hl.s0 + hl.entry + i * hl.stepL; if (x > a0 && x < a1) cuts.push(x); } }
   else if (b){ for (let i = 0; b.s0 + b.footL + i * b.stepL < a1 && i <= b.nSteps; i++){ const x = b.s0 + b.footL + i * b.stepL; if (x > a0) cuts.push(x); } }
   else if (sp){ for (let i = 1; i < sp.steps; i++){ const x = sp.s0 + i * sp.stepL; if (x > a0 && x < a1) cuts.push(x); } }
-  else for (let k = Math.floor(a0 / FL); k * FL <= a1; k++) for (let i = 0; i <= F; i++){ const x = k * FL + i; if (x > a0 && x < a1) cuts.push(x); }   // step edges, and where a slope meets its landing
+  else for (let k = Math.floor(a0 / FL); k * FL <= a1; k++) for (let i = 0; i <= F * HALF; i++){ const x = k * FL + i / HALF; if (x > a0 && x < a1) cuts.push(x); }   // step edges, and where a slope meets its landing
   cuts.sort((p, q) => p - q);
   const top = x => sp ? spurBuilt(sp, x - sp.s0) : topAt(x);
   let sum = 0;

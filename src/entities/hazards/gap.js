@@ -27,8 +27,8 @@ export function build(o, { c, z, glow, dyn }){
   // the slab, in pieces: two along the stair, three across it, and a heavy underside
   for (let u = 0; u < 2; u++) for (let v = 0; v < 3; v++){
     const m = rock(u + v & 1 ? stone : dark, { w: 0.56, h: 0.5, d: 0.82, jag: 0.16 }, 0, 0, 0, r);
-    const dx = (u - 0.5) * 0.6, dz = (v - 1) * 0.86;
-    placeArc(m, sa + dx / R, R + dz, st - 0.26); m.rotation.x += (r() - 0.5) * 0.1; dyn.add(m);
+    const dx = (u - 0.5) * 0.6, dz = (v - 1) * 0.86, stu = st - (1 - u) * riseOf(c.k) / 2;   // the unit's two steps
+    placeArc(m, sa + dx / R, R + dz, stu - 0.26); m.rotation.x += (r() - 0.5) * 0.1; dyn.add(m);
     chunks.push({ m, vy: 0, vx: (r() - 0.5) * 1.2, vz: (r() - 0.5) * 1.2, spin: (r() - 0.5) * 6, delay: r() * 0.25 + (v === 0 ? 0.1 : 0) });
   }
   const under = rock(dark, { w: 1.1, h: 0.8, d: 2.2, jag: 0.25 }, 0, 0, 0, r); placeArc(under, sa, R, st - 0.95); dyn.add(under);
