@@ -84,6 +84,28 @@ class Body:
         print(name + ':', len(me.vertices), 'verts', len(me.polygons), 'faces')
         return ob
 
+    def static(self, name, colour, rough, emissive=None):
+        """A plain mesh (a prop: no bones). emissive: {material name: (r, g, b)} for parts that glow."""
+        bm = self.bm; bm.verts.ensure_lookup_table(); bm.faces.ensure_lookup_table()
+        for f in bm.faces:
+            kind = self.KIND.get(f, '')
+            for l in f.loops: l[self.col] = (*to_byte(colour(kind, l.vert.co, vnoise(l.vert.co, 0.07, 3))), 1.0)
+        me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free()
+        for ca in [c for c in me.color_attributes if c.name != 'Col']: me.color_attributes.remove(ca)
+        me.color_attributes.active_color = me.color_attributes['Col']; me.color_attributes.render_color_index = me.color_attributes.find('Col')
+        ob = bpy.data.objects.new(name, me); bpy.context.collection.objects.link(ob)
+        for mname in self.mats:
+            m = bpy.data.materials.get(mname)
+            if m is None:
+                m = bpy.data.materials.new(mname); m.use_nodes = True; nt = m.node_tree; b = nt.nodes['Principled BSDF']
+                vc = nt.nodes.new('ShaderNodeVertexColor'); vc.layer_name = 'Col'; nt.links.new(vc.outputs['Color'], b.inputs['Base Color'])
+                b.inputs['Roughness'].default_value = rough.get(mname, 0.8)
+                if emissive and mname in emissive:
+                    b.inputs['Emission Color'].default_value = (*emissive[mname], 1); b.inputs['Emission Strength'].default_value = 2.0
+            me.materials.append(m)
+        print(name + ':', len(me.vertices), 'verts')
+        return ob
+
 def glow_mesh(arm, name, mat_name, spheres, bone_name, colour=(1.0, 0.6, 0.3)):
     """Small emissive spheres [(center, radius, (sx, sy, sz))] parented to one bone: eyes, pits, coals."""
     gbm = bmesh.new()

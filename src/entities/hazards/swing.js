@@ -13,6 +13,7 @@ import { flatMat } from '../../render/creature.js';
 import { float } from '../../fx/feedback.js';
 import { topAt, posOf } from '../../world/path.js';
 import { hurt, head, isLow, crownY } from '../player/player.js';
+import { prop } from '../../render/props.js';
 const THREE = window.THREE;
 const T = TUNE.swing;
 
@@ -66,7 +67,25 @@ export function update(o, dt){
   else if (Math.abs(w.s - G.s) < 0.6 && isLow(G) && w.y < G.y + 2.7 && !o.ducked){ o.ducked = true; float('Under', head(), '#c9f5d9'); }
   if (!o.done && G.s > o.s + 2) o.done = true;
 }
-export function draw(o){ place(o); }
+// once the props have loaded: the iron-bound, spiked boulder instead of the stand-in, and a chain of links to the pivot
+function dress(o){
+  const w = prop('SwingWeight'); if (!w) return;
+  for (const c of o.weight.children) c.visible = false;
+  w.scale.setScalar(1.05); o.weight.add(w); o.chain.visible = false;
+  o.links = []; const n = Math.ceil(T.length / 0.15);
+  for (let i = 0; i < n; i++){ const l = prop('ChainLink'); l.rotation.y = (i % 2) * Math.PI / 2; o.weight.parent.add(l); o.links.push(l); }
+  o.dressed = true;
+}
+const _up = new THREE.Vector3(0, 1, 0), _d = new THREE.Vector3(), _q = new THREE.Quaternion(), _t = new THREE.Quaternion();
+export function draw(o){
+  if (!o.dressed) dress(o);
+  place(o);
+  if (o.links){
+    const w = weightAt(o), from = vArc(o.s * OMEGA, R, o.pivotY, _a), to = vArc(w.s * OMEGA, R, w.y + 0.66, _b);
+    _d.subVectors(from, to).normalize(); _q.setFromUnitVectors(_up, _d);
+    o.links.forEach((l, i) => { l.position.lerpVectors(to, from, (i + 0.5) / o.links.length); l.quaternion.copy(_q).multiply(_t.setFromAxisAngle(_up, (i % 2) * Math.PI / 2)); });
+  }
+}
 export function hud(o, d, { drawIcon, drawTiming }){
   if (o.done) return;
   if (o.st === 'swing' && o.tm < T.period / 4) drawTiming('{down}', o.tm, T.period / 4);

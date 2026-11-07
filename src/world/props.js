@@ -9,6 +9,7 @@ import { burst } from '../render/particles.js';
 import { zoneOf, landingS, topAt, landingY } from './path.js';
 import { dyn, content } from './generate.js';
 import { ENTITIES } from '../entities/registry.js';
+import { prop } from '../render/props.js';
 const THREE = window.THREE;
 
 export function buildFlightMeshes(c){
@@ -37,10 +38,24 @@ export function buildFlightMeshes(c){
     g.add(f1, f2);
     g.add(mbox(0.6, 0.5, 0.6, lam(0x5a4030), 0.9, 0.25, 0.3)); // the trader's pack
     placeArc(g, a, R + 0.4, top); dyn.add(g);
-    c.extras.push({ type: 'camp', g, f1, f2, k });
+    c.extras.push({ type: 'camp', g, f1, f2, k, old: [l1, l2, g.children[g.children.length - 1]] });
   }
 }
 
+// The rest stop's campfire from tools/blender/props.py once it has loaded: stones, logs charred at the tips, glowing
+// embers, the log seat, the trader's pack and lantern; and flames of three nested cones that lick and turn.
+function dressCamp(ex){
+  const pv = prop('Camp'); if (!pv) return;
+  ex.dressed = true;
+  for (const o of ex.old) if (o) o.visible = false;
+  ex.f1.visible = ex.f2.visible = false;
+  ex.g.add(pv);
+  pv.traverse(o => { if (o.isMesh && o.material && o.material.name === 'camp_ember'){ o.material = o.material.clone(); ex.ember = o.material; } });
+  ex.flames = [[0.2, 0.75, 0xff6a20, 0.9], [0.14, 0.6, 0xffa040, 0.85], [0.08, 0.42, 0xfff0b0, 0.9]].map(([r, h, c, op]) => {
+    const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 6, 1, true), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: op, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+    m.geometry.translate(0, h / 2, 0); m.position.y = 0.08; ex.g.add(m); return m;
+  });
+}
 // Animate gold, lifts and campfires; point the shared fire light at the nearest source (or the Warden).
 export function updateProps(dt, pw){
   const { time } = ST;
@@ -56,8 +71,13 @@ export function updateProps(dt, pw){
         if (ok){ const d = ex.g.position.distanceTo(pw); if (d < fireDist){ fireDist = d; fireTarget = { p: ex.g.position, y: 2.4, i: 1.3, c: 0xffc070 }; } }
         else if (Math.random() < 0.05) burst(vArc(landingS(ex.k) * OMEGA, R - 1.0, landingY(ex.k) + 2.1), 2, '#ffcf6b', 2, 6, 0.05); // sparks from the broken lamp
       } else if (ex.type === 'camp'){
+        if (!ex.dressed) dressCamp(ex);
         const fl = 0.7 + 0.3 * Math.sin(time * 9) * Math.sin(time * 5.3);
-        ex.f1.scale.set(1, fl, 1); ex.f2.scale.set(1, 0.6 + fl * 0.6, 1);
+        if (ex.flames){
+          ex.flames.forEach((f, i) => { const q = 0.75 + 0.35 * Math.sin(time * (7 + i * 2.3) + i * 1.7) * Math.sin(time * (4.1 + i) + i); f.scale.set(1 + 0.1 * Math.sin(time * 13 + i), q, 1 + 0.1 * Math.cos(time * 11 + i)); f.rotation.y = time * (0.6 + i * 0.3); });
+          if (ex.ember) ex.ember.emissiveIntensity = 1.6 + 0.8 * fl;
+          if (Math.random() < 0.08) burst(ex.g.position.clone().setY(ex.g.position.y + 0.7), 2, '#ffb14a', 1.2, -2.5, 0.05);   // sparks rising
+        } else { ex.f1.scale.set(1, fl, 1); ex.f2.scale.set(1, 0.6 + fl * 0.6, 1); }
         const d = ex.g.position.distanceTo(pw); if (d < fireDist){ fireDist = d; fireTarget = { p: ex.g.position, y: 0.6, i: 2.4 * fl, c: 0xff8a3c }; }
       }
     }

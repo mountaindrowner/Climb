@@ -14,6 +14,7 @@ import { burst, mote } from '../../render/particles.js';
 import { float, hitstop } from '../../fx/feedback.js';
 import { topAt } from '../../world/path.js';
 import { hurt, head, isBlocking, isParry, isRollInvulnerable } from '../player/player.js';
+import { prop } from '../../render/props.js';
 const THREE = window.THREE;
 const T = TUNE.rockfall;
 
@@ -70,6 +71,7 @@ export function draw(o){
     o.ringMat.opacity = (0.3 + 0.5 * q) * (0.7 + 0.3 * Math.sin(ST.time * 16)); o.ring.scale.setScalar(0.5 + 0.3 * q);
     if (Math.random() < 0.5){ const rr = R + (Math.random() - 0.5) * 1.2, a = o.a + (Math.random() - 0.5) * 0.08; mote(rr * Math.cos(a), o.top + 7, rr * Math.sin(a), 0x7a7088); }
   } else if (o.st === 'drop'){
+    if (!o.dressed){ const b = prop('Boulder' + (o.k % 3)); if (b){ for (const c of o.boulder.children) c.visible = false; if (o.boulder.isMesh) o.boulder.material = o.boulder.material.clone(), o.boulder.material.visible = false; o.boulder.add(b); b.scale.setScalar(1.1); } o.dressed = true; }
     const u = clamp(o.tm / T.fall, 0, 1);
     o.shadowMat.opacity = 0.6 + 0.3 * u; o.shadow.scale.setScalar(0.8 + 0.35 * u);
     o.ringMat.opacity = 0.85; o.ring.scale.setScalar(0.8 + 0.35 * u);

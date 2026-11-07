@@ -13,9 +13,15 @@ import { flatMat, segment, spike, joint } from '../../render/creature.js';
 import { mote } from '../../render/particles.js';
 import { topAt } from '../../world/path.js';
 import { hurt, isLow } from '../player/player.js';
+import { prop } from '../../render/props.js';
+import { placeArc } from '../../render/primitives.js';
 const THREE = window.THREE;
 
-export const hint = 'A fallen beam. Hold {down} to crouch under it, or {roll} to roll under it. Running into it hurts.';
+export const hint = 'Something low across the stair. Hold {down} to crouch under it, or {roll} to roll under it. Running into it hurts.';
+// What hangs low across the stair, region by region (the tutorial keeps the beam): the beam, a collapsed arch, a curtain
+// of chains, a fallen lintel, roots grown across. Each is a piece from tools/blender/props.py; all share the beam's rules.
+const LOW = [['roots', 'beam', 'arch'], ['chains', 'arch', 'beam'], ['lintel', 'chains', 'beam'], ['roots', 'arch', 'beam'], ['beam', 'lintel', 'arch'], ['arch', 'chains', 'lintel'], ['lintel', 'roots', 'chains']];
+const PIECE = { arch: 'Low_Arch', chains: 'Low_Chains', lintel: 'Low_Lintel', roots: 'Low_Roots' };
 
 export function build(o, { z, dyn }){
   const top = topAt(o.s), r = rng(o.k * 331 + 7);
@@ -40,6 +46,8 @@ export function build(o, { z, dyn }){
   const rope = new THREE.Group(); rope.position.copy(Bp).add(new THREE.Vector3(0, -0.15, 0)); dyn.add(rope);
   const ropeSeg = segment(flatMat(0x8a7a5a), 0.9, 0.03, 0.02); ropeSeg.rotation.x = Math.PI; rope.add(ropeSeg);
   o.m = g; o.shake = shake; o.rope = rope; o.mats = [wood, woodHi]; o.top = top; o.A = A; o.Bp = Bp; o.halfWidth = 0.38;
+  const zi = Math.min(LOW.length - 1, Math.max(0, Math.floor(o.k / 15)));
+  o.variant = o.k < 5 ? 'beam' : LOW[zi][Math.floor(r() * LOW[zi].length)]; o.dyn = dyn; o.tint = new THREE.Color(z.stone).multiplyScalar(1.5);
 }
 export function update(o, dt){
   const G = ST.G, d = o.s - G.s;
@@ -56,6 +64,15 @@ export function update(o, dt){
 }
 export function draw(o){
   const G = ST.G, d = G ? o.s - G.s : 99, near = !o.done && d > 0 && d < TUNE.beam.creak, t = ST.time;
+  if (o.variant !== 'beam'){
+    if (!o.pv){ o.pv = prop(PIECE[o.variant], o.tint); if (o.pv){ placeArc(o.pv, o.s * OMEGA, R, o.top); o.pv.scale.set(1.45, 1, 1); o.dyn.add(o.pv); o.m.visible = false; o.rope.visible = false; } }
+    if (o.pv){
+      // chains sway, roots and stone tremble as he nears, and dust sheds from them
+      o.pv.rotation.z = o.variant === 'chains' ? Math.sin(t * 1.7 + o.s) * 0.025 : near ? Math.sin(t * 38) * 0.006 : 0;
+      if (near && Math.random() < 0.3){ const p = vArc(o.s * OMEGA, R + (Math.random() - 0.5) * 2.4, o.top + 2.5); mote(p.x, p.y, p.z, 0x8a7a6a); }
+      return;
+    }
+  }
   o.shake.rotation.z = near ? Math.sin(t * 38) * 0.012 : 0;
   o.rope.rotation.z = Math.sin(t * 1.9 + o.s) * 0.12;
   const glow = near && Math.sin(t * 14) > 0 ? 0x3a1d08 : 0x000000;
