@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.25.0 — the run (2026-11-07)
+
+Milestone 5, the Dead Cells layer, named from the lore: every climb leaves something, and every climb from the bottom grows as it goes.
+
+- **Wellstone.** The teal light the blade frees from a thing that drank the Pool. Kills burst it out in teal motes; a hidden hall's chest holds more. Carry it up, and at a rest stop Fetch sends it down to the Pool in his sack, safe for good. Fall while carrying it and it is gone.
+- **Fetch at the Pool.** Spend banked wellstone on blueprints you have found and on the Pool's own upgrades for every climb after: a deeper flask (+1 charge), Hald mail (+1 health), Fetch's credit (start with more gold).
+- **Blueprints.** Found in hidden halls and now and then where something dies; kept for good the moment you find one. Bought, each adds a mark to what Fetch can offer.
+- **Oaths.** Three oath stones a region, standing at the back of a landing with two lines of the Lanternbearer's oath glowing on them. Reach the landing's middle and choose: the Edge (blows land 30% harder), the Lantern (+1 health, healed 1) or the Knell (swings 8% quicker, a wider parry). Each oath grows every time you swear it, for the rest of the climb; a fall undoes them.
+- **Marks.** At each rest stop Fetch offers three marks; take one, three at most a climb. Three are known from the start (Root: your first fall is caught at a root; Tithe: more gold, and more kept when you fall; Ward: a parry heals). Six more come from blueprints (Vigil, Finisher, Fleet, Seam, Second Breath, Bearer).
+- **The Hald ram**, the first route-opener: found in the first hidden hall you open above the Deep, kept for good. With it, three blows break the rubble over a closed fork and open the high road for this climb, so every region has two ways up.
+- **The Pool sums up the climb**: how high you got, how many things you ended, what you swore, what you found, what the fall cost and what you banked. Riding a lift now says what it skips.
+- The HUD shows wellstone carried, the oaths sworn and the marks carried. Saves move to version 3 (the run layer starts empty).
+- Tests: the run layer's tables, the save migration, Fetch's offers (three, stable, never what you carry, bought blueprints join them), the oath stones' pairs. The smoke run swears at an oath stone, breaks a closed fork's rubble with the ram, and checks that a fall loses the wellstone carried.
+
 ## 0.24.0 — threats and places v2 (2026-11-07)
 
 Milestone 4: every threat rebuilt to the bat's standard, the campfire, and more to crouch under than the beam.

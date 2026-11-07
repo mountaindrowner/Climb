@@ -74,16 +74,16 @@ What Dead Cells does, and our version of it:
 
 | Dead Cells | What it does | Ours |
 | --- | --- | --- |
-| Cells | Currency dropped in a run, spent between biomes, lost if you die holding it | **Echoes** (placeholder): dropped by enemies, banked at the Pool's keeper at each region's end, lost on a fall if unbanked |
-| Blueprints and the Collector | Found blueprints are unlocked with cells, adding new gear to the drop pool | **Blueprints** found on the climb are bought with Echoes at the Pool, adding weapons, tools and perks to future runs |
-| Runes | Permanent abilities that open new routes and areas | **Route-openers**: a root grapple, a shoulder-ram for cracked walls, a wall-cling, a glide down the shaft. They open forks, side branches and hidden halls |
-| Scrolls of Power | In-run stat boosts in three colours; each weapon scales with a colour | **Three oaths** (placeholder names): each scroll raises one; every weapon scales with one, so a run grows a build |
-| Mutations | Perks picked between biomes | **Marks**, picked at rest stops, three slots per run |
-| Forge | Raises the quality of all future gear | **The anvil at the Pool**: raises the base level of found gear |
+| Cells | Currency dropped in a run, spent between biomes, lost if you die holding it | **Wellstone** (built in 0.25): the teal light the blade frees from a thing that drank the Pool. Kills and hidden halls drop it. Fetch sends it down to the Pool from any rest stop; what you carry is lost on a fall |
+| Blueprints and the Collector | Found blueprints are unlocked with cells, adding new gear to the drop pool | **Blueprints** (0.25): found in hidden halls and now and then where something dies, kept for good once found, bought with wellstone from Fetch at the Pool. Each adds a mark to what Fetch offers; weapons and tools join them with weapons v2 |
+| Runes | Permanent abilities that open new routes and areas | **Route-openers**. The first, **the Hald ram** (0.25), turns up in the first hidden hall you open above the Deep and breaks the rubble over a closed fork. Still to come: a root grapple, a wall-cling, a glide down the shaft |
+| Scrolls of Power | In-run stat boosts in three colours; each weapon scales with a colour | **Three oaths** (0.25), the Lanternbearer's oath in three parts: the **Edge** ("What I find, I end": harder blows), the **Lantern** ("I go down with the light": more health), the **Knell** ("What ends, I name": quicker swings, a wider parry). Three oath stones a region, each offering two; what you swear grows for the climb and a fall undoes it. Weapons scale with an oath from weapons v2 (the sword with the Edge) |
+| Mutations | Perks picked between biomes | **Marks** (0.25), from Fetch at rest stops: one a stop, three a climb. Root, Tithe and Ward are known from the start; Vigil, Finisher, Fleet, Seam, Second Breath and Bearer come from blueprints |
+| Forge | Raises the quality of all future gear | **The Pool's upgrades** (0.25), from Fetch for wellstone: a deeper flask, Hald mail, Fetch's credit. The anvil (the quality of found gear) waits for weapons v2 |
 | Boss Stem Cells | Difficulty tiers earned by finishing | **Deeper falls**: finish the climb to unlock a harder mountain with more threats and fewer heals |
-| Biome branching | Each biome has more than one exit | Two exits per region, one often gated by a route-opener |
+| Biome branching | Each biome has more than one exit | Two ways up through every region: each climb opens one fork or both, and the ram breaks open a closed one |
 
-**Gold stays** for in-run shops and rest stops, half lost on a fall. **Lifts stay**, with a cost: riding one skips the loot, scrolls and blueprints below it, so climbing from the bottom makes you stronger. This keeps shortcuts without killing the roguelike.
+**Gold stays** for in-run shops and rest stops, half lost on a fall (a quarter with the Mark of the Tithe). **Lifts stay**, with a cost: riding one skips the oath stones, the wellstone and the finds below it, so climbing from the bottom makes you stronger. This keeps shortcuts without killing the roguelike. **The Pool sums up each climb**: how high you got, what you ended, what you swore, what you found, what the fall cost.
 
 ## Combat and weapons
 
@@ -143,7 +143,7 @@ The bar is the current jump animation. What exists for Claude to make models and
 
 ## Build order
 
-Built so far: the foundation (0.17), forks as the high road (0.18), a first crumbling handoff (0.19, to be replaced), and the skeleton as the player with measured strides, sprint, the smooth camera, mouse controls and the bat (0.20). The designer's notes of Nov 7 are folded in below; most are feel, so feel came next (0.21), then stair and routes v2 (0.22): the handoff as designed, varied surfaces, forks that change per run, and the hidden halls with their ledges (0.23), then threats and places v2 (0.24). The run is next.
+Built so far: the foundation (0.17), forks as the high road (0.18), a first crumbling handoff (0.19, to be replaced), and the skeleton as the player with measured strides, sprint, the smooth camera, mouse controls and the bat (0.20). The designer's notes of Nov 7 are folded in below; most are feel, so feel came next (0.21), then stair and routes v2 (0.22): the handoff as designed, varied surfaces, forks that change per run, and the hidden halls with their ledges (0.23), then threats and places v2 (0.24), then the run (0.25). Weapons v2 is next.
 
 | # | Milestone | Delivers |
 | --- | --- | --- |
@@ -152,7 +152,7 @@ Built so far: the foundation (0.17), forks as the high road (0.18), a first crum
 | 2 | **Feel and juice (built in 0.21)** | Climbing that rises with the stride instead of popping up each step; a nuanced crouch and a creeping crouch-walk (its footsteps and their sound fixed); idle variations (looking around, up the shaft); a longer, two-handed sword; the warrior 10% taller; hit juice (flash, swipe, sparks, freeze, camera kick, sound); wider, more daunting broken-step gaps; prompts fixed (the ring and its arrow centred); beams pointing out toward the shaft's centre instead of at an odd angle |
 | 3 | **Stair and routes v2 (built in 0.22 and 0.23)** | Fewer, more varied steps: slopes with the occasional step, broad runs, tall steps (tested region by region); routes that differ per run; the crumbling handoff redone as designed (keep running on the failing stair and leap to the higher one before it goes); side halls and ledges |
 | 4 | **Threats and places v2 (built in 0.24)** | Every threat rebuilt to the bat's standard, starting with the burrower (the stair trap with the spiked jaws), then crawler, spitter, rockfall, swing; the rest stop's campfire rebuilt; more kinds of crouch obstacle than the beam (a low arch, a hanging chain curtain, a collapsed lintel, roots) |
-| 5 | The run | The Dead Cells layer: Echoes, blueprints at the Pool, oaths, marks, two exits per region; regions 1 to 4 |
+| 5 | **The run (built in 0.25)** | The Dead Cells layer: Echoes, blueprints at the Pool, oaths, marks, two exits per region; regions 1 to 4 |
 | 6 | Weapons v2 | Six families, crit conditions, two tool slots, shaft kills (the pick and spear come back here) |
 | 7 | Wardens | The Ring and the Colossus, one of each |
 | 8 | Presentation | The intro story sequence, the death crash, the climb back out of the Pool to the start every time |
@@ -161,7 +161,7 @@ Built so far: the foundation (0.17), forks as the high road (0.18), a first crum
 
 ## Open questions
 
-- The names for Echoes, the three oaths and the route-openers; `lore.md` has the vocabulary to draw them from (the Welling, the casting of the tithe, the Lantern Watch).
+- Settled in 0.25: wellstone (for Echoes), the Edge, the Lantern and the Knell (the oaths), the Hald ram (the first route-opener). Still open: the other route-openers' names.
 - The lore's own open questions, chiefly the ending: let go, drink again, or give the flask to the one at the top (`lore.md`, last section).
 - How long a full climb should take now that the pace is the player's: 30 minutes still?
 - Do lifts survive, or does the climb always start from the bottom as in Dead Cells? (The concept keeps them, with the loot trade-off.)
