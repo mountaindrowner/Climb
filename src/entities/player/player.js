@@ -20,6 +20,7 @@ import { updatePips } from '../../ui/overlay.js';
 import { tap } from '../../core/input.js';
 import { showWeapon, bladeTip } from './glbRig.js';
 import { impact } from '../../fx/impact.js';
+import { hitHall } from '../../world/halls.js';
 const P = TUNE.player, MV = TUNE.move, THREE = window.THREE;
 
 export const PL = makePlayer(); scene.add(PL.P); setWeaponModel(PL, usable(S.weapon));
@@ -97,6 +98,7 @@ export function strike(swing){
       }
     }
   }
+  if (!any && hitHall(G, swing)) any = true;   // nothing else in reach: a cracked wall behind him takes the blow
   return any;
 }
 export function repairLift(k){

@@ -245,6 +245,31 @@ const forkEnd = await page.evaluate(() => { window.__climb.input.hold('left', fa
 if (forkEnd.hp !== 99) fail('the fork hurt him on the way: ' + (99 - forkEnd.hp) + ' hits');
 if (Math.abs(forkEnd.s - fork.sB) > 1.5) fail('the high road did not bring him out at the landing it rejoins: ' + JSON.stringify({ forkEnd, fork }));
 console.log('took the fork from flight ' + fork.kA + ' to ' + fork.kB + ': ' + leap.log.join(', '));
+// ---- a hidden hall: break the cracked wall behind its landing with three blows, step in, climb to the chest, and walk
+// off the ledge at its end, down onto the next landing
+const hallT = await page.evaluate(async () => {
+  const { startClimb } = await import('/src/modes/climb.js'), P = window.__P, { GOLD } = await import('/src/config/economy.js');
+  const h = P.HALLS.find(x => x.z === 0); startClimb(P.landingS(h.kH) - 0.2); for (const x of P.HALLS) x.open = x === h;
+  const G = window.__climb.ST.G; G.maxHp = G.hp = 99; G.flask = 0; window.__H = h; window.__fork.clear = true;
+  const gen = await import('/src/world/generate.js'); const clr = () => { for (const c of gen.content.values()) for (const o of c.obs){ o.done = true; o.alive = false; o.st = 'gone'; } if (window.__fork.clear) requestAnimationFrame(clr); }; clr();
+  return { kH: h.kH, gold0: G.gold, pay: GOLD.hall(0), out: P.landingS(h.kH + 1) };
+});
+await page.waitForTimeout(500);
+for (let i = 0; i < 3; i++){
+  await page.evaluate(() => window.__climb.input.tap('attack'));
+  await until(() => !window.__climb.ST.G.atk, 5000, 'a swing at the cracked wall');
+}
+if (!(await page.evaluate(() => window.__H.broken))) fail('three blows did not break the hidden hall\'s wall: ' + await page.evaluate(() => window.__H.hits) + ' landed');
+await page.waitForTimeout(300);
+await page.evaluate(() => window.__climb.input.tap('jump'));
+await until(() => !!window.__P.hallOf(window.__climb.ST.G.s), 3000, 'stepping into the hall');
+await page.evaluate(() => window.__climb.input.hold('right', true));
+await until(() => !window.__P.hallOf(window.__climb.ST.G.s) && window.__climb.ST.G.grounded, 20000, 'walking the hall and dropping off its ledge');
+const hallEnd = await page.evaluate(() => { window.__climb.input.hold('right', false); window.__fork.clear = false; const G = window.__climb.ST.G; return { s: G.s, hp: G.hp, gold: G.gold, flask: G.flask, flaskMax: G.flaskMax, looted: window.__H.looted }; });
+if (!hallEnd.looted || hallEnd.gold !== hallT.gold0 + hallT.pay || hallEnd.flask !== hallEnd.flaskMax) fail('the hall\'s chest did not pay out: ' + JSON.stringify({ hallEnd, hallT }));
+if (hallEnd.hp !== 99) fail('the hall hurt him: ' + (99 - hallEnd.hp) + ' hits');
+if (Math.abs(hallEnd.s - hallT.out) > 2) fail('the hall\'s ledge did not drop him onto the next landing: ' + JSON.stringify({ hallEnd, hallT }));
+console.log('broke into the hidden hall on landing ' + hallT.kH + ', took ' + hallT.pay + ' gold, dropped out at ' + (hallEnd.s - hallT.out).toFixed(2) + ' from landing ' + (hallT.kH + 1));
 await page.evaluate(() => { window.__bot.on = true; });
 const clipR = await page.evaluate(() => window.__clip);
 console.log('clipping:', JSON.stringify(clipR));

@@ -10,7 +10,7 @@ import { clamp } from '../../core/math.js';
 import { sfx } from '../../audio/sfx.js';
 import { vArc } from '../../render/primitives.js';
 import { burst } from '../../render/particles.js';
-import { posOf, walkY, special, landingS, branchOf, spurOf, forkFrom, routeSign, safeSpot, SPUR, BR_BASE } from '../../world/path.js';
+import { posOf, walkY, special, landingS, branchOf, spurOf, forkFrom, routeSign, safeSpot, SPUR, BR_BASE, hallOf, hallAt, HALL } from '../../world/path.js';
 import { IN, consume } from '../../core/input.js';
 import { holeAt, ceilingAt } from '../../world/ground.js';
 import { strike, drink, repairLift, hurt } from './player.js';
@@ -29,7 +29,9 @@ export function stepMotor(G, dt){
   if (consume('flask')) drink();
   if (consume('jump')){
     const p = posOf(G.s);
+    const hl = !ST.practice && G.grounded && p.land && Math.abs(G.v) < 1 && hallAt(G.s);
     if (!ST.practice && G.grounded && p.land && special(p.k) === 'lift' && !S.lifts.includes(p.k) && Math.abs(G.v) < 1) repairLift(p.k);
+    else if (hl && hl.broken){ G.s = G.prevS = hl.s0 + HALL.mouth; G.v = 0; G.hop = 1; sfx.step(); dust(G, 6, 1.2); }   // standing in a broken wall's opening: step through into the hall
     else G.jumpBuf = MV.buffer;
   }
   if (consume('roll') && G.roll <= 0 && G.rollCd <= 0 && !stunned && (!G.atk || G.atk.phase !== 'active')){
@@ -97,7 +99,12 @@ export function stepMotor(G, dt){
   G.prevS = G.s; G.s += G.v * dt * routeSign(G.s);   // a high road winds the other way round: right goes back down it
   if (G.s < 0.05) G.s = 0.05;
   // the ends of a high road: walk off its top onto the landing it rejoins, or back off its foot onto the fork landing
-  const br = branchOf(G.prevS), sp = spurOf(G.prevS);
+  const br = branchOf(G.prevS), sp = spurOf(G.prevS), hl = hallOf(G.prevS);
+  if (hl){
+    const u = G.s - hl.s0;
+    if (u < 0){ G.s = G.prevS = landingS(hl.kH) + (u - HALL.mouth) * R / hl.r; G.hop = 1; }                       // back out through the opening onto its landing
+    else if (u > hl.len){ G.s = G.prevS = hl.sOut + (u - hl.len) * R / hl.r; G.grounded = false; G.vy = Math.min(G.vy, 0); G.hop = 1; }   // off the ledge: a drop onto the stair below
+  }
   if (br){
     const u = G.s - br.s0;
     if (u > br.len){ G.s = G.prevS = landingS(br.kB) - (u - br.len); G.hop = 1; }

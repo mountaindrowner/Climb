@@ -130,3 +130,30 @@ test('routes change from run to run: every zone keeps a way across, and both for
   assert.ok(seen.size >= 3, 'the first zone opens its forks in different ways across runs: ' + [...seen].join(' '));
   for (const b of P.BRANCHES) b.open = true;
 });
+test('hidden halls: every zone has one a run; in from its landing, up through the rock, out on a ledge above the next landing', async () => {
+  const P = await import('../src/world/path.js');
+  const zones = new Set(P.HALLS.map(h => h.z));
+  assert.equal(zones.size, ZONES.length, 'a hall in every zone');
+  for (const h of P.HALLS){
+    const sM = P.landingS(h.kH), mouth = P.posOf(h.s0 + P.HALL.mouth), L = P.posOf(sM);
+    assert.ok(Math.abs(mouth.y - L.y) < 1e-9 && Math.abs(mouth.a - L.a) < 1e-9, `hall ${h.j} opens straight behind its landing`);
+    assert.ok(!['lift', 'camp', 'boss'].includes(P.special(h.kH)) && !P.BRANCHES.some(b => b.kA === h.kH), `hall ${h.j} is not on a landing that already does something`);
+    assert.ok(h.rise > 0 && h.rise <= P.BRANCH_MAX_RISE, `hall ${h.j} rise ${h.rise.toFixed(2)} is climbable`);
+    // the ledge: its end is over the next landing, and a drop above it
+    const out = P.posOf(h.sOut), end = P.posOf(h.s0 + h.len);
+    assert.ok(out.land && out.k === h.kH + 1, `hall ${h.j} comes out over landing ${h.kH + 1}`);
+    assert.ok(Math.abs(end.a - out.a) < 1e-9, 'straight above it');
+    const drop = end.y - out.y; assert.ok(drop > 1.2 && drop < 2.5, `a drop of ${drop.toFixed(2)}`);
+    // the walk: continuous, never below its own steps, the chest and carving on the chamber floor
+    let last = P.walkY(h.s0 + 0.05);
+    for (let u = 0.05; u < h.len; u += 0.05){ const w = P.walkY(h.s0 + u); assert.ok(w >= last - 1e-9 && w - last < 0.1, `hall ${h.j} walk line at ${u.toFixed(2)}`); last = w; assert.ok(P.topAt(h.s0 + u) >= P.posOf(h.s0 + u).y - 1e-6); }
+    assert.equal(P.topAt(h.s0 + h.chestU), h.yTop); assert.equal(P.topAt(h.s0 + h.tabletU), h.yTop);
+    assert.equal(P.routeSign(h.s0 + 2), 1); assert.equal(P.routeOf(h.s0 + 2), h); assert.equal(P.branchOf(h.s0 + 2), null); assert.equal(P.spurOf(h.s0 + 2), null);
+    assert.ok(Math.abs(P.sAt(h.s0 + 4, P.posOf(h.s0 + 5).a) - (h.s0 + 5)) < 1e-6, 'sAt finds positions along a hall');
+  }
+  for (let seed = 0; seed < 20; seed++){
+    P.setRoutes(seed);
+    for (const z of zones){ const open = P.HALLS.filter(h => h.z === z && h.open); assert.equal(open.length, 1, `one hall open in zone ${z}`); assert.ok(!open[0].broken && !open[0].looted); }
+    const h = P.HALLS.find(x => x.open); assert.equal(P.hallAt(P.landingS(h.kH) + 0.5), h); assert.equal(P.hallAt(P.landingS(h.kH) + 3), null);
+  }
+});

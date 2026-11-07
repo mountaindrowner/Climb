@@ -9,9 +9,10 @@ import { sfx } from '../audio/sfx.js';
 import { vArc } from '../render/primitives.js';
 import { burst } from '../render/particles.js';
 import { setToast } from '../fx/feedback.js';
-import { posOf, zoneOf, special, landingS, meters, arenaOf, topAt, forkFrom, branchOf } from '../world/path.js';
+import { posOf, zoneOf, special, landingS, meters, arenaOf, topAt, forkFrom, branchOf, routeOf } from '../world/path.js';
 import { stepMotor } from '../entities/player/motor.js';
 import { updateSpurs, spurHint } from '../world/spur.js';
+import { updateHalls, hallHint } from '../world/halls.js';
 import { flight, newRun } from '../world/generate.js';
 import { newRunState, PL } from '../entities/player/player.js';
 import { setWeaponModel } from '../entities/player/model.js';
@@ -36,8 +37,9 @@ export function updClimb(dt){
     stepMotor(G, h);
   }
   // what reads G.prevS after this (landmarks, beams, crawlers) means where he was at the start of the frame
-  if (branchOf(s0) === branchOf(G.s)) G.prevS = s0;
+  if (routeOf(s0) === routeOf(G.s)) G.prevS = s0;
   if (ST.mode !== 'climb') return;
+  updateHalls(dt);
   // the parked Warden fight
   const kb = FEATURES.wardens ? arenaOf(k0) : -1;
   if (kb >= 0 && !S.bosses.includes(kb) && !ST.B) startBoss(kb);
@@ -75,7 +77,7 @@ export function updClimb(dt){
   // a fork: the high road climbs off the other way behind this landing
   if (!ST.practice && !branchOf(G.s) && p.land && forkFrom(p.k) && !S.seen.includes('fork')) ST.hint = 'A crumbling stair climbs behind you to the high road, a shortcut. Hold {right} and press {jump} to hop onto it, then keep running and leap at its end.';
   if (branchOf(G.s) && !S.seen.includes('fork')){ S.seen.push('fork'); save(); }
-  const hh = spurHint(G); if (hh) ST.hint = hh;
+  const hh = spurHint(G) || hallHint(G); if (hh) ST.hint = hh;
   if (branchOf(G.s) && !S.seen.includes('handoff')){ S.seen.push('handoff'); save(); }
   const m = meters(G.y); if (m > S.best && !ST.practice) S.best = m;
 }

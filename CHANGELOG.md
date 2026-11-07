@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.23.0 — hidden halls (2026-11-07)
+
+The last of milestone 3: side halls and ledges.
+
+- **Hidden halls.** At one landing in each zone (which one changes from run to run, from two built per zone) the wall behind the landing is a walled-up arch of rubble, cracked, with lamplight leaking through the cracks and grit trickling out of them. Strike it: each blow cracks it further and the light grows; the third breaks it in, the plug bursting out over the landing and the wall along the hall falling away in a wave from the mouth. Stand in the opening and press jump to step through.
+- **What is inside.** A short flat, a stair climbing through the rock, a chamber with a carving on its back wall and a chest under a hanging lamp. Stand at the carving to read it: a thing found in that region, from the lore (two per region, one per run). Reach the chest and it opens: gold (10, plus 4 a zone) and the flask filled.
+- **Ledges and drops.** A hall is never a dead end. It climbs higher than the stair outside, then breaks out of the rock onto a ledge 1.8 above the next landing: walk off it and you drop back onto the stair, a flight on. Walk left instead and you go back out through the opening.
+- Inside a hall nothing on the stair can reach you, and nothing there can be struck.
+- Tests: every zone has a hall each run; each opens straight behind its landing, never on a landing that already does something (a fork, the lift, the rest stop), climbs at a grade the stair allows, and comes out on a ledge over the next landing with a drop of 1.2 to 2.5. The smoke run breaks into the first zone's hall, climbs to the chest and drops out onto the next landing.
+
 ## 0.22.0 — stair and routes v2 (2026-11-07)
 
 Milestone 3, from the designer's notes.

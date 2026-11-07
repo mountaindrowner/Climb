@@ -43,8 +43,8 @@ The stair stops being one uniform spiral. It becomes a **path graph**: segments 
 - **Fewer, more varied steps (designer's note, Nov 7).** A long run of short, identical steps reads as constant bumping. Mix the surfaces instead: sloped ramps of worn rock with the occasional step, runs of broad steps, now and then one tall step to climb. Steps should feel placed, not tiled. To be tested: it may not suit every region (dwarf halls want real stairs; the Deep wants rough slopes).
 - **Two directions.** Some segments spiral the other way. An inner and an outer spiral run counter to each other and meet at landings, so at a fork you choose by pressing ◀ or ▶: one route climbs to the left, one to the right. The routes differ from run to run (procedurally placed), so which way you go, and when you are forced across, changes every climb.
 - **The crumbling handoff (corrected, Nov 7).** Not a rising platform. You are running one way (say right) and the stair runs out or starts to crumble under you. The other stair, running the other way, is higher, too high to reach from a standing jump. The only way across is to keep running along the failing stair and leap at its last moment, before it falls away. Speed and nerve. Built in 0.22 as the spur at each fork; the rising slab of 0.19 is gone.
-- **Ledges and drops.** Short side ledges, gaps you can only cross with a route-opener, and drops that send you down a tier on purpose to reach a branch.
-- **Hidden halls.** Cracked walls and side passages off landings, leading to secrets, blueprints and lore.
+- **Ledges and drops.** Short side ledges, gaps you can only cross with a route-opener, and drops that send you down a tier on purpose to reach a branch. Built in 0.23 as each hidden hall's end: it breaks out onto a ledge above the next landing and you drop back to the stair. Route-openers wait for the run (milestone 5).
+- **Hidden halls.** Cracked walls and side passages off landings, leading to secrets, blueprints and lore. Built in 0.23: one walled-up arch per zone, at a landing drawn per run; three blows break it; inside, a carving (lore) and a chest (gold, the flask filled). Blueprints join the chests with the run (milestone 5).
 
 ## Movement and feel (built, keep)
 
@@ -143,14 +143,14 @@ The bar is the current jump animation. What exists for Claude to make models and
 
 ## Build order
 
-Built so far: the foundation (0.17), forks as the high road (0.18), a first crumbling handoff (0.19, to be replaced), and the skeleton as the player with measured strides, sprint, the smooth camera, mouse controls and the bat (0.20). The designer's notes of Nov 7 are folded in below; most are feel, so feel came next (0.21), then stair and routes v2 (0.22): the handoff as designed, varied surfaces, forks that change per run. Side halls and ledges, then threats and places v2, are next.
+Built so far: the foundation (0.17), forks as the high road (0.18), a first crumbling handoff (0.19, to be replaced), and the skeleton as the player with measured strides, sprint, the smooth camera, mouse controls and the bat (0.20). The designer's notes of Nov 7 are folded in below; most are feel, so feel came next (0.21), then stair and routes v2 (0.22): the handoff as designed, varied surfaces, forks that change per run, and the hidden halls with their ledges (0.23). Threats and places v2 is next.
 
 | # | Milestone | Delivers |
 | --- | --- | --- |
 | 0 | Pipeline (runs in parallel) | Settled: the designer's own models from Tripo, made ready by Blender scripts (the skeleton), and creatures built in Blender scripts (the bat). Next creatures and props come through the same two paths |
 | 1 | Foundation | Built in 0.17: variable grade, foot IK, the clipping test, camera explore and combat framing |
 | 2 | **Feel and juice (built in 0.21)** | Climbing that rises with the stride instead of popping up each step; a nuanced crouch and a creeping crouch-walk (its footsteps and their sound fixed); idle variations (looking around, up the shaft); a longer, two-handed sword; the warrior 10% taller; hit juice (flash, swipe, sparks, freeze, camera kick, sound); wider, more daunting broken-step gaps; prompts fixed (the ring and its arrow centred); beams pointing out toward the shaft's centre instead of at an odd angle |
-| 3 | Stair and routes v2 (built in 0.22, but side halls and ledges) | Fewer, more varied steps: slopes with the occasional step, broad runs, tall steps (tested region by region); routes that differ per run; the crumbling handoff redone as designed (keep running on the failing stair and leap to the higher one before it goes); side halls and ledges |
+| 3 | **Stair and routes v2 (built in 0.22 and 0.23)** | Fewer, more varied steps: slopes with the occasional step, broad runs, tall steps (tested region by region); routes that differ per run; the crumbling handoff redone as designed (keep running on the failing stair and leap to the higher one before it goes); side halls and ledges |
 | 4 | Threats and places v2 | Every threat rebuilt to the bat's standard, starting with the burrower (the stair trap with the spiked jaws), then crawler, spitter, rockfall, swing; the rest stop's campfire rebuilt; more kinds of crouch obstacle than the beam (a low arch, a hanging chain curtain, a collapsed lintel, roots) |
 | 5 | The run | The Dead Cells layer: Echoes, blueprints at the Pool, oaths, marks, two exits per region; regions 1 to 4 |
 | 6 | Weapons v2 | Six families, crit conditions, two tool slots, shaft kills (the pick and spear come back here) |

@@ -7,6 +7,7 @@ export const GOLD = {
   rockfallParry: 2,
   spitterParry: 4,
   warden: z => 25 + 10 * z,
+  hall: z => 10 + 4 * z,     // a hidden hall's chest
 };
 export const CAMP = {
   refill: 12,
