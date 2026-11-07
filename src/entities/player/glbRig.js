@@ -419,7 +419,7 @@ function bladeOffStone(G){
   BLADE.lift = pen;
   if (BLADE.sparked !== G.atk){ BLADE.sparked = G.atk; burst(tip.clone().setY(tip.y + pen), 10, '#ffd27a', 3.2, 6, 0.06); sfx.clang(); }
   // lift, then look again: the lift swings the tip along an arc, and on a steep flight that can carry it over a higher step
-  for (let pass = 0, p = pen, t = tip; pass < 3 && p > 0; pass++){
+  for (let pass = 0, p = pen, t = tip; pass < 6 && p > 0; pass++){
     GLB.root.updateWorldMatrix(true, true);
     const inv = IKM.copy(model.matrixWorld).invert(), S = Math.abs(model.getWorldScale(IKS).z);
     const sh = modelPos(arm, inv, IKV[0]), t0 = IKV[1].copy(t).applyMatrix4(inv), t1 = IKV[2].copy(t0); t1.y += (p + 0.03) / S;
