@@ -257,7 +257,8 @@ const hallT = await page.evaluate(async () => {
 await page.waitForTimeout(500);
 for (let i = 0; i < 3; i++){
   await page.evaluate(() => window.__climb.input.tap('attack'));
-  await until(() => !window.__climb.ST.G.atk, 5000, 'a swing at the cracked wall');
+  await page.waitForFunction(n => window.__H.hits > n, i, { timeout: 5000, polling: 50 }).catch(() => {});   // the blow lands after the wind-up
+  await until(() => !window.__climb.ST.G.atk, 5000, 'a swing at the cracked wall to finish');
 }
 if (!(await page.evaluate(() => window.__H.broken))) fail('three blows did not break the hidden hall\'s wall: ' + await page.evaluate(() => window.__H.hits) + ' landed');
 await page.waitForTimeout(300);
