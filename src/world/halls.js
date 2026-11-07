@@ -227,8 +227,7 @@ function loot(G, h){
   setTimeout(() => { if (h.z >= 1 && giveRune('ram')) return; findBlueprint(p0); }, 900);
   sfx.repair(); for (let k = 0; k < 4; k++) setTimeout(() => sfx.gold(), 80 * k);
   const p = v.chest.position.clone(); p.y += 0.6; burst(p, 18, '#e8b04a', 3, 6, 0.08);
-  float('+' + n + ' gold', p, '#e8b04a');
-  setToast('+' + n + ' gold, +' + w + ' wellstone', 'and the flask filled', 2.2);
+  float('+' + n + ' ◆  +' + w + ' ✦  flask full', p, '#e8b04a');
 }
 
 // What to say: at a cracked wall, at a broken one, at the carving (its words), and on the ledge the first time.

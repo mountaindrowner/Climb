@@ -33,8 +33,8 @@ export function killed(type, pos){
   G.kills++;
   let n = WELL.kill[type] || 1; if (hasMark('seam')) n = Math.ceil(n * 1.5);
   G.well += n;
-  if (pos){ burst(pos, 10 + n * 3, '#5ce1c6', 2.6, -1.5, 0.07); const p = pos.clone(); p.y += 0.9; float('+' + n + ' wellstone', p, '#5ce1c6'); }
-  if (!S.seen.includes('well')){ S.seen.push('well'); save(); setToast('Wellstone', 'The light it held. Send it to the Pool from a rest stop: carried, a fall loses it', 4); }
+  if (pos){ burst(pos, 10 + n * 3, '#5ce1c6', 2.6, -1.5, 0.07); float('+' + n + ' ✦', pos, '#7cf0d8'); }
+  if (!S.seen.includes('well')){ S.seen.push('well'); save(); setToast('Wellstone ✦', 'Bank it at a rest stop. A fall loses what you carry', 3); }
   if (hasMark('vigil') && G.kills % 4 === 0 && G.hp < G.maxHp){ G.hp++; if (pos) float('+1', pos.clone().setY(pos.y + 1.4), '#ff8a78'); }
   if (Math.random() < WELL.blueprintChance) findBlueprint(pos);
 }
@@ -45,13 +45,13 @@ export function findBlueprint(pos){
   const id = left[Math.floor(Math.random() * left.length)];
   S.found.push(id); save(); const G = G_(); if (G) G.found.push(id);
   sfx.repair(); if (pos) burst(pos, 16, '#efe6d2', 2.4, -1, 0.06);
-  setToast('Blueprint: ' + MARKS[id].name, 'Kept for good. Buy it at the Pool and Fetch will offer it', 3.6);
+  setToast('Blueprint', MARKS[id].name, 2.4);
   return id;
 }
 export function giveRune(id){
   if (S.runes.includes(id)) return false;
   S.runes.push(id); save(); sfx.repair();
-  setToast(RUNES[id].name, RUNES[id].desc, 5);
+  setToast(RUNES[id].name, RUNES[id].short, 3);
   return true;
 }
 // ---- banking at a rest stop, and what a fall costs

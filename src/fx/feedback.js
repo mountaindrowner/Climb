@@ -3,7 +3,8 @@ import { rumble } from '../core/input.js';
 import { ST } from '../core/state.js';
 
 export function setToast(text, sub, dur){ ST.toast = { text, sub: sub || '', t: 0, dur: dur || 2.2 }; }
-export function float(text, p, color){ ST.floats.push({ text, p: p.clone(), t: 0, color: color || '#efe6d2' }); }
+// words over the action; ones that come together stack upward instead of piling on one another
+export function float(text, p, color){ const near = ST.floats.filter(f => f.t < 0.4).length; ST.floats.push({ text, p: p.clone(), t: 0, color: color || '#efe6d2', lift: near * 0.4 }); }
 export function hitstop(t){ ST.hitstop = Math.max(ST.hitstop, t); rumble(0.15 + t * 3, 0.3 + t * 4, 60 + t * 600); if (t >= 0.09) ST.punch = 1; }   // kills and parries punch the camera in
 export function shake(v){ ST.shake = Math.max(ST.shake, v); rumble(v * 1.4, v, 160); }
 export function flash(v){ ST.flash = v; }

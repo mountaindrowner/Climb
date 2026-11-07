@@ -22,7 +22,7 @@ export const OATHS = {
   knell:   { name: 'Knell',   line: 'What ends, I name.',            color: '#9fd0ff', desc: 'Swings 8% quicker, a wider parry' },
 };
 export const OATH_IDS = Object.keys(OATHS);
-export const OATH_STONES = 3;          // per region
+export const OATH_STONES = 1;          // per region: rare enough to be a moment
 export const edgeMul = n => 1 + 0.3 * n;
 export const knellSpeed = n => 1 + 0.08 * n;
 export const knellParry = n => 0.03 * n;
@@ -50,5 +50,5 @@ export const UPGRADES = {
 };
 
 export const RUNES = {
-  ram: { name: 'The Hald ram', desc: 'A gauntlet of wellstone for the shoulder. It breaks the rubble over a closed fork: strike the heap three times.' },
+  ram: { name: 'The Hald ram', short: 'It breaks the rubble over a closed fork', desc: 'A gauntlet of wellstone for the shoulder. It breaks the rubble over a closed fork: strike the heap three times.' },
 };

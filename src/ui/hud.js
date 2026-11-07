@@ -128,8 +128,8 @@ export function drawHUD(){
   }
   hx.textAlign = 'center';
   for (const f of ST.floats){
-    const s = toScreen(_v2.copy(f.p).setY(f.p.y + f.t * 1.2)); if (!s.ok) continue;
-    hx.globalAlpha = clamp(1 - f.t / 1.1, 0, 1); hx.font = `700 17px ${FONT}`;
+    const s = toScreen(_v2.copy(f.p).setY(f.p.y + 1.0 + (f.lift || 0) + f.t * 0.9)); if (!s.ok) continue;   // above the action, not on it
+    hx.globalAlpha = clamp(1 - f.t / 1.1, 0, 1) * 0.92; hx.font = `700 14px ${FONT}`;
     hx.fillStyle = '#09080c'; hx.fillText(f.text, s.x, s.y + 2); hx.fillStyle = f.color; hx.fillText(f.text, s.x, s.y);
   }
   hx.globalAlpha = 1; hx.textAlign = 'left';
