@@ -111,7 +111,10 @@ test('surfaces: every flight meets both its landings, tall and broad steps only 
 });
 test('broken steps only where there are steps to break', () => {
   for (let seed = 1; seed < 6; seed++) for (let k = 0; k < MAXK; k++)
-    for (const o of layoutFlight(seed, k).obs) if (o.type === 'gap') assert.equal(surfaceOf(k), 'steps', `gap on flight ${k}`);
+    for (const o of layoutFlight(seed, k).obs){
+      if (o.type === 'gap') assert.equal(surfaceOf(k), 'steps', `gap on flight ${k}`);
+      if (o.type === 'swing') assert.ok(['steps', 'slope'].includes(surfaceOf(k)), `swing on a ${surfaceOf(k)} flight ${k}`);
+    }
 });
 test('routes change from run to run: every zone keeps a way across, and both forks get their turn', async () => {
   const P = await import('../src/world/path.js');
