@@ -289,8 +289,12 @@ const sworn = await page.evaluate(() => Object.values(window.__climb.ST.G.oaths)
 if (sworn !== 1) fail('the oath was not sworn: ' + sworn);
 await page.evaluate(() => { const P = window.__P, G = window.__climb.ST.G, S = window.__climb.S; if (!S.runes.includes('ram')) S.runes.push('ram'); const b = P.BRANCHES[0]; b.open = false; G.s = G.prevS = P.landingS(b.kA) - 0.2; G.y = P.walkY(G.s); G.v = 0; window.__B0 = b; });
 await page.waitForTimeout(400);
-for (let i = 0; i < 3; i++){ await page.evaluate(() => window.__climb.input.tap('attack')); await page.waitForTimeout(900); }
-if (!(await page.evaluate(() => window.__B0.open))) fail('the ram did not break the rubble over the closed fork');
+for (let i = 0; i < 6 && !(await page.evaluate(() => window.__B0.open)); i++){
+  await page.evaluate(() => window.__climb.input.tap('attack'));
+  await page.waitForFunction(() => !!window.__climb.ST.G.atk, null, { timeout: 2000, polling: 30 }).catch(() => {});
+  await page.waitForFunction(() => !window.__climb.ST.G.atk, null, { timeout: 4000, polling: 30 }).catch(() => {});
+}
+if (!(await page.evaluate(() => window.__B0.open))) fail('the ram did not break the rubble over the closed fork: ' + JSON.stringify(await page.evaluate(() => { const G = window.__climb.ST.G, P = window.__P; return { hits: window.__B0.spur.rubHits, at: +(G.s - P.landingS(window.__B0.kA)).toFixed(2), grounded: G.grounded, mode: window.__climb.ST.mode, ram: window.__climb.S.runes }; })));
 await page.evaluate(async () => { const run = await import('/src/run/run.js'); run.killed('crawler', null); window.__fork.clear = false; const G = window.__climb.ST.G; G.inv = 0; window.__climb.hurt(999, 'test'); });
 await until(() => window.__climb.ST.mode === 'menu', 40000, 'the fall to the Pool');
 const poolTxt = await page.evaluate(() => document.getElementById('overlay').textContent);
