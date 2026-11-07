@@ -15,7 +15,8 @@ export const TUNE = {
     minHop: 0.1,           // ...but never before this, so the quickest tap still clears a broken step
     coyote: 0.1,           // jump still works this long after the ground goes
     buffer: 0.13,          // a jump pressed this long before landing still happens
-    holeEdge: 0.2,         // you can stand this far over the lip of a broken step
+    holeEdge: 0.2,
+    fallSafe: 3.6, fallPer: 12,   // a drop longer than fallSafe hurts 1, and 1 more for each fallPer beyond it         // you can stand this far over the lip of a broken step
     roll: { time: 0.4, speed: 6.2, iframeFrom: 0.03, iframeTo: 0.32, cooldown: 0.37 },
     knock: 3.2, knockUp: 3.5, hurtStun: 0.22,
     bonkSpeed: 2.6,        // running into a beam faster than this hurts

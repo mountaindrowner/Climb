@@ -7,6 +7,7 @@ import { stoneTex } from '../render/textures.js';
 import { bgeo, dummy, tmpC } from '../render/primitives.js';
 import { zoneOf, landingS, gateK, flightY, riseOf, landingY, surfaceOf, HALF } from './path.js';
 import { content } from './generate.js';
+import { stairHole } from './decks.js';
 const THREE = window.THREE;
 
 export const STEP_W = 1.2 / HALF, STEP_D = 2.6, STEP_H = 1.4;   // a block per step, HALF of them to a unit
@@ -26,7 +27,7 @@ export function setFlight(k){
   const kind = surfaceOf(k), base = flightY(k), r = riseOf(k);
   for (let j = 0; j < N; j++){
     const i = Math.floor(j / HALF);                                       // the unit it stands in
-    let u = (j + 0.5) / HALF, top = base + (j + 1) * r / HALF, tilt = 0, len = 1, hide = !vis || (c && c.gaps.has(i));
+    let u = (j + 0.5) / HALF, top = base + (j + 1) * r / HALF, tilt = 0, len = 1, hide = !vis || (c && c.gaps.has(i)) || !!stairHole(k * FL + (j + 0.5) / HALF);
     if (kind === 'slope' || kind === 'tall'){
       // a slope: each unit of it one block tilted to the grade, its top running along the ramp
       if (j % HALF) hide = true;

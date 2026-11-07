@@ -51,6 +51,8 @@ export function layoutFlight(seed, k, opts = {}){
   };
   if (opts.only){
     if (k >= 1 && k <= PRACTICE_FLIGHTS && c.sp !== 'camp') scatter(2, [opts.only]);   // two a flight: flights too steep for it are skipped
+  } else if (opts.voids && opts.voids.has(k)){
+    // a platforming flight, or the flight a switchback comes up through: its ledges and gap are the challenge here
   } else if (k < TUTORIAL.length){
     const tut = TUTORIAL[k]; if (tut) add(tut.type, tut.t, { hint: tut.hint });
   } else if (wardens && arenaOf(k) >= 0){
@@ -58,10 +60,12 @@ export function layoutFlight(seed, k, opts = {}){
   } else {
     scatter(1 + (r() < 0.55 ? 1 : 0) + (z > 0 ? 1 : 0), ZONES[z].threats);
   }
+  if (!(opts.voids && opts.voids.has(k))){
   const ng = 1 + ((r() * 2) | 0);
   for (let j = 0; j < ng; j++){
     const i = 1 + ((r() * 6) | 0);
     if (!c.gaps.has(i)) c.gold.push({ s: base + i + 0.6, taken: false });
+  }
   }
   // a wide broken step needs room: three whole steps of solid stair before it (a jump over a hole can land two steps on) and two after it, or it stays one step wide
   const gs = c.obs.filter(o => o.type === 'gap').sort((a, b) => a.s - b.s), at = o => Math.floor(o.s - base);

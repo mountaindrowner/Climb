@@ -8,7 +8,6 @@ import { scene, poolLight, fogCol, camera } from '../render/renderer.js';
 import { wallTex, outerTex, chainTex, silTex } from '../render/textures.js';
 import { bgeo, lam, bas, tmpC } from '../render/primitives.js';
 import { zoneOf, gateK, kAtY, flightY, landingY, HALLS, hallA, hallLine } from './path.js';
-import { carveFor } from './branches.js';
 const THREE = window.THREE;
 
 const TOTAL_H = flightY(MAXK) + 30;
@@ -53,7 +52,6 @@ function shaftCylinder(radius, tex, repU, key, f, alphaTest, open, carve){
       }
     }
     const ang = Math.atan2(pos.getZ(i), pos.getX(i));
-    if (carve && carveFor(ang, y)) a = 0;   // the opening along a high road
     if (carve && a > 0){ const hb = hallBand(ang, y); if (hb){ (HALL_VERTS.get(hb.h) || HALL_VERTS.set(hb.h, []).get(hb.h)).push({ i, u: hb.u }); a = 0; } }   // a hall's front: shut until it is broken open (openHallWall)
     cols[i * 4 + 3] = a;
   }

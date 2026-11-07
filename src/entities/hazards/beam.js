@@ -53,7 +53,7 @@ export function update(o, dt){
   const G = ST.G, d = o.s - G.s;
   o.bonkT = Math.max(0, (o.bonkT || 0) - dt);
   if (!o.creaked && Math.abs(d) < TUNE.beam.creak){ o.creaked = true; sfx.creak(); }
-  if (!isLow(G) && Math.abs(G.s - o.s) < o.halfWidth){
+  if (!isLow(G) && !G.on && G.y < o.top + 2.4 && Math.abs(G.s - o.s) < o.halfWidth){
     // standing, or in the air, inside the beam: it stops him at the side he came from
     const side = Math.sign(G.prevS - o.s) || -G.face, fast = Math.abs(G.v) > TUNE.move.bonkSpeed;
     G.s = G.prevS = o.s + side * o.halfWidth; G.v = 0;

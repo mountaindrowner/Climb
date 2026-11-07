@@ -10,10 +10,11 @@ import { clamp } from '../../core/math.js';
 import { sfx } from '../../audio/sfx.js';
 import { vArc } from '../../render/primitives.js';
 import { burst } from '../../render/particles.js';
-import { posOf, walkY, special, landingS, branchOf, spurOf, forkFrom, routeSign, safeSpot, SPUR, BR_BASE, hallOf, hallAt, HALL } from '../../world/path.js';
+import { posOf, walkY, topAt, special, landingS, routeSign, safeSpot, BR_BASE, hallOf, hallAt, HALL } from '../../world/path.js';
+import { decksAt, decksNear, stairHole, TURN, MANTLE } from '../../world/decks.js';
 import { IN, consume } from '../../core/input.js';
 import { holeAt, ceilingAt } from '../../world/ground.js';
-import { strike, drink, repairLift, hurt } from './player.js';
+import { strike, drink, repairLift, hurt, fallHurt } from './player.js';
 import { swingRate, rollCooldown, sprintMul } from '../../run/run.js';
 const MV = TUNE.move;
 const dust = (G, n, spd, c) => { const p = posOf(G.s); burst(vArc(p.a, p.r, G.y + 0.05), n, c || '#b4aac8', spd || 1.4, 5, 0.08); };
@@ -63,7 +64,7 @@ export function stepMotor(G, dt){
   }
 
   // ---- crouch: held down on the ground; forced while a beam is overhead
-  const under = ceilingAt(G.s);
+  const under = !G.on && ceilingAt(G.s);   // (a ledge is above any beam)
   G.crouch = !!(G.roll <= 0 && G.grounded && (H.down || under) && !G.atk);
 
   // ---- horizontal
@@ -86,9 +87,7 @@ export function stepMotor(G, dt){
     G.jumpBuf = 0; G.coyote = 0; G.grounded = false; G.crouch = false; G.jumpT = 0;
     G.vy = Math.sqrt(2 * MV.gravityUp * MV.jumpHeight); sfx.jump(); dust(G, 6, 1.6);
     if (G.atk && G.atk.phase === 'rec') G.atk = null;
-    // a fork: jumping up-stair from the fork landing hops back onto the crumbling spur behind it
-    const p = posOf(G.s), b = G.s < BR_BASE && p.land && H.right && forkFrom(p.k);
-    if (b){ G.s = G.prevS = b.spur.s0 + 0.25; G.safeS = landingS(b.kA); G.hop = 1; sfx.whoosh(); }
+    G.on = null;                                       // off a ledge too
   }
   if (!G.grounded){
     let g = G.vy > 0 ? MV.gravityUp : MV.gravityDown;
@@ -96,53 +95,101 @@ export function stepMotor(G, dt){
     if (!H.jump && G.vy > 0 && G.jumpT > MV.minHop) G.vy *= Math.pow(MV.cutMul, dt * 20);   // let go early, jump lower (a quick tap still clears a hole)
     G.vy = Math.max(-MV.maxFall, G.vy - g * dt);
   }
+  // ---- hauling himself up onto an edge: it carries him, nothing else moves him
+  if (G.mantle){
+    const M = G.mantle; M.t += dt; const u = Math.min(1, M.t / M.dur), e = u * u * (3 - 2 * u);
+    G.prevS = G.s; G.s = M.s0 + (M.s1 - M.s0) * Math.max(0, (u - 0.45) / 0.55); G.y = M.y0 + (M.y1 - M.y0) * Math.min(1, e * 1.25); G.v = 0; G.vy = 0;
+    if (u >= 1){ G.mantle = null; G.grounded = true; G.on = M.deck; G.y = M.y1; G.airTop = G.y; G.landT = 0.12; G.safeS = G.s; sfx.step(); dust(G, 6, 1.4); }
+    footfalls(G, dt); return;
+  }
   // ---- move, then find the ground
-  G.prevS = G.s; G.s += G.v * dt * routeSign(G.s);   // a high road winds the other way round: right goes back down it
+  G.prevS = G.s; G.s += G.v * dt * routeSign(G.s);
   if (G.s < 0.05) G.s = 0.05;
-  // the ends of a high road: walk off its top onto the landing it rejoins, or back off its foot onto the fork landing
-  const br = branchOf(G.prevS), sp = spurOf(G.prevS), hl = hallOf(G.prevS);
+  const hl = hallOf(G.prevS);
   if (hl){
     const u = G.s - hl.s0;
     if (u < 0){ G.s = G.prevS = landingS(hl.kH) + (u - HALL.mouth) * R / hl.r; G.hop = 1; }                       // back out through the opening onto its landing
     else if (u > hl.len){ G.s = G.prevS = hl.sOut + (u - hl.len) * R / hl.r; G.grounded = false; G.vy = Math.min(G.vy, 0); G.hop = 1; }   // off the ledge: a drop onto the stair below
   }
-  if (br){
-    const u = G.s - br.s0;
-    if (u > br.len){ G.s = G.prevS = landingS(br.kB) - (u - br.len); G.hop = 1; }
-    // off the right end of the high road's foot: a drop, onto the main stair below it
-    else if (u < 0){ G.s = G.prevS = (br.aA - u / br.r) / OMEGA; G.grounded = false; G.hop = 1; }
+  const y0 = G.y;
+  if (!G.grounded){ G.y += G.vy * dt; G.airTop = Math.max(G.airTop == null ? G.y : G.airTop, G.y); }
+  const main = G.s < BR_BASE;
+  // up through a gap in the stair a turn above (a switchback comes out this way): past its surface, he is on that turn
+  if (main && !G.grounded && G.vy > 0 && stairHole(G.s + TURN) && G.y > topAt(G.s + TURN) + 0.02){ G.s += TURN; G.prevS += TURN; }
+  // ---- the ledges (decks.js): one-way, on the stair's own lane
+  if (main && G.on){
+    const d = G.on.gone ? null : decksAt(G.s).filter(x => Math.abs(x.top - G.y) < 0.5).sort((p, q) => q.top - p.top)[0];
+    if (d){ G.on = d; G.y = d.top; G.grounded = true; G.safeS = G.s; footfalls(G, dt); return; }
+    G.on = null;
+    const gyM = walkY(G.s);
+    if (!holeAt(G.s) && Math.abs(gyM - G.y) < 0.5){ G.y = gyM; G.grounded = true; G.safeS = G.s; }        // off its end onto the stair
+    else { G.grounded = false; G.vy = 0; G.coyote = MV.coyote; G.airTop = G.y; }                    // off its end into the air
+    footfalls(G, dt); return;
   }
-  if (sp){
-    const u = G.s - sp.s0, R_ = sp.road;
-    if (u < 0){ G.s = G.prevS = landingS(sp.kA) + u; G.hop = 1; }                 // back off its foot onto the fork landing
-    // the leap: past the broken end, over the gap and high enough, he comes down on the high road's foot (its far end)
-    else if (!G.grounded && u > sp.len + SPUR.gapFrom && u < sp.len + SPUR.gapTo && G.y >= R_.yA - 0.45){
-      G.s = G.prevS = R_.s0 + Math.max(0.3, Math.min(R_.footL - 0.2, R_.footL - (u - sp.len - SPUR.gapFrom))); G.safeS = G.s; G.hop = 1;
+  if (main && !G.grounded && G.vy <= 0){
+    const d = decksAt(G.s).filter(x => y0 >= x.top - 0.03 && G.y <= x.top + 0.02).sort((p, q) => q.top - p.top)[0];
+    if (d && (holeAt(G.s) || d.top > walkY(G.s) + 0.05)){
+      G.on = d; G.y = d.top; G.vy = 0; G.grounded = true; G.landT = 0.12; G.safeS = G.s; landed(G, wasGrounded);
+      footfalls(G, dt); return;
     }
   }
-  if (!G.grounded) G.y += G.vy * dt;
+  // ---- catching an edge in the air: a ledge (or the stair) just ahead, its top within reach above his feet
+  if (main && !G.grounded && G.roll <= 0 && !stunned){
+    const dir = H.right ? 1 : H.left ? -1 : 0;
+    if (G.vy < 5){
+      const sa = G.s + dir * 0.6, here = decksAt(G.s);
+      let best = null;
+      for (const d of decksNear(Math.min(G.s, sa) - 0.01, Math.max(G.s, sa) + 0.01)){
+        const up = d.top - G.y; if (!(up > 0.35 && up <= MANTLE) || (best && d.top <= best.y1)) continue;
+        if (here.includes(d)){
+          // under it, close to an edge: up at that edge (the one he is heading for, else the nearer)
+          const toS0 = G.s - d.s0, toS1 = d.s1 - G.s, e = dir < 0 ? (toS0 < 0.7 ? d.s0 : toS1 < 0.7 ? d.s1 : null) : dir > 0 ? (toS1 < 0.7 ? d.s1 : toS0 < 0.7 ? d.s0 : null) : (Math.min(toS0, toS1) < 0.7 ? (toS0 < toS1 ? d.s0 : d.s1) : null);
+          if (e != null) best = { deck: d, y1: d.top, s1: e + (e === d.s0 ? 0.35 : -0.35) };
+        } else if (dir){
+          const edge = dir > 0 ? d.s0 : d.s1;
+          if ((edge - G.s) * dir >= -0.05) best = { deck: d, y1: d.top, s1: edge + dir * 0.35 };
+        }
+      }
+      if (!best && dir && holeAt(G.s) && !holeAt(sa)){ const up = topAt(sa) - G.y; if (up > 0.35 && up <= MANTLE) best = { deck: null, y1: walkY(sa + dir * 0.3), s1: sa + dir * 0.3 }; }
+      if (best){ G.mantle = { t: 0, dur: 0.32, s0: G.s, s1: best.s1, y0: G.y, y1: best.y1, deck: best.deck }; G.vy = 0; G.v = 0; G.atk = null; sfx.whoosh(); footfalls(G, dt); return; }
+    }
+  }
   let hole = holeAt(G.s); const gy = walkY(G.s);   // the ground he rides: the stair's slope, not each step
   if (G.grounded){
-    if (hole){ G.grounded = false; G.vy = 0; G.coyote = MV.coyote; }              // the step is gone: fall, but a jump still works for a moment
-    else { G.y = gy; G.safeS = G.s; }
+    if (hole){ G.grounded = false; G.vy = 0; G.coyote = MV.coyote; G.airTop = G.y; }   // the step is gone: fall, but a jump still works for a moment
+    else { G.y = gy; G.safeS = G.s; G.airTop = G.y; }
   } else if (!hole && G.vy <= 0 && G.y <= gy + 0.02 && gy - G.y > 0.45 && holeAt(G.prevS)){
     G.s = G.prevS; G.v = 0; hole = holeAt(G.s);                                   // sunk too far into a hole to step out: the riser stops him
   } else if (!hole && G.vy <= 0 && G.y <= gy + 0.02){                            // landing; a riser a little above the feet is stepped up onto
     G.y = gy; G.vy = 0; G.grounded = true; G.landT = 0.12; G.safeS = G.s;
-    if (!wasGrounded){ sfx.step(); dust(G, 8, 1.8); ST.dip = Math.max(ST.dip, TUNE.feel.stepDip * 0.8); }
+    landed(G, wasGrounded);
   } else if (!hole && G.vy > 0 && G.y < gy - 0.3){
     G.y = gy;                                                                     // never inside the stair
   }
   if (hole && !G.grounded && G.y < hole.top - 1.4){
-    // fell through a broken step: hurt, and back on the last solid ground
-    hurt(1, 'Fell', null);
-    let back = safeSpot(G.safeS - G.face * 0.15 * routeSign(G.safeS));
-    // the last solid ground may have crumbled since: step back off the hole, and keep a step's run-up before it
-    for (let i = 0; i < 24 && (holeAt(back) || holeAt(back + G.face * routeSign(back)) || holeAt(back + 0.5 * G.face * routeSign(back))); i++) back -= 0.25 * G.face * routeSign(back);
-    G.s = G.prevS = back; G.y = walkY(G.s); G.vy = 0; G.v = 0; G.grounded = true; G.inv = Math.max(G.inv, 0.8);
+    if (ST.practice){
+      // a practice run: hurt, and back on the last solid ground, to try it again
+      hurt(1, 'Fell', null);
+      let back = safeSpot(G.safeS - G.face * 0.15 * routeSign(G.safeS));
+      // the last solid ground may have crumbled since: step back off the hole, and keep a step's run-up before it
+      for (let i = 0; i < 24 && (holeAt(back) || holeAt(back + G.face * routeSign(back)) || holeAt(back + 0.5 * G.face * routeSign(back))); i++) back -= 0.25 * G.face * routeSign(back);
+      G.s = G.prevS = back; G.y = walkY(G.s); G.vy = 0; G.v = 0; G.grounded = true; G.inv = Math.max(G.inv, 0.8);
+    } else if (main){
+      // a climb: through, and down to whatever is below: the ledges under this turn, or the stair a whole turn down
+      if (G.s - TURN > 0.05){ G.s -= TURN; G.prevS -= TURN; }
+      else { G.s = G.prevS = Math.max(0.05, G.s - TURN); }
+    }
   }
-
-  // ---- footfalls: a heavy step lands every half stride
+  footfalls(G, dt);
+}
+// a landing: dust and a thud; and a long drop hurts (more for a longer one)
+function landed(G, wasGrounded){
+  if (!wasGrounded){ sfx.step(); dust(G, 8, 1.8); ST.dip = Math.max(ST.dip, TUNE.feel.stepDip * 0.8); }
+  const drop = (G.airTop == null ? G.y : G.airTop) - G.y; G.airTop = G.y;
+  if (drop > MV.fallSafe && !ST.practice){ ST.dip = Math.max(ST.dip, 0.35); fallHurt(1 + Math.floor((drop - MV.fallSafe) / MV.fallPer), drop); }
+}
+function footfalls(G, dt){
+  // a heavy step lands every half stride
   if (G.grounded && Math.abs(G.v) > 0.4 && G.roll <= 0){
     const before = Math.sin(G.runPhase);
     G.runPhase += Math.abs(G.v) * dt * (G.stepRate || (G.crouch ? 3.4 : 2.6));   // a rig with measured strides sets stepRate: a footfall per real step

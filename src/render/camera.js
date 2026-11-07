@@ -68,7 +68,9 @@ export function updateCamera(dt){
     FRAME.look += (look - FRAME.look) * Math.min(1, k * 2);
     G.camLead = FRAME.lead;
     // height: the slope line under him (not the steps), a little of any jump, through a spring: no hop per step
-    const yWant = rampY(G.s) + Math.max(0, G.y - p.y) * 0.35;
+    // on a ledge, or dropping well below the stair, the camera follows him, not the stair's slope line
+    const ramp = rampY(G.s), off = G.on || G.mantle || (!G.grounded && G.y < ramp - 1.2);
+    const yWant = off ? G.y : ramp + Math.max(0, G.y - p.y) * 0.35;
     if (FRAME.y == null || Math.abs(yWant - FRAME.y) > 4){ FRAME.y = yWant; FRAME.vy = 0; }   // a cut: start, respawn, a lift
     FRAME.vy += ((yWant - FRAME.y) * FOLLOW * FOLLOW - 2 * FOLLOW * FRAME.vy) * k; FRAME.y += FRAME.vy * k;
     const y = FRAME.y;

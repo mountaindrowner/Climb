@@ -76,7 +76,7 @@ export function update(o, dt){
     case 'snap': if (o.tm >= T.snapShut) go('up'); break;
     case 'sink': if (o.tm > 0.7) go('gone'); break;
   }
-  if (o.st === 'up' && G.grounded && Math.abs(G.s - o.s) < 0.45 && !isInvulnerable(G)){ go('snap'); sfx.snap(); hurt(1, 'Snapped', o.s); }
+  if (o.st === 'up' && G.grounded && !G.on && Math.abs(G.s - o.s) < 0.45 && !isInvulnerable(G)){ go('snap'); sfx.snap(); hurt(1, 'Snapped', o.s); }
   else if ((o.st === 'up' || o.st === 'rise') && !G.grounded && Math.abs(G.s - o.s) < 0.5 && !o.leapt){ o.leapt = true; float('Leapt', head(), '#c9f5d9'); }
   // once he is well past it, it sinks back
   if ((o.st === 'up' || o.st === 'snap') && (G.s - o.s) * o.side > 2.6){ go('sink'); o.done = true; }

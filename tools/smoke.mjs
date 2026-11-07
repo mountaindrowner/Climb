@@ -51,7 +51,9 @@ await shot('01-title');
 // ---- the bot, run every frame in the page. It plays through the same controls a player has.
 await page.addScriptTag({ type: 'module', content: `
   import { content } from '/src/world/generate.js';
-  import { posOf, special } from '/src/world/path.js';
+  import { posOf, special, walkY } from '/src/world/path.js';
+  import { decksAt } from '/src/world/decks.js';
+  import { holeAt } from '/src/world/ground.js';
   import { TUNE } from '/src/config/tuning.js';
   import { R } from '/src/config/constants.js';
   const { ST, input: I } = window.__climb;
@@ -98,6 +100,11 @@ await page.addScriptTag({ type: 'module', content: `
       }
       const p = posOf(G.s);
       if (p.land && special(p.k) === 'lift' && !ST.practice && !window.__climb.S.lifts.includes(p.k)){ move = 0; if (Math.abs(G.v) < 0.5 && G.grounded) I.tap('jump'); }   // stop on the landing, then repair
+    }
+    // platforming: where the ground ahead gives out (a missing flight, a gap), take a full running jump; catching ledges is automatic
+    if (bot.answer && move > 0 && G.grounded && !G.mantle){
+      const sa = G.s + 0.6, sup = decksAt(sa).some(d => Math.abs(d.top - G.y) < 0.5) || (!holeAt(sa) && Math.abs(walkY(sa) - G.y) < 0.6);
+      if (!sup) jump(26);
     }
     if (crouch) block = false;
     I.hold('right', move > 0); I.hold('left', move < 0); I.hold('down', crouch); I.hold('block', block);
@@ -215,38 +222,48 @@ const after = await page.evaluate(() => JSON.parse(localStorage.getItem('the-cli
 if (after.falls !== saved.falls || after.best !== saved.best) fail('practice changed the save');
 const unfair = report.filter(r => r.hitsTaken > 0);
 if (unfair.length) fail('threats hit the bot while it answered them correctly: ' + unfair.map(r => r.id).join(', '));
-// ---- a fork: from the fork landing hop onto the crumbling spur, run up it as it falls away, leap at its end onto the
-// high road's foot, then climb the high road to the landing it rejoins. The controls run inside the page, every frame.
+// ---- a fork, a switchback: from the fork landing, a jump catches the overhead ledge and he hauls himself onto it; from its
+// last ledge a jump comes up through the gap in the stair a turn above; and a fall through a hole lands a turn below, hurt
 const fork = await page.evaluate(async () => {
-  const { startClimb } = await import('/src/modes/climb.js'), { hideMenu } = await import('/src/ui/overlay.js'), P = await import('/src/world/path.js');
+  const { startClimb } = await import('/src/modes/climb.js'), { hideMenu } = await import('/src/ui/overlay.js'), P = await import('/src/world/path.js'), D = await import('/src/world/decks.js');
   window.__bot.on = false; window.__climb.input.release(); hideMenu(); window.__climb.ST.practice = null;   // the bot lets go of everything it held
-  window.__P = P;
-  const b = P.BRANCHES[0]; startClimb(P.landingS(b.kA) - 0.3); b.open = true;   /* the run draws which forks are open: this one is, for the test */
-  const G = window.__climb.ST.G; G.maxHp = G.hp = 99;
-  const gen = await import('/src/world/generate.js'); for (const c of gen.content.values()) for (const o of c.obs){ o.done = true; o.alive = false; o.st = 'gone'; }
-  return { kA: b.kA, kB: b.kB, sB: P.landingS(b.kB) };
+  window.__P = P; window.__D = D;
+  const b = P.BRANCHES[0]; startClimb(P.landingS(b.kA) - 0.3);
+  const gen = await import('/src/world/generate.js');
+  if (!b.open){ b.open = true; const L = await import('/src/world/ledges.js'), St = await import('/src/world/stair.js'); L.buildMore(D.openFork(b), gen.dyn); St.setFlight(Math.floor(D.switchbackOf(b.kA).hole.s0 / 9.8)); }   /* the run draws which forks are open: this one is, for the test */
+  const G = window.__climb.ST.G; G.maxHp = G.hp = 99; window.__b = b; window.__fork = { clear: true };
+  const clr = () => { for (const c of gen.content.values()) for (const o of c.obs){ o.done = true; o.alive = false; o.st = 'gone'; } if (window.__fork.clear) requestAnimationFrame(clr); }; clr();   /* no threats on this test */
+  return { kA: b.kA };
 });
 await page.waitForTimeout(600);
-await page.evaluate(() => {
-  const I = window.__climb.input, P = window.__P; window.__fork = { phase: 'hop', log: [], clear: true };
-  import('/src/world/generate.js').then(gen => { const clr = () => { for (const c of gen.content.values()) for (const o of c.obs){ o.done = true; o.alive = false; o.st = 'gone'; } if (window.__fork.clear) requestAnimationFrame(clr); }; clr(); });   /* no threats on this test, including on flights that load as he climbs */
-  const f = () => { const G = window.__climb.ST.G, sp = P.spurOf(G.s), b = P.branchOf(G.s), F = window.__fork;
-    if (F.phase === 'hop' && sp) F.phase = 'run';
-    else if (F.phase === 'run' && sp && G.grounded && G.s - sp.s0 >= sp.len - 0.9){ I.hold('jump', true); F.phase = 'up'; F.log.push('jump ' + (G.s - sp.s0).toFixed(2)); }
-    else if (F.phase === 'up' && G.vy < 0){ I.hold('jump', false); F.phase = 'fall'; }
-    else if (F.phase === 'fall' && b && G.grounded){ I.hold('right', false); I.hold('left', true); F.phase = 'road'; F.log.push('landed ' + (G.s - b.s0).toFixed(2)); }
-    else if ((F.phase === 'fall' || F.phase === 'run') && !sp && !b && G.grounded && F.log.length){ F.phase = 'missed'; }
-    if (F.phase !== 'road' && F.phase !== 'missed') requestAnimationFrame(f); }; f();
-  I.hold('right', true); I.tap('jump');
+await page.evaluate(() => { window.__climb.input.hold('jump', true); });
+await until(() => { const G = window.__climb.ST.G; return !!(G.on && G.on.owner === 'fork'); }, 6000, 'catching the switchback\'s first ledge from the fork landing');
+await page.evaluate(() => { window.__climb.input.hold('jump', false); });
+await page.evaluate(() => { const d = window.__D.DECKS.find(x => x.fork === window.__b && x.last), G = window.__climb.ST.G; G.s = G.prevS = (d.s0 + d.s1) / 2; G.y = d.top; G.on = d; G.grounded = true; G.vy = 0; });
+await page.waitForTimeout(400);
+await page.evaluate(() => { window.__climb.input.hold('right', true); window.__climb.input.hold('jump', true); });
+await until(() => { const G = window.__climb.ST.G, h = window.__D.switchbackOf(window.__b.kA).hole; return G.grounded && !G.on && G.s > h.s1 - 0.05; }, 6000, 'coming up through the gap onto the stair a turn above');
+await page.evaluate(() => { window.__climb.input.hold('right', false); window.__climb.input.hold('jump', false); });
+const fall = await page.evaluate(async () => {
+  const D = window.__D, G = window.__climb.ST.G, h = D.HOLES.find(x => x.platform && x.s0 > 80) || D.HOLES.find(x => x.s0 > 80);
+  G.s = G.prevS = (h.s0 + h.s1) / 2; G.on = null; G.grounded = false; G.vy = 0; G.y = window.__P.topAt(G.s) + 0.3; G.airTop = G.y; G.inv = 0;
+  window.__f0 = { s: G.s, hp: G.hp }; return true;
 });
-await until(() => window.__fork.phase === 'road' || window.__fork.phase === 'missed', 15000, 'hopping onto the spur, running it and leaping to the high road');
-const leap = await page.evaluate(() => window.__fork);
-if (leap.phase !== 'road') fail('missed the leap from the spur to the high road: ' + JSON.stringify(leap));
-await until(() => !window.__P.branchOf(window.__climb.ST.G.s) && !window.__P.spurOf(window.__climb.ST.G.s) && window.__climb.ST.G.grounded, 90000, 'climbing the high road to its end');   // (synchronous: a promise would count as true at once)
-const forkEnd = await page.evaluate(() => { window.__climb.input.hold('left', false); window.__fork.clear = false; const G = window.__climb.ST.G; return { s: G.s, y: G.y, k: Math.floor(G.s / 9.8), hp: G.hp }; });
-if (forkEnd.hp !== 99) fail('the fork hurt him on the way: ' + (99 - forkEnd.hp) + ' hits');
-if (Math.abs(forkEnd.s - fork.sB) > 1.5) fail('the high road did not bring him out at the landing it rejoins: ' + JSON.stringify({ forkEnd, fork }));
-console.log('took the fork from flight ' + fork.kA + ' to ' + fork.kB + ': ' + leap.log.join(', '));
+await until(() => window.__climb.ST.G.grounded, 10000, 'a fall through a hole to land below');
+const fallR = await page.evaluate(() => { const G = window.__climb.ST.G; window.__fork.clear = false; return { ds: +(window.__f0.s - G.s).toFixed(2), turn: +window.__D.TURN.toFixed(2), hurt: window.__f0.hp - G.hp }; });
+if (Math.abs(fallR.ds - fallR.turn) > 0.5 || fallR.hurt < 1) fail('a fall through a hole did not land a turn below and hurt: ' + JSON.stringify(fallR));
+console.log('the switchback from landing ' + fork.kA + ': caught its ledge, came up through the gap; a fall dropped a turn and cost ' + fallR.hurt);
+// ---- a platforming flight: the bot runs and jumps it, ledge to ledge, onto the landing above, without falling
+const plat = await page.evaluate(() => {
+  const D = window.__D, P = window.__P, h = D.HOLES.find(x => x.platform), G = window.__climb.ST.G;
+  G.s = G.prevS = P.landingS(h.k - 1); G.y = P.walkY(G.s); G.on = null; G.grounded = true; G.vy = 0; G.v = 0; G.hp = G.maxHp = 99; window.__fork.clear = true;
+  import('/src/world/generate.js').then(gen => { const clr = () => { for (const c of gen.content.values()) for (const o of c.obs){ o.done = true; o.alive = false; o.st = 'gone'; } if (window.__fork.clear) requestAnimationFrame(clr); }; clr(); });
+  window.__pk = h.k; window.__bot.on = true; window.__bot.answer = true; return { k: h.k, ledges: D.DECKS.filter(d => d.owner === 'flight' && d.k === h.k).length };
+});
+await until(() => { const G = window.__climb.ST.G; return (G.s > window.__pk * 9.8 + 8.2 && G.grounded && !G.on) || G.s < window.__pk * 9.8 - 20; }, 30000, 'crossing a platforming flight');
+const platR = await page.evaluate(() => { window.__bot.on = false; window.__climb.input.release(); window.__fork.clear = false; const G = window.__climb.ST.G; return { made: G.s > window.__pk * 9.8 + 8.2, s: +(G.s - window.__pk * 9.8).toFixed(2) }; });
+if (!platR.made) fail('the bot fell crossing platforming flight ' + plat.k + ': ' + JSON.stringify(platR));
+console.log('crossed platforming flight ' + plat.k + ' (' + plat.ledges + ' ledges)');
 // ---- a hidden hall: break the cracked wall behind its landing with three blows, step in, climb to the chest, and walk
 // off the ledge at its end, down onto the next landing
 const hallT = await page.evaluate(async () => {

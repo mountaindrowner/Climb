@@ -2,7 +2,8 @@
 // ceilings where beams cross. Threat modules register these by their state; the motor asks.
 import { TUNE } from '../config/tuning.js';
 import { content } from './generate.js';
-import { posOf, branchOf, spurOf, spurHole, hallOf } from './path.js';
+import { posOf, topAt, hallOf } from './path.js';
+import { stairHole } from './decks.js';
 const E = () => TUNE.move.holeEdge;
 
 function near(s, fn){
@@ -12,8 +13,8 @@ function near(s, fn){
 }
 // A broken step that has fallen away under s: { top } of the missing step, or null.
 export const holeAt = s => {
-  const sp = spurOf(s); if (sp) return spurHole(sp, s - sp.s0);   // a spur: its fallen steps, and the void past its end
-  if (branchOf(s) || hallOf(s)) return null;                    // a high road and a hall are solid
+  if (hallOf(s)) return null;                                     // a hall is solid
+  const h = stairHole(s); if (h) return { top: topAt(s), stair: h };   // steps gone for good this climb (decks.js)
   return mainHole(s);
 };
 const mainHole = s => near(s, o => o.type === 'gap' && o.holeOpen && s > o.step0 + E() && s < o.step0 + (o.wide ? 2 : 1) - E() ? { top: o.top } : null);

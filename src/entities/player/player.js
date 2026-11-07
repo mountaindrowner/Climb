@@ -22,7 +22,7 @@ import { showWeapon, bladeTip } from './glbRig.js';
 import { impact } from '../../fx/impact.js';
 import { hitHall } from '../../world/halls.js';
 import { runState, damage, parryBonus, flaskHeal, afterHurt } from '../../run/run.js';
-import { hitRubble } from '../../world/spur.js';
+import { hitRubble } from '../../world/forks.js';
 const P = TUNE.player, MV = TUNE.move, THREE = window.THREE;
 
 export const PL = makePlayer(); scene.add(PL.P); setWeaponModel(PL, usable(S.weapon));
@@ -68,6 +68,14 @@ export function hurt(n, msg, fromS){
   float(msg || ('-' + n), head(), '#ff8a78');
   if (G.hp <= 0){ G.hp = 0; startFall(); }
   return true;
+}
+// a long drop's landing: hurt by the height, no knockback; a fall that ends him sends him to the Pool
+export function fallHurt(n, drop){
+  const G = ST.G; if (!G) return;
+  G.hp -= n; if (G.hp > 0) afterHurt(G); G.hurtT = MV.hurtStun; G.inv = Math.max(G.inv, P.invuln * 0.5); G.atk = null;
+  ST.shake = Math.max(ST.shake, 0.3 + 0.03 * drop); ST.flash = 0.3; sfx.hurt(); sfx.slam(); hitstop(TUNE.feel.hitstopHurt);
+  float('-' + n, head(), '#ff8a78');
+  if (G.hp <= 0){ G.hp = 0; startFall(); }
 }
 export function drink(){
   const G = ST.G;

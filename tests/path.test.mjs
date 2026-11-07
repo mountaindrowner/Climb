@@ -58,41 +58,6 @@ test('broken steps and swings only on flights gentle enough for them', () => {
   for (let seed = 1; seed < 6; seed++) for (let k = 0; k < MAXK; k++)
     for (const o of layoutFlight(seed, k).obs) assert.ok(suits(o.type, k), `${o.type} on flight ${k} (rise ${riseOf(k)})`);
 });
-test('every fork: the spur leaves its fork landing; the high road rejoins the main stair at a landing above, at the same height and angle', async () => {
-  const P = await import('../src/world/path.js');
-  assert.ok(P.BRANCHES.length >= 5 && P.SPURS.length === P.BRANCHES.length, 'a fork in most zones');
-  const ang = (x, y) => Math.abs(Math.atan2(Math.sin(x - y), Math.cos(x - y)));
-  for (const b of P.BRANCHES){
-    const sp = b.spur, A = P.posOf(P.landingS(b.kA)), B = P.posOf(P.landingS(b.kB));
-    const s0 = P.posOf(sp.s0), end = P.posOf(b.s0 + b.len);
-    assert.ok(Math.abs(s0.y - (A.y + sp.rise)) < 1e-6 && ang(s0.a, A.a) < 1e-6, `spur ${b.j} starts on its fork landing`);
-    assert.ok(Math.abs(end.y - B.y) < 1e-6 && ang(end.a, B.a) < 1e-6, `high road ${b.j} ends at the landing it rejoins`);
-    assert.ok(b.rise > 0 && b.rise <= P.BRANCH_MAX_RISE, `high road ${b.j} rise ${b.rise.toFixed(2)} is climbable`);
-    assert.ok(Math.abs(b.yA - (sp.topY + P.SPUR.lip)) < 1e-6, 'the high road\'s foot is above the spur\'s broken end');
-    assert.ok(P.posOf(b.s0).a > sp.tipA, 'and beyond it');
-    assert.equal(P.routeSign(sp.s0 + 1), 1); assert.equal(P.routeSign(b.s0 + 1), -1);
-    for (let u = 0.1; u < b.len; u += 0.5) assert.ok(P.topAt(b.s0 + u) >= P.posOf(b.s0 + u).y - 1e-6, 'never below its own steps');
-    assert.ok(Math.abs(P.sAt(b.s0 + 5, P.posOf(b.s0 + 6).a) - (b.s0 + 6)) < 1e-6, 'sAt finds positions along the high road');
-    assert.ok(Math.abs(P.sAt(sp.s0 + 2, P.posOf(sp.s0 + 3).a) - (sp.s0 + 3)) < 1e-6, 'and along the spur');
-    assert.ok(P.spurHole(sp, sp.len + 0.5), 'past the spur\'s end is the void');
-  }
-});
-test('the leap: a running jump off the spur\'s top step reaches the high road\'s foot; the collapse never catches a runner', async () => {
-  const P = await import('../src/world/path.js'), { TUNE } = await import('../src/config/tuning.js');
-  const M = TUNE.move, S = P.SPUR, vy0 = Math.sqrt(2 * M.gravityUp * M.jumpHeight);
-  // jump from the middle of the top step at full run: is there a moment over the landing window high enough?
-  let ok = false;
-  for (let t = 0; t < 1.2 && !ok; t += 0.005){
-    const x = M.run * t - 0.5, up = Math.min(t, vy0 / M.gravityUp), y = vy0 * up - 0.5 * M.gravityUp * up * up - (t > up ? 0.5 * M.gravityDown * (t - up) ** 2 : 0);
-    if (x > S.gapFrom && x < S.gapTo && y >= S.lip - 0.45) ok = true;
-  }
-  assert.ok(ok, 'the leap can be made');
-  assert.ok(S.lip > 0.6, 'the foot is above the spur\'s end: it takes a jump');
-  const COLLAPSE = S.collapse;
-  assert.ok(COLLAPSE.speed < M.run * 0.9 && COLLAPSE.delay > 0.3, 'a runner stays ahead of the collapse');
-});
-
-
 test('surfaces: every flight meets both its landings, tall and broad steps only on gentle flights, the regions themed', async () => {
   const P = await import('../src/world/path.js');
   const n = {}, byZone = [{}, {}, {}];
@@ -138,7 +103,7 @@ test('hidden halls: every zone has one a run; in from its landing, up through th
     const sM = P.landingS(h.kH), mouth = P.posOf(h.s0 + P.HALL.mouth), L = P.posOf(sM);
     assert.ok(Math.abs(mouth.y - L.y) < 1e-9 && Math.abs(mouth.a - L.a) < 1e-9, `hall ${h.j} opens straight behind its landing`);
     assert.ok(!['lift', 'camp', 'boss'].includes(P.special(h.kH)) && !P.BRANCHES.some(b => b.kA === h.kH), `hall ${h.j} is not on a landing that already does something`);
-    assert.ok(h.rise > 0 && h.rise <= P.BRANCH_MAX_RISE, `hall ${h.j} rise ${h.rise.toFixed(2)} is climbable`);
+    assert.ok(h.rise > 0 && h.rise <= 0.75, `hall ${h.j} rise ${h.rise.toFixed(2)} is climbable`);
     // the ledge: its end is over the next landing, and a drop above it
     const out = P.posOf(h.sOut), end = P.posOf(h.s0 + h.len);
     assert.ok(out.land && out.k === h.kH + 1, `hall ${h.j} comes out over landing ${h.kH + 1}`);
@@ -148,7 +113,7 @@ test('hidden halls: every zone has one a run; in from its landing, up through th
     let last = P.walkY(h.s0 + 0.05);
     for (let u = 0.05; u < h.len; u += 0.05){ const w = P.walkY(h.s0 + u); assert.ok(w >= last - 1e-9 && w - last < 0.1, `hall ${h.j} walk line at ${u.toFixed(2)}`); last = w; assert.ok(P.topAt(h.s0 + u) >= P.posOf(h.s0 + u).y - 1e-6); }
     assert.equal(P.topAt(h.s0 + h.chestU), h.yTop); assert.equal(P.topAt(h.s0 + h.tabletU), h.yTop);
-    assert.equal(P.routeSign(h.s0 + 2), 1); assert.equal(P.routeOf(h.s0 + 2), h); assert.equal(P.branchOf(h.s0 + 2), null); assert.equal(P.spurOf(h.s0 + 2), null);
+    assert.equal(P.routeSign(h.s0 + 2), 1); assert.equal(P.routeOf(h.s0 + 2), h);
     assert.ok(Math.abs(P.sAt(h.s0 + 4, P.posOf(h.s0 + 5).a) - (h.s0 + 5)) < 1e-6, 'sAt finds positions along a hall');
   }
   for (let seed = 0; seed < 20; seed++){

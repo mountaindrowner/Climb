@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.26.0 — platforming, and the playtest notes (2026-11-07)
+
+From the designer's playtest of 0.25.
+
+- **Platforming on the stair's own lane.** Stone ledges stand on the stair's own lane, one-way like any side-scroller's: land on them from above, jump up through them from below. Jump at a ledge and he **catches its edge and hauls himself up** (it reaches 2 above his feet, and works from just under an edge too), so a ledge can hang high enough to walk under and still be reached.
+- **Platforming flights.** On a flight or two of every region, drawn fresh each climb, the stair is gone: cross on ledges from one landing to the next, some of them cracked and crumbling a moment after you land.
+- **Forks are switchbacks now.** At a fork landing a ledge hangs overhead (a jump prompt marks it). Jump, catch it, and climb a run of ledges back the other way, over the stair you came up, to come up through a broken gap in the stair a turn above, about four flights on. No more hold-right-and-jump, and nothing behind the wall: the spur and the high road are gone. Closed forks still lie in rubble; the ram clears it and the switchback stands again.
+- **Falls cost.** Miss a jump or drop through a hole and you fall to whatever is below: the ledges under you, or the stair a whole turn down. The landing hurts by the height: nothing for a short drop, 1 past 3.6, 2 for a full turn. Death is still the fall to the Pool. Practice runs keep the old step back so you can drill a threat.
+- **Stairs in proportion.** Each unit of stair is now two half-height steps, a riser about a tenth of his height like real stairs (they were up to a third). On the steepest flight his head bobs half as much around the stair's slope, and its sharpest jolt is a fifth of what it was. Broad steps are the old whole-unit ones, on gentle flights only.
+- **The sword combo, in front of him.** A cut down from high on his right; reset high and down again; then the finisher, rising from low on his left to high on his right. All in the plane the camera sees; the hit flash's streaks follow.
+- **Less text in the way.** Floating words rise from above the action instead of on it, smaller, and stack when several come at once. Treasure says less: one line in the hall's chest, short toasts for blueprints and the ram.
+- **Fewer oath stones**: one a region.
+- The camera follows him on ledges and through falls instead of the stair's slope line. Threats on the stair below leave him alone on a ledge above (beams, the burrower).
+- Tests: every switchback's ledges can be reached in turn and clear the stair below and above, and its last ledge waits under its gap; every platforming flight can be crossed; the climb's decks keep away from forks and build nothing for practice. The smoke run catches a switchback's ledge, comes up through its gap, falls a turn, and has the bot cross a platforming flight.
+
 ## 0.25.0 — the run (2026-11-07)
 
 Milestone 5, the Dead Cells layer, named from the lore: every climb leaves something, and every climb from the bottom grows as it goes.

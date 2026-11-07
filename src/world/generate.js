@@ -9,6 +9,8 @@ import { buildFlightMeshes } from './props.js';
 import { layoutFlight } from './layout.js';
 import { ENTITIES } from '../entities/registry.js';
 import { setOaths } from './oaths.js';
+import { setDecks, holeFlights } from './decks.js';
+import { buildLedges } from './ledges.js';
 const THREE = window.THREE;
 
 export let runSeed = 1;
@@ -20,7 +22,7 @@ const hinted = new Set();
 export function flight(k){
   let c = content.get(k);
   if (!c){
-    c = layoutFlight(runSeed, k, { only: ST.practice });
+    c = layoutFlight(runSeed, k, { only: ST.practice, voids: holeFlights() });
     for (const o of c.obs){
       const e = ENTITIES[o.type];
       if (!o.hint && e.hint && !hinted.has(o.type) && (ST.practice || !S.seen.includes(o.type))){ o.hint = e.hint; hinted.add(o.type); }
@@ -34,6 +36,8 @@ export function newRun(seed){
   setRoutes(runSeed);                                  // which forks are open this climb
   content.clear(); hinted.clear();
   while (dyn.children.length) dyn.remove(dyn.children[0]);
+  setDecks(runSeed, !!ST.practice);                    // this climb's ledges: platforming flights, switchbacks
+  buildLedges(dyn);
   setOaths(runSeed, dyn);                              // where this climb's oath stones stand
   setAllFlights();
 }
