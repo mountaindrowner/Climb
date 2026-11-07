@@ -1,5 +1,5 @@
 // Oath stones: three to a region, on landings drawn for each climb (never the tutorial's, a fork's, the lift's, the rest
-// stop's, or a hidden hall's). A rough standing stone at the back of the landing, two lines of the Lanternbearer's oath
+// stop's, or a hidden hall's, or the one a hall drops you on). A rough standing stone at the back of the landing, two lines of the Lanternbearer's oath
 // cut into it and glowing in their colours. Reaching the middle of its landing going up, he may swear one (a choice:
 // ui/screens/oath.js); sworn or passed, the stone goes dark.
 import { R, OMEGA, ZF, MAXK } from '../config/constants.js';
@@ -20,7 +20,7 @@ export function setOaths(seed, dyn){
     const r = rng(seed * 31 + z * 977 + 5), ok = [];
     for (let l = 0; l < ZF - 1; l++){
       const k = z * ZF + l;
-      if (k < 4 || k >= MAXK - 1 || special(k) || BRANCHES.some(b => b.kA === k) || HALLS.some(h => h.open && h.kH === k)) continue;
+      if (k < 4 || k >= MAXK - 1 || special(k) || BRANCHES.some(b => b.kA === k) || HALLS.some(h => h.open && (h.kH === k || h.kH + 1 === k))) continue;   // nor where a hall comes out
       if (FEATURES.wardens && arenaOf(k) >= 0) continue;
       ok.push(k);
     }
