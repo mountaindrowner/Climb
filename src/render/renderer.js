@@ -11,6 +11,7 @@ export const hx = hudCanvas.getContext('2d');
 export const stageEl = document.getElementById('stage');
 
 export const renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias: false, powerPreference: 'high-performance' });
+renderer.localClippingEnabled = true;   // creatures that come up out of the stone are cut off at its surface (glbModel.js clipBelow)
 export const scene = new THREE.Scene();
 export const fogCol = new THREE.Color(ZONES[0].bg);
 scene.background = fogCol.clone();

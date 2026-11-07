@@ -16,7 +16,11 @@ import { topAt } from '../../world/path.js';
 import { hurt, head, isInvulnerable } from '../player/player.js';
 import { GOLD } from '../../config/economy.js';
 import { hitstop } from '../../fx/feedback.js';
+import { loadModel, instance, pose, poseOnce, clipBelow } from '../../render/glbModel.js';
 const THREE = window.THREE;
+// the body from tools/blender/burrower.py; until it has loaded (or if it cannot), the built-in shapes stand in
+export const BURROWER = loadModel('burrower', 'assets/models/burrower/burrower.glb');
+const SCALE = 1.45;
 const T = TUNE.burrower;
 
 export const hint = 'A burrower. Jump its jaws with {jump}, or strike its head with {attack} while it is up.';
@@ -28,7 +32,8 @@ export function build(o, { z, glow, dyn }){
   const mound = new THREE.Group();
   for (let j = 0; j < 8; j++) mound.add(rock(mat, { w: 0.45 + r() * 0.3, h: 0.35, d: 0.5 + r() * 0.35, jag: 0.4 }, (r() - 0.5) * 0.8, 0.08 + r() * 0.14, (r() - 0.5) * 1.3, r));
   // a fin of bone shards slicing through the rubble, the first thing you see of it
-  for (let j = 0; j < 3; j++){ const f = spike(bone, 0.85 - j * 0.18, 0.12); f.position.set(-j * 0.3, 0.2, 0); f.rotation.z = 0.45; mound.add(f); outline(f, rim, 1.25); }
+  const fin = new THREE.Group(); mound.add(fin);
+  for (let j = 0; j < 3; j++){ const f = spike(bone, 0.85 - j * 0.18, 0.12); f.position.set(-j * 0.3, 0.2, 0); f.rotation.z = 0.45; fin.add(f); outline(f, rim, 1.25); }
   mound.scale.setScalar(1.45); mound.visible = false; dyn.add(mound);
   // where the jaws will come up: a ring of glowing cracks on the step, lit from the moment it starts toward you
   const markMat = new THREE.MeshBasicMaterial({ color: glow, transparent: true, opacity: 0, depthWrite: false });
@@ -51,6 +56,7 @@ export function build(o, { z, glow, dyn }){
   const eye = new THREE.MeshBasicMaterial({ color: glow });
   for (const s of [1, -1]){ const e = blob(eye, 0.08, 0.08, 0.08, 0); e.position.set(0.28, 0.12, s * 0.15); rise.add(e); }
   jaws.visible = false;
+  o.fin = fin; o.glowC = glow; o.pit = pit;
   o.mound = mound; o.jaws = jaws; o.rise = rise; o.teeth = teeth; o.top = top; o.dustC = '#' + mat.color.getHexString(); o.furrow = furrow; o.furrowMat = furrowMat; o.markMat = markMat;
 }
 export function update(o, dt){
@@ -77,11 +83,13 @@ export function update(o, dt){
 export const hittable = o => o.st === 'up' || o.st === 'snap' || o.st === 'rise';
 export function hit(o, dmg){
   const G = ST.G;
-  o.hp -= dmg; o.flash = 0.12; sfx.hit(); hitstop(TUNE.feel.hitstopHit);
+  o.hp -= dmg; o.flash = 0.12; o.hitT = ST.time; sfx.hit(); hitstop(TUNE.feel.hitstopHit);
   burst(vArc(o.s * OMEGA, R, o.top + 0.8), 12, '#ffd9a8', 3.5);
   if (o.hp <= 0){ o.st = 'sink'; o.tm = 0; o.done = true; o.killed = true; G.gold += GOLD.burrower; float('+' + GOLD.burrower, head(), '#e8b04a'); sfx.gold(); hitstop(TUNE.feel.hitstopKill); }
 }
-export function draw(o){
+// where a blow lands: its head, wherever the body has it
+export const hitAt = o => o.B ? o.B.head.getWorldPosition(new THREE.Vector3()) : vArc(o.s * OMEGA, R, o.top + 0.8);
+export function draw(o, dt = 1 / 60){
   const t = ST.time;
   o.mound.visible = o.st === 'travel';
   o.markMat.opacity = o.st === 'travel' ? 0.45 + 0.4 * Math.sin(t * 14) : o.st === 'rise' || o.st === 'up' ? 0.75 : 0;
@@ -94,6 +102,7 @@ export function draw(o){
     placeArc(o.mound, a, R, topAt(o.sm) + Math.abs(Math.sin(t * 22)) * 0.06, o.side > 0);
     if (Math.random() < 0.45) burst(vArc(a, R + (Math.random() - 0.5) * 1.4, topAt(o.sm) + 0.25), 1, o.dustC, 1.6, 7, 0.09);
   }
+  if (BURROWER.ready && drawModel(o, dt)) return;
   o.jaws.visible = o.st === 'rise' || o.st === 'up' || o.st === 'snap' || o.st === 'sink';
   if (!o.jaws.visible) return;
   // rises with the teeth splayed, waits breathing, snaps shut and lunges, sinks when dead or left behind
@@ -104,6 +113,42 @@ export function draw(o){
   else { up = 0.75 - clamp(o.tm / 0.6, 0, 1) * 1.7; open = 0.3; }
   o.rise.position.y = -0.9 + up;
   for (const th of o.teeth){ const tilt = 0.15 + 0.55 * open; th.tj.rotation.set(Math.sin(th.ang) * tilt, 0, -Math.cos(th.ang) * tilt); }
+}
+// The modelled body. Ploughing: the shut drill of its jaws breaks the rubble, wriggling. Rising: it bursts up and opens.
+// Up: waiting open, swaying, jaws flexing. A snap: shut and lunge. Struck: it recoils. Sinking: it shuts and draws down.
+function drawModel(o, dt){
+  if (!o.B){
+    o.B = instance(BURROWER, SCALE, 'burrower_glow');
+    o.B.model.traverse(n => { if (n.name === 'head') o.B.head = n; });
+    if (!o.B.head) o.B.head = o.B.model;
+    o.jaws.add(o.B.g);   // on the step, under the same root the hit flash and the old shapes use
+    o.rise.visible = false; o.fin.visible = false;
+    if (o.B.glow){ o.B.glow.color.set(o.glowC).multiplyScalar(0.4); o.B.glow.emissive.set(o.glowC); }
+  }
+  const t = ST.time, B = o.B, side = o.side || 1;
+  B.g.rotation.y = side > 0 ? -Math.PI / 2 : Math.PI / 2;   // its face (+z) toward the way he comes
+  let y = -2, clip = 'Closed', frac = 0, once = false;
+  const travel = o.st === 'travel';
+  o.jaws.visible = travel || o.st === 'rise' || o.st === 'up' || o.st === 'snap' || o.st === 'sink';
+  if (travel){
+    placeArc(o.jaws, o.sm * OMEGA, R, topAt(o.sm));           // with the mound: only the drill's point shows through
+    y = -0.88 + Math.abs(Math.sin(t * 22)) * 0.05; frac = t * 2;
+  } else {
+    placeArc(o.jaws, o.s * OMEGA, R, o.top);
+    if (o.st === 'rise'){ const u = clamp(o.tm / T.rise, 0, 1); y = -1.5 + u * 1.58; clip = 'Rise'; frac = u; once = true; }
+    else if (o.st === 'up'){
+      y = 0.08 + Math.sin(t * 4) * 0.03;
+      if (o.hitT && t - o.hitT < 0.42){ clip = 'Hit'; frac = (t - o.hitT) / 0.42; once = true; } else { clip = 'Open'; frac = t / 2; }
+    }
+    else if (o.st === 'snap'){ y = 0.08; clip = 'Snap'; frac = o.tm / T.snapShut; once = true; }
+    else if (o.st === 'sink'){ const u = clamp(o.tm / 0.7, 0, 1); y = 0.08 - u * 2.1; clip = 'Sink'; frac = u; once = true; }
+  }
+  B.g.position.y = y; o.pit.visible = !travel;
+  clipBelow(B, (travel ? topAt(o.sm) : o.top) - 0.02);   // only what is above the step shows
+  (once ? poseOnce : pose)(B, clip, frac, dt, 18);
+  // the pits glow brighter as it comes, and flare when it snaps
+  if (B.glow) B.glow.emissiveIntensity = o.st === 'snap' ? 1.6 : travel ? 0.5 + 0.3 * Math.sin(t * 14) : 0.85;
+  return true;
 }
 export function hud(o, d, { drawIcon }){
   if ((o.st === 'travel' || o.st === 'rise' || o.st === 'up') && Math.abs(d) <= TUNE.climb.iconRange) drawIcon(vArc(o.s * OMEGA, R - 0.4, o.top + 1.2), '{jump}', '#e8b04a');
