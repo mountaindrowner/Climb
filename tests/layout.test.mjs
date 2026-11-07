@@ -57,7 +57,8 @@ test('a practice run holds only its threat, on flights 1 to 9 and never on the r
       if (k === 0 || k > PRACTICE_FLIGHTS || c.sp === 'camp') assert.equal(c.obs.length, 0, `${t.id} flight ${k}`);
       seen += c.obs.length;
     }
-    assert.ok(seen >= 6, `${t.id}: ${seen}`);   // six or more reps (a swing takes a flight's room; steep flights skip the broken step and the swing)
+    assert.ok(seen >= 4, `${t.id}: ${seen}`);   // four or more reps (a swing takes a flight's room; steep flights skip the broken step and the swing,
+                                                // flights of slope or broad steps skip the broken step, broad and tall ones the swing)
   }
 });
 test('every zone draws from catalogued threats only', () => {
