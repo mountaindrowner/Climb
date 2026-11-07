@@ -11,7 +11,7 @@ import { burst } from '../render/particles.js';
 import { setToast } from '../fx/feedback.js';
 import { posOf, zoneOf, special, landingS, meters, arenaOf, topAt, forkFrom, branchOf } from '../world/path.js';
 import { stepMotor } from '../entities/player/motor.js';
-import { updateHandoffs, handoffHint } from '../world/handoff.js';
+import { updateSpurs, spurHint } from '../world/spur.js';
 import { flight, newRun } from '../world/generate.js';
 import { newRunState, PL } from '../entities/player/player.js';
 import { setWeaponModel } from '../entities/player/model.js';
@@ -32,7 +32,7 @@ export function updClimb(dt){
   // movement steps at no more than 1/60 s whatever the frame rate, so a slow frame never carries him over a hole
   const s0 = G.s, n = Math.max(1, Math.ceil(dt * 60 - 1e-6)), h = dt / n;
   for (let i = 0; i < n && ST.mode === 'climb' && ST.G === G; i++){
-    updateHandoffs(h);         // the slab at a high road's foot moves before he does, so he rides it
+    updateSpurs(h);            // the spur's collapse moves before he does
     stepMotor(G, h);
   }
   // what reads G.prevS after this (landmarks, beams, crawlers) means where he was at the start of the frame
@@ -73,9 +73,10 @@ export function updClimb(dt){
   if (!ST.hint && G.s < 6 && !ST.practice && !S.best) ST.hint = 'Hold {right} to climb, {left} to go back down. {jump} jumps, hold {down} to crouch.';
   if (!ST.practice && p.land && special(p.k) === 'lift' && !S.lifts.includes(p.k)) ST.hint = 'Stand on the landing and press {jump} to repair the lift. It becomes a shortcut from the Pool.';
   // a fork: the high road climbs off the other way behind this landing
-  if (!ST.practice && !branchOf(G.s) && p.land && forkFrom(p.k) && !S.seen.includes('fork')) ST.hint = 'A stair climbs the other way behind you: steep, but a shortcut. Hold {left} and press {jump} to hop onto it.';
+  if (!ST.practice && !branchOf(G.s) && p.land && forkFrom(p.k) && !S.seen.includes('fork')) ST.hint = 'A crumbling stair climbs behind you to the high road, a shortcut. Hold {right} and press {jump} to hop onto it, then keep running and leap at its end.';
   if (branchOf(G.s) && !S.seen.includes('fork')){ S.seen.push('fork'); save(); }
-  const hh = handoffHint(G); if (hh) ST.hint = hh;
+  const hh = spurHint(G); if (hh) ST.hint = hh;
+  if (branchOf(G.s) && !S.seen.includes('handoff')){ S.seen.push('handoff'); save(); }
   const m = meters(G.y); if (m > S.best && !ST.practice) S.best = m;
 }
 

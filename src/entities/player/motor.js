@@ -10,10 +10,9 @@ import { clamp } from '../../core/math.js';
 import { sfx } from '../../audio/sfx.js';
 import { vArc } from '../../render/primitives.js';
 import { burst } from '../../render/particles.js';
-import { posOf, walkY, special, landingS, branchOf, forkFrom, routeSign, safeSpot } from '../../world/path.js';
+import { posOf, walkY, special, landingS, branchOf, spurOf, forkFrom, routeSign, safeSpot, SPUR, BR_BASE } from '../../world/path.js';
 import { IN, consume } from '../../core/input.js';
 import { holeAt, ceilingAt } from '../../world/ground.js';
-import { slabLets } from '../../world/handoff.js';
 import { strike, drink, repairLift, hurt } from './player.js';
 const MV = TUNE.move;
 const dust = (G, n, spd, c) => { const p = posOf(G.s); burst(vArc(p.a, p.r, G.y + 0.05), n, c || '#b4aac8', spd || 1.4, 5, 0.08); };
@@ -84,9 +83,9 @@ export function stepMotor(G, dt){
     G.jumpBuf = 0; G.coyote = 0; G.grounded = false; G.crouch = false; G.jumpT = 0;
     G.vy = Math.sqrt(2 * MV.gravityUp * MV.jumpHeight); sfx.jump(); dust(G, 6, 1.6);
     if (G.atk && G.atk.phase === 'rec') G.atk = null;
-    // a fork: jumping left from the fork landing hops across onto the high road behind it
-    const p = posOf(G.s), b = !branchOf(G.s) && p.land && H.left && forkFrom(p.k);
-    if (b){ G.s = G.prevS = b.s0 + 0.25; G.safeS = G.s; G.hop = 1; sfx.whoosh(); }
+    // a fork: jumping up-stair from the fork landing hops back onto the crumbling spur behind it
+    const p = posOf(G.s), b = G.s < BR_BASE && p.land && H.right && forkFrom(p.k);
+    if (b){ G.s = G.prevS = b.spur.s0 + 0.25; G.safeS = landingS(b.kA); G.hop = 1; sfx.whoosh(); }
   }
   if (!G.grounded){
     let g = G.vy > 0 ? MV.gravityUp : MV.gravityDown;
@@ -98,13 +97,20 @@ export function stepMotor(G, dt){
   G.prevS = G.s; G.s += G.v * dt * routeSign(G.s);   // a high road winds the other way round: right goes back down it
   if (G.s < 0.05) G.s = 0.05;
   // the ends of a high road: walk off its top onto the landing it rejoins, or back off its foot onto the fork landing
-  const br = branchOf(G.prevS);
-  // the slab at a high road's foot: he cannot walk off it (only jump), save back onto the fork landing while it rests
-  if (br && G.grounded && posOf(G.prevS).slab && !slabLets(br, G.s - br.s0)){ G.s = G.prevS; G.v = 0; }
+  const br = branchOf(G.prevS), sp = spurOf(G.prevS);
   if (br){
     const u = G.s - br.s0;
     if (u > br.len){ G.s = G.prevS = landingS(br.kB) - (u - br.len); G.hop = 1; }
-    else if (u < 0){ G.s = G.prevS = landingS(br.kA) - u; G.hop = 1; }
+    // off the right end of the high road's foot: a drop, onto the main stair below it
+    else if (u < 0){ G.s = G.prevS = (br.aA - u / br.r) / OMEGA; G.grounded = false; G.hop = 1; }
+  }
+  if (sp){
+    const u = G.s - sp.s0, R_ = sp.road;
+    if (u < 0){ G.s = G.prevS = landingS(sp.kA) + u; G.hop = 1; }                 // back off its foot onto the fork landing
+    // the leap: past the broken end, over the gap and high enough, he comes down on the high road's foot (its far end)
+    else if (!G.grounded && u > sp.len + SPUR.gapFrom && u < sp.len + SPUR.gapTo && G.y >= R_.yA - 0.45){
+      G.s = G.prevS = R_.s0 + Math.max(0.3, Math.min(R_.footL - 0.2, R_.footL - (u - sp.len - SPUR.gapFrom))); G.safeS = G.s; G.hop = 1;
+    }
   }
   if (!G.grounded) G.y += G.vy * dt;
   let hole = holeAt(G.s); const gy = walkY(G.s);   // the ground he rides: the stair's slope, not each step

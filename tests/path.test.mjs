@@ -57,29 +57,37 @@ test('broken steps and swings only on flights gentle enough for them', () => {
   for (let seed = 1; seed < 6; seed++) for (let k = 0; k < MAXK; k++)
     for (const o of layoutFlight(seed, k).obs) assert.ok(suits(o.type, k), `${o.type} on flight ${k} (rise ${riseOf(k)})`);
 });
-test('every high road leaves its fork landing and rejoins the main stair at a landing above, at the same height and angle', async () => {
+test('every fork: the spur leaves its fork landing; the high road rejoins the main stair at a landing above, at the same height and angle', async () => {
   const P = await import('../src/world/path.js');
-  assert.ok(P.BRANCHES.length >= 5, 'a fork in most zones');
+  assert.ok(P.BRANCHES.length >= 5 && P.SPURS.length === P.BRANCHES.length, 'a fork in most zones');
+  const ang = (x, y) => Math.abs(Math.atan2(Math.sin(x - y), Math.cos(x - y)));
   for (const b of P.BRANCHES){
-    const start = P.posOf(b.s0), end = P.posOf(b.s0 + b.len), A = P.posOf(P.landingS(b.kA)), B = P.posOf(P.landingS(b.kB));
-    const ang = (x, y) => Math.abs(Math.atan2(Math.sin(x - y), Math.cos(x - y)));
-    assert.ok(Math.abs(start.y - A.y) < 1e-6 && ang(start.a, A.a) < 1e-6, `high road ${b.j} starts at its fork landing`);
+    const sp = b.spur, A = P.posOf(P.landingS(b.kA)), B = P.posOf(P.landingS(b.kB));
+    const s0 = P.posOf(sp.s0), end = P.posOf(b.s0 + b.len);
+    assert.ok(Math.abs(s0.y - (A.y + sp.rise)) < 1e-6 && ang(s0.a, A.a) < 1e-6, `spur ${b.j} starts on its fork landing`);
     assert.ok(Math.abs(end.y - B.y) < 1e-6 && ang(end.a, B.a) < 1e-6, `high road ${b.j} ends at the landing it rejoins`);
     assert.ok(b.rise > 0 && b.rise <= P.BRANCH_MAX_RISE, `high road ${b.j} rise ${b.rise.toFixed(2)} is climbable`);
+    assert.ok(Math.abs(b.yA - (sp.topY + P.SPUR.lip)) < 1e-6, 'the high road\'s foot is above the spur\'s broken end');
+    assert.ok(P.posOf(b.s0).a > sp.tipA, 'and beyond it');
+    assert.equal(P.routeSign(sp.s0 + 1), 1); assert.equal(P.routeSign(b.s0 + 1), -1);
     for (let u = 0.1; u < b.len; u += 0.5) assert.ok(P.topAt(b.s0 + u) >= P.posOf(b.s0 + u).y - 1e-6, 'never below its own steps');
-    assert.ok(Math.abs(P.sAt(b.s0 + 5, P.posOf(b.s0 + 6).a) - (b.s0 + 6)) < 1e-6, 'sAt finds positions along it');
+    assert.ok(Math.abs(P.sAt(b.s0 + 5, P.posOf(b.s0 + 6).a) - (b.s0 + 6)) < 1e-6, 'sAt finds positions along the high road');
+    assert.ok(Math.abs(P.sAt(sp.s0 + 2, P.posOf(sp.s0 + 3).a) - (sp.s0 + 3)) < 1e-6, 'and along the spur');
+    assert.ok(P.spurHole(sp, sp.len + 0.5), 'past the spur\'s end is the void');
   }
 });
-test('the crumbling foot of each high road: a slab level with the fork landing, a jumpable gap, the slab rising to just under the first intact step', async () => {
+test('the leap: a running jump off the spur\'s top step reaches the high road\'s foot; the collapse never catches a runner', async () => {
   const P = await import('../src/world/path.js'), { TUNE } = await import('../src/config/tuning.js');
-  const M = TUNE.move, vy = Math.sqrt(2 * M.gravityUp * M.jumpHeight);
-  for (const b of P.BRANCHES){
-    assert.ok(Math.abs(b.crumbleTo - b.iC * b.stepL) < 1e-9 && b.iC < b.nSteps, `high road ${b.j}: intact steps resume on a step boundary`);
-    assert.ok(b.platTo - b.platFrom >= 2.5, `high road ${b.j}: the slab is wide enough to land on from the fork landing`);
-    // from the slab at its top, a running jump crosses the gap before he comes back down to the step's lip
-    const drop = b.slabTop - (b.yA + b.iC * b.rise), tUp = vy / M.gravityUp, tDown = Math.sqrt(2 * (M.jumpHeight + drop) / M.gravityDown);
-    assert.ok(drop > 0 && drop < 0.75, `high road ${b.j}: the slab tops out just over the lip of the first step (${drop.toFixed(2)})`);
-    assert.ok(M.run * (tUp + tDown) * 0.85 > b.gap + 0.3, `high road ${b.j}: the gap ${b.gap} is jumpable`);
-    assert.ok(b.gap > 1, `high road ${b.j}: but it is a real gap`);
+  const M = TUNE.move, S = P.SPUR, vy0 = Math.sqrt(2 * M.gravityUp * M.jumpHeight);
+  // jump from the middle of the top step at full run: is there a moment over the landing window high enough?
+  let ok = false;
+  for (let t = 0; t < 1.2 && !ok; t += 0.005){
+    const x = M.run * t - 0.5, up = Math.min(t, vy0 / M.gravityUp), y = vy0 * up - 0.5 * M.gravityUp * up * up - (t > up ? 0.5 * M.gravityDown * (t - up) ** 2 : 0);
+    if (x > S.gapFrom && x < S.gapTo && y >= S.lip - 0.45) ok = true;
   }
+  assert.ok(ok, 'the leap can be made');
+  assert.ok(S.lip > 0.6, 'the foot is above the spur\'s end: it takes a jump');
+  const COLLAPSE = S.collapse;
+  assert.ok(COLLAPSE.speed < M.run * 0.9 && COLLAPSE.delay > 0.3, 'a runner stays ahead of the collapse');
 });
+

@@ -140,10 +140,10 @@ export function drawHUD(){
     hx.fillStyle = '#e8b04a'; hx.fillRect(20, by, 4, bh);
     hx.fillStyle = '#efe6d2'; lines.forEach((l, i) => hx.fillText(l, 34, by + 22 + i * lh));
   }
-  // a fork: mark the high road's first step while he stands on the fork landing
-  if (mode === 'climb' && G && !branchOf(G.s)){
+  // a fork: mark the spur's foot while he stands on the fork landing
+  if (mode === 'climb' && G && G.s < 100000){
     const p = posOf(G.s), b = p.land && forkFrom(p.k);
-    if (b){ const a = b.aA - 1 / b.r; drawIcon(new THREE.Vector3(b.r * Math.cos(a), b.yA + b.rise + 1.3, b.r * Math.sin(a)), '{jump}', '#e8b04a'); }
+    if (b){ const sp = b.spur, a = sp.a0 + 0.6 / sp.r; drawIcon(new THREE.Vector3(sp.r * Math.cos(a), sp.yA + sp.rise + 1.3, sp.r * Math.sin(a)), '{jump}', '#e8b04a'); }
   }
   if (mode === 'fall'){
     hx.fillStyle = 'rgba(9,8,12,0.7)'; hx.fillRect(0, H - 44, W, 44);

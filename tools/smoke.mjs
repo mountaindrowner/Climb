@@ -213,29 +213,37 @@ const after = await page.evaluate(() => JSON.parse(localStorage.getItem('the-cli
 if (after.falls !== saved.falls || after.best !== saved.best) fail('practice changed the save');
 const unfair = report.filter(r => r.hitsTaken > 0);
 if (unfair.length) fail('threats hit the bot while it answered them correctly: ' + unfair.map(r => r.id).join(', '));
-// ---- a fork: hop onto the high road from the fork landing, climb it, and step off onto the main stair above
+// ---- a fork: from the fork landing hop onto the crumbling spur, run up it as it falls away, leap at its end onto the
+// high road's foot, then climb the high road to the landing it rejoins. The controls run inside the page, every frame.
 const fork = await page.evaluate(async () => {
   const { startClimb } = await import('/src/modes/climb.js'), { hideMenu } = await import('/src/ui/overlay.js'), P = await import('/src/world/path.js');
   window.__bot.on = false; window.__climb.input.release(); hideMenu(); window.__climb.ST.practice = null;   // the bot lets go of everything it held
   window.__P = P;
-  const b = P.BRANCHES[0]; startClimb(P.landingS(b.kA) + 0.3);
+  const b = P.BRANCHES[0]; startClimb(P.landingS(b.kA) - 0.3);
   const G = window.__climb.ST.G; G.maxHp = G.hp = 99;
   const gen = await import('/src/world/generate.js'); for (const c of gen.content.values()) for (const o of c.obs){ o.done = true; o.alive = false; o.st = 'gone'; }
   return { kA: b.kA, kB: b.kB, sB: P.landingS(b.kB) };
 });
 await page.waitForTimeout(600);
-await page.evaluate(() => { window.__climb.input.hold('left', true); window.__climb.input.tap('jump'); });
-await until(() => !!window.__P.branchOf(window.__climb.ST.G.s), 5000, 'hopping onto the high road');   // (synchronous: a promise would count as true at once)
-// the crumbling foot: ride the slab up (still holding left: he cannot walk off it), and leap across while it holds
-await until(() => window.__P.BRANCHES[0].hs.st === 'hold', 30000, 'riding the slab up to the intact steps');
-await page.evaluate(() => window.__climb.input.hold('jump', true));
-await until(() => !window.__climb.ST.G.grounded && window.__climb.ST.G.vy < 0, 5000, 'leaping from the slab');
-await page.evaluate(() => window.__climb.input.hold('jump', false));
-await until(() => !window.__P.branchOf(window.__climb.ST.G.s) && window.__climb.ST.G.grounded, 90000, 'climbing the high road to its end');
+await page.evaluate(() => {
+  const I = window.__climb.input, P = window.__P; window.__fork = { phase: 'hop', log: [] };
+  const f = () => { const G = window.__climb.ST.G, sp = P.spurOf(G.s), b = P.branchOf(G.s), F = window.__fork;
+    if (F.phase === 'hop' && sp) F.phase = 'run';
+    else if (F.phase === 'run' && sp && G.grounded && G.s - sp.s0 >= sp.len - 0.9){ I.hold('jump', true); F.phase = 'up'; F.log.push('jump ' + (G.s - sp.s0).toFixed(2)); }
+    else if (F.phase === 'up' && G.vy < 0){ I.hold('jump', false); F.phase = 'fall'; }
+    else if (F.phase === 'fall' && b && G.grounded){ I.hold('right', false); I.hold('left', true); F.phase = 'road'; F.log.push('landed ' + (G.s - b.s0).toFixed(2)); }
+    else if ((F.phase === 'fall' || F.phase === 'run') && !sp && !b && G.grounded && F.log.length){ F.phase = 'missed'; }
+    if (F.phase !== 'road' && F.phase !== 'missed') requestAnimationFrame(f); }; f();
+  I.hold('right', true); I.tap('jump');
+});
+await until(() => window.__fork.phase === 'road' || window.__fork.phase === 'missed', 15000, 'hopping onto the spur, running it and leaping to the high road');
+const leap = await page.evaluate(() => window.__fork);
+if (leap.phase !== 'road') fail('missed the leap from the spur to the high road: ' + JSON.stringify(leap));
+await until(() => !window.__P.branchOf(window.__climb.ST.G.s) && !window.__P.spurOf(window.__climb.ST.G.s) && window.__climb.ST.G.grounded, 90000, 'climbing the high road to its end');   // (synchronous: a promise would count as true at once)
 const forkEnd = await page.evaluate(() => { window.__climb.input.hold('left', false); const G = window.__climb.ST.G; return { s: G.s, y: G.y, k: Math.floor(G.s / 9.8), hp: G.hp }; });
-if (forkEnd.hp !== 99) fail('the high road hurt him on the way (the slab leap?): ' + (99 - forkEnd.hp) + ' hits');
+if (forkEnd.hp !== 99) fail('the fork hurt him on the way: ' + (99 - forkEnd.hp) + ' hits');
 if (Math.abs(forkEnd.s - fork.sB) > 1.5) fail('the high road did not bring him out at the landing it rejoins: ' + JSON.stringify({ forkEnd, fork }));
-console.log('took the high road from flight ' + fork.kA + ' to ' + fork.kB);
+console.log('took the fork from flight ' + fork.kA + ' to ' + fork.kB + ': ' + leap.log.join(', '));
 await page.evaluate(() => { window.__bot.on = true; });
 const clipR = await page.evaluate(() => window.__clip);
 console.log('clipping:', JSON.stringify(clipR));
