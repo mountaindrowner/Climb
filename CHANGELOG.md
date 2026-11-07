@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.22.0 — stair and routes v2 (2026-11-07)
+
+Milestone 3, from the designer's notes.
+
+- **The crumbling handoff, as designed.** No rising platform. On a fork landing a short stair, the spur, climbs off to the right, cut into the wall behind the main stair. Hold right and press jump to hop onto it. Once you are on it its steps fall away behind you, a collapse that chases you up at 3.2 a second (you run 3.8), so you cannot stop; each step shakes before it goes. It ends in a broken edge. Behind it and 1.1 higher, across a gap, is the foot of the high road: jump in the last stretch of the spur and you come down on it, then turn and climb the high road left round the shaft as before. Run off the end or stop, and you fall: one health, back on the fork landing, and the stones grind back up for another try. The high road is now a narrow ledge-stair cut deeper into the wall (it passes behind the spur), with a flat foot to land on; walk off the foot's far end and you drop to the main stair below. Replaces the rising slab of 0.19.
+- **Varied stair surfaces.** Every flight keeps its rise (its landings stay put) but not its shape: a run of steps, a slope of worn rock, a slope broken by one tall step, or broad steps twice the length and height. Each region deals them from its own rotation: the Deep is mostly rough slopes, the caverns mix in broad runs, the dwarf halls are built stairs. The tutorial's first flights stay plain steps; tall and broad steps only come on gentle flights (no single step taller than about 0.9); broken steps only on flights of steps. Slopes are drawn as blocks tilted to the grade. His body rides the surface's average as before, and his feet land on it.
+- **Routes that change from run to run.** Each zone has two forks built: an early one from landing 3 (it skips the lift and comes out at the rest stop) and the late one from landing 9. Each climb draws which are open in each zone, the late one, the early one or both; every zone keeps at least one. A closed fork's spur is a heap of rubble at the back of its landing.
+- Tests: every spur leaves its fork landing and every high road rejoins its landing; the leap can be made with a running jump and the collapse never catches a runner; surfaces meet both landings, stay between them, and are themed by region; broken steps only on steps; every zone keeps an open fork and both forks get their turn across runs. The smoke run hops onto the spur, runs it, leaps, and climbs the high road to its landing.
+
 ## 0.21.0 — feel and juice (2026-11-07)
 
 Milestone 2, from the designer's notes after playing the skeleton.
