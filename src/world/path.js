@@ -103,7 +103,7 @@ export function walkY(s){
   const b = branchOf(s);
   if (b && s - b.s0 < b.crumbleTo) return topAt(s);
   // exactly: the step tops are flat between step edges, so cut the window at every edge and sum the pieces
-  const a0 = s - 0.5, a1 = s + 0.5, cuts = [a0, a1], lo = b ? b.s0 : 0, hi = b ? b.s0 + b.len : Infinity;
+  const a0 = s - 0.5, a1 = s + 0.5, cuts = [a0, a1], lo = b ? b.s0 + b.crumbleTo : 0, hi = b ? b.s0 + b.len : Infinity;   // on a high road: never reaching back over its crumbled foot
   if (b){ for (let i = Math.max(1, Math.ceil((a0 - b.s0) / b.stepL)); b.s0 + i * b.stepL < a1 && i * b.stepL < b.len - b.flat; i++) cuts.push(b.s0 + i * b.stepL); }
   else for (let k = Math.floor(a0 / FL); k * FL <= a1; k++) for (let i = 0; i < F; i++){ const x = k * FL + i; if (x > a0 && x < a1) cuts.push(x); }
   cuts.sort((p, q) => p - q);
