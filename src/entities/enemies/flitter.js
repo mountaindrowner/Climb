@@ -143,7 +143,7 @@ export function draw(o, dt){
   M.rim.color.setHex(o.st === 'dive' ? 0xff4a3a : o.glow);
 }
 export function hud(o, d, { drawIcon, drawTiming }){
-  if (o.st === 'dive') drawTiming('{attack}', o.tm, T.dive);
+  if (o.st === 'dive') drawTiming('{attack}', o.tm, T.dive - 0.15);   // closes when to press: the first cut winds up 0.15 s before it lands
   else if (o.st === 'launch') drawIcon(o.pos.clone().setY(o.pos.y + 0.6), '!', '#ff6b5a');
   else if (o.st === 'idle' && Math.abs(d) < TUNE.climb.iconRange + 0.6) drawIcon(o.roost.clone().setY(o.roost.y + 0.7), '{attack}', '#efe6d2');
 }

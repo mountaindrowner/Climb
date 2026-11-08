@@ -95,7 +95,7 @@ await page.addScriptTag({ type: 'module', content: `
             }
             break;
           case 'spitter': if (o.orb && !o.orb.back){ const pw = o.orb.p; const dd = Math.hypot(pw.x - Math.cos(G.s / R) * R, pw.z - Math.sin(G.s / R) * R); /* the shaft real radius */ if (dd < 3.2) block = true; } break;
-          case 'flitter': if (o.st === 'dive' && o.tm > TUNE.flitter.dive - 0.22 && !G.atk) I.tap('attack'); break;
+          case 'flitter': if (o.st === 'dive' && o.tm > TUNE.flitter.dive - 0.3 && !G.atk) I.tap('attack'); break;   // a wind-up ahead of the bite
         }
       }
       const p = posOf(G.s);
