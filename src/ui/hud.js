@@ -13,6 +13,8 @@ import { content } from '../world/generate.js';
 import { ENTITIES } from '../entities/registry.js';
 import { head } from '../entities/player/player.js';
 import { bossTop } from '../wardens/warden.js';
+import { telegraph, PROMPT } from '../boss/golem.js';
+import { golemPoint } from '../boss/view.js';
 const THREE = window.THREE;
 const _v = new THREE.Vector3(), _v2 = new THREE.Vector3();
 const FONT = '"Pixelify Sans", sans-serif';
@@ -126,6 +128,22 @@ export function drawHUD(){
       if (B.st === 'orb' && B.orb && !B.orb.back) drawTiming('B', B.T + B.orb.t, B.T + B.orb.dur);
       if (B.st === 'opening' && Math.abs(B.s - G.s) < TUNE.warden.hitRange + 1.5) drawIcon(bossTop(), 'A', '#e8b04a');
     }
+  }
+  const Wd = ST.W;
+  if (Wd && mode === 'climb' && Wd.st !== 'wait' && Wd.st !== 'risen'){
+    // the Warden on the floor: his name and strength; in phase 1, what answers the attack coming, as it comes
+    const bw = W * 0.6, bx = (W - bw) / 2, by = 70;
+    hx.fillStyle = '#efe6d2'; hx.font = `600 15px ${FONT}`; hx.textAlign = 'center';
+    hx.fillText(Wd.name, W / 2, by - 6); hx.textAlign = 'left';
+    hx.fillStyle = '#09080c'; hx.fillRect(bx, by, bw, 10);
+    hx.fillStyle = Wd.phase === 2 ? '#d9483b' : '#a07cff'; hx.fillRect(bx + 2, by + 2, (bw - 4) * Wd.hp / Wd.max, 6);
+    hx.fillStyle = 'rgba(239,230,210,0.5)'; hx.fillRect(bx + bw / 2, by, 2, 10);
+    const tg = telegraph(Wd);
+    if (tg){
+      drawIcon(golemPoint(4.9), '!', '#ff6b5a');
+      if (Wd.phase === 1) drawTiming(PROMPT[tg.kind], tg.t, tg.T);
+    }
+    if (Wd.st === 'stagger' || (Wd.st === 'atk' && Wd.atk && Wd.atk.kind === 'slam' && Wd.atk.i === 2)) drawIcon(golemPoint(4.9), '{attack}', '#e8b04a');
   }
   hx.textAlign = 'center';
   for (const f of ST.floats){

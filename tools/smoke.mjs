@@ -98,6 +98,23 @@ await page.addScriptTag({ type: 'module', content: `
           case 'flitter': if (o.st === 'dive' && o.tm > TUNE.flitter.dive - 0.3 && !G.atk) I.tap('attack'); break;   // a wind-up ahead of the bite
         }
       }
+      // the Warden on the floor: out of the slam's reach, out from under the leap, under the sweep, over the shockwaves;
+      // otherwise close in and strike. Pinned against the rubble or the edge, roll through him instead
+      const W = ST.W;
+      if (W && W.sealed && W.st !== 'risen' && W.st !== 'dying'){
+        const d = W.s - G.s, ad = Math.abs(d), toward = Math.sign(d) || 1, A = W.st === 'atk' ? W.atk : null, ph = A ? A.phases[A.i][0] : null;
+        const room = toward > 0 ? G.s - W.span.s0 - 0.5 : W.span.s1 - 0.4 - G.s;   /* how far he can back off */
+        move = 0;
+        const away = () => { if (room > 1.0) move = -toward; else { move = toward; if (A && A.t > A.phases[A.i][1] - 0.32 && G.roll <= 0) I.tap('roll'); } };
+        if (A && A.kind === 'slam' && (ph === 'wind' || ph === 'strike') && ad < 4.3) away();
+        else if (A && A.kind === 'leap' && (ph === 'wind' || ph === 'air')){ const tg = A.to != null ? A.to : W.s; if (Math.abs(tg - G.s) < 2.3 || ph === 'wind') { if (room > 2.0) move = -toward; else { move = toward; if (ph === 'air' && G.roll <= 0) I.tap('roll'); } } }
+        else if (A && A.kind === 'sweep' && (ph === 'wind' || ph === 'strike') && ad < 4.6) crouch = true;
+        else if (Math.sign(d) !== G.face) move = toward;
+        else if (ad > 2.3) move = toward;
+        else if (!G.atk) I.tap('attack');
+        for (const v of W.waves){ const dv = v.s - G.s; if (Math.sign(dv) === -v.dir && Math.abs(dv) < 1.25 && Math.abs(dv) > 0.3 && G.grounded){ crouch = false; jump(16); } }
+        for (const q of W.rocks) if (!q.hit && Math.abs(q.s - G.s) < 0.9) move = Math.sign(G.s - q.s) || -toward;
+      }
       const p = posOf(G.s);
       if (p.land && special(p.k) === 'lift' && !ST.practice && !window.__climb.S.lifts.includes(p.k)){ move = 0; if (Math.abs(G.v) < 0.5 && G.grounded) I.tap('jump'); }   // stop on the landing, then repair
     }
@@ -158,6 +175,13 @@ console.log('after tutorial', await st());
 await until(() => window.__climb.S.lifts.length > 0, 90000, 'the lift repair');
 await until(() => window.__climb.ST.G.campDone.size > 0 && window.__climb.ST.mode === 'climb', 120000, 'the rest stop');   // (the bot also walks past oath stones)
 console.log('rest stop passed', await st());
+await until(() => window.__climb.ST.W && window.__climb.ST.W.sealed, 120000, 'the Warden\'s floor: the rubble falls behind and he wakes');
+const hits0 = await page.evaluate(() => window.__bot.hits);
+await shot('02b-warden');
+await until(() => !window.__climb.ST.W || window.__climb.ST.W.st === 'risen', 360000, 'beating the Warden on the floor');
+const wR = await page.evaluate(h0 => ({ beaten: window.__climb.S.bosses.slice(), hits: window.__bot.hits - h0, log: window.__bot.hitLog.slice(-8) }), hits0);
+if (!wR.beaten.includes(14)) fail('the Warden on the floor was not kept as beaten: ' + JSON.stringify(wR));
+console.log('the Warden on the floor: beaten, ' + wR.hits + ' damage taken (' + wR.log.join(', ') + ')');
 await until(() => window.__climb.ST.G.s > 15 * 9.8 + 2, 300000, 'reaching the second zone');
 console.log('second zone', await st());
 if ((await page.evaluate(() => !!window.__climb.ST.B))) fail('a Warden started while the Wardens are parked');

@@ -15,6 +15,7 @@ import { flight } from '../../world/generate.js';
 import { ENTITIES } from '../registry.js';
 import { makePlayer, setWeaponModel } from './model.js';
 import { bossHit } from '../../wardens/warden.js';
+import { hitGolem } from '../../boss/golem.js';
 import { startFall } from '../../modes/fall.js';
 import { updatePips } from '../../ui/overlay.js';
 import { tap } from '../../core/input.js';
@@ -90,6 +91,7 @@ export function drink(){
 export function strike(swing, finisher){
   const G = ST.G, w = WEAPONS[G.weapon], dmg = damage(G, swing, finisher);
   if (ST.B && bossHit(dmg)) return true;
+  if (ST.W && hitGolem(dmg, swing, w.reach)) return true;
   const k = posOf(G.s).k; let any = false;
   for (let kk = k - 2; kk <= k + 2; kk++){
     if (kk < 0) continue;

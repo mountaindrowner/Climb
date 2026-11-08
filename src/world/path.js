@@ -14,8 +14,30 @@ export const bossFlight = z => z * ZF + BOSS_FLIGHT;
 // The Warden's flight if k lies in its stretch, else -1. The stretch is the ARENA_FLIGHTS flights ending at the gate.
 export function arenaOf(k){ const l = k % ZF; return l > BOSS_FLIGHT - ARENA_FLIGHTS && l <= BOSS_FLIGHT ? k - l + BOSS_FLIGHT : -1; }
 export const landingS = k => k * FL + F + LAND * 0.5;   // path distance of the middle of flight k's landing
+// ---- The Warden's floor at the top of each region: the last landing below it, its flat flight, its own landing. The
+// stair ends at the far edge until the Warden falls; then the region above's first flight rises into place.
+export const hasFloor = kB => !FEATURES.wardens && kB % ZF === BOSS_FLIGHT && kB < MAXK;
+export const floorSpan = kB => ({ s0: (kB - 1) * FL + F, s1: (kB + 1) * FL });
+// the Warden's flight whose floor s is on, or -1
+export function floorOf(s){
+  if (s < 0 || s >= BR_BASE) return -1;
+  const k = Math.floor(s / FL), kB = k % ZF === BOSS_FLIGHT ? k : (k + 1) % ZF === BOSS_FLIGHT && s - k * FL >= F ? k + 1 : -1;
+  return kB >= 0 && hasFloor(kB) ? kB : -1;
+}
+export const floorFlights = k => hasFloor(k) || hasFloor(k + 1);   // flights on the floor (or ending on it): no threats, ledges, stones or halls
+// the region above's first flight: gone until its Warden falls
+export const floorShut = k => k > 0 && hasFloor(k - 1) && !S.bosses.includes(k - 1);
 // The grade: flight k's rise per step (the zone's pattern, rotated by zone), and the height its first step starts from.
-export const riseOf = k => { const z = Math.max(0, Math.floor(k / ZF)), l = ((k % ZF) + ZF) % ZF; return GRADE[(l + z * 4) % ZF]; };
+const rawRise = (z, l) => GRADE[(l + z * 4) % ZF];
+// The Warden's floor: the last flight of each region is flat, the floor its Warden waits on (the stair ends there). Its
+// rise moves to the region's later flat gallery, so every region keeps its height. (With the parked running fight on,
+// the old layout.)
+const flatL = z => { for (let l = BOSS_FLIGHT - 1; l >= 5; l--) if (rawRise(z, l) === 0) return l; return -1; };
+export const riseOf = k => {
+  const z = Math.max(0, Math.floor(k / ZF)), l = ((k % ZF) + ZF) % ZF;
+  if (!FEATURES.wardens && rawRise(z, BOSS_FLIGHT) !== 0){ if (l === BOSS_FLIGHT) return 0; if (l === flatL(z)) return rawRise(z, BOSS_FLIGHT); }
+  return rawRise(z, l);
+};
 // ---- Surfaces. A flight's rise is fixed (its landings stay put), but not how it is climbed: a run of steps, a slope
 // of worn rock, a slope broken by one tall step, or broad steps twice the length and height. Long runs of identical
 // short steps read as constant bumping, so the regions mix them: the Deep is mostly rough slopes, the caverns add broad
@@ -127,10 +149,12 @@ export const hallA = (h, u) => h.a0 + (u - HALL.mouth) / h.r;
 // Wardens on) in a Warden's stretch; and the next landing must be low enough for the hall to climb above it
 for (let z = 0; z < ZONES.length; z++){
   const mine = [];
-  for (const l of [6, 1, 11, 10, 12]){
+  for (const l of [6, 1, 11, 10, 12, 2, 7]){
     const kH = z * ZF + l;
     if (kH < 5 || kH + 1 >= MAXK || mine.some(o => Math.abs(o.kH - kH) < 2)) continue;
+    if ((l === 2 || l === 7) && mine.length) continue;   // a fork's landing, the rest stop's: only where a region has no other
     if (FEATURES.wardens && (arenaOf(kH) >= 0 || arenaOf(kH + 1) >= 0)) continue;
+    if (floorFlights(kH) || floorFlights(kH + 1)) continue;   // nor onto the Warden's floor
     const r = HALL_R, len = HALL.mouth + (FL - 0.2) * r / R, run = len - HALL.entry - HALL.chamber - HALL.ledge;
     const nSteps = Math.floor(run), stepL = run / nSteps, yA = landingY(kH), drop = landingY(kH + 1) + HALL.drop - yA, rise = drop / nSteps;
     if (rise > 0.75 || rise <= 0) continue;   // no steeper than the steepest flight

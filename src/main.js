@@ -17,6 +17,7 @@ import * as input from './core/input.js';
 import { animatePlayer } from './entities/player/animate.js';
 import { loadWarriorGlb } from './entities/player/glbRig.js';
 import { animateWarden } from './wardens/visuals.js';
+import { drawGolem } from './boss/view.js';
 import { MODES } from './modes/registry.js';
 import { drawHUD } from './ui/hud.js';
 import { titleMenu, updatePips } from './ui/menus.js';
@@ -41,7 +42,7 @@ function visuals(dt){
   updateCamera(dt);
   updateShaft(dt);
   updateProps(dt, pw);
-  animateWarden(dt);
+  animateWarden(dt); drawGolem(dt);
   updateParticles(dt);
 }
 let last = 0;

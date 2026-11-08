@@ -5,7 +5,7 @@ import { hash, yawFor } from '../core/math.js';
 import { scene } from '../render/renderer.js';
 import { stoneTex } from '../render/textures.js';
 import { bgeo, dummy, tmpC } from '../render/primitives.js';
-import { zoneOf, landingS, gateK, flightY, riseOf, landingY, surfaceOf, HALF } from './path.js';
+import { zoneOf, landingS, gateK, flightY, riseOf, landingY, surfaceOf, HALF, floorShut } from './path.js';
 import { content } from './generate.js';
 import { stairHole } from './decks.js';
 const THREE = window.THREE;
@@ -21,9 +21,12 @@ for (let k = 0; k < MAXK; k++){
   tmpC.set(z.top); landMesh.setColorAt(k, tmpC);
 }
 
-// Place flight k's steps. Steps above the gate or removed by a broken-step hazard are collapsed to nothing.
+// Place flight k's steps. Steps above the gate or removed by a broken-step hazard are collapsed to nothing, and so is the
+// flight above an unbeaten Warden's floor; when it falls, that flight rises into place from below (sink: how far down).
+const SINK = new Map();
+export function sinkFlight(k, d){ if (d > 0) SINK.set(k, d); else SINK.delete(k); setFlight(k); }
 export function setFlight(k){
-  const vis = k <= gateK(), c = content.get(k);
+  const vis = k <= gateK() && (!floorShut(k) || SINK.has(k)), c = content.get(k), sink = SINK.get(k) || 0;
   const kind = surfaceOf(k), base = flightY(k), r = riseOf(k);
   for (let j = 0; j < N; j++){
     const i = Math.floor(j / HALF);                                       // the unit it stands in
@@ -41,7 +44,7 @@ export function setFlight(k){
       if (j % HALF) hide = true; else { u = i + 0.5; top = base + (i + 1) * r; len = 1.02 / STEP_W; }
     }
     const a = (k * FL + u) * OMEGA, ta = new THREE.Vector3(-Math.sin(a), 0, Math.cos(a));   // up-stair, along the path
-    dummy.position.set(R * Math.cos(a), top, R * Math.sin(a));
+    dummy.position.set(R * Math.cos(a), top - sink * (1 + 0.6 * (j % 5) / 4), R * Math.sin(a));   // rising, the blocks come up a little out of step
     dummy.position.addScaledVector(ta, STEP_H / 2 * Math.sin(tilt)); dummy.position.y -= STEP_H / 2 * Math.cos(tilt);   // its top face on the surface
     dummy.rotation.set(0, yawFor(a), tilt); dummy.scale.set(hide ? 0.0001 : len, hide ? 0.0001 : 1, hide ? 0.0001 : 1); dummy.updateMatrix();
     stepMesh.setMatrixAt(k * N + j, dummy.matrix);

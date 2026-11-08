@@ -141,7 +141,9 @@ Enemies come out of the environment in a way that fits the place, which doubles 
 
 ## Bosses
 
-**Parked (decision 0006).** The Warden fight is behind a feature switch while the threat catalog is built out; with it off the whole shaft is open. What follows describes the fight as built, for when it returns.
+**Built in 0.27: the Warden on the floor (decision 0009).** At the top of each region the stair ends in a flat floor and a stone golem waits there: a face-to-face fight on the lane, described in `concept.md` (Wardens). Beating him is kept: the stair above rises and a lift runs past him.
+
+**Parked (decision 0006): the running fight.** Behind a feature switch. What follows describes it as built, for when it returns.
 
 Each zone ends with its Warden, and the fight is a running fight. The climb never stops. Along the last five flights the shaft wall has collapsed: rubble slopes away behind the stair into the open cavern, and the Warden, which has been climbing behind the wall all zone, is out in the open beside you, keeping pace on the rubble and reaching across to get at you. That makes seven Wardens in all. One is built; the other six reuse its moveset with new names and faster timing.
 
@@ -192,7 +194,7 @@ The stair hugs the inside wall of a round shaft. The camera sits near the center
 - One zone is 15 flights and always measures 135 in-game metres; the metre scale is derived from the geometry so tuning the ramp never changes the height numbers.
 - The climb camera now sits further back so more of the shaft and the scenery is in view.
 
-**Fixed spots in every zone:** a broken lift on flight 5 (54 m in zone 1), a rest stop on flight 8 (81 m), and the Warden's stretch over flights 10 to 14 (99 m to 135 m). There is no arena platform: the fight happens on the stair.
+**Fixed spots in every zone:** a broken lift on flight 5 (54 m in zone 1), a rest stop on flight 8 (81 m), and the Warden's floor on flight 14 (135 m): the last flight is flat, and the stair ends there until he falls. (With the parked running fight switched on, its stretch over flights 10 to 14 instead.)
 
 ### Scene layers
 

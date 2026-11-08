@@ -47,6 +47,7 @@ export function updateCamera(dt){
   else if (mode === 'pool'){ tA = cam.ang; tY = CT.pool.up; lookY = CT.pool.look; lookA = cam.ang; tR = CT.pool.back; }
   else if (mode === 'title'){ tA = cam.ang; tY = CT.title.up; lookY = CT.title.look; lookA = cam.ang; tR = CT.title.back; }
   else if (G){
+    const Wd = ST.W && ST.W.st !== 'wait' && ST.W.st !== 'risen' ? ST.W : null;   // the Warden on the floor, awake
     const p = posOf(G.s), c = B ? CT.fight : CT.climb, k = Math.min(1, dt);
     // explore: the grade ahead sets the zoom and the tilt
     const g = gradeAhead(G);
@@ -59,7 +60,11 @@ export function updateCamera(dt){
       lead = clamp(mid * OMEGA * 0.45, -0.22, 0.22) * 0.7 + lead * 0.3;
       zoom *= 1 + 0.06 * Math.min(foes.length, 3) + 0.02 * Math.min(spread, 6);
     }
-    FRAME.state = foes.length ? 'combat' : 'explore';
+    if (Wd){   // frame him and the golem both: the middle of the two, out far enough for the golem's height
+      const d = Wd.s - G.s;
+      lead = clamp(d * 0.5 * OMEGA, -0.3, 0.3); zoom *= 1.0 + 0.02 * Math.min(Math.abs(d), 8);
+    }
+    FRAME.state = Wd ? 'boss' : foes.length ? 'combat' : 'explore';
     // punches: a push in on kills and parries
     ST.punch = Math.max(0, (ST.punch || 0) - dt * 6);
     zoom *= 1 - 0.07 * ST.punch;

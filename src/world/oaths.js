@@ -9,7 +9,7 @@ import { ZONES } from '../config/zones.js';
 import { rng } from '../core/math.js';
 import { mbox, vArc } from '../render/primitives.js';
 import { rock, rockMaterial } from '../render/rocks.js';
-import { landingS, landingY, special, arenaOf, HALLS, BRANCHES } from './path.js';
+import { landingS, landingY, special, arenaOf, HALLS, BRANCHES, floorFlights } from './path.js';
 import { offeredOaths } from '../run/run.js';
 const THREE = window.THREE;
 
@@ -22,6 +22,7 @@ export function setOaths(seed, dyn){
       const k = z * ZF + l;
       if (k < 4 || k >= MAXK - 1 || special(k) || BRANCHES.some(b => b.kA === k) || HALLS.some(h => h.open && (h.kH === k || h.kH + 1 === k))) continue;   // nor where a hall comes out
       if (FEATURES.wardens && arenaOf(k) >= 0) continue;
+      if (floorFlights(k)) continue;   // not on the Warden's floor
       ok.push(k);
     }
     for (let n = 0; n < OATH_STONES && ok.length; n++){

@@ -57,6 +57,25 @@ export const TUNE = {
   swing: { length: 2.8, angle: 1.15, settle: 0.5, period: 2.6 },   // a short chain: on a rising stair the arc's uphill side must clear a crouch
   burrower: { wake: 5.4, lead: 4, plough: 4.5, rise: 0.25, snapShut: 0.5, hp: 2 },
   flitter: { wake: 4.4, launch: 0.28, dive: 1.0, commit: 0.35, swat: 0.34, leave: 0.8, circle: 1.1 },
+  // the Warden on the floor at the top of each region (src/boss/golem.js). Times are [phase 1, phase 2] where paired,
+  // and every wind-up shortens a little each region (windMul)
+  golem: {
+    hp: z => 30 + 10 * z,
+    poise: z => 9 + 2 * z,   // this much damage in a row knocks him onto one knee (a parry does it at once)
+    windMul: z => Math.max(0.72, 1 - 0.045 * z),
+    height: 5.2,             // world units, crown to sole, standing tall (the warrior is 2.04; he stands hunched)
+    body: 0.95,              // half his width on the lane: standing, the warrior cannot pass through (a roll can)
+    trigger: 1.0,            // how far onto the floor before the rubble falls behind you and he wakes
+    intro: 2.4, taunt: 1.9, stagger: [2.2, 1.8], dying: 1.9, crumble: 1.6, rise: 1.8,
+    pause: [0.75, 0.4], walk: [1.5, 2.1], close: 2.6,
+    slam:  { wind: [0.9, 0.65], strike: 0.14, hold: [1.15, 0.8], rec: 0.5, reach: [0.4, 3.7], damage: 2 },
+    sweep: { wind: [0.72, 0.5], strike: 0.22, rec: 0.6, reach: [-0.7, 3.9], damage: 1 },
+    stomp: { wind: [0.78, 0.55], strike: 0.12, rec: 0.6, damage: 1 },
+    leap:  { wind: [0.62, 0.45], air: 0.85, land: 0.22, rec: [0.75, 0.5], crush: 1.7, damage: 2 },
+    wave:  { speed: 7.5, half: 0.4, height: 0.55 },        // the shockwave along the floor: jump it
+    rocks: { every: 5.5, warn: 1.0, n: 3, half: 0.6, damage: 1 },   // phase 2: the roof comes down where he points
+    well: z => 14 + 6 * z,   // wellstone he leaves
+  },
   warden: {
     hp: z => 12 + 5 * z,
     lead: 3.2,          // how far up the stair (step units) it strikes ahead of you

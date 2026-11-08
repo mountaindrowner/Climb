@@ -24,6 +24,7 @@ import { FEATURES } from '../config/features.js';
 import { PRACTICE_FLIGHTS } from '../world/layout.js';
 import { practiceDone } from '../ui/screens/practice.js';
 import { startBoss, updWarden } from '../wardens/warden.js';
+import { updGolem, removeGolem } from '../boss/golem.js';
 import { startFall } from './fall.js';
 import { openCamp } from '../ui/screens/camp.js';
 import { addGold } from '../run/run.js';
@@ -44,6 +45,8 @@ export function updClimb(dt){
   if (routeOf(s0) === routeOf(G.s)) G.prevS = s0;
   if (ST.mode !== 'climb') return;
   updateHalls(dt); updateOaths(ST.time); updateForks();
+  // the Warden on the floor at the top of the region
+  if (!FEATURES.wardens){ updGolem(dt); if (ST.mode !== 'climb') return; }
   // the parked Warden fight
   const kb = FEATURES.wardens ? arenaOf(k0) : -1;
   if (kb >= 0 && !S.bosses.includes(kb) && !ST.B) startBoss(kb);
@@ -88,7 +91,7 @@ export function updClimb(dt){
 
 // Begin a climb from path distance startS (0 for the bottom, or a repaired lift's landing).
 export function startClimb(startS){
-  newRun();
+  removeGolem(); newRun();
   ST.G = newRunState(startS);
   setWeaponModel(PL, ST.G.weapon); showWeapon(ST.G.weapon);
   const p = posOf(startS); ST.cam.y = p.y + 2.6; ST.cam.ang = p.a + 0.14;

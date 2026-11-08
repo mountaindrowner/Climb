@@ -35,11 +35,12 @@ The path distance `s` (in step units) is the one coordinate. `src/world/path.js`
 | The Blender warrior | `tools/blender/warrior.py` builds and animates him in headless Blender (`pip install bpy`) and exports `assets/models/warrior/warrior.glb`; `entities/player/glbRig.js` loads it (with `vendor/three/GLTFLoader.js`) and sets each clip's playhead from gameplay state; the title screen toggles rigs |
 | Creature parts | `render/creature.js`: flat-shaded limb segments, spikes, blobs, wing membranes, glowing outlines |
 | The warrior's movement and actions | `entities/player/motor.js` (physics, jump, roll, block, combos), `entities/player/animate.js` (pose), `core/input.js` (held and pressed), `world/ground.js` (holes and low ceilings the motor asks about) |
-| Feature switches | `config/features.js` (the Wardens are parked; `?wardens=1` or `#wardens` turns them on) |
+| Feature switches | `config/features.js` (the parked running Warden fight: `?wardens=1` or `#wardens` turns it on, and the floors off) |
 | Practice runs | `ui/screens/practice.js`; `ST.practice` makes the layout place only that threat and stops anything being saved |
 | Craggy rocks (the Wardens, rubble) | `render/rocks.js`: displaced low-poly boulders with flat shading and per-face brightness, seeded; `shard()` for crystals |
 | The warrior | `entities/player/` (model, actions, animation) |
-| Warden fight | `wardens/warden.js` (state machine, driven from `modes/climb.js` while `arenaOf(k)` is the zone's Warden), `wardens/visuals.js` (body behind the wall, breaches, arm, head, markers), `wardens/model.js` (the golem rig and the arm and head props, built from the rock kit with the zone's palette), `wardens/movesets/*` |
+| The Warden on the floor | `boss/golem.js` (the fight: states, attacks, your blows, the reward; driven from `modes/climb.js`), `boss/view.js` (the golem model from `tools/blender/golem_tripo.py`, the floor's broken edge, the rubble behind, shockwaves, rocks, the leap's shadow); the floor itself in `world/path.js` (`hasFloor`, `floorSpan`, `floorOf`, `floorShut`), the flight above it hidden and raised by `world/stair.js` (`sinkFlight`) |
+| Parked running Warden fight | `wardens/warden.js` (state machine, driven from `modes/climb.js` while `arenaOf(k)` is the zone's Warden), `wardens/visuals.js` (body behind the wall, breaches, arm, head, markers), `wardens/model.js` (the golem rig and the arm and head props, built from the rock kit with the zone's palette), `wardens/movesets/*` |
 | Falling and root grabs | `modes/fall.js` |
 | Auto-climb, landmarks, the heavy step | `modes/climb.js` |
 | Menus and HUD | `ui/overlay.js` plus one screen per file in `ui/screens/`; `ui/hud.js` |

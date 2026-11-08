@@ -13,7 +13,7 @@
 // Pure: no page. Seeded, so a climb can be replayed and tests can check every ledge can be reached.
 import { F, FL, ZF, MAXK, OMEGA } from '../config/constants.js';
 import { FEATURES } from '../config/features.js';
-import { flightY, landingY, landingS, topAt, special, arenaOf, BRANCHES, HALLS } from './path.js';
+import { flightY, landingY, landingS, topAt, special, arenaOf, BRANCHES, HALLS, floorFlights, hasFloor } from './path.js';
 
 export const TURN = 2 * Math.PI / OMEGA;           // the distance along the stair of one full turn
 export const MANTLE = 2.0;                         // how far above his feet he can catch an edge and pull up
@@ -29,7 +29,7 @@ export function platformFlights(seed, practice){
   if (practice) return [];
   const out = [];
   for (let z = 0; z * ZF < MAXK; z++){
-    const r = rng(seed * 7 + z * 131 + 11), pool = PLAT_L.map(l => z * ZF + l).filter(k => k >= 5 && k < MAXK - 1 && !(FEATURES.wardens && arenaOf(k) >= 0));
+    const r = rng(seed * 7 + z * 131 + 11), pool = PLAT_L.map(l => z * ZF + l).filter(k => k >= 5 && k < MAXK - 1 && !(FEATURES.wardens && arenaOf(k) >= 0) && !floorFlights(k) && !hasFloor(k - 1));
     const n = 1 + (r() < 0.5 ? 1 : 0);
     for (let i = 0; i < n && pool.length; i++){ const k = pool.splice(Math.floor(r() * pool.length), 1)[0]; if (!out.some(o => Math.abs(o - k) < 2)) out.push(k); }
   }
@@ -67,7 +67,7 @@ export function switchback(kA){
     // close enough under the stair above: the last ledge, under a gap broken in it
     const sF1 = cur.s0 - 0.45, sF0 = sF1 - 1.2, topF = topAt(sF1 + 0.4 + TURN) - 1.15;
     const h0 = sF0 - 0.1 + TURN, h1 = sF1 + 0.3 + TURN, hk = Math.floor(h0 / FL), t0 = h0 - hk * FL, t1 = h1 - hk * FL;
-    const onSteps = t0 > 0.6 && t1 < F - 0.6 && !special(hk) && !special(hk - 1);   // the gap breaks a flight's steps, never a landing
+    const onSteps = t0 > 0.6 && t1 < F - 0.6 && !special(hk) && !special(hk - 1) && !floorFlights(hk) && !hasFloor(hk - 1);   // the gap breaks a flight's steps, never a landing nor the Warden's floor
     if (topF - cur.top <= MANTLE + 1.3 && onSteps){
       out.push({ s0: sF0, s1: sF1, top: topF, kind: 'switch', last: true });
       return { kA, ledges: out, hole: { s0: h0, s1: h1 } };

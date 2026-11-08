@@ -105,6 +105,7 @@ Every weapon family has a verb and a reason to pick it. Each weapon scales with 
 
 ## Wardens (two arena types)
 
+- **The Floor (built in 0.27).** The stair ends at the top of each region in a flat floor with a sheer edge where the steps above have fallen away. A stone golem waits there; step on and the stair behind you comes down in rubble. A face-to-face fight on the lane: the slam (get out of reach; then his fists rest on the floor, the opening), the sweep (crouch, roll or block; a parry floors him), the stomp's shockwave (jump it), the leap (move). Enough damage in a row knocks him onto one knee. At half strength he stops warning you and the roof comes down. Beaten, the first flight above rises into place, and the win is kept. Decision 0009.
 - **The Ring.** You reach a wide circular platform that rings the open shaft. The stair behind you crumbles away. The ring is continuous, so you can run in a full circle while the Warden stalks it, leaps across the shaft, or circles in the middle. The camera pulls wide and orbits.
 - **The Colossus.** The body stays in the background layer, mostly ornamental, filling the view behind the stair. It attacks with what reaches forward: hands that stomp the stair with a shadow tell and a shockwave, then rest there, where you hit them. After enough hits it reels and brings its head or core forward into the lane for the punish phase. Classic Mega Man boss rhythm. This reuses the parked Warden work.
 
@@ -157,7 +158,7 @@ Built so far: the foundation (0.17), forks as the high road (0.18), a first crum
 | 4 | **Threats and places v2 (built in 0.24)** | Every threat rebuilt to the bat's standard, starting with the burrower (the stair trap with the spiked jaws), then crawler, spitter, rockfall, swing; the rest stop's campfire rebuilt; more kinds of crouch obstacle than the beam (a low arch, a hanging chain curtain, a collapsed lintel, roots) |
 | 5 | **The run (built in 0.25)** | The Dead Cells layer: Echoes, blueprints at the Pool, oaths, marks, two exits per region; regions 1 to 4 |
 | 6 | Weapons v2 | Six families, crit conditions, two tool slots, shaft kills (the pick and spear come back here) |
-| 7 | Wardens | The Ring and the Colossus, one of each |
+| 7 | Wardens | **The Floor built in 0.27** (the designer's golem, at the top of every region); then the Ring and the Colossus, and a moveset per region |
 | 8 | Presentation | The intro story sequence, the death crash, the climb back out of the Pool to the start every time |
 | 9 | The upper mountain | Regions 5 to 9, deeper falls |
 | S | Sound (runs in parallel) | Better effects: find and vet sources (licences that allow a commercial game, for example CC0 libraries, Sonniss's free GDC bundles, Kenney), keep the procedural sounds as a base, and replace the most-heard ones first (footsteps, swings, hits, the flitter) |
@@ -170,6 +171,6 @@ Built so far: the foundation (0.17), forks as the high road (0.18), a first crum
 - Do lifts survive, or does the climb always start from the bottom as in Dead Cells? (The concept keeps them, with the loot trade-off.)
 - On the phone, is ◀ / ▶ enough to choose at forks, or does it need a dedicated prompt?
 - Art direction: keep the low-resolution pixel look, or render cleaner once real models arrive?
-- Which Warden type comes first: the Ring (new) or the Colossus (reuses the parked work)?
+- Settled in 0.27: the first Warden is the Floor (the designer's golem). Next: a moveset and a look for each region's Warden.
 - Slopes with the occasional step, or stairs throughout? The designer is unsure it suits the larger game; milestone 3 tests a mix region by region.
 - Two-handed sword: does the off hand leave the blade for the block, or does he block with the blade itself?

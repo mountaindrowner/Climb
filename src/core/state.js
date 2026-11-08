@@ -9,6 +9,7 @@ export const ST = {
   hitstop: 0,
   G: null,
   B: null,
+  W: null,       // the Warden on the floor at the top of the region (src/boss/golem.js)
   FALL: null,
   poolT: 0,
   practice: null,     // a threat id while a Practice run is on

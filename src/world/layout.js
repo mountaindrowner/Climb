@@ -9,7 +9,7 @@ import { rng } from '../core/math.js';
 import { ZONES } from '../zones/index.js';
 import { TUTORIAL } from '../zones/tutorial.js';
 import { catalogById } from '../entities/catalog.js';
-import { zoneOf, special, arenaOf, riseOf, surfaceOf } from './path.js';
+import { zoneOf, special, arenaOf, riseOf, surfaceOf, hasFloor } from './path.js';
 
 // Threats that need a gentle enough flight: a full jump must clear a hole going uphill, and a swing's uphill arc must
 // pass over a crouch. Elsewhere the layout draws another threat (or leaves the slot empty).
@@ -55,12 +55,14 @@ export function layoutFlight(seed, k, opts = {}){
     // a platforming flight, or the flight a switchback comes up through: its ledges and gap are the challenge here
   } else if (k < TUTORIAL.length){
     const tut = TUTORIAL[k]; if (tut) add(tut.type, tut.t, { hint: tut.hint });
+  } else if (hasFloor(k)){
+    // the Warden's floor: it waits there alone
   } else if (wardens && arenaOf(k) >= 0){
     // the Warden's stretch: it is the only threat here
   } else {
     scatter(1 + (r() < 0.55 ? 1 : 0) + (z > 0 ? 1 : 0), ZONES[z].threats);
   }
-  if (!(opts.voids && opts.voids.has(k))){
+  if (!(opts.voids && opts.voids.has(k)) && !hasFloor(k)){
   const ng = 1 + ((r() * 2) | 0);
   for (let j = 0; j < ng; j++){
     const i = 1 + ((r() * 6) | 0);
