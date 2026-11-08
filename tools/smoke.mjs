@@ -246,7 +246,8 @@ await until(() => { const G = window.__climb.ST.G, h = window.__D.switchbackOf(w
 await page.evaluate(() => { window.__climb.input.hold('right', false); window.__climb.input.hold('jump', false); });
 const fall = await page.evaluate(async () => {
   const D = window.__D, G = window.__climb.ST.G, h = D.HOLES.find(x => x.platform && x.s0 > 80) || D.HOLES.find(x => x.s0 > 80);
-  G.s = G.prevS = (h.s0 + h.s1) / 2; G.on = null; G.grounded = false; G.vy = 0; G.y = window.__P.topAt(G.s) + 0.3; G.airTop = G.y; G.inv = 0;
+  let x = h.s0 + 0.3; while (x < h.s1 - 0.3 && D.decksAt(x).length) x += 0.1;   /* a spot with no ledge under it */
+  G.s = G.prevS = x; G.on = null; G.grounded = false; G.vy = 0; G.y = window.__P.topAt(G.s) + 0.3; G.airTop = G.y; G.inv = 0;
   window.__f0 = { s: G.s, hp: G.hp }; return true;
 });
 await until(() => window.__climb.ST.G.grounded, 10000, 'a fall through a hole to land below');
