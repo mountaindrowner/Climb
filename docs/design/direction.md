@@ -141,7 +141,7 @@ Enemies come out of the environment in a way that fits the place, which doubles 
 
 ## Bosses
 
-**Built in 0.27: the Warden on the floor (decision 0009).** At the top of each region the stair ends in a flat floor and a stone golem waits there: a face-to-face fight on the lane, described in `concept.md` (Wardens). Beating him is kept: the stair above rises and a lift runs past him.
+**Built in 0.27: the Warden in the cavern (decision 0009).** At the top of each region the stair ends in a broad floor, the shaft wall behind it opens onto a vast cavern, and a colossus standing in its depths reaches his arms to the floor: described in `concept.md` (Wardens). Beating him is kept: the stair above rises and a lift runs past him.
 
 **Parked (decision 0006): the running fight.** Behind a feature switch. What follows describes it as built, for when it returns.
 

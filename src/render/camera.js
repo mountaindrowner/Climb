@@ -60,9 +60,8 @@ export function updateCamera(dt){
       lead = clamp(mid * OMEGA * 0.45, -0.22, 0.22) * 0.7 + lead * 0.3;
       zoom *= 1 + 0.06 * Math.min(foes.length, 3) + 0.02 * Math.min(spread, 6);
     }
-    if (Wd){   // frame him and the golem both: the middle of the two, out far enough for the golem's height
-      const d = Wd.s - G.s;
-      lead = clamp(d * 0.5 * OMEGA, -0.3, 0.3); zoom *= 1.0 + 0.02 * Math.min(Math.abs(d), 8);
+    if (Wd){   // the floor and the colossus behind it: held on the floor's middle, following you a little, pulled out wide
+      lead = clamp((Wd.mid - G.s) * OMEGA * 0.6, -0.4, 0.4); zoom = 1.0;   // not further back: the camera would back into the stair on the near side of the shaft
     }
     FRAME.state = Wd ? 'boss' : foes.length ? 'combat' : 'explore';
     // punches: a push in on kills and parries
@@ -82,8 +81,13 @@ export function updateCamera(dt){
     // the zoom scales his distance from the camera (the camera stays inside the shaft)
     const dist = (R - c.back * near()) * FRAME.zoom, back = -Math.min(RW - 1.2, Math.max(0, dist - R));
     tA = p.a + FRAME.lead; tY = y + c.up + FRAME.look * 0.5; lookY = y + c.look + FRAME.look; lookA = tA + 0.02; tR = back;
+    if (Wd){ tY = Wd.y + 7.2; lookY = Wd.y + 5.0; }   // looking up into the cavern: the floor low in the frame, his head and shoulders over it
   }
   else { tA = cam.ang; tY = cam.y; lookY = cam.y - 2; lookA = cam.ang; }
+  // the field of view opens out while a Warden on the floor is awake: the floor and his head both in frame
+  const fovBase = view.W / view.H > 1 ? TUNE.camera.fovLandscape : TUNE.camera.fovPortrait, Wf = ST.W && ST.W.st !== 'wait' && ST.W.st !== 'risen';
+  const fovWant = Wf && mode === 'climb' ? Math.max(fovBase, TUNE.golem.fov) : fovBase;
+  if (Math.abs(camera.fov - fovWant) > 0.05){ camera.fov += (fovWant - camera.fov) * Math.min(1, dt * 2); camera.updateProjectionMatrix(); }
   const fk = mode === 'fall' ? 1 : Math.min(1, dt * 4);
   let dA = tA - cam.ang; dA = Math.atan2(Math.sin(dA), Math.cos(dA));   // shortest way round: a root one turn down must not spin the camera
   cam.ang += dA * fk; cam.y += (tY - cam.y) * (mode === 'fall' ? 1 : Math.min(1, dt * 5));

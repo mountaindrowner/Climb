@@ -57,23 +57,27 @@ export const TUNE = {
   swing: { length: 2.8, angle: 1.15, settle: 0.5, period: 2.6 },   // a short chain: on a rising stair the arc's uphill side must clear a crouch
   burrower: { wake: 5.4, lead: 4, plough: 4.5, rise: 0.25, snapShut: 0.5, hp: 2 },
   flitter: { wake: 4.4, launch: 0.28, dive: 1.0, commit: 0.35, swat: 0.34, leave: 0.8, circle: 1.1 },
-  // the Warden on the floor at the top of each region (src/boss/golem.js). Times are [phase 1, phase 2] where paired,
-  // and every wind-up shortens a little each region (windMul)
+  // the Warden at the top of each region (src/boss/golem.js): a colossus in the cavern behind the floor, reaching his
+  // fists onto it. Times are [phase 1, phase 2] where paired; every wind-up shortens a little each region (windMul)
   golem: {
     hp: z => 30 + 10 * z,
-    poise: z => 9 + 2 * z,   // this much damage in a row knocks him onto one knee (a parry does it at once)
+    poise: z => 7 + 2 * z,   // this much damage to his fists knocks him reeling: his head comes down to the floor
+    headMul: 2,              // blows to his head count double
     windMul: z => Math.max(0.72, 1 - 0.045 * z),
-    height: 5.2,             // world units, crown to sole, standing tall (the warrior is 2.04; he stands hunched)
-    body: 0.95,              // half his width on the lane: standing, the warrior cannot pass through (a roll can)
+    height: 40,              // world units, crown to sole: he stands in the depths, his torso above the floor
+    back: 8.5,               // how far behind the stair his shoulders are (from the stair's line, outward)
+    shoulder: 9.5,           // how high his shoulders stand above the floor
     trigger: 1.0,            // how far onto the floor before the rubble falls behind you and he wakes
-    intro: 2.4, taunt: 1.9, stagger: [2.2, 1.8], dying: 1.9, crumble: 1.6, rise: 1.8,
-    pause: [0.75, 0.4], walk: [1.5, 2.1], close: 2.6,
-    slam:  { wind: [0.9, 0.65], strike: 0.14, hold: [1.15, 0.8], rec: 0.5, reach: [0.4, 3.7], damage: 2 },
-    sweep: { wind: [0.72, 0.5], strike: 0.22, rec: 0.6, reach: [-0.7, 3.9], damage: 1 },
-    stomp: { wind: [0.78, 0.55], strike: 0.12, rec: 0.6, damage: 1 },
-    leap:  { wind: [0.62, 0.45], air: 0.85, land: 0.22, rec: [0.75, 0.5], crush: 1.7, damage: 2 },
-    wave:  { speed: 7.5, half: 0.4, height: 0.55 },        // the shockwave along the floor: jump it
-    rocks: { every: 5.5, warn: 1.0, n: 3, half: 0.6, damage: 1 },   // phase 2: the roof comes down where he points
+    wake: 2.4,               // from how many flights below the floor he is there, looming (you see him from the turn below)
+    fov: 64,                 // the camera opens out while he is awake, so his head and the floor are both in frame
+    intro: 2.6, taunt: 2.0, dying: 2.6, crumble: 3.0, rise: 1.8,
+    pause: [0.9, 0.5],
+    rest: { s: 3.4, r: 4.6, h: 4.6 },                       // where his hands hover between blows: either side of the floor's middle, out over the drop
+    slam:  { wind: [1.0, 0.72], strike: 0.16, hold: [1.5, 1.05], rec: 0.7, half: 1.9, damage: 2, hand: 1.5 },   // half: the fist's reach either side of where it lands; hand: how close you must be to strike it
+    sweep: { wind: [0.85, 0.6], cross: [1.0, 0.8], rec: 0.6, half: 1.4, h: 3.0, damage: 1 },                   // h: the hand's height as it crosses (crouch under it)
+    reel:  { down: 0.7, hold: [3.4, 2.8], up: 0.8, reach: 4.2 },                                                 // reach: either side of the floor's middle, his head can be struck
+    wave:  { speed: 7.5, half: 0.4, height: 0.55, damage: 1 },  // phase 2: a slam sends a shockwave along the floor both ways: jump it
+    rocks: { every: 5.5, warn: 1.0, n: 3, half: 0.6, damage: 1 },   // phase 2: the roof comes down where dust trickles first
     well: z => 14 + 6 * z,   // wellstone he leaves
   },
   warden: {

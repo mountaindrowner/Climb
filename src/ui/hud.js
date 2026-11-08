@@ -13,8 +13,8 @@ import { content } from '../world/generate.js';
 import { ENTITIES } from '../entities/registry.js';
 import { head } from '../entities/player/player.js';
 import { bossTop } from '../wardens/warden.js';
-import { telegraph, PROMPT } from '../boss/golem.js';
-import { golemPoint } from '../boss/view.js';
+import { telegraphs, PROMPT } from '../boss/golem.js';
+import { golemHandPoint, golemHeadPoint } from '../boss/view.js';
 const THREE = window.THREE;
 const _v = new THREE.Vector3(), _v2 = new THREE.Vector3();
 const FONT = '"Pixelify Sans", sans-serif';
@@ -138,12 +138,11 @@ export function drawHUD(){
     hx.fillStyle = '#09080c'; hx.fillRect(bx, by, bw, 10);
     hx.fillStyle = Wd.phase === 2 ? '#d9483b' : '#a07cff'; hx.fillRect(bx + 2, by + 2, (bw - 4) * Wd.hp / Wd.max, 6);
     hx.fillStyle = 'rgba(239,230,210,0.5)'; hx.fillRect(bx + bw / 2, by, 2, 10);
-    const tg = telegraph(Wd);
-    if (tg){
-      drawIcon(golemPoint(4.9), '!', '#ff6b5a');
-      if (Wd.phase === 1) drawTiming(PROMPT[tg.kind], tg.t, tg.T);
-    }
-    if (Wd.st === 'stagger' || (Wd.st === 'atk' && Wd.atk && Wd.atk.kind === 'slam' && Wd.atk.i === 2)) drawIcon(golemPoint(4.9), '{attack}', '#e8b04a');
+    const tgs = telegraphs(Wd);
+    for (const tg of tgs){ const hp = golemHandPoint(tg.i); hp.y += 2.6; drawIcon(hp, '!', '#ff6b5a'); }
+    if (tgs.length && Wd.phase === 1) drawTiming(PROMPT[tgs[0].kind], tgs[0].t, tgs[0].T);
+    for (const hd of Wd.hands) if (hd.open && Math.abs(hd.pos.s - G.s) < 4){ const hp = golemHandPoint(hd.i); hp.y += 2.4; drawIcon(hp, '{attack}', '#e8b04a'); }
+    if (Wd.st === 'reel' && Wd.reelF > 0.75){ const hp = golemHeadPoint(); hp.y += 3; drawIcon(hp, '{attack}', '#e8b04a'); }
   }
   hx.textAlign = 'center';
   for (const f of ST.floats){

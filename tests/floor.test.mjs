@@ -36,15 +36,18 @@ test('nothing else on the floor: no threats or gold, no ledges, no oath stone, n
   for (const h of HALLS) assert.ok(!floorFlights(h.kH) && !floorFlights(h.kH + 1), 'a hall onto a floor');
 });
 
-test('the golem: his room on the floor, and the answers fit in it', () => {
-  const T = TUNE.golem, { s0, s1 } = floorSpan(floors[0]);
-  // he keeps clear of the rubble and the edge by more than his body, so a roll past him always lands
-  assert.ok(T.body + 0.45 + 0.2 <= 1.6 && T.body + 0.35 + 0.2 <= 1.5);
-  // a shockwave is jumpable: lower than a jump, and it crosses the floor in well under two seconds
-  assert.ok(T.wave.height < TUNE.move.jumpHeight * 0.6);
-  assert.ok((s1 - s0) / T.wave.speed < 2);
-  // backing out of the slam: from the middle of his reach, a man at a run clears it within the wind-up
-  const out = T.slam.reach[1] - (T.slam.reach[0] + T.slam.reach[1]) / 2;
-  for (const ph of [0, 1]) assert.ok(out / TUNE.move.run < T.slam.wind[ph] * T.windMul(6), 'slam wind-up phase ' + (ph + 1));
+test('the golem: every attack has an answer that fits in its time', () => {
+  const T = TUNE.golem, M = TUNE.move, { s0, s1 } = floorSpan(floors[0]);
+  // out from under a slam: from the middle of its shadow a man at a run clears it within the wind-up, in every region
+  for (const ph of [0, 1]) assert.ok(T.slam.half / M.run < T.slam.wind[ph] * T.windMul(6), 'slam, phase ' + (ph + 1));
+  // the slam's shadow and the sweeping hand leave room on the floor
+  assert.ok(2 * T.slam.half < (s1 - s0) / 2);
+  // under the sweep crouched, not standing: the hand's underside (about 1.4 below its middle) clears a crouched crown (1.05)
+  // and not a standing one (2.45)
+  assert.ok(T.sweep.h - 1.4 > 1.05 + 0.2 && T.sweep.h - 1.4 < 2.45);
+  // a shockwave is lower than a jump, and crosses the floor in under two seconds
+  assert.ok(T.wave.height < M.jumpHeight * 0.6 && (s1 - s0) / T.wave.speed < 2);
+  // the head, when it comes down, is in reach of most of the floor; he reels for long enough to get to it
+  assert.ok(T.reel.reach * 2 > (s1 - s0) * 0.6 && T.reel.hold[1] > (s1 - s0) / 2 / M.run + 1);
   for (let z = 0; z < 7; z++) assert.ok(T.hp(z) > T.poise(z) * 2);
 });

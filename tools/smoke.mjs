@@ -98,22 +98,33 @@ await page.addScriptTag({ type: 'module', content: `
           case 'flitter': if (o.st === 'dive' && o.tm > TUNE.flitter.dive - 0.3 && !G.atk) I.tap('attack'); break;   // a wind-up ahead of the bite
         }
       }
-      // the Warden on the floor: out of the slam's reach, out from under the leap, under the sweep, over the shockwaves;
-      // otherwise close in and strike. Pinned against the rubble or the edge, roll through him instead
+      // the Warden: out from under a fist's shadow (rolling through it if the floor runs out), under a sweeping hand, over
+      // the shockwaves, away from the rocks; then strike a fist resting on the floor, or his head when it comes down
       const W = ST.W;
       if (W && W.sealed && W.st !== 'risen' && W.st !== 'dying'){
-        const d = W.s - G.s, ad = Math.abs(d), toward = Math.sign(d) || 1, A = W.st === 'atk' ? W.atk : null, ph = A ? A.phases[A.i][0] : null;
-        const room = toward > 0 ? G.s - W.span.s0 - 0.5 : W.span.s1 - 0.4 - G.s;   /* how far he can back off */
+        const GT = TUNE.golem, lo = W.span.s0 + 0.5, hi = W.span.s1 - 0.4;
         move = 0;
-        const away = () => { if (room > 1.0) move = -toward; else { move = toward; if (A && A.t > A.phases[A.i][1] - 0.32 && G.roll <= 0) I.tap('roll'); } };
-        if (A && A.kind === 'slam' && (ph === 'wind' || ph === 'strike') && ad < 4.3) away();
-        else if (A && A.kind === 'leap' && (ph === 'wind' || ph === 'air')){ const tg = A.to != null ? A.to : W.s; if (Math.abs(tg - G.s) < 2.3 || ph === 'wind') { if (room > 2.0) move = -toward; else { move = toward; if (ph === 'air' && G.roll <= 0) I.tap('roll'); } } }
-        else if (A && A.kind === 'sweep' && (ph === 'wind' || ph === 'strike') && ad < 4.6) crouch = true;
-        else if (Math.sign(d) !== G.face) move = toward;
-        else if (ad > 2.3) move = toward;
-        else if (!G.atk) I.tap('attack');
+        for (const hd of W.hands){
+          const A = hd.act; if (!A || A.pt < 0) continue;
+          const ph = A.phases[A.pi][0], wind = A.phases[0][1];
+          if (A.kind === 'slam' && (ph === 'wind' || ph === 'strike')){
+            const d = G.s - A.tgt;
+            if (Math.abs(d) < GT.slam.half + 0.5){
+              let dir = Math.sign(d) || (G.s < W.mid ? 1 : -1);
+              if (G.s + dir * (GT.slam.half + 0.8 - Math.abs(d)) > hi || G.s + dir * (GT.slam.half + 0.8 - Math.abs(d)) < lo) dir = -dir;   /* no room: through it */
+              move = dir;
+              if ((ph === 'strike' || A.pt > wind - 0.28) && Math.abs(d) < GT.slam.half && G.roll <= 0) I.tap('roll');
+            }
+          }
+          if (A.kind === 'sweep' && (ph === 'cross' || (ph === 'wind' && A.pt > wind - 0.25))) crouch = true;
+        }
+        if (!move && !crouch){
+          const open = W.hands.find(h => h.open);
+          if (W.st === 'reel' && W.reelF > 0.5){ const d = W.mid - G.s; if (Math.abs(d) > 2.5) move = Math.sign(d); else if (!G.atk) I.tap('attack'); }
+          else if (open){ const d = open.pos.s - G.s; if (Math.abs(d) > 1.5 || (Math.abs(d) > 0.4 && Math.sign(d) !== G.face)) move = Math.sign(d); else if (!G.atk) I.tap('attack'); }
+        }
         for (const v of W.waves){ const dv = v.s - G.s; if (Math.sign(dv) === -v.dir && Math.abs(dv) < 1.25 && Math.abs(dv) > 0.3 && G.grounded){ crouch = false; jump(16); } }
-        for (const q of W.rocks) if (!q.hit && Math.abs(q.s - G.s) < 0.9) move = Math.sign(G.s - q.s) || -toward;
+        for (const q of W.rocks) if (!q.hit && Math.abs(q.s - G.s) < 0.9){ move = Math.sign(G.s - q.s) || 1; crouch = false; }
       }
       const p = posOf(G.s);
       if (p.land && special(p.k) === 'lift' && !ST.practice && !window.__climb.S.lifts.includes(p.k)){ move = 0; if (Math.abs(G.v) < 0.5 && G.grounded) I.tap('jump'); }   // stop on the landing, then repair
@@ -169,6 +180,7 @@ await page.click('[data-act="pool"]');
 await page.click('[data-act="start"][data-k="-1"]');
 await until(() => window.__climb.ST.mode === 'climb', 5000, 'the climb to start');
 if (fast) await setSpeed(5.5);
+if (fast) await page.evaluate(() => { window.__climb.TUNE.golem.hp = () => 14; });   /* a shorter Warden (still into his second phase): the headless frame rate runs game time at a fraction of real time */
 await until(() => window.__climb.ST.G.s > 50, 90000, 'the tutorial flights');
 await shot('02-climb');
 console.log('after tutorial', await st());
@@ -178,7 +190,7 @@ console.log('rest stop passed', await st());
 await until(() => window.__climb.ST.W && window.__climb.ST.W.sealed, 120000, 'the Warden\'s floor: the rubble falls behind and he wakes');
 const hits0 = await page.evaluate(() => window.__bot.hits);
 await shot('02b-warden');
-await until(() => !window.__climb.ST.W || window.__climb.ST.W.st === 'risen', 360000, 'beating the Warden on the floor');
+await until(() => !window.__climb.ST.W || window.__climb.ST.W.st === 'risen', 600000, 'beating the Warden');
 const wR = await page.evaluate(h0 => ({ beaten: window.__climb.S.bosses.slice(), hits: window.__bot.hits - h0, log: window.__bot.hitLog.slice(-8) }), hits0);
 if (!wR.beaten.includes(14)) fail('the Warden on the floor was not kept as beaten: ' + JSON.stringify(wR));
 console.log('the Warden on the floor: beaten, ' + wR.hits + ' damage taken (' + wR.log.join(', ') + ')');

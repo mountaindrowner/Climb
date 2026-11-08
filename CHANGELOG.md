@@ -1,19 +1,20 @@
 # Changelog
 
-## 0.27.0 — the Warden on the floor (2026-11-08)
+## 0.27.0 — the Warden in the cavern (2026-11-08)
 
-- **The stair ends, and he is waiting.** At the top of every region the last flight is a flat floor of stone, about eleven and a half paces long, ending in a sheer edge where the steps above have fallen away. A stone golem stands on it, the designer's own model from Tripo, more than twice the warrior's height. Step onto the floor and the stair behind you comes down in a heap of rubble: there is no way on but through him. Every region keeps its height: the floor's rise moved to the region's other flat flight.
-- **The fight.** He is a body on the lane: standing, you cannot get past him, but a roll can. He reads how far away you are:
-  - the **slam**: both fists raised high and brought down in front of him. Get out of reach. Then his fists rest on the floor for a long moment: the opening;
-  - the **sweep**: an arm flung back and swung across at chest height. Crouch under it, roll, or block. A parry knocks him onto one knee;
-  - the **stomp**: a foot raised and driven down, and a shockwave runs along the floor both ways. Jump it;
-  - the **leap**: he crouches and comes down where you stood, with a shadow growing there first. Move.
-  Enough damage in a row knocks him onto one knee (his poise). Every wind-up shows a red **!** over him, and the answer as a timing ring over you.
-- **At half strength** he roars and beats his chest, and stops warning you: the prompts go, the wind-ups shorten, the slam and the leap send shockwaves too, and rocks come down from the roof where dust trickles first.
-- **Beaten**, he crumbles, the rubble behind clears, and the first flight of the region above rises into place from below. He leaves gold and wellstone. The win is kept: he does not stand there again, and a lift from the Pool runs past him. He is stronger, with shorter wind-ups, in each region above.
-- The golem's clips are authored in Blender (`tools/blender/golem_tripo.py`): a heavy idle, a stomping walk, the slam, the sweep, the stomp, the leap, a stagger onto one knee, a flinch and the death. His two Tripo clips are the roar and the chest-beating taunt.
+- **The stair ends, and the mountain opens.** At the top of every region the last flight is a broad floor of stone, about eleven and a half paces long, ending in a sheer edge where the steps above have fallen away. Behind it the wall of the shaft is gone: a cavern opens, vast and dark, with spires rising out of its depths and hanging from its roof. Every region keeps its height: the floor's rise moved to the region's other flat flight.
+- **The colossus.** A golem of stone, the designer's own model from Tripo, stands in the depths of that cavern: forty units tall, twenty times the warrior, his torso rising above the floor and his eyes on it. You see him looming from the turn of the stair below. Step onto the floor and the stair behind you comes down in a heap of rubble: there is no way on but through him.
+- **His arms reach to the floor.** He never comes onto it: his arms do, reached every frame by inverse kinematics, so each blow lands exactly where it is aimed.
+  - **The slam:** a fist rises high over you and its shadow grows on the floor, following you, then holding still. It comes down there: run or roll out from under it. Then the fist rests on the floor a long moment. That is the opening: strike it.
+  - **The sweep:** a hand comes in low at one end of the floor and sweeps across it at chest height. Crouch under it, or roll.
+  - Strike his fists enough and **he reels**: he catches himself on both hands and his head comes down to rest on the floor's edge. Every blow to it counts double.
+  - **At half strength** he roars and beats his chest, and stops warning you: the prompts go, the wind-ups shorten, both fists come down one after the other, each slam sends a shockwave along the floor (jump it), and rocks come down from the roof where dust trickles first.
+  - A red **!** marks each fist as it winds up, and in the first phase the answer closes in as a timing ring over you.
+- **Beaten**, he topples back into the dark, the rubble behind clears, and the first flight of the region above rises into place from below. He leaves gold and wellstone. The win is kept: he does not stand there again, and a lift from the Pool runs past him. He is stronger, with shorter wind-ups, in each region above.
+- The camera holds the floor and him together, its view opened out so his head and the floor are both in frame, and the haze thins so the cavern's far side reads.
+- His body clips are authored in Blender (`tools/blender/golem_tripo.py`): looming, leaning in to reach, reeling, a flinch, and the fall; his two Tripo clips are the roar and the chest-beating taunt.
 - Nothing else stands on the floor: no threats or gold, ledges, oath stones or halls, and no switchback comes up past it. One region's hidden hall moved to a fallback landing.
-- The camera frames you and him together. The test bot fights him on every full test climb and has to win to reach the second region; in trial fights at full health it wins taking a hit or two.
+- The test bot fights him on every full test climb (a shorter Warden in the fast run) and has to win to reach the second region.
 - **Cuts that clear the stone.** The two downward cuts follow through a little higher. The longer lunges of 0.26.2 had the tip touching the steps ahead on a climbing flight.
 
 ## 0.26.2 — reaching cuts (2026-11-08)
