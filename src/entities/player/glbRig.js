@@ -412,7 +412,7 @@ function bladeOffStone(G){
   const r = Math.hypot(tip.x, tip.z);
   if (Math.abs(r - posOf(G.s).r) > 1.25) return;              // out over the shaft, nothing to hit
   const ts = sAt(G.s, Math.atan2(tip.z, tip.x)); if (holeAt(ts)) return;
-  const pen = topAt(ts) + 0.04 - tip.y;
+  const pen = topAt(ts) + 0.08 - tip.y;
   if (pen <= 0) return;
   const model = GLB.inner.children[0];
   keep(arm);
@@ -425,7 +425,7 @@ function bladeOffStone(G){
     const sh = modelPos(arm, inv, IKV[0]), t0 = IKV[1].copy(t).applyMatrix4(inv), t1 = IKV[2].copy(t0); t1.y += (p + 0.03) / S;
     rotateBone(arm, IKQ[1].setFromUnitVectors(t0.sub(sh).normalize(), t1.sub(sh).normalize()), inv);
     t = bladeTip(); if (!t) break;
-    p = topAt(sAt(G.s, Math.atan2(t.z, t.x))) + 0.04 - t.y;
+    p = topAt(sAt(G.s, Math.atan2(t.z, t.x))) + 0.08 - t.y;
   }
 }
 const _w = [], _cap = [0, 1, 2, 3, 4].map(() => ({ a: new THREE.Vector3(), b: new THREE.Vector3(), r: 0 }));
