@@ -68,7 +68,7 @@ export const TUNE = {
     back: 8.5,               // how far behind the stair his shoulders are (from the stair's line, outward)
     shoulder: 9.5,           // how high his shoulders stand above the floor
     trigger: 1.0,            // how far onto the floor before the rubble falls behind you and he wakes
-    wake: 2.4,               // from how many flights below the floor he is there, looming (you see him from the turn below)
+    wake: 3,                 // from how many flights below the floor he is there, looming over the last of the climb to it
     fov: 64,                 // the camera opens out while he is awake, so his head and the floor are both in frame
     intro: 2.6, taunt: 2.0, dying: 2.6, crumble: 3.0, rise: 1.8,
     pause: [0.9, 0.5],

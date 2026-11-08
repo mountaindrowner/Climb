@@ -1,6 +1,6 @@
 // The Warden at the top of each region. The stair ends in a broad floor of stone, and behind it the wall of the shaft
 // is gone: a cavern opens, vast and dark, and a colossus of stone stands in its depths, his torso rising above the floor,
-// so big that you see him looming from the turn of the stair below. Step onto the floor and the stair behind you comes
+// so big that you see him looming over the last flights of the climb to it. Step onto the floor and the stair behind you comes
 // down in rubble. He does not come onto the floor: his arms reach to it.
 //   the slam    a fist rises high over you, its shadow on the floor growing; it comes down there (get out from under:
 //               run or roll). Then it rests on the floor a long moment: the opening, strike the fist
@@ -35,7 +35,7 @@ const PH = (v, W) => Array.isArray(v) ? v[W.phase - 1] : v;
 const ease = { out: f => 1 - (1 - f) * (1 - f), in: f => f * f, io: f => f * f * (3 - 2 * f), lin: f => f };
 export const PROMPT = { slam: '{roll}', sweep: '{down}' };   // what answers each, phase 1 only
 
-// ---- he is there from the turn below, looming, before you ever reach the floor
+// ---- he is there a few flights before the floor, looming, before you ever reach it
 export function updGolem(dt){
   const G = ST.G; if (!G || ST.practice) return;
   if (!ST.W){
