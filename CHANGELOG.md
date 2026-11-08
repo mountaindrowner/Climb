@@ -4,6 +4,7 @@
 
 - **The guard holds the sword out.** At rest the sword arm is out in front of him, the blade angled up ahead and the off fist forward, instead of both hands tucked against his chest. The guard is one-handed now: on a two-handed grip his short arms pulled the sword back in to his body.
 - **Cuts that lunge.** At the strike his sword arm goes out nearly straight and his body follows it in a long stride: the front foot well forward, the hips driven after it, the off arm flung back for balance. His back stays fairly upright, so the blade cuts at chest height. The three cuts carry him further (0.65, 0.65 and 0.95, from 0.45, 0.45 and 0.7).
+- **No lunge at a wall.** At a cracked wall or a fork's rubble his cuts stay where he stands; the longer lunges carried him off the wall he was breaking.
 
 ## 0.26.1 — swings with weight (2026-11-08)
 

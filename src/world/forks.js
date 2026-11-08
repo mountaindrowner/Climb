@@ -36,6 +36,7 @@ export function updateForks(){
   for (const b of BRANCHES) b.heap.visible = !b.open && !ST.practice && !!switchbackOf(b.kA);
 }
 const closedHere = G => { if (G.s >= 100000 || !G.grounded || G.on) return null; const p = posOf(G.s); if (!p.land) return null; const b = BRANCHES.find(x => x.kA === p.k && !x.open && switchbackOf(x.kA)); return b && Math.abs(G.s - landingS(b.kA)) < 1.5 ? b : null; };
+export const atRubble = G => !ST.practice && S.runes.includes('ram') && !!closedHere(G);   // a heap he can strike: his cuts stay put on it
 export function hitRubble(G, swing){
   if (ST.practice || !S.runes.includes('ram')) return false;
   const b = closedHere(G); if (!b) return false;

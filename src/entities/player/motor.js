@@ -16,6 +16,9 @@ import { IN, consume } from '../../core/input.js';
 import { holeAt, ceilingAt } from '../../world/ground.js';
 import { strike, drink, repairLift, hurt, fallHurt } from './player.js';
 import { swingRate, rollCooldown, sprintMul } from '../../run/run.js';
+import { atRubble } from '../../world/forks.js';
+// at a cracked wall or a fork's rubble his cuts hammer it where he stands: the lunge would carry him off it
+const atWall = G => G.grounded && G.s < BR_BASE && ((!ST.practice && hallAt(G.s) && !hallAt(G.s).broken) || atRubble(G));
 const MV = TUNE.move;
 const dust = (G, n, spd, c) => { const p = posOf(G.s); burst(vArc(p.a, p.r, G.y + 0.05), n, c || '#b4aac8', spd || 1.4, 5, 0.08); };
 
@@ -51,7 +54,7 @@ export function stepMotor(G, dt){
   if (G.atk){
     const A = G.atk, w = WEAPONS[G.weapon], sw = w.combo[A.i];
     A.t += dt * swingRate(G);                       // the oath of the Knell quickens every phase
-    if (A.phase === 'wind' && A.t >= sw.wind){ A.phase = 'active'; A.t = 0; G.v += G.face * sw.lunge / sw.active; sfx.slash(); }
+    if (A.phase === 'wind' && A.t >= sw.wind){ A.phase = 'active'; A.t = 0; if (!atWall(G)) G.v += G.face * sw.lunge / sw.active; sfx.slash(); }
     if (A.phase === 'active'){
       if (!A.hit){ A.hit = true; if (strike(sw, A.i === w.combo.length - 1)){ A.landed = true; } }
       if (A.t >= sw.active){ A.phase = 'rec'; A.t = 0; }
