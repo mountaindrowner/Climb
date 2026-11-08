@@ -220,8 +220,8 @@ def sk(spec):
     if 'hips' in out: out['hips'] = tuple(x * K for x in out['hips'])
     if 'feet' in out: out['feet'] = {s: tuple(x * K for x in v) for s, v in out['feet'].items()}
     return out
-GUARD_R, GUARD_BLADE = [D(0.15, -1, 0.3), D(1, 0.15, 0.12)], D(1, 0.6)
-FIST_L = [D(0.2, -1, 0.3, 'l'), D(0.9, -0.3, 0.1, 'l')]                   # no shield: the off hand a loose fist, forward
+GUARD_R, GUARD_BLADE = [D(0.95, -0.45, 0.3), D(1, 0.35, 0.04)], D(1, 0.7)   # the arms out in front, the sword held ahead of him, not tucked to the chest
+FIST_L = [D(0.55, -0.85, 0.35, 'l'), D(1, -0.15, 0.1, 'l')]               # no shield: the off hand a loose fist, out ahead of him
 guard = {'armR': GUARD_R, 'blade': GUARD_BLADE, 'armL': FIST_L, 'chest': D(0.3, 1), 'spine': D(0.12, 1), 'head': D(0.05, 1)}
 # ---- two hands on the grip. The left fist closes on the handle just below the right, its knuckles along the handle
 # like the right's and its fingers curling the same way (so its palm faces the other way, as in any two-handed grip).
@@ -264,7 +264,7 @@ def P_(spec, b=None, plant=True, two=True):
 def keyed(name, keys): po.make_action(name, keys)
 # the guard: Tripo's breathing idle with the sword held ready, hunched
 def guard_at(f, extra=None):
-    po.pose(fist(po.sample(idle, f)), {**guard, **(extra or {})}, feet0); two_hand(); return fist(po.snapshot())
+    po.pose(fist(po.sample(idle, f)), {**guard, **(extra or {})}, feet0); return fist(po.snapshot())   # one hand on the hilt: two would pull the sword in to his chest
 keyed('K_Guard', [(f, guard_at(f)) for f in list(range(f0, f1, 6)) + [f1]])
 # idles: now and then he looks up the shaft, or round at the camera and back down the stair behind him
 look_keys = lambda heads: [(f, guard_at(f0 + f, h)) for f, h in heads]
@@ -292,7 +292,7 @@ j_air2 = P_({**UP, 'chest': D(0.22, 1), 'feet': {'l': (0.12, 0.32), 'r': (0.04, 
 j_land = P_({**UP, 'hips': (0.06, -0.22), 'chest': D(0.5, 1), 'feet': {'l': (0.1, 0), 'r': (-0.1, 0)}}, two=False)
 keyed('K_Jump_Start', [(0, j_start), (8, j_go)])
 keyed('K_Jump_Idle', [(0, j_air), (12, j_air2), (24, j_air)])
-keyed('K_Jump_Land', [(0, j_land), (8, P_({**UP, 'hips': (0.03, -0.1), 'feet': {'l': (0.06, 0), 'r': (-0.06, 0)}}, two=False)), (16, P_({}))])
+keyed('K_Jump_Land', [(0, j_land), (8, P_({**UP, 'hips': (0.03, -0.1), 'feet': {'l': (0.06, 0), 'r': (-0.06, 0)}}, two=False)), (16, P_({}, two=False))])
 # the block: the blade held across in front, point up, the off hand braced behind it; the high block: overhead
 blk = P_({'armR': [D(0.6, -0.5, 0.15), D(0.6, 0.8, -0.35)], 'blade': D(0.2, 1, -0.1), 'armL': [D(0.5, -0.4, 0.2, 'l'), D(0.8, 0.5, 0.45, 'l')],
           'hips': (-0.03, -0.06), 'feet': {'l': (0.1, 0), 'r': (-0.1, 0)}})
@@ -322,29 +322,29 @@ t = P_({'hips': (0.0, -0.22), 'spine': D(1.0, 0.8), 'chest': D(1.6, 0.6), 'head'
 keyed('K_Tuck', [(0, t), (12, t)])
 # the swings: the knight's specs, keyed the same (guard 0, wind-up 8, strike 14, follow-through 18, guard 32)
 LUNGE = {'feet': {'l': (-0.1, 0), 'r': (0.24, 0)}}
+BACK_L = [D(-0.55, -0.6, 0.5, 'l'), D(-0.35, -0.85, 0.3, 'l')]                   # the off arm flung back for balance in a lunging cut
 DEEP = {'feet': {'l': (-0.14, 0), 'r': (0.34, 0)}}
 SWINGS = {
     # the sword combo, in front of him and in the plane the camera sees (sword in the right hand, both hands where they
     # reach): a cut down from high on his right; reset high and down again; then a rising cut from low on his left up to
     # high on his right, the finisher
+    # the cuts reach: at the strike the sword arm is out straight and the body lunges after it (one hand on the hilt then,
+    # the off arm flung back for balance); the wind-ups and the recovery take both hands
     'K_Slash': [
-        # wind: shoulders turned back, leaning back, the weight sunk onto the back leg, the blade high over his right shoulder
         {'hips': (-0.16, -0.14), 'spine': D(-0.3, 1), 'chest': (D(-0.35, 1), -0.6), 'head': D(0.1, 1), 'armR': [D(0.15, 1, 0.5), D(0.05, 1, 0.15)], 'blade': D(-0.15, 1, 0.05),
          'feet': {'l': (-0.18, 0), 'r': (0.2, 0)}},
-        # the cut: a step through with the front foot, hips driven forward, the torso twisting into it
-        {'hips': (0.3, -0.24), 'spine': D(0.6, 1), 'chest': (D(0.7, 1), 0.45), 'armR': [D(1, 0.35, 0.3), D(1, 0.05, 0.12)], 'blade': D(1, -0.15), 'feet': {'l': (-0.22, 0), 'r': (0.48, 0)}},
-        {'hips': (0.34, -0.28), 'spine': D(0.75, 1), 'chest': (D(0.85, 1), 0.6), 'armR': [D(0.8, -0.55, 0.3), D(0.7, -0.6, 0.12)], 'blade': D(0.8, -0.65), 'feet': {'l': (-0.22, 0), 'r': (0.48, 0)}}],
+        {'hips': (0.44, -0.2), 'spine': D(0.45, 1), 'chest': (D(0.5, 1), 0.55), 'armR': [D(1, 0.15, 0.2), D(1, 0.08, 0.06)], 'blade': D(1, -0.1), 'armL': BACK_L, 'feet': {'l': (-0.32, 0), 'r': (0.66, 0)}},
+        {'hips': (0.46, -0.23), 'spine': D(0.55, 1), 'chest': (D(0.6, 1), 0.65), 'armR': [D(0.95, -0.35, 0.22), D(0.95, -0.4, 0.08)], 'blade': D(0.85, -0.6), 'armL': BACK_L, 'feet': {'l': (-0.32, 0), 'r': (0.66, 0)}}],
     'K_Back': [
         {'hips': (-0.12, -0.12), 'spine': D(-0.2, 1), 'chest': (D(-0.25, 1), -0.5), 'armR': [D(0.3, 1, 0.45), D(0.25, 1, 0.12)], 'blade': D(0.1, 1), 'feet': {'l': (-0.1, 0), 'r': (0.3, 0)}},
-        {'hips': (0.28, -0.22), 'spine': D(0.55, 1), 'chest': (D(0.65, 1), 0.4), 'armR': [D(1, 0.45, 0.28), D(1, 0.15, 0.1)], 'blade': D(1, 0.0), 'feet': {'l': (-0.25, 0), 'r': (0.5, 0)}},
-        {'hips': (0.32, -0.26), 'spine': D(0.7, 1), 'chest': (D(0.8, 1), 0.55), 'armR': [D(0.85, -0.45, 0.28), D(0.75, -0.55, 0.1)], 'blade': D(0.85, -0.6), 'feet': {'l': (-0.25, 0), 'r': (0.5, 0)}}],
+        {'hips': (0.42, -0.19), 'spine': D(0.42, 1), 'chest': (D(0.48, 1), 0.5), 'armR': [D(1, 0.22, 0.2), D(1, 0.12, 0.06)], 'blade': D(1, 0.0), 'armL': BACK_L, 'feet': {'l': (-0.34, 0), 'r': (0.66, 0)}},
+        {'hips': (0.45, -0.22), 'spine': D(0.52, 1), 'chest': (D(0.58, 1), 0.6), 'armR': [D(0.95, -0.3, 0.22), D(0.95, -0.35, 0.08)], 'blade': D(0.9, -0.55), 'armL': BACK_L, 'feet': {'l': (-0.34, 0), 'r': (0.66, 0)}}],
     'K_Chop': [
-        # the finisher: coiled deep and low, the blade down behind on his left, then rising up onto the cut
         {'hips': (-0.1, -0.36), 'spine': D(0.75, 1), 'chest': (D(0.7, 1), 0.55), 'head': D(0.35, 1), 'armR': [D(-0.1, -1, -0.25), D(-0.5, -0.8, -0.35)], 'blade': D(-0.7, -0.75, -0.25),
          'feet': {'l': (-0.25, 0), 'r': (0.3, 0)}},
-        {'hips': (0.24, -0.14), 'spine': D(0.35, 1), 'chest': (D(0.3, 1), 0.0), 'armR': [D(1, -0.2, 0.2), D(1, 0.1, 0.1)], 'blade': D(1, 0.2, 0.05), 'feet': {'l': (-0.3, 0), 'r': (0.5, 0)}},
-        {'hips': (0.26, 0.04), 'spine': D(-0.15, 1), 'chest': (D(-0.3, 1), -0.45), 'head': D(-0.1, 1), 'armR': [D(0.45, 1, 0.45), D(0.3, 1, 0.3)], 'blade': D(0.35, 1, 0.2),
-         'feet': {'l': (-0.3, 0), 'r': (0.5, 0.06)}}],
+        {'hips': (0.38, -0.15), 'spine': D(0.35, 1), 'chest': (D(0.3, 1), 0.0), 'armR': [D(1, -0.05, 0.2), D(1, 0.15, 0.06)], 'blade': D(1, 0.3, 0.05), 'armL': BACK_L, 'feet': {'l': (-0.36, 0), 'r': (0.68, 0)}},
+        {'hips': (0.4, 0.0), 'spine': D(0.05, 1), 'chest': (D(-0.15, 1), -0.45), 'head': D(-0.1, 1), 'armR': [D(0.75, 0.85, 0.4), D(0.65, 1, 0.22)], 'blade': D(0.6, 1, 0.15), 'armL': BACK_L,
+         'feet': {'l': (-0.36, 0), 'r': (0.68, 0.06)}}],
     'K_Thrust': [
         {'hips': (-0.06, -0.04), 'chest': (D(-0.05, 1), -0.35), 'armR': [D(-0.8, -0.5, 0.4), D(1, 0.15, 0.3)], 'blade': D(1, 0.12)},
         {'hips': (0.18, -0.1), 'spine': D(0.25, 1), 'chest': (D(0.3, 1), 0.25), 'armR': [D(1, 0.2, 0.3), D(1, 0.15, 0.2)], 'blade': D(1, 0.18), **LUNGE},
@@ -371,11 +371,12 @@ def between(a, b, up=0.5):
         elif isinstance(x, tuple): out[k] = (((x[0] + y[0]) / 2).normalized(), (x[1] + y[1]) / 2)
         else: out[k] = ((x + y) / 2 + Vector((0, 0, up))).normalized()
     return out
-g = P_({})
+g = P_({}, two=False)
 for name, (wind, strike, follow) in SWINGS.items():
     over = {'K_Thrust': 0.0, 'K_Jab': 0.0, 'K_Lunge': 0.0, 'K_Chop': -0.5, 'K_Slash': 0.35, 'K_Back': 0.35}.get(name, 0.8)   # how far the arc bows up between the wind-up and the cut (the finisher bows low: it rises)
-    keyed(name, [(0, g), (4, P_(between(GUARD_SPEC, wind))), (8, P_(wind)), (11, P_(between(wind, strike, over))),
-                 (14, P_(strike)), (18, P_(follow)), (24, P_(between(follow, GUARD_SPEC))), (32, g)])
+    one = name in ('K_Slash', 'K_Back', 'K_Chop')            # the sword cuts are one-handed, as the guard is (two hands would pull the blade in)
+    keyed(name, [(0, g), (4, P_(between(GUARD_SPEC, wind), two=not one)), (8, P_(wind, two=not one)), (11, P_(between(wind, strike, over), two=not one)),
+                 (14, P_(strike, two=not one)), (18, P_(follow, two=not one)), (24, P_(between(follow, GUARD_SPEC), two=not one)), (32, g)])
 po.restore(base)
 for a in list(bpy.data.actions):
     if not (a.name.startswith('K_') or a.name in ('Running_A', 'Hit_A', 'Hit_B', 'Blocking')): bpy.data.actions.remove(a)

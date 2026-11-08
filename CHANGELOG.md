@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.26.2 — reaching cuts (2026-11-08)
+
+- **The guard holds the sword out.** At rest the sword arm is out in front of him, the blade angled up ahead and the off fist forward, instead of both hands tucked against his chest. The guard is one-handed now: on a two-handed grip his short arms pulled the sword back in to his body.
+- **Cuts that lunge.** At the strike his sword arm goes out nearly straight and his body follows it in a long stride: the front foot well forward, the hips driven after it, the off arm flung back for balance. His back stays fairly upright, so the blade cuts at chest height. The three cuts carry him further (0.65, 0.65 and 0.95, from 0.45, 0.45 and 0.7).
+
 ## 0.26.1 — swings with weight (2026-11-08)
 
 - **The whole body swings.** Each cut winds up with the shoulders turned back, a lean back and the weight sunk onto the back leg; the cut steps through with the front foot, drives the hips forward and twists the torso into it. The finisher coils deep and low, then rises up onto the cut.

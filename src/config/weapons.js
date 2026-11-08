@@ -5,9 +5,9 @@ import { FEATURES } from './features.js';
 // recovery you commit to.
 export const WEAPONS = {
   sword: { name: 'Short sword', desc: 'Three-hit combo', reach: 1.7, combo: [
-    { dmg: 1, wind: 0.15, active: 0.11, rec: 0.3, lunge: 0.45, pose: 'slash' },
-    { dmg: 1, wind: 0.18, active: 0.11, rec: 0.3, lunge: 0.45, pose: 'back' },
-    { dmg: 2, wind: 0.32, active: 0.14, rec: 0.46, lunge: 0.7, pose: 'chop' },
+    { dmg: 1, wind: 0.15, active: 0.11, rec: 0.3, lunge: 0.65, pose: 'slash' },
+    { dmg: 1, wind: 0.18, active: 0.11, rec: 0.3, lunge: 0.65, pose: 'back' },
+    { dmg: 2, wind: 0.32, active: 0.14, rec: 0.46, lunge: 0.95, pose: 'chop' },
   ] },
   pick:  { name: 'War pick', desc: 'Slow, heavy blows', reach: 1.6, combo: [
     { dmg: 2, wind: 0.238, active: 0.103, rec: 0.405, lunge: 0.3, pose: 'chop' },
