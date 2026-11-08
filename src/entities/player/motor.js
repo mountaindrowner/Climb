@@ -150,7 +150,7 @@ export function stepMotor(G, dt){
           if ((edge - G.s) * dir >= -0.05) best = { deck: d, y1: d.top, s1: edge + dir * 0.35 };
         }
       }
-      if (!best && dir && holeAt(G.s) && !holeAt(sa)){ const up = topAt(sa) - G.y; if (up > 0.35 && up <= MANTLE) best = { deck: null, y1: walkY(sa + dir * 0.3), s1: sa + dir * 0.3 }; }
+      if (!best && dir && stairHole(G.s) && !holeAt(sa)){   // (out of a platforming gap; a broken step is a pit, not a ledge) const up = topAt(sa) - G.y; if (up > 0.35 && up <= MANTLE) best = { deck: null, y1: walkY(sa + dir * 0.3), s1: sa + dir * 0.3 }; }
       if (best){ G.mantle = { t: 0, dur: 0.32, s0: G.s, s1: best.s1, y0: G.y, y1: best.y1, deck: best.deck }; G.vy = 0; G.v = 0; G.atk = null; sfx.whoosh(); footfalls(G, dt); return; }
     }
   }
