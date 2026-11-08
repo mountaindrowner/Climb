@@ -52,7 +52,7 @@ await shot('01-title');
 await page.addScriptTag({ type: 'module', content: `
   import { content } from '/src/world/generate.js';
   import { posOf, special, walkY } from '/src/world/path.js';
-  import { decksAt } from '/src/world/decks.js';
+  import { decksAt, stairHole } from '/src/world/decks.js';
   import { holeAt } from '/src/world/ground.js';
   import { TUNE } from '/src/config/tuning.js';
   import { R } from '/src/config/constants.js';
@@ -103,8 +103,8 @@ await page.addScriptTag({ type: 'module', content: `
     }
     // platforming: where the ground ahead gives out (a missing flight, a gap), take a full running jump; catching ledges is automatic
     if (bot.answer && move > 0 && G.grounded && !G.mantle){
-      const sa = G.s + 0.6, sup = decksAt(sa).some(d => Math.abs(d.top - G.y) < 0.5) || (!holeAt(sa) && Math.abs(walkY(sa) - G.y) < 0.6);
-      if (!sup) jump(26);
+      const sa = G.s + 0.6, edge = G.on ? !decksAt(sa).includes(G.on) : (stairHole(sa) && !decksAt(sa).some(d => Math.abs(d.top - G.y) < 0.5));
+      if (edge) jump(26);   /* the end of the ledge it stands on, or a missing flight ahead (a broken step has its own rule) */
     }
     if (crouch) block = false;
     I.hold('right', move > 0); I.hold('left', move < 0); I.hold('down', crouch); I.hold('block', block);
