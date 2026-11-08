@@ -328,17 +328,23 @@ SWINGS = {
     # reach): a cut down from high on his right; reset high and down again; then a rising cut from low on his left up to
     # high on his right, the finisher
     'K_Slash': [
-        {'hips': (-0.04, 0.02), 'spine': D(-0.05, 1), 'chest': (D(-0.05, 1), -0.15), 'armR': [D(0.15, 1, 0.45), D(0.1, 1, 0.15)], 'blade': D(-0.1, 1, 0.05)},
-        {'hips': (0.12, -0.08), 'spine': D(0.3, 1), 'chest': (D(0.35, 1), 0.15), 'armR': [D(1, 0.35, 0.3), D(1, 0.05, 0.12)], 'blade': D(1, -0.15), **LUNGE},
-        {'hips': (0.14, -0.12), 'spine': D(0.4, 1), 'chest': (D(0.45, 1), 0.2), 'armR': [D(0.8, -0.55, 0.3), D(0.7, -0.6, 0.12)], 'blade': D(0.8, -0.65), **LUNGE}],
+        # wind: shoulders turned back, leaning back, the weight sunk onto the back leg, the blade high over his right shoulder
+        {'hips': (-0.16, -0.14), 'spine': D(-0.3, 1), 'chest': (D(-0.35, 1), -0.6), 'head': D(0.1, 1), 'armR': [D(0.15, 1, 0.5), D(0.05, 1, 0.15)], 'blade': D(-0.15, 1, 0.05),
+         'feet': {'l': (-0.18, 0), 'r': (0.2, 0)}},
+        # the cut: a step through with the front foot, hips driven forward, the torso twisting into it
+        {'hips': (0.3, -0.24), 'spine': D(0.6, 1), 'chest': (D(0.7, 1), 0.45), 'armR': [D(1, 0.35, 0.3), D(1, 0.05, 0.12)], 'blade': D(1, -0.15), 'feet': {'l': (-0.22, 0), 'r': (0.48, 0)}},
+        {'hips': (0.34, -0.28), 'spine': D(0.75, 1), 'chest': (D(0.85, 1), 0.6), 'armR': [D(0.8, -0.55, 0.3), D(0.7, -0.6, 0.12)], 'blade': D(0.8, -0.65), 'feet': {'l': (-0.22, 0), 'r': (0.48, 0)}}],
     'K_Back': [
-        {'hips': (-0.03, 0.02), 'spine': D(0.0, 1), 'chest': (D(0.0, 1), -0.1), 'armR': [D(0.3, 1, 0.4), D(0.25, 1, 0.12)], 'blade': D(0.1, 1)},
-        {'hips': (0.1, -0.06), 'spine': D(0.25, 1), 'chest': (D(0.3, 1), 0.12), 'armR': [D(1, 0.45, 0.28), D(1, 0.15, 0.1)], 'blade': D(1, 0.0), **LUNGE},
-        {'hips': (0.12, -0.1), 'spine': D(0.35, 1), 'chest': (D(0.4, 1), 0.15), 'armR': [D(0.85, -0.45, 0.28), D(0.75, -0.55, 0.1)], 'blade': D(0.85, -0.6), **LUNGE}],
+        {'hips': (-0.12, -0.12), 'spine': D(-0.2, 1), 'chest': (D(-0.25, 1), -0.5), 'armR': [D(0.3, 1, 0.45), D(0.25, 1, 0.12)], 'blade': D(0.1, 1), 'feet': {'l': (-0.1, 0), 'r': (0.3, 0)}},
+        {'hips': (0.28, -0.22), 'spine': D(0.55, 1), 'chest': (D(0.65, 1), 0.4), 'armR': [D(1, 0.45, 0.28), D(1, 0.15, 0.1)], 'blade': D(1, 0.0), 'feet': {'l': (-0.25, 0), 'r': (0.5, 0)}},
+        {'hips': (0.32, -0.26), 'spine': D(0.7, 1), 'chest': (D(0.8, 1), 0.55), 'armR': [D(0.85, -0.45, 0.28), D(0.75, -0.55, 0.1)], 'blade': D(0.85, -0.6), 'feet': {'l': (-0.25, 0), 'r': (0.5, 0)}}],
     'K_Chop': [
-        {'hips': (-0.06, -0.12), 'spine': D(0.35, 1), 'chest': (D(0.3, 1), 0.35), 'armR': [D(-0.1, -1, -0.25), D(-0.5, -0.8, -0.35)], 'blade': D(-0.7, -0.75, -0.25)},
-        {'hips': (0.16, -0.14), 'spine': D(0.4, 1), 'chest': (D(0.4, 1), 0.0), 'armR': [D(1, -0.2, 0.2), D(1, 0.1, 0.1)], 'blade': D(1, 0.2, 0.05), **DEEP},
-        {'hips': (0.14, -0.02), 'spine': D(0.05, 1), 'chest': (D(-0.1, 1), -0.25), 'armR': [D(0.45, 1, 0.45), D(0.3, 1, 0.3)], 'blade': D(0.35, 1, 0.2), **DEEP}],
+        # the finisher: coiled deep and low, the blade down behind on his left, then rising up onto the cut
+        {'hips': (-0.1, -0.36), 'spine': D(0.75, 1), 'chest': (D(0.7, 1), 0.55), 'head': D(0.35, 1), 'armR': [D(-0.1, -1, -0.25), D(-0.5, -0.8, -0.35)], 'blade': D(-0.7, -0.75, -0.25),
+         'feet': {'l': (-0.25, 0), 'r': (0.3, 0)}},
+        {'hips': (0.24, -0.14), 'spine': D(0.35, 1), 'chest': (D(0.3, 1), 0.0), 'armR': [D(1, -0.2, 0.2), D(1, 0.1, 0.1)], 'blade': D(1, 0.2, 0.05), 'feet': {'l': (-0.3, 0), 'r': (0.5, 0)}},
+        {'hips': (0.26, 0.04), 'spine': D(-0.15, 1), 'chest': (D(-0.3, 1), -0.45), 'head': D(-0.1, 1), 'armR': [D(0.45, 1, 0.45), D(0.3, 1, 0.3)], 'blade': D(0.35, 1, 0.2),
+         'feet': {'l': (-0.3, 0), 'r': (0.5, 0.06)}}],
     'K_Thrust': [
         {'hips': (-0.06, -0.04), 'chest': (D(-0.05, 1), -0.35), 'armR': [D(-0.8, -0.5, 0.4), D(1, 0.15, 0.3)], 'blade': D(1, 0.12)},
         {'hips': (0.18, -0.1), 'spine': D(0.25, 1), 'chest': (D(0.3, 1), 0.25), 'armR': [D(1, 0.2, 0.3), D(1, 0.15, 0.2)], 'blade': D(1, 0.18), **LUNGE},

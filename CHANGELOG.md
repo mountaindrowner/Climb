@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.26.1 — swings with weight (2026-11-08)
+
+- **The whole body swings.** Each cut winds up with the shoulders turned back, a lean back and the weight sunk onto the back leg; the cut steps through with the front foot, drives the hips forward and twists the torso into it. The finisher coils deep and low, then rises up onto the cut.
+- **Slower swings.** The sword's three cuts take about twice as long: wind-ups 0.2, 0.18 and 0.32 s (they were 0.085 to 0.17), strikes 0.11 to 0.14 s, recoveries 0.3 to 0.46 s; the lunges are a little longer to carry the step.
+
 ## 0.26.0 — platforming, and the playtest notes (2026-11-07)
 
 From the designer's playtest of 0.25.
