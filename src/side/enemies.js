@@ -62,7 +62,7 @@ export function stepEnemies(E, P, dt, fx, events){
       else if (e.st === 'windup'){ if (e.tm >= e.d.windup){ go('lunge'); e.hit = false; } }
       else if (e.st === 'lunge'){
         const nx = e.x + e.face * e.d.lungeDist / e.d.lunge * dt; if (!solidAt(nx + e.face * e.d.w, e.y + 0.3)) e.x = nx;
-        if (!e.hit && Math.abs(P.x - e.x) < 0.7 && P.y < e.y + 1.2 && P.y > e.y - 0.6){
+        if (!e.hit && Math.abs(P.x - e.x) < 0.75 && P.y < e.y + 1.2 && P.y > e.y - 0.6){
           e.hit = true;
           if (P.blocking && P.face === -e.face){ const parry = performance.now() / 1000 - (P.blockAt || -9) < 0.18; go('stunned'); e.stun = parry ? 1.4 : 0.7; e.x -= e.face * 0.5; events.push({ type: parry ? 'parry' : 'block', at: { x: P.x, y: P.y + 1 } }); }
           else hurt(P, 1, e.x, 'Bitten');
@@ -81,12 +81,12 @@ export function stepEnemies(E, P, dt, fx, events){
         const a = e.tm * 3.2, cx = P.x, cy = P.y + 2.4;
         e.x += (cx + Math.cos(a) * 1.6 - e.x) * Math.min(1, dt * 3); e.y += (cy + Math.sin(a) * 0.5 - e.y) * Math.min(1, dt * 3);
         e.face = Math.sign(P.x - e.x) || e.face;
-        if (e.tm > e.d.circle + Math.random() * 0.6){ go('dive'); e.tx = P.x; e.ty = P.y + 0.9; events.push({ type: 'tell', e }); }
+        if (e.tm > e.d.circle + Math.random() * 0.6){ go('dive'); e.tx = P.x; e.ty = P.y + 1.3; events.push({ type: 'tell', e }); }
       }
       else if (e.st === 'dive'){
-        if (e.tm < e.d.dive - e.d.commit){ e.tx = P.x; e.ty = P.y + 0.9; }   // it tracks you, then commits
+        if (e.tm < e.d.dive - e.d.commit){ e.tx = P.x; e.ty = P.y + 1.3; }   // it tracks you, then commits
         const k = Math.min(1, dt * 7); e.x += (e.tx - e.x) * k; e.y += (e.ty - e.y) * k;
-        if (!e.hit && Math.abs(P.x - e.x) < 0.5 && Math.abs(P.y + 0.9 - e.y) < 0.8){ e.hit = true; if (!(P.blocking && P.face === Math.sign(e.x - P.x))) hurt(P, 1, e.x, 'Bitten'); }
+        if (!e.hit && Math.abs(P.x - e.x) < 0.5 && Math.abs(P.y + 1.3 - e.y) < 1.0){ e.hit = true; if (!(P.blocking && P.face === Math.sign(e.x - P.x))) hurt(P, 1, e.x, 'Bitten'); }
         if (e.tm >= e.d.dive + 0.15){ go('leave'); e.hit = false; }
       }
       else if (e.st === 'leave'){ e.y += dt * 3; e.x -= e.face * dt * 2; if (e.tm > e.d.leave) go('circle'); }
@@ -97,7 +97,7 @@ export function stepEnemies(E, P, dt, fx, events){
       if (e.st === 'idle' && dist < e.d.range && e.cd <= 0){ go('charge'); events.push({ type: 'tell', e }); }
       if (e.st === 'charge' && e.tm >= e.d.charge){
         // leads him: where he will be when the glob gets there
-        let tx = P.x, ty = P.y + 1.1; for (let i = 0; i < 3; i++){ const t = Math.hypot(tx - e.x, ty - e.y) / e.d.speed; tx = P.x + P.vx * t; ty = P.y + 1.1 + (P.grounded ? 0 : P.vy * t * 0.5); }
+        let tx = P.x, ty = P.y + 1.4; for (let i = 0; i < 3; i++){ const t = Math.hypot(tx - e.x, ty - e.y) / e.d.speed; tx = P.x + P.vx * t; ty = P.y + 1.4 + (P.grounded ? 0 : P.vy * t * 0.5); }
         const L = Math.hypot(tx - e.x, ty - e.y) || 1;
         e.orb = { x: e.x, y: e.y, vx: (tx - e.x) / L * e.d.speed, vy: (ty - e.y) / L * e.d.speed, t: 0, m: new THREE.Mesh(E.orbGeo, E.orbMat) }; E.scene.add(e.orb.m);
         go('idle'); e.cd = e.d.cooldown; events.push({ type: 'spit', e });
@@ -142,7 +142,7 @@ export function strikeEnemies(E, P, reach, dmg, events){
   for (const e of E.list){
     if (!e.alive || (e.type === 'burrower' && !(e.st === 'rise' || e.st === 'up'))) continue;
     const ahead = (e.x - P.x) * P.face, top = e.y + e.d.h, bottom = e.d.fly ? e.y - e.d.h / 2 : e.y;
-    if (ahead < -0.4 || ahead > reach + e.d.w || top < P.y - 0.2 || bottom > P.y + 2.1) continue;
+    if (ahead < -0.4 || ahead > reach + e.d.w || top < P.y - 0.2 || bottom > P.y + 2.7) continue;
     any = true; e.hp -= dmg; e.flash = 0.12;
     if (e.type === 'crawler' && (e.st === 'windup' || e.st === 'chase')){ e.st = 'stunned'; e.tm = 0; e.stun = 0.5; }
     e.x += P.face * (e.d.fly ? 0.6 : 0.35);

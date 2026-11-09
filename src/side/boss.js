@@ -214,7 +214,7 @@ export function makeWarden(scene, R){
     }
     return any;
   }
-  B.strike = (P, reach, dmg, events) => hitFist(P, a => { const ahead = (a.p.x - P.x) * P.face; return ahead > -0.8 && ahead < reach + W.fistR && Math.abs(a.p.y - (P.y + 0.9)) < W.fistR + 1.1; }, dmg, events);
+  B.strike = (P, reach, dmg, events) => hitFist(P, a => { const ahead = (a.p.x - P.x) * P.face; return ahead > -0.8 && ahead < reach + W.fistR && Math.abs(a.p.y - (P.y + 1.2)) < W.fistR + 1.3; }, dmg, events);
   B.slam = (P, radius, dmg, events) => hitFist(P, a => Math.abs(a.p.x - P.x) < radius + W.fistR && a.p.y - W.fistR < P.y + 0.6 && a.p.y > P.y - 2.5, dmg + 1, events);
   return B;
 }

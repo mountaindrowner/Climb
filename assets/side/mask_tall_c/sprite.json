@@ -1,0 +1,13 @@
+{
+ "name": "mask_tall_c",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 44,
+   "h": 44,
+   "foot": 42,
+   "cx": 25.0
+  }
+ }
+}

@@ -47,7 +47,7 @@ function shaft(){
   return r;
 }
 function tunnel(){
-  const r = room(); walls(r); door(r, 'right', 15, 19); door(r, 'top', 3, 12);
+  const r = room(); walls(r); door(r, 'right', 15, 19); door(r, 'top', 3, 15);
   rect(r, 2, 2, 37, 13);                                          // solid under the tunnel
   rect(r, 17, 17, 28, 20);                                        // a low stretch: crouch or roll under it
   stairs(r, 13, 14, 8, -1, 1);                                    // up to the hole in the roof
@@ -56,8 +56,8 @@ function tunnel(){
   return r;
 }
 function chamber(){
-  const r = room(); walls(r); door(r, 'bottom', 3, 12); door(r, 'right', 2, 7); door(r, 'top', 26, 32);
-  ledge(r, 3, 12, 1);                                             // over the hole up from the tunnel: jump up through it
+  const r = room(); walls(r); door(r, 'bottom', 3, 15); door(r, 'right', 2, 7); door(r, 'top', 26, 32);
+  ledge(r, 3, 15, 1);                                             // over the hole up from the tunnel: jump up through it
   ledge(r, 12, 18, 5); ledge(r, 22, 28, 9); ledge(r, 10, 16, 13); ledge(r, 24, 32, 16); ledge(r, 26, 32, 20);
   rect(r, 18, 2, 20, 3);
   mark(r, 'flitter', 20, 12); mark(r, 'torch', 11, 15); mark(r, 'torch', 29, 18); mark(r, 'crystal', 30, 2); mark(r, 'crystal', 14, 14); mark(r, 'crawler', 30, 2);
@@ -156,13 +156,13 @@ function organic(tiles, W, H, marks, rooms){
   const air = (i, j) => at(i, j) === EMPTY, rock = (i, j) => at(i, j) === ROCK, support = (i, j) => { const t = at(i, j); return t === ROCK || t === LEDGE; };
   const stand = (i, j) => air(i, j) && support(i, j - 1);
   const roomOf = (i, j) => rooms.find(r => i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1);
-  // what is kept clear: near (the walk: five over every floor), far (head room: seven over a floor, eleven and wider
-  // over a ledge, where he jumps from one to the next), doorways and the way through them, and markers
+  // what is kept clear: near (the walk: six over every floor), far (head room: nine over a floor, his height and a
+  // jump; thirteen and wider over a ledge, where he jumps from one to the next), doorways and the way through, markers
   const near = new Uint8Array(W * H), far = new Uint8Array(W * H), doorway = new Uint8Array(W * H);
   const mark = (arr, i, j) => { if (i >= 0 && j >= 0 && i < W && j < H) arr[j * W + i] = 1; };
   for (let j = 1; j < H; j++) for (let i = 0; i < W; i++) if (stand(i, j)){
-    const ledge = at(i, j - 1) === LEDGE, up = ledge ? 11 : 7, side = ledge ? 4 : 2;
-    for (let d = 0; d <= 5; d++) for (let a = -1; a <= 1; a++) mark(near, i + a, j + d);
+    const ledge = at(i, j - 1) === LEDGE, up = ledge ? 13 : 9, side = ledge ? 4 : 2;
+    for (let d = 0; d <= 6; d++) for (let a = -1; a <= 1; a++) mark(near, i + a, j + d);
     for (let d = 0; d <= up; d++) for (let a = -side; a <= side; a++) mark(far, i + a, j + d);
   }
   for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) if (at(i, j) === LEDGE) for (let d = -8; d <= 0; d++) for (let a = -3; a <= 3; a++) mark(far, i + a, j + d);   // under a ledge: he jumps up through it

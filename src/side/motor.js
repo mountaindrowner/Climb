@@ -10,8 +10,11 @@ import { IN, consume, pending } from '../core/input.js';
 import { FEEL } from '../config/feel.js';
 import { T, ROCK, LEDGE, SPIKES, tileAt } from './level.js';
 const MV = TUNE.move;
-export const BODY = { hw: 0.3, stand: 1.75, crouch: 1.05, roll: 0.95 };
-const MANTLE = 2.0, STEP = T + 0.02;
+// the side view's warrior is drawn tall and lean (gothic action proportions, ~40 pixels): his body is taller than the
+// climb's, and his jumps and run scale with him so they keep the same feel against his height
+export const BODY = { hw: 0.34, stand: 2.4, crouch: 1.4, roll: 1.25 };
+export const SCALE = { jump: 1.3, run: 1.1 };
+const MANTLE = 2.6, STEP = T + 0.02;
 
 // ---- tiles under, beside and over a box
 const tx = x => Math.floor(x / T), ty = y => Math.floor(y / T);
@@ -47,7 +50,7 @@ export function newPlayer(x, y){
 const ev = (P, type, extra) => P.events.push({ type, ...extra });
 function takeOff(P, air){
   const ease = air ? MV.launch.air : MV.launch.ground;
-  P.vy = launchSpeed(air ? MV.airJumpHeight : MV.jumpHeight, ease); P.launch = ease; P.jumpT = 0;
+  P.vy = launchSpeed((air ? MV.airJumpHeight : MV.jumpHeight) * SCALE.jump, ease); P.launch = ease; P.jumpT = 0;
   P.grounded = false; P.crouch = false;
   if (P.atk && P.atk.phase === 'rec') P.atk = null;
   if (P.roll > 0){ P.roll = 0; P.rollCd = MV.roll.cooldown; }
@@ -136,14 +139,14 @@ export function stepPlayer(P, dt){
   let target = 0, accel = P.grounded ? MV.accel : MV.airAccel;
   if (!P.grounded && FEEL.airFade) accel *= Math.max(MV.airFloor, 1 - P.airT / MV.airFade);
   if (P.dive){ P.vx = 0; }
-  else if (P.roll > 0){ P.vx = P.rollDir * MV.roll.speed * (P.roll > MV.roll.time * 0.25 ? 1 : 0.5); }
+  else if (P.roll > 0){ P.vx = P.rollDir * MV.roll.speed * SCALE.run * (P.roll > MV.roll.time * 0.25 ? 1 : 0.5); }
   else if (P.plant > 0){ target = 0; accel = MV.decel; }
   else if (P.atk && P.atk.phase !== 'rec'){
     target = 0; accel = MV.decel * 0.35;
     if (FEEL.turn && dir && dir !== P.face && P.atk.phase === 'wind' && P.atk.t < WEAPONS[P.weapon].combo[P.atk.i].wind * 0.7) P.face = dir;
   }
   else {
-    target = dir * MV.run * IN.mag * (P.crouch ? MV.crouchMul : 1) * (P.blocking ? MV.blockMul : 1);
+    target = dir * MV.run * SCALE.run * IN.mag * (P.crouch ? MV.crouchMul : 1) * (P.blocking ? MV.blockMul : 1);
     if (P.grounded && (dir === 0 || Math.sign(P.vx) === -dir || Math.abs(P.vx) > Math.abs(target))) accel = MV.decel;
     if (dir !== 0 && dir !== P.face && (!P.atk || FEEL.turn)){ P.face = dir; if (P.grounded && Math.abs(P.vx) > 1.5) ev(P, 'skid'); }
   }

@@ -22,7 +22,7 @@ const sp = spawnPoint();
 let P = newPlayer(sp.x, sp.y);
 const hero = { sprite: null, meta: null };
 // the warrior: one of the drawn options (?hero=a|b|c|d), falling back to the first, larger drawing
-const HEROES = { a: 'px_knight', b: 'px_hood', c: 'px_mask', d: 'px_hat' }, HERO = HEROES[new URLSearchParams(location.search).get('hero')] || HEROES.a;
+const HEROES = { masked: 'mask_tall_c', a: 'px_knight', b: 'px_hood', c: 'px_mask', d: 'px_hat' }, HERO = HEROES[new URLSearchParams(location.search).get('hero')] || HEROES.masked;   // the tall masked warrior; ?hero=a..d the small options
 const loadHero = name => fetch(`assets/side/${name}/sprite.json`).then(r => r.ok ? r.json() : Promise.reject()).then(meta => { hero.meta = meta; hero.sprite = makeSprite(R.scene, `assets/side/${name}`, meta); });
 loadHero(HERO).catch(() => loadHero('hero_a')).catch(() => loadHero('hero'));
 const fx = spawnFx(R.scene);
@@ -100,7 +100,7 @@ function frame(ts){
   const fight = BOSS && BOSS.active();
   CAM.zoom = 1;   // flat pixels are never scaled: the arena is framed by where the camera keeps
   CAM.lead += (P.face * 2.4 - CAM.lead) * Math.min(1, dt * 2.2);
-  let wantX = P.x + CAM.lead, wantY = P.y + 1.4 + (P.grounded ? 0 : Math.min(0, P.vy) * 0.08);
+  let wantX = P.x + CAM.lead, wantY = P.y + 1.8 + (P.grounded ? 0 : Math.min(0, P.vy) * 0.08);
   if (fight) wantY = Math.max(wantY, BOSS.stageY + 4.6);   // the stage near the bottom, the Warden's head near the top
   CAM.x += (wantX - CAM.x) * Math.min(1, dt * 5); CAM.y += (wantY - CAM.y) * Math.min(1, dt * (P.grounded ? 4 : 6));
   const halfH = VIEW_H / 2 * CAM.zoom, halfW = halfH * (R.size().w / R.size().h);
@@ -130,7 +130,7 @@ function onEvent(e){
     case 'slam': { sfx.slam(); fx.dust(at, 22, 3.6); fx.ring(at, 0xffd27a); const out = []; slamEnemies(E, P, MV.dive.radius, MV.dive.dmg, out); if (BOSS) BOSS.slam(P, MV.dive.radius, MV.dive.dmg, out); for (const o of out) onEvent(o); break; }
     case 'roll': sfx.whoosh(); fx.dust(at, 6, 2); break;
     case 'dive': sfx.whoosh(); break;
-    case 'strike': { sfx.slash(); fx.slash({ x: P.x + P.face * 0.9, y: P.y + 1.0 }, P.face, e.finisher); const out = []; strikeEnemies(E, P, WEAPONS.sword.reach, e.sw.dmg, out); if (BOSS) BOSS.strike(P, WEAPONS.sword.reach, e.sw.dmg, out); for (const o of out) onEvent(o); break; }
+    case 'strike': { sfx.slash(); fx.slash({ x: P.x + P.face * 1.0, y: P.y + 1.3 }, P.face, e.finisher); const out = []; strikeEnemies(E, P, WEAPONS.sword.reach, e.sw.dmg, out); if (BOSS) BOSS.strike(P, WEAPONS.sword.reach, e.sw.dmg, out); for (const o of out) onEvent(o); break; }
     case 'hit': sfx.hit(); fx.burst(e.at, e.heavy ? 18 : 12, 0xffe0a8); FEEL_FX.hitstop = e.heavy ? 0.09 : 0.05; FEEL_FX.shake = Math.max(FEEL_FX.shake, e.heavy ? 0.18 : 0.1); break;
     case 'kill': sfx.gold && sfx.gold(); fx.burst(e.at, 26, 0xff70d0); fx.ring(e.at, 0xffc0ff); FEEL_FX.hitstop = 0.1; break;
     case 'parry': sfx.parry(); fx.ring(e.at, 0x9fd0ff); FEEL_FX.hitstop = 0.12; break;
@@ -139,7 +139,7 @@ function onEvent(e){
     case 'tell': e.e.tellT = 0.6; break;
     case 'step': sfx.step(); break;
     case 'mantle': sfx.whoosh(); break;
-    case 'hurt': sfx.hurt(); fx.burst({ x: P.x, y: P.y + 1 }, 10, 0xff6060); break;
+    case 'hurt': sfx.hurt(); fx.burst({ x: P.x, y: P.y + 1.3 }, 10, 0xff6060); break;
     case 'skid': fx.dust(at, 4, 1.6); break;
     case 'bossWake': sfx.roar(); FEEL_FX.shake = 0.5; banner('The Warden', 'strike its fists when they rest'); break;
     case 'bossTell': sfx.creak(); break;

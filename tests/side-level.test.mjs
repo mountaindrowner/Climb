@@ -1,5 +1,5 @@
 // The side view's region can be played through: from the spawn, walking, dropping and jumping (a generous stand-in
-// for the motor: up to five tiles up and eight across with a double jump, the body three and a half tiles tall), every
+// for the motor: up to seven tiles up and nine across with a double jump, the body nearly five tiles tall), every
 // room is reached, and the shrine, the arena's stage and the way out. Guards the organic pass, which reshapes rooms.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -9,11 +9,12 @@ const { W, H, tiles, marks, rooms } = LEVEL;
 const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i];
 const solid = (i, j) => at(i, j) === ROCK;
 const support = (i, j) => { const t = at(i, j); return t === ROCK || t === LEDGE; };
-const BODY = 4;   // tiles tall, rounded up
+const BODY = 5;   // tiles tall, rounded up (he is 2.4 units: 4.8 tiles)
 const roomy = (i, j) => { for (let d = 0; d < BODY; d++) if (solid(i, j + d)) return false; return true; };
-const stand = (i, j) => at(i, j) !== ROCK && at(i, j) !== 3 && support(i, j - 1) && roomy(i, j);
+// he is 0.68 wide: where he stands, a column beside also has to be clear to his height
+const stand = (i, j) => at(i, j) !== ROCK && at(i, j) !== 3 && support(i, j - 1) && roomy(i, j) && (roomy(i - 1, j) || roomy(i + 1, j));
 // crouched or rolling he fits under three tiles: he can go along there, not jump
-const low = (i, j) => { if (at(i, j) === ROCK || at(i, j) === 3 || !support(i, j - 1)) return false; for (let d = 0; d < 3; d++) if (solid(i, j + d)) return false; return true; };
+const low = (i, j) => { if (at(i, j) === ROCK || at(i, j) === 3 || !support(i, j - 1)) return false; for (let d = 0; d < 3; d++) if (solid(i, j + d)) return false; return true; };   // crouched 1.4: three tiles
 
 function reach(edges){
   const sp = marks.find(m => m.type === 'spawn'); let s = { i: sp.x, j: sp.y };
@@ -31,7 +32,7 @@ function reach(edges){
       for (const dj of [1, 0]) if (roomy(i + dir, j + dj) && (dj === 0 || roomy(i, j + 1))) push(i + dir, j + dj);
       if (roomy(i + dir, j)) { const fj = fall(i + dir, j); push(i + dir, fj); }
       // jump: up, across, down onto a floor or ledge
-      for (let dx = 1; dx <= 8; dx++) for (let dy = -12; dy <= 5; dy++){
+      for (let dx = 1; dx <= 9; dx++) for (let dy = -12; dy <= 7; dy++){   // a double jump now rises 3.8 (seven tiles)
         const ti = i + dir * dx, tj = j + dy; if (!stand(ti, tj)) continue;
         const peak = Math.max(j, tj);   // feet just clear the higher of the two
         if (clear(i, i, j, peak + BODY - 1) && clear(i, ti, peak, peak + BODY - 1) && clear(ti, ti, tj, peak + BODY - 1)) push(ti, tj);
@@ -39,7 +40,7 @@ function reach(edges){
     }
     if (!stand(i, j)) continue;
     // straight up through a ledge above
-    for (let dy = 1; dy <= 5; dy++) if (stand(i, j + dy) && clear(i, i, j, j + dy + BODY - 1)) push(i, j + dy);
+    for (let dy = 1; dy <= 7; dy++) if (stand(i, j + dy) && clear(i, i, j, j + dy + BODY - 1)) push(i, j + dy);
     // drop through the ledge underfoot
     if (at(i, j - 1) === LEDGE){ const fj = fall(i, j - 1); push(i, fj); }
   }

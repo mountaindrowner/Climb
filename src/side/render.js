@@ -396,7 +396,7 @@ export function makeSprite(scene, base, meta){
     const w = A.w / ppu, h = A.h / ppu;
     plane.scale.set(w * (face < 0 ? -1 : 1), h, 1);
     // its feet (the painted bottom) on y, its middle on x; turned (a somersault) about its middle, not its feet
-    const PIV = 0.85, ox = (A.w / 2 - A.cx) / ppu * (face < 0 ? -1 : 1), oy = A.foot / ppu - h / 2 - 0.02 - PIV, c = Math.cos(rot), s = Math.sin(rot);
+    const PIV = meta.anims.stand ? meta.anims.stand.h / ppu * 0.45 : 0.85, ox = (A.w / 2 - A.cx) / ppu * (face < 0 ? -1 : 1), oy = A.foot / ppu - h / 2 - 0.02 - PIV, c = Math.cos(rot), s = Math.sin(rot);
     plane.position.set(ox * c - oy * s, ox * s + oy * c, 0); plane.rotation.z = rot;
     g.position.set(Math.round(x * PPU) / PPU, Math.round((y + PIV) * PPU) / PPU, z);
   };

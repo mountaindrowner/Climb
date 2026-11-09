@@ -446,5 +446,41 @@
     "group": "76724164-ec02-471c-950d-9d8a0515f678"
    }
   }
+ },
+ "mask_tall_a": {
+  "id": "55798f6b-a980-401f-9637-9b3d8d8ca456",
+  "description": "a tall slender masked warrior with long legs, a white bone mask, a long red scarf trailing behind, dark leather armor, a curved blade, elegant Castlevania-style heroic proportions, simple stylized chunky pixel art with few colors and bold shapes, seen from the side, 2D platformer hero",
+  "anims": {}
+ },
+ "mask_tall_b": {
+  "id": "ad68f16e-d4a0-41df-b031-c50599d86623",
+  "description": "a tall lean hunter in a white bone mask and a long tattered red scarf, a dark long coat, long legs, a curved sword at the side, classic gothic action game hero proportions, simple stylized chunky pixel art with few colors and bold shapes, seen from the side, 2D platformer hero",
+  "anims": {}
+ },
+ "mask_tall_c": {
+  "id": "d7a74957-c00a-4100-869a-2dc1c65c80e2",
+  "description": "a white bone mask covering the whole face, worn by a tall slender warrior with long legs, a long red scarf, dark leather armor and a curved blade, Castlevania-style proportions, simple stylized chunky pixel art with few colors and bold shapes, seen from the side, 2D platformer hero",
+  "anims": {
+   "idle": {
+    "action": "template:breathing-idle",
+    "frames": 6,
+    "group": "2e2e9740-47c6-4e5d-8368-fa7e9d3bfcbe"
+   },
+   "run": {
+    "action": "template:running-6-frames",
+    "frames": 6,
+    "group": "541bf2cd-9720-432a-87f3-ffc91077a54c"
+   },
+   "jump": {
+    "action": "template:jumping-1",
+    "frames": 6,
+    "group": "ce8d8cb3-0dcb-44a8-8cfb-67e8ebb4d7a6"
+   }
+  }
+ },
+ "mask_tall_d": {
+  "id": "ce94fca7-c58b-4ae5-9de2-ca5bfd8b1316",
+  "description": "a tall lean masked swordsman whose face is hidden behind a white skull mask with dark eye holes, a red scarf, dark armor, long legs, a curved sword, gothic action game proportions, simple stylized chunky pixel art with few colors and bold shapes, seen from the side, 2D platformer hero",
+  "anims": {}
  }
 }
