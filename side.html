@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0d0b12">
+<title>The Climb · side</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="src/ui/styles.css">
+</head>
+<body>
+<div id="app">
+  <div id="rotate" role="alert"><div class="icon" aria-hidden="true">⟲</div>Turn your phone sideways to climb.</div>
+  <div id="stage">
+    <canvas id="gl"></canvas>
+    <canvas id="hud"></canvas>
+    <div id="overlay" role="dialog" aria-live="polite"></div>
+  </div>
+  <div id="pad">
+    <div class="col left">
+      <div id="stick" class="stick" role="group" aria-label="Move: left and right along the stair, down to crouch">
+        <span class="arrow l" aria-hidden="true">◀</span><span class="arrow r" aria-hidden="true">▶</span><span class="arrow d" aria-hidden="true">▼</span>
+        <span class="knob" aria-hidden="true"></span>
+      </div>
+    </div>
+    <div class="col mid">
+      <button class="btn flask" data-k="flask" aria-label="Drink flask">flask<span class="pips" id="pips">●●●</span></button>
+    </div>
+    <div class="col right">
+      <button class="btn round b" data-k="block" aria-label="Block">B<small>block</small></button>
+      <button class="btn round roll" data-k="roll" aria-label="Roll">⟳<small>roll</small></button>
+      <button class="btn round a" data-k="attack" aria-label="Attack">A<small>attack</small></button>
+      <button class="btn round jump" data-k="jump" aria-label="Jump or use">▲<small>jump</small></button>
+    </div>
+  </div>
+</div>
+<script src="vendor/three/three.min.js"></script>
+<script src="vendor/three/GLTFLoader.js"></script>
+<script>
+  if (!window.THREE){
+    var o = document.getElementById('overlay');
+    o.innerHTML = '<div class="card"><h2>The 3D engine did not load</h2><p class="sub">vendor/three/three.min.js is missing. Reload the page.</p></div>';
+    o.classList.add('show');
+  }
+</script>
+<script type="module" src="src/side/main.js"></script>
+</body>
+</html>

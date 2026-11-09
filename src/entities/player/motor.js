@@ -25,7 +25,8 @@ import { atRubble } from '../../world/forks.js';
 const atWall = G => G.grounded && G.s < BR_BASE && ((!ST.practice && hallAt(G.s) && !hallAt(G.s).broken) || atRubble(G));
 const MV = TUNE.move;
 // The feel panel's switches (ui/feel.js): each Dead Cells assist on or off, to compare by feel
-export const FEEL = { coyote: true, buffer: true, doubleJump: true, launch: true, airFade: true, ledge: true, aim: true, turn: true, rollCancel: true, dive: true };
+import { FEEL } from '../../config/feel.js';
+export { FEEL };
 // the launch speed that rises exactly `height` under the arc's own gravity (eased in at take-off, the hang at the top),
 // found by trying: so jumpHeight stays the height of a held jump whatever the launch feels like
 const V0 = new Map();

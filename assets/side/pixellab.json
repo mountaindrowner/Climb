@@ -1,0 +1,38 @@
+{
+ "hero": {
+  "id": "17785dfe-e8d7-4c6b-9c33-e2c0e3657fb8",
+  "description": "a gaunt undead skeleton warrior in a battered iron bucket helm with a narrow eye slit, a long ragged dark-red cape and scarf, rusted pauldrons, holding a long two-handed greatsword, dark fantasy, side view game sprite",
+  "anims": {
+   "run": {
+    "action": "running fast, a full sprint cycle, greatsword held low at his side, cape streaming behind",
+    "frames": 8,
+    "group": "8941225d-1918-4d57-a1cb-e9499e795a0b"
+   },
+   "idle": {
+    "action": "standing in a battle-ready guard, breathing slowly, greatsword held ready in front, cape stirring",
+    "frames": 8,
+    "group": "6642c2ce-1693-4642-8bc7-82fb82087773"
+   },
+   "sprint": {
+    "action": "sprinting at full speed, leaning forward, long powerful strides, greatsword held back low, cape streaming far behind",
+    "frames": 8,
+    "group": "556ca5c3-da7d-40f0-9562-05a02578d1ee"
+   },
+   "jump": {
+    "action": "leaping upward, knees tucked, greatsword raised, cape flaring",
+    "frames": 6,
+    "group": "e05faffd-9ff7-4be4-b8e6-921dfa5fd1ba"
+   },
+   "fall": {
+    "action": "falling through the air, legs reaching down, cape billowing upward",
+    "frames": 4,
+    "group": "5001d13c-d6d6-4d5d-9f67-9588bc2a607b"
+   },
+   "roll": {
+    "action": "a fast forward combat roll, tucked into a ball, tumbling forward and rising back to his feet",
+    "frames": 8,
+    "group": "92954608-5ab3-4176-9a64-4829f6397c53"
+   }
+  }
+ }
+}

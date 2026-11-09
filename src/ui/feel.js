@@ -1,7 +1,7 @@
 // The feel panel (F9, or #feel / ?feel=1 on the page): each of the movement assists on or off while you play, to feel
 // what it does, the way the Dead Cells developer's own game-feel demo works (deepnight/gamefeel). Not saved: a reload
 // turns everything back on.
-import { FEEL } from '../entities/player/motor.js';
+import { FEEL } from '../config/feel.js';
 import { FEEL_INPUT } from '../core/input.js';
 
 const ROWS = [
