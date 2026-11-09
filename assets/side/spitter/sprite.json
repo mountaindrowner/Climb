@@ -1,0 +1,19 @@
+{
+ "name": "spitter",
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 96,
+   "h": 96,
+   "foot": 89,
+   "cx": 48.5
+  },
+  "charge": {
+   "frames": 9,
+   "w": 116,
+   "h": 116,
+   "foot": 99,
+   "cx": 58.5
+  }
+ }
+}

@@ -1,0 +1,26 @@
+{
+ "name": "crawler",
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 96,
+   "h": 96,
+   "foot": 92,
+   "cx": 49.0
+  },
+  "walk": {
+   "frames": 9,
+   "w": 124,
+   "h": 124,
+   "foot": 106,
+   "cx": 63.0
+  },
+  "attack": {
+   "frames": 9,
+   "w": 124,
+   "h": 124,
+   "foot": 107,
+   "cx": 63.0
+  }
+ }
+}

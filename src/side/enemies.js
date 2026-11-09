@@ -36,7 +36,7 @@ export function spawnEnemies(scene){
   const orbMat = new THREE.MeshBasicMaterial({ color: 0x9dff70 });
   return { list, orbGeo: new THREE.SphereGeometry(0.18, 8, 6), orbMat, scene };
 }
-const anim = (e, name, frac) => { if (!e.sprite) return; const A = e.meta.anims; const n = A[name] ? name : Object.keys(A).find(k => k !== 'stand') || 'stand'; e.sprite.show(n, frac, e.x, e.y, e.face, 0.03); };
+const anim = (e, name, frac) => { if (!e.sprite) return; const A = e.meta.anims; const n = A[name] ? name : Object.keys(A).find(k => k !== 'stand') || 'stand'; e.sprite.show(n, frac, e.x, e.d.fly ? e.y - e.d.h * 0.7 : e.y, e.face, 0.03); };
 
 export function stepEnemies(E, P, dt, fx, events){
   for (const e of E.list){
@@ -143,4 +143,15 @@ export function strikeEnemies(E, P, reach, dmg, events){
     if (e.hp <= 0) killEnemy(e, events);
   }
   return any;
+}
+// his plunge landing: everything close around where he lands
+export function slamEnemies(E, P, radius, dmg, events){
+  for (const e of E.list){
+    if (!e.alive || (e.type === 'burrower' && !(e.st === 'rise' || e.st === 'up'))) continue;
+    if (Math.abs(e.x - P.x) > radius + e.d.w || e.y > P.y + 1.2 || e.y + e.d.h < P.y - 0.8) continue;
+    e.hp -= dmg; e.flash = 0.12; e.x += Math.sign(e.x - P.x || 1) * 0.5;
+    if (e.type === 'crawler'){ e.st = 'stunned'; e.tm = 0; e.stun = 0.8; }
+    events.push({ type: 'hit', e, at: { x: e.x, y: e.y + e.d.h / 2 }, heavy: true });
+    if (e.hp <= 0) killEnemy(e, events);
+  }
 }

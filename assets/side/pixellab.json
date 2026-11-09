@@ -72,18 +72,29 @@
   }
  },
  "flitter": {
-  "id": "83533981-87ee-4c55-a1ac-5834981234b8",
-  "description": "a ragged cave bat with leathery tattered wings, glowing amber eyes, fangs, side view game enemy sprite",
+  "id": "bafa6835-5604-4f09-bb30-16bb2d29f45e",
+  "description": "a ragged cave bat flying with its leathery wings spread wide open, glowing amber eyes, bared fangs, side view game enemy sprite",
+  "anims": {}
+ },
+ "spitter": {
+  "id": "875dc390-9568-40e0-9fd4-e014eb8d374e",
+  "description": "a bloated glowing green sac creature with spindly insect legs clinging to a wall, a puckered mouth, toxic glow, side view game enemy sprite",
   "anims": {
-   "fly": {
-    "action": "flapping its wings, hovering in the air",
-    "frames": 6,
-    "group": "0fcc26c0-36dd-4993-be0d-780651ad9d6b"
-   },
-   "dive": {
-    "action": "folding its wings and diving forward to bite",
-    "frames": 6,
-    "group": "2311bdcd-7fd2-4595-b587-09690f197dd5"
+   "charge": {
+    "action": "swelling up, its sac glowing brighter, then spitting a glob forward",
+    "frames": 8,
+    "group": "dc26469e-d30e-49f5-b915-e0185b4d028c"
+   }
+  }
+ },
+ "burrower": {
+  "id": "36225629-d829-4741-a310-da622ecaaa2c",
+  "description": "a huge eyeless worm-like burrowing creature with a round maw of spiked jaws bursting up out of the ground, grey-brown armored segments, side view game enemy sprite",
+  "anims": {
+   "snap": {
+    "action": "bursting up out of the ground and snapping its spiked jaws shut",
+    "frames": 8,
+    "group": "a5fb46e8-939a-45a1-95cf-aaaf13280fcc"
    }
   }
  }

@@ -64,7 +64,7 @@ export function makeRenderer(canvas){
   const side = new THREE.MeshLambertMaterial({ color: 0x1b2d52 }), mossTop = new THREE.MeshLambertMaterial({ color: 0x1f4a52, emissive: 0x041612 }), hidden = new THREE.MeshBasicMaterial({ color: 0x0b1024 });
   const exposedTop = s => tileAt(s.i, s.j + 1) !== ROCK;
   for (const top of [true, false]){
-    const set = rocks.filter(s => exposedTop(s) === top);
+    const set = rocks.filter(s => !s.deep && exposedTop(s) === top);   // rock walled in on every side shows no side
     const mesh = new THREE.InstancedMesh(new THREE.BoxGeometry(T, T, DEPTH), [side, side, top ? mossTop : side, side, hidden, side], Math.max(1, set.length));
     set.forEach((s, k) => { dummy.position.set((s.i + 0.5) * T, (s.j + 0.5) * T, -DEPTH / 2 - 0.01); dummy.updateMatrix(); mesh.setMatrixAt(k, dummy.matrix); });
     scene.add(mesh);
@@ -81,17 +81,20 @@ export function makeRenderer(canvas){
       const NW = tileAt(vx - 1, vy) === ROCK, NE = tileAt(vx, vy) === ROCK, SW = tileAt(vx - 1, vy - 1) === ROCK, SE = tileAt(vx, vy - 1) === ROCK;
       if (!(NW || NE || SW || SE)) continue;
       const key = [NW, NE, SW, SE].map(Number).join(''), n = byKey.get(key); if (n == null) continue;
-      const deep = Math.min(...[[vx - 1, vy], [vx, vy], [vx - 1, vy - 1], [vx, vy - 1]].map(([a, b]) => depthTo.get(a + ',' + b) ?? 0));
+      const deep = [[vx - 1, vy], [vx, vy], [vx - 1, vy - 1], [vx, vy - 1]].reduce((s, [a, b]) => s + (depthTo.get(a + ',' + b) ?? 0), 0) / 4;   // the mean, so the dark comes on gradually
       (groups.get(n) || groups.set(n, []).get(n)).push({ x: vx * T, y: vy * T, deep });
     }
     for (const [n, list] of groups){
       const tex = new THREE.TextureLoader().load(`assets/side/tiles/stone/tile_${String(n).padStart(2, '0')}.png`); tex.magFilter = tex.minFilter = THREE.NearestFilter; tex.generateMipmaps = false;
       const mesh = new THREE.InstancedMesh(new THREE.PlaneGeometry(T, T), new THREE.MeshLambertMaterial({ map: tex, alphaTest: 0.5 }), list.length);
-      list.forEach((p, k) => { dummy.position.set(p.x, p.y, 0); dummy.updateMatrix(); mesh.setMatrixAt(k, dummy.matrix); const v = [1, 1, 0.78, 0.5, 0.3][p.deep]; col.setRGB(v, v, v); mesh.setColorAt(k, col); });
+      list.forEach((p, k) => { dummy.position.set(p.x, p.y, 0); dummy.updateMatrix(); mesh.setMatrixAt(k, dummy.matrix); const q = Math.min(3, Math.floor(p.deep)), f = p.deep - q, A = SHADE[q], B = SHADE[q + 1]; col.setRGB(A[0] + (B[0] - A[0]) * f, A[1] + (B[1] - A[1]) * f, A[2] + (B[2] - A[2]) * f); mesh.setColorAt(k, col); });
       scene.add(mesh);
     }
   });
   const col = new THREE.Color();
+  // the face's tint by depth: the edges keep the tiles' own colour nudged toward the cavern's teal, the inside sinks
+  // into a dark silhouette so the lit edges read
+  const SHADE = [[0.86, 1, 1], [0.8, 0.95, 1], [0.4, 0.52, 0.6], [0.26, 0.32, 0.42], [0.18, 0.22, 0.31]];
   const ledges = shown.filter(s => s.t === LEDGE), ledgeMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(T * 1.02, T * 0.32, DEPTH * 0.7), ledgeMat, Math.max(1, ledges.length));
   ledges.forEach((s, k) => { dummy.position.set((s.i + 0.5) * T, (s.j + 1) * T - T * 0.16, -DEPTH * 0.35); dummy.updateMatrix(); ledgeMesh.setMatrixAt(k, dummy.matrix); });
   scene.add(ledgeMesh);
@@ -107,7 +110,7 @@ export function makeRenderer(canvas){
   const back = new THREE.Mesh(new THREE.PlaneGeometry(backH * 400 / 224, backH), new THREE.MeshBasicMaterial({ map: farTex, fog: false, color: 0x7a86a8 }));
   scene.add(back);
   // ---- marks: torches (a warm flame and light) and crystals (a cold glow), all bright enough to bloom
-  const flames = [], lights = [];
+  const flames = [], lights = [], exits = [];
   const torchGlow = glowTex('rgba(255,170,60,1)'), crystalGlow = glowTex('rgba(80,240,255,1)');
   for (const m of LEVEL.marks){
     const x = (m.x + 0.5) * T, y = m.y * T;
@@ -124,9 +127,18 @@ export function makeRenderer(canvas){
       gl.position.set(x, y + 0.45, -0.5); scene.add(gl); flames.push({ m: gl, base: y + 0.45, ph: rnd() * 9, slow: true });
       lights.push({ x, y: y + 0.5, color: 0x40e0ff, power: 1.2, range: 6, ph: rnd() * 9 });
     }
-    if (m.type === 'exit'){
+    if (m.type === 'exit'){   // the way on: shut (hidden) until the Warden falls
       const arch = new THREE.Mesh(new THREE.TorusGeometry(0.9, 0.12, 6, 16, Math.PI), new THREE.MeshBasicMaterial({ color: 0xffe9a8 })); arch.position.set(x, y + 0.1, -0.6); scene.add(arch);
-      lights.push({ x, y: y + 1, color: 0xffe0a0, power: 2, range: 8, ph: 0 });
+      const gl = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 3.2), new THREE.MeshBasicMaterial({ map: torchGlow, transparent: true, depthWrite: false, color: 0xffe0a0, blending: THREE.AdditiveBlending, opacity: 0.7 })); gl.position.set(x, y + 0.9, -0.55); scene.add(gl);
+      const light = { x, y: y + 1, color: 0xffe0a0, power: 2.4, range: 9, ph: 0, off: true }; lights.push(light);
+      arch.visible = gl.visible = false; exits.push({ x, y, set(on){ arch.visible = gl.visible = on; light.off = !on; } });
+    }
+    if (m.type === 'shrine'){   // a gold crystal on a plinth: it fills the flask and is where you wake
+      const plinth = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.35, 0.6), new THREE.MeshLambertMaterial({ color: 0x5a5470 })); plinth.position.set(x, y + 0.17, -0.5); scene.add(plinth);
+      const cr = new THREE.Mesh(new THREE.OctahedronGeometry(0.34), new THREE.MeshBasicMaterial({ color: 0xffd27a })); cr.scale.set(0.8, 1.9, 0.8); cr.position.set(x, y + 1.05, -0.5); scene.add(cr);
+      const gl = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 2.6), new THREE.MeshBasicMaterial({ map: torchGlow, transparent: true, depthWrite: false, color: 0xffd27a, blending: THREE.AdditiveBlending, opacity: 0.6 }));
+      gl.position.set(x, y + 1.05, -0.45); scene.add(gl); flames.push({ m: gl, base: y + 1.05, ph: rnd() * 9, slow: true }); flames.push({ m: cr, base: y + 1.05, ph: rnd() * 9, slow: true });
+      lights.push({ x, y: y + 1.2, color: 0xffc860, power: 1.8, range: 7, ph: rnd() * 9 });
     }
   }
   // ---- the air: motes of light drifting through the dark, and soft shafts of light falling through every opening in a
@@ -174,14 +186,19 @@ export function makeRenderer(canvas){
   addEventListener('resize', resize); resize();
   const cam = { x: 0, y: 0 };
   return {
-    scene, camera, dist, size: () => size,
-    setCamera(x, y){ cam.x = x; cam.y = y; camera.position.set(x, y + 0.3, dist); camera.lookAt(x, y, 0); back.position.set(x - (x - W / 2) * 0.08, y - (y - Hh / 2) * 0.08, BACK_Z); },
+    scene, camera, dist, exits, size: () => size,
+    // zoom > 1 draws the camera back (the arena): the far wall and the fog go back with it
+    setCamera(x, y, zoom = 1){
+      cam.x = x; cam.y = y; const d = dist * zoom; camera.position.set(x, y + 0.3, d); camera.lookAt(x, y, 0);
+      back.position.set(x - (x - W / 2) * 0.08, y - (y - Hh / 2) * 0.08, BACK_Z); back.scale.setScalar((d - BACK_Z) / (dist - BACK_Z));
+      scene.fog.near = d + 2; scene.fog.far = d + 46;
+    },
     frame(t, hero){
       resize();
       for (const o of motes){ o.m.position.x += (o.vx + Math.sin(t * 0.7 + o.ph) * 0.05) * 0.016; o.m.position.y += o.vy * 0.016; if (o.m.position.y > cam.y + 7) o.m.position.y = cam.y - 7; if (Math.abs(o.m.position.x - cam.x) > 12) o.m.position.x = cam.x + (rnd() - 0.5) * 22; o.m.material.opacity = 0.5 + 0.5 * Math.sin(t * 2 + o.ph); }
       for (const f of flames){ const k = f.slow ? 0.06 : 0.12; f.m.scale.setScalar(1 + Math.sin(t * (f.slow ? 2 : 13) + f.ph) * k + (f.slow ? 0 : Math.sin(t * 7.3 + f.ph) * 0.06)); }
       // the nearest lights get the pool
-      const near = lights.map(l => ({ l, d: Math.hypot(l.x - cam.x, l.y - cam.y) })).sort((a, b) => a.d - b.d);
+      const near = lights.filter(l => !l.off).map(l => ({ l, d: Math.hypot(l.x - cam.x, l.y - cam.y) })).sort((a, b) => a.d - b.d);
       pool.forEach((L, k) => { const n = near[k]; if (!n || n.d > 16){ L.intensity = 0; return; } L.position.set(n.l.x, n.l.y, 0.9); L.color.setHex(n.l.color); L.distance = n.l.range; L.intensity = n.l.power * (1 + Math.sin(t * 11 + n.l.ph) * 0.06); });
       if (hero) heroLight.position.set(hero.x, hero.y + 1.4, 1.6);
       renderer.setRenderTarget(main); renderer.clear(); renderer.render(scene, camera);

@@ -1,0 +1,19 @@
+{
+ "name": "burrower",
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 128,
+   "h": 128,
+   "foot": 128,
+   "cx": 64.0
+  },
+  "snap": {
+   "frames": 9,
+   "w": 180,
+   "h": 180,
+   "foot": 154,
+   "cx": 90.0
+  }
+ }
+}

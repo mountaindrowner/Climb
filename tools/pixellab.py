@@ -11,6 +11,7 @@
 #        assets/side/<name>/<anim>.png (frames left to right) + assets/side/<name>/sprite.json
 #   python3 tools/pixellab.py image <file> "<description>" <w> <h> [alpha]     -> assets/side/<file>.png (backgrounds, props)
 #   python3 tools/pixellab.py tileset <file> "<material>" "<top layer>"        -> assets/side/<file>/ (32px side-scroller tiles)
+#   python3 tools/pixellab.py unbg <file>                                      -> clears a flat backdrop the image came with
 import json, os, sys, time, io, zipfile, urllib.request
 API = 'https://api.pixellab.ai/v2'
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.normpath(os.path.join(HERE, '..'))
@@ -87,6 +88,20 @@ def image(fname, desc, w, h, alpha=False):
     if not b: print('no image in', json.dumps(r)[:600]); return
     path = os.path.join(OUT, fname + '.png'); os.makedirs(os.path.dirname(path), exist_ok=True)
     open(path, 'wb').write(base64.b64decode(b.split(',')[-1])); print('wrote', path, r.get('usage'))
+def unbg(fname, tol=26):
+    """an image asked for without a background sometimes comes on a flat one: flood it away from the border"""
+    from PIL import Image
+    path = os.path.join(OUT, fname + '.png'); im = Image.open(path).convert('RGBA'); px = im.load(); w, h = im.size
+    seen = set(); stack = [(x, y) for x in range(w) for y in (0, h - 1)] + [(x, y) for y in range(h) for x in (0, w - 1)]
+    ref = [px[x, y] for x, y in stack if px[x, y][3] > 0]
+    if not ref: print('already clear', fname); return
+    bg = max(set(ref), key=ref.count)
+    near = lambda c: c[3] == 0 or sum(abs(c[i] - bg[i]) for i in range(3)) <= tol
+    while stack:
+        x, y = stack.pop()
+        if (x, y) in seen or not (0 <= x < w and 0 <= y < h) or not near(px[x, y]): continue
+        seen.add((x, y)); px[x, y] = (0, 0, 0, 0); stack += [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+    im.save(path); print('cleared', len(seen), 'pixels of', bg, 'from', fname)
 def tileset(fname, lower, top):
     import base64
     r = call('POST', '/create-tileset-sidescroller', {'lower_description': lower, 'transition_description': top, 'tile_size': {'width': 32, 'height': 32}, 'transition_size': 0.25 if top else 0.0, 'detail': 'highly detailed'})
@@ -113,4 +128,5 @@ if __name__ == '__main__':
     elif cmd == 'animate': animate(a[0], a[1], a[2], a[3] if len(a) > 3 else 8)
     elif cmd == 'pull': pull(a[0])
     elif cmd == 'image': image(a[0], a[1], a[2], a[3], len(a) > 4 and a[4] == 'alpha')
+    elif cmd == 'unbg': unbg(a[0])
     elif cmd == 'tileset': tileset(a[0], a[1], a[2] if len(a) > 2 else '')
