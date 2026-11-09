@@ -71,7 +71,9 @@ export function update(o, dt){
     o.tm += dt;
     if (o.tm >= T.charge){
       // aim is locked here: the glob flies straight at where his head will be as it arrives, if he keeps on as he is
-      const from = mouthWorld(o), eta = from.distanceTo(head(1.2)) / T.speed, to = headAhead(eta, 1.2), v = to.clone().sub(from).normalize().multiplyScalar(T.speed);
+      const from = mouthWorld(o); let to = head(1.2);
+      for (let i = 0; i < 4; i++) to = headAhead(from.distanceTo(to) / T.speed, 1.2);   // the lead, refined: where he will be when a glob aimed there arrives
+      const v = to.clone().sub(from).normalize().multiplyScalar(T.speed);
       o.orb = { p: from, v, t: 0 }; o.st = 'idle'; o.cd = T.cooldown; o.recoil = 0.18; o.fired = true; sfx.spit();
     }
   }
