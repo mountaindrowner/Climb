@@ -109,11 +109,13 @@ function paintPlay(art){
   }
   g.putImageData(out, 0, 0);
   const r = rng(99), Y = j => (Hc - j) * CELL;   // the canvas y of the bottom of row j (= the top of row j - 1)
-  // moss in tufts along lips, a few pixels, not a carpet
-  for (let py = 1; py < ph; py++) for (let px = 0; px < pw; px++){
-    const k = py * pw + px; if (!mask[k] || mask[k - pw] || n2(px / 7, py / 7) < 0.62) continue;
-    const hgt = 1 + Math.floor(r() * 3); g.fillStyle = r() < 0.5 ? '#2fae96' : '#57d6b4';
-    if (r() < 0.55) g.fillRect(px, py - hgt + 1, 1, hgt);
+  // moss in low clumps along lips, now and then a drip down the face below: patches, not a carpet
+  for (let py = 1; py < ph - 6; py++) for (let px = 2; px < pw - 6; px++){
+    const k = py * pw + px; if (!mask[k] || mask[k - pw] || n2(px / 11, py / 11) < 0.6 || r() > 0.22) continue;
+    const w = 2 + Math.floor(r() * 4);
+    g.fillStyle = '#1d6e66'; g.fillRect(px, py, w, 2);
+    g.fillStyle = '#3fb89c'; g.fillRect(px + 1, py - 1, Math.max(1, w - 2), 1);
+    if (r() < 0.25){ g.fillStyle = '#1d6e66'; g.fillRect(px + Math.floor(w / 2), py + 2, 1, 1 + Math.floor(r() * 4)); }
   }
   // ledges: planks with a lit top, seams, nails and a dark underside
   for (let j = 0; j < Hc; j++){
@@ -276,6 +278,21 @@ export function makeRenderer(canvas){
       }
     }
     canvasPlanes(scene, play, 0, Hh, 0, true);
+    // the foreground: a few dark shapes in front, faster than the world, low at the foot of the larger rooms
+    const sil = {}; for (const n of ['stalagmites', 'rubble', 'roots', 'mushrooms']) if (deco[n]) sil[n] = shaded(deco[n], 0.08, [1, 1.2, 1.8]);
+    const fr = rng(555);
+    for (const room of LEVEL.rooms){
+      const spots = [];
+      for (let j = room.ty0 + 1; j < room.ty1 - 4; j++) for (let i = room.tx0 + 2; i < room.tx1 - 2; i++)
+        if (tileAt(i, j) === EMPTY && tileAt(i, j - 1) === ROCK && tileAt(i - 2, j - 1) === ROCK && tileAt(i + 2, j - 1) === ROCK && !LEVEL.marks.some(m => Math.abs(m.x - i) < 4 && Math.abs(m.y - j) < 4)) spots.push([i, j]);
+      for (let n = 0; n < 2 && spots.length; n++){
+        const [i, j] = spots.splice(Math.floor(fr() * spots.length), 1)[0], keys = Object.keys(sil), img = sil[keys[Math.floor(fr() * keys.length)]]; if (!img) continue;
+        const m = new THREE.Mesh(new THREE.PlaneGeometry(img.width * 2 / PPU, img.height * 2 / PPU), new THREE.MeshBasicMaterial({ map: canvasTex(img), transparent: true, alphaTest: 0.5 }));
+        if (fr() < 0.5) m.scale.x = -1;
+        const ax = (i + 0.5) * T, ay = j * T + img.height / PPU - 0.6;
+        m.position.set(ax, ay, 5); scene.add(m); layers.push({ obj: m, f: 1.25, ax, ay });
+      }
+    }
   })();
   // the way on: shut until the Warden falls
   for (const m of LEVEL.marks) if (m.type === 'exit'){

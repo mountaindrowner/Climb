@@ -21,6 +21,7 @@ const DEF = {
   spitter:  { hp: 2, w: 0.5, h: 0.6, color: 0x70ff70, range: 8, charge: 0.7, speed: 8, cooldown: 2.0, art: 'spitter', fly: true },
   burrower: { hp: 2, w: 0.6, h: 1.1, color: 0xd0a070, wake: 6, plough: 6, rise: 0.3, up: 1.4, art: 'burrower', fly: false },
 };
+const ART = { crawler: ['crawler3', 'crawler2', 'crawler'], flitter: ['flitter2', 'flitter'], spitter: ['spitter2', 'spitter'], burrower: ['burrower2', 'burrower'] };
 export function spawnEnemies(scene){
   const list = [];
   for (const m of LEVEL.marks){
@@ -30,7 +31,10 @@ export function spawnEnemies(scene){
     // a stand-in until the art loads: a glowing shape
     e.stand = new THREE.Mesh(new THREE.PlaneGeometry(d.w * 2, d.h), new THREE.MeshBasicMaterial({ color: d.color }));
     scene.add(e.stand);
-    fetch(`assets/side/${d.art}/sprite.json`).then(r => r.ok ? r.json() : null).then(meta => { if (meta){ e.sprite = makeSprite(scene, `assets/side/${d.art}`, meta); e.meta = meta; e.stand.visible = false; } }).catch(() => {});
+    // the newest drawing that is there (drawn flat, at the game's pixel scale), else the first
+    const tryArt = names => { if (!names.length) return; const n = names[0];
+      fetch(`assets/side/${n}/sprite.json`).then(r => r.ok ? r.json() : null).then(meta => { if (meta && Object.keys(meta.anims).length > 1){ e.sprite = makeSprite(scene, `assets/side/${n}`, meta); e.meta = meta; e.stand.visible = false; } else tryArt(names.slice(1)); }).catch(() => tryArt(names.slice(1))); };
+    tryArt(ART[m.type] || [d.art]);
     list.push(e);
   }
   const orbMat = new THREE.MeshBasicMaterial({ color: 0x9dff70 });

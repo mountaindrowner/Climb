@@ -1,0 +1,27 @@
+{
+ "name": "crawler2",
+ "ppu": 32,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 64,
+   "h": 64,
+   "foot": 56,
+   "cx": 33.5
+  },
+  "attack": {
+   "frames": 7,
+   "w": 84,
+   "h": 84,
+   "foot": 67,
+   "cx": 43.5
+  },
+  "walk": {
+   "frames": 7,
+   "w": 84,
+   "h": 84,
+   "foot": 67,
+   "cx": 43.5
+  }
+ }
+}

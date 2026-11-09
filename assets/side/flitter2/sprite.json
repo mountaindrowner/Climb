@@ -1,0 +1,27 @@
+{
+ "name": "flitter2",
+ "ppu": 32,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 48,
+   "h": 48,
+   "foot": 45,
+   "cx": 22.0
+  },
+  "dive": {
+   "frames": 7,
+   "w": 64,
+   "h": 64,
+   "foot": 53,
+   "cx": 30.0
+  },
+  "fly": {
+   "frames": 7,
+   "w": 64,
+   "h": 64,
+   "foot": 53,
+   "cx": 30.0
+  }
+ }
+}

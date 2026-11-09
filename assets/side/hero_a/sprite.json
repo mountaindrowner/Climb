@@ -1,5 +1,6 @@
 {
  "name": "hero_a",
+ "ppu": 32,
  "anims": {
   "stand": {
    "frames": 1,
@@ -7,7 +8,27 @@
    "h": 64,
    "foot": 63,
    "cx": 33.0
+  },
+  "idle": {
+   "frames": 7,
+   "w": 92,
+   "h": 92,
+   "foot": 77,
+   "cx": 47.0
+  },
+  "attack1": {
+   "frames": 7,
+   "w": 92,
+   "h": 92,
+   "foot": 77,
+   "cx": 47.0
+  },
+  "run": {
+   "frames": 9,
+   "w": 92,
+   "h": 92,
+   "foot": 77,
+   "cx": 47.0
   }
- },
- "ppu": 32
+ }
 }

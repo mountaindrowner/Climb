@@ -128,21 +128,155 @@
  "hero_a": {
   "id": "ea6717b3-b63d-4012-b06c-e6de29e4a9d0",
   "description": "a small knight in dented steel armor with a long red cape and a broad sword, seen exactly from the side in profile, flat 2D platformer hero sprite",
-  "anims": {}
+  "anims": {
+   "idle": {
+    "action": "standing at rest breathing, cape and cloth stirring",
+    "frames": 6,
+    "group": "2a455586-4666-40a9-baa8-ee94a01f048b"
+   },
+   "run": {
+    "action": "running forward fast",
+    "frames": 8,
+    "group": "dae46ce3-072e-441e-96f9-7da7127ed8ca"
+   },
+   "attack1": {
+    "action": "a fast forward lunging sword slash",
+    "frames": 6,
+    "group": "c35ed6ec-b192-47ac-9526-b7cd808db172"
+   }
+  }
  },
  "hero_b": {
   "id": "495cc6d9-c5a2-49ba-950f-b559045048a3",
   "description": "a hooded wanderer in a ragged teal cloak with a small glowing lantern on the belt and a curved sword, seen exactly from the side in profile, flat 2D platformer hero sprite",
-  "anims": {}
+  "anims": {
+   "idle": {
+    "action": "standing at rest breathing, cape and cloth stirring",
+    "frames": 6,
+    "group": "48d4012b-3cb0-41c0-b626-8b6a51b9a2b8"
+   },
+   "run": {
+    "action": "running forward fast",
+    "frames": 8,
+    "group": "cbf9c26e-50c3-4088-bd57-63e8ca011919"
+   },
+   "attack1": {
+    "action": "a fast forward lunging sword slash",
+    "frames": 6,
+    "group": "ef070770-23be-4376-a24f-c8d345a39b59"
+   }
+  }
  },
  "hero_c": {
   "id": "88432b01-a08d-4b49-83fe-ca74b766a051",
   "description": "a masked warrior with a bone-white mask, a long orange scarf, dark leather armor and a heavy broad sword, seen exactly from the side in profile, flat 2D platformer hero sprite",
-  "anims": {}
+  "anims": {
+   "idle": {
+    "action": "standing at rest breathing, cape and cloth stirring",
+    "frames": 6,
+    "group": "eb708827-be3b-4516-b36d-59e363d5a592"
+   },
+   "run": {
+    "action": "running forward fast",
+    "frames": 8,
+    "group": "2a9a0aa9-f05f-47f9-ba9e-49fa61942bbf"
+   },
+   "attack1": {
+    "action": "a fast forward lunging sword slash",
+    "frames": 6,
+    "group": "8680d32f-e42c-4de0-b8fd-a43006d25855"
+   }
+  }
  },
  "hero_d": {
   "id": "503fb87b-5cbf-43b7-8327-1fce61cea1f2",
   "description": "a young adventurer with messy hair, a green tunic, brown boots, a flowing purple scarf and a sword, seen exactly from the side in profile, flat 2D platformer hero sprite",
-  "anims": {}
+  "anims": {
+   "idle": {
+    "action": "standing at rest breathing, cape and cloth stirring",
+    "frames": 6,
+    "group": "fb053837-cfcc-4d13-9322-bbed293f5ed4"
+   },
+   "run": {
+    "action": "running forward fast",
+    "frames": 8,
+    "group": "c9ec58e7-febc-4b97-b8e6-fa950dc93549"
+   },
+   "attack1": {
+    "action": "a fast forward lunging sword slash",
+    "frames": 6,
+    "group": "df415d80-1bc0-43a5-9b8a-eccbf28e7d1c"
+   }
+  }
+ },
+ "crawler2": {
+  "id": "65d5c66f-9ea9-4f3f-a6e4-e40f384fa9fe",
+  "description": "an armored cave beetle seen exactly from the side in strict profile, six legs, glossy violet-black shell, glowing magenta eye, flat 2D platformer enemy sprite",
+  "anims": {
+   "walk": {
+    "action": "scuttling forward on six legs",
+    "frames": 6,
+    "group": "c4c4b1e8-e6c0-46f0-8017-3f2891bfe2ec"
+   },
+   "attack": {
+    "action": "rearing up then lunging forward to bite",
+    "frames": 6,
+    "group": "5bddd969-7836-4833-b18b-bb09be24b9a0"
+   }
+  }
+ },
+ "flitter2": {
+  "id": "60b40bed-6b9f-44e6-961e-4e35100a7201",
+  "description": "a cave bat seen exactly from the side in profile with its leathery wings raised high, glowing amber eye, flat 2D platformer enemy sprite",
+  "anims": {
+   "fly": {
+    "action": "flapping its wings up and down while flying in place",
+    "frames": 6,
+    "group": "b102218a-61b6-4516-9419-7e882e653bb4"
+   },
+   "dive": {
+    "action": "folding its wings and diving forward to bite",
+    "frames": 6,
+    "group": "6d9bc9de-7c00-454e-bd8c-c7eee9ead4b0"
+   }
+  }
+ },
+ "spitter2": {
+  "id": "fdc0a172-dae1-4ede-9428-e19206b3b5d9",
+  "description": "a bloated glowing green sac creature with spindly insect legs seen exactly from the side in profile, a puckered mouth, flat 2D platformer enemy sprite",
+  "anims": {
+   "charge": {
+    "action": "swelling up glowing brighter then spitting a glob forward",
+    "frames": 6,
+    "group": "ceb173a1-6c02-4e3f-a1b3-8c3ab38470ce"
+   }
+  }
+ },
+ "burrower2": {
+  "id": "7d654d92-0b64-4480-a2a2-aa632cdfb06f",
+  "description": "a huge pale armored sandworm rearing up seen exactly from the side in profile, a round mouth ringed with spiked teeth, flat 2D platformer enemy sprite, no ground",
+  "anims": {
+   "snap": {
+    "action": "lunging upward and snapping its spiked jaws shut",
+    "frames": 8,
+    "group": "d090a67b-1316-4e31-a012-50149baa7721"
+   }
+  }
+ },
+ "crawler3": {
+  "id": "040acab3-8cc7-4dd9-afef-871dd54d76c8",
+  "description": "an armored violet cave lizard crawling low on all fours, seen in pure side profile like a classic 2D platformer enemy, only the near legs visible, glowing magenta eye, spiny back plates",
+  "anims": {
+   "walk": {
+    "action": "crawling forward low and fast",
+    "frames": 6,
+    "group": "c6152fe9-5296-40d1-ad6c-b38ca7166b10"
+   },
+   "attack": {
+    "action": "rearing back then lunging forward to bite",
+    "frames": 6,
+    "group": "7a0356a9-133d-407f-8951-7f3faed0f046"
+   }
+  }
  }
 }

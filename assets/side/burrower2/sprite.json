@@ -1,0 +1,20 @@
+{
+ "name": "burrower2",
+ "ppu": 32,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 80,
+   "h": 80,
+   "foot": 77,
+   "cx": 40.0
+  },
+  "snap": {
+   "frames": 9,
+   "w": 104,
+   "h": 104,
+   "foot": 89,
+   "cx": 52.0
+  }
+ }
+}
