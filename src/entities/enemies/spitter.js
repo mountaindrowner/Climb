@@ -12,7 +12,7 @@ import { flatMat, glowMat, segment, spike, blob, joint } from '../../render/crea
 import { burst } from '../../render/particles.js';
 import { float, hitstop, flash } from '../../fx/feedback.js';
 import { topAt } from '../../world/path.js';
-import { hurt, head, isBlocking, isParry, isInvulnerable, playerWorld, crownY, midY } from '../player/player.js';
+import { hurt, head, headAhead, isBlocking, isParry, isInvulnerable, playerWorld, crownY, midY } from '../player/player.js';
 import { loadModel, instance, pose, poseOnce } from '../../render/glbModel.js';
 import { killed, addGold, onParry } from '../../run/run.js';
 const THREE = window.THREE;
@@ -70,8 +70,8 @@ export function update(o, dt){
   if (o.st === 'charge'){
     o.tm += dt;
     if (o.tm >= T.charge){
-      // aim is locked here: the glob flies straight at where his head was
-      const from = mouthWorld(o), to = head(1.2), v = to.clone().sub(from).normalize().multiplyScalar(T.speed);
+      // aim is locked here: the glob flies straight at where his head will be as it arrives, if he keeps on as he is
+      const from = mouthWorld(o), eta = from.distanceTo(head(1.2)) / T.speed, to = headAhead(eta, 1.2), v = to.clone().sub(from).normalize().multiplyScalar(T.speed);
       o.orb = { p: from, v, t: 0 }; o.st = 'idle'; o.cd = T.cooldown; o.recoil = 0.18; o.fired = true; sfx.spit();
     }
   }

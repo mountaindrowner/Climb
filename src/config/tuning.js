@@ -59,13 +59,13 @@ export const TUNE = {
     hpFromZone: 2, // crawlers have 2 hp from this zone index on
   },
   spitter: {
-    range: 4.4, charge: 0.6, speed: 8, life: 1.4, cooldown: 1.9, reflect: 0.28,
+    range: 5.6, charge: 0.6, speed: 8, life: 1.4, cooldown: 1.9, reflect: 0.28,   // range: since 0.28's faster run, it sees him coming sooner
   },
-  gap: { crumble: 1.4 },                     // the step starts to fall away when you come this near                     // the step starts to fall away this many steps ahead
+  gap: { crumble: 2.0 },                     // since 0.28's faster run (5.5): further off, so the step is gone before he gets there                     // the step starts to fall away when you come this near                     // the step starts to fall away this many steps ahead
   beam: { creak: 3.2 },
   rockfall: { warn: 4.6, fall: 0.55, height: 9, hitRange: 0.7 },
   swing: { length: 2.8, angle: 1.15, settle: 0.5, period: 2.6 },   // a short chain: on a rising stair the arc's uphill side must clear a crouch
-  burrower: { wake: 5.4, lead: 4, plough: 4.5, rise: 0.25, snapShut: 0.5, hp: 2 },
+  burrower: { wake: 6.6, lead: 4, plough: 6.0, rise: 0.25, snapShut: 0.5, hp: 2 },   // wake, plough: since 0.28's faster run, its jaws are up before he arrives
   flitter: { wake: 4.4, launch: 0.28, dive: 1.0, commit: 0.35, swat: 0.34, leave: 0.8, circle: 1.1 },
   // the Warden at the top of each region (src/boss/golem.js): a colossus in the cavern behind the floor, reaching his
   // fists onto it. Times are [phase 1, phase 2] where paired; every wind-up shortens a little each region (windMul)

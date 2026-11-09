@@ -16,6 +16,8 @@ From the designer's research on Dead Cells' movement, checked against its develo
 - **Platforming re-tuned for the double jump:** wider gaps and higher ledges across the broken-off flights, bigger steps in the switchbacks. First-time hints teach the double jump (before the first broken-off flight) and the plunge.
 - **The feel panel:** F9 (or `#feel` on the page) switches each assist on and off while you play (the input queue, buffer, coyote time, double jump, launch float, air-control fade, ledge grab, free turn, aim, roll cancels, plunge), to feel what each one does.
 - The Mark of the Fleet now quickens the run (there is no sprint).
+- **The roll and the somersault, made properly** (after the designer saw them spin wildly): one turn the way he faces (going left he used to tumble backward), about the middle of his tucked body, measured from his own bones each frame, instead of a wheel about a point off his body; the tuck comes first and the turn waits for it; a roll goes along the floor, the tucked body lowered onto the stone; the blade is put away through the middle of the turn (as in Dead Cells, where a weapon shows only in its swing) and the cape lies down his back instead of whipping round.
+- **Threats re-timed for the faster run**, which outran three of them: a broken step starts to fall away from further off (2.0), a burrower wakes sooner and ploughs faster, and a spitter sees him from further off and aims where his head will be as the glob arrives.
 
 ## 0.27.0 — the Warden in the cavern (2026-11-08)
 

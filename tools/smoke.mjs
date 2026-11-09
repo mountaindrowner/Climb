@@ -136,7 +136,7 @@ await page.addScriptTag({ type: 'module', content: `
     }
     // the double jump: near the top of a jump over a gap, with nothing to land on close below, jump again
     if (bot.answer && move > 0 && !G.grounded && !G.mantle && G.airJumps > 0 && G.vy < 1.2 && G.vy > -4 && G.jumpT > 0.15){
-      const below = decksAt(G.s).filter(d => d.top <= G.y + 0.05).sort((p, q) => q.top - p.top)[0], ground = holeAt(G.s) || stairHole(G.s) ? -Infinity : walkY(G.s);
+      const below = decksAt(G.s).filter(d => d.top <= G.y + 0.05).sort((p, q) => q.top - p.top)[0], ground = stairHole(G.s) ? -Infinity : walkY(G.s);   /* a broken step is jumped once, not double jumped */
       const floor = Math.max(ground, below ? below.top : -Infinity), ahead = decksAt(G.s + 1.2).some(d => d.top > G.y - 0.3);
       if (G.y - floor > 1.2 || ahead){ I.tap('jump'); I.hold('jump', true); bot.jumpHold = Math.max(bot.jumpHold, 14); }
     }

@@ -431,6 +431,7 @@ function bladeOffStone(G){
 const _w = [], _cap = [0, 1, 2, 3, 4].map(() => ({ a: new THREE.Vector3(), b: new THREE.Vector3(), r: 0 }));
 const _plane = { point: new THREE.Vector3(), normal: new THREE.Vector3() }, _sc = new THREE.Vector3();
 function bonePos(name, out){ return out.setFromMatrixPosition(GLB.node[name].matrixWorld); }
+const _pa = new THREE.Vector3(), _pb = new THREE.Vector3(), _c2 = new THREE.Vector3(), _b2 = new THREE.Vector3();
 function stepCloth(dt){
   const C = GLB.cloth, chest = GLB.clothBone;
   if (!C || !chest) return;
@@ -447,7 +448,9 @@ function stepCloth(dt){
   bonePos('upperlegr', _cap[2].a); bonePos('lowerlegr', _cap[2].b); _cap[2].r = leg * S;
   bonePos('lowerlegl', _cap[3].a); bonePos('footl', _cap[3].b); _cap[3].r = leg * 0.8 * S;
   bonePos('lowerlegr', _cap[4].a); bonePos('footr', _cap[4].b); _cap[4].r = leg * 0.8 * S;
-  C.step(dt, _w, _cap, _plane, S);
+  if (GLB.spinning){   // in a roll or a somersault: the cape lies down his back, and the simulation picks up from there after
+    C.reset(_w, _c2.copy(_cap[0].a).sub(_cap[0].b).normalize(), _b2.copy(_plane.normal).negate(), S);
+  } else C.step(dt, _w, _cap, _plane, S);
   C.draw(PL.P);
 }
 function knightTargets(G){
@@ -456,7 +459,7 @@ function knightTargets(G){
   if (G.hurtT > 0){ at('Hit_A', 0.1 + 0.6 * (1 - G.hurtT / MV.hurtStun)); T.Hit_A = 1; return { T, rate: 40 }; }
   if (G.roll > 0){ at('K_Tuck', 0.5); T.K_Tuck = 1; return { T, rate: 60 }; }   // the tumble itself is in knightAfter
   if (G.dive){ at('K_Slash', HIT[1]); T.K_Slash = 1; return { T, rate: 50 }; }      // the plunge: the blade driven down past his feet
-  if (G.flip > 0 && !swingInfo(G)){ at('K_Tuck', 0.5); T.K_Tuck = 1; return { T, rate: 40 }; }   // the double jump's somersault: tucked (the turn is in knightAfter)
+  if (G.flip > 0 && !swingInfo(G)){ at('K_Tuck', 0.5); T.K_Tuck = 1; return { T, rate: 60 }; }   // the double jump's somersault: tucked (the turn is in knightAfter)
   const A = swingInfo(G);
   if (A){
     const name = ATTACK[A.sw.pose], [h0, h1] = HIT;
@@ -495,16 +498,34 @@ function knightAfter(G, dt){
   // camera's side (a 2D flip: every swing reads the same both ways)
   const sy = squash(G)[1], s = GLB.base;
   GLB.inner.scale.set(s * (G.face < 0 && ST.mode !== 'fall' ? -1 : 1), s * sy, s);
-  // the roll: a full forward tumble about the body's middle, tucked
-  if (G.roll > 0 && ST.mode !== 'fall'){
-    const q = 1 - G.roll / MV.roll.time, ang = -Math.PI * 2 * smooth(clamp(q * 1.15, 0, 1)), c = 0.45;
-    GLB.root.rotation.z = ang; GLB.root.position.set(c * Math.sin(-ang), c - c * Math.cos(ang) - 0.3 * Math.sin(Math.PI * q), 0);
+  // the roll and the double jump's somersault: one forward turn, the way he is facing, about the middle of his tucked
+  // body (measured from his own bones each frame, so the turn stays tight: no wheel about a point off his body). The
+  // tuck comes first and the turn waits for it, so he never spins with his limbs out.
+  GLB.root.rotation.z = 0; GLB.root.position.set(0, 0, 0);
+  let turn = 0;
+  if (ST.mode !== 'fall'){
+    if (G.roll > 0) turn = smooth(clamp((1 - G.roll / MV.roll.time - 0.08) / 0.8, 0, 1));
+    else if (G.flip > 0 && !swingInfo(G)) turn = smooth(clamp((1 - G.flip / MV.flip - 0.12) / 0.78, 0, 1));
   }
-  else if (G.flip > 0 && ST.mode !== 'fall' && !swingInfo(G)){   // the double jump: a quick somersault about his middle
-    const q = 1 - G.flip / MV.flip, ang = -Math.PI * 2 * smooth(clamp(q * 1.1, 0, 1)), c = 0.95;
-    GLB.root.rotation.z = ang; GLB.root.position.set(c * Math.sin(-ang), c - c * Math.cos(ang), 0);
+  if (turn > 0 && turn < 1 && GLB.node.hips && GLB.node.head){
+    GLB.root.updateWorldMatrix(true, true);
+    const par = GLB.root.parent, a = par.worldToLocal(bonePos('hips', _pa)), b = par.worldToLocal(bonePos('head', _pb));
+    const px = a.x + (b.x - a.x) * 0.3, py = a.y + (b.y - a.y) * 0.3;   // the tuck's middle: nearer his hips than his head
+    const ang = -Math.PI * 2 * turn * (G.face < 0 ? -1 : 1), c = Math.cos(ang), s = Math.sin(ang);
+    GLB.root.rotation.z = ang; GLB.root.position.set(px - (c * px - s * py), py - (s * px + c * py), 0);
+    if (G.roll > 0 && G.grounded){
+      // a roll goes along the floor: the tucked body is lowered until its lowest point is on the stone (eased in and out)
+      GLB.root.updateWorldMatrix(true, true);
+      let low = Infinity;
+      for (const n of ['head', 'footl', 'footr', 'handl', 'handr', 'hips']) if (GLB.node[n]) low = Math.min(low, par.worldToLocal(bonePos(n, _pa)).y);
+      const w = Math.min(1, turn / 0.15, (1 - turn) / 0.15);
+      if (low < Infinity) GLB.root.position.y -= Math.max(0, low - 0.1) * w;
+    }
   }
-  else { GLB.root.rotation.z = 0; GLB.root.position.set(0, 0, 0); }
+  // through the middle of a turn the blade is put away (as in Dead Cells, where a weapon shows only in its swing), and the
+  // cape is laid along his back instead of left to whip round
+  GLB.spinning = turn > 0 && turn < 1;
+  const wep = GLB.node['wep_' + (G.weapon || 'sword')]; if (wep) wep.visible = !(turn > 0.12 && turn < 0.88);
   footIK(G, dt);
   bladeOffStone(G);
   stepCloth(dt);
