@@ -85,7 +85,7 @@ await page.addScriptTag({ type: 'module', content: `
           case 'beam': if (d > -0.6 && d < 1.3) crouch = true; break;
           case 'rockfall': if ((o.st === 'warn' || o.st === 'drop') && d > -0.8 && d < 2.0) block = true; break;
           case 'swing': if (d > -3.2 && d < 2.8) crouch = true; break;   // the whole arc, both sides of the pivot
-          case 'burrower': if ((o.st === 'up' || o.st === 'rise' || o.st === 'travel') && d > 0.4 && d < 1.4 && G.grounded) jump(); break;   /* since 0.28 the jaws come up sooner: jump a little earlier */
+          case 'burrower': if ((o.st === 'up' || o.st === 'rise') && d > -0.3 && d < 1.6 && G.grounded) jump(); break;   /* the jaws, not the mound: a jump over the running mound can land where they come up; and jump even when they come up underfoot */
           case 'crawler':
             if (o.alive && o.st !== 'idle' && o.st !== 'crack' && Math.abs(d) < 2.4){
               move = 0;
@@ -136,9 +136,9 @@ await page.addScriptTag({ type: 'module', content: `
     }
     // the double jump: near the top of a jump over a gap, with nothing to land on close below, jump again
     if (bot.answer && move > 0 && !G.grounded && !G.mantle && G.airJumps > 0 && G.vy < 1.2 && G.vy > -4 && G.jumpT > 0.15){
-      const below = decksAt(G.s).filter(d => d.top <= G.y + 0.05).sort((p, q) => q.top - p.top)[0], ground = stairHole(G.s) ? -Infinity : walkY(G.s);   /* a broken step is jumped once, not double jumped */
-      const floor = Math.max(ground, below ? below.top : -Infinity), ahead = decksAt(G.s + 1.2).some(d => d.top > G.y - 0.3);
-      if (G.y - floor > 1.2 || ahead){ I.tap('jump'); I.hold('jump', true); bot.jumpHold = Math.max(bot.jumpHold, 14); }
+      const below = [0, 0.6, 1.2].flatMap(o => decksAt(G.s + o)).filter(d => d.top <= G.y + 0.05).sort((p, q) => q.top - p.top)[0], ground = stairHole(G.s) ? -Infinity : walkY(G.s);   /* a broken step is jumped once, not double jumped */
+      const floor = Math.max(ground, below ? below.top : -Infinity), /* 1.9: over a hole, not at the top of every jump (one rises 1.55); a ledge just ahead and below is somewhere to land */ ahead = decksAt(G.s + 1.2).some(d => d.top > G.y - 0.3);
+      if (G.y - floor > 1.9 || ahead){ I.tap('jump'); I.hold('jump', true); bot.jumpHold = Math.max(bot.jumpHold, 14); }
     }
     if (crouch) block = false;
     I.hold('right', move > 0); I.hold('left', move < 0); I.hold('down', crouch); I.hold('block', block);
@@ -299,7 +299,7 @@ console.log('the switchback from landing ' + fork.kA + ': caught its ledge, came
 // ---- a platforming flight: the bot runs and jumps it, ledge to ledge, onto the landing above, without falling
 const plat = await page.evaluate(() => {
   const D = window.__D, P = window.__P, h = D.HOLES.find(x => x.platform), G = window.__climb.ST.G;
-  G.s = G.prevS = P.landingS(h.k - 1); G.y = P.walkY(G.s); G.on = null; G.grounded = true; G.vy = 0; G.v = 0; G.hp = G.maxHp = 99; window.__fork.clear = true;
+  G.s = G.prevS = P.landingS(h.k - 1); G.y = P.walkY(G.s); G.on = null; G.grounded = true; G.vy = 0; G.v = 0; G.hp = G.maxHp = 99; G.hurtT = 0; G.inv = 0; window.__fork.clear = true;   /* not still reeling from the fall before */
   import('/src/world/generate.js').then(gen => { const clr = () => { for (const c of gen.content.values()) for (const o of c.obs){ o.done = true; o.alive = false; o.st = 'gone'; } if (window.__fork.clear) requestAnimationFrame(clr); }; clr(); });
   window.__pk = h.k; window.__bot.on = true; window.__bot.answer = true; return { k: h.k, ledges: D.DECKS.filter(d => d.owner === 'flight' && d.k === h.k).length };
 });
