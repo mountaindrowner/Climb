@@ -124,5 +124,25 @@
     "group": "91958807-3c5e-48ce-bcdd-ce0b373ef396"
    }
   }
+ },
+ "hero_a": {
+  "id": "ea6717b3-b63d-4012-b06c-e6de29e4a9d0",
+  "description": "a small knight in dented steel armor with a long red cape and a broad sword, seen exactly from the side in profile, flat 2D platformer hero sprite",
+  "anims": {}
+ },
+ "hero_b": {
+  "id": "495cc6d9-c5a2-49ba-950f-b559045048a3",
+  "description": "a hooded wanderer in a ragged teal cloak with a small glowing lantern on the belt and a curved sword, seen exactly from the side in profile, flat 2D platformer hero sprite",
+  "anims": {}
+ },
+ "hero_c": {
+  "id": "88432b01-a08d-4b49-83fe-ca74b766a051",
+  "description": "a masked warrior with a bone-white mask, a long orange scarf, dark leather armor and a heavy broad sword, seen exactly from the side in profile, flat 2D platformer hero sprite",
+  "anims": {}
+ },
+ "hero_d": {
+  "id": "503fb87b-5cbf-43b7-8327-1fce61cea1f2",
+  "description": "a young adventurer with messy hair, a green tunic, brown boots, a flowing purple scarf and a sword, seen exactly from the side in profile, flat 2D platformer hero sprite",
+  "anims": {}
  }
 }

@@ -20,10 +20,13 @@ const R = makeRenderer(canvas);
 const sp = spawnPoint();
 let P = newPlayer(sp.x, sp.y);
 const hero = { sprite: null, meta: null };
-fetch('assets/side/hero/sprite.json').then(r => r.json()).then(meta => { hero.meta = meta; hero.sprite = makeSprite(R.scene, 'assets/side/hero', meta); });
+// the warrior: one of the drawn options (?hero=a|b|c|d), falling back to the first, larger drawing
+const HERO = 'hero_' + ((new URLSearchParams(location.search).get('hero') || 'a').replace(/[^a-d]/g, '') || 'a');
+const loadHero = name => fetch(`assets/side/${name}/sprite.json`).then(r => r.ok ? r.json() : Promise.reject()).then(meta => { hero.meta = meta; hero.sprite = makeSprite(R.scene, `assets/side/${name}`, meta); });
+loadHero(HERO).catch(() => loadHero('hero'));
 const fx = spawnFx(R.scene);
 const E = spawnEnemies(R.scene);
-const BOSS = makeWarden(R.scene, R.camera);
+const BOSS = makeWarden(R.scene, R);
 // the shrine: it fills the flask and the hearts, and is where he wakes after a death
 const SHRINE = (m => m && { x: (m.x + 0.5) * T, y: m.y * T })(LEVEL.marks.find(m => m.type === 'shrine'));
 let CHECK = null, BANNER = null, WON = false, DEATH = 0;
@@ -94,10 +97,10 @@ function frame(ts){
   // camera
   // in the Warden's arena the camera draws back to show the whole fight, and keeps inside the arena
   const fight = BOSS && BOSS.active();
-  CAM.zoom += ((fight ? 1.6 : 1) - CAM.zoom) * Math.min(1, dt * 1.5);
+  CAM.zoom = 1;   // flat pixels are never scaled: the arena is framed by where the camera keeps
   CAM.lead += (P.face * 2.4 - CAM.lead) * Math.min(1, dt * 2.2);
   let wantX = P.x + CAM.lead, wantY = P.y + 1.4 + (P.grounded ? 0 : Math.min(0, P.vy) * 0.08);
-  if (fight) wantY = Math.max(wantY, BOSS.stageY + 7);
+  if (fight) wantY = Math.max(wantY, BOSS.stageY + 4.6);   // the stage near the bottom, the Warden's head near the top
   CAM.x += (wantX - CAM.x) * Math.min(1, dt * 5); CAM.y += (wantY - CAM.y) * Math.min(1, dt * (P.grounded ? 4 : 6));
   const halfH = VIEW_H / 2 * CAM.zoom, halfW = halfH * (R.size().w / R.size().h);
   const box = fight ? BOSS.room : { x0: 0, y0: 0, x1: LEVEL.W * T, y1: LEVEL.H * T };

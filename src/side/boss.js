@@ -7,15 +7,16 @@
 //           ledge
 //   rocks   from half health the roof sheds stones where red marks fall on the stage
 // It wakes when he stands on the stage, and starts over if he dies. The art is PixelLab's (tools/pixellab.py image):
-// a torso and an arm in three pieces, put together here: each arm is two planes between shoulder, elbow and fist,
-// bent by a two-bone solve and turned to face the camera, so it reaches out of the depth toward him.
+// a torso and an arm in three pieces, put together here. The torso is a slow parallax layer (far back, its pixels
+// doubled); each arm is two flat pieces between its shoulder and the fist, bent at the elbow, so it reaches from the
+// depth onto the stage.
 import { T, LEVEL } from './level.js';
 import { hurt, isRollInv } from './motor.js';
 const THREE = window.THREE;
 export const WARDEN = {
   name: 'The Warden', hp: 24, phase2: 0.5,
-  bodyZ: -16, bodyH: 22, sunk: -15,                       // its torso, far back; how far below the stage it waits
-  fistR: 1.5, armW: 4.2,
+  bodyF: 0.5, bodyH: 12.5, sunk: -14,                     // its torso: parallax (how far back), size (a pixel a picture pixel); how far below the stage it waits
+  fistR: 1.4, armW: 2.6,
   slam: { raise: [0.75, 0.6], hold: [0.42, 0.32], drop: 0.11, rest: [1.5, 1.1], lift: 0.55, reach: 1.8, high: 7.5 },
   sweep: { lower: [0.85, 0.7], speed: [12, 15], rest: [1.2, 0.9], low: 1.0, clear: 1.3 },
   ripple: { speed: 10, life: 1.1 },
@@ -36,28 +37,27 @@ function glow(color){
 }
 const additive = (map, color, opacity = 1) => new THREE.MeshBasicMaterial({ map, color, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending });
 
-export function makeWarden(scene, camera){
+export function makeWarden(scene, R){
   const room = LEVEL.rooms.find(r => r.name === 'arena'), mk = LEVEL.marks.find(m => m.type === 'boss');
   if (!room || !mk) return null;
   const stageY = mk.y * T, cx = (mk.x + 0.5) * T, xMin = room.x0 + 1 + W.fistR, xMax = room.x1 - 1 - W.fistR, roofY = room.y1 - 1;
   const B = { st: 'dormant', tm: 0, hp: W.hp, phase: 1, flash: 0, cd: 1.2, rockT: 0, lift: W.sunk, room, stageY, cx, xMin, xMax, arms: [], rocks: [], ripples: [], next: 0 };
   const stone = 0xa9b4a2;   // the arms are grey; brought toward the torso's mossy green
   // ---- the torso, with a cold glow behind it so it stands out of the dark
-  const halo = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), additive(glow('rgba(60,200,220,1)'), 0x2a8a9a, 0.5)); scene.add(halo);
+  const halo = new THREE.Mesh(new THREE.PlaneGeometry(24, 24), additive(glow('rgba(60,200,220,1)'), 0x2a8a9a, 0.5)); scene.add(halo);
   const body = new THREE.Mesh(new THREE.PlaneGeometry(W.bodyH, W.bodyH), new THREE.MeshBasicMaterial({ map: tex('assets/side/colossus/torso.png'), transparent: true, alphaTest: 0.5, color: 0xc8d0c8 }));
   scene.add(body);
   const eyeTex = glow('rgba(140,255,255,1)');
-  const eyes = PIC.eyes.map(p => { const m = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 2.6), additive(eyeTex, 0x7ff6ff, 0)); scene.add(m); return { m, p: local(p) }; });
-  const core = { m: new THREE.Mesh(new THREE.PlaneGeometry(4.5, 4.5), additive(eyeTex, 0x5fe8d8, 0)), p: local(PIC.core) }; scene.add(core.m);
+  const eyes = PIC.eyes.map(p => { const m = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.5), additive(eyeTex, 0x7ff6ff, 0)); scene.add(m); return { m, p: local(p) }; });
+  const core = { m: new THREE.Mesh(new THREE.PlaneGeometry(2.6, 2.6), additive(eyeTex, 0x5fe8d8, 0)), p: local(PIC.core) }; scene.add(core.m);
   // ---- the arms
   const upTex = tex('assets/side/colossus/upperarm.png'), foreTex = tex('assets/side/colossus/forearm.png'), fistTex = tex('assets/side/colossus/fist.png');
   const segMat = map => new THREE.MeshBasicMaterial({ map, transparent: true, alphaTest: 0.5, color: stone, side: THREE.DoubleSide });
   const warnTex = glow('rgba(255,60,50,1)');
   for (const s of [-1, 1]){
     const up = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), segMat(upTex)), fore = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), segMat(foreTex));
-    up.matrixAutoUpdate = fore.matrixAutoUpdate = false;
     const fistMat = new THREE.MeshBasicMaterial({ map: fistTex, transparent: true, alphaTest: 0.5, color: stone });
-    const fist = new THREE.Mesh(new THREE.PlaneGeometry(W.fistR * 2.3, W.fistR * 2.3), fistMat);
+    const fist = new THREE.Mesh(new THREE.PlaneGeometry(3, 3), fistMat);   // its picture at half size: 96 pixels
     const weak = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), additive(eyeTex, 0x6ff0ff, 0));   // the glow that says: now
     const warn = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.1), additive(warnTex, 0xff5040, 0));  // the mark under a blow
     for (const m of [up, fore, fist, weak, warn]){ m.visible = false; scene.add(m); }
@@ -67,23 +67,23 @@ export function makeWarden(scene, camera){
   const rockGeo = new THREE.DodecahedronGeometry(0.42), rockMat = new THREE.MeshLambertMaterial({ color: 0x7d8a8c });
   const rippleMat = additive(glow('rgba(255,210,140,1)'), 0xffc070, 0.9), rippleGeo = new THREE.PlaneGeometry(1.4, 1.2);
 
-  const shoulder = (i, out) => { const p = local(PIC.shoulders[i]); return out.set(cx + p.x, bodyY() + p.y, W.bodyZ + 0.5); };
-  const bodyY = () => stageY + 6 + B.lift + Math.sin(B.tm * 0.8) * 0.25;
-  const rest = (a, t) => a.p.lerp(new THREE.Vector3(cx + a.s * 9 + Math.sin(t * 0.9 + a.s) * 0.6, stageY + 5.5 + Math.sin(t * 1.3 + a.s * 2) * 0.5 + B.lift, -7), 1);
-  // a plane from a to b, its picture's top at b, turned about that line to face the camera
-  const _d = new THREE.Vector3(), _m = new THREE.Vector3(), _c = new THREE.Vector3(), _x = new THREE.Vector3(), _z = new THREE.Vector3(), _s = new THREE.Vector3();
-  function span(mesh, a, b, width){
-    _d.subVectors(b, a); const len = _d.length(); _d.normalize(); _m.addVectors(a, b).multiplyScalar(0.5);
-    _c.subVectors(camera.position, _m).normalize(); _x.crossVectors(_d, _c).normalize(); _z.crossVectors(_x, _d);
-    mesh.matrix.makeBasis(_x, _d, _z).scale(_s.set(width, len, 1)).setPosition(_m);
+  // where the torso is drawn now (it is far back, so it slides as the camera moves)
+  const bodyAt = () => R.parallax(W.bodyF, cx, stageY + 4.6 + B.lift + Math.sin(B.tm * 0.8) * 0.15);
+  const shoulder = (i, out) => { const p = local(PIC.shoulders[i]), b = bodyAt(); return out.set(b.x + p.x, b.y + p.y, -6); };
+  // a fist at rest hangs below its shoulder, out to the side
+  const rest = (a, t) => { const S = shoulder(a.s < 0 ? 0 : 1, new THREE.Vector3()); return a.p.set(S.x + a.s * 3.5 + Math.sin(t * 0.9 + a.s) * 0.5, S.y - 1.5 + Math.sin(t * 1.3 + a.s * 2) * 0.4, -7); };
+  // a flat piece from a to b, its picture's top at b
+  function span(mesh, a, b, width, z){
+    const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 0.01;
+    mesh.position.set((a.x + b.x) / 2, (a.y + b.y) / 2, z); mesh.rotation.set(0, 0, Math.atan2(-dx, dy)); mesh.scale.set(width, len, 1);
   }
   // the elbow: the two segments are each a little over half the reach, bent outward and up
-  const _t = new THREE.Vector3(), _p = new THREE.Vector3(), elbow = new THREE.Vector3();
+  const elbow = new THREE.Vector3();
   function bend(S, F, side){
-    _t.subVectors(F, S); const d = Math.max(0.01, _t.length()); _t.normalize();
-    const a = Math.max(d / 2 * 1.12, 5), h = Math.sqrt(Math.max(0, a * a - d * d / 4));
-    _p.set(side * 0.9, 0.7, 0.25); _p.addScaledVector(_t, -_p.dot(_t)).normalize();
-    return elbow.copy(S).addScaledVector(_t, d / 2).addScaledVector(_p, h);
+    const dx = F.x - S.x, dy = F.y - S.y, d = Math.max(0.01, Math.hypot(dx, dy));
+    const a = Math.max(d / 2 * 1.12, 4), h = Math.sqrt(Math.max(0, a * a - d * d / 4));
+    let px = -dy / d, py = dx / d; if (px * side < 0 || (Math.abs(px) < 0.2 && py < 0)){ px = -px; py = -py; }   // out to its side
+    return elbow.set(S.x + dx / 2 + px * h, S.y + dy / 2 + py * h, 0);
   }
 
   function go(a, st){ a.st = st; a.tm = 0; a.from.copy(a.p); a.hit = false; }
@@ -109,6 +109,7 @@ export function makeWarden(scene, camera){
       B.cd -= dt;
       const busy = B.arms.filter(a => a.st !== 'idle').length;
       if (B.cd <= 0 && busy < B.phase){
+        const near = P.x < bodyAt().x ? 0 : 1; if (B.arms[near].st === 'idle') B.next = near;   // the arm on his side, so it does not cross the face
         const a = B.arms[B.next], other = B.arms[1 - B.next];
         if (a.st === 'idle' && (busy === 0 || other.st === 'rest' || other.st === 'lift')){
           B.next = 1 - B.next; B.cd = ph(W.cd);
@@ -165,13 +166,13 @@ export function makeWarden(scene, camera){
       // draw it
       if (vis){
         const S = shoulder(a.s < 0 ? 0 : 1, new THREE.Vector3()), E = bend(S, a.p, a.s).clone();
-        span(a.up, S, E, W.armW); span(a.fore, a.p, E, W.armW * 0.9);
-        a.fist.position.copy(a.p); a.fist.position.z += 0.05; a.fist.scale.x = a.s < 0 ? 1 : -1;
+        span(a.up, S, E, W.armW, -5); span(a.fore, a.p, E, W.armW * 0.9, -4.9);
+        a.fist.position.set(a.p.x, a.p.y, -1); a.fist.scale.x = a.s < 0 ? 1 : -1;
         a.fist.rotation.z = Math.atan2(E.x - a.p.x, E.y - a.p.y) * 0.25;
         a.fistMat.color.setHex(B.flash > 0 && a.st === 'rest' ? 0xffffff : stone);
       }
-      a.warn.visible = warn > 0; a.warn.material.opacity = warn; a.warn.position.set(a.tx, stageY + 0.25, 0.15);
-      a.weak.visible = weak > 0 && vis; a.weak.material.opacity = weak * (0.35 + 0.2 * Math.sin(B.tm * 9)); a.weak.position.set(a.p.x, a.p.y, a.p.z - 0.1);
+      a.warn.visible = warn > 0; a.warn.material.opacity = warn; a.warn.position.set(a.tx, stageY + 0.25, 0.5);
+      a.weak.visible = weak > 0 && vis; a.weak.material.opacity = weak * (0.35 + 0.2 * Math.sin(B.tm * 9)); a.weak.position.set(a.p.x, a.p.y, -1.1);
     }
     // the stage's ripples and the roof's stones
     for (let i = B.ripples.length - 1; i >= 0; i--){
@@ -189,12 +190,12 @@ export function makeWarden(scene, camera){
       }
     }
     // the torso, its eyes and core
-    const by = bodyY(), show = B.st !== 'dormant' || B.lift > W.sunk + 0.01;
-    body.visible = halo.visible = show && B.st !== 'dead'; body.position.set(cx, by, W.bodyZ); halo.position.set(cx, by + 2, W.bodyZ - 1);
+    const ba = bodyAt(), bx = ba.x, by = ba.y, show = B.st !== 'dormant' || B.lift > W.sunk + 0.01;
+    body.visible = halo.visible = show && B.st !== 'dead'; body.position.set(bx, by, -8); halo.position.set(bx, by + 2, -9);
     const lit = B.st === 'fight' ? 1 : B.st === 'rise' ? Math.min(1, B.tm / 2) : B.st === 'die' ? Math.max(0, 1 - B.tm / 2) : 0;
     const angry = B.phase === 2 ? 0xff8a50 : 0x7ff6ff;
-    for (const e of eyes){ e.m.position.set(cx + e.p.x, by + e.p.y, W.bodyZ + 0.3); e.m.material.opacity = lit * (0.85 + 0.15 * Math.sin(B.tm * 6)); e.m.material.color.setHex(angry); e.m.visible = body.visible; }
-    core.m.position.set(cx + core.p.x, by + core.p.y, W.bodyZ + 0.3); core.m.material.opacity = lit * (0.55 + 0.35 * Math.sin(B.tm * 2.2)) + B.flash * 3; core.m.visible = body.visible;
+    for (const e of eyes){ e.m.position.set(bx + e.p.x, by + e.p.y, -7.8); e.m.material.opacity = lit * (0.85 + 0.15 * Math.sin(B.tm * 6)); e.m.material.color.setHex(angry); e.m.visible = body.visible; }
+    core.m.position.set(bx + core.p.x, by + core.p.y, -7.8); core.m.material.opacity = lit * (0.55 + 0.35 * Math.sin(B.tm * 2.2)) + B.flash * 3; core.m.visible = body.visible;
     halo.material.opacity = 0.35 + lit * 0.25;
   };
 

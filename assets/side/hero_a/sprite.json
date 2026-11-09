@@ -1,0 +1,13 @@
+{
+ "name": "hero_a",
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 64,
+   "h": 64,
+   "foot": 63,
+   "cx": 33.0
+  }
+ },
+ "ppu": 32
+}

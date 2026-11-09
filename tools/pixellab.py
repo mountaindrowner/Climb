@@ -5,7 +5,7 @@
 # not reachable from the build machine).
 #
 #   python3 tools/pixellab.py balance
-#   python3 tools/pixellab.py character <name> "<description>" [size]        -> creates it, records its id in assets/side/pixellab.json
+#   python3 tools/pixellab.py character <name> "<description>" [size] [detail] -> creates it, records its id in assets/side/pixellab.json
 #   python3 tools/pixellab.py animate <name> <anim> "<action>" [frames]       -> a side-view animation (east; west is the mirror)
 #   python3 tools/pixellab.py pull <name>                                      -> downloads every animation and packs strips:
 #        assets/side/<name>/<anim>.png (frames left to right) + assets/side/<name>/sprite.json
@@ -33,9 +33,9 @@ def wait(job, what):
             print(what, j['status']); return j
         print(what, j['status'], round((j.get('last_response') or {}).get('progress') or 0, 2)); time.sleep(8)
 
-def character(name, desc, size=128):
+def character(name, desc, size=128, detail='highly detailed'):
     r = call('POST', '/create-character-v3', {'description': desc, 'image_size': {'width': size, 'height': size}, 'view': 'side', 'no_background': True,
-                                              'outline': 'single color black outline', 'detail': 'highly detailed'})
+                                              'outline': 'single color black outline', 'detail': detail})
     b = book(); b[name] = {'id': r['character_id'], 'description': desc, 'anims': {}}; save_book(b)
     wait(r['background_job_id'], 'character ' + name)
 def animate(name, anim, action, frames=8):
@@ -52,7 +52,7 @@ def pull(name):
         parts = n.split('/')
         if len(parts) >= 5 and parts[1] == 'animations' and parts[3] == 'east' and n.endswith('.png'): groups.setdefault(parts[2], []).append(n)
         if n.endswith('rotations/east.png'): groups.setdefault('stand', []).append(n)
-    d = os.path.join(OUT, name); os.makedirs(d, exist_ok=True); meta = {'name': name, 'anims': {}}
+    d = os.path.join(OUT, name); os.makedirs(d, exist_ok=True); meta = {'name': name, 'ppu': 32, 'anims': {}}   # drawn for 32 pixels to a world unit
     for anim, files in groups.items():
         frames = [Image.open(io.BytesIO(z.read(f))).convert('RGBA') for f in sorted(files)]
         w = max(f.width for f in frames); h = max(f.height for f in frames)
@@ -124,7 +124,7 @@ def tileset(fname, lower, top):
 if __name__ == '__main__':
     cmd, *a = sys.argv[1:]
     if cmd == 'balance': print(call('GET', '/balance'))
-    elif cmd == 'character': character(a[0], a[1], int(a[2]) if len(a) > 2 else 128)
+    elif cmd == 'character': character(a[0], a[1], int(a[2]) if len(a) > 2 else 128, a[3] if len(a) > 3 else 'highly detailed')
     elif cmd == 'animate': animate(a[0], a[1], a[2], a[3] if len(a) > 3 else 8)
     elif cmd == 'pull': pull(a[0])
     elif cmd == 'image': image(a[0], a[1], a[2], a[3], len(a) > 4 and a[4] == 'alpha')
