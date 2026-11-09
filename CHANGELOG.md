@@ -6,7 +6,7 @@ The Climb as a 2.5D side-scrolling metroidvania (`side.html`, docs/side.md): a f
 
 - **Movement v2 on tiles**: the same tuning, input queue and feel panel as the climb, plus walls, ceilings, one-way ledges (down + jump drops through), steps taken in stride, low tunnels, spikes and the ledge grab.
 - **The warrior**, drawn by PixelLab: stand, idle, run, jump, fall, roll, three cuts, the plunge, hurt.
-- **The first region**: twelve rooms with two routes up, from the start through the corridor, shaft and tunnel, by the gallery or across the bridge, up the two-screen well to the arena. A **shrine** in the grotto fills the flask and is where he wakes.
+- **The first region**: twelve rooms with two routes up, from the start through the corridor, shaft and tunnel, by the gallery or across the bridge, up the two-screen well to the arena. A **shrine** in the grotto fills the flask and is where he wakes. A **map** in the corner fills in room by room.
 - **Creatures**: crawler, flitter, spitter and burrower, each with a tell (a red ! over it).
 - **The Warden**: a stone titan at the back of the arena whose arms reach out of the depth onto the stage. It slams, sweeps, ripples the stage and brings the roof down; cut its fists while they rest. The way up opens when it falls.
 - **The look**: rendered pixel-exact and scaled up whole; a narrow perspective camera so the rock has depth and the painted cavern slides past slower; cave tiles on the dual grid, darkening into the rock; torches, crystals and light shafts, drifting motes, bloom.

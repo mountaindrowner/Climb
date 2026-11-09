@@ -26,6 +26,13 @@ const BOSS = makeWarden(R.scene, R.camera);
 // the shrine: it fills the flask and the hearts, and is where he wakes after a death
 const SHRINE = (m => m && { x: (m.x + 0.5) * T, y: m.y * T })(LEVEL.marks.find(m => m.type === 'shrine'));
 let CHECK = null, BANNER = null, WON = false, DEATH = 0;
+// the map: the region drawn a pixel a tile, each room shown once he has been in it
+const MAP = (() => {
+  const c = document.createElement('canvas'); c.width = LEVEL.W; c.height = LEVEL.H; const g = c.getContext('2d'), img = g.createImageData(LEVEL.W, LEVEL.H);
+  const COL = { 0: [46, 92, 128], 2: [196, 150, 92], 3: [255, 92, 132] };
+  for (let j = 0; j < LEVEL.H; j++) for (let i = 0; i < LEVEL.W; i++){ const k = COL[LEVEL.tiles[j * LEVEL.W + i]]; if (k) img.data.set([...k, 255], ((LEVEL.H - 1 - j) * LEVEL.W + i) * 4); }
+  g.putImageData(img, 0, 0); return { c, seen: new Set() };
+})();
 const banner = (a, b, t = 3.2) => { BANNER = { a, b, t, life: t }; };
 const FEEL_FX = { hitstop: 0, shake: 0 };
 // the aim assist: with nothing in reach ahead and a creature in reach behind, a swing turns to it
@@ -169,6 +176,18 @@ function drawHud(dt){
     if (BANNER.t <= 0) BANNER = null;
   }
   const room = roomAt(P.x, P.y);
+  if (room) MAP.seen.add(room);
+  {
+    const k = 0.8, mw = LEVEL.W * k, mh = LEVEL.H * k, mx = w - mw - 16, my = 16;
+    hx.fillStyle = 'rgba(6,8,20,0.85)'; hx.fillRect(mx - 4, my - 4, mw + 8, mh + 8); hx.strokeStyle = 'rgba(140,210,255,0.35)'; hx.lineWidth = 1; hx.strokeRect(mx - 4.5, my - 4.5, mw + 9, mh + 9);
+    hx.imageSmoothingEnabled = false;
+    for (const r of MAP.seen){ const sx = r.x0 / T, sy = LEVEL.H - r.y1 / T, sw = (r.x1 - r.x0) / T, sh = (r.y1 - r.y0) / T; hx.globalAlpha = r === room ? 1 : 0.7; hx.drawImage(MAP.c, sx, sy, sw, sh, mx + sx * k, my + sy * k, sw * k, sh * k); }
+    hx.globalAlpha = 1;
+    const dot = (x, y, c, r = 2) => { hx.fillStyle = c; hx.fillRect(mx + x / T * k - r, my + (LEVEL.H - y / T) * k - r, r * 2, r * 2); };
+    if (SHRINE && [...MAP.seen].some(r => r.name === 'grotto')) dot(SHRINE.x, SHRINE.y + 0.5, '#ffd27a');
+    if (BOSS && [...MAP.seen].some(r => r.name === 'arena')) dot(BOSS.cx, BOSS.stageY + 1, BOSS.st === 'dead' ? '#7a8090' : '#ff5a4a', 3);
+    if (Math.floor(time * 3) % 2 === 0) dot(P.x, P.y + 0.8, '#ffffff');
+  }
   hx.font = '600 14px "Pixelify Sans", sans-serif'; hx.fillStyle = '#cfe6ff'; hx.fillText(room ? room.name : '', 18, 52);
   hx.fillStyle = 'rgba(207,230,255,0.6)'; hx.font = '400 12px "Pixelify Sans", sans-serif';
   hx.fillText('A D move · Space jump (again in the air) · Shift roll · LMB attack · S + LMB in the air plunge · S + Space drop through a ledge · F9 feel', 18, h - 16);
