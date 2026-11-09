@@ -129,6 +129,23 @@ export function makeRenderer(canvas){
       lights.push({ x, y: y + 1, color: 0xffe0a0, power: 2, range: 8, ph: 0 });
     }
   }
+  // ---- the air: motes of light drifting through the dark, and soft shafts of light falling through every opening in a
+  // room's roof (a gap in the rock straight up)
+  const moteTex = glowTex('rgba(200,240,255,1)'), motes = [];
+  for (let k = 0; k < 90; k++){
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.12), new THREE.MeshBasicMaterial({ map: moteTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, color: rnd() < 0.3 ? 0xffd8a0 : 0x9fe8ff }));
+    m.position.set(rnd() * W, rnd() * Hh, -rnd() * 3 + 0.5); scene.add(m); motes.push({ m, vx: (rnd() - 0.5) * 0.2, vy: 0.05 + rnd() * 0.15, ph: rnd() * 9 });
+  }
+  const shaftTex = canvasTex(32, 128, (g, w, h) => { const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, 'rgba(170,230,255,0.55)'); gr.addColorStop(1, 'rgba(170,230,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, h); const gx = g.createLinearGradient(0, 0, w, 0); gx.addColorStop(0, 'rgba(0,0,0,1)'); gx.addColorStop(0.5, 'rgba(0,0,0,0)'); gx.addColorStop(1, 'rgba(0,0,0,1)'); g.globalCompositeOperation = 'destination-out'; g.fillStyle = gx; g.fillRect(0, 0, w, h); });
+  shaftTex.minFilter = shaftTex.magFilter = THREE.LinearFilter;
+  for (let i = 1; i < LEVEL.W - 1; i++) for (let j = 2; j < LEVEL.H - 1; j++){
+    // the bottom of an opening: open here, rock to either side a few tiles up, and open sky above for a while
+    if (tileAt(i, j) !== 0 || tileAt(i, j + 1) !== 0 || tileAt(i - 1, j + 1) === 0 || i % 3) continue;
+    let up = 0; while (up < 8 && tileAt(i, j + up) === 0) up++;
+    if (up < 8 || tileAt(i, j - 1) !== 0) continue;
+    const sh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 7), new THREE.MeshBasicMaterial({ map: shaftTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.35 }));
+    sh.position.set((i + 0.5) * T, (j + 1) * T - 3.5, -0.8); sh.rotation.z = 0.18; scene.add(sh);
+  }
   // point lights are expensive: a fixed pool follows the nearest light marks
   const pool = []; for (let k = 0; k < 6; k++){ const L = new THREE.PointLight(0xffffff, 0, 7, 2); scene.add(L); pool.push(L); }
 
@@ -161,6 +178,7 @@ export function makeRenderer(canvas){
     setCamera(x, y){ cam.x = x; cam.y = y; camera.position.set(x, y + 0.3, dist); camera.lookAt(x, y, 0); back.position.set(x - (x - W / 2) * 0.08, y - (y - Hh / 2) * 0.08, BACK_Z); },
     frame(t, hero){
       resize();
+      for (const o of motes){ o.m.position.x += (o.vx + Math.sin(t * 0.7 + o.ph) * 0.05) * 0.016; o.m.position.y += o.vy * 0.016; if (o.m.position.y > cam.y + 7) o.m.position.y = cam.y - 7; if (Math.abs(o.m.position.x - cam.x) > 12) o.m.position.x = cam.x + (rnd() - 0.5) * 22; o.m.material.opacity = 0.5 + 0.5 * Math.sin(t * 2 + o.ph); }
       for (const f of flames){ const k = f.slow ? 0.06 : 0.12; f.m.scale.setScalar(1 + Math.sin(t * (f.slow ? 2 : 13) + f.ph) * k + (f.slow ? 0 : Math.sin(t * 7.3 + f.ph) * 0.06)); }
       // the nearest lights get the pool
       const near = lights.map(l => ({ l, d: Math.hypot(l.x - cam.x, l.y - cam.y) })).sort((a, b) => a.d - b.d);

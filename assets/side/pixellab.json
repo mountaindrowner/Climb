@@ -32,6 +32,58 @@
     "action": "a fast forward combat roll, tucked into a ball, tumbling forward and rising back to his feet",
     "frames": 8,
     "group": "92954608-5ab3-4176-9a64-4829f6397c53"
+   },
+   "attack1": {
+    "action": "a fast diagonal greatsword slash from high over his shoulder down across the front, stepping forward",
+    "frames": 8,
+    "group": "70310d49-4d41-4d1d-b07b-539500ac7eac"
+   },
+   "attack3": {
+    "action": "a heavy rising greatsword uppercut from the ground up high, a powerful finishing blow, lunging forward",
+    "frames": 8,
+    "group": "8bf0dd18-f3fc-4be9-8ff7-eb6700d13f96"
+   },
+   "plunge": {
+    "action": "plunging straight down from the air, greatsword driven point-first beneath him",
+    "frames": 4,
+    "group": "4b0b535a-e92d-4fc7-885a-42b6c728b0ff"
+   },
+   "hurt": {
+    "action": "recoiling from a hit, staggering backward",
+    "frames": 4,
+    "group": "b718470c-34c7-4eac-8738-328ecf2acada"
+   }
+  }
+ },
+ "crawler": {
+  "id": "b9582563-f056-422c-8981-2401649db4c8",
+  "description": "a large armored cave beetle-spider with six legs, glossy violet-black carapace plates, glowing magenta eyes and snapping mandibles, side view game enemy sprite",
+  "anims": {
+   "walk": {
+    "action": "skittering forward quickly on six legs",
+    "frames": 8,
+    "group": "0d7abac4-0e06-43b0-9b2b-a92054d1d48e"
+   },
+   "attack": {
+    "action": "rearing up on its hind legs then lunging forward to bite with its mandibles",
+    "frames": 8,
+    "group": "d475abb0-bc54-481c-af82-2294ac7befe6"
+   }
+  }
+ },
+ "flitter": {
+  "id": "83533981-87ee-4c55-a1ac-5834981234b8",
+  "description": "a ragged cave bat with leathery tattered wings, glowing amber eyes, fangs, side view game enemy sprite",
+  "anims": {
+   "fly": {
+    "action": "flapping its wings, hovering in the air",
+    "frames": 6,
+    "group": "0fcc26c0-36dd-4993-be0d-780651ad9d6b"
+   },
+   "dive": {
+    "action": "folding its wings and diving forward to bite",
+    "frames": 6,
+    "group": "2311bdcd-7fd2-4595-b587-09690f197dd5"
    }
   }
  }

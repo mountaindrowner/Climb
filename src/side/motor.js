@@ -42,7 +42,7 @@ function launchSpeed(height, ease){
 export function newPlayer(x, y){
   return { x, y, vx: 0, vy: 0, h: BODY.stand, face: 1, grounded: true, coyote: 0, jumpBuf: 0, jumpT: 1, launch: 0, airT: 0, airJumps: 1, airTop: y,
     flip: 0, roll: 0, rollCd: 0, rollDir: 1, dive: null, plant: 0, crouch: false, mantle: null, landT: 0, drop: 0,
-    hp: TUNE.player.hp, maxHp: TUNE.player.hp, inv: 0, hurtT: 0, atk: null, weapon: 'sword', runPhase: 0, events: [] };
+    hp: TUNE.player.hp, maxHp: TUNE.player.hp, flask: TUNE.player.flask, inv: 0, hurtT: 0, atk: null, weapon: 'sword', runPhase: 0, events: [] };
 }
 const ev = (P, type, extra) => P.events.push({ type, ...extra });
 function takeOff(P, air){
@@ -241,6 +241,9 @@ function landed(P){
   if (drop > SIDE.fallSafe){ P.hp -= 1; P.inv = Math.max(P.inv, 0.6); ev(P, 'hurt', { n: 1, msg: 'Fell' }); }
 }
 export const SIDE = { fallSafe: 9 };   // a metroidvania's shafts are deep: only a long drop hurts
+// set by the game: which way a foe is that a swing should turn to (0 for none), for the aim assist
+export const HOOKS = { aim: null };
 function startSwing(P, i){
+  if (FEEL.aim && HOOKS.aim && !IN.held.left && !IN.held.right){ const d = HOOKS.aim(P); if (d) P.face = d; }
   P.atk = { i, t: 0, phase: 'wind', queued: false };
 }
