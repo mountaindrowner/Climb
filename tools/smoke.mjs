@@ -85,7 +85,7 @@ await page.addScriptTag({ type: 'module', content: `
           case 'beam': if (d > -0.6 && d < 1.3) crouch = true; break;
           case 'rockfall': if ((o.st === 'warn' || o.st === 'drop') && d > -0.8 && d < 2.0) block = true; break;
           case 'swing': if (d > -3.2 && d < 2.8) crouch = true; break;   // the whole arc, both sides of the pivot
-          case 'burrower': if ((o.st === 'up' || o.st === 'rise' || o.st === 'travel') && d > 0.4 && d < 1.0 && G.grounded) jump(); break;
+          case 'burrower': if ((o.st === 'up' || o.st === 'rise' || o.st === 'travel') && d > 0.4 && d < 1.4 && G.grounded) jump(); break;   /* since 0.28 the jaws come up sooner: jump a little earlier */
           case 'crawler':
             if (o.alive && o.st !== 'idle' && o.st !== 'crack' && Math.abs(d) < 2.4){
               move = 0;
