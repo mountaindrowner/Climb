@@ -14,6 +14,7 @@ import { makeWarden } from './boss.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
+const BUILD = 'side 5 · stylized';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -196,6 +197,7 @@ function drawHud(dt){
   hx.fillStyle = 'rgba(207,230,255,0.6)'; hx.font = '400 12px "Pixelify Sans", sans-serif';
   if (DEVICE.kind === 'keys') hx.fillText('A D move · Space jump (again in the air) · Shift roll · LMB attack · S + LMB in the air plunge · S + Space drop through a ledge · F9 feel', 18, h - 16);
   else if (DEVICE.kind !== 'touch') hx.fillText('stick move · A jump (again in the air) · roll · attack · down + attack in the air plunge · down + jump drop through a ledge', 18, h - 16);
+  hx.fillStyle = 'rgba(207,230,255,0.45)'; hx.font = '400 11px "Pixelify Sans", sans-serif'; hx.textAlign = 'right'; hx.fillText(BUILD, w - 16, h - 6); hx.textAlign = 'left';   // which build this is
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, TUNE.player.flask - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
 window.__side = { get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, weapons: null, CAM, input: null, E, BOSS };
