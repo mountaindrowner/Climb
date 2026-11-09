@@ -1,0 +1,20 @@
+{
+ "name": "px_spitter",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 32,
+   "h": 32,
+   "foot": 29,
+   "cx": 15.5
+  },
+  "charge": {
+   "frames": 9,
+   "w": 40,
+   "h": 40,
+   "foot": 33,
+   "cx": 19.5
+  }
+ }
+}

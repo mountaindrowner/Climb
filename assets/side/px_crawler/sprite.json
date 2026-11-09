@@ -1,0 +1,27 @@
+{
+ "name": "px_crawler",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 32,
+   "h": 32,
+   "foot": 30,
+   "cx": 15.0
+  },
+  "walk": {
+   "frames": 9,
+   "w": 44,
+   "h": 44,
+   "foot": 36,
+   "cx": 21.0
+  },
+  "attack": {
+   "frames": 9,
+   "w": 44,
+   "h": 44,
+   "foot": 36,
+   "cx": 21.0
+  }
+ }
+}

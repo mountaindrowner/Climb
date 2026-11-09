@@ -21,9 +21,9 @@ const sp = spawnPoint();
 let P = newPlayer(sp.x, sp.y);
 const hero = { sprite: null, meta: null };
 // the warrior: one of the drawn options (?hero=a|b|c|d), falling back to the first, larger drawing
-const HERO = 'hero_' + ((new URLSearchParams(location.search).get('hero') || 'a').replace(/[^a-d]/g, '') || 'a');
+const HEROES = { a: 'px_knight', b: 'px_hood', c: 'px_mask', d: 'px_hat' }, HERO = HEROES[new URLSearchParams(location.search).get('hero')] || HEROES.a;
 const loadHero = name => fetch(`assets/side/${name}/sprite.json`).then(r => r.ok ? r.json() : Promise.reject()).then(meta => { hero.meta = meta; hero.sprite = makeSprite(R.scene, `assets/side/${name}`, meta); });
-loadHero(HERO).catch(() => loadHero('hero'));
+loadHero(HERO).catch(() => loadHero('hero_a')).catch(() => loadHero('hero'));
 const fx = spawnFx(R.scene);
 const E = spawnEnemies(R.scene);
 const BOSS = makeWarden(R.scene, R);

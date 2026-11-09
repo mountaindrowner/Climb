@@ -15,8 +15,8 @@ import { hurt, isRollInv } from './motor.js';
 const THREE = window.THREE;
 export const WARDEN = {
   name: 'The Warden', hp: 24, phase2: 0.5,
-  bodyF: 0.5, bodyH: 12.5, sunk: -14,                     // its torso: parallax (how far back), size (a pixel a picture pixel); how far below the stage it waits
-  fistR: 1.4, armW: 2.6,
+  bodyF: 0.5, bodyH: 12.5, sunk: -14,                     // its torso: parallax (how far back), size (200 pixels: a pixel a picture pixel); how far below the stage it waits
+  fistR: 1.4, armW: 2,
   slam: { raise: [0.75, 0.6], hold: [0.42, 0.32], drop: 0.11, rest: [1.5, 1.1], lift: 0.55, reach: 1.8, high: 7.5 },
   sweep: { lower: [0.85, 0.7], speed: [12, 15], rest: [1.2, 0.9], low: 1.0, clear: 1.3 },
   ripple: { speed: 10, life: 1.1 },
@@ -45,19 +45,19 @@ export function makeWarden(scene, R){
   const stone = 0xa9b4a2;   // the arms are grey; brought toward the torso's mossy green
   // ---- the torso, with a cold glow behind it so it stands out of the dark
   const halo = new THREE.Mesh(new THREE.PlaneGeometry(24, 24), additive(glow('rgba(60,200,220,1)'), 0x2a8a9a, 0.5)); scene.add(halo);
-  const body = new THREE.Mesh(new THREE.PlaneGeometry(W.bodyH, W.bodyH), new THREE.MeshBasicMaterial({ map: tex('assets/side/colossus/torso.png'), transparent: true, alphaTest: 0.5, color: 0xc8d0c8 }));
+  const body = new THREE.Mesh(new THREE.PlaneGeometry(W.bodyH, W.bodyH), new THREE.MeshBasicMaterial({ map: tex('assets/side/colossus/torso16.png'), transparent: true, alphaTest: 0.5, color: 0xc8d0c8 }));
   scene.add(body);
   const eyeTex = glow('rgba(140,255,255,1)');
   const eyes = PIC.eyes.map(p => { const m = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.5), additive(eyeTex, 0x7ff6ff, 0)); scene.add(m); return { m, p: local(p) }; });
   const core = { m: new THREE.Mesh(new THREE.PlaneGeometry(2.6, 2.6), additive(eyeTex, 0x5fe8d8, 0)), p: local(PIC.core) }; scene.add(core.m);
   // ---- the arms
-  const upTex = tex('assets/side/colossus/upperarm.png'), foreTex = tex('assets/side/colossus/forearm.png'), fistTex = tex('assets/side/colossus/fist.png');
+  const upTex = tex('assets/side/colossus/upperarm16.png'), foreTex = tex('assets/side/colossus/forearm16.png'), fistTex = tex('assets/side/colossus/fist16.png');
   const segMat = map => new THREE.MeshBasicMaterial({ map, transparent: true, alphaTest: 0.5, color: stone, side: THREE.DoubleSide });
   const warnTex = glow('rgba(255,60,50,1)');
   for (const s of [-1, 1]){
     const up = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), segMat(upTex)), fore = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), segMat(foreTex));
     const fistMat = new THREE.MeshBasicMaterial({ map: fistTex, transparent: true, alphaTest: 0.5, color: stone });
-    const fist = new THREE.Mesh(new THREE.PlaneGeometry(3, 3), fistMat);   // its picture at half size: 96 pixels
+    const fist = new THREE.Mesh(new THREE.PlaneGeometry(3, 3), fistMat);   // 48 pixels
     const weak = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), additive(eyeTex, 0x6ff0ff, 0));   // the glow that says: now
     const warn = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.1), additive(warnTex, 0xff5040, 0));  // the mark under a blow
     for (const m of [up, fore, fist, weak, warn]){ m.visible = false; scene.add(m); }

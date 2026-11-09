@@ -6,7 +6,8 @@
 #
 #   python3 tools/pixellab.py balance
 #   python3 tools/pixellab.py character <name> "<description>" [size] [detail] -> creates it, records its id in assets/side/pixellab.json
-#   python3 tools/pixellab.py animate <name> <anim> "<action>" [frames]       -> a side-view animation (east; west is the mirror)
+#   python3 tools/pixellab.py animate <name> <anim> "<action>" [frames] [mode] -> a side-view animation (east; west is the mirror);
+#        action 'template:<id>' with mode skeleton-v3 poses the character (steadier); frames held to assets/side/palette.json
 #   python3 tools/pixellab.py pull <name>                                      -> downloads every animation and packs strips:
 #        assets/side/<name>/<anim>.png (frames left to right) + assets/side/<name>/sprite.json
 #   python3 tools/pixellab.py image <file> "<description>" <w> <h> [alpha]     -> assets/side/<file>.png (backgrounds, props)
@@ -38,11 +39,32 @@ def character(name, desc, size=128, detail='highly detailed'):
                                               'outline': 'single color black outline', 'detail': detail})
     b = book(); b[name] = {'id': r['character_id'], 'description': desc, 'anims': {}}; save_book(b)
     wait(r['background_job_id'], 'character ' + name)
-def animate(name, anim, action, frames=8):
+PALETTE = json.load(open(os.path.join(OUT, 'palette.json')))['colors'] if os.path.exists(os.path.join(OUT, 'palette.json')) else None
+def animate(name, anim, action, frames=8, mode='v3'):
+    """mode v3 / pixminimax: drawn from the action text; skeleton-v3 with a template id (action 'template:<id>'): the
+    character posed and moved, which keeps it steadier. Every frame held to the palette."""
     b = book(); c = b[name]
-    r = call('POST', '/characters/animations', {'character_id': c['id'], 'mode': 'v3', 'action_description': action, 'animation_name': anim, 'frame_count': int(frames), 'directions': ['east']})
+    body = {'character_id': c['id'], 'mode': mode, 'animation_name': anim, 'directions': ['east']}
+    if action.startswith('template:'): body['template_animation_id'] = action[9:]
+    else: body['action_description'] = action
+    if mode in ('v3', 'pixminimax') or (mode == 'skeleton-v3' and 'action_description' in body): body['frame_count'] = int(frames)
+    if PALETTE and mode != 'template': body['target_palette'] = {'colors': PALETTE, 'name': 'Endesga 32'}
+    r = call('POST', '/characters/animations', body)
     c['anims'][anim] = {'action': action, 'frames': int(frames), 'group': r.get('animation_group_id')}; save_book(b)
     for j in r['background_job_ids']: wait(j, f'{name} {anim}')
+PPU_PULL = int(os.environ.get('PPU', '16'))
+def snap(im):
+    """every opaque pixel to its nearest palette colour (and alpha to all or nothing)"""
+    if not PALETTE: return im
+    pal = [tuple(int(c[i:i + 2], 16) for i in (1, 3, 5)) for c in PALETTE]; px = im.load(); cache = {}
+    for y in range(im.height):
+        for x in range(im.width):
+            r, g, b_, a = px[x, y]
+            if a < 128: px[x, y] = (0, 0, 0, 0); continue
+            k = (r, g, b_)
+            if k not in cache: cache[k] = min(pal, key=lambda p: (p[0] - r) ** 2 * 3 + (p[1] - g) ** 2 * 4 + (p[2] - b_) ** 2 * 2)
+            px[x, y] = cache[k] + (255,)
+    return im
 def pull(name):
     from PIL import Image
     b = book(); c = b[name]
@@ -52,9 +74,20 @@ def pull(name):
         parts = n.split('/')
         if len(parts) >= 5 and parts[1] == 'animations' and parts[3] == 'east' and n.endswith('.png'): groups.setdefault(parts[2], []).append(n)
         if n.endswith('rotations/east.png'): groups.setdefault('stand', []).append(n)
-    d = os.path.join(OUT, name); os.makedirs(d, exist_ok=True); meta = {'name': name, 'ppu': 32, 'anims': {}}   # drawn for 32 pixels to a world unit
+    d = os.path.join(OUT, name); os.makedirs(d, exist_ok=True); meta = {'name': name, 'ppu': PPU_PULL, 'anims': {}}   # pixels to a world unit it is drawn for
+    # an animation's folder in the export is its name, or, for a template, the template's own (running-6-frames ->
+    # 'running'): give it back the name it was asked for
+    ALIAS = {'breathing_idle': 'breathing-idle', 'taking_a_punch': 'taking-punch'}
+    def named(f):
+        if f in c['anims']: return f
+        f2 = ALIAS.get(f, f.replace('_', '-'))
+        for an, info in c['anims'].items():
+            act = info.get('action', '')
+            if act.startswith('template:') and (act[9:].startswith(f) or act[9:] == f2): return an
+        return f
+    groups = {named(f): v for f, v in groups.items()}
     for anim, files in groups.items():
-        frames = [Image.open(io.BytesIO(z.read(f))).convert('RGBA') for f in sorted(files)]
+        frames = [snap(Image.open(io.BytesIO(z.read(f))).convert('RGBA')) for f in sorted(files)]
         w = max(f.width for f in frames); h = max(f.height for f in frames)
         strip = Image.new('RGBA', (w * len(frames), h))
         for i, f in enumerate(frames): strip.paste(f, (i * w + (w - f.width) // 2, h - f.height))
@@ -125,7 +158,7 @@ if __name__ == '__main__':
     cmd, *a = sys.argv[1:]
     if cmd == 'balance': print(call('GET', '/balance'))
     elif cmd == 'character': character(a[0], a[1], int(a[2]) if len(a) > 2 else 128, a[3] if len(a) > 3 else 'highly detailed')
-    elif cmd == 'animate': animate(a[0], a[1], a[2], a[3] if len(a) > 3 else 8)
+    elif cmd == 'animate': animate(a[0], a[1], a[2], a[3] if len(a) > 3 else 8, a[4] if len(a) > 4 else 'v3')
     elif cmd == 'pull': pull(a[0])
     elif cmd == 'image': image(a[0], a[1], a[2], a[3], len(a) > 4 and a[4] == 'alpha')
     elif cmd == 'unbg': unbg(a[0])

@@ -1,0 +1,83 @@
+{
+ "name": "px_knight",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 32,
+   "h": 32,
+   "foot": 31,
+   "cx": 13.0
+  },
+  "roll": {
+   "frames": 7,
+   "w": 44,
+   "h": 44,
+   "foot": 37,
+   "cx": 19.0
+  },
+  "fall": {
+   "frames": 5,
+   "w": 44,
+   "h": 44,
+   "foot": 37,
+   "cx": 19.0
+  },
+  "attack1": {
+   "frames": 7,
+   "w": 44,
+   "h": 44,
+   "foot": 37,
+   "cx": 19.0
+  },
+  "run": {
+   "frames": 6,
+   "w": 48,
+   "h": 48,
+   "foot": 39,
+   "cx": 23.5
+  },
+  "attack3": {
+   "frames": 7,
+   "w": 44,
+   "h": 44,
+   "foot": 37,
+   "cx": 19.0
+  },
+  "jump": {
+   "frames": 9,
+   "w": 48,
+   "h": 48,
+   "foot": 40,
+   "cx": 22.0
+  },
+  "plunge": {
+   "frames": 5,
+   "w": 44,
+   "h": 44,
+   "foot": 37,
+   "cx": 19.0
+  },
+  "attack2": {
+   "frames": 7,
+   "w": 44,
+   "h": 44,
+   "foot": 37,
+   "cx": 19.0
+  },
+  "idle": {
+   "frames": 4,
+   "w": 48,
+   "h": 48,
+   "foot": 39,
+   "cx": 22.0
+  },
+  "hurt": {
+   "frames": 6,
+   "w": 48,
+   "h": 48,
+   "foot": 39,
+   "cx": 21.5
+  }
+ }
+}

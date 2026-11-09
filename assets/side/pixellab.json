@@ -278,5 +278,173 @@
     "group": "7a0356a9-133d-407f-8951-7f3faed0f046"
    }
   }
+ },
+ "px_knight": {
+  "id": "3a89af74-3a8e-46a4-ac15-6fd108742b60",
+  "description": "a small knight with a round steel helmet, a red cape and a short sword, simple stylized chunky pixel art with few colors and bold shapes, seen from the side, 2D platformer hero",
+  "anims": {
+   "run": {
+    "action": "template:running-6-frames",
+    "frames": 6,
+    "group": "4a5dc77d-57eb-4ee6-ba78-0bffcbeded41"
+   },
+   "idle": {
+    "action": "template:breathing-idle",
+    "frames": 6,
+    "group": "75368ba9-b518-4834-bdfe-d455cd5c1b15"
+   },
+   "jump": {
+    "action": "template:jumping-1",
+    "frames": 6,
+    "group": "63213d28-fd24-417e-9c89-fbe8566c77b4"
+   },
+   "hurt": {
+    "action": "template:taking-punch",
+    "frames": 6,
+    "group": "b4888702-37ff-4ffd-b1e5-c60ce62e7588"
+   },
+   "attack2": {
+    "action": "a quick backhand sword slash swinging back the other way",
+    "frames": 6,
+    "group": "c726058c-7d9e-42fb-933c-c5fe0590d05f"
+   },
+   "attack3": {
+    "action": "a big heavy overhead sword chop down in front",
+    "frames": 6,
+    "group": "5d651abe-0b45-441f-a457-47e32db0e70e"
+   },
+   "roll": {
+    "action": "a quick forward roll tucked into a ball, the cape wrapping round",
+    "frames": 6,
+    "group": "09b3f544-aed2-429f-8b5e-2dab73c76a79"
+   },
+   "fall": {
+    "action": "falling with arms raised and the cape fluttering upward",
+    "frames": 4,
+    "group": "25789ab3-f8dc-4f96-a31d-524cc0f77cb7"
+   },
+   "plunge": {
+    "action": "diving straight down with the sword pointed down below the feet",
+    "frames": 4,
+    "group": "c38494c7-614f-4d03-9835-74ec5986d754"
+   }
+  }
+ },
+ "px_hood": {
+  "id": "fc71cd4e-8a0b-4138-a733-b9b94d07333e",
+  "description": "a small hooded wanderer in a teal cloak, two glowing eyes in the dark of the hood, a short sword, simple stylized chunky pixel art with few colors and bold shapes, seen from the side, 2D platformer hero",
+  "anims": {
+   "idle": {
+    "action": "template:breathing-idle",
+    "frames": 6,
+    "group": "cec57a1c-2a98-4a2b-bf39-968aa836987f"
+   },
+   "run": {
+    "action": "template:running-6-frames",
+    "frames": 6,
+    "group": "fb35f4c4-3235-45ab-935f-43c4b58890f7"
+   },
+   "attack1": {
+    "action": "a fast forward sword slash, the blade swinging out in front",
+    "frames": 6,
+    "group": "11be0ab4-150a-4673-b7ef-fb4a12391882"
+   }
+  }
+ },
+ "px_crawler": {
+  "id": "138ef72a-4337-4f62-9ff2-c3407b36ff54",
+  "description": "a small spiky purple slug beast with one big glowing yellow eye, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "walk": {
+    "action": "crawling forward, body squashing and stretching",
+    "frames": 8,
+    "group": "785029aa-77f6-46e7-94b4-1b2ab8dda5fe"
+   },
+   "attack": {
+    "action": "rearing back then lunging forward to bite",
+    "frames": 8,
+    "group": "98329b08-7d4a-43b3-a665-5f933927aa55"
+   }
+  }
+ },
+ "px_mask": {
+  "id": "431c094c-090c-4370-99c5-022ccee6482e",
+  "description": "a small warrior with a white bone mask, a long red scarf and a curved blade, simple stylized chunky pixel art with few colors and bold shapes, seen from the side, 2D platformer hero",
+  "anims": {
+   "idle": {
+    "action": "template:breathing-idle",
+    "frames": 6,
+    "group": "9dfa524d-b2b0-4814-82d4-0899785e07ac"
+   },
+   "run": {
+    "action": "template:running-6-frames",
+    "frames": 6,
+    "group": "ee444713-c770-4f37-b408-328ebf85f398"
+   },
+   "attack1": {
+    "action": "a fast forward sword slash, the blade swinging out in front",
+    "frames": 6,
+    "group": "007e71f1-78b4-4925-b401-fcf2af950284"
+   }
+  }
+ },
+ "px_flitter": {
+  "id": "10f37721-ae52-483d-9fea-4bcec362a9d9",
+  "description": "a small round dark bat with big pointed ears, tiny wings and glowing red eyes, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "fly": {
+    "action": "flapping its wings fast, bobbing in the air",
+    "frames": 8,
+    "group": "f517e570-c694-4df2-8ac0-c950e971b002"
+   },
+   "dive": {
+    "action": "folding its wings and diving forward",
+    "frames": 8,
+    "group": "92ac1424-7652-429e-91ab-7c47d77f7af2"
+   }
+  }
+ },
+ "px_hat": {
+  "id": "46691734-3d29-4d7b-aaad-19a4751e9b85",
+  "description": "a small climber with a big wide-brimmed hat, an orange poncho and a short sword, simple stylized chunky pixel art with few colors and bold shapes, seen from the side, 2D platformer hero",
+  "anims": {
+   "idle": {
+    "action": "template:breathing-idle",
+    "frames": 6,
+    "group": "2c445429-8f0c-4a65-b083-ace100fd9564"
+   },
+   "run": {
+    "action": "template:running-6-frames",
+    "frames": 6,
+    "group": "3c382636-3ce2-4ca8-92b5-812d84c2182a"
+   },
+   "attack1": {
+    "action": "a fast forward sword slash, the blade swinging out in front",
+    "frames": 6,
+    "group": "3bda3e4a-54fe-4873-aef3-0366f1edb66f"
+   }
+  }
+ },
+ "px_spitter": {
+  "id": "b792e19b-8cca-49f0-9c20-2df2a0808a3a",
+  "description": "a small green blob plant creature with a big round mouth, clinging, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "charge": {
+    "action": "swelling up then spitting a glob forward",
+    "frames": 8,
+    "group": "883558b9-fde8-411f-a18c-f8273b7cd01c"
+   }
+  }
+ },
+ "px_burrower": {
+  "id": "596bb689-206c-4ea9-a0cf-d3bf7a8b405a",
+  "description": "a big pale grub worm rearing up with a wide mouth full of teeth, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "snap": {
+    "action": "lunging upward and snapping its jaws shut",
+    "frames": 8,
+    "group": "76724164-ec02-471c-950d-9d8a0515f678"
+   }
+  }
  }
 }

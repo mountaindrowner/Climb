@@ -51,11 +51,13 @@ function tunnel(){
   rect(r, 2, 2, 37, 13);                                          // solid under the tunnel
   rect(r, 17, 17, 28, 20);                                        // a low stretch: crouch or roll under it
   stairs(r, 13, 14, 8, -1, 1);                                    // up to the hole in the roof
+  rect(r, 2, 2, 5, 20);                                           // the stair meets the wall: no pit beside its top
   mark(r, 'burrower', 30, 14); mark(r, 'torch', 33, 18); mark(r, 'crystal', 20, 14);
   return r;
 }
 function chamber(){
   const r = room(); walls(r); door(r, 'bottom', 3, 12); door(r, 'right', 2, 7); door(r, 'top', 26, 32);
+  ledge(r, 3, 12, 1);                                             // over the hole up from the tunnel: jump up through it
   ledge(r, 12, 18, 5); ledge(r, 22, 28, 9); ledge(r, 10, 16, 13); ledge(r, 24, 32, 16); ledge(r, 26, 32, 20);
   rect(r, 18, 2, 20, 3);
   mark(r, 'flitter', 20, 12); mark(r, 'torch', 11, 15); mark(r, 'torch', 29, 18); mark(r, 'crystal', 30, 2); mark(r, 'crystal', 14, 14); mark(r, 'crawler', 30, 2);
@@ -64,6 +66,7 @@ function chamber(){
 function ascent(){
   const r = room(); walls(r); door(r, 'left', 2, 7); door(r, 'right', 16, 20);
   stairs(r, 6, 2, 14, 1, 2);                                      // a long climb to the right
+  rect(r, 34, 2, 37, 15);                                         // its top meets the wall: no pit beside it
   mark(r, 'spitter', 20, 14); mark(r, 'torch', 8, 9); mark(r, 'torch', 30, 19); mark(r, 'crystal', 4, 2);
   return r;
 }
@@ -105,9 +108,10 @@ function bridge(){
 // a basin of crystals and the shrine: it fills the flask and is where you wake
 function grotto(){
   const r = room(); walls(r); door(r, 'left', 14, 18); door(r, 'right', 15, 19);
-  rect(r, 2, 2, 37, 13); rect(r, 12, 6, 27, 13, EMPTY);           // the floor, and the basin in it
+  rect(r, 2, 2, 37, 13); rect(r, 12, 8, 27, 13, EMPTY);           // the floor, and the basin in it
+  ledge(r, 13, 16, 11); ledge(r, 23, 26, 11);                     // steps out of it
   rect(r, 30, 14, 37, 14);                                        // a step up to the well
-  mark(r, 'shrine', 20, 6); mark(r, 'crystal', 13, 6); mark(r, 'crystal', 26, 6); mark(r, 'crystal', 16, 6); mark(r, 'crystal', 23, 6);
+  mark(r, 'shrine', 20, 8); mark(r, 'crystal', 13, 8); mark(r, 'crystal', 26, 8); mark(r, 'crystal', 18, 8);
   mark(r, 'torch', 6, 17); mark(r, 'torch', 33, 18);
   return r;
 }
@@ -154,7 +158,7 @@ function organic(tiles, W, H, marks, rooms){
   const roomOf = (i, j) => rooms.find(r => i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1);
   // what is kept clear: near (the walk: five over every floor), far (head room: seven over a floor, eleven and wider
   // over a ledge, where he jumps from one to the next), doorways and the way through them, and markers
-  const near = new Uint8Array(W * H), far = new Uint8Array(W * H);
+  const near = new Uint8Array(W * H), far = new Uint8Array(W * H), doorway = new Uint8Array(W * H);
   const mark = (arr, i, j) => { if (i >= 0 && j >= 0 && i < W && j < H) arr[j * W + i] = 1; };
   for (let j = 1; j < H; j++) for (let i = 0; i < W; i++) if (stand(i, j)){
     const ledge = at(i, j - 1) === LEDGE, up = ledge ? 11 : 7, side = ledge ? 4 : 2;
@@ -165,7 +169,7 @@ function organic(tiles, W, H, marks, rooms){
   for (const r of rooms) for (let j = r.ty0; j < r.ty1; j++) for (let i = r.tx0; i < r.tx1; i++){
     const ring = i < r.tx0 + 2 || i >= r.tx1 - 2 || j < r.ty0 + 2 || j >= r.ty1 - 2;
     if (!ring || at(i, j) === ROCK) continue;
-    for (let a = -6; a <= 6; a++) for (let b = -6; b <= 6; b++){ mark(near, i + a, j + b); mark(far, i + a, j + b); }
+    for (let a = -6; a <= 6; a++) for (let b = -6; b <= 6; b++){ mark(near, i + a, j + b); mark(far, i + a, j + b); mark(doorway, i + a, j + b); }
   }
   for (const m of marks) for (let a = -2; a <= 2; a++) for (let b = -1; b <= 3; b++){ mark(near, m.x + a, m.y + b); mark(far, m.x + a, m.y + b); }
   const free = (arr, i, j) => air(i, j) && !arr[j * W + i];
@@ -221,7 +225,8 @@ function organic(tiles, W, H, marks, rooms){
           if (!wall) continue;
           const h = Math.min(ri(2, 4), Math.floor(len / 3));
           let ok = true;
-          for (let k = 0; k < h; k++){ const top = j + (h - 1 - k); for (let d = 0; d <= top - j + 5; d++) if (at(end + dir * k, j + d) === LEDGE || (d > top - j && !air(end + dir * k, j + d))) ok = false; if (marks.some(m => Math.abs(m.x - (end + dir * k)) <= 1 && Math.abs(m.y - j) <= 2)) ok = false; }
+          for (let k = 0; k < h; k++){ const top = j + (h - 1 - k), cx = end + dir * k; if (doorway[j * W + cx] || at(cx, j - 1) !== ROCK) ok = false;   // not in a doorway's way, not on a ledge
+ for (let d = 0; d <= top - j + 5; d++) if (at(end + dir * k, j + d) === LEDGE || (d > top - j && !air(end + dir * k, j + d))) ok = false; if (marks.some(m => Math.abs(m.x - (end + dir * k)) <= 1 && Math.abs(m.y - j) <= 2)) ok = false; }
           if (ok) for (let k = 0; k < h; k++) for (let y = j; y <= j + (h - 1 - k); y++) put(end + dir * k, y);
         }
       }
@@ -238,7 +243,7 @@ function organic(tiles, W, H, marks, rooms){
       if (e - i + 1 >= 14 && !quiet(r) && rnd() < 0.8){
         const w = ri(3, 6), x0 = ri(i + 4, e - 4 - w);
         let ok = x0 > i + 3;
-        for (let x = x0; x < x0 + w && ok; x++){ for (let d = 1; d <= 6; d++) if (!air(x, j + d)) ok = false; if (marks.some(m => Math.abs(m.x - x) <= 2 && Math.abs(m.y - j) <= 3)) ok = false; }
+        for (let x = x0; x < x0 + w && ok; x++){ if (doorway[j * W + x] || at(x, j - 1) !== ROCK) ok = false; for (let d = 1; d <= 6; d++) if (!air(x, j + d)) ok = false; if (marks.some(m => Math.abs(m.x - x) <= 2 && Math.abs(m.y - j) <= 3)) ok = false; }
         if (ok) for (let x = x0; x < x0 + w; x++) set(x, j, ROCK);
       }
       i = e + 1;

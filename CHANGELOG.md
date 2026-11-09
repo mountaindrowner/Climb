@@ -2,6 +2,8 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
+**Stylized flat pixels (latest).** Half the pixels again (180 tall, the warrior ~28), one 32-colour palette for everything, the level painted by rules instead of textures, a new 32-pixel hero (four options, `?hero=a..d`) and creatures, animated from skeleton templates so they keep their look. Three traps fixed that you could fall into and not climb out of (beside the tunnel stair, beside the ascent's stair, the grotto basin); the level test now also checks there are none.
+
 The Climb as a 2.5D side-scrolling metroidvania (`side.html`, docs/side.md): a flat plane that climbs up through shafts and tunnels, with HD pixel art from PixelLab and a bright, glowing look.
 
 - **Movement v2 on tiles**: the same tuning, input queue and feel panel as the climb, plus walls, ceilings, one-way ledges (down + jump drops through), steps taken in stride, low tunnels, spikes and the ledge grab.

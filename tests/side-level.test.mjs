@@ -15,15 +15,15 @@ const stand = (i, j) => at(i, j) !== ROCK && at(i, j) !== 3 && support(i, j - 1)
 // crouched or rolling he fits under three tiles: he can go along there, not jump
 const low = (i, j) => { if (at(i, j) === ROCK || at(i, j) === 3 || !support(i, j - 1)) return false; for (let d = 0; d < 3; d++) if (solid(i, j + d)) return false; return true; };
 
-function reach(){
+function reach(edges){
   const sp = marks.find(m => m.type === 'spawn'); let s = { i: sp.x, j: sp.y };
   while (!stand(s.i, s.j) && s.j > 0) s.j--;
   const seen = new Uint8Array(W * H), q = [[s.i, s.j]]; seen[s.j * W + s.i] = 1;
-  const push = (i, j, crawl) => { if (i >= 0 && j >= 0 && i < W && j < H && (stand(i, j) || (crawl && low(i, j))) && !seen[j * W + i]){ seen[j * W + i] = 1; q.push([i, j]); } };
+  let from = 0; const push = (i, j, crawl) => { if (i >= 0 && j >= 0 && i < W && j < H && (stand(i, j) || (crawl && low(i, j)))){ if (edges) edges.push(from, j * W + i); if (!seen[j * W + i]){ seen[j * W + i] = 1; q.push([i, j]); } } };
   const fall = (i, j) => { while (j > 0 && !support(i, j - 1) && !solid(i, j - 1)) j--; return j; };
   const clear = (x0, x1, y0, y1) => { for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) for (let y = y0; y <= y1; y++) if (solid(x, y)) return false; return true; };
   while (q.length){
-    const [i, j] = q.pop();
+    const [i, j] = q.pop(); from = j * W + i;
     for (const dir of [-1, 1]){
       push(i + dir, j, true);   // along, crouched if need be
       if (!stand(i, j)) continue;
@@ -57,4 +57,15 @@ test('every room, the shrine, the Warden\'s stage and the way out can be reached
 });
 test('the organic pass leaves every marker in open air', () => {
   for (const m of marks) assert.notEqual(at(m.x, m.y), ROCK, `${m.type} at ${m.x},${m.y} is in rock`);
+});
+
+test('no traps: from anywhere he can get to, he can still get to the Warden\'s stage', () => {
+  const edges = [], seen = reach(edges), back = new Map();
+  for (let k = 0; k < edges.length; k += 2){ const a = edges[k], b = edges[k + 1]; if (!back.has(b)) back.set(b, []); back.get(b).push(a); }
+  const boss = marks.find(m => m.type === 'boss'), ok = new Uint8Array(W * H), q = [];
+  for (let a = -6; a <= 6; a++) for (let b = -2; b <= 3; b++){ const k = (boss.y + b) * W + boss.x + a; if (seen[k]){ ok[k] = 1; q.push(k); } }
+  while (q.length){ const k = q.pop(); for (const p of back.get(k) || []) if (!ok[p]){ ok[p] = 1; q.push(p); } }
+  const stuck = []; for (let k = 0; k < W * H; k++) if (seen[k] && !ok[k]) stuck.push(k);
+  const where = stuck.slice(0, 5).map(k => { const i = k % W, j = (k - i) / W, r = rooms.find(r => i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1); return `${r ? r.name : '?'} ${i},${j}`; });
+  assert.equal(stuck.length, 0, `${stuck.length} places he can get to but not out of, e.g. ${where.join('; ')}`);
 });

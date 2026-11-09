@@ -17,11 +17,11 @@ const ground = (x, y) => {   // the floor under (x, y): the top of the first roc
 const solidAt = (x, y) => tileAt(Math.floor(x / T), Math.floor(y / T)) === ROCK;
 const DEF = {
   crawler:  { hp: 3, w: 0.55, h: 0.8, color: 0xc060ff, wake: 7, reach: 1.9, chase: 2.6, windup: 0.5, lunge: 0.26, lungeDist: 2.2, recover: 0.6, stun: 0.6, art: 'crawler', fly: false },
-  flitter:  { hp: 1, w: 0.4, h: 0.5, color: 0xffb040, wake: 7, circle: 1.2, dive: 0.55, commit: 0.3, leave: 0.8, art: 'flitter', fly: true },
+  flitter:  { hp: 1, w: 0.4, h: 0.5, color: 0xffb040, glow: 0x3a2a4a, wake: 7, circle: 1.2, dive: 0.55, commit: 0.3, leave: 0.8, art: 'flitter', fly: true },
   spitter:  { hp: 2, w: 0.5, h: 0.6, color: 0x70ff70, range: 8, charge: 0.7, speed: 8, cooldown: 2.0, art: 'spitter', fly: true },
   burrower: { hp: 2, w: 0.6, h: 1.1, color: 0xd0a070, wake: 6, plough: 6, rise: 0.3, up: 1.4, art: 'burrower', fly: false },
 };
-const ART = { crawler: ['crawler3', 'crawler2', 'crawler'], flitter: ['flitter2', 'flitter'], spitter: ['spitter2', 'spitter'], burrower: ['burrower2', 'burrower'] };
+const ART = { crawler: ['px_crawler', 'crawler3', 'crawler'], flitter: ['px_flitter', 'flitter2', 'flitter'], spitter: ['px_spitter', 'spitter2', 'spitter'], burrower: ['px_burrower', 'burrower2', 'burrower'] };
 export function spawnEnemies(scene){
   const list = [];
   for (const m of LEVEL.marks){
@@ -132,7 +132,7 @@ export function stepEnemies(E, P, dt, fx, events){
       } else if (O.t > 1.6 || tileAt(Math.floor(O.x / T), Math.floor(O.y / T)) === ROCK){ fx.burst({ x: O.x, y: O.y }, 6, 0x9dff70); E.scene.remove(O.m); e.orb = null; }
     }
     if (!e.sprite) e.stand.position.set(e.x, e.y + e.d.h / 2, 0.03);
-    if (e.sprite) e.sprite.mat.emissive.setHex(e.flash > 0 ? 0xffffff : (e.st === 'windup' || e.st === 'charge' || e.st === 'rise') && Math.sin(e.tm * 40) > 0 ? 0x601010 : 0x000000);
+    if (e.sprite) e.sprite.mat.emissive.setHex(e.flash > 0 ? 0xffffff : (e.st === 'windup' || e.st === 'charge' || e.st === 'rise') && Math.sin(e.tm * 40) > 0 ? 0x601010 : (e.d.glow || 0));
   }
 }
 function killEnemy(e, events){ e.alive = false; e.dead = 0; events.push({ type: 'kill', e, at: { x: e.x, y: e.y + e.d.h / 2 } }); if (e.sprite) e.sprite.g.visible = false; e.stand.visible = false; }
