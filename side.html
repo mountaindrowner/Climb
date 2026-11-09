@@ -4,13 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#0d0b12">
-<title>The Climb · side</title>
+<title>The Climb: Side View</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="src/ui/styles.css">
 </head>
 <body>
+<style>/* the side view: the hero stands low and in the middle, so the flask goes up under the hearts */
+#pad .mid{position:fixed;left:calc(env(safe-area-inset-left,0px) + 14px);top:calc(env(safe-area-inset-top,0px) + 62px);height:auto;align-items:flex-start}
+#pad .mid .btn.flask{padding:6px 10px;font-size:12px}
+#pad .right{grid-column:3}</style>
 <div id="app">
   <div id="rotate" role="alert"><div class="icon" aria-hidden="true">⟲</div>Turn your phone sideways to climb.</div>
   <div id="stage">

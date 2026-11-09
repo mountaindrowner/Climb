@@ -21,7 +21,7 @@ function walk(file){
 walk('src/side/main.js');
 const files = [...seen, 'vendor/three/three.min.js', 'vendor/three/GLTFLoader.js'];
 (function add(dir){ for (const n of readdirSync(join(root, dir))){ const p = join(dir, n); if (statSync(join(root, p)).isDirectory()) add(p); else if (/\.(png|json)$/.test(n) && !/tileset\.json$|pixellab\.json$/.test(n) || /tiles\/\w+\/tileset\.json$/.test(p)) files.push(p); } })('assets/side');
-const page = `<title>The Climb · side</title>
+const page = `<title>The Climb: Side View</title>
 <meta name="theme-color" content="#0b1024">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

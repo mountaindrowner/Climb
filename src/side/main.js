@@ -11,6 +11,7 @@ import { makeRenderer, makeSprite, VIEW_H } from './render.js';
 import { spawnFx, stepFx } from './fx.js';
 import { spawnEnemies, stepEnemies, strikeEnemies, slamEnemies } from './enemies.js';
 import { makeWarden } from './boss.js';
+import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
 
@@ -178,7 +179,7 @@ function drawHud(dt){
   const room = roomAt(P.x, P.y);
   if (room) MAP.seen.add(room);
   {
-    const k = 0.8, mw = LEVEL.W * k, mh = LEVEL.H * k, mx = w - mw - 16, my = 16;
+    const k = h < 520 ? 0.5 : 0.8, mw = LEVEL.W * k, mh = LEVEL.H * k, mx = w - mw - 16, my = 16;
     hx.fillStyle = 'rgba(6,8,20,0.85)'; hx.fillRect(mx - 4, my - 4, mw + 8, mh + 8); hx.strokeStyle = 'rgba(140,210,255,0.35)'; hx.lineWidth = 1; hx.strokeRect(mx - 4.5, my - 4.5, mw + 9, mh + 9);
     hx.imageSmoothingEnabled = false;
     for (const r of MAP.seen){ const sx = r.x0 / T, sy = LEVEL.H - r.y1 / T, sw = (r.x1 - r.x0) / T, sh = (r.y1 - r.y0) / T; hx.globalAlpha = r === room ? 1 : 0.7; hx.drawImage(MAP.c, sx, sy, sw, sh, mx + sx * k, my + sy * k, sw * k, sh * k); }
@@ -190,7 +191,9 @@ function drawHud(dt){
   }
   hx.font = '600 14px "Pixelify Sans", sans-serif'; hx.fillStyle = '#cfe6ff'; hx.fillText(room ? room.name : '', 18, 52);
   hx.fillStyle = 'rgba(207,230,255,0.6)'; hx.font = '400 12px "Pixelify Sans", sans-serif';
-  hx.fillText('A D move · Space jump (again in the air) · Shift roll · LMB attack · S + LMB in the air plunge · S + Space drop through a ledge · F9 feel', 18, h - 16);
+  if (DEVICE.kind === 'keys') hx.fillText('A D move · Space jump (again in the air) · Shift roll · LMB attack · S + LMB in the air plunge · S + Space drop through a ledge · F9 feel', 18, h - 16);
+  else if (DEVICE.kind !== 'touch') hx.fillText('stick move · A jump (again in the air) · roll · attack · down + attack in the air plunge · down + jump drop through a ledge', 18, h - 16);
+  const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, TUNE.player.flask - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
 window.__side = { get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, weapons: null, CAM, input: null, E, BOSS };
 import('../core/input.js').then(m => { window.__side.input = m; });
