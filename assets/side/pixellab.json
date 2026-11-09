@@ -72,9 +72,20 @@
   }
  },
  "flitter": {
-  "id": "bafa6835-5604-4f09-bb30-16bb2d29f45e",
-  "description": "a ragged cave bat flying with its leathery wings spread wide open, glowing amber eyes, bared fangs, side view game enemy sprite",
-  "anims": {}
+  "id": "83533981-87ee-4c55-a1ac-5834981234b8",
+  "description": "a ragged cave bat with leathery tattered wings, glowing amber eyes, fangs, side view game enemy sprite",
+  "anims": {
+   "fly": {
+    "action": "flapping its wings, hovering in the air",
+    "frames": 6,
+    "group": "0fcc26c0-36dd-4993-be0d-780651ad9d6b"
+   },
+   "dive": {
+    "action": "folding its wings and diving forward to bite",
+    "frames": 6,
+    "group": "2311bdcd-7fd2-4595-b587-09690f197dd5"
+   }
+  }
  },
  "spitter": {
   "id": "875dc390-9568-40e0-9fd4-e014eb8d374e",
@@ -88,13 +99,29 @@
   }
  },
  "burrower": {
-  "id": "36225629-d829-4741-a310-da622ecaaa2c",
-  "description": "a huge eyeless worm-like burrowing creature with a round maw of spiked jaws bursting up out of the ground, grey-brown armored segments, side view game enemy sprite",
+  "id": "e5451df7-e539-41c8-80fc-356c5ceddffb",
+  "description": "a huge pale grey-brown armored sandworm rearing up, its round mouth wide open ringed with spiked teeth, thick segmented body, side view game enemy sprite, no ground, no grass",
   "anims": {
    "snap": {
-    "action": "bursting up out of the ground and snapping its spiked jaws shut",
+    "action": "lunging upward and snapping its spiked jaws shut",
     "frames": 8,
-    "group": "a5fb46e8-939a-45a1-95cf-aaaf13280fcc"
+    "group": "4f982bc6-da7b-48d5-a200-d64746ca5f77"
+   }
+  }
+ },
+ "flitter_spread": {
+  "id": "bafa6835-5604-4f09-bb30-16bb2d29f45e",
+  "description": "a ragged cave bat flying with its leathery wings spread wide open, glowing amber eyes, bared fangs, side view game enemy sprite",
+  "anims": {
+   "fly": {
+    "action": "flapping its wide wings up and down while flying in place",
+    "frames": 6,
+    "group": "565bb0a0-90a7-48ec-8578-22d23650e3a7"
+   },
+   "dive": {
+    "action": "tucking its wings back and swooping down forward to bite",
+    "frames": 6,
+    "group": "91958807-3c5e-48ce-bcdd-ce0b373ef396"
    }
   }
  }

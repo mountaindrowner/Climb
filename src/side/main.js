@@ -25,7 +25,7 @@ const E = spawnEnemies(R.scene);
 const BOSS = makeWarden(R.scene, R.camera);
 // the shrine: it fills the flask and the hearts, and is where he wakes after a death
 const SHRINE = (m => m && { x: (m.x + 0.5) * T, y: m.y * T })(LEVEL.marks.find(m => m.type === 'shrine'));
-let CHECK = null, BANNER = null, WON = false;
+let CHECK = null, BANNER = null, WON = false, DEATH = 0;
 const banner = (a, b, t = 3.2) => { BANNER = { a, b, t, life: t }; };
 const FEEL_FX = { hitstop: 0, shake: 0 };
 // the aim assist: with nothing in reach ahead and a creature in reach behind, a swing turns to it
@@ -40,6 +40,7 @@ bindInput();
 // which of his animations, and how far into it
 function heroPose(P, t){
   const A = hero.meta ? hero.meta.anims : {}, has = n => !!A[n];
+  if (P.hp <= 0 && has('hurt')) return ['hurt', 0.999];
   if (P.hurtT > 0 && has('hurt')) return ['hurt', 1 - P.hurtT / MV.hurtStun];
   if (P.roll > 0 && has('roll')) return ['roll', 1 - P.roll / MV.roll.time];
   if (P.dive && has('plunge')) return ['plunge', 0.6];
@@ -66,7 +67,7 @@ function frame(ts){
   let sdt = dt; if (FEEL_FX.hitstop > 0){ FEEL_FX.hitstop -= dt; sdt = dt * 0.06; }
   acc += sdt; time += dt;
   const h = 1 / 120;
-  while (acc >= h){ const x0 = P.x; stepPlayer(P, h); P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
+  while (acc >= h){ const x0 = P.x; if (DEATH <= 0) stepPlayer(P, h); P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
   endFrame();
   const evs = [];
   stepEnemies(E, P, sdt, fx, evs);
@@ -74,7 +75,9 @@ function frame(ts){
   for (const e of P.events) onEvent(e);
   P.events.length = 0;
   for (const e of evs) onEvent(e);
-  if (P.hp <= 0){ const s = CHECK || spawnPoint(); P = newPlayer(s.x, s.y); if (BOSS) BOSS.reset(); banner(CHECK ? 'You wake at the shrine' : 'You wake', ''); }
+  // a death: a beat to see it, then he wakes at the shrine (or the start) and the Warden waits again
+  if (P.hp <= 0 && DEATH <= 0){ DEATH = 1.6; P.vx = 0; fx.burst({ x: P.x, y: P.y + 0.9 }, 30, 0xff5060); FEEL_FX.hitstop = 0.2; banner('You fell', '', 1.6); }
+  if (DEATH > 0){ DEATH -= dt; if (DEATH <= 0){ const s = CHECK || spawnPoint(); P = newPlayer(s.x, s.y); if (BOSS) BOSS.reset(); banner(CHECK ? 'You wake at the shrine' : 'You wake', '', 2); } }
   if (SHRINE && Math.abs(P.x - SHRINE.x) < 1.1 && Math.abs(P.y - SHRINE.y) < 1.5 && (!CHECK || P.flask < TUNE.player.flask || P.hp < P.maxHp)){
     const first = !CHECK; CHECK = { x: SHRINE.x, y: SHRINE.y }; P.flask = TUNE.player.flask; P.hp = P.maxHp; sfx.drink(); fx.ring({ x: SHRINE.x, y: SHRINE.y + 1 }, 0xffd27a);
     if (first) banner('Shrine', 'your flask is full; you will wake here');

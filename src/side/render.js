@@ -10,6 +10,7 @@ const THREE = window.THREE;
 export const PPU = 64;                  // pixels to a world unit: a tile is 32, the warrior ~112 tall
 export const VIEW_H = 11.25;            // world units the screen is tall (720 pixels at PPU)
 const FOV = 26;
+const TILES = new URLSearchParams(location.search).get('tiles') === 'stone' ? 'assets/side/tiles/stone' : 'assets/side/tiles/cave';   // the rock's face (tools/pixellab.py tileset)
 
 // ---- pixel textures, painted here (the rock is ours; the characters are PixelLab's)
 function canvasTex(w, h, paint){
@@ -73,7 +74,7 @@ export function makeRenderer(canvas){
   // corner where four map cells meet, picked by which of the four are rock; deep inside the rock they darken
   const depthTo = new Map();   // how many tiles from open air, up to 4
   for (const s of rocks){ let d = 4; for (let r = 1; r <= 3 && d === 4; r++) for (let a = -r; a <= r && d === 4; a++) for (let b = -r; b <= r; b++) if (tileAt(s.i + a, s.j + b) !== ROCK){ d = r; break; } depthTo.set(s.i + ',' + s.j, d); }
-  fetch('assets/side/tiles/stone/tileset.json').then(r => r.json()).then(ts => {
+  fetch(`${TILES}/tileset.json`).then(r => r.json()).then(ts => {
     const byKey = new Map(), L = c => c === 'lower' ? 1 : 0;
     ts.tileset.tiles.forEach((t, n) => byKey.set([t.corners.NW, t.corners.NE, t.corners.SW, t.corners.SE].map(L).join(''), n));
     const groups = new Map();
@@ -85,7 +86,7 @@ export function makeRenderer(canvas){
       (groups.get(n) || groups.set(n, []).get(n)).push({ x: vx * T, y: vy * T, deep });
     }
     for (const [n, list] of groups){
-      const tex = new THREE.TextureLoader().load(`assets/side/tiles/stone/tile_${String(n).padStart(2, '0')}.png`); tex.magFilter = tex.minFilter = THREE.NearestFilter; tex.generateMipmaps = false;
+      const tex = new THREE.TextureLoader().load(`${TILES}/tile_${String(n).padStart(2, '0')}.png`); tex.magFilter = tex.minFilter = THREE.NearestFilter; tex.generateMipmaps = false;
       const mesh = new THREE.InstancedMesh(new THREE.PlaneGeometry(T, T), new THREE.MeshLambertMaterial({ map: tex, alphaTest: 0.5 }), list.length);
       list.forEach((p, k) => { dummy.position.set(p.x, p.y, 0); dummy.updateMatrix(); mesh.setMatrixAt(k, dummy.matrix); const q = Math.min(3, Math.floor(p.deep)), f = p.deep - q, A = SHADE[q], B = SHADE[q + 1]; col.setRGB(A[0] + (B[0] - A[0]) * f, A[1] + (B[1] - A[1]) * f, A[2] + (B[2] - A[2]) * f); mesh.setColorAt(k, col); });
       scene.add(mesh);
@@ -94,7 +95,7 @@ export function makeRenderer(canvas){
   const col = new THREE.Color();
   // the face's tint by depth: the edges keep the tiles' own colour nudged toward the cavern's teal, the inside sinks
   // into a dark silhouette so the lit edges read
-  const SHADE = [[0.86, 1, 1], [0.8, 0.95, 1], [0.4, 0.52, 0.6], [0.26, 0.32, 0.42], [0.18, 0.22, 0.31]];
+  const SHADE = [[0.92, 1.02, 1.06], [0.82, 0.93, 1], [0.4, 0.52, 0.6], [0.26, 0.32, 0.42], [0.18, 0.22, 0.31]];
   const ledges = shown.filter(s => s.t === LEDGE), ledgeMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(T * 1.02, T * 0.32, DEPTH * 0.7), ledgeMat, Math.max(1, ledges.length));
   ledges.forEach((s, k) => { dummy.position.set((s.i + 0.5) * T, (s.j + 1) * T - T * 0.16, -DEPTH * 0.35); dummy.updateMatrix(); ledgeMesh.setMatrixAt(k, dummy.matrix); });
   scene.add(ledgeMesh);

@@ -36,7 +36,7 @@ export function spawnEnemies(scene){
   const orbMat = new THREE.MeshBasicMaterial({ color: 0x9dff70 });
   return { list, orbGeo: new THREE.SphereGeometry(0.18, 8, 6), orbMat, scene };
 }
-const anim = (e, name, frac) => { if (!e.sprite) return; const A = e.meta.anims; const n = A[name] ? name : Object.keys(A).find(k => k !== 'stand') || 'stand'; e.sprite.show(n, frac, e.x, e.d.fly ? e.y - e.d.h * 0.7 : e.y, e.face, 0.03); };
+const anim = (e, name, frac, dy = 0, z = 0.03) => { if (!e.sprite) return; const A = e.meta.anims; const n = A[name] ? name : Object.keys(A).find(k => k !== 'stand') || 'stand'; e.sprite.show(n, frac, e.x, (e.d.fly ? e.y - e.d.h * 0.7 : e.y) + dy, e.face, z); };
 
 export function stepEnemies(E, P, dt, fx, events){
   for (const e of E.list){
@@ -111,7 +111,10 @@ export function stepEnemies(E, P, dt, fx, events){
       e.face = Math.sign(dx) || e.face;
       const show = e.st === 'rise' || e.st === 'up';
       if (e.sprite) e.sprite.g.visible = show;
-      anim(e, 'snap', e.st === 'rise' ? e.tm / e.d.rise * 0.5 : e.st === 'up' ? 0.5 + Math.min(0.49, e.tm / 0.4 * 0.5) : 0);
+      // it comes up out of the floor (drawn just behind the rock's face, so the floor hides what is still under it) and
+      // sinks back at the end
+      const out = e.st === 'rise' ? Math.min(1, e.tm / e.d.rise) : e.st === 'up' ? Math.min(1, (e.d.up - e.tm) / 0.25) : 0;
+      anim(e, 'snap', e.st === 'rise' ? e.tm / e.d.rise * 0.3 : e.st === 'up' ? 0.3 + Math.min(0.69, e.tm / 0.45 * 0.7) : 0, -(1 - out) * 2.2, -0.05);
       e.stand.visible = !e.sprite && show;
     }
     // the glob in flight

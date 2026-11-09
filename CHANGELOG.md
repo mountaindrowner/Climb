@@ -1,5 +1,16 @@
 # Changelog
 
+## Side view (branch `claude/climb-2d`, unreleased)
+
+The Climb as a 2.5D side-scrolling metroidvania (`side.html`, docs/side.md): a flat plane that climbs up through shafts and tunnels, with HD pixel art from PixelLab and a bright, glowing look.
+
+- **Movement v2 on tiles**: the same tuning, input queue and feel panel as the climb, plus walls, ceilings, one-way ledges (down + jump drops through), steps taken in stride, low tunnels, spikes and the ledge grab.
+- **The warrior**, drawn by PixelLab: stand, idle, run, jump, fall, roll, three cuts, the plunge, hurt.
+- **The first region**: twelve rooms with two routes up, from the start through the corridor, shaft and tunnel, by the gallery or across the bridge, up the two-screen well to the arena. A **shrine** in the grotto fills the flask and is where he wakes.
+- **Creatures**: crawler, flitter, spitter and burrower, each with a tell (a red ! over it).
+- **The Warden**: a stone titan at the back of the arena whose arms reach out of the depth onto the stage. It slams, sweeps, ripples the stage and brings the roof down; cut its fists while they rest. The way up opens when it falls.
+- **The look**: rendered pixel-exact and scaled up whole; a narrow perspective camera so the rock has depth and the painted cavern slides past slower; cave tiles on the dual grid, darkening into the rock; torches, crystals and light shafts, drifting motes, bloom.
+
 ## 0.28.0 — Movement v2: Dead Cells' controls (2026-11-09)
 
 From the designer's research on Dead Cells' movement, checked against its developer's own sources: his GDC 2019 talk, and his MIT-licensed game-feel demo (`deepnight/gamefeel`), read line by line. Their exact numbers are not public; ours are tuned to the warrior's size. Decision 0010.
