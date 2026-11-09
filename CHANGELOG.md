@@ -2,6 +2,8 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
+**The masked warrior (latest).** The hero is option C, redrawn tall and lean with gothic-action proportions (~2.6 units drawn, a 2.4 body) and the full moveset; jumps and run scale with him; the level keeps more head room and the opening over the tunnel stair is wider. A new test plays the whole region with the real motor in node and finds no unreachable room and no trap.
+
 **Stylized flat pixels (latest).** Half the pixels again (180 tall, the warrior ~28), one 32-colour palette for everything, the level painted by rules instead of textures, a new 32-pixel hero (four options, `?hero=a..d`) and creatures, animated from skeleton templates so they keep their look. Three traps fixed that you could fall into and not climb out of (beside the tunnel stair, beside the ascent's stair, the grotto basin); the level test now also checks there are none.
 
 The Climb as a 2.5D side-scrolling metroidvania (`side.html`, docs/side.md): a flat plane that climbs up through shafts and tunnels, with HD pixel art from PixelLab and a bright, glowing look.

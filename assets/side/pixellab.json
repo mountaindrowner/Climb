@@ -475,6 +475,41 @@
     "action": "template:jumping-1",
     "frames": 6,
     "group": "ce8d8cb3-0dcb-44a8-8cfb-67e8ebb4d7a6"
+   },
+   "hurt": {
+    "action": "template:taking-punch",
+    "frames": 6,
+    "group": "d870a9e1-fdda-4a69-86ff-fde8dfa76c0d"
+   },
+   "attack1": {
+    "action": "a fast forward slash with the curved blade, the arm and blade sweeping out in front",
+    "frames": 6,
+    "group": "3c181601-cb6d-42df-b93e-26f77c59a3f3"
+   },
+   "attack2": {
+    "action": "a quick backhand slash with the curved blade swinging back the other way, the scarf whipping",
+    "frames": 6,
+    "group": "d51c468f-974e-47c9-8a09-f5a5e01d84d0"
+   },
+   "attack3": {
+    "action": "a big lunging overhead chop with the curved blade, stepping forward",
+    "frames": 6,
+    "group": "fba86b17-0477-48a1-9fe6-497bd7286924"
+   },
+   "roll": {
+    "action": "a quick low forward roll, tucked, the red scarf trailing",
+    "frames": 6,
+    "group": "462bbecf-11ab-4f87-8015-a9b962d566c6"
+   },
+   "fall": {
+    "action": "falling with the coat and red scarf fluttering upward, legs bent",
+    "frames": 4,
+    "group": "74e7de61-c277-442b-8ff8-00cc0c62d731"
+   },
+   "plunge": {
+    "action": "diving straight down with the curved blade pointed down below the feet",
+    "frames": 4,
+    "group": "736b9b16-77fd-4737-a4c8-6da3ff703ae1"
    }
   }
  },
