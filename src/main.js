@@ -18,6 +18,7 @@ import { animatePlayer } from './entities/player/animate.js';
 import { loadWarriorGlb } from './entities/player/glbRig.js';
 import { animateWarden } from './wardens/visuals.js';
 import { drawGolem } from './boss/view.js';
+import './ui/feel.js';   // F9: the movement assists on and off
 import { MODES } from './modes/registry.js';
 import { drawHUD } from './ui/hud.js';
 import { titleMenu, updatePips } from './ui/menus.js';

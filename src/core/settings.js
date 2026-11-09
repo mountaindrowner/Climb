@@ -10,15 +10,15 @@ export const DEFAULTS = {
   keys: {
     left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'], down: ['KeyS', 'ArrowDown'],
     jump: ['Space', 'KeyW', 'ArrowUp'], attack: ['Mouse0', 'KeyJ'], block: ['Mouse2', 'KeyK'],
-    roll: ['KeyC', 'KeyL'], flask: ['KeyQ', 'KeyF'], sprint: ['ShiftLeft', 'ShiftRight'],
+    roll: ['ShiftLeft', 'KeyC', 'KeyL'], flask: ['KeyQ', 'KeyF'],
   },
-  pad: { jump: [0], roll: [1, 5], attack: [2, 7], flask: [3], block: [4, 6], sprint: [10] },
+  pad: { jump: [0], roll: [1, 5], attack: [2, 7], flask: [3], block: [4, 6] },
   lines: 720,       // internal render height: 540 chunky, 720 classic, 1080 fine
   volume: 0.8, shake: 1, rumble: true,
   v: 2,             // 2: the mouse layout (attack and block on the buttons)
 };
-export const REBINDABLE = ['left', 'right', 'down', 'jump', 'attack', 'block', 'roll', 'flask', 'sprint'];
-export const PAD_REBINDABLE = ['jump', 'attack', 'block', 'roll', 'flask', 'sprint'];
+export const REBINDABLE = ['left', 'right', 'down', 'jump', 'attack', 'block', 'roll', 'flask'];   // no sprint since 0.28: he always runs fast, as in Dead Cells
+export const PAD_REBINDABLE = ['jump', 'attack', 'block', 'roll', 'flask'];
 const clone = o => JSON.parse(JSON.stringify(o));
 
 function load(){

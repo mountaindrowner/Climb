@@ -8,9 +8,14 @@ import { ac } from '../audio/sfx.js';
 import { SET } from './settings.js';
 import { setDevice } from './prompts.js';
 
-export const ACTIONS = ['left', 'right', 'down', 'jump', 'attack', 'block', 'roll', 'flask', 'sprint'];
+export const ACTIONS = ['left', 'right', 'down', 'jump', 'attack', 'block', 'roll', 'flask'];
 // mag: how hard he is asked to move, 0..1 (a stick pushed part way walks; keys and the d-pad are always 1)
 export const IN = { held: Object.fromEntries(ACTIONS.map(a => [a, false])), pressed: new Set(), at: {}, mag: 1 };
+// The input queue (Dead Cells keeps presses; so does the developer's own game-feel demo, deepnight/gamefeel, MIT): a press
+// is kept until the game can act on it, for this long (seconds, real time), instead of being dropped at the end of the
+// frame it came in. So an attack pressed in the last moments of a roll, or a roll pressed as a stun wears off, happens.
+export const QUEUE = { jump: 0.14, attack: 0.24, roll: 0.2, flask: 0.2, block: 0.1 };
+export const FEEL_INPUT = { queue: true };   // the feel panel can switch the queue off, to compare
 const blank = () => Object.fromEntries(ACTIONS.map(a => [a, false]));
 const keyHeld = blank(), padHeld = blank(), gpHeld = blank(), botHeld = blank();
 let gpMag = 1, padMag = 1;
@@ -23,11 +28,18 @@ function sync(a){
 }
 const clamp01 = (x, lo) => Math.max(lo, Math.min(1, x));
 export function consume(a){ if (IN.pressed.has(a)){ IN.pressed.delete(a); return true; } return false; }
-export function endFrame(){ IN.pressed.clear(); }
+// a press still waiting (not consumed, not expired)
+export const pending = a => IN.pressed.has(a);
+// the end of a frame: presses the game could not act on yet wait, until their window runs out
+export function endFrame(){
+  if (!FEEL_INPUT.queue){ IN.pressed.clear(); return; }
+  const now = performance.now() / 1000;
+  for (const a of [...IN.pressed]) if (!(now - (IN.at[a] || 0) < (QUEUE[a] || 0))) IN.pressed.delete(a);
+}
 // for scripted play (the test bot) and older callers
 export function hold(a, v){ botHeld[a] = !!v; sync(a); }
-export function tap(a){ hold(a, true); hold(a, false); IN.pressed.add(a); }
-export function release(){ for (const a of ACTIONS){ keyHeld[a] = padHeld[a] = gpHeld[a] = botHeld[a] = false; IN.held[a] = false; } }
+export function tap(a){ hold(a, true); hold(a, false); IN.pressed.add(a); IN.at[a] = performance.now() / 1000; }
+export function release(){ for (const a of ACTIONS){ keyHeld[a] = padHeld[a] = gpHeld[a] = botHeld[a] = false; IN.held[a] = false; } IN.pressed.clear(); }
 
 // Hooks the UI sets: what Esc / Start does, and a one-shot capture for rebinding (the next key or pad button).
 const hooks = { pause: null, back: null };
@@ -142,12 +154,12 @@ export function bindInput(){
     const read = e => {
       const r = stick.getBoundingClientRect(), dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2), dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
       padHeld.left = dx < -0.2; padHeld.right = dx > 0.2; padHeld.down = dy > 0.38;
-      padMag = clamp01((Math.abs(dx) - 0.2) / 0.5, 0.3); padHeld.sprint = Math.abs(dx) > 0.9;   // the touch stick all the way out sprints
+      padMag = clamp01((Math.abs(dx) - 0.2) / 0.5, 0.3);
       if (knob) knob.style.transform = `translate(${Math.max(-1, Math.min(1, dx)) * 36}%, ${Math.max(-1, Math.min(1, dy)) * 30}%)`;
-      ['left', 'right', 'down', 'sprint'].forEach(sync);
+      ['left', 'right', 'down'].forEach(sync);
       stick.dataset.dir = (padHeld.left ? 'l' : padHeld.right ? 'r' : '') + (padHeld.down ? 'd' : '');
     };
-    const end = () => { id = null; padHeld.left = padHeld.right = padHeld.down = padHeld.sprint = false; ['left', 'right', 'down', 'sprint'].forEach(sync); if (knob) knob.style.transform = ''; stick.dataset.dir = ''; };
+    const end = () => { id = null; padHeld.left = padHeld.right = padHeld.down = false; ['left', 'right', 'down'].forEach(sync); if (knob) knob.style.transform = ''; stick.dataset.dir = ''; };
     stick.addEventListener('pointerdown', e => { e.preventDefault(); ac(); setDevice('touch'); id = e.pointerId; stick.setPointerCapture?.(id); read(e); });
     stick.addEventListener('pointermove', e => { if (e.pointerId === id) read(e); });
     stick.addEventListener('pointerup', e => { if (e.pointerId === id) end(); });

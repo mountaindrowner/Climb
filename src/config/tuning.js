@@ -2,22 +2,32 @@
 export const TUNE = {
   // Free movement along the stair, tuned for a Dead Cells-tight feel. Distances in world units (one per step along the path).
   move: {
-    run: 3.8,             // top speed
-    sprint: 6.0,          // holding sprint: close to the pace of his real run
-    accel: 19,            // gets up to top speed in about 0.2 s: a step or two of walk before the run (braking and turning stay instant)
-    decel: 75,            // stops in about 0.05 s
-    airAccel: 38,         // full air control, a touch softer
-    crouchMul: 0.38, blockMul: 0.35,   // a crouch-walk is a slow creep
-    jumpHeight: 1.55,
+    // Movement v2 (0.28): Dead Cells' controls as published by its developer (GDC 2019; his MIT game-feel demo,
+    // deepnight/gamefeel): fast from the first step, a double jump from the start, a jump that pops then floats, air
+    // control that fades over a long fall, presses kept until they can happen, free turning and a little aim in a fight,
+    // a roll that cancels anything. Their exact numbers are unpublished: these are ours, tuned to his size (2.04 tall).
+    run: 5.5,             // top speed: no sprint, he always runs fast
+    accel: 70,            // top speed in under a tenth of a second
+    decel: 60,            // stops in about 0.09 s: a hair of skid, not a slide
+    airAccel: 46,         // steering in the air: a touch stronger than on the ground...
+    airFade: 2.4, airFloor: 0.4,   // ...fading over a long time in the air, down to this share of it
+    crouchMul: 0.27, blockMul: 0.25,   // a crouch-walk is a slow creep
+    jumpHeight: 1.55,     // a held jump from the ground: how high the feet rise
+    airJumpHeight: 1.35,  // the double jump, from wherever it is pressed
+    launch: { at: 0.12, ground: 0.1, air: 0.26 },   // at take-off gravity is this share of itself, back to full over this long: the pop, then the float
     gravityUp: 32, gravityDown: 54, maxFall: 18,
     apexBand: 1.6, apexMul: 0.55,   // holding jump near the top of the arc hangs a moment
     cutMul: 0.42,          // letting go of jump while rising cuts the jump short
     minHop: 0.1,           // ...but never before this, so the quickest tap still clears a broken step
     coyote: 0.1,           // jump still works this long after the ground goes
-    buffer: 0.13,          // a jump pressed this long before landing still happens
+    buffer: 0.13,          // a jump pressed this long before landing still happens (and not as the double jump)
+    flip: 0.36,            // the double jump's somersault
     holeEdge: 0.2,
-    fallSafe: 3.6, fallPer: 12,   // a drop longer than fallSafe hurts 1, and 1 more for each fallPer beyond it         // you can stand this far over the lip of a broken step
-    roll: { time: 0.4, speed: 6.2, iframeFrom: 0.03, iframeTo: 0.32, cooldown: 0.37 },
+    fallSafe: 3.6, fallPer: 12,   // a drop longer than fallSafe hurts 1, and 1 more for each fallPer beyond it
+    hardLand: 2.6,         // a drop longer than this lands heavily: dust, a jolt, half his speed kept (shorter ones cost nothing)
+    roll: { time: 0.4, speed: 7.0, iframeFrom: 0.03, iframeTo: 0.32, cooldown: 0.37, cancel: 0.45 },   // cancel: in the last share of a roll, an attack or a jump ends it
+    dive: { speed: 21, min: 1.2, radius: 1.6, dmg: 2, soak: 4, rec: 0.24 },   // down + attack in the air: a plunge; the slam hits both sides; it soaks this much of the fall
+    aim: 0.7,              // a swing turns toward a foe behind him this far past the weapon's reach, if no direction is held
     knock: 3.2, knockUp: 3.5, hurtStun: 0.22,
     bonkSpeed: 2.6,        // running into a beam faster than this hurts
   },

@@ -134,6 +134,12 @@ await page.addScriptTag({ type: 'module', content: `
       const sa = G.s + 0.6, edge = G.on ? !decksAt(sa).includes(G.on) : (stairHole(sa) && !decksAt(sa).some(d => Math.abs(d.top - G.y) < 0.5));
       if (edge) jump(26);   /* the end of the ledge it stands on, or a missing flight ahead (a broken step has its own rule) */
     }
+    // the double jump: near the top of a jump over a gap, with nothing to land on close below, jump again
+    if (bot.answer && move > 0 && !G.grounded && !G.mantle && G.airJumps > 0 && G.vy < 1.2 && G.vy > -4 && G.jumpT > 0.15){
+      const below = decksAt(G.s).filter(d => d.top <= G.y + 0.05).sort((p, q) => q.top - p.top)[0], ground = holeAt(G.s) || stairHole(G.s) ? -Infinity : walkY(G.s);
+      const floor = Math.max(ground, below ? below.top : -Infinity), ahead = decksAt(G.s + 1.2).some(d => d.top > G.y - 0.3);
+      if (G.y - floor > 1.2 || ahead){ I.tap('jump'); I.hold('jump', true); bot.jumpHold = Math.max(bot.jumpHold, 14); }
+    }
     if (crouch) block = false;
     I.hold('right', move > 0); I.hold('left', move < 0); I.hold('down', crouch); I.hold('block', block);
   }

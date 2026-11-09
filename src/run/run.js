@@ -63,7 +63,7 @@ export const damage = (G, swing, finisher) => (swing.dmg + G.bonusDmg) * edgeMul
 export const swingRate = G => knellSpeed(oath('knell', G));
 export const parryBonus = G => knellParry(oath('knell', G));
 export const rollCooldown = (G, base) => hasMark('fleet', G) ? base * 0.5 : base;
-export const sprintMul = G => hasMark('fleet', G) ? 1.1 : 1;
+export const sprintMul = G => hasMark('fleet', G) ? 1.1 : 1;   // the Fleet's quicker run (named for the sprint it once sped)
 export const flaskHeal = (G, base) => hasMark('bearer', G) ? 3 : base;
 export function onParry(G = G_(), at){
   if (!G || !hasMark('ward', G) || ST.time - G.wardAt < 8 || G.hp >= G.maxHp) return;

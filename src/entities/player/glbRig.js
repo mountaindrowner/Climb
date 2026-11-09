@@ -455,6 +455,8 @@ function knightTargets(G){
   if (ST.mode === 'fall'){ GLB.idleT += 1 / 60; at('K_Jump_Idle', loop(GLB.idleT)); at('Hit_B', 0.35); T.K_Jump_Idle = 0.5; T.Hit_B = 0.5; return { T, rate: 30 }; }
   if (G.hurtT > 0){ at('Hit_A', 0.1 + 0.6 * (1 - G.hurtT / MV.hurtStun)); T.Hit_A = 1; return { T, rate: 40 }; }
   if (G.roll > 0){ at('K_Tuck', 0.5); T.K_Tuck = 1; return { T, rate: 60 }; }   // the tumble itself is in knightAfter
+  if (G.dive){ at('K_Slash', HIT[1]); T.K_Slash = 1; return { T, rate: 50 }; }      // the plunge: the blade driven down past his feet
+  if (G.flip > 0 && !swingInfo(G)){ at('K_Tuck', 0.5); T.K_Tuck = 1; return { T, rate: 40 }; }   // the double jump's somersault: tucked (the turn is in knightAfter)
   const A = swingInfo(G);
   if (A){
     const name = ATTACK[A.sw.pose], [h0, h1] = HIT;
@@ -498,6 +500,11 @@ function knightAfter(G, dt){
     const q = 1 - G.roll / MV.roll.time, ang = -Math.PI * 2 * smooth(clamp(q * 1.15, 0, 1)), c = 0.45;
     GLB.root.rotation.z = ang; GLB.root.position.set(c * Math.sin(-ang), c - c * Math.cos(ang) - 0.3 * Math.sin(Math.PI * q), 0);
   }
+  else if (G.flip > 0 && ST.mode !== 'fall' && !swingInfo(G)){   // the double jump: a quick somersault about his middle
+    const q = 1 - G.flip / MV.flip, ang = -Math.PI * 2 * smooth(clamp(q * 1.1, 0, 1)), c = 0.95;
+    GLB.root.rotation.z = ang; GLB.root.position.set(c * Math.sin(-ang), c - c * Math.cos(ang), 0);
+  }
+  else { GLB.root.rotation.z = 0; GLB.root.position.set(0, 0, 0); }
   footIK(G, dt);
   bladeOffStone(G);
   stepCloth(dt);

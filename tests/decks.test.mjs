@@ -7,8 +7,10 @@ import { switchbackOf, platformLedges, platformFlights, setDecks, DECKS, HOLES, 
 
 const JUMP = TUNE.move.jumpHeight, REACH = JUMP + MANTLE;    // feet at the top of a jump, and hands above them
 const HEAD = 2.1;                                           // a standing man, for headroom
-// can a man on a surface at y0 ending at e0 get onto one starting d0 away at y1 (going the way of dir)?
-function reach(gap, dy){ return (dy <= 1.0 && gap <= 1.3) || (dy <= REACH - 0.1 && gap <= 0.7) || (dy <= 0 && gap <= 1.6); }
+// can a man running at full speed get from a surface across a gap onto one dy higher? A jump carries ~3 units at his
+// run (5.5) landing a unit up; the double jump (since 0.28) lifts his feet near 2.9, his hands near 4.9: these limits
+// leave a wide margin under that
+function reach(gap, dy){ return (dy <= 1.0 && gap <= 2.0) || (dy <= 2.4 && gap <= 1.6) || (dy <= REACH - 0.1 && gap <= 0.7) || (dy <= 0 && gap <= 2.6); }
 
 test('every switchback: its first ledge hangs over the fork landing, high enough to walk under and low enough to catch', () => {
   assert.ok(BRANCHES.filter(b => switchbackOf(b.kA)).length >= 10, 'a switchback at most forks');

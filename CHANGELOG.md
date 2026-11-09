@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.28.0 — Movement v2: Dead Cells' controls (2026-11-09)
+
+From the designer's research on Dead Cells' movement, checked against its developer's own sources: his GDC 2019 talk, and his MIT-licensed game-feel demo (`deepnight/gamefeel`), read line by line. Their exact numbers are not public; ours are tuned to the warrior's size. Decision 0010.
+
+- **Fast from the first step.** Full speed (5.5, up from 3.8) in under a tenth of a second, stopping on a coin with a hair of skid. **No sprint**: he always runs fast, as in Dead Cells. Shift rolls now.
+- **The double jump**, from the start, with a quick somersault. Pressed just before landing it is the next ground jump instead, not a wasted double jump.
+- **The jump pops, then floats.** Gravity is light at take-off and eases back in over a tenth of a second (longer for the double jump), the way the developer's demo does it. A held jump still rises 1.55; let go early to cut it short.
+- **Air control** is a touch stronger than on the ground at first, and fades over a long fall.
+- **No press is lost.** Every press waits a moment until it can happen: an attack pressed in the last of a roll comes out of it, a roll pressed as a stun wears off happens.
+- **The roll cancels anything**, a swing's strike included. In its last 45% an attack or a jump comes straight out of it. It is a little faster (7.0) to stay ahead of the run.
+- **Free turning and a little aim in a fight.** Turn early in a swing's wind-up, or any time in its recovery; with no direction held, a swing turns to a foe just behind you.
+- **The plunge.** In the air, hold crouch and attack: straight down, a slam that hits both sides on landing, and a beat planted. It soaks a little of a fall.
+- **Heavy landings only from real drops** (dust, a jolt, half your speed); short ones cost nothing.
+- **Platforming re-tuned for the double jump:** wider gaps and higher ledges across the broken-off flights, bigger steps in the switchbacks. First-time hints teach the double jump (before the first broken-off flight) and the plunge.
+- **The feel panel:** F9 (or `#feel` on the page) switches each assist on and off while you play (the input queue, buffer, coyote time, double jump, launch float, air-control fade, ledge grab, free turn, aim, roll cancels, plunge), to feel what each one does.
+- The Mark of the Fleet now quickens the run (there is no sprint).
+
 ## 0.27.0 — the Warden in the cavern (2026-11-08)
 
 - **The stair ends, and the mountain opens.** At the top of every region the last flight is a broad floor of stone, about eleven and a half paces long, ending in a sheer edge where the steps above have fallen away. Behind it the wall of the shaft is gone: a cavern opens, vast and dark, with spires rising out of its depths and hanging from its roof. Every region keeps its height: the floor's rise moved to the region's other flat flight.

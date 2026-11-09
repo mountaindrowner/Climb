@@ -34,7 +34,7 @@ export const MARKS = {
   ward:    { name: 'Mark of the Ward',        desc: 'A parry heals 1 (once every 8 seconds)', start: true },
   vigil:   { name: 'Mark of the Vigil',       desc: 'Every fourth kill heals 1', cost: 40 },
   finisher:{ name: 'Mark of the Finisher',    desc: 'The last blow of a combo deals 1 more', cost: 50 },
-  fleet:   { name: 'Mark of the Fleet',       desc: 'Roll again twice as soon; sprint 10% faster', cost: 45 },
+  fleet:   { name: 'Mark of the Fleet',       desc: 'Roll again twice as soon; run 10% faster', cost: 45 },
   seam:    { name: 'Mark of the Seam',        desc: 'Half again as much wellstone from kills', cost: 60 },
   breath:  { name: 'Mark of the Second Breath', desc: 'Once a climb, at 1 health, recover 2', cost: 70 },
   bearer:  { name: 'Mark of the Bearer',      desc: 'Your flask heals 3 instead of 2', cost: 55 },

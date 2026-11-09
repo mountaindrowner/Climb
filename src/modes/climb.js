@@ -29,6 +29,7 @@ import { startFall } from './fall.js';
 import { openCamp } from '../ui/screens/camp.js';
 import { addGold } from '../run/run.js';
 import { stoneAt, updateOaths } from '../world/oaths.js';
+import { isPlatformFlight } from '../world/decks.js';
 import { openOath } from '../ui/screens/oath.js';
 const C = TUNE.climb;
 
@@ -85,6 +86,13 @@ export function updClimb(dt){
   if (!ST.practice && p.land && special(p.k) === 'lift' && !S.lifts.includes(p.k)) ST.hint = 'Stand on the landing and press {jump} to repair the lift. It becomes a shortcut from the Pool.';
   // a fork: the high road climbs off the other way behind this landing
   const hh = forkHint(G) || hallHint(G); if (hh) ST.hint = hh;
+  // the double jump and the plunge, taught where they are first wanted: before the first broken-off flight, and in the air after it
+  if (!ST.practice && !ST.hint){
+    if (!S.seen.includes('double') && G.grounded && isPlatformFlight(p.k + 1) && p.land) ST.hint = 'The stair is gone ahead. Jump, and {jump} again in the air: a double jump. Catch an edge and you haul yourself up.';
+    else if (!S.seen.includes('plunge') && S.seen.includes('double') && !G.grounded && G.airT > 0.25) ST.hint = 'In the air, hold {down} and press {attack}: a plunge that slams down on whatever is below.';
+  }
+  if (G.flip > 0 && !S.seen.includes('double')){ S.seen.push('double'); save(); }
+  if (G.plant > 0 && !S.seen.includes('plunge')){ S.seen.push('plunge'); save(); }
   if (G.y > (G.peakY || 0)) G.peakY = G.y;
   const m = meters(G.y); if (m > S.best && !ST.practice) S.best = m;
 }

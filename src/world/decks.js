@@ -36,18 +36,18 @@ export function platformFlights(seed, practice){
   return out.sort((a, b) => a - b);
 }
 // The ledges across flight k, from the landing below it (at flightY(k)) to its own landing: each one reachable from
-// the last by a running jump (a gap up to 1.2, a rise up to 1.0) or, for a bigger rise, by a jump and a haul up from
-// close by.
+// the last by a running jump (a gap up to 1.8, a rise up to 1.0) or, for a bigger rise (up to 2.2), by the double jump
+// (since 0.28) from a little further off.
 export function platformLedges(seed, k){
   const r = rng(seed * 31 + k * 977 + 5), y0 = flightY(k), y1 = landingY(k), s0 = k * FL, out = [];
   let x = 0.15, y = y0;                                         // the step off the landing below
   for (let guard = 0; guard < 12 && x < F - 1.6; guard++){
-    const left = F - x, gap = 0.7 + r() * 0.45, len = Math.min(left - gap - 0.6, 0.9 + r() * 0.6);
+    const left = F - x, gap = 0.9 + r() * 0.9, len = Math.min(left - gap - 0.6, 0.9 + r() * 0.6);
     if (len < 0.8) break;
     const need = (y1 - y) / Math.max(1, Math.round(left / 2.2));    // what is left to climb, spread over what is left to cross
     const rise = Math.max(-0.4, Math.min(need > 1.0 ? Math.min(2.2, need) : 1.0, need + (r() - 0.5) * 0.6));
-    const big = rise > 1.0;                                       // a haul up: then the gap is short
-    const g = big ? 0.35 + r() * 0.2 : gap;
+    const big = rise > 1.0;                                       // the double jump: then the gap is shorter
+    const g = big ? 0.6 + r() * 0.8 : gap;
     out.push({ s0: s0 + x + g, s1: s0 + x + g + len, top: y + rise, kind: out.length && r() < 0.35 ? 'crumble' : 'ledge' });
     x += g + len; y += rise;
   }
@@ -72,9 +72,9 @@ export function switchback(kA){
       out.push({ s0: sF0, s1: sF1, top: topF, kind: 'switch', last: true });
       return { kA, ledges: out, hole: { s0: h0, s1: h1 } };
     }
-    const gap = 0.75 + (guard % 3) * 0.15, len = 1.3 + (guard % 2) * 0.3, s1 = cur.s0 - gap, s0 = s1 - len;
+    const gap = 1.0 + (guard % 3) * 0.2, len = 1.3 + (guard % 2) * 0.3, s1 = cur.s0 - gap, s0 = s1 - len;   // wider since the double jump
     let room = Infinity; for (let x = s0; x <= s1 + 1e-6; x += 0.1) room = Math.min(room, blockBottom(x) - LEDGE.headroom);   // a man standing on it must clear the stair above
-    const top = Math.min(cur.top + 0.95, room);                              // up, or level (or down a little) where the stair above comes low
+    const top = Math.min(cur.top + 1.7, room);                               // up a double jump's worth, or level (or down a little) where the stair above comes low
     if (s0 < 1) return null;
     cur = { s0, s1, top, kind: 'switch' }; out.push(cur);
   }

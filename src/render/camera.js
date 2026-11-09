@@ -51,7 +51,7 @@ export function updateCamera(dt){
     const p = posOf(G.s), c = B ? CT.fight : CT.climb, k = Math.min(1, dt);
     // explore: the grade ahead sets the zoom and the tilt
     const g = gradeAhead(G);
-    let zoom = clamp(1.25 - 0.5 * g, 0.88, 1.15), lead = c.lead * G.face * (G.sprinting ? 1.6 : 1);   // a sprint looks further ahead
+    let zoom = clamp(1.25 - 0.5 * g, 0.88, 1.15), lead = c.lead * G.face * (1 + 0.6 * clamp((Math.abs(G.v) - 4) / 1.5, 0, 1));   // at a full run it looks further ahead
     const look = clamp((g - 0.45) * 2.2, -0.6, 0.8) * G.face;
     // combat: frame him and what is coming for him
     const foes = foesNear(G);

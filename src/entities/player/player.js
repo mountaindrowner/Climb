@@ -31,7 +31,7 @@ export const PL = makePlayer(); scene.add(PL.P); setWeaponModel(PL, usable(S.wea
 export function newRunState(startS){
   return runState({
     s: startS, prevS: startS, v: 0, y: posOf(startS).y, vy: 0, grounded: true, face: 1, safeS: startS,
-    coyote: 0, jumpBuf: 0, crouch: false, roll: 0, rollCd: 0, rollDir: 1,
+    coyote: 0, jumpBuf: 0, crouch: false, roll: 0, rollCd: 0, rollDir: 1, airJumps: 1, airT: 0, flip: 0, dive: null, plant: 0, launch: 0,
     atk: null, blocking: false, blockAt: -9, blockHigh: false, hurtT: 0, inv: 0, landT: 0, jumpT: 0,
     runPhase: 0, plantSide: 0, camLead: 0.17,
     hp: P.hp, maxHp: P.hp, flask: P.flask, flaskMax: P.flask,
@@ -113,6 +113,41 @@ export function strike(swing, finisher){
   }
   if (!any && hitHall(G, swing)) any = true;   // nothing else in reach: a cracked wall behind him takes the blow
   if (!any && hitRubble(G, swing)) any = true; // or the rubble over a closed fork, with the ram
+  return any;
+}
+// A little aim (Dead Cells' free turnaround and auto-aim): which way the nearest foe in range is, if none is ahead in
+// range and one is behind; 0 for keep facing as you are.
+export function aimDir(G, range){
+  const k = posOf(G.s).k; let ahead = Infinity, behind = Infinity;
+  for (let kk = k - 2; kk <= k + 2; kk++){
+    if (kk < 0) continue;
+    for (const o of flight(kk).obs){
+      const e = ENTITIES[o.type]; if (!e.hittable || !e.hittable(o)) continue;
+      const d = (o.s - G.s) * G.face;
+      if (d > -0.3 && d < range) ahead = Math.min(ahead, d); else if (d <= -0.3 && d > -range) behind = Math.min(behind, -d);
+    }
+  }
+  const W = ST.W;   // the Warden's fists resting on the floor
+  if (W && W.hands) for (const h of W.hands) if (h.open){ const d = (h.pos.s - G.s) * G.face; if (d > -0.3 && d < range + 1) ahead = Math.min(ahead, d); else if (d <= -0.3 && d > -range - 1) behind = Math.min(behind, -d); }
+  return ahead === Infinity && behind < Infinity ? -G.face : 0;
+}
+// The plunge lands (down + attack in the air): a slam that hits everything close either side of him, and stuns what it
+// does not kill a moment, as a hit does.
+export function slam(G){
+  const D = MV.dive, k = posOf(G.s).k, sw = { dmg: D.dmg, pose: 'chop' }, dmg = damage(G, sw, false);
+  let any = false;
+  for (let kk = k - 2; kk <= k + 2; kk++){
+    if (kk < 0) continue;
+    for (const o of flight(kk).obs){
+      const e = ENTITIES[o.type]; if (!e.hittable || !e.hittable(o) || Math.abs(o.s - G.s) > D.radius) continue;
+      e.hit(o, dmg); any = true;
+      const root = (o.B && o.B.g) || (o.M && o.M.g) || o.m || o.jaws;
+      const at = e.hitAt ? e.hitAt(o) : root ? new THREE.Box3().setFromObject(root).getCenter(new THREE.Vector3()) : head(0.8);
+      impact(at, Math.sign(o.s - G.s || 1) * 1.4, { heavy: true, target: root });
+    }
+  }
+  if (ST.W){ const f = G.face; for (const d of [1, -1]){ G.face = d; if (hitGolem(dmg, sw, D.radius)){ any = true; break; } } G.face = f; }
+  ST.shake = Math.max(ST.shake, any ? 0.4 : 0.25); hitstop(any ? TUNE.feel.hitstopHit * 1.5 : 0.03); sfx.slam(); buzz(40);
   return any;
 }
 export function repairLift(k){
