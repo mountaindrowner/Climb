@@ -6,7 +6,7 @@ import { IN, bindInput, endFrame, pollPads } from '../core/input.js';
 import { sfx, ac } from '../audio/sfx.js';
 import '../ui/feel.js';
 import { LEVEL, T, spawnPoint, roomAt } from './level.js';
-import { newPlayer, stepPlayer, BODY, HOOKS } from './motor.js';
+import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf } from './motor.js';
 import { makeRenderer, makeSprite, VIEW_H } from './render.js';
 import { spawnFx, stepFx } from './fx.js';
 import { spawnEnemies, stepEnemies, strikeEnemies, slamEnemies } from './enemies.js';
@@ -14,7 +14,7 @@ import { makeWarden } from './boss.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'side 7 · the masked warrior';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'side 8 · heavy blade';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -42,7 +42,7 @@ const banner = (a, b, t = 3.2) => { BANNER = { a, b, t, life: t }; };
 const FEEL_FX = { hitstop: 0, shake: 0 };
 // the aim assist: with nothing in reach ahead and a creature in reach behind, a swing turns to it
 HOOKS.aim = P => {
-  const reach = WEAPONS.sword.reach + MV.aim; let ahead = false, behind = false;
+  const reach = BLADE.reach + MV.aim; let ahead = false, behind = false;
   for (const e of E.list){ if (!e.alive || Math.abs(e.y - P.y) > 2.2) continue; const d = (e.x - P.x) * P.face; if (d > -0.3 && d < reach) ahead = true; else if (d <= -0.3 && d > -reach) behind = true; }
   return !ahead && behind ? -P.face : 0;
 };
@@ -54,12 +54,16 @@ function heroPose(P, t){
   const A = hero.meta ? hero.meta.anims : {}, has = n => !!A[n];
   if (P.hp <= 0 && has('hurt')) return ['hurt', 0.999];
   if (P.hurtT > 0 && has('hurt')) return ['hurt', 1 - P.hurtT / MV.hurtStun];
-  if (P.roll > 0 && has('roll')) return ['roll', 1 - P.roll / MV.roll.time];
+  if (P.roll > 0 && (has('roll_px') || has('roll'))) return [has('roll_px') ? 'roll_px' : 'roll', 1 - P.roll / MV.roll.time];   // the full-body roll where there is one
   if (P.dive && has('plunge')) return ['plunge', 0.6];
   if (P.atk){
-    const sw = { 0: 'attack1', 1: 'attack2', 2: 'attack3' }[P.atk.i]; const W = window.__side.weapons.combo[P.atk.i];
-    const span = W.wind + W.active + W.rec, at = P.atk.phase === 'wind' ? P.atk.t : P.atk.phase === 'active' ? W.wind + P.atk.t : W.wind + W.active + P.atk.t;
-    if (has(sw)) return [sw, Math.min(0.999, at / span)];
+    // the swing's drawing, timed so the blade lands on its impact frame as the cut strikes
+    const W = swingOf(P, P.atk), sw = has(W.anim) ? W.anim : { 0: 'attack1', 1: 'attack2', 2: 'attack3' }[P.atk.i];
+    if (has(sw)){
+      const hit = W.hit || 0.5, end = W.hitEnd || hit + 1 / A[sw].frames, t = P.atk.t, ph = P.atk.phase;
+      const f = ph === 'wind' ? hit * t / W.wind : ph === 'active' ? hit + (end - hit) * t / W.active : end + (1 - end) * t / W.rec;
+      return [sw, Math.min(0.999, f)];
+    }
   }
   if (!P.grounded && !P.mantle){
     if (P.vy > 0 && has('jump')) return ['jump', Math.min(0.999, P.jumpT / 0.45)];
@@ -130,7 +134,7 @@ function onEvent(e){
     case 'slam': { sfx.slam(); fx.dust(at, 22, 3.6); fx.ring(at, 0xffd27a); const out = []; slamEnemies(E, P, MV.dive.radius, MV.dive.dmg, out); if (BOSS) BOSS.slam(P, MV.dive.radius, MV.dive.dmg, out); for (const o of out) onEvent(o); break; }
     case 'roll': sfx.whoosh(); fx.dust(at, 6, 2); break;
     case 'dive': sfx.whoosh(); break;
-    case 'strike': { sfx.slash(); fx.slash({ x: P.x + P.face * 1.0, y: P.y + 1.3 }, P.face, e.finisher); const out = []; strikeEnemies(E, P, WEAPONS.sword.reach, e.sw.dmg, out); if (BOSS) BOSS.strike(P, WEAPONS.sword.reach, e.sw.dmg, out); for (const o of out) onEvent(o); break; }
+    case 'strike': { sfx.slash(); fx.slash({ x: P.x + P.face * 1.0, y: P.y + 1.3 }, P.face, e.finisher); const out = []; strikeEnemies(E, P, BLADE.reach, e.sw.dmg, out); if (BOSS) BOSS.strike(P, BLADE.reach, e.sw.dmg, out); for (const o of out) onEvent(o); break; }
     case 'hit': sfx.hit(); fx.burst(e.at, e.heavy ? 18 : 12, 0xffe0a8); FEEL_FX.hitstop = e.heavy ? 0.09 : 0.05; FEEL_FX.shake = Math.max(FEEL_FX.shake, e.heavy ? 0.18 : 0.1); break;
     case 'kill': sfx.gold && sfx.gold(); fx.burst(e.at, 26, 0xff70d0); fx.ring(e.at, 0xffc0ff); FEEL_FX.hitstop = 0.1; break;
     case 'parry': sfx.parry(); fx.ring(e.at, 0x9fd0ff); FEEL_FX.hitstop = 0.12; break;
@@ -195,7 +199,7 @@ function drawHud(dt){
   }
   hx.font = '600 14px "Pixelify Sans", sans-serif'; hx.fillStyle = '#cfe6ff'; hx.fillText(room ? room.name : '', 18, 52);
   hx.fillStyle = 'rgba(207,230,255,0.6)'; hx.font = '400 12px "Pixelify Sans", sans-serif';
-  if (DEVICE.kind === 'keys') hx.fillText('A D move · Space jump (again in the air) · Shift roll · LMB attack · S + LMB in the air plunge · S + Space drop through a ledge · F9 feel', 18, h - 16);
+  if (DEVICE.kind === 'keys') hx.fillText('A D move · Space jump (again in the air) · Shift roll · LMB attack (S + LMB: rising cut; in the air: plunge) · S + Space drop through a ledge · F9 feel', 18, h - 16);
   else if (DEVICE.kind !== 'touch') hx.fillText('stick move · A jump (again in the air) · roll · attack · down + attack in the air plunge · down + jump drop through a ledge', 18, h - 16);
   hx.fillStyle = 'rgba(207,230,255,0.45)'; hx.font = '400 11px "Pixelify Sans", sans-serif'; hx.textAlign = 'right'; hx.fillText(BUILD, w - 16, h - 6); hx.textAlign = 'left';   // which build this is
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, TUNE.player.flask - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;

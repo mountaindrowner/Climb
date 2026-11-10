@@ -7,7 +7,8 @@
 #   python3 tools/pixellab.py balance
 #   python3 tools/pixellab.py character <name> "<description>" [size] [detail] -> creates it, records its id in assets/side/pixellab.json
 #   python3 tools/pixellab.py animate <name> <anim> "<action>" [frames] [mode] -> a side-view animation (east; west is the mirror);
-#        action 'template:<id>' with mode skeleton-v3 poses the character (steadier); frames held to assets/side/palette.json
+#        action 'template:<id>' with mode skeleton-v3 poses the character (steadier); frames held to assets/side/palette.json.
+#        For swings: describe the whole body in three beats, 10-13 frames, mode pixminimax (docs/side.md, the recipe)
 #   python3 tools/pixellab.py pull <name>                                      -> downloads every animation and packs strips:
 #        assets/side/<name>/<anim>.png (frames left to right) + assets/side/<name>/sprite.json
 #   python3 tools/pixellab.py image <file> "<description>" <w> <h> [alpha]     -> assets/side/<file>.png (backgrounds, props)

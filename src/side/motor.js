@@ -45,7 +45,7 @@ function launchSpeed(height, ease){
 export function newPlayer(x, y){
   return { x, y, vx: 0, vy: 0, h: BODY.stand, face: 1, grounded: true, coyote: 0, jumpBuf: 0, jumpT: 1, launch: 0, airT: 0, airJumps: 1, airTop: y,
     flip: 0, roll: 0, rollCd: 0, rollDir: 1, dive: null, plant: 0, crouch: false, mantle: null, landT: 0, drop: 0,
-    hp: TUNE.player.hp, maxHp: TUNE.player.hp, flask: TUNE.player.flask, inv: 0, hurtT: 0, atk: null, weapon: 'sword', runPhase: 0, events: [] };
+    hp: TUNE.player.hp, maxHp: TUNE.player.hp, flask: TUNE.player.flask, inv: 0, hurtT: 0, atk: null, weapon: 'blade', runPhase: 0, events: [] };
 }
 const ev = (P, type, extra) => P.events.push({ type, ...extra });
 function takeOff(P, air){
@@ -110,19 +110,19 @@ export function stepPlayer(P, dt){
   P.blocking = H.block && P.roll <= 0 && !stunned && !P.atk;
   if (P.roll <= 0 && !stunned && !P.dive && P.plant <= 0 && consume('attack')){
     if (FEEL.dive && !P.grounded && H.down && heightAbove(P) > MV.dive.min){ P.dive = { t: 0 }; P.atk = null; P.vx = 0; P.vy = -MV.dive.speed; P.flip = 0; ev(P, 'dive'); }
-    else if (!P.atk) startSwing(P, 0);
+    else if (!P.atk) startSwing(P, 0, P.grounded && H.down && weaponOf(P).rise ? 'rise' : null);   // from a crouch: the rising cut
     else P.atk.queued = true;
   }
   if (consume('flask')) ev(P, 'flask');
 
   // ---- the swing
   if (P.atk){
-    const A = P.atk, w = WEAPONS[P.weapon], sw = w.combo[A.i];
+    const A = P.atk, w = weaponOf(P), sw = swingOf(P, A);
     A.t += dt;
-    if (A.phase === 'wind' && A.t >= sw.wind){ A.phase = 'active'; A.t = 0; P.vx += P.face * sw.lunge / sw.active; ev(P, 'strike', { sw, finisher: A.i === w.combo.length - 1 }); }
+    if (A.phase === 'wind' && A.t >= sw.wind){ A.phase = 'active'; A.t = 0; P.vx += P.face * sw.lunge / sw.active; ev(P, 'strike', { sw, finisher: !!A.special || A.i === w.combo.length - 1 }); }
     if (A.phase === 'active' && A.t >= sw.active){ A.phase = 'rec'; A.t = 0; }
     if (A.phase === 'rec'){
-      if (A.queued && A.i + 1 < w.combo.length && A.t >= sw.rec * 0.25) startSwing(P, A.i + 1);
+      if (A.queued && !A.special && A.i + 1 < w.combo.length && A.t >= sw.rec * 0.25) startSwing(P, A.i + 1);
       else if (A.t >= sw.rec) P.atk = null;
       else if (A.t >= sw.rec * 0.4 && (H.left || H.right || P.jumpBuf > 0)) P.atk = null;
     }
@@ -143,7 +143,7 @@ export function stepPlayer(P, dt){
   else if (P.plant > 0){ target = 0; accel = MV.decel; }
   else if (P.atk && P.atk.phase !== 'rec'){
     target = 0; accel = MV.decel * 0.35;
-    if (FEEL.turn && dir && dir !== P.face && P.atk.phase === 'wind' && P.atk.t < WEAPONS[P.weapon].combo[P.atk.i].wind * 0.7) P.face = dir;
+    if (FEEL.turn && dir && dir !== P.face && P.atk.phase === 'wind' && P.atk.t < swingOf(P, P.atk).wind * 0.7) P.face = dir;
   }
   else {
     target = dir * MV.run * SCALE.run * IN.mag * (P.crouch ? MV.crouchMul : 1) * (P.blocking ? MV.blockMul : 1);
@@ -243,10 +243,21 @@ function landed(P){
   }
   if (drop > SIDE.fallSafe){ P.hp -= 1; P.inv = Math.max(P.inv, 0.6); ev(P, 'hurt', { n: 1, msg: 'Fell' }); }
 }
+// the masked warrior's curved blade: three heavy cuts (an overhead chop, an overhead slam, a spinning cut) and, from a
+// crouch, a rising cut. Each swing names its drawing and the moment in it the blade lands (hit, a fraction of the
+// drawing; hitEnd where a long cut stops): the wind-up plays up to that frame, the cut lands on it, the follow-through
+// plays out the rest
+export const BLADE = { name: 'Curved blade', reach: 1.9, combo: [
+  { dmg: 1, wind: 0.26, active: 0.1, rec: 0.36, lunge: 0.8, anim: 'atk_slam_v3', hit: 7 / 11 },
+  { dmg: 1, wind: 0.28, active: 0.1, rec: 0.36, lunge: 0.9, anim: 'atk_slam_px', hit: 9 / 13 },
+  { dmg: 2, wind: 0.1, active: 0.3, rec: 0.36, lunge: 1.1, anim: 'atk_spin_px', hit: 2 / 13, hitEnd: 10 / 13 },   // the cut lasts the whole turn
+], rise: { dmg: 2, wind: 0.34, active: 0.1, rec: 0.4, lunge: 0.4, anim: 'atk_rise_px', hit: 9 / 13 } };
+export const weaponOf = P => P.weapon === 'blade' ? BLADE : WEAPONS[P.weapon];
+export const swingOf = (P, A) => A.special ? weaponOf(P)[A.special] : weaponOf(P).combo[A.i];
 export const SIDE = { fallSafe: 9 };   // a metroidvania's shafts are deep: only a long drop hurts
 // set by the game: which way a foe is that a swing should turn to (0 for none), for the aim assist
 export const HOOKS = { aim: null };
-function startSwing(P, i){
+function startSwing(P, i, special = null){
   if (FEEL.aim && HOOKS.aim && !IN.held.left && !IN.held.right){ const d = HOOKS.aim(P); if (d) P.face = d; }
-  P.atk = { i, t: 0, phase: 'wind', queued: false };
+  P.atk = { i, t: 0, phase: 'wind', queued: false, special };
 }

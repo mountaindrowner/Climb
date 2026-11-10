@@ -9,8 +9,43 @@
    "foot": 42,
    "cx": 25.0
   },
+  "atk_sweep_px": {
+   "frames": 13,
+   "w": 56,
+   "h": 56,
+   "foot": 48,
+   "cx": 31.0
+  },
+  "atk_dash_v3": {
+   "frames": 11,
+   "w": 56,
+   "h": 56,
+   "foot": 48,
+   "cx": 31.0
+  },
+  "atk_leap_px": {
+   "frames": 13,
+   "w": 56,
+   "h": 56,
+   "foot": 49,
+   "cx": 31.0
+  },
+  "atk_dash_px": {
+   "frames": 13,
+   "w": 56,
+   "h": 56,
+   "foot": 48,
+   "cx": 31.0
+  },
   "atk_slam_v3": {
    "frames": 11,
+   "w": 56,
+   "h": 56,
+   "foot": 48,
+   "cx": 31.0
+  },
+  "atk_thrust_px": {
+   "frames": 13,
    "w": 56,
    "h": 56,
    "foot": 48,
@@ -100,6 +135,27 @@
    "foot": 48,
    "cx": 31.0
   },
+  "atk_leap_v3": {
+   "frames": 11,
+   "w": 56,
+   "h": 56,
+   "foot": 49,
+   "cx": 31.0
+  },
+  "atk_thrust_v3": {
+   "frames": 11,
+   "w": 56,
+   "h": 56,
+   "foot": 48,
+   "cx": 31.0
+  },
+  "atk_sweep_v3": {
+   "frames": 11,
+   "w": 56,
+   "h": 56,
+   "foot": 48,
+   "cx": 31.0
+  },
   "atk_slam_sk": {
    "frames": 12,
    "w": 64,
@@ -141,6 +197,13 @@
    "h": 64,
    "foot": 52,
    "cx": 31.5
+  },
+  "roll_px": {
+   "frames": 13,
+   "w": 56,
+   "h": 56,
+   "foot": 48,
+   "cx": 31.0
   },
   "attack3": {
    "frames": 7,

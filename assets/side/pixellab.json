@@ -545,6 +545,41 @@
     "action": "a spinning slash: he plants his feet and turns his whole body around in one full spin with the curved blade held out at arm's length, the red scarf flaring out, finishing facing forward in a low stance",
     "frames": 12,
     "group": "2af6dc72-6085-475a-9919-64c1f8fe1c2b"
+   },
+   "atk_dash_px": {
+    "action": "a dash cut: he leans his whole body forward and dashes ahead in two quick steps with the blade held low behind him, then whips the blade up and across in front as he skids to a stop, knees bent, body low, scarf flying forward",
+    "frames": 12,
+    "group": "1c22bdc4-d26f-4337-811f-509aacb4fa92"
+   },
+   "atk_sweep_px": {
+    "action": "a wide horizontal sweep: he turns his hips and shoulders away and draws the curved blade back behind him with his knees bent, then steps forward and unwinds his whole body, hips then torso then shoulders turning through, the blade sweeping level across in front at chest height, finishing with his shoulders turned past and his weight on the front foot",
+    "frames": 12,
+    "group": "1a225fa1-4e7f-4ed3-856d-1d8209731672"
+   },
+   "roll_px": {
+    "action": "a fast combat roll: he dives forward, tucks his head and knees into a tight ball and rolls over his shoulder along the ground, the red scarf wrapping around him, then comes up onto one knee and springs back up to standing",
+    "frames": 12,
+    "group": "da9ce8a6-f91f-4f85-83ba-35982f535709"
+   },
+   "atk_sweep_v3": {
+    "action": "a wide horizontal sweep: he turns his hips and shoulders away and draws the curved blade back behind him with his knees bent, then steps forward and unwinds his whole body, hips then torso then shoulders turning through, the blade sweeping level across in front at chest height, finishing with his shoulders turned past and his weight on the front foot",
+    "frames": 10,
+    "group": "ab2549e4-8879-4582-8e69-9147f6a46e98"
+   },
+   "atk_leap_px": {
+    "action": "a leaping strike: he crouches down, then jumps up and forward with the curved blade raised high over his head in both hands and his knees tucked, then comes down and lands in a deep crouch as the blade strikes down in front of him, his whole body folding into the landing",
+    "frames": 12,
+    "group": "1bfbb193-09c7-4eb8-a531-0673a75cbb65"
+   },
+   "atk_leap_v3": {
+    "action": "a leaping strike: he crouches down, then jumps up and forward with the curved blade raised high over his head in both hands and his knees tucked, then comes down and lands in a deep crouch as the blade strikes down in front of him, his whole body folding into the landing",
+    "frames": 10,
+    "group": "9c12c95e-0223-4519-8125-9f0603c2d974"
+   },
+   "atk_dash_v3": {
+    "action": "a dash cut: he leans his whole body forward and dashes ahead in two quick steps with the blade held low behind him, then whips the blade up and across in front as he skids to a stop, knees bent, body low, scarf flying forward",
+    "frames": 10,
+    "group": "1b9670ff-0e3e-4125-a34e-1ff00774865a"
    }
   }
  },

@@ -13,3 +13,21 @@ The Climb as a 2.5D side-scroller: a flat plane that climbs up through shafts, t
 - **Art** (`tools/pixellab.py`): characters drawn at 32 pixels (`low detail`), animated with PixelLab's skeleton templates where one fits (idle, run, jump, hurt: the drawing is posed and moved, so it stays itself) and from text otherwise (the cuts, roll, fall, plunge), every frame held to the palette, and snapped to it again on pull. `ppu` in each `sprite.json` says its scale (16 now; older drawings say 32 or 64). Hero options `px_knight`, `px_hood`, `px_mask`, `px_hat` (`?hero=a..d`); creatures `px_crawler`, `px_flitter`, `px_spitter`, `px_burrower`. Characters, side-view animations, backgrounds and tilesets from PixelLab, pulled through the API's own exports and packed into strips (`assets/side/<name>/<anim>.png` + `sprite.json` with where the feet and middle sit). The token is the session's, added by its network proxy; nothing secret is in the repository. `assets/side/pixellab.json` records what was made.
 
 Why PixelLab over rendering our 3D models to sprites (Dead Cells' own pipeline): a bake-off of the same warrior both ways; PixelLab's was crisp hand-pixel art, the render soft and muddy at the same size.
+
+## Animating with weight: the recipe
+
+What made the attacks that read as big and animated (and what made the stiff ones stiff), found by comparing ten takes
+of four swings side by side (`tools/anim-sheet.py` makes the sheet):
+
+- **Describe the body, not the weapon.** The good ones say what the legs, hips, torso, shoulders and head do: "he
+  crouches", "hops forward", "springs up onto his toes, his whole body stretching", "turns his whole body around",
+  "bending deep into a wide forward lunge". The stiff ones described the blade ("a fast forward slash, the blade
+  swinging out in front") and the generator moved only the arm.
+- **Three beats, named:** a wind-up (a hop, a crouch, a plant, drawing back), the one big motion, and a pose it ends in
+  (a deep lunge, a low stance, stretched up on the toes). Say which way the motion goes: "ending low" made a lunge cut
+  downward instead of forward; "thrust straight out level in front at chest height" says forward.
+- **Enough frames:** 10 to 13. Six or seven leaves no room for a wind-up or a follow-through.
+- **Mode:** `pixminimax` first (it also draws the swoosh arcs on the fastest frames), `v3` second. `skeleton-v3`
+  keeps the drawing steadiest but moves it stiffly: fine for walking and running, not for swings.
+- **In the game:** each swing names its drawing and its impact frame (`BLADE` in `src/side/motor.js`); the wind-up
+  plays up to that frame, the cut lands on it, the follow-through plays out the rest.
