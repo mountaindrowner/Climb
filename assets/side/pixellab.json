@@ -580,6 +580,26 @@
     "action": "a dash cut: he leans his whole body forward and dashes ahead in two quick steps with the blade held low behind him, then whips the blade up and across in front as he skids to a stop, knees bent, body low, scarf flying forward",
     "frames": 10,
     "group": "1b9670ff-0e3e-4125-a34e-1ff00774865a"
+   },
+   "flip_px": {
+    "action": "a forward somersault in mid air: he tucks his knees up to his chest and curls his body into a ball, rotating forward head over heels one full turn, the red scarf whirling around him, then opens out with his legs below him ready to land",
+    "frames": 12,
+    "group": "25bc0995-44cb-4e60-9c94-4686486c3675"
+   },
+   "land_px": {
+    "action": "landing from a high jump: he drops onto the ground on both feet, his knees bending deep and his body sinking into a low crouch with one hand near the ground to absorb the impact, the scarf and coat settling, then he rises back up to standing",
+    "frames": 8,
+    "group": "68b2187e-f71f-467f-9207-934a4cab4201"
+   },
+   "climb_v3": {
+    "action": "climbing up onto a ledge: he hangs from the edge above by both hands with his body and legs dangling below, then pulls himself up with his arms, swings one knee up over the edge, pushes up onto the ledge and stands up on top",
+    "frames": 10,
+    "group": "01218e95-978d-4830-9f93-62ccfa61c38f"
+   },
+   "land_v3": {
+    "action": "landing from a high jump: he drops onto the ground on both feet, his knees bending deep and his body sinking into a low crouch with one hand near the ground to absorb the impact, the scarf and coat settling, then he rises back up to standing",
+    "frames": 8,
+    "group": "012ffe4b-e287-4e67-a036-f4eddc3d6cee"
    }
   }
  },

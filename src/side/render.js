@@ -333,8 +333,12 @@ export function makeRenderer(canvas){
     fragmentShader: 'uniform sampler2D tex; uniform float th; varying vec2 vUv; void main(){ vec3 c = texture2D(tex, vUv).rgb; float l = max(c.r, max(c.g, c.b)); gl_FragColor = vec4(c * smoothstep(th, 1.0, l), 1.); }' });
   const blur = new THREE.ShaderMaterial({ uniforms: { tex: { value: null }, dir: { value: new THREE.Vector2() } }, vertexShader: vs,
     fragmentShader: 'uniform sampler2D tex; uniform vec2 dir; varying vec2 vUv; void main(){ vec3 c = texture2D(tex, vUv).rgb * 0.227; for (int i = 1; i < 5; i++){ float w = i == 1 ? 0.195 : i == 2 ? 0.122 : i == 3 ? 0.054 : 0.016; c += (texture2D(tex, vUv + dir * float(i)).rgb + texture2D(tex, vUv - dir * float(i)).rgb) * w; } gl_FragColor = vec4(c, 1.); }' });
-  const comp = new THREE.ShaderMaterial({ uniforms: { tex: { value: null }, glow: { value: null }, amt: { value: 1.1 } }, vertexShader: vs,
-    fragmentShader: 'uniform sampler2D tex; uniform sampler2D glow; uniform float amt; varying vec2 vUv; void main(){ vec3 c = texture2D(tex, vUv).rgb + texture2D(glow, vUv).rgb * amt; c = c / (1.0 + 0.1 * c); gl_FragColor = vec4(c, 1.); }' });
+  // the final pass also bends the picture round a blow: a ring that runs out from it, pushing pixels outward (two at once)
+  const comp = new THREE.ShaderMaterial({ uniforms: { tex: { value: null }, glow: { value: null }, amt: { value: 1.1 }, sh0: { value: new THREE.Vector4() }, sh1: { value: new THREE.Vector4() }, aspect: { value: 16 / 9 } }, vertexShader: vs,
+    fragmentShader: `uniform sampler2D tex; uniform sampler2D glow; uniform float amt; uniform vec4 sh0; uniform vec4 sh1; uniform float aspect; varying vec2 vUv;
+      vec2 ring(vec2 uv, vec4 s){ if (s.w <= 0.0) return vec2(0.0); vec2 d = uv - s.xy; d.x *= aspect; float r = length(d); float k = s.w * exp(-pow((r - s.z) / 0.03, 2.0)); return r > 1e-4 ? vec2(d.x / aspect, d.y) / r * k : vec2(0.0); }
+      void main(){ vec2 uv = vUv - ring(vUv, sh0) - ring(vUv, sh1); vec3 c = texture2D(tex, uv).rgb + texture2D(glow, uv).rgb * amt; c = c / (1.0 + 0.1 * c); gl_FragColor = vec4(c, 1.); }` });
+  const shocks = [{ t: 9, x: 0, y: 0, big: false }, { t: 9, x: 0, y: 0, big: false }]; let shockK = 0;
   main.texture.minFilter = main.texture.magFilter = THREE.NearestFilter;
   function pass(mat, target){ quad.material = mat; renderer.setRenderTarget(target); renderer.clear(); renderer.render(qScene, qCam); }
   function resize(){
@@ -349,6 +353,7 @@ export function makeRenderer(canvas){
   const cam = { x: 0, y: 0 }, snap = v => Math.round(v * PPU) / PPU;
   return {
     scene, camera, exits, ready, size: () => size,
+    shock(x, y, big){ const S = shocks[shockK]; shockK = (shockK + 1) % shocks.length; Object.assign(S, { t: 0, x, y, big: !!big }); },
     // where something at parallax f (1 moves with the world, 0 with the camera), anchored at (ax, ay), is drawn now
     parallax: (f, ax, ay) => ({ x: snap(ax + (cam.x - ax) * (1 - f)), y: snap(ay + (cam.y - ay) * (1 - f)) }),
     setCamera(x, y){
@@ -370,7 +375,11 @@ export function makeRenderer(canvas){
       bright.uniforms.tex.value = main.texture; pass(bright, b1);
       blur.uniforms.tex.value = b1.texture; blur.uniforms.dir.value.set(1 / b1.width, 0); pass(blur, b2);
       blur.uniforms.tex.value = b2.texture; blur.uniforms.dir.value.set(0, 1 / b1.height); pass(blur, b1);
-            comp.uniforms.tex.value = main.texture; comp.uniforms.glow.value = b1.texture; pass(comp, null);
+            // the rings: where in the picture, how far out, how strong
+      shocks.forEach((S, k) => { S.t += 1 / 60; const u = S.t / (S.big ? 0.32 : 0.24), hw = size.w / 2 / PPU, hh = VIEW_H / 2;
+        comp.uniforms['sh' + k].value.set(0.5 + (S.x - cam.x) / (hw * 2), 0.5 + (S.y - cam.y) / (hh * 2), (S.big ? 0.2 : 0.14) * Math.sqrt(Math.min(1, u)), u >= 1 ? 0 : (S.big ? 0.012 : 0.007) * (1 - u)); });
+      comp.uniforms.aspect.value = size.w / size.h;
+      comp.uniforms.tex.value = main.texture; comp.uniforms.glow.value = b1.texture; pass(comp, null);
     },
   };
 }
@@ -388,8 +397,10 @@ export function makeSprite(scene, base, meta){
   const plane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat); g.add(plane);
   const tex = {}; for (const a in meta.anims) tex[a] = strip(`${base}/${a}.png`, meta.anims[a].frames);
   const ppu = meta.ppu || 64, S = { g, plane, mat, anim: null };
-  S.show = (anim, frac, x, y, face, z = 0.05, rot = 0) => {
-    const A = meta.anims[anim] || meta.anims.stand; if (!A) return;
+  // anchor 'last': place the drawing by where its last frame stands (a climb ends on top of the ledge he is put on)
+  S.show = (anim, frac, x, y, face, z = 0.05, rot = 0, anchor = null) => {
+    const A0 = meta.anims[anim] || meta.anims.stand; if (!A0) return;
+    const A = anchor === 'last' && A0.footLast != null ? { ...A0, foot: A0.footLast, cx: A0.cxLast } : A0;
     if (S.anim !== anim){ mat.map = tex[anim] || tex.stand; mat.needsUpdate = true; S.anim = anim; }
     const n = A.frames, i = Math.min(n - 1, Math.floor(((frac % 1) + 1) % 1 * n));
     mat.map.offset.set(i / n, 0);
@@ -399,6 +410,14 @@ export function makeSprite(scene, base, meta){
     const PIV = meta.anims.stand ? meta.anims.stand.h / ppu * 0.45 : 0.85, ox = (A.w / 2 - A.cx) / ppu * (face < 0 ? -1 : 1), oy = A.foot / ppu - h / 2 - 0.02 - PIV, c = Math.cos(rot), s = Math.sin(rot);
     plane.position.set(ox * c - oy * s, ox * s + oy * c, 0); plane.rotation.z = rot;
     g.position.set(Math.round(x * PPU) / PPU, Math.round((y + PIV) * PPU) / PPU, z);
+  };
+  // an afterimage: this frame, tinted, left where it is to fade (the caller fades and removes it)
+  S.ghost = (color) => {
+    if (!mat.map || !mat.map.image) return null;
+    const t = mat.map.clone(); t.needsUpdate = true;
+    const m = new THREE.Mesh(plane.geometry, new THREE.MeshBasicMaterial({ map: t, color, transparent: true, alphaTest: 0.5, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+    m.position.set(g.position.x + plane.position.x, g.position.y + plane.position.y, g.position.z - 0.01); m.scale.copy(plane.scale); m.rotation.z = plane.rotation.z;
+    scene.add(m); return m;
   };
   return S;
 }

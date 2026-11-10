@@ -98,7 +98,9 @@ def pull(name):
         bb = [f.getchannel('A').point(lambda v: 255 if v > 40 else 0).getbbox() for f in frames]
         foot = max(b_[3] for b_ in bb if b_) + (h - frames[0].height)
         b0 = bb[0] or (0, 0, w, h); cx = (b0[0] + b0[2]) / 2 + (w - frames[0].width) / 2
-        meta['anims'][anim] = {'frames': len(frames), 'w': w, 'h': h, 'foot': foot, 'cx': cx}
+        # and where the last frame stands (a climb is placed by where it ends)
+        bl = bb[-1] or b0; footLast = bl[3] + (h - frames[-1].height); cxLast = (bl[0] + bl[2]) / 2 + (w - frames[-1].width) / 2
+        meta['anims'][anim] = {'frames': len(frames), 'w': w, 'h': h, 'foot': foot, 'cx': cx, 'footLast': footLast, 'cxLast': cxLast}
         print(name, anim, len(frames), 'frames', w, 'x', h)
     json.dump(meta, open(os.path.join(d, 'sprite.json'), 'w'), indent=1)
 

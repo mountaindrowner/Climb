@@ -52,6 +52,9 @@ export const sfx = {
   shriek(){ tone(1900, 0.16, 'square', 0.03, 900); tone(2500, 0.12, 'sine', 0.02, -700); },
   rumble(){ noise(0.45, 0.07, 220); tone(52, 0.45, 'sine', 0.12, -10); },
   whoosh(){ noise(0.28, 0.07, 1700); },
+  // a heavy swing: the air torn (a bright noise sweep), a low thump under it, more of both for a finisher
+  swing(big){ noise(big ? 0.22 : 0.16, big ? 0.16 : 0.12, big ? 1900 : 2400); tone(big ? 95 : 140, big ? 0.2 : 0.12, 'sine', big ? 0.32 : 0.2, big ? -45 : -70); tone(big ? 520 : 760, 0.06, 'triangle', 0.04, -400); },
+  dash(){ noise(0.24, 0.12, 2800); tone(260, 0.18, 'sawtooth', 0.035, -180); },
   snap(){ noise(0.08, 0.1, 3200); tone(300, 0.08, 'square', 0.05, -150); },
 };
 export function buzz(ms){ try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} }

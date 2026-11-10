@@ -2,6 +2,8 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
+**Dash, dust and weight (latest).** Attack during a roll: the dash cut, driven forward with afterimages and streaks, striking all along the dash. Every cut flashes a swoosh, bends the screen round the blow, kicks dust and thumps (a new layered swing sound); finishers more so, with a nudge of the view. Pixel dust on runs, jumps, landings, rolls and skids. A forward roll (the last one rolled backwards), a drawn somersault for the double jump, a landing, and a ledge climb placed to match the climb's motion. `tools/record-clip.mjs` records play frame by frame as GIFs.
+
 **The heavy blade (latest).** The masked warrior's combo is three full-body cuts (an overhead chop, an overhead slam, a spinning cut) and crouch + attack is a rising cut; each cut lands on its drawing's impact frame. A full-body combat roll. The recipe for animations that move the whole body is in docs/side.md.
 
 **The masked warrior (latest).** The hero is option C, redrawn tall and lean with gothic-action proportions (~2.6 units drawn, a 2.4 body) and the full moveset; jumps and run scale with him; the level keeps more head room and the opening over the tunnel stair is wider. A new test plays the whole region with the real motor in node and finds no unreachable room and no trap.

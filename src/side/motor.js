@@ -104,6 +104,10 @@ export function stepPlayer(P, dt){
     const dir = H.right ? 1 : H.left ? -1 : P.face;
     P.roll = MV.roll.time; P.rollDir = dir; P.face = dir; P.atk = null; P.crouch = false; P.plant = 0; ev(P, 'roll');
   }
+  // attack during a roll: the dash cut
+  if (P.roll > 0 && P.roll < MV.roll.time * 0.85 && weaponOf(P).dash && !boxRock(P, P.x, P.y, BODY.stand) && consume('attack')){
+    P.roll = 0; P.rollCd = MV.roll.cooldown; P.face = P.rollDir; P.dashFrom = P.x; startSwing(P, 0, 'dash'); ev(P, 'dashCut');
+  }
   const rollEnding = P.roll > 0 && FEEL.rollCancel && P.roll < MV.roll.time * MV.roll.cancel;
   if (rollEnding && pending('attack') && !boxRock(P, P.x, P.y, BODY.stand)){ P.roll = 0; P.rollCd = MV.roll.cooldown; }
   if (consume('block')) P.blockAt = performance.now() / 1000;
@@ -141,6 +145,7 @@ export function stepPlayer(P, dt){
   if (P.dive){ P.vx = 0; }
   else if (P.roll > 0){ P.vx = P.rollDir * MV.roll.speed * SCALE.run * (P.roll > MV.roll.time * 0.25 ? 1 : 0.5); }
   else if (P.plant > 0){ target = 0; accel = MV.decel; }
+  else if (P.atk && P.atk.phase !== 'rec' && swingOf(P, P.atk).dash){ target = P.face * swingOf(P, P.atk).dash; accel = 1e4; }   // the dash cut's drive
   else if (P.atk && P.atk.phase !== 'rec'){
     target = 0; accel = MV.decel * 0.35;
     if (FEEL.turn && dir && dir !== P.face && P.atk.phase === 'wind' && P.atk.t < swingOf(P, P.atk).wind * 0.7) P.face = dir;
@@ -228,7 +233,7 @@ function tryMantle(P, d){
     if ((t === ROCK || t === LEDGE) && above !== ROCK){
       const top = (j + 1) * T, x1 = d > 0 ? i * T + BODY.hw + 0.08 : (i + 1) * T - BODY.hw - 0.08;
       if (top - P.y < 0.35 || boxRock(P, x1, top, BODY.stand) || boxRock(P, P.x, P.y, top - P.y + BODY.crouch)) return;   // room on top, and room to rise to it
-      P.mantle = { t: 0, dur: 0.3, x0: P.x, x1, y0: P.y, y1: top }; P.vx = P.vy = 0; P.atk = null; P.flip = 0; ev(P, 'mantle');
+      P.mantle = { t: 0, dur: 0.45, x0: P.x, x1, y0: P.y, y1: top };   // long enough for the climb's drawing to play P.vx = P.vy = 0; P.atk = null; P.flip = 0; ev(P, 'mantle');
       return;
     }
     if (t === ROCK && above === ROCK) continue;
@@ -251,7 +256,9 @@ export const BLADE = { name: 'Curved blade', reach: 1.9, combo: [
   { dmg: 1, wind: 0.26, active: 0.1, rec: 0.36, lunge: 0.8, anim: 'atk_slam_v3', hit: 7 / 11 },
   { dmg: 1, wind: 0.28, active: 0.1, rec: 0.36, lunge: 0.9, anim: 'atk_slam_px', hit: 9 / 13 },
   { dmg: 2, wind: 0.1, active: 0.3, rec: 0.36, lunge: 1.1, anim: 'atk_spin_px', hit: 2 / 13, hitEnd: 10 / 13 },   // the cut lasts the whole turn
-], rise: { dmg: 2, wind: 0.34, active: 0.1, rec: 0.4, lunge: 0.4, anim: 'atk_rise_px', hit: 9 / 13 } };
+], rise: { dmg: 2, wind: 0.34, active: 0.1, rec: 0.4, lunge: 0.4, anim: 'atk_rise_px', hit: 9 / 13 },
+  // out of a roll: he is driven forward (dash, units a second) through the wind-up and the cut, then skids out of it
+  dash: { dmg: 2, wind: 0.18, active: 0.08, rec: 0.34, lunge: 0, dash: 11, anim: 'atk_dash_px', hit: 7 / 13, hitEnd: 8 / 13 } };
 export const weaponOf = P => P.weapon === 'blade' ? BLADE : WEAPONS[P.weapon];
 export const swingOf = (P, A) => A.special ? weaponOf(P)[A.special] : weaponOf(P).combo[A.i];
 export const SIDE = { fallSafe: 9 };   // a metroidvania's shafts are deep: only a long drop hurts
