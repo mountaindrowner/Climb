@@ -6,11 +6,11 @@
 import { clock } from './helpers/browser.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-const { LEVEL, T, tileAt, ROCK, LEDGE } = await import('../src/side/level.js');
+const { LEVEL, LEVELS, loadLevel, T, tileAt, ROCK, LEDGE } = await import('../src/side/level.js');
 const M = await import('../src/side/motor.js');
 const I = await import('../src/core/input.js');
-const { W, H, marks, rooms } = LEVEL;
 const H120 = 1 / 120;
+let W, H, marks, rooms;   // of the region being played
 
 // one input program from where he stands; returns where he came to rest, by tile (grounded, not hurt). Places are
 // kept as where he really stood, not tile centres: a tile's centre can be inside a wall for a body 0.68 wide
@@ -41,8 +41,11 @@ for (const d of ['left', 'right']){
 PROGS.push((t, I) => { I.hold('down', true); if (t < 0.01) I.tap('jump'); });                                   // drop through a ledge
 PROGS.push((t, I) => { if (t < 0.01 || Math.abs(t - 0.3) < 0.008) I.tap('jump'); I.hold('jump', t < 0.8); });  // straight up through a ledge
 
+for (let N = 0; N < LEVELS.length; N++){
+const NAME = LEVELS[N].name;
 let GRAPH;
 function graph(){
+  ({ W, H, marks, rooms } = loadLevel(N));
   if (GRAPH) return GRAPH;
   const sp = marks.find(m => m.type === 'spawn'), start = sp.y * W + sp.x, pos = new Map([[start, [(sp.x + 0.5) * T, sp.y * T]]]);
   const seen = new Set([start]), q = [start], edges = new Map();
@@ -56,17 +59,18 @@ function graph(){
 }
 const nearSeen = (seen, mx, my, r = 4) => { for (let a = -r; a <= r; a++) for (let b = -2; b <= r; b++) if (seen.has((my + b) * W + mx + a)) return true; return false; };
 
-test('played with the real motor: every room, the shrine, the stage and the way out are reached from the spawn', () => {
+test(`${NAME}, played with the real motor: every room, the shrine, the stage and the way out are reached from the spawn`, () => {
   const { seen } = graph();
   for (const r of rooms){ let any = false; for (const k of seen){ const i = k % W, j = (k - i) / W; if (i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1){ any = true; break; } } assert.ok(any, `room ${r.name} is not reached`); }
-  for (const t of ['shrine', 'boss', 'exit']){ const m = marks.find(k => k.type === t); assert.ok(nearSeen(seen, m.x, m.y), `${t} is not reached`); }
+  for (const t of ['shrine', 'boss', 'exit']){ const m = marks.find(k => k.type === t); if (m || t !== 'boss') assert.ok(m && nearSeen(seen, m.x, m.y), `${t} is not reached`); }
 });
-test('played with the real motor: from anywhere he gets to, he can still get to the Warden\'s stage', () => {
+test(`${NAME}, played with the real motor: from anywhere he gets to, he can still get to where the region leads`, () => {
   const { seen, edges } = graph(), back = new Map();
   for (const [a, nx] of edges) for (const b of nx){ if (!back.has(b)) back.set(b, []); back.get(b).push(a); }
-  const boss = marks.find(m => m.type === 'boss'), ok = new Set(), q = [];
+  const boss = marks.find(m => m.type === 'boss') || marks.find(m => m.type === 'exit'), ok = new Set(), q = [];
   for (const k of seen){ const i = k % W, j = (k - i) / W; if (Math.abs(i - boss.x) < 12 && Math.abs(j - boss.y) < 2){ ok.add(k); q.push(k); } }
   while (q.length){ const k = q.pop(); for (const p of back.get(k) || []) if (!ok.has(p)){ ok.add(p); q.push(p); } }
   const stuck = [...seen].filter(k => !ok.has(k)).map(k => { const i = k % W, j = (k - i) / W, r = rooms.find(r => i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1); return `${r ? r.name : '?'} ${i},${j}`; });
   assert.equal(stuck.length, 0, `${stuck.length} places he gets to but not out of, e.g. ${stuck.slice(0, 6).join('; ')}`);
 });
+}

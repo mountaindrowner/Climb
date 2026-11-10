@@ -1,11 +1,12 @@
 // The side view: boot and the loop. The motor steps at a fixed 1/120 s (input is kept until it is used, core/input.js);
 // the frame draws where things are. Camera: it leads the way he faces and a little up, eases after him, and stays
-// inside the map.
+// inside the map. The mountain is three regions, one over the other; the way out of one leads up into the next
+// (enter), and the buttons under the room's name go straight to any of them.
 import { TUNE } from '../config/tuning.js';
 import { IN, bindInput, endFrame, pollPads } from '../core/input.js';
 import { sfx, ac } from '../audio/sfx.js';
 import '../ui/feel.js';
-import { LEVEL, T, spawnPoint, roomAt } from './level.js';
+import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt } from './level.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf } from './motor.js';
 import { makeRenderer, makeSprite, VIEW_H } from './render.js';
 import { spawnFx, stepFx } from './fx.js';
@@ -14,7 +15,7 @@ import { makeWarden } from './boss.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'side 9 · dash, dust and weight';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'side 10 · the Warden whole, the Cloister, the Spires';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -23,21 +24,46 @@ let P = newPlayer(sp.x, sp.y);
 const hero = { sprite: null, meta: null };
 // the warrior: one of the drawn options (?hero=a|b|c|d), falling back to the first, larger drawing
 const HEROES = { masked: 'mask_tall_c', a: 'px_knight', b: 'px_hood', c: 'px_mask', d: 'px_hat' }, HERO = HEROES[new URLSearchParams(location.search).get('hero')] || HEROES.masked;   // the tall masked warrior; ?hero=a..d the small options
-const loadHero = name => fetch(`assets/side/${name}/sprite.json`).then(r => r.ok ? r.json() : Promise.reject()).then(meta => { hero.meta = meta; hero.sprite = makeSprite(R.scene, `assets/side/${name}`, meta); });
+const loadHero = name => fetch(`assets/side/${name}/sprite.json`).then(r => r.ok ? r.json() : Promise.reject()).then(meta => { hero.meta = meta; hero.name = name; hero.sprite = makeSprite(R.scene, `assets/side/${name}`, meta); });
 loadHero(HERO).catch(() => loadHero('hero_a')).catch(() => loadHero('hero'));
-const fx = spawnFx(R.scene);
-const E = spawnEnemies(R.scene);
-const BOSS = makeWarden(R.scene, R);
-// the shrine: it fills the flask and the hearts, and is where he wakes after a death
-const SHRINE = (m => m && { x: (m.x + 0.5) * T, y: m.y * T })(LEVEL.marks.find(m => m.type === 'shrine'));
+// what a region has in it: made by setup, again each time he comes into one
+let fx, E, BOSS, SHRINE, MAP;
 let CHECK = null, BANNER = null, WON = false, DEATH = 0;
-// the map: the region drawn a pixel a tile, each room shown once he has been in it
-const MAP = (() => {
+const SUB = ['the bottom of the mountain', 'a house of stone over the Warden\'s hall', 'the open air, and the peak'];
+function setup(){
+  fx = spawnFx(R.scene); E = spawnEnemies(R.scene); BOSS = makeWarden(R.scene, R);
+  // the shrine: it fills the flask and the hearts, and is where he wakes after a death
+  SHRINE = (m => m && { x: (m.x + 0.5) * T, y: m.y * T })(LEVEL.marks.find(m => m.type === 'shrine'));
+  if (SHRINE) SHRINE.room = roomAt(SHRINE.x, SHRINE.y + 0.5);
+  CHECK = null; WON = false; DEATH = 0;
+  if (!BOSS) for (const x of R.exits) x.set(true);   // nothing guards the way on
+  // the map: the region drawn a pixel a tile, each room shown once he has been in it
   const c = document.createElement('canvas'); c.width = LEVEL.W; c.height = LEVEL.H; const g = c.getContext('2d'), img = g.createImageData(LEVEL.W, LEVEL.H);
   const COL = { 0: [46, 92, 128], 2: [196, 150, 92], 3: [255, 92, 132] };
   for (let j = 0; j < LEVEL.H; j++) for (let i = 0; i < LEVEL.W; i++){ const k = COL[LEVEL.tiles[j * LEVEL.W + i]]; if (k) img.data.set([...k, 255], ((LEVEL.H - 1 - j) * LEVEL.W + i) * 4); }
-  g.putImageData(img, 0, 0); return { c, seen: new Set() };
-})();
+  g.putImageData(img, 0, 0); MAP = { c, seen: new Set() };
+}
+setup();
+// into region n: the world is made again, he stands at its start with the hearts and flask he had
+function enter(n){
+  loadLevel(n); R.load();
+  if (hero.meta) hero.sprite = makeSprite(R.scene, `assets/side/${hero.name}`, hero.meta);
+  FX2.ghosts.length = 0; setup();
+  const s = spawnPoint(), old = P; P = newPlayer(s.x, s.y); P.hp = Math.max(1, old.hp); P.flask = old.flask;
+  CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0;
+  banner(LEVEL.name, SUB[LEVEL.index] || '', 4); marks();
+}
+// going up: the picture goes dark, the next region is made, it comes back
+const GO = { to: -1, t: 0, st: '' };
+const go = n => { if (!GO.st){ GO.to = n; GO.t = 0; GO.st = 'out'; } };
+// the regions' buttons
+const PICK = document.createElement('div');
+PICK.style.cssText = 'position:absolute;left:18px;top:60px;display:flex;gap:6px;z-index:6;font:600 12px "Pixelify Sans",sans-serif';
+LEVELS.forEach((l, n) => { const b = document.createElement('button'); b.textContent = `${n + 1} ${l.name.replace('The ', '')}`; b.dataset.n = n;
+  b.style.cssText = 'background:rgba(10,8,20,0.7);color:#cfe6ff;border:1px solid rgba(140,210,255,0.35);border-radius:3px;padding:3px 7px;cursor:pointer;font:inherit';
+  b.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); if (n !== LEVEL.index) go(n); b.blur(); }); PICK.appendChild(b); });
+(document.getElementById('stage') || document.body).appendChild(PICK);
+const marks = () => { for (const b of PICK.children) b.style.borderColor = +b.dataset.n === LEVEL.index ? '#ffd27a' : 'rgba(140,210,255,0.35)'; };
 const banner = (a, b, t = 3.2) => { BANNER = { a, b, t, life: t }; };
 const FEEL_FX = { hitstop: 0, shake: 0, kick: 0 };
 const FX2 = { ghosts: [], ghostT: 0, runDust: 0 };   // the dash's afterimages; the run's dust
@@ -48,7 +74,7 @@ HOOKS.aim = P => {
   return !ahead && behind ? -P.face : 0;
 };
 const CAM = { x: sp.x, y: sp.y + 2, lead: 0, zoom: 1 };
-bindInput();
+bindInput(); marks(); banner(LEVEL.name, SUB[LEVEL.index] || '', 4);
 
 // the drawings the masked warrior uses for these moves, where he has them
 const MOVES = { roll: ['roll2_px', 'roll_px', 'roll'], flip: ['flip_px'], climb: ['climb_px', 'climb_v3'], land: ['land_px', 'land_v3'] };
@@ -94,7 +120,7 @@ function frame(ts){
   let sdt = dt; if (FEEL_FX.hitstop > 0){ FEEL_FX.hitstop -= dt; sdt = dt * 0.06; }
   acc += sdt; time += dt;
   const h = 1 / 120;
-  while (acc >= h){ const x0 = P.x; if (DEATH <= 0) stepPlayer(P, h); P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
+  while (acc >= h){ const x0 = P.x; if (DEATH <= 0 && !GO.st) stepPlayer(P, h); P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
   endFrame();
   const evs = [];
   stepEnemies(E, P, sdt, fx, evs);
@@ -109,7 +135,16 @@ function frame(ts){
     const first = !CHECK; CHECK = { x: SHRINE.x, y: SHRINE.y }; P.flask = TUNE.player.flask; P.hp = P.maxHp; sfx.drink(); fx.ring({ x: SHRINE.x, y: SHRINE.y + 1 }, 0xffd27a);
     if (first) banner('Shrine', 'your flask is full; you will wake here');
   }
-  if (BOSS && BOSS.st === 'dead' && !WON && R.exits.some(x => Math.abs(P.x - x.x) < 1 && Math.abs(P.y - x.y) < 1.5)){ WON = true; banner('The way up', 'the climb goes on — to be continued', 6); sfx.gold(); }
+  if ((!BOSS || BOSS.st === 'dead') && !WON && R.exits.some(x => Math.abs(P.x - x.x) < 1 && Math.abs(P.y - x.y) < 1.5)){
+    WON = true; sfx.gold();
+    if (LEVEL.index < LEVELS.length - 1) go(LEVEL.index + 1); else banner('The summit', 'the climb goes on — to be continued', 6);
+  }
+  if (GO.st){
+    GO.t += dt;
+    if (GO.st === 'out' && GO.t > 0.6){ GO.st = 'load'; GO.t = 0; }                 // a frame fully dark before the work
+    else if (GO.st === 'load' && GO.t > 0.05){ enter(GO.to); GO.st = 'in'; GO.t = 0; acc = 0; }
+    else if (GO.st === 'in' && GO.t > 0.7) GO.st = '';
+  }
   // camera
   // in the Warden's arena the camera draws back to show the whole fight, and keeps inside the arena
   const fight = BOSS && BOSS.active();
@@ -197,6 +232,7 @@ function drawHud(dt){
   const w = hud.clientWidth, h = hud.clientHeight, dpr = devicePixelRatio || 1;
   if (hud.width !== Math.round(w * dpr)){ hud.width = Math.round(w * dpr); hud.height = Math.round(h * dpr); }
   hx.setTransform(dpr, 0, 0, dpr, 0, 0); hx.clearRect(0, 0, w, h);
+  hx.shadowColor = 'rgba(8,6,14,0.85)'; hx.shadowOffsetX = hx.shadowOffsetY = 1.5 * dpr; hx.shadowBlur = 0;   // read over a bright sky as over a dark cave
   for (let i = 0; i < P.maxHp; i++){ hx.fillStyle = i < P.hp ? '#ff4d6a' : '#3a2433'; hx.fillRect(18 + i * 22, 16, 16, 16); hx.strokeStyle = '#0b0710'; hx.lineWidth = 2; hx.strokeRect(18 + i * 22, 16, 16, 16); }
   // a red ! over a creature winding up
   const v = new window.THREE.Vector3();
@@ -230,18 +266,19 @@ function drawHud(dt){
     for (const r of MAP.seen){ const sx = r.x0 / T, sy = LEVEL.H - r.y1 / T, sw = (r.x1 - r.x0) / T, sh = (r.y1 - r.y0) / T; hx.globalAlpha = r === room ? 1 : 0.7; hx.drawImage(MAP.c, sx, sy, sw, sh, mx + sx * k, my + sy * k, sw * k, sh * k); }
     hx.globalAlpha = 1;
     const dot = (x, y, c, r = 2) => { hx.fillStyle = c; hx.fillRect(mx + x / T * k - r, my + (LEVEL.H - y / T) * k - r, r * 2, r * 2); };
-    if (SHRINE && [...MAP.seen].some(r => r.name === 'grotto')) dot(SHRINE.x, SHRINE.y + 0.5, '#ffd27a');
+    if (SHRINE && MAP.seen.has(SHRINE.room)) dot(SHRINE.x, SHRINE.y + 0.5, '#ffd27a');
     if (BOSS && [...MAP.seen].some(r => r.name === 'arena')) dot(BOSS.cx, BOSS.stageY + 1, BOSS.st === 'dead' ? '#7a8090' : '#ff5a4a', 3);
     if (Math.floor(time * 3) % 2 === 0) dot(P.x, P.y + 0.8, '#ffffff');
   }
-  hx.font = '600 14px "Pixelify Sans", sans-serif'; hx.fillStyle = '#cfe6ff'; hx.fillText(room ? room.name : '', 18, 52);
+  hx.font = '600 14px "Pixelify Sans", sans-serif'; hx.fillStyle = '#cfe6ff'; hx.fillText(LEVEL.name + (room ? ' · ' + room.name : ''), 18, 52);
   hx.fillStyle = 'rgba(207,230,255,0.6)'; hx.font = '400 12px "Pixelify Sans", sans-serif';
   if (DEVICE.kind === 'keys') hx.fillText('A D move · Space jump (again in the air) · Shift roll (LMB during it: dash cut) · LMB attack (S + LMB: rising cut; in the air: plunge) · S + Space drop through a ledge · F9 feel', 18, h - 16);
   else if (DEVICE.kind !== 'touch') hx.fillText('stick move · A jump (again in the air) · roll · attack · down + attack in the air plunge · down + jump drop through a ledge', 18, h - 16);
   hx.fillStyle = 'rgba(207,230,255,0.45)'; hx.font = '400 11px "Pixelify Sans", sans-serif'; hx.textAlign = 'right'; hx.fillText(BUILD, w - 16, h - 6); hx.textAlign = 'left';   // which build this is
+  if (GO.st){ hx.fillStyle = `rgba(8,6,14,${GO.st === 'out' ? Math.min(1, GO.t / 0.6) : GO.st === 'in' ? Math.max(0, 1 - GO.t / 0.7) : 1})`; hx.fillRect(0, 0, w, h); }   // going up: dark between regions
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, TUNE.player.flask - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, weapons: null, CAM, input: null, E, BOSS, capture: CAPTURE };
+window.__side = { get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

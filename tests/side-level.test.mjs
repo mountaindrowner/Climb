@@ -3,9 +3,11 @@
 // room is reached, and the shrine, the arena's stage and the way out. Guards the organic pass, which reshapes rooms.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { LEVEL, ROCK, LEDGE, EMPTY } from '../src/side/level.js';
+import { LEVEL, LEVELS, loadLevel, ROCK, LEDGE, EMPTY } from '../src/side/level.js';
 
-const { W, H, tiles, marks, rooms } = LEVEL;
+for (let N = 0; N < LEVELS.length; N++){
+const { W, H, tiles, marks, rooms } = { ...loadLevel(N) }, NAME = LEVELS[N].name;
+const GOAL = marks.find(m => m.type === 'boss') || marks.find(m => m.type === 'exit');   // where the region leads: its boss, or its way out
 const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i];
 const solid = (i, j) => at(i, j) === ROCK;
 const support = (i, j) => { const t = at(i, j); return t === ROCK || t === LEDGE; };
@@ -48,25 +50,26 @@ function reach(edges){
 }
 const near = (seen, mx, my, r = 3) => { for (let a = -r; a <= r; a++) for (let b = -r; b <= r; b++){ const i = mx + a, j = my + b; if (i >= 0 && j >= 0 && i < W && j < H && seen[j * W + i]) return true; } return false; };
 
-test('every room, the shrine, the Warden\'s stage and the way out can be reached from the spawn', () => {
+test(`${NAME}: every room, the shrine, the boss's stage and the way out can be reached from the spawn`, () => {
   const seen = reach();
   for (const r of rooms){
     let any = false; for (let j = r.ty0; j < r.ty1 && !any; j++) for (let i = r.tx0; i < r.tx1; i++) if (seen[j * W + i]){ any = true; break; }
     assert.ok(any, `room ${r.name} is cut off`);
   }
-  for (const t of ['shrine', 'boss', 'exit']){ const m = marks.find(k => k.type === t); assert.ok(near(seen, m.x, m.y), `${t} cannot be reached`); }
+  for (const t of ['shrine', 'boss', 'exit']){ const m = marks.find(k => k.type === t); if (m || t !== 'boss') assert.ok(m && near(seen, m.x, m.y), `${t} cannot be reached`); }
 });
-test('the organic pass leaves every marker in open air', () => {
+test(`${NAME}: the organic pass leaves every marker in open air`, () => {
   for (const m of marks) assert.notEqual(at(m.x, m.y), ROCK, `${m.type} at ${m.x},${m.y} is in rock`);
 });
 
-test('no traps: from anywhere he can get to, he can still get to the Warden\'s stage', () => {
+test(`${NAME}: no traps: from anywhere he can get to, he can still get to where the region leads`, () => {
   const edges = [], seen = reach(edges), back = new Map();
   for (let k = 0; k < edges.length; k += 2){ const a = edges[k], b = edges[k + 1]; if (!back.has(b)) back.set(b, []); back.get(b).push(a); }
-  const boss = marks.find(m => m.type === 'boss'), ok = new Uint8Array(W * H), q = [];
+  const boss = GOAL, ok = new Uint8Array(W * H), q = [];
   for (let a = -6; a <= 6; a++) for (let b = -2; b <= 3; b++){ const k = (boss.y + b) * W + boss.x + a; if (seen[k]){ ok[k] = 1; q.push(k); } }
   while (q.length){ const k = q.pop(); for (const p of back.get(k) || []) if (!ok[p]){ ok[p] = 1; q.push(p); } }
   const stuck = []; for (let k = 0; k < W * H; k++) if (seen[k] && !ok[k]) stuck.push(k);
   const where = stuck.slice(0, 5).map(k => { const i = k % W, j = (k - i) / W, r = rooms.find(r => i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1); return `${r ? r.name : '?'} ${i},${j}`; });
   assert.equal(stuck.length, 0, `${stuck.length} places he can get to but not out of, e.g. ${where.join('; ')}`);
 });
+}

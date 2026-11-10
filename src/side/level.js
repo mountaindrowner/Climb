@@ -1,6 +1,8 @@
 // The side view's world: a grid of tiles, half a unit square, climbing up through rooms joined by doorways, shafts and
 // tunnels, the way a metroidvania's map is. Rooms are built from a few pieces (walls, doors, ledges, stairs, low
-// tunnels) so each is easy to read and change; the region is a grid of rooms. Tile y counts up from the bottom.
+// tunnels) so each is easy to read and change; a region is a grid of rooms, and there are three, one over the other:
+// the Roots (caves), the Cloister (a ruined monastery) and the Spires (the open air near the top). One is in play at a
+// time (LEVEL; loadLevel changes it). Tile y counts up from the bottom.
 //   0 empty   1 rock   2 ledge (one-way: stand on it, jump up through it)   3 spikes
 // Markers (spawns, lights, the exit) are kept apart from the tiles, in tile coordinates.
 export const T = 0.5;                       // a tile, in world units (the warrior is about 1.75 tall)
@@ -125,32 +127,183 @@ function arena(){
   mark(r, 'torch', 8, 13); mark(r, 'torch', 30, 12); mark(r, 'torch', 50, 12); mark(r, 'torch', 72, 13); mark(r, 'crystal', 20, 9); mark(r, 'crystal', 60, 9);
   return r;
 }
-// the region: rooms on a grid (column, row up)
-// [column, row, builder, columns wide, rows tall]
-const LAYOUT = [[0, 0, start], [1, 0, corridor], [1, 1, shaft], [0, 1, tunnel], [0, 2, chamber], [1, 2, ascent], [2, 2, gallery], [3, 2, well, 1, 2],
-  [0, 3, roost], [1, 3, bridge], [2, 3, grotto], [2, 4, arena, 2, 2]];
+// ---- the second region: the Cloister, a ruined monastery cut into the mountain over the Warden's cavern. Halls,
+// a bell tower three screens tall, cells to crawl through; two ways round to the chapel at the top.
+function undercroft(){
+  const r = room(); walls(r); door(r, 'right', 2, 7);
+  rect(r, 13, 2, 17, 4); rect(r, 25, 2, 29, 4);                   // tombs: hop them
+  ledge(r, 19, 23, 8);
+  mark(r, 'spawn', 6, 2); mark(r, 'torch', 4, 7); mark(r, 'torch', 21, 12); mark(r, 'torch', 35, 9); mark(r, 'crystal', 15, 5); mark(r, 'crystal', 27, 5); mark(r, 'crawler', 33, 2);
+  return r;
+}
+function nave(){
+  const r = room(2, 1); walls(r); door(r, 'left', 2, 7); door(r, 'right', 2, 7);
+  for (const x of [18, 50]){ rect(r, x, 0, x + 5, 1, EMPTY); rect(r, x, 0, x + 5, 0, SPIKES); }   // two pits
+  ledge(r, 8, 15, 6); ledge(r, 26, 34, 6); ledge(r, 36, 44, 10); ledge(r, 56, 64, 6); ledge(r, 66, 73, 10);   // the galleries
+  rect(r, 38, 2, 41, 3);                                          // a plinth mid-hall
+  mark(r, 'crawler', 30, 2); mark(r, 'crawler', 62, 2); mark(r, 'spitter', 40, 11); mark(r, 'flitter', 22, 13); mark(r, 'flitter', 58, 14);
+  mark(r, 'torch', 5, 8); mark(r, 'torch', 28, 12); mark(r, 'torch', 46, 6); mark(r, 'torch', 60, 12); mark(r, 'torch', 75, 8); mark(r, 'crystal', 11, 7); mark(r, 'crystal', 70, 11); mark(r, 'crystal', 34, 2);
+  return r;
+}
+// three screens tall: ledges up past a door to the library, to a door onto the cloister walk; the bell hangs above
+function belfry(){
+  const r = room(1, 3); walls(r); door(r, 'left', 2, 7); door(r, 'left', 25, 30); door(r, 'left', 48, 53);
+  [[24, 32, 5], [10, 18, 9], [22, 30, 13], [30, 37, 17], [16, 24, 21], [2, 10, 24], [14, 22, 28], [26, 34, 32], [30, 37, 36], [18, 26, 40], [8, 16, 44], [2, 10, 47], [16, 24, 51], [28, 36, 55]]
+    .forEach(([a, b, y]) => ledge(r, a, b, y));
+  mark(r, 'flitter', 20, 16); mark(r, 'flitter', 12, 36); mark(r, 'spitter', 33, 37); mark(r, 'bell', 20, 64);
+  mark(r, 'torch', 34, 8); mark(r, 'torch', 5, 28); mark(r, 'torch', 34, 42); mark(r, 'torch', 5, 51); mark(r, 'crystal', 3, 2); mark(r, 'crystal', 34, 18); mark(r, 'crystal', 32, 56);
+  return r;
+}
+function library(){
+  const r = room(); walls(r); door(r, 'right', 2, 7); door(r, 'left', 2, 7);
+  rect(r, 13, 2, 27, 2); rect(r, 15, 3, 25, 3);                   // the dais, stepped
+  ledge(r, 5, 11, 8); ledge(r, 29, 35, 8);
+  mark(r, 'shrine', 20, 4); mark(r, 'crystal', 8, 9); mark(r, 'crystal', 32, 9); mark(r, 'torch', 4, 13); mark(r, 'torch', 36, 13); mark(r, 'torch', 14, 9); mark(r, 'torch', 26, 9);
+  return r;
+}
+function cells(){
+  const r = room(); walls(r); door(r, 'right', 2, 7); door(r, 'left', 2, 7);
+  rect(r, 9, 5, 13, 20); rect(r, 19, 5, 23, 20); rect(r, 29, 5, 33, 20);   // the cell walls: crouch or roll under each
+  mark(r, 'burrower', 16, 2); mark(r, 'crawler', 26, 2); mark(r, 'torch', 5, 9); mark(r, 'torch', 16, 9); mark(r, 'torch', 26, 9); mark(r, 'torch', 36, 9); mark(r, 'crystal', 16, 2);
+  return r;
+}
+function stairwell(){
+  const r = room(1, 2); walls(r); door(r, 'right', 2, 7); door(r, 'right', 25, 30);
+  stairs(r, 30, 2, 10, -1, 2); rect(r, 2, 2, 10, 11);            // the long stair up to a landing against the wall
+  ledge(r, 13, 19, 15); ledge(r, 22, 29, 18); ledge(r, 31, 37, 21); ledge(r, 30, 37, 24);   // and on up to the walk
+  rect(r, 2, 30, 14, 43);                                         // the wall closes in over the landing
+  mark(r, 'spitter', 6, 12); mark(r, 'flitter', 24, 30); mark(r, 'torch', 35, 9); mark(r, 'torch', 16, 12); mark(r, 'torch', 20, 26); mark(r, 'torch', 35, 34); mark(r, 'crystal', 4, 12); mark(r, 'crystal', 25, 19);
+  return r;
+}
+function cloister(){
+  const r = room(2, 1); walls(r); door(r, 'left', 2, 7); door(r, 'right', 2, 7); door(r, 'top', 36, 42);
+  for (const x of [14, 60]){ rect(r, x, 0, x + 5, 1, EMPTY); rect(r, x, 0, x + 5, 0, SPIKES); }
+  ledge(r, 26, 32, 5); ledge(r, 30, 35, 9); ledge(r, 34, 40, 13); ledge(r, 36, 42, 17); ledge(r, 36, 42, 21);   // up to the chapel
+  rect(r, 6, 17, 9, 20); rect(r, 50, 16, 53, 20); rect(r, 70, 17, 73, 20);   // broken vaulting
+  mark(r, 'crawler', 23, 2); mark(r, 'crawler', 52, 2); mark(r, 'flitter', 48, 12); mark(r, 'flitter', 20, 14); mark(r, 'spitter', 69, 6);
+  mark(r, 'torch', 5, 8); mark(r, 'torch', 24, 9); mark(r, 'torch', 46, 6); mark(r, 'torch', 57, 9); mark(r, 'torch', 75, 8); mark(r, 'crystal', 10, 2); mark(r, 'crystal', 46, 2); mark(r, 'crystal', 44, 12);
+  return r;
+}
+// the top of the Cloister: a long chapel, creatures all through it, and the way on behind the altar
+function chapel(){
+  const r = room(2, 1); walls(r); door(r, 'bottom', 36, 42); ledge(r, 36, 42, 1);
+  stairs(r, 54, 2, 4, 1, 2); rect(r, 62, 2, 77, 5);              // steps up to the sanctuary
+  ledge(r, 8, 16, 6); ledge(r, 20, 28, 10); ledge(r, 6, 12, 14);
+  mark(r, 'exit', 72, 6); mark(r, 'crawler', 14, 2); mark(r, 'spitter', 26, 11); mark(r, 'flitter', 48, 13); mark(r, 'flitter', 30, 16); mark(r, 'burrower', 49, 2);
+  mark(r, 'torch', 5, 8); mark(r, 'torch', 32, 8); mark(r, 'torch', 46, 9); mark(r, 'torch', 64, 11); mark(r, 'torch', 76, 11); mark(r, 'crystal', 66, 6); mark(r, 'crystal', 77, 6); mark(r, 'crystal', 9, 15);
+  return r;
+}
 
-export const LEVEL = (() => {
-  const cols = Math.max(...LAYOUT.map(l => l[0] + (l[3] || 1))), rows = Math.max(...LAYOUT.map(l => l[1] + (l[4] || 1)));
-  const W = cols * ROOM.w, H = rows * ROOM.h, tiles = new Uint8Array(W * H).fill(ROCK), marks = [], rooms = [];
+// ---- the third region: the Spires, out in the open air near the summit. Nothing is filled in here: the rock is
+// what each piece draws, the rest is sky. Caves in the mountain on the left; outside, a climb up between a needle and
+// a tower, a rope bridge back across, and the peak.
+const open = (cw, ch) => { const r = room(cw, ch); r.open = true; return r; };
+function massif(){ const r = room(); rect(r, 0, 0, r.w - 1, r.h - 1); r.filler = true; return r; }   // the mountain itself
+function mouth(){
+  const r = room(); rect(r, 0, 0, r.w - 1, r.h - 1); rect(r, 2, 2, 37, 20, EMPTY); door(r, 'right', 2, 7);
+  rect(r, 2, 2, 4, 3); ledge(r, 12, 18, 6);
+  mark(r, 'spawn', 7, 2); mark(r, 'torch', 5, 8); mark(r, 'torch', 30, 7); mark(r, 'crystal', 22, 2); mark(r, 'crystal', 15, 7);
+  return r;
+}
+function saddle(){
+  const r = open(2, 1);
+  rect(r, 0, 0, 79, 1); rect(r, 0, 8, 3, 22);                     // the ground; the cliff over the cave's mouth
+  for (const x of [20, 44]){ rect(r, x, 0, x + 5, 1, EMPTY); rect(r, x, 0, x + 5, 0, SPIKES); }   // crevasses, iced
+  rect(r, 10, 2, 14, 3); rect(r, 30, 2, 37, 4); rect(r, 32, 5, 35, 5);   // outcrops
+  rect(r, 54, 8, 57, 22); rect(r, 66, 2, 79, 22);                 // the needle (a flake off the tower: the way in is under it), and the foot of the tower
+  ledge(r, 58, 65, 5); ledge(r, 58, 61, 9); ledge(r, 62, 65, 13); ledge(r, 58, 61, 17); ledge(r, 62, 65, 21);   // up between them
+  mark(r, 'flitter', 26, 12); mark(r, 'flitter', 46, 10); mark(r, 'crawler', 40, 2); mark(r, 'burrower', 16, 2);
+  mark(r, 'torch', 6, 9); mark(r, 'crystal', 12, 4); mark(r, 'crystal', 33, 6); mark(r, 'crystal', 52, 2); mark(r, 'torch', 64, 8);
+  return r;
+}
+function spire(){
+  const r = open(1, 2);
+  rect(r, 14, 0, 17, 30); rect(r, 26, 0, 39, 34); rect(r, 36, 35, 39, 45);   // the needle; the tower; its horn
+  ledge(r, 18, 21, 2); ledge(r, 22, 25, 6); ledge(r, 18, 21, 10); ledge(r, 22, 25, 14); ledge(r, 18, 21, 18); ledge(r, 22, 25, 22);
+  ledge(r, 0, 13, 24);                                            // the rope bridge leaves the needle here
+  ledge(r, 18, 21, 26); ledge(r, 22, 25, 30);                     // and on, to the top of the tower
+  mark(r, 'flitter', 8, 12); mark(r, 'flitter', 20, 28); mark(r, 'spitter', 30, 35); mark(r, 'crystal', 15, 31); mark(r, 'crystal', 33, 35); mark(r, 'torch', 12, 28);
+  return r;
+}
+function nest(){
+  const r = open();
+  rect(r, 0, 0, 5, 22); rect(r, 6, 8, 30, 11);                    // the mountain's face; a shelf out of it, under the bridge
+  ledge(r, 6, 10, 16); ledge(r, 6, 10, 20);                       // back up to the bridge
+  mark(r, 'flitter', 18, 16); mark(r, 'crystal', 26, 12); mark(r, 'crystal', 12, 12);
+  return r;
+}
+function ropeway(){
+  const r = open();
+  rect(r, 0, 0, 3, 1); rect(r, 0, 8, 2, 22);                      // the sill of the hollow's door, the face above it
+  ledge(r, 4, 8, 1); ledge(r, 11, 16, 1); ledge(r, 19, 24, 1); ledge(r, 27, 32, 1); ledge(r, 35, 39, 1);   // the bridge, broken
+  mark(r, 'flitter', 14, 6); mark(r, 'flitter', 30, 8); mark(r, 'torch', 2, 4);
+  return r;
+}
+function hollow(){
+  const r = room(); rect(r, 0, 0, r.w - 1, r.h - 1); rect(r, 2, 2, 37, 20, EMPTY); door(r, 'right', 2, 7); door(r, 'top', 8, 14);
+  rect(r, 21, 2, 31, 2); rect(r, 23, 3, 29, 3);                   // the shrine's step
+  [[10, 16, 5], [16, 22, 9], [10, 16, 13], [8, 14, 17], [8, 14, 21]].forEach(([a, b, y]) => ledge(r, a, b, y));
+  mark(r, 'shrine', 26, 4); mark(r, 'torch', 34, 9); mark(r, 'torch', 5, 9); mark(r, 'torch', 26, 14); mark(r, 'crystal', 34, 2); mark(r, 'crystal', 4, 2);
+  return r;
+}
+function chimney(){
+  const r = room(); rect(r, 0, 0, r.w - 1, r.h - 1); rect(r, 2, 2, 37, 20, EMPTY); door(r, 'bottom', 8, 14); door(r, 'top', 26, 32);
+  ledge(r, 8, 14, 1);
+  [[14, 20, 5], [22, 28, 9], [26, 32, 13], [26, 32, 17], [26, 32, 21]].forEach(([a, b, y]) => ledge(r, a, b, y));
+  rect(r, 4, 14, 8, 20); rect(r, 33, 2, 37, 5);
+  mark(r, 'spitter', 35, 12); mark(r, 'flitter', 12, 12); mark(r, 'torch', 4, 7); mark(r, 'torch', 35, 18); mark(r, 'crystal', 35, 6); mark(r, 'crystal', 17, 6);
+  return r;
+}
+// the peak: out of the mountain's top and up its shoulder to the beacon
+function summit(){
+  const r = open(2, 1);
+  rect(r, 0, 0, 46, 1); rect(r, 26, 0, 32, 1, EMPTY); ledge(r, 26, 32, 1);   // the ground, the way up through it
+  stairs(r, 22, 2, 5, -1, 2); rect(r, 0, 2, 12, 6); rect(r, 0, 7, 2, 13);     // the shoulder of the peak, and its horn
+  rect(r, 38, 2, 41, 3); ledge(r, 34, 38, 7);
+  mark(r, 'exit', 7, 7); mark(r, 'flitter', 20, 14); mark(r, 'flitter', 36, 12); mark(r, 'spitter', 15, 10); mark(r, 'crawler', 40, 4);
+  mark(r, 'torch', 11, 9); mark(r, 'crystal', 4, 7); mark(r, 'crystal', 44, 2); mark(r, 'crystal', 36, 8);
+  return r;
+}
+
+// the regions, from the bottom of the mountain up: rooms on a grid, [column, row, builder, columns wide, rows tall].
+// `fill` is what is between the rooms; `wear` is how hard the organic pass works the rock
+const REGIONS = [
+  { name: 'The Roots', theme: 'roots', seed: 1234567, wear: { sag: 1, swell: 1, humps: 0.8 },
+    layout: [[0, 0, start], [1, 0, corridor], [1, 1, shaft], [0, 1, tunnel], [0, 2, chamber], [1, 2, ascent], [2, 2, gallery], [3, 2, well, 1, 2], [0, 3, roost], [1, 3, bridge], [2, 3, grotto], [2, 4, arena, 2, 2]] },
+  { name: 'The Cloister', theme: 'cloister', seed: 7654321, wear: { sag: 0.55, swell: 0.5, humps: 0.4 },
+    layout: [[0, 0, undercroft], [1, 0, nave, 2, 1], [3, 0, belfry, 1, 3], [0, 1, stairwell, 1, 2], [1, 1, cells], [2, 1, library], [1, 2, cloister, 2, 1], [1, 3, chapel, 2, 1]] },
+  { name: 'The Spires', theme: 'spires', seed: 2468101, fill: EMPTY, sky: true, wear: { sag: 1.1, swell: 1.2, humps: 0.6 },
+    layout: [[0, 0, mouth], [1, 0, saddle, 2, 1], [0, 1, massif], [1, 1, nest], [2, 1, spire, 1, 2], [0, 2, hollow], [1, 2, ropeway], [0, 3, chimney], [0, 4, summit, 2, 1]], cols: 3 },
+];
+export const LEVELS = REGIONS.map(r => ({ name: r.name, theme: r.theme }));
+
+function build(n){
+  const R = REGIONS[n], LAYOUT = R.layout;
+  const cols = Math.max(R.cols || 0, ...LAYOUT.map(l => l[0] + (l[3] || 1))), rows = Math.max(...LAYOUT.map(l => l[1] + (l[4] || 1)));
+  const W = cols * ROOM.w, H = rows * ROOM.h, tiles = new Uint8Array(W * H).fill(R.fill === undefined ? ROCK : R.fill), marks = [], rooms = [];
   for (const [cx, cy, make] of LAYOUT){
     const r = make(), ox = cx * ROOM.w, oy = cy * ROOM.h;
     for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) tiles[(oy + y) * W + ox + x] = r.tiles[y][x];
     for (const m of r.marks) marks.push({ ...m, x: ox + m.x, y: oy + m.y });
-    rooms.push({ name: make.name, x0: ox * T, y0: oy * T, x1: (ox + r.w) * T, y1: (oy + r.h) * T, tx0: ox, ty0: oy, tx1: ox + r.w, ty1: oy + r.h });
+    if (!r.filler) rooms.push({ name: make.name, open: !!r.open, x0: ox * T, y0: oy * T, x1: (ox + r.w) * T, y1: (oy + r.h) * T, tx0: ox, ty0: oy, tx1: ox + r.w, ty1: oy + r.h });
   }
   const raw = tiles.slice();
-  organic(tiles, W, H, marks, rooms);
-  return { W, H, tiles, marks, rooms, raw };
-})();
+  organic(tiles, W, H, marks, rooms, R.seed, R.wear);
+  return { index: n, name: R.name, theme: R.theme, sky: !!R.sky, W, H, tiles, marks, rooms, raw };
+}
+// the region in play. One object, refilled when he goes up a region, so everything that reads it reads the new one
+export const LEVEL = {};
+const BUILT = [];
+export function loadLevel(n){ n = Math.max(0, Math.min(REGIONS.length - 1, n | 0)); Object.assign(LEVEL, BUILT[n] || (BUILT[n] = build(n))); return LEVEL; }
+loadLevel(typeof location !== 'undefined' && location.search ? (parseInt(new URLSearchParams(location.search).get('level')) || 1) - 1 : 0);
 
 // ---- the organic pass: the rooms are drawn as boxes (easy to read and change); this wears them into caves. It
 // never touches the space he moves through: the floor he walks and four tiles over it, doorways and their way in,
 // and the markers. Outside that it fills the corners where floor meets wall with ramps (steps a tile high, which he
 // walks up, drawn as slopes), rounds the top corners off with wedges, hangs lumps from ceilings, swells the walls and
 // raises low humps along long floors. The same every load (a fixed seed).
-function organic(tiles, W, H, marks, rooms){
-  let seed = 1234567; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647, ri = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+function organic(tiles, W, H, marks, rooms, seed0 = 1234567, wear = { sag: 1, swell: 1, humps: 0.8 }){
+  let seed = seed0; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647, ri = (a, b) => a + Math.floor(rnd() * (b - a + 1));
   const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i];
   const set = (i, j, v) => { if (i > 0 && j > 0 && i < W - 1 && j < H - 1) tiles[j * W + i] = v; };
   const air = (i, j) => at(i, j) === EMPTY, rock = (i, j) => at(i, j) === ROCK, support = (i, j) => { const t = at(i, j); return t === ROCK || t === LEDGE; };
@@ -181,13 +334,13 @@ function organic(tiles, W, H, marks, rooms){
   // 1. ceilings sag and bulge: each column hangs down by a smooth amount, as far as head room allows
   for (let j = 2; j < H - 2; j++) for (let i = 2; i < W - 2; i++){
     if (!air(i, j) || !rock(i, j + 1)) continue;
-    const n = Math.round(Math.max(0, ceil(i) * 4.2 + ceil2(i) * 3 - 2.4));
+    const n = Math.round(Math.max(0, ceil(i) * 4.2 + ceil2(i) * 3 - 2.4) * wear.sag);
     for (let b = 0; b < n; b++) if (free(far, i, j - b)) put(i, j - b); else break;
   }
   // 2. walls swell and hollow along their height
   for (let j = 2; j < H - 2; j++) for (let i = 2; i < W - 2; i++) for (const dir of [1, -1]){
     if (!air(i, j) || !rock(i - dir, j) || added[j * W + i - dir]) continue;
-    const n = Math.round(Math.max(0, wallN(j * 1.0 + i * 0.37 + (dir > 0 ? 0 : 50)) * 4 - 1.2));
+    const n = Math.round(Math.max(0, wallN(j * 1.0 + i * 0.37 + (dir > 0 ? 0 : 50)) * 4 - 1.2) * wear.swell);
     for (let a = 0; a < n; a++) if (free(far, i + dir * a, j)) put(i + dir * a, j); else break;
   }
   // 3. the top corners of a room: a wedge, as big as fits clear of head room
@@ -240,7 +393,7 @@ function organic(tiles, W, H, marks, rooms){
       if (!stand(i, j)){ i++; continue; }
       let e = i; while (e + 1 < W && stand(e + 1, j)) e++;
       const r = roomOf(i, j);
-      if (e - i + 1 >= 14 && !quiet(r) && rnd() < 0.8){
+      if (e - i + 1 >= 14 && !quiet(r) && rnd() < wear.humps){
         const w = ri(3, 6), x0 = ri(i + 4, e - 4 - w);
         let ok = x0 > i + 3;
         for (let x = x0; x < x0 + w && ok; x++){ if (doorway[j * W + x] || at(x, j - 1) !== ROCK) ok = false; for (let d = 1; d <= 6; d++) if (!air(x, j + d)) ok = false; if (marks.some(m => Math.abs(m.x - x) <= 2 && Math.abs(m.y - j) <= 3)) ok = false; }
