@@ -510,6 +510,41 @@
     "action": "diving straight down with the curved blade pointed down below the feet",
     "frames": 4,
     "group": "736b9b16-77fd-4737-a4c8-6da3ff703ae1"
+   },
+   "atk_lunge_sk": {
+    "action": "a heavy sword slash with the whole body: he twists his torso back and raises the curved blade behind his shoulder, then takes a big lunging step forward, hips and shoulders rotating, the blade sweeping in a wide arc in front of him, ending low in a deep forward lean, the red scarf whipping",
+    "frames": 12,
+    "group": "62f590f6-92a6-4280-82ea-24ae8ecada76"
+   },
+   "atk_rise_px": {
+    "action": "a powerful rising slash: he crouches low with the blade down by his feet, then springs up onto his toes, his whole body stretching upward as the curved blade sweeps from the ground up over his head",
+    "frames": 12,
+    "group": "d2da5e2b-1aa8-4f49-a162-098730d4ae89"
+   },
+   "atk_slam_v3": {
+    "action": "a crushing overhead slam: he hops forward raising the curved blade high above his head with both hands, then brings it down with his whole body, bending deep into a wide forward lunge as the blade strikes the ground in front of him",
+    "frames": 10,
+    "group": "2332ae54-bd0c-43d0-91a4-16edcf0621b7"
+   },
+   "atk_rise_sk": {
+    "action": "a powerful rising slash: he crouches low with the blade down by his feet, then springs up onto his toes, his whole body stretching upward as the curved blade sweeps from the ground up over his head",
+    "frames": 12,
+    "group": "43975ef1-8357-413b-a655-f3b2582cb4d1"
+   },
+   "atk_spin_px": {
+    "action": "a spinning slash: he plants his feet and turns his whole body around in one full spin with the curved blade held out at arm's length, the red scarf flaring out, finishing facing forward in a low stance",
+    "frames": 12,
+    "group": "4f48334f-d079-4aab-9fe2-c36dc01391dd"
+   },
+   "atk_slam_sk": {
+    "action": "a crushing overhead slam: he hops forward raising the curved blade high above his head with both hands, then brings it down with his whole body, bending deep into a wide forward lunge as the blade strikes the ground in front of him",
+    "frames": 12,
+    "group": "b993f294-6f08-4e45-894c-88bae02ac7a5"
+   },
+   "atk_spin_sk": {
+    "action": "a spinning slash: he plants his feet and turns his whole body around in one full spin with the curved blade held out at arm's length, the red scarf flaring out, finishing facing forward in a low stance",
+    "frames": 12,
+    "group": "2af6dc72-6085-475a-9919-64c1f8fe1c2b"
    }
   }
  },
