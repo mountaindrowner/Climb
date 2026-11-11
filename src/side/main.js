@@ -15,7 +15,7 @@ import { makeWarden } from './boss.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'side 10 · the Warden whole, the Cloister, the Spires';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'side 11 · the ledge climb, set on the ledge';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -79,11 +79,27 @@ bindInput(); marks(); banner(LEVEL.name, SUB[LEVEL.index] || '', 4);
 // the drawings the masked warrior uses for these moves, where he has them
 const MOVES = { roll: ['roll2_px', 'roll_px', 'roll'], flip: ['flip_px'], climb: ['climb_px', 'climb_v3'], land: ['land_px', 'land_v3'] };
 const LAND_T = 0.3;   // how long a landing plays (cut short if he runs on)
+const SINK = 2 / 16;  // he is drawn two pixels into the floor's lip, so his boots stand in it, not on its outline
+// the ledge climb, set on the ledge: for each frame of the drawing, the column and row of its canvas that sit on the
+// ledge's corner (the wall's face, the ledge's top), so his hands hold the lip while he hangs, his arms come over it as
+// he hauls, and his feet land on it. `depth` is how far his feet hang under the ledge in that frame, in pixels: he
+// comes into the climb at the frame that fits how far under it he caught it (a full hang from far below, a scramble
+// from just under). Tuned by eye against a drawn corner.
+const CLIMB = { climb_px: { first: 3, corner: { 3: [31, 7], 4: [31, 7], 5: [31, 8], 6: [30, 11], 7: [30, 14], 8: [33, 25], 9: [31, 31], 10: [27, 35], 11: [12, 43], 12: [14, 38] },
+  depth: { 3: 41, 4: 42, 5: 42, 6: 41, 7: 37, 8: 24, 9: 19, 10: 14, 11: 0, 12: 0 } } };
 let landT = 0;
 // which of his animations, and how far into it (and, for a climb, to place it by where it ends)
 function heroPose(P, t){
   const A = hero.meta ? hero.meta.anims : {}, has = n => !!A[n], pick = k => MOVES[k].find(has);
-  if (P.mantle && pick('climb')) return [pick('climb'), Math.min(0.999, 0.15 + 0.85 * P.mantle.t / P.mantle.dur), 'last'];   // its first frames are him standing: from the reach up
+  if (P.mantle && pick('climb')){
+    const name = pick('climb'), C = CLIMB[name], M = P.mantle;
+    if (C && M.wall != null){
+      const n = A[name].frames, hpx = (M.y1 - M.y0) * 16; let f0 = C.first; while (f0 < n - 2 && C.depth[f0] > hpx + 5) f0++;   // the frame that fits where he caught it
+      const f = Math.min(n - 1, f0 + Math.floor(M.t / M.dur * (n - f0))), [cx, foot] = C.corner[f];
+      return [name, (f + 0.5) / n, { cx, foot }];
+    }
+    return [name, Math.min(0.999, 0.15 + 0.85 * M.t / M.dur), 'last'];   // its first frames are him standing: from the reach up
+  }
   if (P.hp <= 0 && has('hurt')) return ['hurt', 0.999];
   if (P.hurtT > 0 && has('hurt')) return ['hurt', 1 - P.hurtT / MV.hurtStun];
   if (P.roll > 0 && pick('roll')) return [pick('roll'), 1 - P.roll / MV.roll.time];
@@ -164,12 +180,13 @@ function frame(ts){
     const [anim, frac, anchor] = heroPose(P, time);
     let rot = 0;
     if (P.flip > 0 && !MOVES.flip.includes(anim)){ const q = 1 - P.flip / MV.flip; rot = -Math.PI * 2 * Math.min(1, q * 1.1) * (P.face < 0 ? -1 : 1); }   // no drawn flip: turn the sprite
-    if (anchor === 'last'){
+    if (anchor && typeof anchor === 'object') hero.sprite.show(anim, frac, P.mantle.wall, P.mantle.y1 - SINK, P.mantle.d, 0.05, 0, anchor);   // the climb, on the ledge's corner
+    else if (anchor === 'last'){
       // the climb is drawn rising a little under a unit; what the ledge is higher than that, he is eased up through
       const M = P.mantle, A = hero.meta.anims[anim], drawn = (A.foot - A.footLast) / (hero.meta.ppu || 16), u = Math.min(1, M.t / M.dur), e = u * u * (3 - 2 * u);
-      hero.sprite.show(anim, frac, M.x1, M.y1 - Math.max(0, (M.y1 - M.y0) - drawn) * (1 - e), P.face, 0.05, 0, 'last');
+      hero.sprite.show(anim, frac, M.x1, M.y1 - SINK - Math.max(0, (M.y1 - M.y0) - drawn) * (1 - e), P.face, 0.05, 0, 'last');
     }
-    else hero.sprite.show(anim, frac, P.x, P.y, P.face, 0.05, rot);
+    else hero.sprite.show(anim, frac, P.x, P.y - SINK, P.face, 0.05, rot);
     // the dash cut leaves afterimages and streaks, and kicks the floor up behind him
     if (P.atk && P.atk.special === 'dash' && P.atk.phase !== 'rec' && (FX2.ghostT -= dt) <= 0){
       FX2.ghostT = 0.035; const m = hero.sprite.ghost(0x4fc8ff); if (m) FX2.ghosts.push({ m, life: 0.22 });

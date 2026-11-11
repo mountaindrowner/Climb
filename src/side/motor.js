@@ -233,7 +233,8 @@ function tryMantle(P, d){
     if ((t === ROCK || t === LEDGE) && above !== ROCK){
       const top = (j + 1) * T, x1 = d > 0 ? i * T + BODY.hw + 0.08 : (i + 1) * T - BODY.hw - 0.08;
       if (top - P.y < 0.35 || boxRock(P, x1, top, BODY.stand) || boxRock(P, P.x, P.y, top - P.y + BODY.crouch)) return;   // room on top, and room to rise to it
-      P.mantle = { t: 0, dur: 0.45, x0: P.x, x1, y0: P.y, y1: top };   // long enough for the climb's drawing to play P.vx = P.vy = 0; P.atk = null; P.flip = 0; ev(P, 'mantle');
+      // a full hang and haul takes 0.45 s; a ledge already at his knees, a quick scramble. `wall` is the face he climbs
+      P.mantle = { t: 0, dur: Math.max(0.18, Math.min(0.45, 0.14 + 0.12 * (top - P.y))), x0: P.x, x1, y0: P.y, y1: top, wall: d > 0 ? i * T : (i + 1) * T, d }; P.vx = P.vy = 0; P.atk = null; P.flip = 0; ev(P, 'mantle');
       return;
     }
     if (t === ROCK && above === ROCK) continue;

@@ -500,10 +500,11 @@ export function makeSprite(scene, base, meta){
   const plane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat); g.add(plane);
   const tex = {}; for (const a in meta.anims) tex[a] = strip(`${base}/${a}.png`, meta.anims[a].frames);
   const ppu = meta.ppu || 64, S = { g, plane, mat, anim: null };
-  // anchor 'last': place the drawing by where its last frame stands (a climb ends on top of the ledge he is put on)
+  // anchor 'last': place the drawing by where its last frame stands (a climb ends on top of the ledge he is put on).
+  // anchor { foot, cx }: place it by that row and column of its canvas (a climb, each frame set on the ledge's corner)
   S.show = (anim, frac, x, y, face, z = 0.05, rot = 0, anchor = null) => {
     const A0 = meta.anims[anim] || meta.anims.stand; if (!A0) return;
-    const A = anchor === 'last' && A0.footLast != null ? { ...A0, foot: A0.footLast, cx: A0.cxLast } : A0;
+    const A = anchor === 'last' && A0.footLast != null ? { ...A0, foot: A0.footLast, cx: A0.cxLast } : anchor && typeof anchor === 'object' ? { ...A0, ...anchor } : A0;
     if (S.anim !== anim){ mat.map = tex[anim] || tex.stand; mat.needsUpdate = true; S.anim = anim; }
     const n = A.frames, i = Math.min(n - 1, Math.floor(((frac % 1) + 1) % 1 * n));
     mat.map.offset.set(i / n, 0);
