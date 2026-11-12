@@ -9,7 +9,8 @@
    "foot": 42,
    "cx": 25.0,
    "footLast": 42,
-   "cxLast": 25.0
+   "cxLast": 25.0,
+   "n": 1
   },
   "climb_v3": {
    "frames": 11,
@@ -63,7 +64,8 @@
    "foot": 48,
    "cx": 31.0,
    "footLast": 48,
-   "cxLast": 28.0
+   "cxLast": 28.0,
+   "n": 1
   },
   "atk_slam_v3": {
    "frames": 11,
@@ -72,7 +74,8 @@
    "foot": 48,
    "cx": 31.0,
    "footLast": 48,
-   "cxLast": 26.0
+   "cxLast": 26.0,
+   "n": 1
   },
   "flip_px": {
    "frames": 13,
@@ -81,7 +84,8 @@
    "foot": 48,
    "cx": 31.0,
    "footLast": 48,
-   "cxLast": 28.5
+   "cxLast": 28.5,
+   "n": 1
   },
   "atk_thrust_px": {
    "frames": 13,
@@ -108,7 +112,8 @@
    "foot": 52,
    "cx": 35.5,
    "footLast": 52,
-   "cxLast": 35.0
+   "cxLast": 35.0,
+   "n": 1
   },
   "attack1": {
    "frames": 7,
@@ -144,7 +149,8 @@
    "foot": 48,
    "cx": 31.0,
    "footLast": 48,
-   "cxLast": 27.0
+   "cxLast": 27.0,
+   "n": 1
   },
   "run": {
    "frames": 6,
@@ -153,7 +159,8 @@
    "foot": 52,
    "cx": 29.5,
    "footLast": 52,
-   "cxLast": 28.0
+   "cxLast": 28.0,
+   "n": 1
   },
   "atk_slam_px": {
    "frames": 13,
@@ -162,7 +169,8 @@
    "foot": 48,
    "cx": 31.0,
    "footLast": 48,
-   "cxLast": 29.5
+   "cxLast": 29.5,
+   "n": 1
   },
   "atk_lunge_sk": {
    "frames": 12,
@@ -180,7 +188,8 @@
    "foot": 48,
    "cx": 31.0,
    "footLast": 48,
-   "cxLast": 30.5
+   "cxLast": 30.5,
+   "n": 1
   },
   "climb_px": {
    "frames": 13,
@@ -189,7 +198,8 @@
    "foot": 52,
    "cx": 31.0,
    "footLast": 38,
-   "cxLast": 26.5
+   "cxLast": 26.5,
+   "n": 1
   },
   "plunge": {
    "frames": 5,
@@ -198,7 +208,8 @@
    "foot": 48,
    "cx": 31.0,
    "footLast": 48,
-   "cxLast": 25.5
+   "cxLast": 25.5,
+   "n": 1
   },
   "fall": {
    "frames": 5,
@@ -207,7 +218,8 @@
    "foot": 48,
    "cx": 31.0,
    "footLast": 48,
-   "cxLast": 28.5
+   "cxLast": 28.5,
+   "n": 1
   },
   "atk_lunge_px": {
    "frames": 13,
@@ -234,7 +246,8 @@
    "foot": 48,
    "cx": 31.0,
    "footLast": 48,
-   "cxLast": 27.5
+   "cxLast": 27.5,
+   "n": 1
   },
   "roll2_v3": {
    "frames": 11,
@@ -288,7 +301,8 @@
    "foot": 59,
    "cx": 31.0,
    "footLast": 53,
-   "cxLast": 27.5
+   "cxLast": 27.5,
+   "n": 1
   },
   "atk_rise_px": {
    "frames": 13,
@@ -297,7 +311,8 @@
    "foot": 51,
    "cx": 31.0,
    "footLast": 48,
-   "cxLast": 23.0
+   "cxLast": 23.0,
+   "n": 1
   },
   "attack2": {
    "frames": 7,
@@ -315,7 +330,8 @@
    "foot": 52,
    "cx": 31.5,
    "footLast": 52,
-   "cxLast": 30.5
+   "cxLast": 30.5,
+   "n": 1
   },
   "roll_px": {
    "frames": 13,
@@ -333,7 +349,8 @@
    "foot": 40,
    "cx": 23.5,
    "footLast": 37,
-   "cxLast": 27.5
+   "cxLast": 27.5,
+   "n": 1
   },
   "attack3": {
    "frames": 7,
@@ -343,6 +360,36 @@
    "cx": 31.0,
    "footLast": 48,
    "cxLast": 27.5
+  },
+  "climb_hang2": {
+   "frames": 12,
+   "w": 64,
+   "h": 84,
+   "foot": 71,
+   "cx": 29.0,
+   "footLast": 54,
+   "cxLast": 35.0,
+   "n": 1
+  },
+  "plunge_fall": {
+   "frames": 8,
+   "w": 64,
+   "h": 64,
+   "foot": 60,
+   "cx": 30.0,
+   "footLast": 60,
+   "cxLast": 29.5,
+   "n": 1
+  },
+  "plunge_land": {
+   "frames": 12,
+   "w": 64,
+   "h": 64,
+   "foot": 53,
+   "cx": 34.0,
+   "footLast": 52,
+   "cxLast": 34.5,
+   "n": 1
   }
  }
 }

@@ -11,6 +11,7 @@
 import { T, LEVEL } from './level.js';
 import { hurt, isRollInv } from './motor.js';
 import { tex, glow, additive } from './boss.js';
+import { lit as litMat } from './render.js';
 const THREE = window.THREE;
 export const WYRM = {
   name: 'The Rime Wyrm', hp: 30, phase2: 0.5,
@@ -32,12 +33,13 @@ export function makeWyrm(scene, R){
   const B = { name: W.name, hint: 'cut its head when it is caught in the ice', rage: 'the mountain itself turns on you', fell: 'the summit is yours',
     st: 'dormant', tm: 0, hp: W.hp, phase: 1, flash: 0, cd: 1.5, room, stageY, cx, mode: 'circle', mt: 0, acts: 0,
     h: { x: lair.x, y: lair.y, vx: -1, vy: 0, a: Math.PI }, trail: [], jaw: 0, spikes: [], ice: [], gone: 0 };
-  const piece = (file, z) => { const t = tex(`assets/side/wyrm/${file}.png`), m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: t, transparent: true, alphaTest: 0.5, side: THREE.DoubleSide })); m.position.z = z; m.visible = false; scene.add(m); return m; };
+  const piece = (file, z) => { const t = tex(`assets/side/wyrm/${file}.png`), m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), litMat({ map: t, normalMap: tex(`assets/side/wyrm/${file}_n.png`), transparent: true, alphaTest: 0.5, side: THREE.DoubleSide })); m.position.z = z; m.visible = false; scene.add(m); return m; };
   const SIZE = { l: [34, 41], m: [28, 35], s: [22, 29], head: [70, 46], jaw: [46, 16], tail: [34, 16] };
   const rings = W.rings.map((k, i) => ({ k, m: piece('ring_' + k, -0.6 - i * 0.004), x: lair.x, y: lair.y }));
   const tail = piece('tail', -0.7), jaw = piece('jaw', -0.52), head = piece('head', -0.5);
   for (const [m, k] of [[head, 'head'], [jaw, 'jaw'], [tail, 'tail'], ...rings.map(r => [r.m, r.k])]) m.scale.set(SIZE[k][0] / 16, SIZE[k][1] / 16, 1);
   let total = 0; for (const r of rings){ total += W.gap[r.k]; r.d = total; } const tailD = total + 0.9;
+  const eyeLight = new THREE.PointLight(0x9fefff, 0, 6, 1.5); scene.add(eyeLight);   // its eye lights its own snout and the rings behind
   const eyeTex = glow('rgba(160,250,255,1)'), warnTex = glow('rgba(255,60,50,1)');
   const eye = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.3), additive(eyeTex, 0x7ff6ff, 0)); scene.add(eye);
   const halo = new THREE.Mesh(new THREE.PlaneGeometry(6, 6), additive(eyeTex, 0x8ff0ff, 0)); scene.add(halo);
@@ -178,6 +180,7 @@ export function makeWyrm(scene, R){
     const lit = B.st === 'fight' ? 1 : B.st === 'rise' ? Math.min(1, B.tm) : B.st === 'die' ? Math.max(0, 1 - B.tm / 2) : 0;
     { const [ex, ey] = on(0.06, 0.19); eye.position.set(ex, ey, -0.45); eye.material.opacity = lit * (0.8 + 0.2 * Math.sin(B.tm * 7)); eye.material.color.setHex(weak > 0 ? 0xffffff : B.phase === 2 ? 0xff5a50 : 0x7ff6ff); eye.scale.setScalar(1 + weak * 0.6); eye.visible = show; }
     halo.position.set(H.x, H.y, -0.8); halo.material.opacity = weak * (0.35 + 0.15 * Math.sin(B.tm * 9)) + B.flash * 3; halo.visible = show;
+    eyeLight.position.set(H.x, H.y + 0.3, 1.0); eyeLight.intensity = show ? lit * 0.9 + weak * 1.2 + B.flash * 4 : 0; eyeLight.color.setHex(B.phase === 2 ? 0xff7060 : 0x9fefff);
     if (show) R.glint(H.x, H.y, B.phase === 2 ? 0xff7060 : 0x9fefff, lit * 0.35 + weak * 0.45 + B.flash * 3, 5.5);
     warn.material.opacity = warnA; warn.scale.set(warnW / 4, 1, 1); warn.position.set(warnX, stageY + (B.mode === 'sweepTell' ? W.sweep.low : 0.25), 0.5);
   };

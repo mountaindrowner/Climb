@@ -20,8 +20,11 @@ function walk(file){
 }
 walk('src/side/main.js');
 const files = [...seen, 'vendor/three/three.min.js', 'vendor/three/GLTFLoader.js'];
-// the art the game loads now: the 16-pixel cast, the Warden in pieces at that scale, the far paintings, the palette
-(function add(dir){ for (const n of readdirSync(join(root, dir))){ const p = join(dir, n); if (statSync(join(root, p)).isDirectory()) add(p); else if (/^assets\/side\/(px_[a-z]+\/.*\.(png|json)|mask_tall_c\/.*\.(png|json)|colossus\/(fist|forearm|upperarm)16\.png|warden\/\w+16\.png|toll\/\w+\.png|wyrm\/\w+\.png|bg\/(far|cloister|spires)\.png|palette\.json)$/.test(p)) files.push(p); } })('assets/side');
+// the art the game loads now: the 16-pixel cast (with the normal maps that light it by its shape), the warrior's strips
+// that are drawn (not every one he has), the bosses in pieces, the combo's effects, the far paintings, the palette
+const HERO = ['stand', 'idle', 'run', 'jump', 'fall', 'hurt', 'plunge', 'plunge_fall', 'plunge_land', 'roll2_px', 'flip_px', 'land_px', 'climb_hang2', 'climb_px', 'atk_slam_v3', 'atk_slam_px', 'atk_spin_px', 'atk_rise_px', 'atk_dash_px', 'getup'];
+const ART = new RegExp('^assets/side/(px_[a-z]+/.*\\.(png|json)|mask_tall_c/(sprite\\.json|(' + HERO.join('|') + ')(_n)?\\.png)|colossus/(fist|forearm|upperarm)16(_n)?\\.png|warden/\\w+16(_n)?\\.png|toll/\\w+\\.png|wyrm/\\w+\\.png|vfx/cut\\d/(fx\\.json|pack/(front|behind)\\.png)|bg/(far|cloister|spires)\\.png|palette\\.json)$');
+(function add(dir){ for (const n of readdirSync(join(root, dir))){ const p = join(dir, n); if (statSync(join(root, p)).isDirectory()) add(p); else if (ART.test(p)) files.push(p); } })('assets/side');
 // every file goes under a folder named for this build, and the page's <base> points there: a new build never
 // picks up an old build's cached scripts or pictures (the viewer caches files by name)
 const BUILD = process.env.BUILD || ('b' + Date.now().toString(36));

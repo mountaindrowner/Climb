@@ -1,0 +1,19 @@
+{
+ "anim": "atk_slam_v3",
+ "fps": 14,
+ "frames": 11,
+ "layers": [
+  {
+   "file": "pack/front.png",
+   "depth": "front",
+   "start": 3,
+   "frames": 6,
+   "cols": 3,
+   "rows": 2,
+   "fw": 55,
+   "fh": 53,
+   "dx": -21.0,
+   "dy": -48
+  }
+ ]
+}

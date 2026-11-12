@@ -1,0 +1,31 @@
+{
+ "anim": "atk_spin_px",
+ "fps": 14,
+ "frames": 13,
+ "layers": [
+  {
+   "file": "pack/behind.png",
+   "depth": "behind",
+   "start": 4,
+   "frames": 3,
+   "cols": 2,
+   "rows": 2,
+   "fw": 56,
+   "fh": 35,
+   "dx": -43.0,
+   "dy": -40
+  },
+  {
+   "file": "pack/front.png",
+   "depth": "front",
+   "start": 1,
+   "frames": 11,
+   "cols": 4,
+   "rows": 3,
+   "fw": 80,
+   "fh": 53,
+   "dx": -32.0,
+   "dy": -40
+  }
+ ]
+}

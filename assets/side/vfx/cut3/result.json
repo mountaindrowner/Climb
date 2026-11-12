@@ -1,0 +1,42 @@
+{
+ "fps": 14,
+ "kind": "new",
+ "loop": false,
+ "name": "cut3",
+ "files": {
+  "cut3.gif": "https://api.pixellab.ai/mcp/pixel-tools/be92d1de-6e01-4321-8c18-a7ed812ea112/cut3.gif",
+  "cut3.png": "https://api.pixellab.ai/mcp/pixel-tools/be92d1de-6e01-4321-8c18-a7ed812ea112/cut3.png",
+  "cut3.json": "https://api.pixellab.ai/mcp/pixel-tools/be92d1de-6e01-4321-8c18-a7ed812ea112/cut3.json",
+  "cut3-game.zip": "https://api.pixellab.ai/mcp/pixel-tools/be92d1de-6e01-4321-8c18-a7ed812ea112/cut3-game.zip"
+ },
+ "parts": [
+  "spin",
+  "closure"
+ ],
+ "anchor": {
+  "x": 72,
+  "y": 80,
+  "kind": "feet"
+ },
+ "artist": "pro",
+ "canvas": {
+  "h": 120,
+  "w": 144
+ },
+ "frames": 13,
+ "message": "Made a crisp gold-and-white ribbon for frames 2\u20139, behind him on frames 5\u20137 and in front otherwise, with a gold flash and outward sparks on frame 9. Frame 1 intentionally stays clear before the spin starts. Try Ribbon width and Gold sparks to tune the finisher.",
+ "edit_url": "https://pixellab.ai/create-vfx?effect=c8ab5c62-e7e9-4d4c-8cf5-276de2b0aab3",
+ "effect_id": "c8ab5c62-e7e9-4d4c-8cf5-276de2b0aab3",
+ "gif_exact": true,
+ "result_id": "be92d1de-6e01-4321-8c18-a7ed812ea112",
+ "billing_usage": {
+  "usd": 0.0,
+  "type": "generations",
+  "generations": 11.0
+ },
+ "generation_id": "9f2e2e94-5deb-4736-ae7a-86b259bfefd2",
+ "billing_charged": true,
+ "generation_mode": "vfx",
+ "pixel_tools_image": true,
+ "quoted_generations": 11
+}

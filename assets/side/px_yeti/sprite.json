@@ -9,7 +9,8 @@
    "foot": 46,
    "cx": 26.0,
    "footLast": 46,
-   "cxLast": 26.0
+   "cxLast": 26.0,
+   "n": 1
   },
   "throw": {
    "frames": 9,
@@ -18,7 +19,8 @@
    "foot": 54,
    "cx": 34.0,
    "footLast": 53,
-   "cxLast": 32.5
+   "cxLast": 32.5,
+   "n": 1
   },
   "walk": {
    "frames": 9,
@@ -27,7 +29,8 @@
    "foot": 54,
    "cx": 34.0,
    "footLast": 54,
-   "cxLast": 32.0
+   "cxLast": 32.0,
+   "n": 1
   }
  }
 }

@@ -14,6 +14,9 @@
 // Each region has its own look (THEMES): the Roots' blue caves, the Cloister's warm brick and candles, the Spires' pale
 // rock and snow under an open sky; the colours, the stonework, what hangs and stands, the back wall, the weather.
 // Torches, crystals, lanterns and the shrine glow; bloom makes bright things shine.
+// Shape: the warrior, the creatures and the bosses have normal maps (tools/pixellab.py normals: which way each pixel
+// faces), and the rock has one worked out here from its own shape (its edges round off, its blocks are bevelled), so a
+// torch lights the side of a thing that faces it. That light comes in steps too (lit()), like the rest of the art.
 // Light: the last pass darkens the picture to the region's ambient and lifts it again round every light (torches,
 // crystals, the shrine, the warrior, a boss's eyes, a blow), in steps, dithered, so the pools of light are banded like
 // the art. Mist drifts behind the play layer and a little in front; dark shapes close to the eye (things hanging from
@@ -34,6 +37,24 @@ const PALETTE = ['#be4a2f', '#d77643', '#ead4aa', '#e4a672', '#b86f50', '#733e39
 function nearest(r, g, b){ let best = 0, bd = 1e9; for (let k = 0; k < PALETTE.length; k++){ const p = PALETTE[k], d = (p[0] - r) ** 2 * 3 + (p[1] - g) ** 2 * 4 + (p[2] - b) ** 2 * 2; if (d < bd){ bd = d; best = k; } } return PALETTE[best]; }
 
 function rng(seed){ let s = seed >>> 0 || 1; return () => (s = (s * 16807) % 2147483647) / 2147483647; }
+// a material lit by the scene's lights through a normal map (if it has one), the light it gets held to a few steps so
+// shading stays banded like pixel art
+const SHADE_STEPS = 6;
+// how the lights meet what has a shape: less light from everywhere, more from the torches, and the torches close to the
+// plane so their light rakes across it (a face turned to the torch is lit, one turned away is in shadow)
+const AMB_IN_MAT = 0.6, LIGHT_GAIN = 2.6, LIGHT_Z = 0.7;
+const FLAT = typeof location !== 'undefined' && /[?&]flat\b/.test(location.search);   // ?flat: no normal maps, to compare
+export function lit(opts){
+  if (FLAT) opts = { ...opts, normalMap: null };
+  const m = new THREE.MeshPhongMaterial({ shininess: 0, specular: 0x000000, ...opts });
+  m.onBeforeCompile = sh => { sh.fragmentShader = sh.fragmentShader.replace('vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;',
+    `vec3 lightIn = (reflectedLight.directDiffuse + reflectedLight.indirectDiffuse) / max(diffuseColor.rgb, vec3(0.004));
+     lightIn = floor(lightIn * ${SHADE_STEPS}.0 + 0.5) / ${SHADE_STEPS}.0;
+     vec3 outgoingLight = lightIn * diffuseColor.rgb + totalEmissiveRadiance;`); };
+  m.customProgramCacheKey = () => 'banded';
+  return m;
+}
+export function pixTex(url){ const t = new THREE.TextureLoader().load(url, x => { x.needsUpdate = true; }); t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false; return t; }
 function canvasTex(c){ const t = new THREE.CanvasTexture(c); t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false; return t; }
 function glowTex(color){
   const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
@@ -59,12 +80,13 @@ function onPalette(img, dim = 1, dither = 0){
   g.putImageData(d, 0, 0); return c;
 }
 // a canvas onto the scene as planes no bigger than 1024 pixels, its top-left at (x, y)
-function canvasPlanes(scene, c, x, y, z, lit){
+function canvasPlanes(scene, c, x, y, z, isLit, nrm){
   const group = new THREE.Group(), S = 1024;
   for (let oy = 0; oy < c.height; oy += S) for (let ox = 0; ox < c.width; ox += S){
     const w = Math.min(S, c.width - ox), h = Math.min(S, c.height - oy), part = document.createElement('canvas'); part.width = w; part.height = h;
     part.getContext('2d').drawImage(c, ox, oy, w, h, 0, 0, w, h);
-    const mat = lit ? new THREE.MeshLambertMaterial({ map: canvasTex(part), transparent: true, alphaTest: 0.5 }) : new THREE.MeshBasicMaterial({ map: canvasTex(part), transparent: true, alphaTest: 0.5 });
+    let np = null; if (nrm){ np = document.createElement('canvas'); np.width = w; np.height = h; np.getContext('2d').drawImage(nrm, ox, oy, w, h, 0, 0, w, h); }
+    const mat = isLit ? lit({ map: canvasTex(part), normalMap: np ? canvasTex(np) : null, transparent: true, alphaTest: 0.5 }) : new THREE.MeshBasicMaterial({ map: canvasTex(part), transparent: true, alphaTest: 0.5 });
     const m = new THREE.Mesh(new THREE.PlaneGeometry(w / PPU, h / PPU), mat);
     m.position.set((ox + w / 2) / PPU, -(oy + h / 2) / PPU, 0); group.add(m);
   }
@@ -261,6 +283,8 @@ function paintPlay(glows, TM){
     if (x < pw - 1) m = Math.min(m, dist[k + 1] + 1); if (py < ph - 1){ m = Math.min(m, dist[k + pw] + 1); if (x < pw - 1) m = Math.min(m, dist[k + pw + 1] + 1); if (x > 0) m = Math.min(m, dist[k + pw - 1] + 1); } dist[k] = m; }
   // big chunky stones in the edge band: rows of blocks of uneven length, a seam between
   const cnv = document.createElement('canvas'); cnv.width = pw; cnv.height = ph; const g = cnv.getContext('2d');
+  const ncnv = document.createElement('canvas'); ncnv.width = pw; ncnv.height = ph; const nout = ncnv.getContext('2d').createImageData(pw, ph), no = nout.data;
+  for (let k = 0; k < pw * ph; k++){ no[k * 4] = 128; no[k * 4 + 1] = 128; no[k * 4 + 2] = 255; no[k * 4 + 3] = 255; }
   const out = g.createImageData(pw, ph), o = out.data, C = Object.fromEntries(Object.entries(PAL).map(([k, v]) => [k, rgb(v)]));
   const ST = TM.stone, S = Object.fromEntries(Object.entries(ST).map(([k, v]) => [k, C[v]])), seam = SEAMS[ST.seam], BD = ST.band || [6, 9, 12];
   for (let py = 0; py < ph; py++) for (let x = 0; x < pw; x++){
@@ -276,8 +300,21 @@ function paintPlay(glows, TM){
     else if (dd < BD[2]) c = S.c;
     else c = S.core;
     o[k * 4] = c[0]; o[k * 4 + 1] = c[1]; o[k * 4 + 2] = c[2]; o[k * 4 + 3] = 255;
+    // which way it faces: out from the rock near its edge (more so the nearer), and on the faces of its blocks, away from
+    // the block's middle at its seams. World up is the canvas's down
+    let nx = 0, ny = 0;
+    if (d < 7){ const gx = (x < pw - 1 ? dist[k + 1] : d) - (x > 0 ? dist[k - 1] : d), gy = (py < ph - 1 ? dist[k + pw] : d) - (py > 0 ? dist[k - pw] : d), gl = Math.hypot(gx, gy);
+      if (gl > 0){ const t = 0.9 * Math.max(0, 1 - (d - 1) / 6); nx = -gx / gl * t; ny = gy / gl * t; } }
+    if (d >= 2 && dd < BD[1] && !up){
+      if (seam(x, py - 1) && !seam(x, py)) ny += 0.45; else if (seam(x, py + 1) && !seam(x, py)) ny -= 0.3;
+      if (seam(x - 1, py) && !seam(x, py)) nx -= 0.35; else if (seam(x + 1, py) && !seam(x, py)) nx += 0.35;
+    }
+    const nl = Math.hypot(nx, ny); if (nl > 0.92){ nx *= 0.92 / nl; ny *= 0.92 / nl; }
+    const nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
+    no[k * 4] = (nx + 1) * 127.5; no[k * 4 + 1] = (ny + 1) * 127.5; no[k * 4 + 2] = (nz + 1) * 127.5; no[k * 4 + 3] = 255;
   }
   g.putImageData(out, 0, 0);
+  ncnv.getContext('2d').putImageData(nout, 0, 0); cnv.normals = ncnv;
   const r = rng(99), Y = j => (Hc - j) * CELL;
   // moss on the lips: clumps, and a drip now and then down the face
   for (let py = 1; py < ph - 6; py++) for (let x = 2; x < pw - 6; x++){
@@ -397,7 +434,7 @@ export function makeRenderer(canvas){
   canvas.style.imageRendering = 'pixelated';
   const scene = new THREE.Scene(); scene.background = new THREE.Color(PAL.ink);
   const camera = new THREE.OrthographicCamera(-10, 10, VIEW_H / 2, -VIEW_H / 2, -200, 200); camera.position.z = 100;
-  const hemi = new THREE.HemisphereLight(0xffffff, 0x9aa6d0, 0.95), heroLight = new THREE.PointLight(0xffd2a0, 0.6, 7, 2), rnd = rng(7);
+  const hemi = new THREE.HemisphereLight(0xffffff, 0x9aa6d0, 0.95), heroLight = new THREE.PointLight(0xffd2a0, 0.5, 7, 2), rnd = rng(7);
   const torchGlow = glowTex('rgba(255,170,60,1)'), crystalGlow = glowTex('rgba(80,240,255,1)');
   const layers = [], exits = [], lights = [], flames = [], motes = [], pool = [], burning = [], veils = [], glints = [];
   const flameTexs = [flameStrip(), flameStrip(), flameStrip()], ambNow = [1, 1, 1];
@@ -407,7 +444,7 @@ export function makeRenderer(canvas){
   for (const o of [...scene.children]){ scene.remove(o); o.traverse(m => { if (m.geometry) m.geometry.dispose(); const mt = m.material; if (mt){ if (mt.map && mt.map !== torchGlow && mt.map !== crystalGlow) mt.map.dispose(); mt.dispose(); } }); }
   layers.length = exits.length = lights.length = flames.length = motes.length = pool.length = burning.length = veils.length = glints.length = 0;
   TM = THEMES[LEVEL.theme] || THEMES.roots;
-  hemi.color.setHex(TM.hemi[0]); hemi.groundColor.setHex(TM.hemi[1]); hemi.intensity = TM.hemi[2]; scene.add(hemi); scene.add(heroLight);
+  hemi.color.setHex(TM.hemi[0]); hemi.groundColor.setHex(TM.hemi[1]); hemi.intensity = TM.hemi[2] * AMB_IN_MAT; scene.add(hemi); scene.add(heroLight);
   const W = LEVEL.W * T, Hh = LEVEL.H * T;
   // ---- the far cavern: held to the palette, a pixel a pixel, nearly still
   const FF = 0.04, far = new THREE.Mesh(new THREE.PlaneGeometry(400 / PPU, 224 / PPU), new THREE.MeshBasicMaterial({ color: 0xffffff })); far.position.z = -60; scene.add(far);
@@ -445,7 +482,7 @@ export function makeRenderer(canvas){
         lights.push({ x, y: y + 1, color: 0xffc860, power: 1.8, range: 7, ph: rnd() * 9 });
       }
     }
-    canvasPlanes(scene, play, 0, Hh, 0, true);
+    canvasPlanes(scene, play, 0, Hh, 0, true, play.normals);
   })();
   // the way on: shut until the Warden falls
   for (const m of LEVEL.marks) if (m.type === 'exit'){
@@ -548,8 +585,8 @@ export function makeRenderer(canvas){
       for (const o of motes){ o.m.position.x += (o.vx + Math.sin(t * 0.7 + o.ph) * 0.05) * 0.016; o.m.position.y += o.vy * 0.016; if (o.m.position.y > cam.y + 7) o.m.position.y = cam.y - 7; else if (o.m.position.y < cam.y - 7) o.m.position.y = cam.y + 7; if (Math.abs(o.m.position.x - cam.x) > 12) o.m.position.x = cam.x + (rnd() - 0.5) * 22; o.m.material.opacity = o.steady ? 0.9 : 0.5 + 0.5 * Math.sin(t * 2 + o.ph); }
       for (const f of flames){ const k = f.slow ? 0.06 : 0.12; f.m.scale.setScalar(1 + Math.sin(t * (f.slow ? 2 : 13) + f.ph) * k + (f.slow ? 0 : Math.sin(t * 7.3 + f.ph) * 0.06)); }
       const near = lights.filter(l => !l.off).map(l => ({ l, d: Math.hypot(l.x - cam.x, l.y - cam.y) })).sort((a, b) => a.d - b.d);
-      pool.forEach((L, k) => { const n = near[k]; if (!n || n.d > 16){ L.intensity = 0; return; } L.position.set(n.l.x, n.l.y, 1.2); L.color.setHex(n.l.color); L.distance = n.l.range; L.intensity = n.l.power * (1 + Math.sin(t * 11 + n.l.ph) * 0.06); });
-      if (hero) heroLight.position.set(hero.x, hero.y + 1.4, 1.6);
+      pool.forEach((L, k) => { const n = near[k]; if (!n || n.d > 16){ L.intensity = 0; return; } L.position.set(n.l.x, n.l.y, LIGHT_Z); L.color.setHex(n.l.color); L.distance = n.l.range * 1.15; L.intensity = n.l.power * LIGHT_GAIN * (1 + Math.sin(t * 11 + n.l.ph) * 0.06); });
+      if (hero) heroLight.position.set(hero.x, hero.y + 2.4, 1.4);
       // flames: four frames, each torch a little out of step with the next
       flameTexs.forEach((ft, k) => ft.offset.set(Math.floor(t * 9 + k * 1.3) % 4 / 4, 0));
       // mist and the near shapes slide at their own rates (and the mist drifts), a whole pixel at a time
@@ -586,16 +623,17 @@ function strip(url, frames){
 }
 export function makeSprite(scene, base, meta){
   const g = new THREE.Group(); scene.add(g);
-  const mat = new THREE.MeshLambertMaterial({ transparent: true, alphaTest: 0.5, side: THREE.DoubleSide, emissive: 0x000000 });
+  const mat = lit({ transparent: true, alphaTest: 0.5, side: THREE.DoubleSide, emissive: 0x000000 });
   const plane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat); g.add(plane);
-  const tex = {}; for (const a in meta.anims) tex[a] = strip(`${base}/${a}.png`, meta.anims[a].frames);
+  // strips are loaded when first drawn (a character has more than it uses); a strip's normal map shares its frames
+  const tex = {}, nrm = {}, texOf = a => tex[a] || (tex[a] = strip(`${base}/${a}.png`, meta.anims[a].frames)), nrmOf = a => !meta.anims[a].n ? null : nrm[a] || (nrm[a] = strip(`${base}/${a}_n.png`, meta.anims[a].frames));
   const ppu = meta.ppu || 64, S = { g, plane, mat, anim: null };
   // anchor 'last': place the drawing by where its last frame stands (a climb ends on top of the ledge he is put on).
   // anchor { foot, cx }: place it by that row and column of its canvas (a climb, each frame set on the ledge's corner)
   S.show = (anim, frac, x, y, face, z = 0.05, rot = 0, anchor = null) => {
     const A0 = meta.anims[anim] || meta.anims.stand; if (!A0) return;
     const A = anchor === 'last' && A0.footLast != null ? { ...A0, foot: A0.footLast, cx: A0.cxLast } : anchor && typeof anchor === 'object' ? { ...A0, ...anchor } : A0;
-    if (S.anim !== anim){ mat.map = tex[anim] || tex.stand; mat.needsUpdate = true; S.anim = anim; }
+    if (S.anim !== anim){ const key = meta.anims[anim] ? anim : 'stand'; mat.map = texOf(key); mat.normalMap = FLAT ? null : nrmOf(key); mat.needsUpdate = true; S.anim = anim; }
     const n = A.frames, i = Math.min(n - 1, Math.floor(((frac % 1) + 1) % 1 * n));
     mat.map.offset.set(i / n, 0);
     const w = A.w / ppu, h = A.h / ppu;
@@ -614,4 +652,34 @@ export function makeSprite(scene, base, meta){
     scene.add(m); return m;
   };
   return S;
+}
+
+// ---- the combo's cuts, drawn by PixelLab's VFX Creator around the warrior's own strips (tools/vfx-pack.py): each effect
+// has a layer behind him and one in front, and its frame i goes with the strip's frame i. show() every frame: it draws
+// the effect for that strip and frame, or nothing
+const SWING_FX = ['cut1', 'cut2', 'cut3'];
+export function makeSwingFx(scene){
+  const byAnim = {}, meshes = [];
+  for (const name of SWING_FX) fetch(`assets/side/vfx/${name}/fx.json`).then(r => r.ok ? r.json() : null).then(fx => {
+    if (!fx) return;
+    byAnim[fx.anim] = fx.layers.map(L => {
+      const t = pixTex(`assets/side/vfx/${name}/${L.file}`); t.repeat.set(1 / L.cols, 1 / L.rows);
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(L.fw / PPU, L.fh / PPU), new THREE.MeshBasicMaterial({ map: t, transparent: true, alphaTest: 0.5, side: THREE.DoubleSide, depthWrite: false }));
+      m.visible = false; m.position.z = L.depth === 'behind' ? 0.045 : 0.06; scene.add(m); meshes.push(m); return { L, m, t, frames: fx.frames };
+    });
+  }).catch(() => {});
+  return {
+    has: anim => !!byAnim[anim],
+    // anim, frac: the warrior's drawing and how far into it; x, y: his feet; face: which way
+    show(anim, frac, x, y, face){
+      for (const m of meshes) m.visible = false;
+      const set = byAnim[anim]; if (!set) return;
+      for (const { L, m, t, frames } of set){
+        const i = Math.min(frames - 1, Math.floor(frac * frames)), k = i - L.start; if (k < 0 || k >= L.frames) continue;
+        t.offset.set((k % L.cols) / L.cols, 1 - (Math.floor(k / L.cols) + 1) / L.rows);
+        const cx = (L.dx + L.fw / 2) / PPU, cy = (L.dy + L.fh / 2) / PPU;
+        m.position.x = Math.round((x + cx * face) * PPU) / PPU; m.position.y = Math.round((y - cy) * PPU) / PPU; m.scale.x = face; m.visible = true;
+      }
+    },
+  };
 }

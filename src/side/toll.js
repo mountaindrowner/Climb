@@ -10,6 +10,7 @@
 import { T, LEVEL } from './level.js';
 import { hurt, isRollInv } from './motor.js';
 import { tex, glow, additive, ease } from './boss.js';
+import { lit as litMat } from './render.js';
 const THREE = window.THREE;
 export const TOLL = {
   name: 'The Toll', hp: 26, phase2: 0.5,
@@ -30,10 +31,11 @@ export function makeToll(scene, R){
   const lenFor = rim => D - rim - W.H;               // the chain's length that puts the rim that far over the stage
   const B = { name: W.name, hint: 'cut it when it lies on the stage', rage: 'it tolls, and the roof answers', fell: 'the way up is open',
     st: 'dormant', tm: 0, hp: W.hp, phase: 1, flash: 0, cd: 1.2, room, stageY, cx, mode: 'idle', mt: 0, px: cx, len: lenFor(13), ang: 0, clap: 0, clapV: 0, n: 0, acts: 0, ripples: [], cinders: [], fall: null };
-  const mesh = (file, w, h, z) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w / 16, h / 16), new THREE.MeshBasicMaterial({ map: tex(`assets/side/toll/${file}.png`), transparent: true, alphaTest: 0.5, color: 0xa8a098 })   /* a little under full, so the bronze does not bloom its face away */); m.position.z = z; m.visible = false; scene.add(m); return m; };
+  const mesh = (file, w, h, z) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w / 16, h / 16), litMat({ map: tex(`assets/side/toll/${file}.png`), normalMap: tex(`assets/side/toll/${file}_n.png`), transparent: true, alphaTest: 0.5, color: 0xd8d0c4 })   /* a little under full, so the bronze does not bloom its face away */); m.position.z = z; m.visible = false; scene.add(m); return m; };
   const bell = mesh('bell', 90, 88, -1), clapper = mesh('clapper', 16, 44, -1.1), beam = mesh('beam', 72, 18, -1.2);
   const chainTex = tex('assets/side/toll/chain.png'); chainTex.wrapT = THREE.RepeatWrapping;
   const chain = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: chainTex, transparent: true, alphaTest: 0.5 })); chain.visible = false; scene.add(chain);
+  const under = new THREE.PointLight(0xff9a40, 0, 8, 1.5); scene.add(under);   // the fire in its mouth lights it from below
   const eyeTex = glow('rgba(255,200,120,1)'), warnTex = glow('rgba(255,60,50,1)');
   const eyes = [[-0.81, -0.27], [0.81, -0.27]].map(p => { const m = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.1), additive(eyeTex, 0xffb040, 0)); scene.add(m); return { m, p }; });
   const maw = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 1.0), additive(eyeTex, 0xffb040, 0)); scene.add(maw);
@@ -159,6 +161,7 @@ export function makeToll(scene, R){
     maw.position.set(mid.x + 1.25 * sn, mid.y - 1.25 * cs, -0.95); maw.rotation.z = rot; maw.material.opacity = k * 0.8; maw.material.color.setHex(col);
     halo.position.set(mid.x, mid.y, -1.3); halo.material.opacity = lit * 0.18 + weak * (0.3 + 0.15 * Math.sin(B.tm * 9)) + B.flash * 3; halo.material.color.setHex(weak > 0 ? 0xffe090 : 0xff9a40);
     warn.material.opacity = warnA; warn.scale.set(warnW / 6.4, 1, 1); warn.position.set(warnX, stageY + 0.25, 0.5);
+    under.position.set(mid.x - Math.sin(rot) * 3, mid.y - Math.cos(rot) * 3, 1.2); under.intensity = lit * 0.9 + weak * 0.8 + B.flash * 4; under.color.setHex(col);
     R.glint(mid.x, mid.y, col, lit * 0.45 + weak * 0.35 + B.flash * 3, 6.5);   // the light in it
   };
 

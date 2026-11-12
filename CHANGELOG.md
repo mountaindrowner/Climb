@@ -2,7 +2,13 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Light, the scarf, a score (latest).** A pass for look, feel and character.
+**Shape, a real climb and plunge, drawn cuts (latest).** From PixelLab's November update.
+- *Normal maps across the board.* Every strip the warrior and the creatures are drawn with, and every piece of the three bosses, has a normal map (`tools/pixellab.py normals`, 0.1 generation each); the rock has one worked out from its own shape (edges round off, blocks are bevelled). A torch now lights the side of a thing that faces it; the light a material gets is held to six steps, so the shading stays banded like the art. The Warden's core lights its own body, the Toll is lit from the fire in its mouth, the Wyrm's eye lights its snout. `?flat` turns the maps off to compare.
+- *The ledge climb* is drawn from a start frame of him hanging by both hands: he hangs, hauls, gets his chest over, a knee up, stands.
+- *The plunge* turns the blade point-down and holds the dive with the cape streaming up; its landing drives the blade in, crouches deep and rises.
+- *The combo's three cuts* have effects drawn by PixelLab's VFX Creator (Pro) around his own frames: a glint and a crescent; sparks up the raised blade, a crescent and cracked stone; a gold ribbon round the spin and a burst. Each has a layer behind him and one in front, played frame for frame with the swing (`tools/vfx-pack.py`, `makeSwingFx` in `render.js`).
+
+**Light, the scarf, a score.** A pass for look, feel and character.
 - *Light.* The last pass darkens the picture to the region's ambient and lifts it round every light (torches, crystals, shrines, him, a boss's eyes, a blow) in dithered steps. Mist drifts behind and before the play layer. Dark shapes close to the eye frame the view and slide past faster than the world. Torches burn with a drawn flame. The Spires' sky is used as painted.
 - *The scarf.* A ribbon of cloth from his neck, moved as a chain of points. It is his life: a length for each heart. A blow burns its end off. What he kills leaves embers that fly to him; ten grow a length back. When he dies the scarf goes back alone to the last shrine and he gets up under it.
 - *The HUD.* Drawn at the game's resolution in a bitmap face of its own (`pixelfont.js`, `hud.js`): life as lengths of scarf with the ember count under it, the flask, a boss's bar with what it just lost running down behind, the map and height. Names come up with a rule under them. A boss enters under black bars with its name and epithet. Its death is drawn out. Esc pauses (go on, or back to the title); the region buttons are on the title only.

@@ -1,0 +1,46 @@
+{
+ "fps": 14,
+ "kind": "new",
+ "loop": false,
+ "name": "cut2",
+ "files": {
+  "cut2.gif": "https://api.pixellab.ai/mcp/pixel-tools/e3e21e05-632c-457d-9c72-d6162e9d631d/cut2.gif",
+  "cut2.png": "https://api.pixellab.ai/mcp/pixel-tools/e3e21e05-632c-457d-9c72-d6162e9d631d/cut2.png",
+  "cut2.json": "https://api.pixellab.ai/mcp/pixel-tools/e3e21e05-632c-457d-9c72-d6162e9d631d/cut2.json",
+  "cut2-game.zip": "https://api.pixellab.ai/mcp/pixel-tools/e3e21e05-632c-457d-9c72-d6162e9d631d/cut2-game.zip"
+ },
+ "parts": [
+  "charge",
+  "cut",
+  "impact",
+  "ground",
+  "dust",
+  "sparks"
+ ],
+ "anchor": {
+  "x": 62,
+  "y": 89,
+  "kind": "feet"
+ },
+ "artist": "pro",
+ "canvas": {
+  "h": 116,
+  "w": 152
+ },
+ "frames": 13,
+ "message": "Made the heavy overhead slam with pale-blue blade crackles on frames 5\u20138, a thick white-blue crescent on frame 9, and stone chips, grey dust and orange sparks bursting both ways. Frames 1\u20134 and 12\u201313 intentionally show only his sprite animation, keeping the effects confined to the raised blade and impact. Try Crescent weight and Ground sparks to tune the hit.",
+ "edit_url": "https://pixellab.ai/create-vfx?effect=92349a01-9a9b-4098-908e-39d8c9af5f4b",
+ "effect_id": "92349a01-9a9b-4098-908e-39d8c9af5f4b",
+ "gif_exact": true,
+ "result_id": "e3e21e05-632c-457d-9c72-d6162e9d631d",
+ "billing_usage": {
+  "usd": 0.0,
+  "type": "generations",
+  "generations": 11.0
+ },
+ "generation_id": "15cf84a4-4827-444e-a450-c561ce87b70f",
+ "billing_charged": true,
+ "generation_mode": "vfx",
+ "pixel_tools_image": true,
+ "quoted_generations": 11
+}

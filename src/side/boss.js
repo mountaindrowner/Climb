@@ -16,6 +16,7 @@
 // when it dies it comes apart piece by piece.
 import { T, LEVEL } from './level.js';
 import { hurt, isRollInv } from './motor.js';
+import { lit } from './render.js';
 const THREE = window.THREE;
 export const WARDEN = {
   name: 'The Warden', hp: 24, phase2: 0.5,
@@ -66,10 +67,11 @@ export function makeWarden(scene, R){
   const halo = new THREE.Mesh(new THREE.PlaneGeometry(24, 24), additive(glow('rgba(60,200,220,1)'), 0x2a8a9a, 0.5)); scene.add(halo);
   const parts = {};
   for (const [name, d] of Object.entries(PIECES)){
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(d.w / 16, d.h / 16), new THREE.MeshBasicMaterial({ map: tex(`assets/side/warden/${d.img}16.png`), transparent: true, alphaTest: 0.5, color: name.startsWith('shoulder') ? stone : far, side: THREE.DoubleSide }));
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(d.w / 16, d.h / 16), lit({ map: tex(`assets/side/warden/${d.img}16.png`), normalMap: tex(`assets/side/warden/${d.img}16_n.png`), transparent: true, alphaTest: 0.5, color: name.startsWith('shoulder') ? stone : far, side: THREE.DoubleSide }));
     if (d.flip) m.scale.x = -1;
     m.visible = false; scene.add(m); parts[name] = { m, d, lift: 0 };
   }
+  const coreLight = new THREE.PointLight(0x5fe8d8, 0, 9, 1.2); scene.add(coreLight);
   const eyeTex = glow('rgba(140,255,255,1)');
   const eyes = FACE.eyes.map(p => { const m = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.1), additive(eyeTex, 0x7ff6ff, 0)); scene.add(m); return { m, p }; });
   const brow = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.6), additive(eyeTex, 0x5fe8d8, 0)); scene.add(brow);
@@ -78,11 +80,11 @@ export function makeWarden(scene, R){
   const backGlow = [-1, 1].map(sd => { const m = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 3.4), additive(eyeTex, 0x4fd8ff, 0)); scene.add(m); return { m, sd }; });
   // ---- the arms
   const upTex = tex('assets/side/colossus/upperarm16.png'), foreTex = tex('assets/side/colossus/forearm16.png'), fistTex = tex('assets/side/colossus/fist16.png');
-  const segMat = map => new THREE.MeshBasicMaterial({ map, transparent: true, alphaTest: 0.5, color: stone, side: THREE.DoubleSide });
+  const segMat = (map, n) => lit({ map, normalMap: tex(n), transparent: true, alphaTest: 0.5, color: stone, side: THREE.DoubleSide });   // shaded by their shape: the core's light catches their edges
   const warnTex = glow('rgba(255,60,50,1)');
   for (const s of [-1, 1]){
-    const up = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), segMat(upTex)), fore = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), segMat(foreTex));
-    const fistMat = new THREE.MeshBasicMaterial({ map: fistTex, transparent: true, alphaTest: 0.5, color: stone });
+    const up = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), segMat(upTex, 'assets/side/colossus/upperarm16_n.png')), fore = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), segMat(foreTex, 'assets/side/colossus/forearm16_n.png'));
+    const fistMat = lit({ map: fistTex, normalMap: tex('assets/side/colossus/fist16_n.png'), transparent: true, alphaTest: 0.5, color: stone, side: THREE.DoubleSide, emissive: 0x000000 });
     const fist = new THREE.Mesh(new THREE.PlaneGeometry(3, 3), fistMat);   // 48 pixels
     const weak = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), additive(eyeTex, 0x6ff0ff, 0));   // the glow that says: now
     const warn = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.1), additive(warnTex, 0xff5040, 0));  // the mark under a blow
@@ -200,7 +202,7 @@ export function makeWarden(scene, R){
         span(a.up, S, E, W.armW, -5); span(a.fore, a.p, E, W.armW * 0.9, -4.9);
         a.fist.position.set(a.p.x, a.p.y, -1); a.fist.scale.x = a.s < 0 ? 1 : -1;
         a.fist.rotation.z = Math.atan2(E.x - a.p.x, E.y - a.p.y) * 0.25;
-        a.fistMat.color.setHex(B.flash > 0 && a.st === 'rest' ? 0xffffff : stone);
+        a.fistMat.emissive.setHex(B.flash > 0 && a.st === 'rest' ? 0x9a9a9a : 0x000000);
       }
       a.warn.visible = warn > 0; a.warn.material.opacity = warn; a.warn.position.set(a.tx, stageY + 0.25, 0.5);
       a.weak.visible = weak > 0 && vis; a.weak.material.opacity = weak * (0.35 + 0.2 * Math.sin(B.tm * 9)); a.weak.position.set(a.p.x, a.p.y, -1.1);
@@ -243,6 +245,7 @@ export function makeWarden(scene, R){
     core.m.position.set(place.chest.x + FACE.core[0], place.chest.y + FACE.core[1], -7.8); core.m.material.opacity = lit * (0.5 + 0.3 * Math.sin(B.tm * 2.2)) + B.flash * 3; core.m.visible = show;
     for (const g of backGlow){ const k = place[g.sd < 0 ? 'crystalL' : 'crystalR']; g.m.position.set(k.x, k.y + 0.3, -8.35); g.m.material.opacity = lit * (B.phase === 2 ? 0.55 + 0.25 * Math.sin(B.tm * 5 + g.sd) : 0.22); g.m.material.color.setHex(B.phase === 2 ? 0xff9a60 : 0x4fd8ff); g.m.visible = show; }
     halo.material.opacity = 0.2 + lit * 0.18;
+    coreLight.position.set(place.chest.x + FACE.core[0], place.chest.y + FACE.core[1], -6.7); coreLight.intensity = show ? lit * (B.phase === 2 ? 2.4 : 2.0) + B.flash * 4 : 0; coreLight.color.setHex(B.phase === 2 ? 0xff9a60 : 0x5fe8d8);
     if (show){ R.glint(place.chest.x, place.chest.y + 0.2, 0x5fe8d8, lit * 0.55 + B.flash * 3, 7); R.glint(hd.x, hd.y, angry, lit * 0.4, 4.5); }   // its core and its eyes light what is round them
   };
 

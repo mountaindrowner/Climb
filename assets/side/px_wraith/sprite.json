@@ -9,7 +9,8 @@
    "foot": 39,
    "cx": 19.5,
    "footLast": 39,
-   "cxLast": 19.5
+   "cxLast": 19.5,
+   "n": 1
   },
   "float": {
    "frames": 9,
@@ -18,7 +19,8 @@
    "foot": 47,
    "cx": 27.5,
    "footLast": 47,
-   "cxLast": 27.5
+   "cxLast": 27.5,
+   "n": 1
   },
   "slash": {
    "frames": 9,
@@ -27,7 +29,8 @@
    "foot": 48,
    "cx": 27.5,
    "footLast": 44,
-   "cxLast": 33.0
+   "cxLast": 33.0,
+   "n": 1
   }
  }
 }

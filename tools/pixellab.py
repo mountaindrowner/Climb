@@ -14,6 +14,8 @@
 #   python3 tools/pixellab.py image <file> "<description>" <w> <h> [alpha]     -> assets/side/<file>.png (backgrounds, props)
 #   python3 tools/pixellab.py tileset <file> "<material>" "<top layer>"        -> assets/side/<file>/ (32px side-scroller tiles)
 #   python3 tools/pixellab.py unbg <file>                                      -> clears a flat backdrop the image came with
+#   python3 tools/pixellab.py normals <folder> [anim ...]                      -> a normal map (lite, 0.1 generation) for each strip:
+#        assets/side/<folder>/<anim>_n.png, and "n": 1 on the strip in sprite.json, so the game lights it by its shape
 import json, os, sys, time, io, zipfile, urllib.request
 API = 'https://api.pixellab.ai/v2'
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.normpath(os.path.join(HERE, '..'))
@@ -102,6 +104,7 @@ def pull(name):
         bl = bb[-1] or b0; footLast = bl[3] + (h - frames[-1].height); cxLast = (bl[0] + bl[2]) / 2 + (w - frames[-1].width) / 2
         meta['anims'][anim] = {'frames': len(frames), 'w': w, 'h': h, 'foot': foot, 'cx': cx, 'footLast': footLast, 'cxLast': cxLast}
         print(name, anim, len(frames), 'frames', w, 'x', h)
+    mark_normals(d, meta)
     json.dump(meta, open(os.path.join(d, 'sprite.json'), 'w'), indent=1)
 
 def find_b64(o):
@@ -124,6 +127,26 @@ def image(fname, desc, w, h, alpha=False):
     if not b: print('no image in', json.dumps(r)[:600]); return
     path = os.path.join(OUT, fname + '.png'); os.makedirs(os.path.dirname(path), exist_ok=True)
     open(path, 'wb').write(base64.b64decode(b.split(',')[-1])); print('wrote', path, r.get('usage'))
+def mark_normals(d, meta):
+    """a strip whose normal map is there says so (the game loads it then)"""
+    for a, A in meta['anims'].items():
+        if os.path.exists(os.path.join(d, a + '_n.png')): A['n'] = 1
+        else: A.pop('n', None)
+def normals(folder, anims=None, kind='character'):
+    """normal maps for a sprite's strips (or a folder of single pictures), each planned once and carried through its frames"""
+    import base64
+    d = os.path.join(OUT, folder); sp = os.path.join(d, 'sprite.json'); meta = json.load(open(sp)) if os.path.exists(sp) else None
+    names = anims or (list(meta['anims']) if meta else [f[:-4] for f in sorted(os.listdir(d)) if f.endswith('.png') and not f.endswith('_n.png')])
+    for a in names:
+        src = os.path.join(d, a + '.png')
+        if not os.path.exists(src): print('missing', src); continue
+        frames = meta['anims'][a]['frames'] if meta and a in meta['anims'] else 1
+        r = call('POST', '/normal-map', {'image': {'type': 'base64', 'base64': base64.b64encode(open(src, 'rb').read()).decode(), 'format': 'png'}, 'frames': frames, 'kind': kind, 'mode': 'lite'})
+        j = wait(r['background_job_id'], 'normals ' + a)
+        img = (j.get('last_response') or {}).get('image'); b = img['base64'] if isinstance(img, dict) else img
+        if b: open(os.path.join(d, a + '_n.png'), 'wb').write(base64.b64decode(b.split(',')[-1]))
+        time.sleep(2.5)   # the service turns requests away that come too close together
+    if meta: mark_normals(d, meta); json.dump(meta, open(sp, 'w'), indent=1)
 def unbg(fname, tol=26):
     """an image asked for without a background sometimes comes on a flat one: flood it away from the border"""
     from PIL import Image
@@ -165,4 +188,5 @@ if __name__ == '__main__':
     elif cmd == 'pull': pull(a[0])
     elif cmd == 'image': image(a[0], a[1], a[2], a[3], len(a) > 4 and a[4] == 'alpha')
     elif cmd == 'unbg': unbg(a[0])
+    elif cmd == 'normals': normals(a[0], a[1:] or None, 'object' if a[0] in ('warden', 'colossus', 'toll', 'wyrm') else 'character')
     elif cmd == 'tileset': tileset(a[0], a[1], a[2] if len(a) > 2 else '')

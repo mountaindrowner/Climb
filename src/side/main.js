@@ -8,7 +8,7 @@ import { sfx, ac } from '../audio/sfx.js';
 import '../ui/feel.js';
 import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt } from './level.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf } from './motor.js';
-import { makeRenderer, makeSprite, VIEW_H } from './render.js';
+import { makeRenderer, makeSprite, VIEW_H, makeSwingFx } from './render.js';
 import { spawnFx, stepFx } from './fx.js';
 import { spawnEnemies, stepEnemies, strikeEnemies, slamEnemies } from './enemies.js';
 import { makeWarden } from './boss.js';
@@ -21,7 +21,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 13';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 14';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -33,7 +33,7 @@ const HEROES = { masked: 'mask_tall_c', a: 'px_knight', b: 'px_hood', c: 'px_mas
 const loadHero = name => fetch(`assets/side/${name}/sprite.json`).then(r => r.ok ? r.json() : Promise.reject()).then(meta => { hero.meta = meta; hero.name = name; hero.sprite = makeSprite(R.scene, `assets/side/${name}`, meta); });
 loadHero(HERO).catch(() => loadHero('hero_a')).catch(() => loadHero('hero'));
 // what a region has in it: made by setup, again each time he comes into one
-let fx, E, BOSS, SHRINES, MAP, SCF;
+let fx, E, BOSS, SHRINES, MAP, SCF, SWINGFX;
 const HUD = makeHud(hud);
 // embers: what he takes from what he kills. Ten grow a length of the scarf back (a heart); a full ten are kept until needed
 const EMBER = { n: 0, max: 10 };
@@ -45,6 +45,7 @@ const CARD = ['', 'The Roots are below him. The climb goes on.', 'Out of the sto
 const SAVE = { get(){ try { return JSON.parse(localStorage.getItem('climb-side') || 'null'); } catch (e){ return null; } }, set(v){ try { if (v) localStorage.setItem('climb-side', JSON.stringify(v)); else localStorage.removeItem('climb-side'); } catch (e){} } };
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
 function setup(){
+  SWINGFX = makeSwingFx(R.scene);
   fx = spawnFx(R.scene); E = spawnEnemies(R.scene); SCF = makeScarf(R.scene); FLIGHT = null; BOSS = [makeWarden, makeToll, makeWyrm][LEVEL.index](R.scene, R);   // each region's keeper
   // the shrine: it fills the flask and the hearts, and is where he wakes after a death
   SHRINES = LEVEL.marks.filter(m => m.type === 'shrine').map(m => { const x = (m.x + 0.5) * T, y = m.y * T; return { x, y, room: roomAt(x, y + 0.5) }; });
@@ -125,7 +126,7 @@ bindInput(); marks();
 if (/[?&](level|play)\b/.test(location.search)) banner(LEVEL.name, SUB[LEVEL.index] || '', 4); else title();   // straight in with ?level=2 or ?play
 
 // the drawings the masked warrior uses for these moves, where he has them
-const MOVES = { roll: ['roll2_px', 'roll_px', 'roll'], flip: ['flip_px'], climb: ['climb_px', 'climb_v3'], land: ['land_px', 'land_v3'] };
+const MOVES = { roll: ['roll2_px', 'roll_px', 'roll'], flip: ['flip_px'], climb: ['climb_hang2', 'climb_px', 'climb_v3'], land: ['land_px', 'land_v3'] };
 const LAND_T = 0.3;   // how long a landing plays (cut short if he runs on)
 const SINK = 2 / 16;  // he is drawn two pixels into the floor's lip, so his boots stand in it, not on its outline
 // the ledge climb, set on the ledge: for each frame of the drawing, the column and row of its canvas that sit on the
@@ -133,9 +134,15 @@ const SINK = 2 / 16;  // he is drawn two pixels into the floor's lip, so his boo
 // he hauls, and his feet land on it. `depth` is how far his feet hang under the ledge in that frame, in pixels: he
 // comes into the climb at the frame that fits how far under it he caught it (a full hang from far below, a scramble
 // from just under). Tuned by eye against a drawn corner.
-const CLIMB = { climb_px: { first: 3, corner: { 3: [31, 7], 4: [31, 7], 5: [31, 8], 6: [30, 11], 7: [30, 14], 8: [33, 25], 9: [31, 31], 10: [27, 35], 11: [12, 43], 12: [14, 38] },
+const CLIMB = {
+  // made from a start frame of him hanging (PixelLab, a custom start frame): he hangs, hauls, gets his chest over, a knee
+  // up, stands. Its canvas is 64 x 84
+  climb_hang2: { first: 0, corner: { 0: [37, 24], 1: [38, 29], 2: [38, 32], 3: [37, 36], 4: [35, 40], 5: [32, 43], 6: [30, 46], 7: [28, 49], 8: [26, 52], 9: [25, 54], 10: [26, 54], 11: [29, 54] },
+    depth: { 0: 43, 1: 41, 2: 39, 3: 34, 4: 27, 5: 22, 6: 16, 7: 9, 8: 2, 9: 0, 10: 0, 11: 0 } },
+  climb_px: { first: 3, corner: { 3: [31, 7], 4: [31, 7], 5: [31, 8], 6: [30, 11], 7: [30, 14], 8: [33, 25], 9: [31, 31], 10: [27, 35], 11: [12, 43], 12: [14, 38] },
   depth: { 3: 41, 4: 42, 5: 42, 6: 41, 7: 37, 8: 24, 9: 19, 10: 14, 11: 0, 12: 0 } } };
 let landT = 0;
+const PLUNGE_LAND = 0.5; let PLUNGE_T = 0;   // how long the plunge's landing plays
 // which of his animations, and how far into it (and, for a climb, to place it by where it ends)
 function heroPose(P, t){
   const A = hero.meta ? hero.meta.anims : {}, has = n => !!A[n], pick = k => MOVES[k].find(has);
@@ -145,7 +152,7 @@ function heroPose(P, t){
     if (C && M.wall != null){
       const n = A[name].frames, hpx = (M.y1 - M.y0) * 16; let f0 = C.first; while (f0 < n - 2 && C.depth[f0] > hpx + 5) f0++;   // the frame that fits where he caught it
       const f = Math.min(n - 1, f0 + Math.floor(M.t / M.dur * (n - f0))), [cx, foot] = C.corner[f];
-      return [name, (f + 0.5) / n, { cx, foot }];
+      return [name, (f + 0.5) / n, { cx, foot, ledge: true }];
     }
     return [name, Math.min(0.999, 0.15 + 0.85 * M.t / M.dur), 'last'];   // its first frames are him standing: from the reach up
   }
@@ -153,7 +160,12 @@ function heroPose(P, t){
   if (P.hurtT > 0 && has('hurt')) return ['hurt', 1 - P.hurtT / MV.hurtStun];
   if (P.roll > 0 && pick('roll')) return [pick('roll'), 1 - P.roll / MV.roll.time];
   if (P.flip > 0 && !P.grounded && pick('flip')) return [pick('flip'), Math.min(0.999, 0.08 + 0.92 * (1 - P.flip / MV.flip))];   // the double jump's somersault, drawn
+  // the plunge: the blade turned point-down (two frames), then the dive held, the cape streaming; drawn by his boots, so
+  // the blade reaches below his feet
+  if (P.dive && has('plunge_fall')){ const t = P.dive.t || 0, f = t < 0.12 ? Math.floor(t / 0.12 * 2) : 2 + Math.floor((t - 0.12) * 12) % 6; return ['plunge_fall', (f + 0.5) / 8, { foot: 46 }]; }
   if (P.dive && has('plunge')) return ['plunge', 0.6];
+  // its landing: the blade driven in, a deep crouch, up again (its last eight frames); cut short if he moves off
+  if (P.grounded && PLUNGE_T > 0 && has('plunge_land') && !(Math.abs(P.vx) > 1.5 && P.plant <= 0)) return ['plunge_land', (4 + Math.min(7.99, (1 - PLUNGE_T / PLUNGE_LAND) * 8)) / 12];
   if (P.atk){
     // the swing's drawing, timed so the blade lands on its impact frame as the cut strikes
     const W = swingOf(P, P.atk), sw = has(W.anim) ? W.anim : { 0: 'attack1', 1: 'attack2', 2: 'attack3' }[P.atk.i];
@@ -246,13 +258,16 @@ function frame(ts){
     const [anim, frac, anchor] = heroPose(P, time);
     let rot = 0;
     if (P.flip > 0 && !MOVES.flip.includes(anim)){ const q = 1 - P.flip / MV.flip; rot = -Math.PI * 2 * Math.min(1, q * 1.1) * (P.face < 0 ? -1 : 1); }   // no drawn flip: turn the sprite
-    if (anchor && typeof anchor === 'object') hero.sprite.show(anim, frac, P.mantle.wall, P.mantle.y1 - SINK, P.mantle.d, 0.05, 0, anchor);   // the climb, on the ledge's corner
+    if (anchor && anchor.ledge) hero.sprite.show(anim, frac, P.mantle.wall, P.mantle.y1 - SINK, P.mantle.d, 0.05, 0, anchor);   // the climb, on the ledge's corner
+    else if (anchor && typeof anchor === 'object') hero.sprite.show(anim, frac, P.x, P.y - SINK, P.face, 0.05, 0, anchor);
     else if (anchor === 'last'){
       // the climb is drawn rising a little under a unit; what the ledge is higher than that, he is eased up through
       const M = P.mantle, A = hero.meta.anims[anim], drawn = (A.foot - A.footLast) / (hero.meta.ppu || 16), u = Math.min(1, M.t / M.dur), e = u * u * (3 - 2 * u);
       hero.sprite.show(anim, frac, M.x1, M.y1 - SINK - Math.max(0, (M.y1 - M.y0) - drawn) * (1 - e), P.face, 0.05, 0, 'last');
     }
     else hero.sprite.show(anim, frac, P.x, P.y - SINK, P.face, 0.05, rot);
+
+    SWINGFX.show(anim, frac, P.x, P.y - SINK, P.face);
     // the dash cut leaves afterimages and streaks, and kicks the floor up behind him
     if (P.atk && P.atk.special === 'dash' && P.atk.phase !== 'rec' && (FX2.ghostT -= dt) <= 0){
       FX2.ghostT = 0.035; const m = hero.sprite.ghost(0x4fc8ff); if (m) FX2.ghosts.push({ m, life: 0.22 });
@@ -260,7 +275,7 @@ function frame(ts){
     }
   }
   for (let i = FX2.ghosts.length - 1; i >= 0; i--){ const G = FX2.ghosts[i]; G.life -= dt; G.m.material.opacity = Math.max(0, G.life / 0.22) * 0.8; if (G.life <= 0){ R.scene.remove(G.m); G.m.material.map.dispose(); G.m.material.dispose(); FX2.ghosts.splice(i, 1); } }
-  landT = Math.max(0, landT - dt);
+  landT = Math.max(0, landT - dt); PLUNGE_T = Math.max(0, PLUNGE_T - dt);
   // dust at his feet as he runs, now and then
   if (P.grounded && Math.abs(P.vx) > 4 && !P.atk){ FX2.runDust += Math.abs(P.vx) * dt; if (FX2.runDust > 1.3){ FX2.runDust = 0; fx.kick({ x: P.x, y: P.y }, -Math.sign(P.vx), 3, 1.4); } }
   if (hero.sprite){
@@ -287,14 +302,15 @@ function onEvent(e){
     case 'jump': sfx.jump(); fx.puff(at, 8, 1.6); break;
     case 'doubleJump': sfx.jump(); fx.ring(at, 0x9ff0ff); FX2.flipped = true; break;
     case 'land': sfx.step(); fx.puff(at, e.hard ? 20 : 8, e.hard ? 3.2 : 2); if (e.hard) FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.12); if (e.hard || (e.drop || 0) > 0.8 || FX2.flipped){ landT = LAND_T; } FX2.flipped = false; break;
-    case 'slam': { sfx.slam(); fx.puff(at, 24, 3.6); R.shock(P.x, P.y + 0.3, true); fx.ring(at, 0xffd27a); const out = []; slamEnemies(E, P, MV.dive.radius, MV.dive.dmg, out); if (BOSS) BOSS.slam(P, MV.dive.radius, MV.dive.dmg, out); for (const o of out) onEvent(o); break; }
+    case 'slam': { PLUNGE_T = PLUNGE_LAND; landT = 0; sfx.slam(); fx.puff(at, 24, 3.6); R.shock(P.x, P.y + 0.3, true); fx.ring(at, 0xffd27a); const out = []; slamEnemies(E, P, MV.dive.radius, MV.dive.dmg, out); if (BOSS) BOSS.slam(P, MV.dive.radius, MV.dive.dmg, out); for (const o of out) onEvent(o); break; }
     case 'roll': sfx.whoosh(); fx.kick(at, -P.rollDir, 10, 2.6); break;
     case 'dashCut': sfx.dash(); fx.kick(at, -P.face, 14, 3.4); FX2.ghostT = 0; break;
     case 'dive': sfx.whoosh(); break;
     case 'strike': {
       // the blow: the swoosh of light, the air bending round it, the floor kicked up, a thump, the view nudged
       const big = e.finisher, tilt = { atk_slam_v3: -0.7, atk_slam_px: -0.7, atk_rise_px: 1.0, atk_spin_px: 0.1, atk_dash_px: 0.25 }[e.sw.anim] || 0;
-      sfx.swing(big); fx.crescent({ x: P.x + P.face * 1.15, y: P.y + 1.25 }, P.face, big, tilt); R.shock(P.x + P.face * 1.3, P.y + 1.2, big);
+      sfx.swing(big); if (!SWINGFX.has(e.sw.anim)) fx.crescent({ x: P.x + P.face * 1.15, y: P.y + 1.25 }, P.face, big, tilt);   // the combo's cuts have their own drawn effect
+      R.glint(P.x + P.face * 1.3, P.y + 1.3, big ? 0xffd27a : 0xbfe8ff, big ? 0.9 : 0.6, 4.5, 0.22); R.shock(P.x + P.face * 1.3, P.y + 1.2, big);
       if (P.grounded) fx.kick(at, -P.face, big ? 12 : 7, big ? 3 : 2.2);
       FEEL_FX.shake = Math.max(FEEL_FX.shake, big ? 0.14 : 0.07); FEEL_FX.kick = P.face * (big ? 0.22 : 0.12);
       // the dash cut strikes all along where he dashed

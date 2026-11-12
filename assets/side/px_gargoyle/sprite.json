@@ -9,7 +9,8 @@
    "foot": 37,
    "cx": 19.5,
    "footLast": 37,
-   "cxLast": 19.5
+   "cxLast": 19.5,
+   "n": 1
   },
   "fly": {
    "frames": 9,
@@ -18,7 +19,8 @@
    "foot": 41,
    "cx": 23.5,
    "footLast": 41,
-   "cxLast": 22.0
+   "cxLast": 22.0,
+   "n": 1
   },
   "dive": {
    "frames": 9,
@@ -27,7 +29,8 @@
    "foot": 41,
    "cx": 23.5,
    "footLast": 41,
-   "cxLast": 24.0
+   "cxLast": 24.0,
+   "n": 1
   }
  }
 }

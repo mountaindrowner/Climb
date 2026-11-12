@@ -1,0 +1,269 @@
+{
+ "app": "PixelLab VFX Creator",
+ "name": "cut2",
+ "fps": 14,
+ "frame_ms": 71,
+ "frames": 13,
+ "loop": false,
+ "canvas": {
+  "w": 152,
+  "h": 116
+ },
+ "anchor": {
+  "kind": "feet",
+  "x": 62,
+  "y": 89
+ },
+ "clips": [
+  {
+   "name": "whole",
+   "title": "the whole effect, no sprite",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 4,
+   "frames": 7,
+   "frame": {
+    "w": 77,
+    "h": 55
+   },
+   "sheets": [
+    {
+     "file": "whole.png",
+     "first_frame": 0,
+     "frames": 7,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -20,
+    "y": -51
+   }
+  },
+  {
+   "name": "whole-with-sprite",
+   "title": "the whole effect with the sprite in it",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 0,
+   "frames": 13,
+   "frame": {
+    "w": 79,
+    "h": 55
+   },
+   "sheets": [
+    {
+     "file": "whole-with-sprite.png",
+     "first_frame": 0,
+     "frames": 13,
+     "columns": 4,
+     "rows": 4
+    }
+   ],
+   "offset": {
+    "x": -22,
+    "y": -51
+   }
+  },
+  {
+   "name": "behind",
+   "title": "everything behind the sprite",
+   "depth": "behind",
+   "loop": false,
+   "start_frame": 8,
+   "frames": 2,
+   "frame": {
+    "w": 77,
+    "h": 7
+   },
+   "sheets": [
+    {
+     "file": "behind.png",
+     "first_frame": 0,
+     "frames": 2,
+     "columns": 2,
+     "rows": 1
+    }
+   ],
+   "offset": {
+    "x": -20,
+    "y": -3
+   }
+  },
+  {
+   "name": "front",
+   "title": "everything in front of the sprite",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 4,
+   "frames": 7,
+   "frame": {
+    "w": 74,
+    "h": 53
+   },
+   "sheets": [
+    {
+     "file": "front.png",
+     "first_frame": 0,
+     "frames": 7,
+     "columns": 3,
+     "rows": 3
+    }
+   ],
+   "offset": {
+    "x": -18,
+    "y": -51
+   }
+  },
+  {
+   "name": "part-charge",
+   "title": "the charge part",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 4,
+   "frames": 4,
+   "frame": {
+    "w": 35,
+    "h": 25
+   },
+   "sheets": [
+    {
+     "file": "part-charge.png",
+     "first_frame": 0,
+     "frames": 4,
+     "columns": 2,
+     "rows": 2
+    }
+   ],
+   "offset": {
+    "x": -18,
+    "y": -49
+   }
+  },
+  {
+   "name": "part-cut",
+   "title": "the cut part",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 8,
+   "frames": 2,
+   "frame": {
+    "w": 28,
+    "h": 49
+   },
+   "sheets": [
+    {
+     "file": "part-cut.png",
+     "first_frame": 0,
+     "frames": 2,
+     "columns": 2,
+     "rows": 1
+    }
+   ],
+   "offset": {
+    "x": 4,
+    "y": -51
+   }
+  },
+  {
+   "name": "part-impact",
+   "title": "the impact part",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 8,
+   "frames": 1,
+   "frame": {
+    "w": 17,
+    "h": 7
+   },
+   "sheets": [
+    {
+     "file": "part-impact.png",
+     "first_frame": 0,
+     "frames": 1,
+     "columns": 1,
+     "rows": 1
+    }
+   ],
+   "offset": {
+    "x": 16,
+    "y": -5
+   }
+  },
+  {
+   "name": "part-ground",
+   "title": "the ground part",
+   "depth": "both",
+   "loop": false,
+   "start_frame": 8,
+   "frames": 3,
+   "frame": {
+    "w": 77,
+    "h": 18
+   },
+   "sheets": [
+    {
+     "file": "part-ground.png",
+     "first_frame": 0,
+     "frames": 3,
+     "columns": 2,
+     "rows": 2
+    }
+   ],
+   "offset": {
+    "x": -20,
+    "y": -14
+   }
+  },
+  {
+   "name": "part-dust",
+   "title": "the dust part",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 8,
+   "frames": 2,
+   "frame": {
+    "w": 60,
+    "h": 3
+   },
+   "sheets": [
+    {
+     "file": "part-dust.png",
+     "first_frame": 0,
+     "frames": 2,
+     "columns": 2,
+     "rows": 1
+    }
+   ],
+   "offset": {
+    "x": -4,
+    "y": -4
+   }
+  },
+  {
+   "name": "part-sparks",
+   "title": "the sparks part",
+   "depth": "front",
+   "loop": false,
+   "start_frame": 8,
+   "frames": 2,
+   "frame": {
+    "w": 50,
+    "h": 17
+   },
+   "sheets": [
+    {
+     "file": "part-sparks.png",
+     "first_frame": 0,
+     "frames": 2,
+     "columns": 2,
+     "rows": 1
+    }
+   ],
+   "offset": {
+    "x": 4,
+    "y": -16
+   }
+  }
+ ]
+}

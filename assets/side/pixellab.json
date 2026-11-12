@@ -605,6 +605,26 @@
     "action": "template:getting-up",
     "frames": 8,
     "group": "f5c4f51d-9a41-44bf-ac94-03f70d5e7299"
+   },
+   "climb_hang2": {
+    "action": "pulls himself up onto the ledge above him: arms bend and haul his body up, his chest comes over the edge, he swings one ",
+    "frames": 12,
+    "group": "0048d868-d345-43e3-aa97-11ad957e9959"
+   },
+   "climb_hang": {
+    "action": "pulls himself up onto the ledge above him: arms bend and haul his body up, his chest comes over the edge, he swings one ",
+    "frames": 12,
+    "group": "9c06deca-4109-484c-9519-5c0bf24bd628"
+   },
+   "plunge_fall": {
+    "action": "flips the curved sword point-down beneath him and drives straight down through the air: both hands on the hilt above the",
+    "frames": 8,
+    "group": "c1cd41e5-4c72-4373-898b-e1f5eb69477c"
+   },
+   "plunge_land": {
+    "action": "lands hard from a high plunge: drives the curved sword point-first into the ground just in front of his feet, knees bend",
+    "frames": 12,
+    "group": "7d68fdcb-3fab-47b0-a189-33e954b08082"
    }
   }
  },
