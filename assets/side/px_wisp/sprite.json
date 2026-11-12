@@ -1,0 +1,33 @@
+{
+ "name": "px_wisp",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 32,
+   "h": 32,
+   "foot": 30,
+   "cx": 17.0,
+   "footLast": 30,
+   "cxLast": 17.0
+  },
+  "float": {
+   "frames": 9,
+   "w": 40,
+   "h": 40,
+   "foot": 34,
+   "cx": 21.0,
+   "footLast": 34,
+   "cxLast": 21.0
+  },
+  "cast": {
+   "frames": 9,
+   "w": 40,
+   "h": 40,
+   "foot": 34,
+   "cx": 21.0,
+   "footLast": 34,
+   "cxLast": 21.5
+  }
+ }
+}

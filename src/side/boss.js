@@ -45,21 +45,21 @@ const PIECES = {
 const FACE = { eyes: [[-0.41, 0.02], [0.53, 0.02]], brow: [0.06, 0.85], core: [0, 0.2] };   // eyes and brow from the head's middle, the core from the chest's
 // when it dies: when each piece lets go, and how it goes
 const FALL = { shoulderL: [0.5, -1.6, 0.9], shoulderR: [0.8, 1.6, -0.9], crystalL: [0.3, -2.4, 1.6], crystalR: [0.6, 2.4, -1.6], head: [1.9, 0.5, -0.5], jaw: [1.7, -0.3, 0.7], neck: [2.2, 0, 0.2], chest: [2.6, 0, 0.06], belly1: [3, 0, 0], belly2: [3.2, 0, 0] };
-const ease = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+export const ease = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 
-function tex(url){ const t = new THREE.TextureLoader().load(url, x => { x.needsUpdate = true; }); t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false; return t; }
-function glow(color){
+export function tex(url){ const t = new THREE.TextureLoader().load(url, x => { x.needsUpdate = true; }); t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false; return t; }
+export function glow(color){
   const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
   const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, color); gr.addColorStop(0.3, color); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
   return new THREE.CanvasTexture(c);
 }
-const additive = (map, color, opacity = 1) => new THREE.MeshBasicMaterial({ map, color, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending });
+export const additive = (map, color, opacity = 1) => new THREE.MeshBasicMaterial({ map, color, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending });
 
 export function makeWarden(scene, R){
   const room = LEVEL.rooms.find(r => r.name === 'arena'), mk = LEVEL.marks.find(m => m.type === 'boss');
   if (!room || !mk) return null;
   const stageY = mk.y * T, cx = (mk.x + 0.5) * T, xMin = room.x0 + 1 + W.fistR, xMax = room.x1 - 1 - W.fistR, roofY = room.y1 - 1;
-  const B = { st: 'dormant', tm: 0, hp: W.hp, phase: 1, flash: 0, cd: 1.2, rockT: 0, lift: W.sunk, room, stageY, cx, xMin, xMax, arms: [], rocks: [], ripples: [], next: 0 };
+  const B = { name: W.name, hint: 'strike its fists when they rest', rage: 'the roof is coming down', fell: 'the way up is open', st: 'dormant', tm: 0, hp: W.hp, phase: 1, flash: 0, cd: 1.2, rockT: 0, lift: W.sunk, room, stageY, cx, xMin, xMax, arms: [], rocks: [], ripples: [], next: 0 };
   const stone = 0xa9b4a2, far = 0x97a294;   // the arms are grey; brought toward the moss. The body, further back, a little darker
   Object.assign(B, { look: 0, reel: 0, roar: 0, jaw: 0 });
   // ---- the body's pieces, with a cold glow behind it so it stands out of the dark

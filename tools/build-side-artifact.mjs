@@ -21,7 +21,7 @@ function walk(file){
 walk('src/side/main.js');
 const files = [...seen, 'vendor/three/three.min.js', 'vendor/three/GLTFLoader.js'];
 // the art the game loads now: the 16-pixel cast, the Warden in pieces at that scale, the far paintings, the palette
-(function add(dir){ for (const n of readdirSync(join(root, dir))){ const p = join(dir, n); if (statSync(join(root, p)).isDirectory()) add(p); else if (/^assets\/side\/(px_[a-z]+\/.*\.(png|json)|mask_tall_c\/.*\.(png|json)|colossus\/(fist|forearm|upperarm)16\.png|warden\/\w+16\.png|bg\/(far|cloister|spires)\.png|palette\.json)$/.test(p)) files.push(p); } })('assets/side');
+(function add(dir){ for (const n of readdirSync(join(root, dir))){ const p = join(dir, n); if (statSync(join(root, p)).isDirectory()) add(p); else if (/^assets\/side\/(px_[a-z]+\/.*\.(png|json)|mask_tall_c\/.*\.(png|json)|colossus\/(fist|forearm|upperarm)16\.png|warden\/\w+16\.png|toll\/\w+\.png|wyrm\/\w+\.png|bg\/(far|cloister|spires)\.png|palette\.json)$/.test(p)) files.push(p); } })('assets/side');
 // every file goes under a folder named for this build, and the page's <base> points there: a new build never
 // picks up an old build's cached scripts or pictures (the viewer caches files by name)
 const BUILD = process.env.BUILD || ('b' + Date.now().toString(36));

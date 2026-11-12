@@ -1,0 +1,33 @@
+{
+ "name": "px_gargoyle",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 40,
+   "h": 40,
+   "foot": 37,
+   "cx": 19.5,
+   "footLast": 37,
+   "cxLast": 19.5
+  },
+  "fly": {
+   "frames": 9,
+   "w": 48,
+   "h": 48,
+   "foot": 41,
+   "cx": 23.5,
+   "footLast": 41,
+   "cxLast": 22.0
+  },
+  "dive": {
+   "frames": 9,
+   "w": 48,
+   "h": 48,
+   "foot": 41,
+   "cx": 23.5,
+   "footLast": 41,
+   "cxLast": 24.0
+  }
+ }
+}

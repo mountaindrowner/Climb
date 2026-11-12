@@ -600,6 +600,11 @@
     "action": "landing from a high jump: he drops onto the ground on both feet, his knees bending deep and his body sinking into a low crouch with one hand near the ground to absorb the impact, the scarf and coat settling, then he rises back up to standing",
     "frames": 8,
     "group": "012ffe4b-e287-4e67-a036-f4eddc3d6cee"
+   },
+   "getup": {
+    "action": "template:getting-up",
+    "frames": 8,
+    "group": "f5c4f51d-9a41-44bf-ac94-03f70d5e7299"
    }
   }
  },
@@ -607,5 +612,101 @@
   "id": "ce94fca7-c58b-4ae5-9de2-ca5bfd8b1316",
   "description": "a tall lean masked swordsman whose face is hidden behind a white skull mask with dark eye holes, a red scarf, dark armor, long legs, a curved sword, gothic action game proportions, simple stylized chunky pixel art with few colors and bold shapes, seen from the side, 2D platformer hero",
   "anims": {}
+ },
+ "px_acolyte": {
+  "id": "7888ed3b-dfa5-4adb-a813-4e2f01356ff7",
+  "description": "a hunched hooded monk in a tattered dark red robe, face hidden in the hood with two glowing orange eyes, holding a heavy iron mace, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "walk": {
+    "action": "shuffling forward, hunched, robe swaying",
+    "frames": 8,
+    "group": "ffe1e3aa-16a8-4057-8799-228b6ca83f50"
+   },
+   "attack": {
+    "action": "raising the mace high overhead with both arms, then smashing it down hard in front, body bending forward",
+    "frames": 8,
+    "group": "1aed0d24-c120-4860-8e55-c0abec9cdd13"
+   }
+  }
+ },
+ "px_gargoyle": {
+  "id": "13504bfb-78b2-43fa-bc16-cd2aa2890591",
+  "description": "a small grey stone gargoyle with bat wings, two horns and glowing orange eyes, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "fly": {
+    "action": "flapping its stone wings heavily, bobbing in the air",
+    "frames": 8,
+    "group": "4b20d08c-cd32-4d08-bbae-01584332b502"
+   },
+   "dive": {
+    "action": "folding its wings and diving forward claws first",
+    "frames": 8,
+    "group": "50f667e7-494f-4ff6-927e-f71b2ac944e7"
+   }
+  }
+ },
+ "px_wisp": {
+  "id": "acba3307-3ec9-4f34-b827-237957066bd1",
+  "description": "a floating iron lantern with a burning skull made of orange flame inside it, trailing embers, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "float": {
+    "action": "hovering, the flame inside flickering and swaying",
+    "frames": 8,
+    "group": "29053bc3-1cdc-4c16-ba4b-5119a5e741a4"
+   },
+   "cast": {
+    "action": "the flame flaring up bright and big, then spitting a fireball forward",
+    "frames": 8,
+    "group": "3095b9b5-042a-425e-bd93-82f6a44c4380"
+   }
+  }
+ },
+ "px_yeti": {
+  "id": "7b47223c-8e39-4e36-aa65-21048d01fa44",
+  "description": "a stout shaggy white-furred mountain ape with big arms, small blue horns and an icy blue face, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "walk": {
+    "action": "lumbering forward on its legs, big arms swinging",
+    "frames": 8,
+    "group": "e38344f5-08c1-4c43-b7c3-a6d87bbe5eb0"
+   },
+   "throw": {
+    "action": "lifting a chunk of ice overhead with both arms, leaning back, then hurling it forward",
+    "frames": 8,
+    "group": "88dc4daf-364c-4eb9-972c-5288417ae1f0"
+   }
+  }
+ },
+ "px_harpy": {
+  "id": "5ecfe97c-9193-439c-a293-7d2a29f1fe33",
+  "description": "a snow-white hawk with wide wings, sharp talons and glowing cyan eyes, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "fly": {
+    "action": "flapping its wide wings, gliding in the air",
+    "frames": 8,
+    "group": "ef69a867-247b-49ac-aa24-5ce172ce1a4b"
+   },
+   "dive": {
+    "action": "tucking its wings and diving forward talons first",
+    "frames": 8,
+    "group": "5ae1b236-eb71-47c3-a2ce-221f4a51b7ee"
+   }
+  }
+ },
+ "px_wraith": {
+  "id": "6f3e27a1-94d0-42d9-bdc9-12deb8c42906",
+  "description": "a floating frost wraith, a tattered pale blue cloak with no legs, an ice skull face with glowing cyan eyes and long ice claws, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "float": {
+    "action": "drifting in the air, cloak billowing",
+    "frames": 8,
+    "group": "c5a875f9-d53b-478f-9f0d-b601d2817df7"
+   },
+   "slash": {
+    "action": "rearing back then lunging forward and slashing with both claws",
+    "frames": 8,
+    "group": "d1128bb5-6e6d-47f3-b1d0-04eea3277212"
+   }
+  }
  }
 }

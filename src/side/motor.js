@@ -13,7 +13,9 @@ const MV = TUNE.move;
 // the side view's warrior is drawn tall and lean (gothic action proportions, ~40 pixels): his body is taller than the
 // climb's, and his jumps and run scale with him so they keep the same feel against his height
 export const BODY = { hw: 0.34, stand: 2.4, crouch: 1.4, roll: 1.25 };
-export const SCALE = { jump: 1.3, run: 1.1 };
+// against the climb's tuning (TUNE.move, shared with the 3D game): he jumps higher and runs faster for his height, and
+// rises and falls quicker (grav), so the same arc takes less time: a snappier jump, not a floatier one
+export const SCALE = { jump: 1.48, run: 1.38, grav: 1.22 };
 const MANTLE = 2.6, STEP = T + 0.02;
 
 // ---- tiles under, beside and over a box
@@ -37,7 +39,7 @@ const gravEase = (t, ease) => !FEEL.launch || !ease ? 1 : MV.launch.at + (1 - MV
 function launchSpeed(height, ease){
   const key = height + '|' + ease + '|' + FEEL.launch;
   if (V0.has(key)) return V0.get(key);
-  const rise = v0 => { let v = v0, y = 0, t = 0; const h = 1 / 480; while (v > 0){ let g = MV.gravityUp * gravEase(t, ease); if (Math.abs(v) < MV.apexBand) g *= MV.apexMul; v -= g * h; y += v * h; t += h; } return y; };
+  const rise = v0 => { let v = v0, y = 0, t = 0; const h = 1 / 480; while (v > 0){ let g = (MV.gravityUp * SCALE.grav) * gravEase(t, ease); if (Math.abs(v) < MV.apexBand) g *= MV.apexMul; v -= g * h; y += v * h; t += h; } return y; };
   let lo = 0, hi = 30; for (let i = 0; i < 40; i++){ const m = (lo + hi) / 2; if (rise(m) < height) lo = m; else hi = m; }
   V0.set(key, hi); return hi;
 }
@@ -165,7 +167,7 @@ export function stepPlayer(P, dt){
   if (!P.grounded){
     if (P.dive){ P.vy = -MV.dive.speed; P.dive.t += dt; }
     else {
-      let g = P.vy > 0 ? MV.gravityUp * gravEase(P.jumpT, P.launch) : MV.gravityDown;
+      let g = P.vy > 0 ? (MV.gravityUp * SCALE.grav) * gravEase(P.jumpT, P.launch) : (MV.gravityDown * SCALE.grav);
       if (H.jump && Math.abs(P.vy) < MV.apexBand) g *= MV.apexMul;
       if (!H.jump && P.vy > 0 && P.jumpT > MV.minHop) P.vy *= Math.pow(MV.cutMul, dt * 20);
       P.vy = Math.max(-MV.maxFall, P.vy - g * dt);
@@ -254,12 +256,12 @@ function landed(P){
 // drawing; hitEnd where a long cut stops): the wind-up plays up to that frame, the cut lands on it, the follow-through
 // plays out the rest
 export const BLADE = { name: 'Curved blade', reach: 1.9, combo: [
-  { dmg: 1, wind: 0.26, active: 0.1, rec: 0.36, lunge: 0.8, anim: 'atk_slam_v3', hit: 7 / 11 },
-  { dmg: 1, wind: 0.28, active: 0.1, rec: 0.36, lunge: 0.9, anim: 'atk_slam_px', hit: 9 / 13 },
-  { dmg: 2, wind: 0.1, active: 0.3, rec: 0.36, lunge: 1.1, anim: 'atk_spin_px', hit: 2 / 13, hitEnd: 10 / 13 },   // the cut lasts the whole turn
-], rise: { dmg: 2, wind: 0.34, active: 0.1, rec: 0.4, lunge: 0.4, anim: 'atk_rise_px', hit: 9 / 13 },
+  { dmg: 1, wind: 0.21, active: 0.09, rec: 0.3, lunge: 0.8, anim: 'atk_slam_v3', hit: 7 / 11 },
+  { dmg: 1, wind: 0.23, active: 0.09, rec: 0.3, lunge: 0.9, anim: 'atk_slam_px', hit: 9 / 13 },
+  { dmg: 2, wind: 0.09, active: 0.26, rec: 0.3, lunge: 1.1, anim: 'atk_spin_px', hit: 2 / 13, hitEnd: 10 / 13 },   // the cut lasts the whole turn
+], rise: { dmg: 2, wind: 0.28, active: 0.09, rec: 0.33, lunge: 0.4, anim: 'atk_rise_px', hit: 9 / 13 },
   // out of a roll: he is driven forward (dash, units a second) through the wind-up and the cut, then skids out of it
-  dash: { dmg: 2, wind: 0.18, active: 0.08, rec: 0.34, lunge: 0, dash: 11, anim: 'atk_dash_px', hit: 7 / 13, hitEnd: 8 / 13 } };
+  dash: { dmg: 2, wind: 0.15, active: 0.08, rec: 0.28, lunge: 0, dash: 11, anim: 'atk_dash_px', hit: 7 / 13, hitEnd: 8 / 13 } };
 export const weaponOf = P => P.weapon === 'blade' ? BLADE : WEAPONS[P.weapon];
 export const swingOf = (P, A) => A.special ? weaponOf(P)[A.special] : weaponOf(P).combo[A.i];
 export const SIDE = { fallSafe: 9 };   // a metroidvania's shafts are deep: only a long drop hurts

@@ -326,6 +326,15 @@
    "footLast": 48,
    "cxLast": 28.0
   },
+  "getup": {
+   "frames": 5,
+   "w": 44,
+   "h": 44,
+   "foot": 40,
+   "cx": 23.5,
+   "footLast": 37,
+   "cxLast": 27.5
+  },
   "attack3": {
    "frames": 7,
    "w": 56,

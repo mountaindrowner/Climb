@@ -12,10 +12,13 @@ import { makeRenderer, makeSprite, VIEW_H } from './render.js';
 import { spawnFx, stepFx } from './fx.js';
 import { spawnEnemies, stepEnemies, strikeEnemies, slamEnemies } from './enemies.js';
 import { makeWarden } from './boss.js';
+import { makeToll } from './toll.js';
+import { makeWyrm } from './wyrm.js';
+import { makeStory, REGION_SPAN } from './story.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'side 11 · the ledge climb, set on the ledge';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'side 12 · the whole mountain';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -27,14 +30,17 @@ const HEROES = { masked: 'mask_tall_c', a: 'px_knight', b: 'px_hood', c: 'px_mas
 const loadHero = name => fetch(`assets/side/${name}/sprite.json`).then(r => r.ok ? r.json() : Promise.reject()).then(meta => { hero.meta = meta; hero.name = name; hero.sprite = makeSprite(R.scene, `assets/side/${name}`, meta); });
 loadHero(HERO).catch(() => loadHero('hero_a')).catch(() => loadHero('hero'));
 // what a region has in it: made by setup, again each time he comes into one
-let fx, E, BOSS, SHRINE, MAP;
+let fx, E, BOSS, SHRINES, MAP;
 let CHECK = null, BANNER = null, WON = false, DEATH = 0;
 const SUB = ['the bottom of the mountain', 'a house of stone over the Warden\'s hall', 'the open air, and the peak'];
+const CARD = ['', 'The Roots are below him. The climb goes on.', 'Out of the stone, into the open air.'];   // what the card says, coming up into a region
+// how far he has got is kept, so the climb can be taken up again
+const SAVE = { get(){ try { return JSON.parse(localStorage.getItem('climb-side') || 'null'); } catch (e){ return null; } }, set(v){ try { if (v) localStorage.setItem('climb-side', JSON.stringify(v)); else localStorage.removeItem('climb-side'); } catch (e){} } };
+let WAKE = 0;   // at the very start he lies where he fell, and gets up
 function setup(){
-  fx = spawnFx(R.scene); E = spawnEnemies(R.scene); BOSS = makeWarden(R.scene, R);
+  fx = spawnFx(R.scene); E = spawnEnemies(R.scene); BOSS = [makeWarden, makeToll, makeWyrm][LEVEL.index](R.scene, R);   // each region's keeper
   // the shrine: it fills the flask and the hearts, and is where he wakes after a death
-  SHRINE = (m => m && { x: (m.x + 0.5) * T, y: m.y * T })(LEVEL.marks.find(m => m.type === 'shrine'));
-  if (SHRINE) SHRINE.room = roomAt(SHRINE.x, SHRINE.y + 0.5);
+  SHRINES = LEVEL.marks.filter(m => m.type === 'shrine').map(m => { const x = (m.x + 0.5) * T, y = m.y * T; return { x, y, room: roomAt(x, y + 0.5) }; });
   CHECK = null; WON = false; DEATH = 0;
   if (!BOSS) for (const x of R.exits) x.set(true);   // nothing guards the way on
   // the map: the region drawn a pixel a tile, each room shown once he has been in it
@@ -51,11 +57,11 @@ function enter(n){
   FX2.ghosts.length = 0; setup();
   const s = spawnPoint(), old = P; P = newPlayer(s.x, s.y); P.hp = Math.max(1, old.hp); P.flask = old.flask;
   CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0;
-  banner(LEVEL.name, SUB[LEVEL.index] || '', 4); marks();
+  banner(LEVEL.name, SUB[LEVEL.index] || '', 4); marks(); SAVE.set({ level: LEVEL.index });
 }
 // going up: the picture goes dark, the next region is made, it comes back
-const GO = { to: -1, t: 0, st: '' };
-const go = n => { if (!GO.st){ GO.to = n; GO.t = 0; GO.st = 'out'; } };
+const GO = { to: -1, t: 0, st: '', from: -1 };
+const go = n => { if (!GO.st){ GO.to = n; GO.from = LEVEL.index; GO.t = 0; GO.st = 'out'; } };
 // the regions' buttons
 const PICK = document.createElement('div');
 PICK.style.cssText = 'position:absolute;left:18px;top:60px;display:flex;gap:6px;z-index:6;font:600 12px "Pixelify Sans",sans-serif';
@@ -64,6 +70,29 @@ LEVELS.forEach((l, n) => { const b = document.createElement('button'); b.textCon
   b.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); if (n !== LEVEL.index) go(n); b.blur(); }); PICK.appendChild(b); });
 (document.getElementById('stage') || document.body).appendChild(PICK);
 const marks = () => { for (const b of PICK.children) b.style.borderColor = +b.dataset.n === LEVEL.index ? '#ffd27a' : 'rgba(140,210,255,0.35)'; };
+// ---- the story's screens (story.js) and the title's buttons
+const STORY = makeStory(hud, `assets/side/${HERO}`);
+const MENU = document.createElement('div');
+MENU.style.cssText = 'position:absolute;left:0;right:0;top:56%;display:none;flex-direction:column;align-items:center;gap:10px;z-index:7;font:600 18px "Pixelify Sans",sans-serif';
+(document.getElementById('stage') || document.body).appendChild(MENU);
+const menuButton = (text, fn, small) => { const b = document.createElement('button'); b.textContent = text;
+  b.style.cssText = `background:rgba(10,8,20,0.75);color:#fff2d0;border:1px solid ${small ? 'rgba(140,210,255,0.35)' : '#ffd27a'};border-radius:4px;padding:${small ? '5px 12px' : '9px 22px'};cursor:pointer;font:inherit;font-size:${small ? 13 : 18}px;min-width:${small ? 0 : 220}px`;
+  b.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); ac(); fn(); }); return b; };
+function begin(){   // from the start: the fall, then he gets up at the bottom
+  MENU.style.display = 'none'; SAVE.set(null); if (LEVEL.index !== 0) enter(0); else { const s = spawnPoint(); P = newPlayer(s.x, s.y); }
+  STORY.start('intro', {}, () => { WAKE = 1.7; banner(LEVEL.name, SUB[0], 4); SAVE.set({ level: 0 }); });
+}
+function resume(n){ MENU.style.display = 'none'; STORY.kind = null; if (LEVEL.index !== n) enter(n); else banner(LEVEL.name, SUB[n] || '', 4); }
+function title(){
+  const sv = SAVE.get(); MENU.innerHTML = ''; MENU.style.display = 'flex';
+  if (sv && sv.level > 0 && sv.level < LEVELS.length) MENU.appendChild(menuButton('Climb on: ' + LEVELS[sv.level].name, () => resume(sv.level)));
+  MENU.appendChild(menuButton(sv && sv.level > 0 ? 'Begin again' : 'Begin the climb', begin, !!(sv && sv.level > 0)));
+  const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:8px;margin-top:6px'; LEVELS.forEach((l, n) => row.appendChild(menuButton(`${n + 1} ${l.name.replace('The ', '')}`, () => resume(n), true))); MENU.appendChild(row);
+  STORY.start('title');
+}
+addEventListener('keydown', e => { if (!STORY.active()) return; if (STORY.kind === 'title'){ if (e.code === 'Enter' || e.code === 'Space'){ const b = MENU.querySelector('button'); if (b) b.dispatchEvent(new PointerEvent('pointerdown')); } } else STORY.press(); });
+addEventListener('pointerdown', () => { if (STORY.active()) STORY.press(); });
+function hudBegin(){ const w = hud.clientWidth, h = hud.clientHeight, dpr = devicePixelRatio || 1; if (hud.width !== Math.round(w * dpr)){ hud.width = Math.round(w * dpr); hud.height = Math.round(h * dpr); } hx.setTransform(dpr, 0, 0, dpr, 0, 0); hx.clearRect(0, 0, w, h); }
 const banner = (a, b, t = 3.2) => { BANNER = { a, b, t, life: t }; };
 const FEEL_FX = { hitstop: 0, shake: 0, kick: 0 };
 const FX2 = { ghosts: [], ghostT: 0, runDust: 0 };   // the dash's afterimages; the run's dust
@@ -74,7 +103,8 @@ HOOKS.aim = P => {
   return !ahead && behind ? -P.face : 0;
 };
 const CAM = { x: sp.x, y: sp.y + 2, lead: 0, zoom: 1 };
-bindInput(); marks(); banner(LEVEL.name, SUB[LEVEL.index] || '', 4);
+bindInput(); marks();
+if (/[?&](level|play)\b/.test(location.search)) banner(LEVEL.name, SUB[LEVEL.index] || '', 4); else title();   // straight in with ?level=2 or ?play
 
 // the drawings the masked warrior uses for these moves, where he has them
 const MOVES = { roll: ['roll2_px', 'roll_px', 'roll'], flip: ['flip_px'], climb: ['climb_px', 'climb_v3'], land: ['land_px', 'land_v3'] };
@@ -91,6 +121,7 @@ let landT = 0;
 // which of his animations, and how far into it (and, for a climb, to place it by where it ends)
 function heroPose(P, t){
   const A = hero.meta ? hero.meta.anims : {}, has = n => !!A[n], pick = k => MOVES[k].find(has);
+  if (WAKE > 0 && has('getup')) return ['getup', Math.min(0.999, Math.max(0, 1 - WAKE / 1.4))];   // where he fell: up off the ground
   if (P.mantle && pick('climb')){
     const name = pick('climb'), C = CLIMB[name], M = P.mantle;
     if (C && M.wall != null){
@@ -132,11 +163,14 @@ function frame(ts){
   const now = ts / 1000; let dt = last ? Math.min(0.05, now - last) : 1 / 60; last = now;
   if (CAPTURE.on){ if (CAPTURE.left <= 0){ requestAnimationFrame(frame); return; } CAPTURE.left--; dt = CAPTURE.dt; }
   pollPads();
+  PICK.style.display = STORY.active() ? 'none' : 'flex';
+  if (STORY.active() && !GO.st){ hudBegin(); STORY.draw(dt); endFrame(); requestAnimationFrame(frame); return; }   // a story screen is up: the world waits
+  if (WAKE > 0) WAKE -= dt;
   // hit-stop: a hit freezes the world a few frames (the effects keep running)
   let sdt = dt; if (FEEL_FX.hitstop > 0){ FEEL_FX.hitstop -= dt; sdt = dt * 0.06; }
   acc += sdt; time += dt;
   const h = 1 / 120;
-  while (acc >= h){ const x0 = P.x; if (DEATH <= 0 && !GO.st) stepPlayer(P, h); P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
+  while (acc >= h){ const x0 = P.x; if (DEATH <= 0 && !GO.st && WAKE <= 0) stepPlayer(P, h); P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
   endFrame();
   const evs = [];
   stepEnemies(E, P, sdt, fx, evs);
@@ -147,19 +181,21 @@ function frame(ts){
   // a death: a beat to see it, then he wakes at the shrine (or the start) and the Warden waits again
   if (P.hp <= 0 && DEATH <= 0){ DEATH = 1.6; P.vx = 0; fx.burst({ x: P.x, y: P.y + 0.9 }, 30, 0xff5060); FEEL_FX.hitstop = 0.2; banner('You fell', '', 1.6); }
   if (DEATH > 0){ DEATH -= dt; if (DEATH <= 0){ const s = CHECK || spawnPoint(); P = newPlayer(s.x, s.y); if (BOSS) BOSS.reset(); banner(CHECK ? 'You wake at the shrine' : 'You wake', '', 2); } }
-  if (SHRINE && Math.abs(P.x - SHRINE.x) < 1.1 && Math.abs(P.y - SHRINE.y) < 1.5 && (!CHECK || P.flask < TUNE.player.flask || P.hp < P.maxHp)){
-    const first = !CHECK; CHECK = { x: SHRINE.x, y: SHRINE.y }; P.flask = TUNE.player.flask; P.hp = P.maxHp; sfx.drink(); fx.ring({ x: SHRINE.x, y: SHRINE.y + 1 }, 0xffd27a);
+  for (const S of SHRINES) if (Math.abs(P.x - S.x) < 1.1 && Math.abs(P.y - S.y) < 1.5 && P.hp > 0 && (CHECK !== S || P.flask < TUNE.player.flask || P.hp < P.maxHp)){
+    const first = CHECK !== S; CHECK = S; P.flask = TUNE.player.flask; P.hp = P.maxHp; sfx.drink(); fx.ring({ x: S.x, y: S.y + 1 }, 0xffd27a);
     if (first) banner('Shrine', 'your flask is full; you will wake here');
   }
   if ((!BOSS || BOSS.st === 'dead') && !WON && R.exits.some(x => Math.abs(P.x - x.x) < 1 && Math.abs(P.y - x.y) < 1.5)){
     WON = true; sfx.gold();
-    if (LEVEL.index < LEVELS.length - 1) go(LEVEL.index + 1); else banner('The summit', 'the climb goes on — to be continued', 6);
+    if (LEVEL.index < LEVELS.length - 1) go(LEVEL.index + 1); else { SAVE.set(null); STORY.start('ending', {}, title); }   // the beacon: the end of the climb
   }
   if (GO.st){
     GO.t += dt;
     if (GO.st === 'out' && GO.t > 0.6){ GO.st = 'load'; GO.t = 0; }                 // a frame fully dark before the work
-    else if (GO.st === 'load' && GO.t > 0.05){ enter(GO.to); GO.st = 'in'; GO.t = 0; acc = 0; }
+    else if (GO.st === 'load' && GO.t > 0.05){ const up = GO.to === GO.from + 1; enter(GO.to); acc = 0; GO.t = 0;
+      if (up){ GO.st = 'card'; STORY.start('card', { from: GO.from, to: GO.to, name: LEVEL.name, line: CARD[GO.to] || '' }, () => { GO.st = 'in'; GO.t = 0; }); } else GO.st = 'in'; }   // going up: the card shows the mountain and where he is on it
     else if (GO.st === 'in' && GO.t > 0.7) GO.st = '';
+    if (GO.st === 'card'){ hudBegin(); STORY.draw(dt); endFrame(); requestAnimationFrame(frame); return; }
   }
   // camera
   // in the Warden's arena the camera draws back to show the whole fight, and keeps inside the arena
@@ -234,21 +270,22 @@ function onEvent(e){
     case 'mantle': sfx.whoosh(); break;
     case 'hurt': sfx.hurt(); fx.burst({ x: P.x, y: P.y + 1.3 }, 10, 0xff6060); break;
     case 'skid': fx.kick(at, Math.sign(P.vx) || P.face, 6, 2.2); break;
-    case 'bossWake': sfx.roar(); FEEL_FX.shake = 0.5; banner('The Warden', 'strike its fists when they rest'); break;
+    case 'bossWake': sfx.roar(); FEEL_FX.shake = 0.5; banner(BOSS.name, BOSS.hint); break;
+    case 'bossToll': sfx.parry(); sfx.rumble(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.2); break;
     case 'bossTell': sfx.creak(); break;
     case 'bossSlam': sfx.impact(true); sfx.slam(); fx.dust(e.at, e.soft ? 10 : 26, 4); if (!e.soft) fx.ring(e.at, 0xffd27a); FEEL_FX.shake = Math.max(FEEL_FX.shake, e.soft ? 0.18 : 0.42); break;
     case 'bossSweep': sfx.rumble(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.15); break;
     case 'rockLand': sfx.crack(); fx.dust(e.at, 8, 2); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.1); break;
-    case 'bossPhase': sfx.roar(); FEEL_FX.shake = 0.6; banner('The Warden rages', 'the roof is coming down'); break;
+    case 'bossPhase': sfx.roar(); FEEL_FX.shake = 0.6; banner(BOSS.name + ' rages', BOSS.rage); break;
     case 'bossDie': sfx.roar(); FEEL_FX.hitstop = 0.3; FEEL_FX.shake = 0.8; break;
-    case 'bossDead': for (const x of R.exits) x.set(true); sfx.gold(); banner('The Warden falls', 'the way up is open'); break;
+    case 'bossDead': for (const x of R.exits) x.set(true); sfx.gold(); banner(BOSS.name + ' falls', BOSS.fell); break;
     case 'flask': if (P.flask > 0 && P.hp < P.maxHp){ P.flask--; P.hp = Math.min(P.maxHp, P.hp + TUNE.player.flaskHeal); sfx.drink(); fx.ring({ x: P.x, y: P.y + 0.8 }, 0x5ce1c6); } break;
   }
 }
 function drawHud(dt){
   const w = hud.clientWidth, h = hud.clientHeight, dpr = devicePixelRatio || 1;
   if (hud.width !== Math.round(w * dpr)){ hud.width = Math.round(w * dpr); hud.height = Math.round(h * dpr); }
-  hx.setTransform(dpr, 0, 0, dpr, 0, 0); hx.clearRect(0, 0, w, h);
+  hudBegin();
   hx.shadowColor = 'rgba(8,6,14,0.85)'; hx.shadowOffsetX = hx.shadowOffsetY = 1.5 * dpr; hx.shadowBlur = 0;   // read over a bright sky as over a dark cave
   for (let i = 0; i < P.maxHp; i++){ hx.fillStyle = i < P.hp ? '#ff4d6a' : '#3a2433'; hx.fillRect(18 + i * 22, 16, 16, 16); hx.strokeStyle = '#0b0710'; hx.lineWidth = 2; hx.strokeRect(18 + i * 22, 16, 16, 16); }
   // a red ! over a creature winding up
@@ -283,9 +320,17 @@ function drawHud(dt){
     for (const r of MAP.seen){ const sx = r.x0 / T, sy = LEVEL.H - r.y1 / T, sw = (r.x1 - r.x0) / T, sh = (r.y1 - r.y0) / T; hx.globalAlpha = r === room ? 1 : 0.7; hx.drawImage(MAP.c, sx, sy, sw, sh, mx + sx * k, my + sy * k, sw * k, sh * k); }
     hx.globalAlpha = 1;
     const dot = (x, y, c, r = 2) => { hx.fillStyle = c; hx.fillRect(mx + x / T * k - r, my + (LEVEL.H - y / T) * k - r, r * 2, r * 2); };
-    if (SHRINE && MAP.seen.has(SHRINE.room)) dot(SHRINE.x, SHRINE.y + 0.5, '#ffd27a');
+    for (const S of SHRINES) if (MAP.seen.has(S.room)) dot(S.x, S.y + 0.5, '#ffd27a');
     if (BOSS && [...MAP.seen].some(r => r.name === 'arena')) dot(BOSS.cx, BOSS.stageY + 1, BOSS.st === 'dead' ? '#7a8090' : '#ff5a4a', 3);
     if (Math.floor(time * 3) % 2 === 0) dot(P.x, P.y + 0.8, '#ffffff');
+  }
+  {
+    // how high on the mountain: the three regions one over the other, a mark where he is
+    const k = h < 520 ? 0.5 : 0.8, gx = w - 16 - 6, gy = 16 + LEVEL.H * k + 18, gh = Math.min(150, h * 0.3), span = REGION_SPAN[LEVEL.index], f = span[0] + (span[1] - span[0]) * Math.max(0, Math.min(1, P.y / (LEVEL.H * T)));
+    hx.fillStyle = 'rgba(6,8,20,0.85)'; hx.fillRect(gx - 3, gy - 3, 12, gh + 6);
+    [['#2a7aa8', 0], ['#b86f50', 1], ['#c0cbdc', 2]].forEach(([c, n]) => { const a = REGION_SPAN[n]; hx.globalAlpha = n === LEVEL.index ? 1 : 0.45; hx.fillStyle = c; hx.fillRect(gx, gy + gh * (1 - a[1]), 6, gh * (a[1] - a[0]) - 1); }); hx.globalAlpha = 1;
+    hx.fillStyle = '#fee761'; hx.fillRect(gx - 4, gy + gh * (1 - f) - 2, 14, 4); hx.fillStyle = '#ffffff'; hx.fillRect(gx - 4, gy + gh * (1 - f) - 1, 14, 2);
+    hx.fillStyle = '#cfe6ff'; hx.font = '600 11px "Pixelify Sans", sans-serif'; hx.textAlign = 'right'; hx.fillText(Math.round(f * 1000) + ' m', gx - 8, gy + gh * (1 - f) + 4); hx.fillText('summit', gx - 8, gy + 6); hx.textAlign = 'left';
   }
   hx.font = '600 14px "Pixelify Sans", sans-serif'; hx.fillStyle = '#cfe6ff'; hx.fillText(LEVEL.name + (room ? ' · ' + room.name : ''), 18, 52);
   hx.fillStyle = 'rgba(207,230,255,0.6)'; hx.font = '400 12px "Pixelify Sans", sans-serif';
@@ -295,7 +340,7 @@ function drawHud(dt){
   if (GO.st){ hx.fillStyle = `rgba(8,6,14,${GO.st === 'out' ? Math.min(1, GO.t / 0.6) : GO.st === 'in' ? Math.max(0, 1 - GO.t / 0.7) : 1})`; hx.fillRect(0, 0, w, h); }   // going up: dark between regions
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, TUNE.player.flask - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter };
+window.__side = { get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

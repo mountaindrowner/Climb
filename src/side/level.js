@@ -133,7 +133,7 @@ function undercroft(){
   const r = room(); walls(r); door(r, 'right', 2, 7);
   rect(r, 13, 2, 17, 4); rect(r, 25, 2, 29, 4);                   // tombs: hop them
   ledge(r, 19, 23, 8);
-  mark(r, 'spawn', 6, 2); mark(r, 'torch', 4, 7); mark(r, 'torch', 21, 12); mark(r, 'torch', 35, 9); mark(r, 'crystal', 15, 5); mark(r, 'crystal', 27, 5); mark(r, 'crawler', 33, 2);
+  mark(r, 'spawn', 6, 2); mark(r, 'torch', 4, 7); mark(r, 'torch', 21, 12); mark(r, 'torch', 35, 9); mark(r, 'crystal', 15, 5); mark(r, 'crystal', 27, 5); mark(r, 'acolyte', 33, 2);
   return r;
 }
 function nave(){
@@ -141,16 +141,16 @@ function nave(){
   for (const x of [18, 50]){ rect(r, x, 0, x + 5, 1, EMPTY); rect(r, x, 0, x + 5, 0, SPIKES); }   // two pits
   ledge(r, 8, 15, 6); ledge(r, 26, 34, 6); ledge(r, 36, 44, 10); ledge(r, 56, 64, 6); ledge(r, 66, 73, 10);   // the galleries
   rect(r, 38, 2, 41, 3);                                          // a plinth mid-hall
-  mark(r, 'crawler', 30, 2); mark(r, 'crawler', 62, 2); mark(r, 'spitter', 40, 11); mark(r, 'flitter', 22, 13); mark(r, 'flitter', 58, 14);
+  mark(r, 'acolyte', 30, 2); mark(r, 'acolyte', 62, 2); mark(r, 'wisp', 40, 11); mark(r, 'gargoyle', 22, 13); mark(r, 'gargoyle', 58, 14); mark(r, 'crawler', 70, 2);
   mark(r, 'torch', 5, 8); mark(r, 'torch', 28, 12); mark(r, 'torch', 46, 6); mark(r, 'torch', 60, 12); mark(r, 'torch', 75, 8); mark(r, 'crystal', 11, 7); mark(r, 'crystal', 70, 11); mark(r, 'crystal', 34, 2);
   return r;
 }
-// three screens tall: ledges up past a door to the library, to a door onto the cloister walk; the bell hangs above
+// three screens tall: ledges up past a door to the library, to a door onto the cloister walk; the bell's rope hangs above
 function belfry(){
   const r = room(1, 3); walls(r); door(r, 'left', 2, 7); door(r, 'left', 25, 30); door(r, 'left', 48, 53);
   [[24, 32, 5], [10, 18, 9], [22, 30, 13], [30, 37, 17], [16, 24, 21], [2, 10, 24], [14, 22, 28], [26, 34, 32], [30, 37, 36], [18, 26, 40], [8, 16, 44], [2, 10, 47], [16, 24, 51], [28, 36, 55]]
     .forEach(([a, b, y]) => ledge(r, a, b, y));
-  mark(r, 'flitter', 20, 16); mark(r, 'flitter', 12, 36); mark(r, 'spitter', 33, 37); mark(r, 'bell', 20, 64);
+  mark(r, 'gargoyle', 20, 16); mark(r, 'gargoyle', 12, 36); mark(r, 'wisp', 33, 37); mark(r, 'wisp', 6, 12); mark(r, 'bell', 20, 64);
   mark(r, 'torch', 34, 8); mark(r, 'torch', 5, 28); mark(r, 'torch', 34, 42); mark(r, 'torch', 5, 51); mark(r, 'crystal', 3, 2); mark(r, 'crystal', 34, 18); mark(r, 'crystal', 32, 56);
   return r;
 }
@@ -164,7 +164,7 @@ function library(){
 function cells(){
   const r = room(); walls(r); door(r, 'right', 2, 7); door(r, 'left', 2, 7);
   rect(r, 9, 5, 13, 20); rect(r, 19, 5, 23, 20); rect(r, 29, 5, 33, 20);   // the cell walls: crouch or roll under each
-  mark(r, 'burrower', 16, 2); mark(r, 'crawler', 26, 2); mark(r, 'torch', 5, 9); mark(r, 'torch', 16, 9); mark(r, 'torch', 26, 9); mark(r, 'torch', 36, 9); mark(r, 'crystal', 16, 2);
+  mark(r, 'burrower', 16, 2); mark(r, 'acolyte', 26, 2); mark(r, 'torch', 5, 9); mark(r, 'torch', 16, 9); mark(r, 'torch', 26, 9); mark(r, 'torch', 36, 9); mark(r, 'crystal', 16, 2);
   return r;
 }
 function stairwell(){
@@ -172,33 +172,35 @@ function stairwell(){
   stairs(r, 30, 2, 10, -1, 2); rect(r, 2, 2, 10, 11);            // the long stair up to a landing against the wall
   ledge(r, 13, 19, 15); ledge(r, 22, 29, 18); ledge(r, 31, 37, 21); ledge(r, 30, 37, 24);   // and on up to the walk
   rect(r, 2, 30, 14, 43);                                         // the wall closes in over the landing
-  mark(r, 'spitter', 6, 12); mark(r, 'flitter', 24, 30); mark(r, 'torch', 35, 9); mark(r, 'torch', 16, 12); mark(r, 'torch', 20, 26); mark(r, 'torch', 35, 34); mark(r, 'crystal', 4, 12); mark(r, 'crystal', 25, 19);
+  mark(r, 'wisp', 26, 12); mark(r, 'gargoyle', 24, 30); mark(r, 'acolyte', 6, 12); mark(r, 'torch', 35, 9); mark(r, 'torch', 16, 12); mark(r, 'torch', 20, 26); mark(r, 'torch', 35, 34); mark(r, 'crystal', 4, 12); mark(r, 'crystal', 25, 19);
   return r;
 }
 function cloister(){
-  const r = room(2, 1); walls(r); door(r, 'left', 2, 7); door(r, 'right', 2, 7); door(r, 'top', 36, 42);
-  for (const x of [14, 60]){ rect(r, x, 0, x + 5, 1, EMPTY); rect(r, x, 0, x + 5, 0, SPIKES); }
-  ledge(r, 26, 32, 5); ledge(r, 30, 35, 9); ledge(r, 34, 40, 13); ledge(r, 36, 42, 17); ledge(r, 36, 42, 21);   // up to the chapel
-  rect(r, 6, 17, 9, 20); rect(r, 50, 16, 53, 20); rect(r, 70, 17, 73, 20);   // broken vaulting
-  mark(r, 'crawler', 23, 2); mark(r, 'crawler', 52, 2); mark(r, 'flitter', 48, 12); mark(r, 'flitter', 20, 14); mark(r, 'spitter', 69, 6);
-  mark(r, 'torch', 5, 8); mark(r, 'torch', 24, 9); mark(r, 'torch', 46, 6); mark(r, 'torch', 57, 9); mark(r, 'torch', 75, 8); mark(r, 'crystal', 10, 2); mark(r, 'crystal', 46, 2); mark(r, 'crystal', 44, 12);
+  const r = room(2, 1); walls(r); door(r, 'left', 2, 7); door(r, 'right', 2, 7); door(r, 'top', 66, 72);
+  for (const x of [14, 46]){ rect(r, x, 0, x + 5, 1, EMPTY); rect(r, x, 0, x + 5, 0, SPIKES); }
+  ledge(r, 56, 62, 5); ledge(r, 60, 65, 9); ledge(r, 64, 70, 13); ledge(r, 66, 72, 17); ledge(r, 66, 72, 21);   // up to the chapel
+  rect(r, 6, 17, 9, 20); rect(r, 26, 16, 29, 20); rect(r, 44, 17, 47, 20);   // broken vaulting
+  mark(r, 'shrine', 36, 2);                                       // the last before the chapel
+  mark(r, 'acolyte', 23, 2); mark(r, 'acolyte', 54, 2); mark(r, 'gargoyle', 40, 13); mark(r, 'gargoyle', 20, 14); mark(r, 'wisp', 50, 9);
+  mark(r, 'torch', 5, 8); mark(r, 'torch', 24, 9); mark(r, 'torch', 42, 6); mark(r, 'torch', 57, 9); mark(r, 'torch', 75, 8); mark(r, 'crystal', 10, 2); mark(r, 'crystal', 76, 2); mark(r, 'crystal', 30, 2);
   return r;
 }
-// the top of the Cloister: a long chapel, creatures all through it, and the way on behind the altar
+// the top of the Cloister: the chapel, two screens high, where the Toll hangs. The way on opens when it falls
 function chapel(){
-  const r = room(2, 1); walls(r); door(r, 'bottom', 36, 42); ledge(r, 36, 42, 1);
-  stairs(r, 54, 2, 4, 1, 2); rect(r, 62, 2, 77, 5);              // steps up to the sanctuary
-  ledge(r, 8, 16, 6); ledge(r, 20, 28, 10); ledge(r, 6, 12, 14);
-  mark(r, 'exit', 72, 6); mark(r, 'crawler', 14, 2); mark(r, 'spitter', 26, 11); mark(r, 'flitter', 48, 13); mark(r, 'flitter', 30, 16); mark(r, 'burrower', 49, 2);
-  mark(r, 'torch', 5, 8); mark(r, 'torch', 32, 8); mark(r, 'torch', 46, 9); mark(r, 'torch', 64, 11); mark(r, 'torch', 76, 11); mark(r, 'crystal', 66, 6); mark(r, 'crystal', 77, 6); mark(r, 'crystal', 9, 15);
+  const r = room(2, 2); walls(r); door(r, 'bottom', 66, 72); ledge(r, 66, 72, 1);
+  ledge(r, 4, 11, 8); ledge(r, 58, 64, 8);                        // galleries at either end, out of its swing
+  mark(r, 'boss', 40, 2); mark(r, 'exit', 6, 2);
+  mark(r, 'torch', 14, 9); mark(r, 'torch', 30, 9); mark(r, 'torch', 50, 9); mark(r, 'torch', 66, 9); mark(r, 'crystal', 22, 2); mark(r, 'crystal', 56, 2);
   return r;
 }
 
 // ---- the third region: the Spires, out in the open air near the summit. Nothing is filled in here: the rock is
 // what each piece draws, the rest is sky. Caves in the mountain on the left; outside, a climb up between a needle and
-// a tower, a rope bridge back across, and the peak.
+// a tower, a rope bridge back across, a cavern of ice, the tower's teeth, a last bridge, and the summit.
 const open = (cw, ch) => { const r = room(cw, ch); r.open = true; return r; };
 function massif(){ const r = room(); rect(r, 0, 0, r.w - 1, r.h - 1); r.filler = true; return r; }   // the mountain itself
+// the mountain's brow: the rock under the ice cave, leaning out over the gap
+function brow(){ const r = room(); rect(r, 0, 13, r.w - 1, r.h - 1); rect(r, 0, 7, 27, 12); rect(r, 0, 1, 12, 6); r.filler = true; return r; }
 function mouth(){
   const r = room(); rect(r, 0, 0, r.w - 1, r.h - 1); rect(r, 2, 2, 37, 20, EMPTY); door(r, 'right', 2, 7);
   rect(r, 2, 2, 4, 3); ledge(r, 12, 18, 6);
@@ -212,31 +214,31 @@ function saddle(){
   rect(r, 10, 2, 14, 3); rect(r, 30, 2, 37, 4); rect(r, 32, 5, 35, 5);   // outcrops
   rect(r, 54, 8, 57, 22); rect(r, 66, 2, 79, 22);                 // the needle (a flake off the tower: the way in is under it), and the foot of the tower
   ledge(r, 58, 65, 5); ledge(r, 58, 61, 9); ledge(r, 62, 65, 13); ledge(r, 58, 61, 17); ledge(r, 62, 65, 21);   // up between them
-  mark(r, 'flitter', 26, 12); mark(r, 'flitter', 46, 10); mark(r, 'crawler', 40, 2); mark(r, 'burrower', 16, 2);
+  mark(r, 'harpy', 26, 12); mark(r, 'harpy', 46, 10); mark(r, 'yeti', 40, 2); mark(r, 'burrower', 16, 2);
   mark(r, 'torch', 6, 9); mark(r, 'crystal', 12, 4); mark(r, 'crystal', 33, 6); mark(r, 'crystal', 52, 2); mark(r, 'torch', 64, 8);
   return r;
 }
 function spire(){
   const r = open(1, 2);
-  rect(r, 14, 0, 17, 30); rect(r, 26, 0, 39, 34); rect(r, 36, 35, 39, 45);   // the needle; the tower; its horn
+  rect(r, 14, 0, 17, 45); rect(r, 26, 0, 39, 34); rect(r, 30, 35, 33, 45); rect(r, 36, 35, 39, 45);   // the needle; the tower; the two teeth that rise from its top
   ledge(r, 18, 21, 2); ledge(r, 22, 25, 6); ledge(r, 18, 21, 10); ledge(r, 22, 25, 14); ledge(r, 18, 21, 18); ledge(r, 22, 25, 22);
-  ledge(r, 0, 13, 24);                                            // the rope bridge leaves the needle here
+  rect(r, 14, 25, 17, 30, EMPTY); ledge(r, 0, 17, 24);            // a gap through the needle: the rope bridge leaves here
   ledge(r, 18, 21, 26); ledge(r, 22, 25, 30);                     // and on, to the top of the tower
-  mark(r, 'flitter', 8, 12); mark(r, 'flitter', 20, 28); mark(r, 'spitter', 30, 35); mark(r, 'crystal', 15, 31); mark(r, 'crystal', 33, 35); mark(r, 'torch', 12, 28);
+  mark(r, 'harpy', 8, 12); mark(r, 'harpy', 20, 40); mark(r, 'wraith', 8, 30); mark(r, 'crystal', 27, 35); mark(r, 'crystal', 34, 35); mark(r, 'torch', 12, 28);
   return r;
 }
 function nest(){
   const r = open();
   rect(r, 0, 0, 5, 22); rect(r, 6, 8, 30, 11);                    // the mountain's face; a shelf out of it, under the bridge
   ledge(r, 6, 10, 16); ledge(r, 6, 10, 20);                       // back up to the bridge
-  mark(r, 'flitter', 18, 16); mark(r, 'crystal', 26, 12); mark(r, 'crystal', 12, 12);
+  mark(r, 'harpy', 18, 16); mark(r, 'yeti', 24, 12); mark(r, 'crystal', 26, 12); mark(r, 'crystal', 12, 12);
   return r;
 }
 function ropeway(){
   const r = open();
   rect(r, 0, 0, 3, 1); rect(r, 0, 8, 2, 22);                      // the sill of the hollow's door, the face above it
   ledge(r, 4, 8, 1); ledge(r, 11, 16, 1); ledge(r, 19, 24, 1); ledge(r, 27, 32, 1); ledge(r, 35, 39, 1);   // the bridge, broken
-  mark(r, 'flitter', 14, 6); mark(r, 'flitter', 30, 8); mark(r, 'torch', 2, 4);
+  mark(r, 'harpy', 14, 6); mark(r, 'harpy', 30, 8); mark(r, 'torch', 2, 4);
   return r;
 }
 function hollow(){
@@ -251,17 +253,56 @@ function chimney(){
   ledge(r, 8, 14, 1);
   [[14, 20, 5], [22, 28, 9], [26, 32, 13], [26, 32, 17], [26, 32, 21]].forEach(([a, b, y]) => ledge(r, a, b, y));
   rect(r, 4, 14, 8, 20); rect(r, 33, 2, 37, 5);
-  mark(r, 'spitter', 35, 12); mark(r, 'flitter', 12, 12); mark(r, 'torch', 4, 7); mark(r, 'torch', 35, 18); mark(r, 'crystal', 35, 6); mark(r, 'crystal', 17, 6);
+  mark(r, 'wraith', 35, 12); mark(r, 'wraith', 10, 8); mark(r, 'torch', 4, 7); mark(r, 'torch', 35, 18); mark(r, 'crystal', 35, 6); mark(r, 'crystal', 17, 6);
   return r;
 }
-// the peak: out of the mountain's top and up its shoulder to the beacon
-function summit(){
-  const r = open(2, 1);
-  rect(r, 0, 0, 46, 1); rect(r, 26, 0, 32, 1, EMPTY); ledge(r, 26, 32, 1);   // the ground, the way up through it
-  stairs(r, 22, 2, 5, -1, 2); rect(r, 0, 2, 12, 6); rect(r, 0, 7, 2, 13);     // the shoulder of the peak, and its horn
-  rect(r, 38, 2, 41, 3); ledge(r, 34, 38, 7);
-  mark(r, 'exit', 7, 7); mark(r, 'flitter', 20, 14); mark(r, 'flitter', 36, 12); mark(r, 'spitter', 15, 10); mark(r, 'crawler', 40, 4);
-  mark(r, 'torch', 11, 9); mark(r, 'crystal', 4, 7); mark(r, 'crystal', 44, 2); mark(r, 'crystal', 36, 8);
+// a cavern of ice through the mountain, out to its far face
+function icecave(){
+  const r = room(2, 1); rect(r, 0, 0, r.w - 1, r.h - 1); rect(r, 2, 2, 77, 20, EMPTY); door(r, 'bottom', 26, 32); ledge(r, 26, 32, 1); door(r, 'right', 2, 7);
+  rect(r, 2, 2, 12, 5);                                           // a bank of ice at the back
+  for (const x of [38, 60]){ rect(r, x, 0, x + 5, 1, EMPTY); rect(r, x, 0, x + 5, 0, SPIKES); }   // pits of ice
+  rect(r, 47, 5, 55, 20);                                         // the roof comes down: crouch or roll under it
+  ledge(r, 14, 20, 6); ledge(r, 33, 37, 6); ledge(r, 64, 70, 7);
+  mark(r, 'yeti', 20, 2); mark(r, 'wraith', 34, 12); mark(r, 'wraith', 66, 12); mark(r, 'yeti', 72, 2);
+  mark(r, 'torch', 5, 9); mark(r, 'torch', 24, 10); mark(r, 'torch', 43, 9); mark(r, 'torch', 58, 10); mark(r, 'torch', 75, 10); mark(r, 'crystal', 7, 6); mark(r, 'crystal', 44, 2); mark(r, 'crystal', 67, 8); mark(r, 'crystal', 57, 2);
+  return r;
+}
+// outside again, high over the tower: its teeth to cross, and the horn to climb
+function teeth(){
+  const r = open(1, 2);
+  rect(r, 14, 0, 17, 26); rect(r, 30, 0, 33, 30); rect(r, 36, 0, 39, 45);   // the needle's tip, the middle tooth, the horn
+  rect(r, 0, 23, 3, 24); ledge(r, 7, 10, 24);                     // the sill of the ice cave's door, a plank out from it
+  ledge(r, 21, 26, 27);                                           // between the needle and the tooth
+  ledge(r, 34, 35, 33); ledge(r, 32, 35, 37); ledge(r, 32, 35, 41); ledge(r, 32, 35, 45);   // up the horn
+  mark(r, 'harpy', 22, 34); mark(r, 'harpy', 8, 32); mark(r, 'wraith', 24, 40); mark(r, 'crystal', 15, 27); mark(r, 'crystal', 31, 31); mark(r, 'torch', 2, 27);
+  return r;
+}
+// the last bridge, from the horn's tip back to the mountain
+function span(){
+  const r = open();
+  rect(r, 36, 0, 39, 12); rect(r, 0, 0, 2, 1); rect(r, 0, 8, 1, 22);   // the horn's tip; the eyrie's sill, the face over its door
+  ledge(r, 32, 35, 1); ledge(r, 23, 28, 1); ledge(r, 14, 19, 1); ledge(r, 5, 10, 1); ledge(r, 3, 4, 1);
+  mark(r, 'harpy', 12, 8); mark(r, 'harpy', 26, 10); mark(r, 'torch', 2, 4); mark(r, 'crystal', 37, 13);
+  return r;
+}
+// under the summit: a long cave, the last shrine, and the way up through its roof
+function eyrie(){
+  const r = room(2, 1); rect(r, 0, 0, r.w - 1, r.h - 1); rect(r, 2, 2, 77, 20, EMPTY); door(r, 'right', 2, 7); door(r, 'top', 36, 42);
+  rect(r, 50, 2, 62, 2); rect(r, 52, 3, 60, 3);                   // the shrine's step
+  [[20, 26, 5], [28, 34, 9], [34, 40, 13], [36, 42, 17], [36, 42, 21]].forEach(([a, b, y]) => ledge(r, a, b, y));
+  rect(r, 2, 2, 8, 4);
+  mark(r, 'shrine', 56, 4); mark(r, 'yeti', 14, 2); mark(r, 'wraith', 22, 14);
+  mark(r, 'torch', 5, 9); mark(r, 'torch', 30, 5); mark(r, 'torch', 46, 9); mark(r, 'torch', 66, 9); mark(r, 'torch', 75, 9); mark(r, 'crystal', 4, 5); mark(r, 'crystal', 70, 2); mark(r, 'crystal', 44, 2);
+  return r;
+}
+// the summit: a crown of rock under the open sky, where the Rime Wyrm keeps the peak. The beacon is lit when it falls
+function crown(){
+  const r = open(2, 2);
+  rect(r, 0, 0, 79, 1); rect(r, 36, 0, 42, 1, EMPTY); ledge(r, 36, 42, 1);   // the top of the mountain, the way up through it
+  rect(r, 0, 2, 3, 26); rect(r, 76, 2, 79, 22);                   // a horn of rock at either end
+  ledge(r, 4, 9, 8); ledge(r, 70, 75, 8);
+  mark(r, 'boss', 40, 2); mark(r, 'exit', 12, 2);
+  mark(r, 'torch', 18, 7); mark(r, 'torch', 62, 7); mark(r, 'crystal', 24, 2); mark(r, 'crystal', 56, 2);
   return r;
 }
 
@@ -272,8 +313,9 @@ const REGIONS = [
     layout: [[0, 0, start], [1, 0, corridor], [1, 1, shaft], [0, 1, tunnel], [0, 2, chamber], [1, 2, ascent], [2, 2, gallery], [3, 2, well, 1, 2], [0, 3, roost], [1, 3, bridge], [2, 3, grotto], [2, 4, arena, 2, 2]] },
   { name: 'The Cloister', theme: 'cloister', seed: 7654321, wear: { sag: 0.55, swell: 0.5, humps: 0.4 },
     layout: [[0, 0, undercroft], [1, 0, nave, 2, 1], [3, 0, belfry, 1, 3], [0, 1, stairwell, 1, 2], [1, 1, cells], [2, 1, library], [1, 2, cloister, 2, 1], [1, 3, chapel, 2, 1]] },
-  { name: 'The Spires', theme: 'spires', seed: 2468101, fill: EMPTY, sky: true, wear: { sag: 1.1, swell: 1.2, humps: 0.6 },
-    layout: [[0, 0, mouth], [1, 0, saddle, 2, 1], [0, 1, massif], [1, 1, nest], [2, 1, spire, 1, 2], [0, 2, hollow], [1, 2, ropeway], [0, 3, chimney], [0, 4, summit, 2, 1]], cols: 3 },
+  { name: 'The Spires', theme: 'spires', seed: 2468101, fill: EMPTY, sky: true, wear: { sag: 1.1, swell: 0.5, humps: 0.6 },
+    layout: [[0, 0, mouth], [1, 0, saddle, 2, 1], [0, 1, massif], [1, 1, nest], [2, 1, spire, 1, 2], [0, 2, hollow], [1, 2, ropeway], [0, 3, chimney], [1, 3, brow], [0, 4, icecave, 2, 1], [2, 3, teeth, 1, 2],
+      [0, 5, eyrie, 2, 1], [2, 5, span], [0, 6, crown, 2, 2]], cols: 3 },
 ];
 export const LEVELS = REGIONS.map(r => ({ name: r.name, theme: r.theme }));
 
@@ -326,7 +368,7 @@ function organic(tiles, W, H, marks, rooms, seed0 = 1234567, wear = { sag: 1, sw
   }
   for (const m of marks) for (let a = -2; a <= 2; a++) for (let b = -1; b <= 3; b++){ mark(near, m.x + a, m.y + b); mark(far, m.x + a, m.y + b); }
   const free = (arr, i, j) => air(i, j) && !arr[j * W + i];
-  const quiet = r => r && r.name === 'arena';   // the Warden's stage stays flat (its sweep runs along it)
+  const quiet = r => r && (r.name === 'arena' || r.name === 'chapel' || r.name === 'crown');   // a boss's stage stays flat (its blows run along it)
   const added = new Uint8Array(W * H), put = (i, j) => { set(i, j, ROCK); if (i >= 0 && j >= 0 && i < W && j < H) added[j * W + i] = 1; };
   // smooth noise along a line: a value every few tiles, eased between
   const noise = (period, s0) => { const v = []; for (let k = 0; k < 400; k++) v.push(rnd()); return x => { const f = (x + s0) / period, k = Math.floor(f), t = f - k, e = t * t * (3 - 2 * t); return v[k % 400] * (1 - e) + v[(k + 1) % 400] * e; }; };

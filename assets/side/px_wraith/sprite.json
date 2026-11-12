@@ -1,0 +1,33 @@
+{
+ "name": "px_wraith",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 40,
+   "h": 40,
+   "foot": 39,
+   "cx": 19.5,
+   "footLast": 39,
+   "cxLast": 19.5
+  },
+  "float": {
+   "frames": 9,
+   "w": 56,
+   "h": 56,
+   "foot": 47,
+   "cx": 27.5,
+   "footLast": 47,
+   "cxLast": 27.5
+  },
+  "slash": {
+   "frames": 9,
+   "w": 56,
+   "h": 56,
+   "foot": 48,
+   "cx": 27.5,
+   "footLast": 44,
+   "cxLast": 33.0
+  }
+ }
+}
