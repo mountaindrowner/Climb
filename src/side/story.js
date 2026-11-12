@@ -297,7 +297,7 @@ export function makeStory(hud, heroBase){
       rise(t - 23.2, t);
     }
     for (const [a, b, text] of L) if (t > a && t < b) say(text, 0.88, 0.042, Math.min(1, (t - a) / 0.6, (b - t) / 0.6));
-    if (t < 3) say('press any key to skip', 0.96, 0.022, 0.5 * Math.min(1, t), '#cfe6ff');
+    if (t < 3) say('press a button to skip', 0.96, 0.022, 0.5 * Math.min(1, t), '#cfe6ff');
     if (t >= LEN.intro) end();
   }
   // him, in the water under the light, getting up; motes of it going up round him
