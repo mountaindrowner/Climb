@@ -23,6 +23,45 @@ const flank = y => { const t = Math.max(0, (y - APEX) / (FOOT - APEX)), w = 2 + 
 const ridge = f => { const y = FOOT - 2 - f * (FOOT - 2 - APEX - 3), F = flank(y); return { x: Math.max(6, F.l + 2 + (1 - f) * 10), y }; };
 export const REGION_SPAN = [[0, 0.2], [0.2, 0.36], [0.36, 0.54], [0.54, 0.7], [0.7, 0.85], [0.85, 1]];   // each region's share of the climb, bottom to top
 
+// ---- the mountain's shape in depth, for its light. A height for every pixel of it: a rounded cross-section (so its
+// flanks face out), a spine down its middle, buttresses that branch off the spine and run down and out, gullies worn
+// down its faces, and ledges of strata. From that its normals (`map`: a normal map, x right, y up, z toward the eye,
+// as 0..255) and a little occlusion (`ao`: lower than its neighbours, darker). Made once.
+const norm3 = (x, y, z) => { const l = Math.hypot(x, y, z) || 1; return [x / l, y / l, z / l]; };
+let SHAPE = null;
+export function mountainShape(){
+  if (SHAPE) return SHAPE;
+  const W = CW, H = CH, h = new Float32Array(W * H), inside = new Uint8Array(W * H), r = rng(4242);
+  const vals = Array.from({ length: 64 * 64 }, () => r()), vn = (x, y) => { const i = Math.floor(x), j = Math.floor(y), u = x - i, v = y - j, a = u * u * (3 - 2 * u), b = v * v * (3 - 2 * v), g = (p, q) => vals[((q & 63) * 64) + (p & 63)];
+    return (g(i, j) * (1 - a) + g(i + 1, j) * a) * (1 - b) + (g(i, j + 1) * (1 - a) + g(i + 1, j + 1) * a) * b; };
+  // buttresses: where each leaves the spine, which way it runs, how hard it bends out
+  const BUT = [[34, 1, 0.55], [50, -1, 0.45], [66, 1, 0.5], [88, -1, 0.42], [104, 1, 0.38], [122, -1, 0.5], [138, 1, 0.34], [150, -1, 0.3]];
+  for (let y = APEX; y < H; y++){ const F = flank(Math.min(y, FOOT)), mid = (F.l + F.r) / 2, hw = Math.max(1, (F.r - F.l) / 2);
+    for (let x = Math.max(0, F.l); x < Math.min(W, F.r); x++){
+      const k = y * W + x, u = Math.min(1, Math.min(x - F.l, F.r - x) / hw); inside[k] = 1;
+      let z = hw * 0.85 * (1 - (1 - u) * (1 - u));                                                         // the rounded section
+      z += hw * 0.28 * Math.exp(-Math.pow((x - mid) / (2 + hw * 0.16), 2));                                 // the spine
+      for (const [y0, side, bend] of BUT){ if (y <= y0) continue; const t = y - y0, rx = mid + side * (t * bend + t * t * 0.004), w = 1.6 + t * 0.07;
+        z += Math.min(hw * 0.3, 2 + t * 0.12) * Math.exp(-Math.pow((x - rx) / w, 2)) * Math.min(1, t / 6); }
+      z -= (1 - Math.abs(vn(x / 5 + 7, y / 26) * 2 - 1)) * Math.min(6, 1 + hw * 0.05) * u;                // gullies running down
+      z += (vn(x / 9, y / 9) - 0.5) * 3 + (vn(x / 3, y / 3) - 0.5) * 1.1;                                  // the rock's own roughness
+      const band = (y + vn(x / 14, 3) * 4) % 7; z += band < 1.2 ? 0.5 * (1 - Math.abs(band - 0.6) / 0.6) : 0;   // ledges of strata
+      h[k] = z; } }
+  // smoothed a little (the flank's outline steps from row to row; that should not read as ledges), what is outside left alone
+  for (let pass = 0; pass < 3; pass++){ const s0 = h.slice(); for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++){ const k = y * W + x; if (!inside[k]) continue;
+    let sum = 0, c = 0; for (let b = -1; b <= 1; b++) for (let a = -1; a <= 1; a++){ const q = k + b * W + a; if (inside[q]){ sum += s0[q] * (b ? 1 : 1.5); c += b ? 1 : 1.5; } } h[k] = sum / c; } }
+  const at = (x, y) => { x = Math.max(0, Math.min(W - 1, x)); y = Math.max(0, Math.min(H - 1, y)); const k = y * W + x; return inside[k] ? h[k] : -4; };
+  const n = new Float32Array(W * H * 3), ao = new Float32Array(W * H).fill(1), map = canvas(W, H), mg = map.getContext('2d'), img = mg.createImageData(W, H);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++){ const k = y * W + x; if (!inside[k]) continue;
+    const dx = (at(x + 1, y) - at(x - 1, y)) / 2, dyUp = (at(x, y + 1) - at(x, y - 1)) / 2;   // the canvas counts down: up is minus
+    const v = norm3(-dx, dyUp, 1.6); n[k * 3] = v[0]; n[k * 3 + 1] = v[1]; n[k * 3 + 2] = v[2];
+    let around = 0; for (const [a, b] of [[-2, 0], [2, 0], [0, -2], [0, 2], [-3, -3], [3, 3], [3, -3], [-3, 3]]) around += at(x + a, y + b); around /= 8;
+    ao[k] = Math.max(0.55, Math.min(1.1, 1 - (around - h[k]) * 0.08));
+    img.data.set([Math.round((v[0] * 0.5 + 0.5) * 255), Math.round((v[1] * 0.5 + 0.5) * 255), Math.round((v[2] * 0.5 + 0.5) * 255), 255], k * 4); }
+  mg.putImageData(img, 0, 0);
+  return SHAPE = { h, inside, n, ao, map };
+}
+
 // the mountain, at night or at dawn: sky, a moon it stands in front of, far ranges and a sea of cloud that only reach
 // its knees, and the mountain with its six regions told apart; and, for a sense of how large it is, the small things
 // of people: a castle on a foothill, a watchtower on its shoulder, a village's lights, birds. A piece of its summit
@@ -43,10 +82,17 @@ function paintMountain(dawn){
   range(128, 20, dawn ? PAL.plum : PAL.deep, 3);
   for (let k = 0; k < 40; k++){ const cx = Math.floor(r() * CW), cy = 138 + Math.floor(r() * 10), w = 10 + Math.floor(r() * 22); for (let yy = 0; yy < 4; yy++){ const half = Math.round(w / 2 * Math.sqrt(1 - Math.pow((yy - 3) / 4, 2))); px(dawn ? (yy ? PAL.rose : PAL.fire3) : (yy ? PAL.dark : PAL.mid), cx - half, cy + yy, half * 2 + 1, 1); } }
   range(152, 16, dawn ? PAL.dark : PAL.ink, 9);
-  // the mountain
+  // the mountain, lit by its own shape (mountainShape: a height field, and the normal map worked out from it): the moon
+  // rakes its right shoulder from behind at night; at dawn the low sun lights its left flank
   const body = dawn ? PAL.deep : PAL.ink, lit = dawn ? PAL.rose : PAL.dark, snow = dawn ? PAL.white : PAL.pale;
-  for (let y = APEX; y < CH; y++){ const F = flank(Math.min(y, FOOT)); px(body, F.l, y, F.r - F.l, 1); px(lit, F.l, y, 1 + (y % 5 === 0 ? 1 : 0), 1); if (dawn && y % 2) px(PAL.dark, F.l + 2, y, Math.max(0, Math.round((F.r - F.l) * 0.12)), 1);
-    if (y % 7 === 3 && F.r - F.l > 30) for (let x = F.l + 8; x < F.r - 6; x += 5 + Math.floor(r() * 9)) if (r() < 0.35) px(dawn ? PAL.dark : PAL.deep, x, y, 2 + Math.floor(r() * 4), 1); }   // strata, here and there
+  { const M = mountainShape(), L = dawn ? norm3(-0.85, 0.22, 0.3) : norm3(0.9, 0.36, 0.08), amb = dawn ? 0.2 : 0.06;   // the moon is behind it: only what faces it catches light
+    const ramp = dawn ? [PAL.ink, PAL.deep, PAL.dark, PAL.plum, PAL.rose] : [PAL.ink, PAL.deep, PAL.dark, PAL.mid];
+    for (let y = APEX; y < CH; y++) for (let x = 0; x < CW; x++){ const k = y * CW + x; if (!M.inside[k]) continue;
+      const nx = M.n[k * 3], ny = M.n[k * 3 + 1], nz = M.n[k * 3 + 2], d = Math.max(0, nx * L[0] + ny * L[1] + nz * L[2]);
+      const haze = Math.max(0, (y - 130) / 60) * 0.18;   // its foot is far below, in the air
+      let v = amb + Math.pow(d, 1.6) * (dawn ? 0.85 : 0.95) * M.ao[k] - haze; v = Math.max(0, Math.min(0.999, v));
+      const f = v * (ramp.length - 1), i = Math.floor(f); px(ramp[Math.min(ramp.length - 1, i + (dith(x, y) < f - i ? 1 : 0))], x, y); }
+    c.normals = M.map; }
   // the piece that broke from its summit, and hangs there still
   for (const [sx, sy, sh, sw] of [[241, 26, 22, 3], [248, 40, 8, 2], [237, 52, 5, 1]]) for (let k = 0; k < sh; k++){ const half = Math.round(sw * Math.sin(Math.PI * (k + 0.5) / sh)), x = sx + Math.round(k * 0.22); px(body, x - half, sy + k, half * 2 + 1, 1); px(snow, x - half, sy + k, 1, 1); }
   // the Roots: crystals and cracks of cold light; and at the very bottom, the water
@@ -109,12 +155,14 @@ function paintPool(){
 export function makeStory(hud, heroBase){
   const hx = hud.getContext('2d'), cv = canvas(CW, CH), g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
   const night = paintMountain(false), dawn = paintMountain(true), pool = paintPool();
+  const MAPS = { night, dawn, normals: night.normals };   // for tools: the paintings, and the mountain's normal map
   const far = { firmament: img('assets/side/bg/firmament.png'), gardens: img('assets/side/bg/gardens.png'), tempest: img('assets/side/bg/tempest.png'), spires: img('assets/side/bg/spires.png'), cloister: img('assets/side/bg/cloister.png'), roots: img('assets/side/bg/far.png') };
   // the rock between two regions, as he falls past: dark, its edges broken up
   const rock = canvas(CW, 50); { const rg = rock.getContext('2d'); rg.fillStyle = PAL.ink; for (let yy = 0; yy < 50; yy++) for (let x = 0; x < CW; x++){ const e = Math.min(yy, 49 - yy) / 8; if (e >= 1 || B4[(yy & 3) * 4 + (x & 3)] / 16 < e) rg.fillRect(x, yy, 1, 1); } }
   const hero = { fall: img(`${heroBase}/fall.png`), stand: img(`${heroBase}/stand.png`), getup: img(`${heroBase}/getup.png`) };
   const S = { kind: null, t: 0, opts: {}, done: null, snow: Array.from({ length: 60 }, (_, k) => ({ x: (k * 53) % CW, y: (k * 97) % CH, v: 20 + (k * 7) % 30 })) };
   const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), w, h); };
+  S.maps = MAPS;
   S.active = () => !!S.kind;
   S.start = (kind, opts = {}, done = null) => { S.kind = kind; S.t = 0; S.opts = opts; S.done = done; S.said = -1; };
   const end = () => { const d = S.done; S.kind = null; S.done = null; if (d) d(); };

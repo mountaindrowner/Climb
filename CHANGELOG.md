@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**What it is about: the water, the fall run back, new names, a mountain too large to see (latest).** `docs/story.md` is the direction.
+**The mountain in the light.** The mountain on the title, the cards and the ending has a normal map of its own (`mountainShape` in `story.js`): a height field made from its silhouette (a rounded section, a spine, buttresses that branch off it and run down, gullies, strata), smoothed, its normals and a little occlusion worked out from it. The painting is lit by it in dithered palette steps: at night the moon behind its right shoulder only catches what faces it, so the mass stays dark; at dawn the low sun lights its left flank. `story.maps.normals` is the map itself.
+
+**What it is about: the water, the fall run back, new names, a mountain too large to see.** `docs/story.md` is the direction.
 - *A fall.* Everything he did since he last rose runs back along his own path, fast, the picture washed pale and streaked; then the water at the bottom of the world gives him back (a screen: the light down on the pool, him getting up in it, a line), and he rises at the last flame he reached. The creatures are there again; what he found, lit and learned is kept. The pause screen counts it: fallen, and raised, so many times.
 - *The water.* The first room is the pool under a shaft of light: he wakes in it.
 - *Names and words.* The Lamplighter is **Ordric of the Vigil**, Wren is **Mirel the Penitent** (a pilgrim with a great pack, who means to arrive deserving it and finds no one is asking a price), the Scribe is **Corwen the Annalist**; all three have new lines in every region. Shrines are flames kept for him; the scarf is the red thread. The intro, the cards, the keepers' epithets and the ending are rewritten: the flame had never gone out; it had gone down into the dark to find him.
