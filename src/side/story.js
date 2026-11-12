@@ -5,6 +5,7 @@
 //   on the mountain he is.
 // makeStory(hud) returns { active(), start(kind, opts), draw(dt), press() }; kinds: 'title', 'intro', 'card', 'ending'.
 import { sfx } from '../audio/sfx.js';
+import { text } from './pixelfont.js';
 const PAL = { ink: '#181425', deep: '#262b44', dark: '#3a4466', mid: '#5a6988', light: '#8b9bb4', pale: '#c0cbdc', white: '#ffffff', navy: '#124e89', blue: '#0099db', cyan: '#2ce8f5',
   plum: '#68386c', pink: '#b55088', rose: '#f6757a', fire1: '#f77622', fire2: '#feae34', fire3: '#fee761', wood0: '#3e2731', wood1: '#733e39', moss1: '#3e8948' };
 const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], CW = 320, CH = 180;
@@ -76,8 +77,8 @@ export function makeStory(hud, heroBase){
 
   function title(dt){
     g.drawImage(night, 0, 0); beacon(false, S.t); marker(0, S.t); snowfall(dt, -8);
-    say('THE CLIMB', 0.3, 0.13, Math.min(1, S.t / 1.2));
-    say('from the roots of the mountain to its summit', 0.4, 0.032, ease((S.t - 0.8) / 1.2) * 0.85, '#cfe6ff');
+    say('THE CLIMB', 0.26, 0.13, Math.min(1, S.t / 1.2));
+    say('from the roots of the mountain to its summit', 0.46, 0.032, ease((S.t - 0.8) / 1.2) * 0.85, '#cfe6ff');
   }
   function intro(dt){
     const t = S.t;
@@ -124,7 +125,7 @@ export function makeStory(hud, heroBase){
     if (t > 1.5 && S.said < 0){ S.said = 0; sfx.gold && sfx.gold(); }
     const L = [[2.2, 6, 'The beacon burned again.'], [6.6, 10.4, 'Below him lay the whole of the mountain.'], [10.8, 14.2, 'He had climbed it.']];
     for (const [a, b, text] of L) if (t > a && t < b) say(text, 0.86, 0.042, Math.min(1, (t - a) / 0.6, (b - t) / 0.6));
-    if (t > 14.8){ say('THE CLIMB', 0.3, 0.13, ease((t - 14.8) / 1.5)); say('thank you for playing; there is more of the mountain to come', 0.4, 0.03, ease((t - 16) / 1.5) * 0.85, '#cfe6ff'); }
+    if (t > 14.8){ say('THE CLIMB', 0.26, 0.13, ease((t - 14.8) / 1.5)); say('thank you for playing', 0.44, 0.03, ease((t - 16) / 1.5) * 0.85, '#c0cbdc'); }
     if (t >= LEN.ending) end();
   }
 
@@ -134,10 +135,10 @@ export function makeStory(hud, heroBase){
     S.t += dt; words.length = 0; g.globalAlpha = 1;
     ({ title, intro, card, ending })[S.kind](dt);
     if (!S.kind) return;
+    // its words, in the game's lettering, on the small picture: a size of 0.1 and over is the title's, 0.06 a name's
+    for (const s of words){ g.globalAlpha = Math.max(0, Math.min(1, s.alpha)); text(g, s.text, CW / 2, Math.round(s.y * CH) - 4, s.col, s.size >= 0.1 ? 4 : s.size >= 0.06 ? 3 : 1, 'center'); } g.globalAlpha = 1;
     const w = hud.clientWidth, h = hud.clientHeight, k = Math.max(w / CW, h / CH), dw = CW * k, dh = CH * k;
     hx.save(); hx.imageSmoothingEnabled = false; hx.shadowColor = 'transparent'; hx.fillStyle = PAL.ink; hx.fillRect(0, 0, w, h); hx.drawImage(cv, (w - dw) / 2, (h - dh) / 2, dw, dh);
-    hx.textAlign = 'center'; hx.shadowColor = 'rgba(8,6,14,0.9)'; hx.shadowOffsetX = hx.shadowOffsetY = 2; hx.shadowBlur = 0;
-    for (const s of words){ hx.globalAlpha = Math.max(0, Math.min(1, s.alpha)); hx.fillStyle = s.col; hx.font = `${s.size > 0.06 ? 700 : 500} ${Math.round(Math.max(12, s.size * h))}px "Pixelify Sans", sans-serif`; hx.fillText(s.text, w / 2, s.y * h); }
     hx.restore();
   };
   return S;

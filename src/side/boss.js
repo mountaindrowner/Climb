@@ -243,6 +243,7 @@ export function makeWarden(scene, R){
     core.m.position.set(place.chest.x + FACE.core[0], place.chest.y + FACE.core[1], -7.8); core.m.material.opacity = lit * (0.5 + 0.3 * Math.sin(B.tm * 2.2)) + B.flash * 3; core.m.visible = show;
     for (const g of backGlow){ const k = place[g.sd < 0 ? 'crystalL' : 'crystalR']; g.m.position.set(k.x, k.y + 0.3, -8.35); g.m.material.opacity = lit * (B.phase === 2 ? 0.55 + 0.25 * Math.sin(B.tm * 5 + g.sd) : 0.22); g.m.material.color.setHex(B.phase === 2 ? 0xff9a60 : 0x4fd8ff); g.m.visible = show; }
     halo.material.opacity = 0.2 + lit * 0.18;
+    if (show){ R.glint(place.chest.x, place.chest.y + 0.2, 0x5fe8d8, lit * 0.55 + B.flash * 3, 7); R.glint(hd.x, hd.y, angry, lit * 0.4, 4.5); }   // its core and its eyes light what is round them
   };
 
   // his cut: a fist resting on the stage takes it; a fist anywhere else in reach turns it (a clang)

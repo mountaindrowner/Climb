@@ -159,6 +159,7 @@ export function makeToll(scene, R){
     maw.position.set(mid.x + 1.25 * sn, mid.y - 1.25 * cs, -0.95); maw.rotation.z = rot; maw.material.opacity = k * 0.8; maw.material.color.setHex(col);
     halo.position.set(mid.x, mid.y, -1.3); halo.material.opacity = lit * 0.18 + weak * (0.3 + 0.15 * Math.sin(B.tm * 9)) + B.flash * 3; halo.material.color.setHex(weak > 0 ? 0xffe090 : 0xff9a40);
     warn.material.opacity = warnA; warn.scale.set(warnW / 6.4, 1, 1); warn.position.set(warnX, stageY + 0.25, 0.5);
+    R.glint(mid.x, mid.y, col, lit * 0.45 + weak * 0.35 + B.flash * 3, 6.5);   // the light in it
   };
 
   // his cut: it takes it lying on the stage; anywhere else in reach it only rings

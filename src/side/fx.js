@@ -20,7 +20,13 @@ export function spawnFx(scene){
     const t = new THREE.CanvasTexture(c); t.magFilter = t.minFilter = THREE.NearestFilter; return t; })();
   const arcs = []; for (let i = 0; i < 4; i++){ const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: cres, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); m.visible = false; scene.add(m); arcs.push({ m, life: 0 }); }
   let ak = 0;
-  const F = { parts, grits: dust, arcs };
+  // embers: what is left of a creature, a few bright pixels that scatter, hang, and then go to him
+  const EN = 70, embers = [];
+  for (let i = 0; i < EN; i++){ const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xfeae34 })); m.visible = false; m.scale.setScalar(2 / 16); scene.add(m); embers.push({ m, life: 0 }); }
+  let ek = 0;
+  const F = { parts, grits: dust, arcs, embers };
+  F.ember = (at, n) => { for (let i = 0; i < n; i++){ const p = embers[ek]; ek = (ek + 1) % EN; const a = Math.random() * Math.PI * 2, s = 2 + Math.random() * 3.5;
+    Object.assign(p, { x: at.x, y: at.y, vx: Math.cos(a) * s, vy: Math.abs(Math.sin(a)) * s + 1.5, life: 6, t: -Math.random() * 0.25 }); p.m.visible = true; p.m.material.color.setHex(Math.random() < 0.3 ? 0xfee761 : 0xfeae34); } };
   // dust kicked one way (dir) along the floor at his feet; dust thrown both ways (a landing)
   F.kick = (at, dir, n, spd = 2.4) => { for (let i = 0; i < n; i++) grit(at.x + (Math.random() - 0.5) * 0.3, at.y + 0.03, dir * spd * (0.3 + Math.random()) + (Math.random() - 0.5) * 0.5, 0.6 + Math.random() * 1.8, Math.random() < 0.3 ? 2 : 1, 0.25 + Math.random() * 0.3); };
   F.puff = (at, n, spd = 2.6) => { F.kick(at, -1, n >> 1, spd); F.kick(at, 1, n - (n >> 1), spd); };
@@ -40,7 +46,16 @@ export function spawnFx(scene){
   };
   return F;
 }
-export function stepFx(F, dt){
+export function stepFx(F, dt, to, take){
+  // embers: thrown, slowed, then drawn to him (to: where; take: called as each arrives)
+  for (const p of F.embers){
+    if (p.life <= 0){ if (p.m.visible) p.m.visible = false; continue; }
+    p.life -= dt; p.t += dt;
+    if (p.t < 0.45 || !to){ p.vy -= 9 * dt; p.vx *= Math.exp(-dt * 3); p.vy *= Math.exp(-dt * 2); }
+    else { const dx = to.x - p.x, dy = to.y - p.y, d = Math.hypot(dx, dy) || 1, pull = 30 + (p.t - 0.45) * 90; p.vx += dx / d * pull * dt; p.vy += dy / d * pull * dt; p.vx *= Math.exp(-dt * 4); p.vy *= Math.exp(-dt * 4);
+      if (d < 0.45){ p.life = 0; p.m.visible = false; if (take) take(p); continue; } }
+    p.x += p.vx * dt; p.y += p.vy * dt; p.m.position.set(Math.round(p.x * 16) / 16, Math.round(p.y * 16) / 16, 0.22);
+  }
   for (const p of F.parts){
     if (p.life <= 0){ if (p.m.visible) p.m.visible = false; continue; }
     p.life -= dt; p.vy -= p.grav * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.size = Math.max(0.01, p.size + p.grow * dt);

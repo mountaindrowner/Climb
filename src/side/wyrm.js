@@ -178,6 +178,7 @@ export function makeWyrm(scene, R){
     const lit = B.st === 'fight' ? 1 : B.st === 'rise' ? Math.min(1, B.tm) : B.st === 'die' ? Math.max(0, 1 - B.tm / 2) : 0;
     { const [ex, ey] = on(0.06, 0.19); eye.position.set(ex, ey, -0.45); eye.material.opacity = lit * (0.8 + 0.2 * Math.sin(B.tm * 7)); eye.material.color.setHex(weak > 0 ? 0xffffff : B.phase === 2 ? 0xff5a50 : 0x7ff6ff); eye.scale.setScalar(1 + weak * 0.6); eye.visible = show; }
     halo.position.set(H.x, H.y, -0.8); halo.material.opacity = weak * (0.35 + 0.15 * Math.sin(B.tm * 9)) + B.flash * 3; halo.visible = show;
+    if (show) R.glint(H.x, H.y, B.phase === 2 ? 0xff7060 : 0x9fefff, lit * 0.35 + weak * 0.45 + B.flash * 3, 5.5);
     warn.material.opacity = warnA; warn.scale.set(warnW / 4, 1, 1); warn.position.set(warnX, stageY + (B.mode === 'sweepTell' ? W.sweep.low : 0.25), 0.5);
   };
 

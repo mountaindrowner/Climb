@@ -6,7 +6,7 @@ import { TUNE } from '../config/tuning.js';
 import { IN, bindInput, endFrame, pollPads } from '../core/input.js';
 import { sfx, ac } from '../audio/sfx.js';
 import '../ui/feel.js';
-import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt } from './level.js';
+import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt } from './level.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf } from './motor.js';
 import { makeRenderer, makeSprite, VIEW_H } from './render.js';
 import { spawnFx, stepFx } from './fx.js';
@@ -15,10 +15,12 @@ import { makeWarden } from './boss.js';
 import { makeToll } from './toll.js';
 import { makeWyrm } from './wyrm.js';
 import { makeStory, REGION_SPAN } from './story.js';
+import { makeHud } from './hud.js';
+import { makeScarf, SCARF } from './scarf.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'side 12 · the whole mountain';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 13';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -30,7 +32,11 @@ const HEROES = { masked: 'mask_tall_c', a: 'px_knight', b: 'px_hood', c: 'px_mas
 const loadHero = name => fetch(`assets/side/${name}/sprite.json`).then(r => r.ok ? r.json() : Promise.reject()).then(meta => { hero.meta = meta; hero.name = name; hero.sprite = makeSprite(R.scene, `assets/side/${name}`, meta); });
 loadHero(HERO).catch(() => loadHero('hero_a')).catch(() => loadHero('hero'));
 // what a region has in it: made by setup, again each time he comes into one
-let fx, E, BOSS, SHRINES, MAP;
+let fx, E, BOSS, SHRINES, MAP, SCF;
+const HUD = makeHud(hud);
+// embers: what he takes from what he kills. Ten grow a length of the scarf back (a heart); a full ten are kept until needed
+const EMBER = { n: 0, max: 10 };
+let FLIGHT = null, SLOW = 0, FLASH = 0, PAUSE = false, PLAYED = 0, PLACE = { name: '', t: 9 };
 let CHECK = null, BANNER = null, WON = false, DEATH = 0;
 const SUB = ['the bottom of the mountain', 'a house of stone over the Warden\'s hall', 'the open air, and the peak'];
 const CARD = ['', 'The Roots are below him. The climb goes on.', 'Out of the stone, into the open air.'];   // what the card says, coming up into a region
@@ -38,7 +44,7 @@ const CARD = ['', 'The Roots are below him. The climb goes on.', 'Out of the sto
 const SAVE = { get(){ try { return JSON.parse(localStorage.getItem('climb-side') || 'null'); } catch (e){ return null; } }, set(v){ try { if (v) localStorage.setItem('climb-side', JSON.stringify(v)); else localStorage.removeItem('climb-side'); } catch (e){} } };
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
 function setup(){
-  fx = spawnFx(R.scene); E = spawnEnemies(R.scene); BOSS = [makeWarden, makeToll, makeWyrm][LEVEL.index](R.scene, R);   // each region's keeper
+  fx = spawnFx(R.scene); E = spawnEnemies(R.scene); SCF = makeScarf(R.scene); FLIGHT = null; BOSS = [makeWarden, makeToll, makeWyrm][LEVEL.index](R.scene, R);   // each region's keeper
   // the shrine: it fills the flask and the hearts, and is where he wakes after a death
   SHRINES = LEVEL.marks.filter(m => m.type === 'shrine').map(m => { const x = (m.x + 0.5) * T, y = m.y * T; return { x, y, room: roomAt(x, y + 0.5) }; });
   CHECK = null; WON = false; DEATH = 0;
@@ -63,26 +69,20 @@ function enter(n){
 const GO = { to: -1, t: 0, st: '', from: -1 };
 const go = n => { if (!GO.st){ GO.to = n; GO.from = LEVEL.index; GO.t = 0; GO.st = 'out'; } };
 // the regions' buttons
-const PICK = document.createElement('div');
-PICK.style.cssText = 'position:absolute;left:18px;top:60px;display:flex;gap:6px;z-index:6;font:600 12px "Pixelify Sans",sans-serif';
-LEVELS.forEach((l, n) => { const b = document.createElement('button'); b.textContent = `${n + 1} ${l.name.replace('The ', '')}`; b.dataset.n = n;
-  b.style.cssText = 'background:rgba(10,8,20,0.7);color:#cfe6ff;border:1px solid rgba(140,210,255,0.35);border-radius:3px;padding:3px 7px;cursor:pointer;font:inherit';
-  b.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); if (n !== LEVEL.index) go(n); b.blur(); }); PICK.appendChild(b); });
-(document.getElementById('stage') || document.body).appendChild(PICK);
-const marks = () => { for (const b of PICK.children) b.style.borderColor = +b.dataset.n === LEVEL.index ? '#ffd27a' : 'rgba(140,210,255,0.35)'; };
+const marks = () => {};
 // ---- the story's screens (story.js) and the title's buttons
 const STORY = makeStory(hud, `assets/side/${HERO}`);
 const MENU = document.createElement('div');
-MENU.style.cssText = 'position:absolute;left:0;right:0;top:56%;display:none;flex-direction:column;align-items:center;gap:10px;z-index:7;font:600 18px "Pixelify Sans",sans-serif';
+MENU.style.cssText = 'position:absolute;left:0;right:0;top:56%;display:none;flex-direction:column;align-items:center;gap:10px;z-index:7;font:600 18px "Pixelify Sans",monospace;text-transform:uppercase;letter-spacing:1px';
 (document.getElementById('stage') || document.body).appendChild(MENU);
 const menuButton = (text, fn, small) => { const b = document.createElement('button'); b.textContent = text;
-  b.style.cssText = `background:rgba(10,8,20,0.75);color:#fff2d0;border:1px solid ${small ? 'rgba(140,210,255,0.35)' : '#ffd27a'};border-radius:4px;padding:${small ? '5px 12px' : '9px 22px'};cursor:pointer;font:inherit;font-size:${small ? 13 : 18}px;min-width:${small ? 0 : 220}px`;
+  b.style.cssText = `background:#181425;color:${small ? '#c0cbdc' : '#fff2d0'};border:2px solid ${small ? '#3a4466' : '#ead4aa'};border-radius:0;padding:${small ? '5px 12px' : '9px 22px'};cursor:pointer;font:inherit;font-size:${small ? 13 : 18}px;min-width:${small ? 0 : 240}px;box-shadow:3px 3px 0 #0b0810;letter-spacing:inherit;text-transform:inherit`;
   b.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); ac(); fn(); }); return b; };
 function begin(){   // from the start: the fall, then he gets up at the bottom
   MENU.style.display = 'none'; SAVE.set(null); if (LEVEL.index !== 0) enter(0); else { const s = spawnPoint(); P = newPlayer(s.x, s.y); }
   STORY.start('intro', {}, () => { WAKE = 1.7; banner(LEVEL.name, SUB[0], 4); SAVE.set({ level: 0 }); });
 }
-function resume(n){ MENU.style.display = 'none'; STORY.kind = null; if (LEVEL.index !== n) enter(n); else banner(LEVEL.name, SUB[n] || '', 4); }
+function resume(n){ MENU.style.display = 'none'; STORY.kind = null; if (LEVEL.index !== n) enter(n); else { const s = spawnPoint(); P = newPlayer(s.x, s.y); CHECK = null; if (BOSS) BOSS.reset(); banner(LEVEL.name, SUB[n] || '', 4); } }
 function title(){
   const sv = SAVE.get(); MENU.innerHTML = ''; MENU.style.display = 'flex';
   if (sv && sv.level > 0 && sv.level < LEVELS.length) MENU.appendChild(menuButton('Climb on: ' + LEVELS[sv.level].name, () => resume(sv.level)));
@@ -90,7 +90,14 @@ function title(){
   const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:8px;margin-top:6px'; LEVELS.forEach((l, n) => row.appendChild(menuButton(`${n + 1} ${l.name.replace('The ', '')}`, () => resume(n), true))); MENU.appendChild(row);
   STORY.start('title');
 }
-addEventListener('keydown', e => { if (!STORY.active()) return; if (STORY.kind === 'title'){ if (e.code === 'Enter' || e.code === 'Space'){ const b = MENU.querySelector('button'); if (b) b.dispatchEvent(new PointerEvent('pointerdown')); } } else STORY.press(); });
+// a pause: Esc or P (or the II button): the world stops; go on, or back to the title
+const PBTN = menuButton('II', () => pause(!PAUSE), true); PBTN.style.cssText += ';position:absolute;left:18px;top:86px;z-index:6;padding:2px 7px;font-size:12px;display:none;opacity:0.7';
+(document.getElementById('stage') || document.body).appendChild(PBTN);
+function pause(on){
+  if (STORY.active() || GO.st) return; PAUSE = on; MENU.innerHTML = ''; MENU.style.display = on ? 'flex' : 'none';
+  if (on){ MENU.appendChild(menuButton('Go on', () => pause(false))); MENU.appendChild(menuButton('To the title', () => { PAUSE = false; title(); }, true)); }
+}
+addEventListener('keydown', e => { if ((e.code === 'Escape' || e.code === 'KeyP') && !STORY.active()){ pause(!PAUSE); return; } if (!STORY.active()) return; if (STORY.kind === 'title'){ if (e.code === 'Enter' || e.code === 'Space'){ const b = MENU.querySelector('button'); if (b) b.dispatchEvent(new PointerEvent('pointerdown')); } } else STORY.press(); });
 addEventListener('pointerdown', () => { if (STORY.active()) STORY.press(); });
 function hudBegin(){ const w = hud.clientWidth, h = hud.clientHeight, dpr = devicePixelRatio || 1; if (hud.width !== Math.round(w * dpr)){ hud.width = Math.round(w * dpr); hud.height = Math.round(h * dpr); } hx.setTransform(dpr, 0, 0, dpr, 0, 0); hx.clearRect(0, 0, w, h); }
 const banner = (a, b, t = 3.2) => { BANNER = { a, b, t, life: t }; };
@@ -163,14 +170,17 @@ function frame(ts){
   const now = ts / 1000; let dt = last ? Math.min(0.05, now - last) : 1 / 60; last = now;
   if (CAPTURE.on){ if (CAPTURE.left <= 0){ requestAnimationFrame(frame); return; } CAPTURE.left--; dt = CAPTURE.dt; }
   pollPads();
-  PICK.style.display = STORY.active() ? 'none' : 'flex';
+  PBTN.style.display = STORY.active() || DEVICE.kind !== 'touch' ? 'none' : 'block';
+  if (PAUSE){ drawHud(0); endFrame(); requestAnimationFrame(frame); return; }
   if (STORY.active() && !GO.st){ hudBegin(); STORY.draw(dt); endFrame(); requestAnimationFrame(frame); return; }   // a story screen is up: the world waits
   if (WAKE > 0) WAKE -= dt;
   // hit-stop: a hit freezes the world a few frames (the effects keep running)
   let sdt = dt; if (FEEL_FX.hitstop > 0){ FEEL_FX.hitstop -= dt; sdt = dt * 0.06; }
+  if (SLOW > 0){ SLOW -= dt; sdt *= 0.3; }   // a boss's last moment, drawn out
+  FLASH = Math.max(0, FLASH - dt); PLAYED += dt;
   acc += sdt; time += dt;
   const h = 1 / 120;
-  while (acc >= h){ const x0 = P.x; if (DEATH <= 0 && !GO.st && WAKE <= 0) stepPlayer(P, h); P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
+  while (acc >= h){ const x0 = P.x; if (DEATH <= 0 && !FLIGHT && !GO.st && WAKE <= 0) stepPlayer(P, h); P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
   endFrame();
   const evs = [];
   stepEnemies(E, P, sdt, fx, evs);
@@ -178,12 +188,19 @@ function frame(ts){
   for (const e of P.events) onEvent(e);
   P.events.length = 0;
   for (const e of evs) onEvent(e);
-  // a death: a beat to see it, then he wakes at the shrine (or the start) and the Warden waits again
-  if (P.hp <= 0 && DEATH <= 0){ DEATH = 1.6; P.vx = 0; fx.burst({ x: P.x, y: P.y + 0.9 }, 30, 0xff5060); FEEL_FX.hitstop = 0.2; banner('You fell', '', 1.6); }
-  if (DEATH > 0){ DEATH -= dt; if (DEATH <= 0){ const s = CHECK || spawnPoint(); P = newPlayer(s.x, s.y); if (BOSS) BOSS.reset(); banner(CHECK ? 'You wake at the shrine' : 'You wake', '', 2); } }
+  // a death: he is gone in a burst; the scarf hangs there a moment, then goes back alone to the last shrine (or the
+  // start), and he gets up under it. The boss waits again
+  if (P.hp <= 0 && DEATH <= 0 && !FLIGHT){ DEATH = 0.7; P.vx = 0; fx.burst({ x: P.x, y: P.y + 0.9 }, 36, 0xff5060); fx.burst({ x: P.x, y: P.y + 1.5 }, 14, 0xffffff); FEEL_FX.hitstop = 0.22; R.glint(P.x, P.y + 1, 0xff6050, 1, 5, 0.4); sfx.hurt(); }
+  if (DEATH > 0){ DEATH -= dt; if (DEATH <= 0){ const s = CHECK || spawnPoint(), d = Math.hypot(s.x - P.x, s.y - P.y); FLIGHT = { t: 0, dur: Math.max(1.0, Math.min(2.6, d / 13)), x0: P.x, y0: P.y + 1.3, x1: s.x, y1: s.y + 1.9, x: P.x, y: P.y + 1.3, to: s }; sfx.whoosh(); } }
+  if (FLIGHT){
+    const F = FLIGHT; F.t += dt; const u = Math.min(1, F.t / F.dur), e = u * u * (3 - 2 * u), dx = F.x1 - F.x0, dy = F.y1 - F.y0, L = Math.hypot(dx, dy) || 1, wv = Math.sin(u * Math.PI * 3) * Math.sin(u * Math.PI) * Math.min(1.6, L * 0.15);
+    F.x = F.x0 + dx * e - dy / L * wv; F.y = F.y0 + dy * e + dx / L * wv; F.face = Math.sign(dx) || 1;
+    if (Math.random() < 0.7) fx.burst({ x: F.x, y: F.y }, 1, Math.random() < 0.5 ? 0xff5040 : 0xfeae34); R.glint(F.x, F.y, 0xff5a40, 0.7, 4);
+    if (u >= 1){ const s = F.to, keep = EMBER.n; P = newPlayer(s.x, s.y); FLIGHT = null; if (BOSS) BOSS.reset(); WAKE = 1.1; fx.ring({ x: s.x, y: s.y + 1 }, 0xff8060); sfx.drink(); EMBER.n = keep; SCF.reset(s.x, s.y + 1.8); }
+  }
   for (const S of SHRINES) if (Math.abs(P.x - S.x) < 1.1 && Math.abs(P.y - S.y) < 1.5 && P.hp > 0 && (CHECK !== S || P.flask < TUNE.player.flask || P.hp < P.maxHp)){
-    const first = CHECK !== S; CHECK = S; P.flask = TUNE.player.flask; P.hp = P.maxHp; sfx.drink(); fx.ring({ x: S.x, y: S.y + 1 }, 0xffd27a);
-    if (first) banner('Shrine', 'your flask is full; you will wake here');
+    const first = CHECK !== S; CHECK = S; P.flask = TUNE.player.flask; P.hp = P.maxHp; sfx.drink(); fx.ring({ x: S.x, y: S.y + 1 }, 0xffd27a); R.glint(S.x, S.y + 1, 0xffd27a, 1, 7, 0.8);
+    if (first) banner('Shrine', 'the scarf is whole; it will bring you back here');
   }
   if ((!BOSS || BOSS.st === 'dead') && !WON && R.exits.some(x => Math.abs(P.x - x.x) < 1 && Math.abs(P.y - x.y) < 1.5)){
     WON = true; sfx.gold();
@@ -203,15 +220,17 @@ function frame(ts){
   CAM.zoom = 1;   // flat pixels are never scaled: the arena is framed by where the camera keeps
   CAM.lead += (P.face * 2.4 - CAM.lead) * Math.min(1, dt * 2.2);
   let wantX = P.x + CAM.lead, wantY = P.y + 1.8 + (P.grounded ? 0 : Math.min(0, P.vy) * 0.08);
+  if (FLIGHT){ wantX = FLIGHT.x; wantY = FLIGHT.y; }   // the view goes with the scarf
   if (fight) wantY = Math.max(wantY, BOSS.stageY + 4.6);   // the stage near the bottom, the Warden's head near the top
-  CAM.x += (wantX - CAM.x) * Math.min(1, dt * 5); CAM.y += (wantY - CAM.y) * Math.min(1, dt * (P.grounded ? 4 : 6));
+  CAM.x += (wantX - CAM.x) * Math.min(1, dt * (FLIGHT ? 16 : 5)); CAM.y += (wantY - CAM.y) * Math.min(1, dt * (FLIGHT ? 16 : P.grounded ? 4 : 6));
   const halfH = VIEW_H / 2 * CAM.zoom, halfW = halfH * (R.size().w / R.size().h);
-  const box = fight ? BOSS.room : { x0: 0, y0: 0, x1: LEVEL.W * T, y1: LEVEL.H * T };
+  const box = fight && !FLIGHT ? BOSS.room : { x0: 0, y0: 0, x1: LEVEL.W * T, y1: LEVEL.H * T };
   const cx = Math.max(box.x0 + halfW, Math.min(box.x1 - halfW, CAM.x)), cy = Math.max(box.y0 + halfH, Math.min(box.y1 - halfH, CAM.y));
   FEEL_FX.shake = Math.max(0, FEEL_FX.shake - dt * 1.2); const sk = FEEL_FX.shake;
   FEEL_FX.kick *= Math.exp(-dt * 14);   // a blow nudges the view the way it goes
   R.setCamera(cx + (Math.random() - 0.5) * sk + FEEL_FX.kick, cy + (Math.random() - 0.5) * sk, CAM.zoom);
-  // the warrior
+  // the warrior (not while he is dead and the scarf is on its way)
+  const gone = (P.hp <= 0 && DEATH < 0.45) || !!FLIGHT; if (hero.sprite) hero.sprite.g.visible = !gone;
   if (hero.sprite){
     const [anim, frac, anchor] = heroPose(P, time);
     let rot = 0;
@@ -236,7 +255,17 @@ function frame(ts){
   if (hero.sprite){
     hero.sprite.mat.emissive.setHex(P.inv > 0 && Math.floor(time * 20) % 2 ? 0x803030 : 0x000000);
   }
-  stepFx(fx, dt);
+  // the scarf: from his neck (lower when he crouches or rolls), as long as his hearts; the wind is the region's
+  { const M = P.mantle, low = P.roll > 0 ? 0.8 : P.crouch ? 1.15 : P.dive ? 1.5 : WAKE > 0.5 ? 0.9 : 1.92;
+    const ax = FLIGHT ? FLIGHT.x : M ? M.wall - M.d * 0.25 : P.x - P.face * 0.14, ay = FLIGHT ? FLIGHT.y : M ? Math.min(M.y1 + 1.8, P.y + 1.9) : P.y + low - SINK, fc = FLIGHT ? FLIGHT.face : M ? M.d : P.face;
+    const want = FLIGHT ? SCARF.base + 5 * SCARF.perHeart : SCARF.base + Math.max(0, P.hp) * SCARF.perHeart, wind = LEVEL.theme === 'spires' && (roomAt(P.x, P.y) || {}).open !== false ? -5 : LEVEL.theme === 'spires' ? -1 : -0.6;
+    SCF.step(dt, ax, ay, fc, want, wind, solidAt); SCF.draw(!(P.hp <= 0 && DEATH > 0.45 && !FLIGHT) || true, EMBER.n / EMBER.max * (P.hp < P.maxHp ? 1 : 0.6)); }
+  // embers go to him; ten make a heart
+  stepFx(fx, dt, P.hp > 0 ? { x: P.x, y: P.y + 1.3 } : null, () => {
+    EMBER.n = Math.min(EMBER.max, EMBER.n + 1); sfx.step();
+    if (EMBER.n >= EMBER.max && P.hp < P.maxHp){ EMBER.n = 0; P.hp++; sfx.drink(); fx.ring({ x: P.x, y: P.y + 1.2 }, 0xff8060); R.glint(P.x, P.y + 1.2, 0xff8060, 0.9, 5, 0.5); }
+  });
+  if (EMBER.n >= EMBER.max && P.hp > 0 && P.hp < P.maxHp){ EMBER.n = 0; P.hp++; sfx.drink(); fx.ring({ x: P.x, y: P.y + 1.2 }, 0xff8060); }   // a full ten kept until it was needed
   R.frame(time, P);
   drawHud(dt);
   requestAnimationFrame(frame);
@@ -260,87 +289,59 @@ function onEvent(e){
       // the dash cut strikes all along where he dashed
       const from = e.sw.dash && P.dashFrom != null ? { ...P, x: P.dashFrom } : P, reach = BLADE.reach + (e.sw.dash && P.dashFrom != null ? Math.abs(P.x - P.dashFrom) : 0);
       const out = []; strikeEnemies(E, from, reach, e.sw.dmg, out); if (BOSS) BOSS.strike(from, reach, e.sw.dmg, out); for (const o of out) onEvent(o); break; }
-    case 'hit': sfx.hit(); fx.burst(e.at, e.heavy ? 18 : 12, 0xffe0a8); FEEL_FX.hitstop = e.heavy ? 0.09 : 0.05; FEEL_FX.shake = Math.max(FEEL_FX.shake, e.heavy ? 0.18 : 0.1); break;
-    case 'kill': sfx.gold && sfx.gold(); fx.burst(e.at, 26, 0xff70d0); fx.ring(e.at, 0xffc0ff); FEEL_FX.hitstop = 0.1; break;
+    case 'hit': sfx.hit(); fx.burst(e.at, e.heavy ? 18 : 12, 0xffe0a8); R.glint(e.at.x, e.at.y, 0xffe0a8, e.heavy ? 0.9 : 0.6, 3.5, 0.16); FEEL_FX.hitstop = e.heavy ? 0.09 : 0.05; FEEL_FX.shake = Math.max(FEEL_FX.shake, e.heavy ? 0.18 : 0.1); break;
+    case 'kill': sfx.gold && sfx.gold(); fx.burst(e.at, 26, 0xff70d0); fx.ring(e.at, 0xffc0ff); FEEL_FX.hitstop = 0.1; fx.ember(e.at, 2 + Math.min(5, e.e ? e.e.d.hp : 2)); R.glint(e.at.x, e.at.y, 0xff9040, 1, 5, 0.35); break;
     case 'parry': sfx.parry(); fx.ring(e.at, 0x9fd0ff); FEEL_FX.hitstop = 0.12; break;
     case 'block': sfx.block(); fx.burst(e.at, 8, 0xc9d2e0); break;
     case 'spit': sfx.spit(); break;
     case 'tell': e.e.tellT = 0.6; break;
     case 'step': sfx.step(); break;
     case 'mantle': sfx.whoosh(); break;
-    case 'hurt': sfx.hurt(); fx.burst({ x: P.x, y: P.y + 1.3 }, 10, 0xff6060); break;
+    case 'hurt': { sfx.hurt(); fx.burst({ x: P.x, y: P.y + 1.3 }, 10, 0xff6060); const a = SCF.tip(); fx.burst({ x: a.x, y: a.y }, 12, 0xff7030); fx.burst({ x: a.x, y: a.y }, 6, 0xfee761); FLASH = Math.max(FLASH, 0.12); break; }   // the end of the scarf burns off
     case 'skid': fx.kick(at, Math.sign(P.vx) || P.face, 6, 2.2); break;
-    case 'bossWake': sfx.roar(); FEEL_FX.shake = 0.5; banner(BOSS.name, BOSS.hint); break;
+    case 'bossWake': sfx.roar(); FEEL_FX.shake = 0.5; BOSS.shown = false; break;   // its name comes up with the bars (drawHud)
     case 'bossToll': sfx.parry(); sfx.rumble(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.2); break;
     case 'bossTell': sfx.creak(); break;
-    case 'bossSlam': sfx.impact(true); sfx.slam(); fx.dust(e.at, e.soft ? 10 : 26, 4); if (!e.soft) fx.ring(e.at, 0xffd27a); FEEL_FX.shake = Math.max(FEEL_FX.shake, e.soft ? 0.18 : 0.42); break;
+    case 'bossSlam': sfx.impact(true); sfx.slam(); fx.dust(e.at, e.soft ? 10 : 26, 4); R.glint(e.at.x, e.at.y + 0.5, 0xffd27a, e.soft ? 0.4 : 0.9, 6, 0.3); if (!e.soft) fx.ring(e.at, 0xffd27a); FEEL_FX.shake = Math.max(FEEL_FX.shake, e.soft ? 0.18 : 0.42); break;
     case 'bossSweep': sfx.rumble(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.15); break;
     case 'rockLand': sfx.crack(); fx.dust(e.at, 8, 2); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.1); break;
     case 'bossPhase': sfx.roar(); FEEL_FX.shake = 0.6; banner(BOSS.name + ' rages', BOSS.rage); break;
-    case 'bossDie': sfx.roar(); FEEL_FX.hitstop = 0.3; FEEL_FX.shake = 0.8; break;
+    case 'bossDie': sfx.roar(); FEEL_FX.hitstop = 0.3; FEEL_FX.shake = 0.8; SLOW = 1.3; FLASH = 0.5; break;
     case 'bossDead': for (const x of R.exits) x.set(true); sfx.gold(); banner(BOSS.name + ' falls', BOSS.fell); break;
     case 'flask': if (P.flask > 0 && P.hp < P.maxHp){ P.flask--; P.hp = Math.min(P.maxHp, P.hp + TUNE.player.flaskHeal); sfx.drink(); fx.ring({ x: P.x, y: P.y + 0.8 }, 0x5ce1c6); } break;
   }
 }
+const HINT = { keys: ['A D MOVE · SPACE JUMP, AGAIN IN THE AIR · SHIFT ROLL · CLICK CUT · S + CLICK RISING CUT', 'CLICK IN A ROLL: DASH CUT · S + CLICK IN THE AIR: PLUNGE · S + SPACE: DROP · ESC: PAUSE'],
+  pad: ['STICK MOVE · A JUMP, AGAIN IN THE AIR · ROLL · CUT', 'DOWN + CUT: RISING CUT · IN THE AIR: PLUNGE'], touch: [] };
+const EPITHET = ['KEEPER OF THE ROOTS', 'THE VOICE OF THE CLOISTER', 'IT KEEPS THE SUMMIT'];
 function drawHud(dt){
-  const w = hud.clientWidth, h = hud.clientHeight, dpr = devicePixelRatio || 1;
-  if (hud.width !== Math.round(w * dpr)){ hud.width = Math.round(w * dpr); hud.height = Math.round(h * dpr); }
-  hudBegin();
-  hx.shadowColor = 'rgba(8,6,14,0.85)'; hx.shadowOffsetX = hx.shadowOffsetY = 1.5 * dpr; hx.shadowBlur = 0;   // read over a bright sky as over a dark cave
-  for (let i = 0; i < P.maxHp; i++){ hx.fillStyle = i < P.hp ? '#ff4d6a' : '#3a2433'; hx.fillRect(18 + i * 22, 16, 16, 16); hx.strokeStyle = '#0b0710'; hx.lineWidth = 2; hx.strokeRect(18 + i * 22, 16, 16, 16); }
+  HUD.begin(R.size().w); const W = HUD.W, v = new window.THREE.Vector3();
   // a red ! over a creature winding up
-  const v = new window.THREE.Vector3();
-  for (const e of E.list){
-    if (!e.alive || !(e.tellT > 0)) continue; e.tellT -= dt;
-    v.set(e.x, e.y + e.d.h + 0.6, 0).project(R.camera); const sx = (v.x + 1) / 2 * w, sy = (1 - v.y) / 2 * h;
-    hx.fillStyle = 'rgba(10,6,16,0.8)'; hx.beginPath(); hx.arc(sx, sy, 12, 0, 7); hx.fill(); hx.strokeStyle = '#ff5a4a'; hx.lineWidth = 2.5; hx.stroke();
-    hx.fillStyle = '#ff5a4a'; hx.font = '700 16px sans-serif'; hx.textAlign = 'center'; hx.textBaseline = 'middle'; hx.fillText('!', sx, sy + 1); hx.textAlign = 'left'; hx.textBaseline = 'alphabetic';
+  for (const e of E.list){ if (!e.alive || !(e.tellT > 0)) continue; e.tellT -= dt; v.set(e.x, e.y + e.d.h + 0.7, 0).project(R.camera); HUD.tell(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180)); }
+  const rising = !!(BOSS && BOSS.st === 'rise');
+  HUD.cinema(rising, dt, rising ? BOSS.name : '', EPITHET[LEVEL.index] || '', rising ? BOSS.tm : 0);
+  if (BOSS && BOSS.st === 'fight' && !BOSS.shown){ BOSS.shown = true; banner('', BOSS.hint, 3.5); }   // once it is up: how it is hurt
+  if (!rising){
+    HUD.status(P, EMBER.n, EMBER.max, TUNE.player.flask, time);
+    const room = roomAt(P.x, P.y); if (room) MAP.seen.add(room);
+    const place = LEVEL.name + (room ? ' · ' + room.name : ''); if (place !== PLACE.name){ PLACE.name = place; PLACE.t = 0; } PLACE.t += dt;
+    HUD.place(place, PLACE.t < 3 ? 1 : Math.max(0.45, 1 - (PLACE.t - 3) * 0.5));
+    HUD.boss(BOSS && BOSS.hud(), dt);
+    const dots = SHRINES.filter(S => MAP.seen.has(S.room)).map(S => ({ x: S.x, y: S.y + 0.5, c: '#fee761' }));
+    if (BOSS && MAP.seen.has(BOSS.room)) dots.push({ x: BOSS.cx, y: BOSS.stageY + 1, c: BOSS.st === 'dead' ? '#5a6988' : '#e43b44', r: 1 });
+    dots.push({ x: P.x, y: P.y + 0.8, c: '#ffffff', blink: true });
+    HUD.map(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, room, T, dots, Math.max(0, Math.min(1, P.y / (LEVEL.H * T))), REGION_SPAN, LEVEL.index, time);
   }
-  hx.fillStyle = '#5ce1c6'; hx.font = '600 13px "Pixelify Sans", sans-serif'; hx.fillText('flask ' + '●'.repeat(P.flask) + '○'.repeat(Math.max(0, TUNE.player.flask - P.flask)), 18 + P.maxHp * 22 + 10, 29);
-  // the Warden's health, along the top
-  const bh = BOSS && BOSS.hud();
-  if (bh){
-    const bw = Math.min(560, w * 0.6), bx = (w - bw) / 2, by = 26;
-    hx.fillStyle = 'rgba(10,6,16,0.8)'; hx.fillRect(bx - 3, by - 3, bw + 6, 14); hx.fillStyle = '#3a2433'; hx.fillRect(bx, by, bw, 8);
-    hx.fillStyle = bh.phase === 2 ? '#ff8a50' : '#5ce1c6'; hx.fillRect(bx, by, bw * bh.frac, 8);
-    hx.font = '600 14px "Pixelify Sans", sans-serif'; hx.textAlign = 'center'; hx.fillStyle = '#e8f4ff'; hx.fillText(bh.name, w / 2, by + 28); hx.textAlign = 'left';
-  }
-  if (BANNER){
-    BANNER.t -= dt; const a = Math.max(0, Math.min(1, BANNER.t, (BANNER.life - BANNER.t) * 3));
-    hx.textAlign = 'center'; hx.globalAlpha = a; hx.fillStyle = '#fff2d0'; hx.font = '700 34px "Pixelify Sans", sans-serif'; hx.fillText(BANNER.a, w / 2, h * 0.32);
-    hx.fillStyle = '#cfe6ff'; hx.font = '400 16px "Pixelify Sans", sans-serif'; hx.fillText(BANNER.b, w / 2, h * 0.32 + 28); hx.globalAlpha = 1; hx.textAlign = 'left';
-    if (BANNER.t <= 0) BANNER = null;
-  }
-  const room = roomAt(P.x, P.y);
-  if (room) MAP.seen.add(room);
-  {
-    const k = h < 520 ? 0.5 : 0.8, mw = LEVEL.W * k, mh = LEVEL.H * k, mx = w - mw - 16, my = 16;
-    hx.fillStyle = 'rgba(6,8,20,0.85)'; hx.fillRect(mx - 4, my - 4, mw + 8, mh + 8); hx.strokeStyle = 'rgba(140,210,255,0.35)'; hx.lineWidth = 1; hx.strokeRect(mx - 4.5, my - 4.5, mw + 9, mh + 9);
-    hx.imageSmoothingEnabled = false;
-    for (const r of MAP.seen){ const sx = r.x0 / T, sy = LEVEL.H - r.y1 / T, sw = (r.x1 - r.x0) / T, sh = (r.y1 - r.y0) / T; hx.globalAlpha = r === room ? 1 : 0.7; hx.drawImage(MAP.c, sx, sy, sw, sh, mx + sx * k, my + sy * k, sw * k, sh * k); }
-    hx.globalAlpha = 1;
-    const dot = (x, y, c, r = 2) => { hx.fillStyle = c; hx.fillRect(mx + x / T * k - r, my + (LEVEL.H - y / T) * k - r, r * 2, r * 2); };
-    for (const S of SHRINES) if (MAP.seen.has(S.room)) dot(S.x, S.y + 0.5, '#ffd27a');
-    if (BOSS && [...MAP.seen].some(r => r.name === 'arena')) dot(BOSS.cx, BOSS.stageY + 1, BOSS.st === 'dead' ? '#7a8090' : '#ff5a4a', 3);
-    if (Math.floor(time * 3) % 2 === 0) dot(P.x, P.y + 0.8, '#ffffff');
-  }
-  {
-    // how high on the mountain: the three regions one over the other, a mark where he is
-    const k = h < 520 ? 0.5 : 0.8, gx = w - 16 - 6, gy = 16 + LEVEL.H * k + 18, gh = Math.min(150, h * 0.3), span = REGION_SPAN[LEVEL.index], f = span[0] + (span[1] - span[0]) * Math.max(0, Math.min(1, P.y / (LEVEL.H * T)));
-    hx.fillStyle = 'rgba(6,8,20,0.85)'; hx.fillRect(gx - 3, gy - 3, 12, gh + 6);
-    [['#2a7aa8', 0], ['#b86f50', 1], ['#c0cbdc', 2]].forEach(([c, n]) => { const a = REGION_SPAN[n]; hx.globalAlpha = n === LEVEL.index ? 1 : 0.45; hx.fillStyle = c; hx.fillRect(gx, gy + gh * (1 - a[1]), 6, gh * (a[1] - a[0]) - 1); }); hx.globalAlpha = 1;
-    hx.fillStyle = '#fee761'; hx.fillRect(gx - 4, gy + gh * (1 - f) - 2, 14, 4); hx.fillStyle = '#ffffff'; hx.fillRect(gx - 4, gy + gh * (1 - f) - 1, 14, 2);
-    hx.fillStyle = '#cfe6ff'; hx.font = '600 11px "Pixelify Sans", sans-serif'; hx.textAlign = 'right'; hx.fillText(Math.round(f * 1000) + ' m', gx - 8, gy + gh * (1 - f) + 4); hx.fillText('summit', gx - 8, gy + 6); hx.textAlign = 'left';
-  }
-  hx.font = '600 14px "Pixelify Sans", sans-serif'; hx.fillStyle = '#cfe6ff'; hx.fillText(LEVEL.name + (room ? ' · ' + room.name : ''), 18, 52);
-  hx.fillStyle = 'rgba(207,230,255,0.6)'; hx.font = '400 12px "Pixelify Sans", sans-serif';
-  if (DEVICE.kind === 'keys') hx.fillText('A D move · Space jump (again in the air) · Shift roll (LMB during it: dash cut) · LMB attack (S + LMB: rising cut; in the air: plunge) · S + Space drop through a ledge · F9 feel', 18, h - 16);
-  else if (DEVICE.kind !== 'touch') hx.fillText('stick move · A jump (again in the air) · roll · attack · down + attack in the air plunge · down + jump drop through a ledge', 18, h - 16);
-  hx.fillStyle = 'rgba(207,230,255,0.45)'; hx.font = '400 11px "Pixelify Sans", sans-serif'; hx.textAlign = 'right'; hx.fillText(BUILD, w - 16, h - 6); hx.textAlign = 'left';   // which build this is
-  if (GO.st){ hx.fillStyle = `rgba(8,6,14,${GO.st === 'out' ? Math.min(1, GO.t / 0.6) : GO.st === 'in' ? Math.max(0, 1 - GO.t / 0.7) : 1})`; hx.fillRect(0, 0, w, h); }   // going up: dark between regions
+  if (BANNER){ BANNER.t -= dt; HUD.banner(BANNER.a, BANNER.b, Math.max(0, Math.min(1, BANNER.t, (BANNER.life - BANNER.t) * 3))); if (BANNER.t <= 0) BANNER = null; }
+  HUD.hint(HINT[DEVICE.kind === 'keys' ? 'keys' : DEVICE.kind === 'touch' ? 'touch' : 'pad'], PAUSE ? 1 : Math.max(0, Math.min(0.8, (16 - PLAYED) * 0.5)) * (rising ? 0 : 1));
+  HUD.label(BUILD);
+  if (FLASH > 0) HUD.dark(FLASH * 1.4, '#ffffff');
+  if (PAUSE){ HUD.dark(0.6); HUD.text('PAUSED', W / 2, 40, '#fff2d0', 3, 'center'); HUD.rule(Math.round(W / 2), 66, 60, '#ead4aa'); HUD.hint(HINT[DEVICE.kind === 'keys' ? 'keys' : DEVICE.kind === 'touch' ? 'touch' : 'pad'], 1); }
+  if (GO.st) HUD.dark(GO.st === 'out' ? Math.min(1, GO.t / 0.6) : GO.st === 'in' ? Math.max(0, 1 - GO.t / 0.7) : 1);   // going up: dark between regions
+  HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, TUNE.player.flask - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title };
+window.__side = { get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });
