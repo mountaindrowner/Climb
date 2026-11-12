@@ -14,6 +14,10 @@
 // Each region has its own look (THEMES): the Roots' blue caves, the Cloister's warm brick and candles, the Spires' pale
 // rock and snow under an open sky; the colours, the stonework, what hangs and stands, the back wall, the weather.
 // Torches, crystals, lanterns and the shrine glow; bloom makes bright things shine.
+// Light: the last pass darkens the picture to the region's ambient and lifts it again round every light (torches,
+// crystals, the shrine, the warrior, a boss's eyes, a blow), in steps, dithered, so the pools of light are banded like
+// the art. Mist drifts behind the play layer and a little in front; dark shapes close to the eye (things hanging from
+// the top of the view, things standing at its foot) slide past faster than the world, for depth.
 import { T, ROCK, LEDGE, SPIKES, EMPTY, LEVEL, tileAt } from './level.js';
 const THREE = window.THREE;
 export const PPU = 16;                  // pixels to a world unit: a tile is 8, the warrior ~28 tall
@@ -156,6 +160,7 @@ const THEMES = {
     floorWall: ['rubble', 'stalagmite', 'crystal', 'bones', 'mushroom'], floorOpen: ['mushroom', 'rubble', 'crystal', 'bones'], gem: 'crystal',
     back: { cols: ['ink', 'deep', 'dark'], dim: [0.7, 0.72, 0.85], hole: 4.6, holeOpen: 4.6, stand: [['pillar', 6], ['arch', 4]], hang: [['root', 40], ['chain', 35], ['stalactite', 25]], pStand: 0.02, pHang: 0.02 },
     far: { img: 'far', dim: 0.85 }, hemi: [0xffffff, 0x9aa6d0, 0.95], shaft: 'rgba(170,230,255,0.55)',
+    amb: [0.5, 0.56, 0.74], mist: { col: 'navy', col2: 'dark', a: 0.3, drift: 0.25 }, fore: 'roots',
     air: { n: 70, cols: [0xffd8a0, 0x9fe8ff], warm: 0.3, vx: 0.2, vy: [0.05, 0.2] },
   },
   cloister: {
@@ -165,6 +170,7 @@ const THEMES = {
     floorWall: ['rubble', 'urn', 'candles', 'bones', 'statue', 'books'], floorOpen: ['candles', 'rubble', 'books', 'urn'], gem: 'candles',
     back: { cols: ['ink', 'wood0', 'wood1'], dim: [0.82, 0.8, 0.8], hole: 3.4, holeOpen: 3.4, windows: true, stand: [['pillar', 1]], hang: [['chain', 1]], pStand: 0, pHang: 0, wall: [['banner', 5], ['shelf', 4], ['chain', 3]], pWall: 0.0016, brick: true },
     far: { img: 'cloister', dim: 0.9 }, hemi: [0xffeeda, 0xb89478, 0.98], shaft: 'rgba(255,214,150,0.5)',
+    amb: [0.62, 0.5, 0.48], mist: { col: 'wood1', col2: 'wood0', a: 0.3, drift: 0.12 }, fore: 'cloister',
     air: { n: 60, cols: [0xffb060, 0xffe0a0], warm: 0.5, vx: 0.15, vy: [0.12, 0.4] },
   },
   spires: {
@@ -173,7 +179,8 @@ const THEMES = {
     ceilLow: [['icicle', 8], ['stalactite', 2]], ceil: [['icicle', 60], ['stalactite', 14], ['chain', 8], ['root', 10], ['lantern', 8]],
     floorWall: ['drift', 'cairn', 'rubble', 'crystal', 'tuft', 'deadtree'], floorOpen: ['drift', 'tuft', 'flags', 'cairn', 'drift'], gem: 'crystal',
     back: { cols: ['deep', 'dark', 'mid'], dim: [0.9, 0.92, 1], hole: 4.6, holeOpen: 2.2, stand: [['pillar', 5], ['arch', 3], ['deadtree', 4]], hang: [['icicle', 70], ['stalactite', 30]], pStand: 0.012, pHang: 0.03 },
-    far: { img: 'spires', dim: 0.92, dither: 30 }, hemi: [0xffffff, 0xc4d4f4, 1.02], shaft: null, bloom: [0.9, 0.4],
+    far: { img: 'spires', raw: true }, hemi: [0xffffff, 0xc4d4f4, 1.02], shaft: null, bloom: [0.93, 0.35],   // the sky as it was painted: the palette has no pale blue for it
+    amb: [0.96, 0.97, 1.02], ambIn: [0.56, 0.62, 0.8], mist: { col: 'white', col2: 'pale', a: 0.28, drift: 0.9 }, fore: 'spires',
     air: { n: 120, cols: [0xffffff, 0xdfe8ff], warm: 0.5, vx: 0.5, vy: [-1.3, -0.5], drift: -0.6, steady: true },
   },
 };
@@ -183,6 +190,51 @@ const SEAMS = {
   brick: (x, y) => { const row = Math.floor(y / 8); return y % 8 === 0 || (x + (row % 2) * 9) % 18 === 0; },   // even courses of big bricks
   strata: (x, y) => { const s = y + (x >> 2), row = Math.floor(s / 7); return s % 7 === 0 || (x + row * 23) % (17 + row % 3 * 4) === 0; },   // tilted beds, cracked across
 };
+// ---- a torch's flame, four frames side by side; mist, to repeat; and what is close to the eye
+function flameStrip(){
+  const c = document.createElement('canvas'); c.width = 32; c.height = 12; const g = c.getContext('2d'), half = [2, 2.5, 3, 3, 2.5, 2.5, 2, 1.5, 1.5, 1, 0.5, 0];
+  for (let f = 0; f < 4; f++) for (let y = 0; y < 12; y++){ const sway = Math.round(Math.sin(f * Math.PI / 2 + y * 0.55) * (y / 11) * 1.6), h = half[y] + (f % 2 && y > 6 ? -0.5 : 0);
+    for (let x = 0; x < 8; x++){ const d = Math.abs(x + 0.5 - 4 - sway); if (d > h) continue; px(g, d < h * 0.4 && y < 7 ? (y < 4 ? PAL.white : PAL.fire3) : d < h * 0.75 ? PAL.fire2 : PAL.fire1, f * 8 + x, 11 - y); } }
+  const t = canvasTex(c); t.repeat.set(0.25, 1); return t;
+}
+// smooth noise that repeats every `cells` (so a texture of it tiles)
+function tileNoise(seed, cells){ const r = rng(seed), v = []; for (let k = 0; k < cells * cells; k++) v.push(r());
+  const g = (i, j) => v[(((j % cells) + cells) % cells) * cells + (((i % cells) + cells) % cells)];
+  return (x, y) => { const i = Math.floor(x), j = Math.floor(y), u = x - i, w = y - j, a = u * u * (3 - 2 * u), b = w * w * (3 - 2 * w); return (g(i, j) * (1 - a) + g(i + 1, j) * a) * (1 - b) + (g(i, j + 1) * (1 - a) + g(i + 1, j + 1) * a) * b; }; }
+function mistTex(M, seed, thin){
+  const W = 256, H = 128, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'), n1 = tileNoise(seed, 8), n2 = tileNoise(seed + 5, 16);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++){
+    const v = n1(x / 32, y / 16) * 0.7 + n2(x / 16, y / 8) * 0.3, a = (v - (thin ? 0.66 : 0.56)) * 3.2;   // long low banks
+    if (a > 0 && B4[(y & 3) * 4 + (x & 3)] / 16 < a) px(g, a > 0.7 ? PAL[M.col] : PAL[M.col2], x, y);
+  }
+  const t = canvasTex(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t;
+}
+// dark shapes close to the eye: hanging from the top of the view and standing at its foot, never where he is
+function foreTex(kind){
+  const W = 512, H = TH, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'), r = rng(kind.length * 97 + 3);
+  const twice = draw => { draw(0); draw(-W); draw(W); };   // so it meets itself at the edge
+  const spikeDown = (x, L, w, tip) => twice(o => { for (let k = 0; k < L; k++){ const half = Math.max(0, Math.round((1 - k / L) * w / 2)); px(g, PAL.ink, x + o - half, k, half * 2 + 1); if (half) px(g, PAL.deep, x + o - half, k); } if (tip) px(g, tip, x + o, L - 1, 1, 2); });
+  const strand = (x, L, kinks, col) => twice(o => { let cx = x; for (let k = 0; k < L; k++){ if (kinks && r() < 0.25) cx += r() < 0.5 ? -1 : 1; px(g, PAL.ink, cx + o, k, col ? 2 : 1); if (col && k % 3 === 0) px(g, col, cx + o, k); } });
+  const mound = (x, w, h, cap) => twice(o => { for (let k = 0; k < h; k++){ const half = Math.round(w / 2 * Math.sqrt(1 - Math.pow(k / h, 2))); px(g, PAL.ink, x + o - half, H - 1 - k, half * 2 + 1); } if (cap) for (let a = -Math.round(w / 2) + 2; a < w / 2 - 2; a++){ const k = Math.round(h * Math.sqrt(Math.max(0, 1 - Math.pow(a / (w / 2), 2)))); px(g, cap, x + o + a, H - 1 - k, 1, 1); } else px(g, PAL.deep, x + o - Math.round(w / 4), H - h, Math.round(w / 3), 1); });
+  let x = 20;
+  while (x < W - 20){
+    const p = r();
+    if (kind === 'roots'){ if (p < 0.5) spikeDown(x, 10 + Math.floor(r() * 22), 5 + Math.floor(r() * 8)); else strand(x, 14 + Math.floor(r() * 26), true); }
+    else if (kind === 'cloister'){ if (p < 0.55) strand(x, 16 + Math.floor(r() * 28), false, PAL.dark); else twice(o => { const L = 18 + Math.floor(r() * 10); for (let k = 0; k < L; k++){ const rag = k > L - 4 ? (k + x) % 3 : 0; px(g, PAL.ink, x + o + rag, k, 9 - rag * 2); if (k % 6 === 3) px(g, PAL.wood0, x + o + 1 + rag, k, 7 - rag * 2); } }); }
+    else { spikeDown(x, 8 + Math.floor(r() * 18), 3 + Math.floor(r() * 4), PAL.pale); }
+    x += 46 + Math.floor(r() * 90);
+  }
+  x = 40;
+  while (x < W - 30){
+    const p = r();
+    if (kind === 'roots'){ mound(x, 18 + Math.floor(r() * 26), 6 + Math.floor(r() * 8)); if (p < 0.5) twice(o => { for (let b = 0; b < 4; b++) px(g, PAL.ink, x + o + 14 + b * 3, H - 9 - Math.floor(r() * 7), 1, 12); }); }
+    else if (kind === 'cloister'){ twice(o => { const w = 10 + Math.floor(r() * 14), h = 6 + Math.floor(r() * 10); px(g, PAL.ink, x + o, H - h, w, h); px(g, PAL.wood0, x + o, H - h, w, 1); if (p < 0.6){ px(g, PAL.ink, x + o + w + 4, H - 12, 2, 12); px(g, PAL.fire2, x + o + w + 4, H - 14, 2, 2); px(g, PAL.fire3, x + o + w + 4, H - 15, 1, 1); } }); }
+    else { mound(x, 22 + Math.floor(r() * 30), 5 + Math.floor(r() * 7), PAL.white); if (p < 0.4) twice(o => { let cx = x + 20; for (let k = 0; k < 16; k++){ if (r() < 0.4) cx += 1; px(g, PAL.ink, cx + o, H - 6 - k, 1, 1); if (k === 9) for (let b = 0; b < 6; b++) px(g, PAL.ink, cx + o - b, H - 6 - k - b, 1, 1); } }); }
+    x += 90 + Math.floor(r() * 120);
+  }
+  const t = canvasTex(c); t.wrapS = THREE.RepeatWrapping; return t;
+}
+
 // ---- the play layer
 function paintPlay(glows, TM){
   const Wc = LEVEL.W, Hc = LEVEL.H, pw = Wc * CELL, ph = Hc * CELL, rock = LEVEL.sky ? (i, j) => (j >= Hc ? 0 : tileAt(Math.max(0, Math.min(Wc - 1, i)), j) === ROCK ? 1 : 0) : (i, j) => (tileAt(i, j) === ROCK ? 1 : 0);   // under a sky, nothing over the top of the map
@@ -347,18 +399,19 @@ export function makeRenderer(canvas){
   const camera = new THREE.OrthographicCamera(-10, 10, VIEW_H / 2, -VIEW_H / 2, -200, 200); camera.position.z = 100;
   const hemi = new THREE.HemisphereLight(0xffffff, 0x9aa6d0, 0.95), heroLight = new THREE.PointLight(0xffd2a0, 0.6, 7, 2), rnd = rng(7);
   const torchGlow = glowTex('rgba(255,170,60,1)'), crystalGlow = glowTex('rgba(80,240,255,1)');
-  const layers = [], exits = [], lights = [], flames = [], motes = [], pool = [];
+  const layers = [], exits = [], lights = [], flames = [], motes = [], pool = [], burning = [], veils = [], glints = [];
+  const flameTexs = [flameStrip(), flameStrip(), flameStrip()], ambNow = [1, 1, 1];
   let ready = null, TM = THEMES.roots;
   // ---- the region: everything in the scene is made here, and made again when he goes up to the next (load)
   function build(){
   for (const o of [...scene.children]){ scene.remove(o); o.traverse(m => { if (m.geometry) m.geometry.dispose(); const mt = m.material; if (mt){ if (mt.map && mt.map !== torchGlow && mt.map !== crystalGlow) mt.map.dispose(); mt.dispose(); } }); }
-  layers.length = exits.length = lights.length = flames.length = motes.length = pool.length = 0;
+  layers.length = exits.length = lights.length = flames.length = motes.length = pool.length = burning.length = veils.length = glints.length = 0;
   TM = THEMES[LEVEL.theme] || THEMES.roots;
   hemi.color.setHex(TM.hemi[0]); hemi.groundColor.setHex(TM.hemi[1]); hemi.intensity = TM.hemi[2]; scene.add(hemi); scene.add(heroLight);
   const W = LEVEL.W * T, Hh = LEVEL.H * T;
   // ---- the far cavern: held to the palette, a pixel a pixel, nearly still
   const FF = 0.04, far = new THREE.Mesh(new THREE.PlaneGeometry(400 / PPU, 224 / PPU), new THREE.MeshBasicMaterial({ color: 0xffffff })); far.position.z = -60; scene.add(far);
-  loadImg(`assets/side/bg/${TM.far.img}.png`).then(img => { if (img){ far.material.map = canvasTex(onPalette(img, TM.far.dim, TM.far.dither || 0)); far.material.needsUpdate = true; } });
+  loadImg(`assets/side/bg/${TM.far.img}.png`).then(img => { if (img){ far.material.map = TM.far.raw ? canvasTex(img) : canvasTex(onPalette(img, TM.far.dim, TM.far.dither || 0)); far.material.needsUpdate = true; } });
   layers.push({ obj: far, f: FF, ax: W / 2, ay: Hh / 2 });   // drawn at anchor + (camera - anchor) * (1 - f)
 
   // ---- the painted layers
@@ -378,8 +431,8 @@ export function makeRenderer(canvas){
         DECO.torch(g, cx, Y(m.y) - 2);
         const fl = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.1), new THREE.MeshBasicMaterial({ map: torchGlow, transparent: true, depthWrite: false, color: 0xffb060, blending: THREE.AdditiveBlending, opacity: 0.85 }));
         fl.position.set(x, y + 0.65, 1); scene.add(fl); flames.push({ m: fl, ph: rnd() * 9 });
-        const core = new THREE.Mesh(new THREE.PlaneGeometry(3 / PPU, 4 / PPU), new THREE.MeshBasicMaterial({ color: 0xfee761 })); core.position.set(x, y + 0.62, 0.9); scene.add(core); flames.push({ m: core, ph: rnd() * 9 });
-        lights.push({ x, y: y + 0.8, color: 0xff9a40, power: 1.5, range: 7, ph: rnd() * 9 });
+        const ft = flameTexs[burning.length % flameTexs.length], core = new THREE.Mesh(new THREE.PlaneGeometry(8 / PPU, 12 / PPU), new THREE.MeshBasicMaterial({ map: ft, transparent: true, alphaTest: 0.5 })); core.position.set(x, y + 0.86, 0.9); scene.add(core); burning.push(core);   // the flame itself, drawn, four frames
+        lights.push({ x, y: y + 0.8, color: 0xff9a40, power: 1.5, range: 7, ph: rnd() * 9, torch: true });
       }
       if (m.type === 'crystal') DECO[TM.gem](g, cx, Y(m.y), rr, glowAt);
       if (m.type === 'bell') DECO.bell(g, cx, Y(m.y));
@@ -423,6 +476,12 @@ export function makeRenderer(canvas){
     sh.position.set((i + 0.5) * T, (j + 1) * T - 3.5, -1); sh.rotation.z = 0.18; scene.add(sh);
   }
   for (let k = 0; k < 6; k++){ const L = new THREE.PointLight(0xffffff, 0, 7, 2); scene.add(L); pool.push(L); }
+  // ---- mist behind the play layer and a thin one before it, and the dark shapes close to the eye; all ride with the
+  // camera, their pictures sliding at their own rates
+  const veil = (tex, z, f, opacity, drift, tw, th) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(26, VIEW_H + 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity, depthWrite: false })); m.position.z = z; scene.add(m); veils.push({ m, tex, f, drift, tw, th, w: 26 * PPU, h: (VIEW_H + 1) * PPU }); };
+  if (TM.mist){ veil(mistTex(TM.mist, 41, false), -6, 0.8, TM.mist.a, TM.mist.drift, 256, 128); veil(mistTex(TM.mist, 87, true), 3, 1.15, TM.mist.a * 0.45, TM.mist.drift * 1.6, 256, 128); }
+  if (TM.fore){ const t = foreTex(TM.fore), m = new THREE.Mesh(new THREE.PlaneGeometry(26, VIEW_H), new THREE.MeshBasicMaterial({ map: t, transparent: true, alphaTest: 0.5, depthWrite: false })); m.position.z = 6; scene.add(m); veils.push({ m, tex: t, f: 1.4, drift: 0, tw: 512, th: TH, w: 26 * PPU, h: TH, fore: true }); }
+  for (let k = 0; k < 3; k++) ambNow[k] = TM.amb[k];
   }
   build();
 
@@ -436,10 +495,24 @@ export function makeRenderer(canvas){
   const blur = new THREE.ShaderMaterial({ uniforms: { tex: { value: null }, dir: { value: new THREE.Vector2() } }, vertexShader: vs,
     fragmentShader: 'uniform sampler2D tex; uniform vec2 dir; varying vec2 vUv; void main(){ vec3 c = texture2D(tex, vUv).rgb * 0.227; for (int i = 1; i < 5; i++){ float w = i == 1 ? 0.195 : i == 2 ? 0.122 : i == 3 ? 0.054 : 0.016; c += (texture2D(tex, vUv + dir * float(i)).rgb + texture2D(tex, vUv - dir * float(i)).rgb) * w; } gl_FragColor = vec4(c, 1.); }' });
   // the final pass also bends the picture round a blow: a ring that runs out from it, pushing pixels outward (two at once)
-  const comp = new THREE.ShaderMaterial({ uniforms: { tex: { value: null }, glow: { value: null }, amt: { value: 1.1 }, sh0: { value: new THREE.Vector4() }, sh1: { value: new THREE.Vector4() }, aspect: { value: 16 / 9 } }, vertexShader: vs,
+  // the final pass lights the picture (ambient, and a pool round each light, in dithered steps), adds the glow, and
+  // bends it round a blow: a ring that runs out from it, pushing pixels outward (two at once)
+  const NL = 12, lp = [], lc = []; for (let k = 0; k < NL; k++){ lp.push(new THREE.Vector3()); lc.push(new THREE.Vector3()); }
+  const comp = new THREE.ShaderMaterial({ uniforms: { tex: { value: null }, glow: { value: null }, amt: { value: 1.1 }, sh0: { value: new THREE.Vector4() }, sh1: { value: new THREE.Vector4() }, aspect: { value: 16 / 9 },
+    lp: { value: lp }, lc: { value: lc }, amb: { value: new THREE.Vector3(1, 1, 1) }, res: { value: new THREE.Vector2(320, 180) }, vig: { value: 0.3 } }, vertexShader: vs,
     fragmentShader: `uniform sampler2D tex; uniform sampler2D glow; uniform float amt; uniform vec4 sh0; uniform vec4 sh1; uniform float aspect; varying vec2 vUv;
+      uniform vec3 lp[${NL}]; uniform vec3 lc[${NL}]; uniform vec3 amb; uniform vec2 res; uniform float vig;
       vec2 ring(vec2 uv, vec4 s){ if (s.w <= 0.0) return vec2(0.0); vec2 d = uv - s.xy; d.x *= aspect; float r = length(d); float k = s.w * exp(-pow((r - s.z) / 0.03, 2.0)); return r > 1e-4 ? vec2(d.x / aspect, d.y) / r * k : vec2(0.0); }
-      void main(){ vec2 uv = vUv - ring(vUv, sh0) - ring(vUv, sh1); vec3 c = texture2D(tex, uv).rgb + texture2D(glow, uv).rgb * amt; c = c / (1.0 + 0.1 * c); gl_FragColor = vec4(c, 1.); }` });
+      float b2(vec2 a){ a = floor(a); return fract(a.x / 2.0 + a.y * a.y * 0.75); }
+      float b4(vec2 a){ return b2(0.5 * a) * 0.25 + b2(a); }
+      void main(){
+        vec2 uv = vUv - ring(vUv, sh0) - ring(vUv, sh1);
+        vec3 L = amb;
+        for (int i = 0; i < ${NL}; i++){ vec2 d = vUv - lp[i].xy; d.x *= aspect; float f = clamp(1.0 - length(d) / max(lp[i].z, 1e-4), 0.0, 1.0); L += lc[i] * f * f; }
+        vec2 q = vUv - 0.5; L *= 1.0 - vig * smoothstep(0.35, 0.8, length(q * vec2(0.9, 1.15)));
+        L = floor(L * 9.0 + 0.25 + b4(floor(vUv * res)) * 0.5) / 9.0;    // steps of light, half dithered between: banded like the art, not noisy
+        vec3 c = texture2D(tex, uv).rgb * min(L, vec3(1.45)) + texture2D(glow, uv).rgb * amt; c = c / (1.0 + 0.1 * c); gl_FragColor = vec4(c, 1.);
+      }` });
   const bloom = () => { const b = TM.bloom || [0.7, 1.1]; bright.uniforms.th.value = b[0]; comp.uniforms.amt.value = b[1]; }; bloom();   // how much bright things shine, by region
   const shocks = [{ t: 9, x: 0, y: 0, big: false }, { t: 9, x: 0, y: 0, big: false }]; let shockK = 0;
   main.texture.minFilter = main.texture.magFilter = THREE.NearestFilter;
@@ -456,6 +529,8 @@ export function makeRenderer(canvas){
   const cam = { x: 0, y: 0 }, snap = v => Math.round(v * PPU) / PPU;
   return {
     scene, camera, exits, get ready(){ return ready; }, size: () => size, load(){ build(); bloom(); }, theme: () => LEVEL.theme,
+    // a light for a moment (a blow, a burst) or for this frame only (a boss's eyes, kept up by calling it each frame)
+    glint(x, y, color, power = 1, range = 4, life = 0){ glints.push({ x, y, color, power, range, life, t: 0 }); },
     shock(x, y, big){ const S = shocks[shockK]; shockK = (shockK + 1) % shocks.length; Object.assign(S, { t: 0, x, y, big: !!big }); },
     // where something at parallax f (1 moves with the world, 0 with the camera), anchored at (ax, ay), is drawn now
     parallax: (f, ax, ay) => ({ x: snap(ax + (cam.x - ax) * (1 - f)), y: snap(ay + (cam.y - ay) * (1 - f)) }),
@@ -466,6 +541,7 @@ export function makeRenderer(canvas){
         if (L.back){ L.obj.position.set(snap(cam.x * (1 - FB) - MARGIN_X), snap(cam.y * (1 - FB) - MARGIN_Y + L.h), L.obj.position.z); continue; }
         L.obj.position.set(snap(L.ax + (cam.x - L.ax) * (1 - L.f)), snap(L.ay + (cam.y - L.ay) * (1 - L.f)), L.obj.position.z);
       }
+      for (const V of veils){ V.m.position.x = cam.x; V.m.position.y = cam.y; }
     },
     frame(t, hero){
       resize();
@@ -474,6 +550,20 @@ export function makeRenderer(canvas){
       const near = lights.filter(l => !l.off).map(l => ({ l, d: Math.hypot(l.x - cam.x, l.y - cam.y) })).sort((a, b) => a.d - b.d);
       pool.forEach((L, k) => { const n = near[k]; if (!n || n.d > 16){ L.intensity = 0; return; } L.position.set(n.l.x, n.l.y, 1.2); L.color.setHex(n.l.color); L.distance = n.l.range; L.intensity = n.l.power * (1 + Math.sin(t * 11 + n.l.ph) * 0.06); });
       if (hero) heroLight.position.set(hero.x, hero.y + 1.4, 1.6);
+      // flames: four frames, each torch a little out of step with the next
+      flameTexs.forEach((ft, k) => ft.offset.set(Math.floor(t * 9 + k * 1.3) % 4 / 4, 0));
+      // mist and the near shapes slide at their own rates (and the mist drifts), a whole pixel at a time
+      for (const V of veils){ V.tex.repeat.set(V.w / V.tw, V.h / V.th); V.tex.offset.set(Math.round(cam.x * PPU * V.f + t * V.drift * PPU) / V.tw, V.fore ? 0 : Math.round(cam.y * PPU * V.f) / V.th); }
+      // light: the region's ambient (dimmer inside, where it has an inside), then the nearest lights
+      { const rm = hero && LEVEL.rooms.find(r => hero.x >= r.x0 && hero.x < r.x1 && hero.y >= r.y0 && hero.y < r.y1), want = TM.ambIn && rm && !rm.open ? TM.ambIn : TM.amb;
+        for (let k = 0; k < 3; k++) ambNow[k] += (want[k] - ambNow[k]) * 0.04; comp.uniforms.amb.value.set(ambNow[0], ambNow[1], ambNow[2]); comp.uniforms.res.value.set(size.w, size.h);
+        const hw = size.w / 2 / PPU, hh = VIEW_H / 2, list = [];
+        if (hero) list.push({ x: hero.x, y: hero.y + 1.3, color: 0xffe2c0, power: 0.42, range: 5.5, d: -1 });
+        for (const n of near){ if (n.d > 20) break; const l = n.l; list.push({ x: l.x, y: l.y, color: l.color, power: (l.torch ? 0.62 : l.power > 1.6 ? 0.7 : 0.34) * (1 + Math.sin(t * 11 + l.ph) * 0.05 + Math.sin(t * 3.1 + l.ph * 2) * 0.04), range: l.torch ? 6.5 : l.range > 6 ? 7 : 4.2, d: n.d }); }
+        for (let i = glints.length - 1; i >= 0; i--){ const G = glints[i]; G.t += 1 / 60; const k = G.life > 0 ? Math.max(0, 1 - G.t / G.life) : 1; list.push({ x: G.x, y: G.y, color: G.color, power: G.power * k, range: G.range, d: -0.5 }); if (G.life <= 0 || G.t >= G.life) glints.splice(i, 1); }
+        list.sort((a, b) => a.d - b.d);
+        for (let k = 0; k < NL; k++){ const l = list[k]; if (!l){ lc[k].set(0, 0, 0); lp[k].set(0, 0, 0.001); continue; }
+          lp[k].set(0.5 + (l.x - cam.x) / (hw * 2), 0.5 + (l.y - cam.y) / (hh * 2), l.range / VIEW_H); lc[k].set((l.color >> 16 & 255) / 255 * l.power, (l.color >> 8 & 255) / 255 * l.power, (l.color & 255) / 255 * l.power); } }
       renderer.setRenderTarget(main); renderer.clear(); renderer.render(scene, camera);
       bright.uniforms.tex.value = main.texture; pass(bright, b1);
       blur.uniforms.tex.value = b1.texture; blur.uniforms.dir.value.set(1 / b1.width, 0); pass(blur, b2);
