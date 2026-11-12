@@ -6,7 +6,7 @@ import { TUNE } from '../config/tuning.js';
 import { IN, bindInput, endFrame, pollPads } from '../core/input.js';
 import { sfx, ac } from '../audio/sfx.js';
 import '../ui/feel.js';
-import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE } from './level.js';
+import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA } from './level.js';
 import { makeProps } from './props.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, CAN } from './motor.js';
 import { makeRenderer, makeSprite, VIEW_H, makeSwingFx } from './render.js';
@@ -205,6 +205,7 @@ function frame(ts){
   endFrame();
   const evs = [];
   stepEnemies(E, P, sdt, fx, evs);
+  { const RD = REGION_DATA[LEVEL.index]; if (RD.tick) RD.tick(sdt, time, TICK); }   // the region's own weather and workings (its file)
   if (BOSS) BOSS.step(P, sdt, fx, evs);
   for (const e of P.events) onEvent(e);
   P.events.length = 0;
@@ -295,6 +296,8 @@ function frame(ts){
   drawHud(dt);
   requestAnimationFrame(frame);
 }
+// what a region's tick is handed: the renderer, him, the effects, sound, a flash of the whole picture, a shake
+const TICK = { R, get P(){ return P; }, get fx(){ return fx; }, sfx, LEVEL, flash: v => { FLASH = Math.max(FLASH, v); }, shake: v => { FEEL_FX.shake = Math.max(FEEL_FX.shake, v); }, get room(){ return roomAt(P.x, P.y); } };
 function onEvent(e){
   const at = { x: P.x, y: P.y };
   switch (e.type){

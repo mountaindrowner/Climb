@@ -28,7 +28,7 @@ function noise(dur, vol, freq){
   s.connect(f).connect(g).connect(OUT); s.start(t); s.stop(t + dur + 0.02);
 }
 export function setVolume(v){ if (OUT) OUT.gain.value = v; }
-export const sfx = {
+const SYNTH = {
   step(){ tone(72, 0.09, 'sine', 0.22, -30); noise(0.05, 0.05, 380); },
   creep(){ tone(64, 0.06, 'sine', 0.06, -16); noise(0.035, 0.015, 300); },   // a crouched, careful footfall: barely there
   jump(){ tone(260, 0.12, 'square', 0.04, 220); },
@@ -57,4 +57,6 @@ export const sfx = {
   dash(){ noise(0.24, 0.12, 2800); tone(260, 0.18, 'sawtooth', 0.035, -180); },
   snap(){ noise(0.08, 0.1, 3200); tone(300, 0.08, 'square', 0.05, -150); },
 };
+// any name can be called: one with no sound yet is silent
+export const sfx = new Proxy(SYNTH, { get: (o, k) => o[k] || (() => {}) });
 export function buzz(ms){ try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} }
