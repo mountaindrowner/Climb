@@ -625,6 +625,16 @@
     "action": "lands hard from a high plunge: drives the curved sword point-first into the ground just in front of his feet, knees bend",
     "frames": 12,
     "group": "7d68fdcb-3fab-47b0-a189-33e954b08082"
+   },
+   "fall_back": {
+    "action": "falling backward through empty air, his body arched and nearly level, both arms spread wide open, face turned up toward the sky above, his long coat and red scarf streaming upward above him, legs trailing, slowly drifting",
+    "frames": 8,
+    "group": "2276be66-19c6-4987-bec2-b09444e53ba9"
+   },
+   "fall_reach": {
+    "action": "falling down through the air on his back, one arm reaching straight up toward a light far above him, the other arm loose, coat and red scarf streaming upward, slowly turning",
+    "frames": 8,
+    "group": "14e47dce-aa11-4918-8df6-f1c7dacb41f8"
    }
   }
  },

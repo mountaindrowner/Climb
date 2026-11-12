@@ -2,6 +2,8 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
+**The fall, shot by shot (latest).** The close-up of him spinning is gone. The fall is six held shots, one for each region from the summit down, each while its line is up, with a whip down through the rock between them where the picture dips to black and the shot changes: close on him under the summit's stars, smaller and further off with every region, alone in the dark at the last. He is drawn falling (a new PixelLab animation, `fall_back`, turned a quarter: face down, arms flung out to the dark under him, coat streaming up), at whole pixels, never spun. The red thread streams up from his scarf: cloth near him, then thinning, then only light going on up, and under the stars its end can be seen, a small flame. Each region passes in front of him (stars, petals, rain and lightning with thunder, snow, embers and the bell, the crystals of the dark), and at the last the water takes him with a splash.
+
 **The mountain in the light.** The mountain on the title, the cards and the ending has a normal map of its own (`mountainShape` in `story.js`): a height field made from its silhouette (a rounded section, a spine, buttresses that branch off it and run down, gullies, strata), smoothed, its normals and a little occlusion worked out from it. The painting is lit by it in dithered palette steps: at night the moon behind its right shoulder only catches what faces it, so the mass stays dark; at dawn the low sun lights its left flank. `story.maps.normals` is the map itself.
 
 **What it is about: the water, the fall run back, new names, a mountain too large to see.** `docs/story.md` is the direction.

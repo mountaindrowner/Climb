@@ -22,7 +22,7 @@ walk('src/side/main.js');
 const files = [...seen, 'vendor/three/three.min.js', 'vendor/three/GLTFLoader.js'];
 // the art the game loads now: the 16-pixel cast (with the normal maps that light it by its shape), the warrior's strips
 // that are drawn (not every one he has), the bosses in pieces, the combo's effects, the far paintings, the palette
-const HERO = ['stand', 'idle', 'run', 'jump', 'fall', 'hurt', 'plunge', 'plunge_fall', 'plunge_land', 'roll2_px', 'flip_px', 'land_px', 'climb_hang2', 'climb_px', 'atk_slam_v3', 'atk_slam_px', 'atk_spin_px', 'atk_rise_px', 'atk_dash_px', 'getup'];
+const HERO = ['stand', 'idle', 'run', 'jump', 'fall', 'hurt', 'plunge', 'plunge_fall', 'plunge_land', 'fall_back', 'roll2_px', 'flip_px', 'land_px', 'climb_hang2', 'climb_px', 'atk_slam_v3', 'atk_slam_px', 'atk_spin_px', 'atk_rise_px', 'atk_dash_px', 'getup'];
 const SIDE = new RegExp('^assets/side/(px_(?!hat/|hood/|knight/|mask/)[a-z_]+/.*\\.(png|json)|mask_tall_c/(sprite\\.json|(' + HERO.join('|') + ')(_n)?\\.png)|colossus/(fist|forearm|upperarm)16(_n)?\\.png|warden/\\w+16(_n)?\\.png|(toll|wyrm|thunderhead|mother|fallen)/\\w+\\.(png|json)|vfx/cut\\d/(fx\\.json|pack/(front|behind)\\.png)|bg/(far|cloister|spires|tempest|gardens|firmament)\\.png|palette\\.json)$');
 const AUDIO = /^assets\/audio\/(manifest\.json|music\/\w+\.mp3|sfx\/\w+\.wav)$/;   // the recorded score and sounds
 (function add(dir){ if (!existsSync(join(root, dir))) return; for (const n of readdirSync(join(root, dir))){ const p = join(dir, n); if (statSync(join(root, p)).isDirectory()) add(p); else if (SIDE.test(p) || AUDIO.test(p)) files.push(p); } })('assets');

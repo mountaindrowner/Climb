@@ -159,12 +159,12 @@ export function makeStory(hud, heroBase){
   const far = { firmament: img('assets/side/bg/firmament.png'), gardens: img('assets/side/bg/gardens.png'), tempest: img('assets/side/bg/tempest.png'), spires: img('assets/side/bg/spires.png'), cloister: img('assets/side/bg/cloister.png'), roots: img('assets/side/bg/far.png') };
   // the rock between two regions, as he falls past: dark, its edges broken up
   const rock = canvas(CW, 50); { const rg = rock.getContext('2d'); rg.fillStyle = PAL.ink; for (let yy = 0; yy < 50; yy++) for (let x = 0; x < CW; x++){ const e = Math.min(yy, 49 - yy) / 8; if (e >= 1 || B4[(yy & 3) * 4 + (x & 3)] / 16 < e) rg.fillRect(x, yy, 1, 1); } }
-  const hero = { fall: img(`${heroBase}/fall.png`), stand: img(`${heroBase}/stand.png`), getup: img(`${heroBase}/getup.png`) };
+  const hero = { fall: img(`${heroBase}/fall.png`), stand: img(`${heroBase}/stand.png`), getup: img(`${heroBase}/getup.png`), back: img(`${heroBase}/fall_back.png`) };
   const S = { kind: null, t: 0, opts: {}, done: null, snow: Array.from({ length: 60 }, (_, k) => ({ x: (k * 53) % CW, y: (k * 97) % CH, v: 20 + (k * 7) % 30 })) };
   const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), w, h); };
   S.maps = MAPS;
   S.active = () => !!S.kind;
-  S.start = (kind, opts = {}, done = null) => { S.kind = kind; S.t = 0; S.opts = opts; S.done = done; S.said = -1; };
+  S.start = (kind, opts = {}, done = null) => { S.kind = kind; S.t = 0; S.opts = opts; S.done = done; S.said = -1; S.shot = -1; };
   const end = () => { const d = S.done; S.kind = null; S.done = null; if (d) d(); };
   // a press: the title waits for its buttons; the rest can be hurried on once they have begun
   S.press = () => { if (!S.kind || S.kind === 'title') return; if (S.t > 0.6){ if (S.kind === 'card') S.t = Math.max(S.t, LEN.card - 0.5); else if (S.kind === 'pool') S.t = Math.max(S.t, LEN.pool - 0.4); else end(); } };
@@ -180,6 +180,61 @@ export function makeStory(hud, heroBase){
     if (!im.complete || !im.naturalWidth) return; const n = Math.max(1, Math.round(im.naturalWidth / im.naturalHeight)), w = im.naturalWidth / n;
     g.save(); g.translate(Math.round(x), Math.round(y)); g.rotate(rot); g.drawImage(im, (frame % n) * w, 0, w, im.naturalHeight, -size / 2, -size / 2, size, size); g.restore();
   }
+  // a drawing at a whole number of pixels to one, its middle at (x, y); and the top of what is drawn in that frame (where
+  // the thread leaves him), found once
+  const strip = im => { const n = Math.max(1, Math.round(im.naturalWidth / im.naturalHeight)); return { n, w: im.naturalWidth / n, h: im.naturalHeight }; };
+  const tops = new Map();
+  // where the thread leaves him in a frame: the highest of the red of his scarf (else the highest of him)
+  function topOf(im, f){ const key = (im.src || im.id) + '#' + f; if (tops.has(key)) return tops.get(key); const { w, h } = strip(im), c = canvas(w, h), cg = c.getContext('2d'); cg.drawImage(im, f * w, 0, w, h, 0, 0, w, h);
+    const d = cg.getImageData(0, 0, w, h).data; let best = null, any = null;
+    for (let y = 0; y < h && !best; y++) for (let x = 0; x < w; x++){ const q = (y * w + x) * 4; if (d[q + 3] < 120) continue; if (!any) any = { x: x - w / 2, y: y - h / 2 }; if (d[q] > 150 && d[q + 1] < 90 && d[q + 2] < 100){ best = { x: x - w / 2, y: y - h / 2 }; break; } }
+    tops.set(key, best || any || { x: 0, y: -h / 2 }); return tops.get(key); }
+  // his fall, drawn: the frames of fall_back where his arms are flung out, a quarter turn clockwise (face down, arms to
+  // the dark under him, coat and thread streaming up), and the same mirrored. Made once the drawing is in
+  let FALLING = null;
+  function falling(){
+    if (FALLING) return FALLING; const im = hero.back; if (!im.complete || !im.naturalWidth) return null;
+    const { n, w, h } = strip(im), use = [4, 5, 6, 7, 8].filter(f => f < n), make = flip => { const c = canvas(h * use.length, w); c.id = 'falling' + flip; const cg = c.getContext('2d'); cg.imageSmoothingEnabled = false;
+      use.forEach((f, i) => { cg.save(); cg.translate(i * h + h / 2, w / 2); cg.rotate(Math.PI / 2); if (flip) cg.scale(1, -1); cg.drawImage(im, f * w, 0, w, h, -w / 2, -h / 2, w, h); cg.restore(); }); c.naturalWidth = c.width; c.naturalHeight = c.height; c.complete = true; return c; };
+    return FALLING = [make(false), make(true)];
+  }
+  function pose(im, f, x, y, k){ if (!im.complete || !im.naturalWidth) return null; const { n, w, h } = strip(im); f = ((f % n) + n) % n;
+    g.drawImage(im, f * w, 0, w, h, Math.round(x - w * k / 2), Math.round(y - h * k / 2), w * k, h * k); const tp = topOf(im, f); return { x: Math.round(x + tp.x * k), y: Math.round(y + tp.y * k) }; }
+  // the red thread from his neck up out of the picture, unbroken, swaying; it ends in a point of light when the light is in
+  // the picture (`to`: its end, or off the top)
+  function thread(from, t, k, to){
+    const y1 = to ? to.y : -2, x1 = to ? to.x : from.x + Math.sin(t * 0.7) * 12;
+    let lx = from.x;
+    for (let y = from.y; y >= y1; y--){ const u = (from.y - y) / Math.max(1, from.y - y1), base = from.x + (x1 - from.x) * u * u, wave = Math.sin(y * 0.06 + t * 2.6) * 7 + Math.sin(y * 0.021 - t * 1.3) * 11,
+      x = Math.round(base + wave * Math.min(1, u * 4) * (to ? 1 - u : 1)), wide = k > 1 && u < 0.35 ? 2 : 1;
+      // near him it is cloth, red; further up it thins, and then it is only light, going on up
+      const keep = B4[(y & 3) * 4 + (x & 3)] / 16, cloth = u < 0.22, thin = u < 0.42 && keep < 1 - (u - 0.22) / 0.2 * 0.7;
+      for (let xx = Math.min(lx, x); xx <= Math.max(lx, x); xx++){
+        if (cloth){ px(PAL.ink, xx - 1, y, wide + 2, 1); px((y + xx) % 7 === 0 ? PAL.rose : PAL.red1, xx, y, wide, 1); }
+        else if (thin) px(PAL.red1, xx, y, 1, 1);
+        else if (u >= 0.36 && (y + Math.floor(t * 18)) % 3 === 0 && keep < 0.75) px(keep < 0.25 ? PAL.white : PAL.fire3, xx, y, 1, 1); }
+      lx = x; }
+    if (to){ for (let yy = -9; yy <= 9; yy++) for (let xx = -9; xx <= 9; xx++){ const d = Math.hypot(xx, yy); if (d < 9 && B4[((to.y + yy) & 3) * 4 + ((to.x + xx) & 3)] / 16 < (1 - d / 9) * 0.6) px(d < 4 ? PAL.fire3 : PAL.fire2, to.x + xx, to.y + yy, 1, 1); }
+      const pul = 1 + Math.sin(t * 3) * 0.5; for (let a = -4; a <= 4; a++){ px(PAL.fire3, to.x + a, to.y, 1, 1); px(PAL.fire3, to.x, to.y + a, 1, 1); } px(PAL.white, to.x - 1, to.y - 1, 3, 3); for (let r = 2; r < 6 + pul; r++) if (r % 2) px(PAL.fire2, to.x - r, to.y - r, 1, 1); }
+  }
+  // what each region puts in front of him as he goes past: [stars, petals, rain, snow, embers, the dark]
+  function weather(k, t, a){
+    const R = (n, s) => ((Math.sin(n * 127.1 + s * 311.7) * 43758.5453) % 1 + 1) % 1;
+    g.globalAlpha = a;
+    if (k === 0) for (let n = 0; n < 30; n++){ const x = R(n, 1) * CW, y = CH - ((t * (40 + R(n, 2) * 120) + R(n, 3) * 400) % (CH + 30)), L = 1 + Math.floor(R(n, 4) * 3); px(R(n, 5) < 0.3 ? PAL.cyan : PAL.white, x, y, 1, L); }
+    if (k === 1) for (let n = 0; n < 34; n++){ const y = CH - ((t * (50 + R(n, 2) * 70) + R(n, 3) * 400) % (CH + 20)), x = (R(n, 1) * CW + Math.sin(t * 2 + n) * 10 + CW) % CW; px(R(n, 6) < 0.25 ? PAL.moss2 || '#63c74d' : R(n, 6) < 0.6 ? PAL.rose : PAL.pink, x, y, 2, R(n, 7) < 0.5 ? 1 : 2); }
+    if (k === 2){ for (let n = 0; n < 70; n++){ const y = CH - ((t * (160 + R(n, 2) * 80) + R(n, 3) * 400) % (CH + 30)), x = (R(n, 1) * CW + (CH - y) * 0.45) % CW; for (let q = 0; q < 6; q++) px(PAL.light, x - q * 0.45, y + q, 1, 1); } }
+    if (k === 3) for (let n = 0; n < 60; n++){ const y = CH - ((t * (110 + R(n, 2) * 140) + R(n, 3) * 400) % (CH + 20)), x = (R(n, 1) * CW + Math.sin(t * 1.4 + n) * 6 + CW) % CW; px(PAL.white, x, y, R(n, 5) < 0.3 ? 2 : 1, R(n, 5) < 0.3 ? 2 : 1); }
+    if (k === 4) for (let n = 0; n < 30; n++){ const y = CH - ((t * (40 + R(n, 2) * 60) + R(n, 3) * 400) % (CH + 20)), x = (R(n, 1) * CW + Math.sin(t * 3 + n) * 4 + CW) % CW; px(R(n, 5) < 0.4 ? PAL.fire3 : PAL.fire1, x, y, 1, 1); }
+    if (k === 5) for (let n = 0; n < 16; n++){ const y = CH - ((t * (60 + R(n, 2) * 40) + R(n, 3) * 400) % (CH + 20)), x = R(n, 1) * CW; px(R(n, 5) < 0.5 ? PAL.cyan : PAL.blue, x, y, 1, 1 + Math.floor(R(n, 4) * 3)); }
+    g.globalAlpha = 1;
+  }
+  // each region a shot: how large he is in it, where in the picture, which drawing, what is heard as it comes
+  // each region a shot, held while its line is up (a, b), then a whip down through the rock to the next: how large he is
+  // in it, where, which way he faces, what is heard as it comes. The last holds until he reaches the water
+  const SHOTS = [{ a: 5.0, b: 7.45, k: 2, x: 170, y: 100, flip: 0 }, { a: 7.85, b: 9.95, k: 2, x: 104, y: 96, flip: 1 }, { a: 10.35, b: 12.45, k: 2, x: 214, y: 92, flip: 0, snd: 'thunder' },
+    { a: 12.85, b: 14.95, k: 1, x: 140, y: 88, flip: 1 }, { a: 15.35, b: 17.45, k: 1, x: 196, y: 94, flip: 0, snd: 'bell' }, { a: 17.85, b: 21.4, k: 1, x: 160, y: 80, flip: 1 }];
+
   // words over the picture, at the screen's own size
   const words = [];
   // x: where it is set from (left), if not the middle
@@ -204,15 +259,37 @@ export function makeStory(hud, heroBase){
       if (t > 2.2 && t < 2.5) px(PAL.white, 0, 0, CW, CH);
       if (t > 2.2 && S.said < 0){ S.said = 0; sfx.crack && sfx.crack(); }
     } else if (t < FALL1){
-      // the fall: the mountain's six regions go up past him, each behind its own rock
-      const u = (t - FALL0) / (FALL1 - FALL0), scroll = u * u * 0.3 + u * 0.7, band = [far.firmament, far.gardens, far.tempest, far.spires, far.cloister, far.roots], n = band.length;
-      const total = n * 224 + (n - 1) * 50, y0 = -scroll * (total - CH * 0.4);
+      // the fall. The six regions, from the summit down, each a held shot while its line is up; between two, a whip down
+      // through the rock (the picture dips to black there, and the shot changes). Close on him under the summit's stars,
+      // smaller and further off with every region, alone in the dark at the last. He does not tumble: he falls face down,
+      // arms out to the dark under him, and the red thread streams up from him out of the picture, unbroken all the way
+      // down. Under the stars its end can still be seen: a point of light
+      const band = [far.firmament, far.gardens, far.tempest, far.spires, far.cloister, far.roots], n = band.length;
+      let i = SHOTS.findIndex(q => t < q.b), p = 0, whip = 0; if (i < 0) i = n - 1;
+      const Q = SHOTS[i]; if (t < Q.a){ whip = (t - SHOTS[i - 1].b) / (Q.a - SHOTS[i - 1].b); }   // between shot i-1 and i
+      const hold = whip ? 0 : Math.min(1, (t - Q.a) / (Q.b - Q.a)), top = whip ? (1 - ease(whip)) * 230 : -hold * 44;   // where band i's top is
+      const y0 = top - i * 274;
       px(PAL.ink, 0, 0, CW, CH);
-      band.forEach((im, k) => { const y = y0 + k * (224 + 50); if (im.complete && im.naturalWidth && y < CH && y > -224) g.drawImage(im, 40, 0, 320, 224, 0, Math.round(y), 320, 224); });
+      band.forEach((im, k) => { const y = y0 + k * 274; if (im.complete && im.naturalWidth && y < CH && y > -224) g.drawImage(im, 40, 0, 320, 224, 0, Math.round(y), 320, 224); });
       for (let k = 0; k < n - 1; k++){ const y = Math.round(y0 + 224 + k * 274); if (y < CH && y > -50) g.drawImage(rock, 0, y); }
-      for (let k = 0; k < 26; k++){ const x = (k * 71 + 13) % CW, y = (k * 47 + t * 520) % (CH + 40) - 20; px(k % 3 ? PAL.light : PAL.white, x, CH - y, 1, 6 + k % 5); }
-      figure(hero.fall, Math.floor(t * 10), 160 + Math.sin(t * 2.1) * 10, 80 + Math.sin(t * 1.3) * 6, t * 4.5, 56);
-      const dim = ease((t - (FALL1 - 1.4)) / 1.2); if (dim > 0){ g.globalAlpha = dim; px(PAL.ink, 0, 0, CW, CH); g.globalAlpha = 1; }
+      const k = whip && whip < 0.5 ? i - 1 : i, SH = SHOTS[k];
+      if (k !== S.shot){ S.shot = k; if (SH.snd && sfx[SH.snd]) sfx[SH.snd](); if (k === 2) S.bolt = 0.35; if (k > 0) sfx.whoosh && sfx.whoosh(); }
+      // the storm: lightning, behind him
+      if (k === 2){ S.bolt = (S.bolt || 0) - dt; if (S.bolt < -1.3) S.bolt = 0.12; if (S.bolt > 0){ g.globalAlpha = 0.45; px(PAL.white, 0, 0, CW, CH); g.globalAlpha = 1; let bx = 40 + Math.floor(t * 37) % 120; for (let y = 0; y < CH; y += 3){ bx += Math.round(Math.sin(y * 1.7 + t * 5) * 3); px(PAL.white, bx, y, 2, 3); px(PAL.pale, bx + 2, y, 1, 3); } } }
+      weather(k, t, 0.5);   // what is behind him, a little
+      const F = falling(), sx = SH.x + Math.sin(t * 0.9) * 3, sy = SH.y - 8 + (whip ? 0 : hold) * 16 + Math.sin(t * 1.3) * 2;
+      const fr = [0, 1, 2, 3, 4, 3, 2, 1][Math.floor(t * 7) % 8];   // the arms and the coat working, back and forth
+      const neck = F ? pose(F[SH.flip], fr, sx, sy, SH.k) : pose(hero.fall, Math.floor(t * 8), sx, sy, SH.k);
+      if (neck) thread(neck, t, SH.k, k === 0 ? { x: SH.x - 46, y: 10 } : null);
+      weather(k, t * 1.3 + 7, 1);   // and what goes past in front of him
+      // the whip: everything streaks up, the picture dips to black at its middle
+      if (whip){ for (let q = 0; q < 40; q++){ const x = (q * 53 + Math.floor(t * 90) * 7) % CW, y = (q * 29 + Math.floor(t * 90) * 31) % CH; px(q % 3 ? PAL.light : PAL.white, x, y, 1, 10 + q % 14); } g.globalAlpha = Math.sin(Math.PI * whip); px(PAL.ink, 0, 0, CW, CH); g.globalAlpha = 1; }
+      // at the last the dark closes in; then the water takes him
+      const TI = FALL1 - 0.3, dim = ease((t - (TI - 1.5)) / 1.3); if (dim > 0){ g.globalAlpha = Math.min(1, dim); px(PAL.ink, 0, 0, CW, CH); g.globalAlpha = 1; }
+      if (t > TI){ const w = (t - TI) / 0.3; if (S.said < 0.5){ S.said = 0.5; sfx.splash && sfx.splash(); }
+        for (let x = 0; x < CW; x++){ const yy = 150 + Math.round(Math.sin(x * 0.2 + t * 9) * 1.5 * (1 - w)); px(Math.abs(x - 160) < 30 + w * 80 ? (x % 3 ? PAL.cyan : PAL.white) : PAL.navy, x, yy, 1, 1); }
+        for (let q = 0; q < 26; q++){ const a = Math.PI * (0.15 + 0.7 * (q / 25)), r = w * (22 + (q % 5) * 7), x = 160 + Math.cos(a) * r * 1.6, y = 150 - Math.sin(a) * r + w * w * 30; px(q % 3 ? PAL.cyan : PAL.white, x, y, 1, 2); }
+        if (w < 0.3){ g.globalAlpha = (0.3 - w) / 0.3 * 0.7; px(PAL.white, 0, 0, CW, CH); g.globalAlpha = 1; } }
     } else {
       // the water, in the dark; and then the light on it
       const k = ease((t - 21.9) / 2.2); px(PAL.ink, 0, 0, CW, CH); g.globalAlpha = k; g.drawImage(pool, 0, 0); g.globalAlpha = 1;
