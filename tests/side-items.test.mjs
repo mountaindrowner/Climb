@@ -25,3 +25,22 @@ for (let N = 0; N < LEVELS.length; N++){
   });
 }
 test('no relic is in two regions, and every keeper leaves something', () => { assert.equal(new Set(relics).size, relics.length); assert.equal(TEACH.length, LEVELS.length); });
+// Corwen's Annals cover the whole cast: every creature in a region has an entry somewhere, every entry's creature lives in
+// the region it is entered under, and each region's page is its keeper's
+test("Corwen's Annals: every creature entered, each under the region it lives in", async () => {
+  const { ANNALS } = await import('../src/side/annals.js'), all = new Set(ANNALS.flatMap(a => a.creatures.map(c => c.type)));
+  const NOT = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep']);
+  for (let N = 0; N < LEVELS.length; N++){
+    const { marks, theme } = loadLevel(N), here = new Set(marks.filter(m => !NOT.has(m.type)).map(m => m.type));
+    for (const t of here) assert.ok(all.has(t), `${t} (in ${LEVELS[N].name}) has no entry`);
+    for (const c of ANNALS[N].creatures) assert.ok(here.has(c.type), `${c.type} is entered under ${LEVELS[N].name} but does not live there`);
+    assert.equal(ANNALS[N].keeper.theme, theme);
+  }
+});
+test('the three who climb each have a station in a room of their own, never the first', () => {
+  for (let N = 0; N < LEVELS.length; N++){
+    const { marks, rooms } = loadLevel(N), sp = marks.find(m => m.type === 'spawn'), first = rooms.find(r => sp.x >= r.tx0 && sp.x < r.tx1 && sp.y >= r.ty0 && sp.y < r.ty1);
+    const where = marks.filter(m => m.type === 'npc').map(m => { assert.ok(m.station, `${m.who} in ${LEVELS[N].name} has no station`); return rooms.find(r => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1); });
+    assert.equal(new Set(where).size, 3, `${LEVELS[N].name}: two of them share a room`); assert.ok(!where.includes(first), `${LEVELS[N].name}: one of them is in the first room`);
+  }
+});

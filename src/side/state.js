@@ -8,9 +8,10 @@
 //   G.got[n]  what has been taken in region n (chests, threads, urns), G.broke[n] the cracked rock broken there
 //   G.met     how many times each person has been spoken to, by region; G.charts regions whose chart he has bought
 //   G.falls   how many times he has fallen, which is how many times he has been raised
+//   G.seen, G.slain, G.keepers: what he has met, killed, and which keepers he has faced (Corwen's Annals, annals.js)
 import { TUNE } from '../config/tuning.js';
 const KEY = 'climb-side', OKEY = 'climb-side-opts';
-const blank = () => ({ level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], got: {}, broke: {}, met: {}, charts: [], began: false, falls: 0 });
+const blank = () => ({ level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], got: {}, broke: {}, met: {}, charts: [], began: false, falls: 0, seen: {}, slain: {}, keepers: {} });
 export const G = blank();
 export const OPT = { music: 0.7, sfx: 1, shake: 1, flash: 1, diff: 1, synth: false, rumble: true };   // diff: 0 story, 1 climber, 2 summit
 const read = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e){ return null; } };

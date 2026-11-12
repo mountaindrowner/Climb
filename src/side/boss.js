@@ -60,7 +60,7 @@ export function makeWarden(scene, R){
   const room = LEVEL.rooms.find(r => r.name === 'arena'), mk = LEVEL.marks.find(m => m.type === 'boss');
   if (!room || !mk) return null;
   const stageY = mk.y * T, cx = (mk.x + 0.5) * T, xMin = room.x0 + 1 + W.fistR, xMax = room.x1 - 1 - W.fistR, roofY = room.y1 - 1;
-  const B = { name: W.name, hint: 'strike its fists when they rest', rage: 'the roof is coming down', fell: 'the way up is open', st: 'dormant', tm: 0, hp: W.hp, phase: 1, flash: 0, cd: 1.2, rockT: 0, lift: W.sunk, room, stageY, cx, xMin, xMax, arms: [], rocks: [], ripples: [], next: 0 };
+  const B = { name: W.name, hint: 'strike its fists when they rest', rage: 'it will not let you rise', fell: 'what held you down is broken', st: 'dormant', tm: 0, hp: W.hp, phase: 1, flash: 0, cd: 1.2, rockT: 0, lift: W.sunk, room, stageY, cx, xMin, xMax, arms: [], rocks: [], ripples: [], next: 0 };
   const stone = 0xa9b4a2, far = 0x97a294;   // the arms are grey; brought toward the moss. The body, further back, a little darker
   Object.assign(B, { look: 0, reel: 0, roar: 0, jaw: 0 });
   // ---- the body's pieces, with a cold glow behind it so it stands out of the dark

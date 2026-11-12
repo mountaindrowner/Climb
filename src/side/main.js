@@ -14,6 +14,7 @@ import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, CAN, SIDE } from '.
 import { G, OPT, loadSave, store, storeOpt, wipe, has, maxHearts, maxFlask, RELICS, TEACH, THREADS_A_HEART, DIFF } from './state.js';
 import { makeItems } from './items.js';
 import { makeTalk, SCRIPT } from './talk.js';
+import { ANNALS, PEOPLE_PAGE } from './annals.js';
 import { makeRenderer, makeSprite, VIEW_H, makeSwingFx } from './render.js';
 import { spawnFx, stepFx } from './fx.js';
 import { spawnEnemies, stepEnemies, strikeEnemies, slamEnemies } from './enemies.js';
@@ -100,7 +101,7 @@ const menuLabel = text => { const d = document.createElement('div'); d.textConte
 let MSEL = 0;
 const menuItems = () => [...MENU.querySelectorAll('button')];
 const menuMark = () => menuItems().forEach((b, i) => { b.style.outline = i === MSEL ? '2px solid #fee761' : 'none'; b.style.outlineOffset = '2px'; });
-const menuShow = (rows, left = false, back = null) => { MENU.back = back; MENU.innerHTML = ''; MENU.style.display = 'flex'; MENU.style.alignItems = left ? 'flex-start' : 'center'; MENU.style.paddingLeft = left ? '4%' : '0'; MENU.style.top = left ? '36%' : '56%'; for (const r of rows) if (r) MENU.appendChild(r); MSEL = 0; menuMark(); };
+const menuShow = (rows, left = false, back = null) => { MENU.back = back; MENU.innerHTML = ''; MENU.style.bottom = ''; MENU.style.display = 'flex'; MENU.style.alignItems = left ? 'flex-start' : 'center'; MENU.style.paddingLeft = left ? '4%' : '0'; MENU.style.top = left ? '36%' : '56%'; for (const r of rows) if (r) MENU.appendChild(r); MSEL = 0; menuMark(); };
 const menuHide = () => { MENU.style.display = 'none'; MENU.innerHTML = ''; MENU.back = null; release(); };   // and nothing pressed in it carries into play
 function begin(){   // from the start: the fall, then he gets up at the bottom
   menuHide(); wipe(); resetLevels(); enter(0); { const s = spawnPoint(); P = born(s.x, s.y); }   // everything as it was at the first: the rock unbroken, the chests shut
@@ -127,6 +128,45 @@ function options(back){
     cyc('Rumble', 'rumble', [true, false], ['on', 'off'], () => { SET.rumble = OPT.rumble; saveSettings(); if (OPT.rumble) rumble(0.5, 0.5, 160); }),
     menuButton('Back', back, true)], false, back);
 }
+// ---- Corwen's Annals: a page for each region (its keeper and its creatures) and one for the three who climb. Drawn on
+// the HUD (drawAnnals); the buttons under it turn the pages; so do left and right (and the shoulder buttons)
+let PAGE = 0;
+// art: a character's folder (its standing drawing, cropped to head and shoulders), or a picture's path (a keeper's piece, fitted whole)
+const PORTRAIT = {}, portrait = art => { if (!art) return null; if (PORTRAIT[art]) return PORTRAIT[art]; const im = new Image(); im.src = art.includes('/') ? `assets/side/${art}.png` : `assets/side/${art}/stand.png`; return PORTRAIT[art] = im; };
+function annals(page){
+  SCREEN = 'annals'; PAUSE = true; PAGE = Math.max(0, Math.min(ANNALS.length, page)); release();
+  const turn = d => () => { PAGE = (PAGE + d + ANNALS.length + 1) % (ANNALS.length + 1); sfx.ui(); };
+  const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:8px';
+  row.appendChild(menuButton('<', turn(-1), true)); row.appendChild(menuButton('Back', () => pause(true), true)); row.appendChild(menuButton('>', turn(1), true));
+  menuShow([row], false, () => pause(true)); MENU.style.top = 'auto'; MENU.style.bottom = '1.5%'; MSEL = 1; menuMark();
+}
+// one entry: a portrait (the head and shoulders of its drawing; a keeper, too large to fit, has a mark), its name, its
+// line, and what is known of it. What he has not met is not yet entered
+const CROP = {};
+function entry(x, y, art, name, line, known, note, col){
+  const g = HUD.g, im = portrait(art), whole = art.includes('/'); HUD.px('#181425', x, y, 24, 24); HUD.px(whole ? '#3a1a24' : '#262b44', x + 1, y + 1, 22, 22);
+  if (whole && known && im.complete && im.naturalWidth){ const sc = Math.min(1, 22 / im.naturalWidth, 22 / im.naturalHeight), w = Math.max(1, Math.round(im.naturalWidth * sc)), h = Math.max(1, Math.round(im.naturalHeight * sc)); g.imageSmoothingEnabled = false; g.drawImage(im, 0, 0, im.naturalWidth, im.naturalHeight, x + 1 + Math.round((22 - w) / 2), y + 1 + Math.round((22 - h) / 2), w, h); }
+  else if (!whole && known && im.complete && im.naturalWidth){
+    let c = CROP[art]; if (!c){ const tc = document.createElement('canvas'); tc.width = im.naturalWidth; tc.height = im.naturalHeight; const tg = tc.getContext('2d'); tg.drawImage(im, 0, 0);
+      const d = tg.getImageData(0, 0, tc.width, tc.height).data; let x0 = tc.width, x1 = 0, y0 = tc.height; for (let yy = 0; yy < tc.height; yy++) for (let xx = 0; xx < tc.width; xx++) if (d[(yy * tc.width + xx) * 4 + 3] > 40){ x0 = Math.min(x0, xx); x1 = Math.max(x1, xx); y0 = Math.min(y0, yy); }
+      c = CROP[art] = { x: Math.max(0, Math.round((x0 + x1) / 2) - 11), y: Math.max(0, y0 - 1) }; }
+    g.imageSmoothingEnabled = false; g.drawImage(im, c.x, c.y, 22, 22, x + 1, y + 1, 22, 22); }
+  else HUD.text('?', x + 12, y + 8, '#5a6988', 1, 'center');
+  HUD.text(known ? name.toUpperCase() : '? ? ?', x + 29, y + 1, known ? col : '#5a6988', 1, 'left');
+  HUD.fine(known ? line.toUpperCase() : 'NOT YET ENTERED.', x + 29, y + 10, known ? '#c0cbdc' : '#5a6988', 'left');
+  if (known && note) HUD.fine(note, x + 29, y + 17, '#8b9bb4', 'left');
+}
+function drawAnnals(W){
+  HUD.dark(1, '#181425'); const people = PAGE >= ANNALS.length, A = ANNALS[PAGE];
+  HUD.text("CORWEN'S ANNALS", W / 2, 5, '#2ce8f5', 1, 'center');
+  HUD.text(people ? 'THOSE WHO CLIMB' : A.region.toUpperCase(), W / 2, 14, '#fff2d0', 2, 'center');
+  HUD.rule(Math.round(W / 2), 33, 70, '#ead4aa'); HUD.fine(`${PAGE + 1} OF ${ANNALS.length + 1}`, W / 2 + 76, 31, '#8b9bb4', 'left');
+  const x = Math.max(6, Math.round(W / 2 - 150));
+  if (people){ PEOPLE_PAGE.forEach((p, i) => { const met = Object.keys(G.met).filter(k => k.endsWith(':' + p.who)).length; entry(x, 44 + i * 30, p.art, p.name, p.line, met > 0, met ? `MET IN ${met} REGION${met === 1 ? '' : 'S'}` : '', '#fee761'); }); return; }
+  const K = A.keeper, met = (G.keepers || {})[K.theme] || G.beat[PAGE];
+  entry(x, 41, K.art, K.name, K.line, !!met, G.beat[PAGE] ? 'IT HAS FALLEN' : met ? 'IT STILL STANDS' : '', '#e43b44');
+  A.creatures.forEach((c, i) => { const seen = (G.seen || {})[c.type], n = (G.slain || {})[c.type] || 0; entry(x, 67 + i * 24, c.art, c.name, c.line, !!seen, n ? `SLAIN ${n}` : 'MET, NOT YET SLAIN', '#fee761'); });
+}
 // the Lamplighter's wares, for shards
 const WARES = () => [
   { name: 'A deeper flask of the water', cost: [120, 260][G.flasks], buy(){ G.flasks++; P.flaskMax = maxFlask(); P.flask = P.flaskMax; } },
@@ -147,10 +187,11 @@ const PBTN = menuButton('II', () => pause(!PAUSE), true); PBTN.style.cssText += 
 function pause(on){
   if (STORY.active() || GO.st || TALK.on || NOTE) return; if (SCREEN === 'shop'){ SCREEN = ''; PAUSE = false; menuHide(); return; }
   PAUSE = on; SCREEN = on ? 'pause' : ''; if (!on){ menuHide(); return; } release();
-  menuShow([menuButton('Go on', () => pause(false)), menuButton('Options', () => options(() => pause(true)), true), menuButton('To the title', () => { PAUSE = false; SCREEN = ''; title(); }, true)], false, () => pause(false));
+  menuShow([menuButton('Go on', () => pause(false)), menuButton('The Annals', () => annals(LEVEL.index), true), menuButton('Options', () => options(() => pause(true)), true), menuButton('To the title', () => { PAUSE = false; SCREEN = ''; title(); }, true)], false, () => pause(false));
 }
 addEventListener('keydown', e => {
   if (TALK.on || NOTE){ if (['Enter', 'Space', 'KeyE', 'KeyS', 'ArrowDown', 'KeyJ'].includes(e.code)) press(); return; }
+  if (SCREEN === 'annals' && ['ArrowLeft', 'ArrowRight', 'KeyA', 'KeyD', 'KeyQ', 'KeyE'].includes(e.code)){ PAGE = (PAGE + (['ArrowLeft', 'KeyA', 'KeyQ'].includes(e.code) ? -1 : 1) + ANNALS.length + 1) % (ANNALS.length + 1); sfx.ui(); e.preventDefault(); return; }
   if (MENU.style.display !== 'none' && MENU.children.length){   // a menu is up: move in it, pick from it
     const items = menuItems(); if (['ArrowDown', 'KeyS'].includes(e.code)){ MSEL = (MSEL + 1) % items.length; menuMark(); e.preventDefault(); return; } if (['ArrowUp', 'KeyW'].includes(e.code)){ MSEL = (MSEL + items.length - 1) % items.length; menuMark(); e.preventDefault(); return; }
     if (e.code === 'Enter' || e.code === 'Space'){ const b = items[MSEL]; if (b) b.dispatchEvent(new PointerEvent('pointerdown')); menuMark(); e.preventDefault(); return; }
@@ -169,6 +210,7 @@ function padUI(){
   const menu = MENU.style.display !== 'none' && MENU.children.length;
   if (TALK.on || NOTE){ if (edge(9)) press(); return; }   // A and X come through play's own input (the frame hands them on)
   if (STORY.active() && STORY.kind !== 'title'){ if (edge(0) || edge(9)) STORY.press(); return; }
+  if (menu && SCREEN === 'annals'){ const ax = pad.axes[0] || 0, side = now[14] || ax < -0.6 ? -1 : now[15] || ax > 0.6 ? 1 : 0; if (side && side !== PADUI.side){ PAGE = (PAGE + side + ANNALS.length + 1) % (ANNALS.length + 1); sfx.ui(); } PADUI.side = side; if (edge(4)){ PAGE = (PAGE + ANNALS.length) % (ANNALS.length + 1); sfx.ui(); } if (edge(5)){ PAGE = (PAGE + 1) % (ANNALS.length + 1); sfx.ui(); } }
   if (menu){
     const items = menuItems(); if (!items.length) return;
     if (dir !== PADUI.dir){ PADUI.dir = dir; PADUI.next = t + 360; if (dir){ MSEL = (MSEL + dir + items.length) % items.length; menuMark(); sfx.ui(); } }
@@ -311,6 +353,7 @@ function frame(ts){
   if (P.hp > 0 && !FLIGHT && !GO.st && (TRAILT -= dt) <= 0){ TRAILT = 0.05; const [an, fr] = heroPose(P, time); TRAIL.push({ x: P.x, y: P.y, face: P.face, an, fr });
     if (TRAIL.length > 2400) TRAIL.splice(0, 1200, ...TRAIL.slice(0, 1200).filter((_, i) => i % 2)); }   // a long way: the far end of it kept more thinly
   stepEnemies(E, P, sdt, fx, evs); ITEMS.step(sdt, time, P, evs);
+  for (const e of E.list) if (e.alive && !(G.seen = G.seen || {})[e.type] && Math.abs(e.x - P.x) < 9 && Math.abs(e.y - P.y) < 5){ G.seen[e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; }   // met: entered in the Annals
   { const RD = REGION_DATA[LEVEL.index]; if (RD.tick) RD.tick(sdt, time, TICK); }   // the region's own weather and workings (its file)
   if (BOSS) BOSS.step(P, sdt, fx, evs);
   for (const e of P.events) onEvent(e);
@@ -469,7 +512,7 @@ function onEvent(e){
       strikeEnemies(E, from, reach, dmg, out); if (BOSS) BOSS.strike(from, reach, dmg, out); ITEMS.strike(from, reach, out);
       breakRock(P.x + P.face * 1.2, P.y + 1.2, big ? 1.3 : -1); for (const o of out) onEvent(o); break; }
     case 'hit': buzz(e.heavy ? 0.35 : 0.15, e.heavy ? 0.5 : 0.3, e.heavy ? 90 : 50); sfx.hit(); fx.burst(e.at, e.heavy ? 18 : 12, 0xffe0a8); R.glint(e.at.x, e.at.y, 0xffe0a8, e.heavy ? 0.9 : 0.6, 3.5, 0.16); FEEL_FX.hitstop = e.heavy ? 0.09 : 0.05; FEEL_FX.shake = Math.max(FEEL_FX.shake, e.heavy ? 0.18 : 0.1); break;
-    case 'kill': sfx.kill(); ITEMS.spill(e.at.x, e.at.y, 1 + Math.min(5, e.e ? e.e.d.hp : 1)); fx.burst(e.at, 26, 0xff70d0); fx.ring(e.at, 0xffc0ff); FEEL_FX.hitstop = 0.1; fx.ember(e.at, 2 + Math.min(5, e.e ? e.e.d.hp : 2)); R.glint(e.at.x, e.at.y, 0xff9040, 1, 5, 0.35); break;
+    case 'kill': if (e.e){ (G.slain = G.slain || {})[e.e.type] = (G.slain[e.e.type] || 0) + 1; (G.seen = G.seen || {})[e.e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; } sfx.kill(); ITEMS.spill(e.at.x, e.at.y, 1 + Math.min(5, e.e ? e.e.d.hp : 1)); fx.burst(e.at, 26, 0xff70d0); fx.ring(e.at, 0xffc0ff); FEEL_FX.hitstop = 0.1; fx.ember(e.at, 2 + Math.min(5, e.e ? e.e.d.hp : 2)); R.glint(e.at.x, e.at.y, 0xff9040, 1, 5, 0.35); break;
     case 'parry': buzz(0.3, 0.7, 110); sfx.parry(); fx.ring(e.at, 0x9fd0ff); FEEL_FX.hitstop = 0.12; break;
     case 'block': sfx.block(); fx.burst(e.at, 8, 0xc9d2e0); break;
     case 'spit': sfx.spit(); break;
@@ -478,7 +521,7 @@ function onEvent(e){
     case 'mantle': sfx.whoosh(); break;
     case 'hurt': { buzz(0.7, 0.5, 200); sfx.hurt(); fx.burst({ x: P.x, y: P.y + 1.3 }, 10, 0xff6060); const a = SCF.tip(); fx.burst({ x: a.x, y: a.y }, 12, 0xff7030); fx.burst({ x: a.x, y: a.y }, 6, 0xfee761); FLASH = Math.max(FLASH, 0.12); break; }   // the end of the scarf burns off
     case 'skid': fx.kick(at, Math.sign(P.vx) || P.face, 6, 2.2); break;
-    case 'bossWake': buzz(0.6, 0.4, 500); sfx.roar(); FEEL_FX.shake = 0.5; BOSS.shown = false; break;   // its name comes up with the bars (drawHud)
+    case 'bossWake': (G.keepers = G.keepers || {})[LEVEL.theme] = 1; store(); buzz(0.6, 0.4, 500); sfx.roar(); FEEL_FX.shake = 0.5; BOSS.shown = false; break;   // its name comes up with the bars (drawHud)
     case 'bossToll': sfx.parry(); sfx.rumble(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.2); break;
     case 'bossTell': sfx.creak(); break;
     case 'bossSlam': buzz(e.soft ? 0.4 : 0.8, 0.5, e.soft ? 120 : 260); sfx.impact(true); sfx.slam(); fx.dust(e.at, e.soft ? 10 : 26, 4); R.glint(e.at.x, e.at.y + 0.5, 0xffd27a, e.soft ? 0.4 : 0.9, 6, 0.3); if (!e.soft) fx.ring(e.at, 0xffd27a); FEEL_FX.shake = Math.max(FEEL_FX.shake, e.soft ? 0.18 : 0.42); break;
@@ -518,16 +561,17 @@ function drawHud(dt){
   if (!rising && !TALK.on && !FLIGHT){
     HUD.status(P, EMBER.n, EMBER.max, P.flaskMax, time); PURSE = Math.max(0, PURSE - dt); HUD.purse(P, P.flaskMax, G.shards, PURSE, G.threads % THREADS_A_HEART, THREADS_A_HEART);
     const room = roomAt(P.x, P.y); if (room) MAP.seen.add(room);
-    const place = LEVEL.name + (room ? ' · ' + room.name : ''); if (place !== PLACE.name){ PLACE.name = place; PLACE.t = 0; } PLACE.t += dt;
+    const st = ITEMS.station(P), place = LEVEL.name + (room ? ' · ' + room.name : '') + (st ? ' · ' + st.station.name : '');   // beside one of the three: their station's name if (place !== PLACE.name){ PLACE.name = place; PLACE.t = 0; } PLACE.t += dt;
     HUD.place(place, PLACE.t < 3 ? 1 : Math.max(0.45, 1 - (PLACE.t - 3) * 0.5));
     HUD.boss(BOSS && BOSS.hud(), dt);
     const dots = SHRINES.filter(S => MAP.seen.has(S.room)).map(S => ({ x: S.x, y: S.y + 0.5, c: '#fee761' }));
     if (BOSS && MAP.seen.has(BOSS.room)) dots.push({ x: BOSS.cx, y: BOSS.stageY + 1, c: BOSS.st === 'dead' ? '#5a6988' : '#e43b44', r: 1 });
+    for (const N of ITEMS.people) if (MAP.seen.has(roomAt(N.x, N.y + 0.5))) dots.push({ x: N.x, y: N.y + 0.5, c: { lamplighter: '#feae34', wren: '#63c74d', scribe: '#2ce8f5' }[N.who] });   // the stations he has found
     if (has('starcompass') || G.charts.includes(LEVEL.index)) for (const it of ITEMS.left().all) dots.push({ x: it.x, y: it.y + 0.5, c: it.type === 'thread' ? '#e43b44' : '#feae34' });   // what is still to be found
     dots.push({ x: P.x, y: P.y + 0.8, c: '#ffffff', blink: true });
     HUD.map(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, room, T, dots, Math.max(0, Math.min(1, P.y / (LEVEL.H * T))), REGION_SPAN, LEVEL.index, time);
   }
-  if (BANNER && !TALK.on && !NOTE){ BANNER.t -= dt; HUD.banner(BANNER.a, BANNER.b, Math.max(0, Math.min(1, BANNER.t, (BANNER.life - BANNER.t) * 3))); if (BANNER.t <= 0) BANNER = null; }
+  if (BANNER && !TALK.on && !NOTE && SCREEN !== 'annals'){ BANNER.t -= dt; HUD.banner(BANNER.a, BANNER.b, Math.max(0, Math.min(1, BANNER.t, (BANNER.life - BANNER.t) * 3))); if (BANNER.t <= 0) BANNER = null; }
   HUD.hint(HINT[DEVICE.kind === 'keys' ? 'keys' : DEVICE.kind === 'touch' ? 'touch' : 'pad'], PAUSE ? 1 : Math.max(0, Math.min(0.8, (16 - PLAYED) * 0.5)) * (rising || TALK.on || NOTE ? 0 : 1));
   HUD.label(BUILD);
   if (FLIGHT){ const u = FLIGHT.t / FLIGHT.dur; HUD.dark(0.16 + u * 0.3, '#cfe6ff'); HUD.g.globalAlpha = 0.35; for (let k = 0; k < 14; k++){ const y = (k * 37 + Math.floor(time * 60) * 13) % 180, x = (k * 71 + Math.floor(time * 60) * 29) % W; HUD.px('#ffffff', x, y, 18 + (k * 13) % 50, 1); } HUD.g.globalAlpha = 1; if (u > 0.82) HUD.dark((u - 0.82) / 0.18, '#ffffff'); }
@@ -537,7 +581,8 @@ function drawHud(dt){
   TALK.draw(HUD, dt, time);
   if (NOTE){ HUD.dark(0.62); HUD.text(NOTE.relic ? 'A RELIC' : 'HE HAS LEARNED', W / 2, 44, '#c0cbdc', 1, 'center'); HUD.text(NOTE.title.toUpperCase(), W / 2, 56, '#fee761', 2, 'center'); HUD.rule(Math.round(W / 2), 78, 70, '#ead4aa');
     NOTE.lines.forEach((l, i) => HUD.text(l, W / 2, 88 + i * 11, '#fff2d0', 1, 'center')); if (NOTE.t > 0.7 && Math.floor(time * 2) % 2) HUD.text('PRESS TO GO ON', W / 2, 132, '#8b9bb4', 1, 'center'); }
-  if (PAUSE && SCREEN === 'shop') HUD.dark(0.55);
+  if (PAUSE && SCREEN === 'annals') drawAnnals(W);
+  else if (PAUSE && SCREEN === 'shop') HUD.dark(0.55);
   else if (PAUSE){ HUD.dark(0.66); HUD.text('PAUSED', W / 2, 14, '#fff2d0', 2, 'center'); HUD.rule(Math.round(W / 2), 34, 60, '#ead4aa');
     // what he carries
     const can = [CAN.breaker && 'THE WARDEN\'S WEIGHT', CAN.dash && 'THE TOLL\'S STEP', CAN.glide && 'THE WYRM\'S WIND'].filter(Boolean), found = Object.values(G.got).flat();
@@ -550,7 +595,7 @@ function drawHud(dt){
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

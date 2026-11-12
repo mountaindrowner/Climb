@@ -352,6 +352,7 @@ function build(n){
   const spawn = marks.find(m => m.type === 'spawn'), first = spawn && rooms.find(r => spawn.x >= r.tx0 && spawn.x < r.tx1 && spawn.y >= r.ty0 && spawn.y < r.ty1);
   if (n > 0 && first && R.vestibule !== false) first.look = REGIONS[n - 1].theme;
   for (const r of rooms) if (R.looks && R.looks[r.name]) r.look = R.looks[r.name];
+  stations(tiles, W, H, marks, rooms, STATIONS[n]);
   const raw = tiles.slice();
   organic(tiles, W, H, marks, rooms, R.seed, R.wear);
   // what the motor asks about every step: the flowers' tiles, and the rising air (in world units)
@@ -361,6 +362,43 @@ function build(n){
     if (m.type === 'updraft') updrafts.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 12)) * T });
   }
   return { index: n, name: R.name, theme: R.theme, sky: !!R.sky, W, H, tiles, marks, rooms, raw, pads, updrafts, tiles0: tiles.slice() };
+}
+// ---- where the three who climb are found in each region: a room each, never the first, spread through it. Each stands
+// at a station of their own (items.js draws it and lights it): Ordric at a flame, Mirel at a fire, Corwen at a desk
+export const STATIONS = [
+  { lamplighter: 'grotto', wren: 'bridge', scribe: 'chamber' },
+  { lamplighter: 'cloister', wren: 'belfry', scribe: 'library' },
+  { lamplighter: 'hollow', wren: ['nest', 'eyrie', 'icecave'], scribe: 'saddle' },
+  { lamplighter: 'watch', wren: 'gantry', scribe: ['anchorage', 'stacks', 'buttress', 'corbel', 'cap', 'bluff'] },
+  { lamplighter: 'orangery', wren: 'cascade', scribe: 'terraces' },
+  { lamplighter: 'vigil', wren: 'transit', scribe: 'archive' },
+];
+// each is moved to the best place in its room: a flat floor seven tiles wide with six of air over it, clear of the other
+// markers. Ordric stands four tiles from the room's flame (on the side with room); the others as near the room's middle as fits
+const NOT_FOE = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep']);
+function stations(tiles, W, H, marks, rooms, S){
+  if (!S) return;
+  const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i], solid = t => t === ROCK || t === LEDGE;
+  for (const m of marks){
+    if (m.type !== 'npc' || !S[m.who]) continue;
+    for (const name of [].concat(S[m.who])){   // a room, or rooms in the order wanted: the first with a place that fits
+    const r = rooms.find(q => q.name === name); if (!r) continue;
+    const flame = m.who === 'lamplighter' && marks.find(k => k.type === 'shrine' && k.x >= r.tx0 && k.x < r.tx1 && k.y >= r.ty0 && k.y < r.ty1);
+    const want = flame ? [[flame.x + 5, flame.y], [flame.x - 5, flame.y]] : [[(r.tx0 + r.tx1) / 2, r.ty0 + 2]];
+    let best = null, bd = 1e9;
+    for (let j = r.ty0 + 2; j < r.ty1 - 7; j++) for (let i = r.tx0 + 5; i < r.tx1 - 5; i++){
+      let ok = true;
+      for (let a = -3; a <= 3 && ok; a++){ if (!solid(at(i + a, j - 1)) || at(i + a, j - 1) === LEDGE && Math.abs(a) < 2 && false) ok = false; for (let d = 0; d < 6; d++) if (at(i + a, j + d) !== EMPTY) ok = false; }
+      if (!ok) continue;
+      if (marks.some(k => k !== m && k.type !== 'torch' && k.type !== 'crystal' && Math.abs(k.x - i) < (k.type === 'urn' ? 2 : 5) && Math.abs(k.y - j) < 4 && !(flame && k === flame))) continue;   // an urn may stand close by
+      if (marks.some(k => !NOT_FOE.has(k.type) && Math.abs(k.x - i) < 10 && Math.abs(k.y - j) < 6)) continue;   // and no creature at their elbow
+      // as near what is wanted as fits, and as far as can be from the other two (they each have a place of their own)
+      const others = marks.filter(k => k.type === 'npc' && k !== m && k.station).map(k => Math.hypot(k.x - i, k.y - j)), apart = others.length ? Math.min(...others) : 99;
+      const d = Math.min(...want.map(([x, y]) => Math.abs(x - i) + Math.abs(y - j) * 1.5)) + Math.max(0, 30 - apart) * 2;
+      if (d < bd){ bd = d; best = [i, j]; }
+    }
+    if (best){ m.x = best[0]; m.y = best[1]; m.station = name; break; }
+  } }
 }
 // the region in play. One object, refilled when he goes up a region, so everything that reads it reads the new one
 export const LEVEL = {};

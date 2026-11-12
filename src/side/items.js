@@ -39,6 +39,36 @@ function threadTex(){
 }
 const glowTex = (() => { let t; return () => { if (t) return t; const c = cnv(32, 32), g = c.getContext('2d'), gr = g.createRadialGradient(16, 16, 0, 16, 16, 16); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 32, 32); return t = new THREE.CanvasTexture(c); }; })();
 
+// ---- each of the three has a station: a thing of their own beside them, lit. Drawn here in the palette, small and bold
+// like the rest of the decoration. (x, y): where the thing stands. Each returns its picture and where its light is
+const STATION = {
+  // Ordric's: an iron lamp-post, its lantern lit, a ladder against it, a can of oil
+  lamplighter: { name: "ORDRIC'S VIGIL", col: 0xffb060, w: 16, h: 44, at: 7, glow: [8, 9], draw(g){
+    px(g, PAL.ink, 6, 8, 4, 36); px(g, PAL.dark, 7, 9, 2, 35); px(g, PAL.mid, 7, 9, 1, 35);
+    px(g, PAL.ink, 2, 4, 12, 3); px(g, PAL.dark, 3, 5, 10, 1);
+    px(g, PAL.ink, 4, 7, 8, 9); px(g, PAL.fire2, 5, 8, 6, 7); px(g, PAL.fire3, 6, 9, 4, 4); px(g, PAL.white, 7, 10, 2, 2); px(g, PAL.ink, 7, 7, 2, 9);
+    px(g, PAL.ink, 3, 42, 10, 2); px(g, PAL.dark, 4, 42, 8, 1);
+    for (let y = 18; y < 42; y += 4){ px(g, PAL.wood1, 10, y, 4, 1); } px(g, PAL.wood0, 10, 18, 1, 24); px(g, PAL.wood0, 13, 18, 1, 24);
+    px(g, PAL.ink, 0, 37, 5, 7); px(g, PAL.rust, 1, 38, 3, 5); px(g, PAL.fire2, 1, 38, 3, 1); } },
+  // Mirel's: a small fire in a ring of stones, her bedroll beside it
+  wren: { name: "MIREL'S REST", col: 0xff8a40, w: 30, h: 14, at: 9, glow: [9, 8], fire: [9, 9], draw(g){
+    for (const [x, y] of [[3, 11], [6, 12], [10, 12], [14, 11]]){ px(g, PAL.ink, x - 1, y - 1, 4, 3); px(g, PAL.mid, x, y - 1, 2, 2); px(g, PAL.light, x, y - 1, 2, 1); }
+    px(g, PAL.wood0, 5, 10, 9, 2); px(g, PAL.wood1, 6, 10, 7, 1);
+    px(g, PAL.ink, 18, 9, 12, 5); px(g, PAL.moss1, 19, 10, 10, 3); px(g, PAL.moss2 || '#63c74d', 19, 10, 10, 1); px(g, PAL.red0, 26, 10, 3, 3); px(g, PAL.bone, 19, 12, 2, 1); } },
+  // Corwen's: a folding desk, an open book on it, an ink pot, a candle, scrolls under it
+  scribe: { name: "CORWEN'S DESK", col: 0xffd27a, w: 22, h: 24, at: 11, glow: [17, 6], draw(g){
+    px(g, PAL.ink, 1, 11, 20, 3); px(g, PAL.wood1, 2, 12, 18, 1); px(g, PAL.wood3, 2, 11, 18, 1);
+    px(g, PAL.ink, 3, 14, 2, 10); px(g, PAL.wood0, 3, 14, 1, 10); px(g, PAL.ink, 17, 14, 2, 10); px(g, PAL.wood0, 17, 14, 1, 10); px(g, PAL.wood0, 4, 18, 14, 1);
+    px(g, PAL.ink, 5, 7, 11, 4); px(g, PAL.bone, 6, 7, 4, 3); px(g, PAL.bone, 11, 7, 4, 3); px(g, PAL.ink, 10, 7, 1, 4); for (let y = 8; y < 10; y++){ px(g, PAL.light, 7, y, 2, 1); px(g, PAL.light, 12, y, 2, 1); }
+    px(g, PAL.ink, 2, 9, 3, 2); px(g, PAL.navy, 3, 9, 1, 1);
+    px(g, PAL.ink, 16, 5, 3, 6); px(g, PAL.bone, 17, 6, 1, 5); px(g, PAL.fire3, 17, 4, 1, 1); px(g, PAL.fire2, 17, 3, 1, 1);
+    for (const x of [6, 10]){ px(g, PAL.ink, x, 20, 5, 4); px(g, PAL.bone, x + 1, 21, 3, 2); px(g, PAL.wood2, x + 2, 21, 1, 2); } } },
+};
+// a fire: four frames, flickering
+function fireTex(){ const c = cnv(24, 9), g = c.getContext('2d');
+  for (let f = 0; f < 4; f++) for (let y = 0; y < 9; y++) for (let x = 0; x < 6; x++){ const half = [3, 3, 2.6, 2.2, 2, 1.5, 1, 0.6, 0.3][y] + (f % 2 && y > 4 ? -0.4 : 0), sway = Math.sin(f * 1.6 + y * 0.7) * y / 8 * 1.2, d = Math.abs(x + 0.5 - 3 - sway); if (d > half) continue; px(g, d < half * 0.4 && y < 5 ? (y < 2 ? PAL.white : PAL.fire3) : d < half * 0.75 ? PAL.fire2 : PAL.fire1, f * 6 + x, 8 - y); }
+  const t = texOf(c); t.repeat.set(0.25, 1); return t; }
+export const STATION_NAMES = Object.fromEntries(Object.entries(STATION).map(([k, v]) => [k, v.name]));
 export function makeItems(scene, R, n){
   const list = [], people = [], shards = [], rnd = Math.random;
   const flat = (map, w, h, o = {}) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w / PPU, h / PPU), new THREE.MeshBasicMaterial({ map, transparent: true, alphaTest: 0.5, ...o })); m.geometry.translate(0, h / PPU / 2, 0); scene.add(m); return m; };
@@ -54,7 +84,13 @@ export function makeItems(scene, R, n){
     }
     else if (mk.type === 'thread'){ if (took(n, id)) continue; const m = flat(tt, 9, 13), gl = halo(0xff5040, 1.6, 0.45); m.position.set(x, y + 0.5, 0.04); gl.position.set(x, y + 0.9, 0.03); list.push({ type: 'thread', id, x, y, m, gl, ph: rnd() * 6 }); }
     else if (mk.type === 'npc'){
-      const who = mk.who, P0 = PEOPLE[who]; if (!P0) continue; const P = P0.late && n >= P0.late.from ? { ...P0, art: P0.late.art } : P0; const N = { type: 'npc', who, art: P.art, x, y, face: -1, sprite: null, meta: null, stand: null, ph: rnd() * 6 };
+      const who = mk.who, P0 = PEOPLE[who]; if (!P0) continue; const P = P0.late && n >= P0.late.from ? { ...P0, art: P0.late.art } : P0;
+      // the station beside them, toward the middle of the room
+      const ST = STATION[who], room = LEVEL.rooms.find(r => x >= r.x0 && x < r.x1 && y >= r.y0 && y < r.y1), side = room && x > (room.x0 + room.x1) / 2 ? -1 : 1, sx = x + side * (ST.at / 16 + 0.7);
+      const sc = cnv(ST.w, ST.h); ST.draw(sc.getContext('2d')); const sm = flat(texOf(sc), ST.w, ST.h); sm.position.set(Math.round(sx * PPU) / PPU, y, 0.015);
+      let fm = null; if (ST.fire){ fm = new THREE.Mesh(new THREE.PlaneGeometry(6 / PPU, 9 / PPU), new THREE.MeshBasicMaterial({ map: fireTex(), transparent: true, alphaTest: 0.5 })); fm.position.set(Math.round((sx - ST.w / 2 / PPU + (ST.fire[0] + 0.5) / PPU) * PPU) / PPU, y + (ST.h - ST.fire[1]) / PPU + 4.5 / PPU, 0.02); scene.add(fm); }
+      const lx = sx - ST.w / 2 / PPU + ST.glow[0] / PPU, ly = y + (ST.h - ST.glow[1]) / PPU, halo = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 3.4), new THREE.MeshBasicMaterial({ map: glowTex(), color: ST.col, transparent: true, opacity: 0.32, depthWrite: false, blending: THREE.AdditiveBlending })); halo.position.set(lx, ly, 0.01); scene.add(halo);
+      const N = { type: 'npc', who, art: P.art, station: { name: ST.name, x: sx, y, lx, ly, col: ST.col, fm, halo, room: mk.station }, x, y, face: -1, sprite: null, meta: null, stand: null, ph: rnd() * 6 };
       N.stand = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 1.9), new THREE.MeshBasicMaterial({ color: 0x262b44 })); N.stand.position.set(x, y + 0.95, 0.02); scene.add(N.stand);
       fetch(`assets/side/${P.art}/sprite.json`).then(r => r.ok ? r.json() : null).then(meta => { if (meta){ N.meta = meta; N.sprite = makeSprite(scene, `assets/side/${P.art}`, meta); N.stand.visible = false; } }).catch(() => {});
       people.push(N);
@@ -80,7 +116,11 @@ export function makeItems(scene, R, n){
       else if (it.type === 'urn' && P.roll > 0 && Math.abs(P.x - it.x) < 0.55 && Math.abs(P.y - it.y) < 0.6) give(it, evs);   // rolled through
       else if (it.type === 'chest' && it.gl) it.gl.material.opacity = 0.26 + Math.sin(t * 2.4) * 0.08;
     }
-    for (const N of people){ N.face = Math.sign(P.x - N.x) || N.face; if (N.sprite) N.sprite.show(N.meta.anims.idle ? 'idle' : 'stand', t / 1.6 + N.ph, N.x, N.y - 2 / 16, N.face, 0.03); }
+    for (const N of people){
+      // the station's light, kept up while it is near (the fire flickers; the lamp and the candle are steadier)
+      const S = N.station, near = Math.abs(S.lx - P.x) < 14 && Math.abs(S.ly - P.y) < 9, fl = S.fm ? 1 + Math.sin(t * 13 + N.ph) * 0.12 + Math.sin(t * 7.1) * 0.08 : 1 + Math.sin(t * 2.3 + N.ph) * 0.04;
+      if (near) R.glint(S.lx, S.ly, S.col, 0.85 * fl, S.fm ? 6 : 5.5); S.halo.material.opacity = 0.3 * fl; if (S.fm) S.fm.material.map.offset.x = Math.floor(t * 10 + N.ph) % 4 / 4;
+      N.face = Math.sign(P.x - N.x) || N.face; if (N.sprite) N.sprite.show(N.meta.anims.idle ? 'idle' : 'stand', t / 1.6 + N.ph, N.x, N.y - 2 / 16, N.face, 0.03); }
     const reach = has('lodestone') ? 5 : 2.2, hx = P.x, hy = P.y + 1.1;
     for (const s of shards){
       if (!s.on) continue; s.t += dt;
@@ -96,6 +136,8 @@ export function makeItems(scene, R, n){
   I.strike = (from, reach, evs) => { for (const it of list){ if (it.gone || it.type === 'thread' || (it.type === 'chest' && it.open)) continue; const ahead = (it.x - from.x) * from.face; if (ahead > -0.4 && ahead < reach + it.w && it.y + it.h > from.y - 0.2 && it.y < from.y + 2.7) give(it, evs); } };
   I.slam = (P, radius, evs) => { for (const it of list){ if (it.gone || it.type === 'thread' || (it.type === 'chest' && it.open)) continue; if (Math.abs(it.x - P.x) < radius + it.w && Math.abs(it.y - P.y) < 1.2) give(it, evs); } };
   // what he can use where he stands: a person to talk to, or a shut chest
+  // the station he is beside, if any (for the place's name)
+  I.station = P => { for (const N of people) if (Math.abs(N.x - P.x) < 4.5 && Math.abs(N.y - P.y) < 2.5) return N; return null; };
   I.near = P => { for (const N of people) if (Math.abs(P.x - N.x) < 1.3 && Math.abs(P.y - N.y) < 1.2) return N; for (const it of list) if (it.type === 'chest' && !it.open && Math.abs(P.x - it.x) < 1 && Math.abs(P.y - it.y) < 1) return it; return null; };
   I.open = (it, evs) => give(it, evs);
   // what is still to be found here
