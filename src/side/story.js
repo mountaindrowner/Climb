@@ -21,7 +21,7 @@ const ridge = f => { const y = FOOT - 2 - f * (FOOT - 2 - APEX - 3), F = flank(y
 export const REGION_SPAN = [[0, 0.2], [0.2, 0.36], [0.36, 0.54], [0.54, 0.7], [0.7, 0.85], [0.85, 1]];   // each region's share of the climb, bottom to top
 
 // the mountain, at night or at dawn: sky, far ranges, and the mountain with its three regions told apart: crystals in
-// its roots, lit windows in its middle, snow and spires at its top
+// its roots, lit windows over them, snow and needles, the storm, the gardens, the observatory under the beacon
 function paintMountain(dawn){
   const c = canvas(CW, CH), g = c.getContext('2d'), r = rng(dawn ? 77 : 31), px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
   const sky = dawn ? [PAL.deep, PAL.dark, PAL.plum, PAL.pink, PAL.rose, PAL.fire2, PAL.fire3] : [PAL.ink, PAL.ink, PAL.deep, PAL.deep, PAL.dark, PAL.dark, PAL.plum];
@@ -35,20 +35,32 @@ function paintMountain(dawn){
   // the mountain
   const body = dawn ? PAL.deep : PAL.ink, lit = dawn ? PAL.rose : PAL.dark;
   for (let y = APEX; y < CH; y++){ const F = flank(Math.min(y, FOOT)); px(body, F.l, y, F.r - F.l, 1); px(lit, F.l, y, 1 + (y % 5 === 0 ? 1 : 0), 1); if (dawn && y % 2) px(PAL.dark, F.l + 2, y, Math.max(0, Math.round((F.r - F.l) * 0.12)), 1); }
-  // the Spires: snow on the high slopes, needles of rock beside the peak
-  for (let y = APEX; y < 84; y++){ const F = flank(y), d = Math.max(1, Math.round((84 - y) / 7 + Math.sin(y * 0.9) * 1.5)); px(dawn ? PAL.white : PAL.pale, F.l, y, d, 1); if (y % 3 === 0) px(PAL.light, F.r - Math.round(d * 0.5) - 1, y, Math.round(d * 0.5), 1); }
-  for (const [x, top, h] of [[190, 44, 30], [198, 58, 22], [128, 60, 16]]) for (let k = 0; k < h; k++){ const half = Math.round(k / h * 2.5); px(body, x - half, top + k, half * 2 + 1, 1); px(dawn ? PAL.white : PAL.pale, x - half, top + k, 1, 1); }
-  // the Cloister: rows of lit windows
-  for (let row = 0; row < 4; row++){ const y = 94 + row * 9, F = flank(y); for (let x = F.l + 10; x < F.r - 8; x += 9) if (r() < 0.62){ px(PAL.fire2, x, y, 2, 3); px(PAL.fire3, x, y, 1, 1); px(PAL.wood1, x - 1, y + 3, 4, 1); } }
+  // the six regions, from the foot up, each told apart. Rows: the Roots to 147, the Cloister to 123, the Spires to 97,
+  // the Tempest to 73, the Gardens to 50, the Firmament to the apex
   // the Roots: crystals and cracks of cold light
-  for (let k = 0; k < 46; k++){ const y = 134 + Math.floor(r() * 44), F = flank(Math.min(y, FOOT)), x = F.l + 6 + Math.floor(r() * Math.max(1, F.r - F.l - 12)); px(r() < 0.4 ? PAL.cyan : PAL.blue, x, y, 1, 1 + Math.floor(r() * 3)); if (r() < 0.3) px(PAL.navy, x + 1, y + 1, 2, 1); }
+  for (let k = 0; k < 40; k++){ const y = 149 + Math.floor(r() * 29), F = flank(Math.min(y, FOOT)), x = F.l + 6 + Math.floor(r() * Math.max(1, F.r - F.l - 12)); px(r() < 0.4 ? PAL.cyan : PAL.blue, x, y, 1, 1 + Math.floor(r() * 3)); if (r() < 0.3) px(PAL.navy, x + 1, y + 1, 2, 1); }
+  // the Cloister: rows of lit windows
+  for (let row = 0; row < 3; row++){ const y = 126 + row * 8, F = flank(y); for (let x = F.l + 10; x < F.r - 8; x += 9) if (r() < 0.62){ px(PAL.fire2, x, y, 2, 3); px(PAL.fire3, x, y, 1, 1); px(PAL.wood1, x - 1, y + 3, 4, 1); } }
+  // the Spires: snow on the slopes, needles of rock standing off them
+  for (let y = 98; y < 123; y++){ const F = flank(y), d = Math.max(1, Math.round((124 - y) / 6 + Math.sin(y * 0.9) * 1.5)); px(dawn ? PAL.white : PAL.pale, F.l, y, d, 1); if (y % 3 === 0) px(PAL.light, F.r - Math.round(d * 0.5) - 1, y, Math.round(d * 0.5), 1); }
+  for (const [x, top, h] of [[flank(112).r + 6, 96, 26], [flank(116).r + 13, 106, 18], [flank(114).l - 8, 102, 16]]) for (let k = 0; k < h; k++){ const half = Math.round(k / h * 2.5); px(body, x - half, top + k, half * 2 + 1, 1); px(dawn ? PAL.white : PAL.pale, x - half, top + k, 1, 1); }
+  // the Gardens: green terraces in the sun, a tree or two
+  for (let y = 51; y < 73; y++){ const F = flank(y), w = F.r - F.l; if (y % 6 === 2){ px(dawn ? PAL.moss2 || '#63c74d' : PAL.moss1, F.l + 1, y, Math.round(w * 0.55), 1); px(PAL.moss1, F.l + 1, y + 1, Math.round(w * 0.4), 1); for (let x = F.l + 4; x < F.l + w * 0.5; x += 7) if (r() < 0.5){ px(PAL.moss1, x, y - 2, 3, 2); px(dawn ? '#63c74d' : PAL.moss1, x + 1, y - 3, 1, 1); if (r() < 0.4) px(PAL.rose, x, y - 2, 1, 1); } } }
+  // the Firmament: pale stone, the observatory's dome and ring under the beacon
+  for (let y = APEX; y < 50; y++){ const F = flank(y); px(dawn ? PAL.pale : PAL.dark, F.l, y, Math.max(1, Math.round((F.r - F.l) * 0.3)), 1); }
+  { const cx = 163, cy = 40; for (let a = 0; a < 40; a++){ const t = a / 40 * Math.PI; px(PAL.fire2, cx + Math.cos(t) * 6, cy - Math.sin(t) * 5); } px(PAL.wood1, cx - 6, cy, 13, 1); px(PAL.fire3, cx - 1, cy - 4, 2, 1); px(PAL.cyan, cx + 2, cy - 2, 1, 1); }
+  // the Tempest: the storm that wraps it, cloud on cloud across the mountain and out past its flanks
+  { const cl = dawn ? [PAL.dark, PAL.mid, PAL.light] : [PAL.ink, PAL.deep, PAL.dark];
+    for (let k = 0; k < 46; k++){ const cy = 76 + Math.floor(r() * 20), F = flank(cy), cx = F.l - 26 + Math.floor(r() * (F.r - F.l + 52)), w = 7 + Math.floor(r() * 12), h = 3 + Math.floor(r() * 3), c = cl[Math.floor(r() * 3)];
+      for (let yy = 0; yy < h; yy++){ const half = Math.round(w / 2 * Math.sqrt(1 - Math.pow((yy - h + 1) / h, 2))); px(c, cx - half, cy + yy, half * 2 + 1, 1); } if (r() < 0.5) px(cl[2], cx - 2, cy, 4, 1); }
+    if (!dawn) for (const [x, y] of [[118, 88], [121, 90], [120, 92], [123, 94], [196, 84], [194, 86], [197, 88]]) px(PAL.fire3, x, y, 1, 2); }
   return c;
 }
 
 export function makeStory(hud, heroBase){
   const hx = hud.getContext('2d'), cv = canvas(CW, CH), g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
   const night = paintMountain(false), dawn = paintMountain(true);
-  const far = { spires: img('assets/side/bg/spires.png'), cloister: img('assets/side/bg/cloister.png'), roots: img('assets/side/bg/far.png') };
+  const far = { firmament: img('assets/side/bg/firmament.png'), gardens: img('assets/side/bg/gardens.png'), tempest: img('assets/side/bg/tempest.png'), spires: img('assets/side/bg/spires.png'), cloister: img('assets/side/bg/cloister.png'), roots: img('assets/side/bg/far.png') };
   // the rock between two regions, as he falls past: dark, its edges broken up
   const rock = canvas(CW, 50); { const rg = rock.getContext('2d'); rg.fillStyle = PAL.ink; for (let yy = 0; yy < 50; yy++) for (let x = 0; x < CW; x++){ const e = Math.min(yy, 49 - yy) / 8; if (e >= 1 || B4[(yy & 3) * 4 + (x & 3)] / 16 < e) rg.fillRect(x, yy, 1, 1); } }
   const hero = { fall: img(`${heroBase}/fall.png`), stand: img(`${heroBase}/stand.png`) };
@@ -59,7 +71,7 @@ export function makeStory(hud, heroBase){
   const end = () => { const d = S.done; S.kind = null; S.done = null; if (d) d(); };
   // a press: the title waits for its buttons; the rest can be hurried on once they have begun
   S.press = () => { if (!S.kind || S.kind === 'title') return; if (S.t > 0.6){ if (S.kind === 'card') S.t = Math.max(S.t, LEN.card - 0.5); else end(); } };
-  const LEN = { intro: 21, card: 3.4, ending: 20 };
+  const LEN = { intro: 27, card: 3.4, ending: 22 };
 
   function beacon(on, t){
     const x = 160, y = APEX - 3; px(PAL.wood1, x - 1, y, 3, 3); px(PAL.ink, x - 2, y + 3, 5, 1);
@@ -83,30 +95,32 @@ export function makeStory(hud, heroBase){
   function intro(dt){
     const t = S.t;
     // the lines, each with when it comes and goes
-    const L = [[0.6, 4.6, 'From the top of the world, he fell.'], [5.4, 8.6, 'Past the spires of ice.'], [8.9, 12.0, 'Past the halls of stone.'], [12.3, 15.2, 'Down, to the roots of the mountain.'], [16.0, 18.4, 'He woke in the dark.'], [18.6, 20.8, 'There was only one way to go.']];
-    if (t < 5){
+    const L = [[0.6, 4.6, 'From the top of the world, he fell.'], [5.3, 7.5, 'Past the stars.'], [7.7, 10.0, 'Past gardens no one tends.'], [10.2, 12.5, 'Through the storm.'], [12.7, 15.0, 'Past the spires of ice.'], [15.2, 17.5, 'Past the halls of stone.'],
+      [17.8, 21.0, 'Down, to the roots of the mountain.'], [22.0, 24.4, 'He woke in the dark.'], [24.6, 26.8, 'There was only one way to go.']];
+    const FALL0 = 5, FALL1 = 21.4;
+    if (t < FALL0){
       // the summit, and him off it
       g.drawImage(night, 0, 0); beacon(t < 2.2, t); snowfall(dt, -14);
       const u = ease((t - 2.2) / 2.8), x = 160 - 3 - u * 46, y = APEX - 8 + u * u * 150;
       figure(u > 0 ? hero.fall : hero.stand, Math.floor(t * 8), x, y, -u * 5, 14);
       if (t > 2.2 && t < 2.5) px(PAL.white, 0, 0, CW, CH);
       if (t > 2.2 && S.said < 0){ S.said = 0; sfx.crack && sfx.crack(); }
-    } else if (t < 15.6){
-      // the fall: the mountain's three regions go up past him, each behind its own rock
-      const u = (t - 5) / 10.6, scroll = u * u * 0.35 + u * 0.65, band = [['spires', far.spires], ['cloister', far.cloister], ['roots', far.roots]];
-      const total = 3 * 224 + 2 * 50, y0 = -scroll * (total - CH * 0.4);
+    } else if (t < FALL1){
+      // the fall: the mountain's six regions go up past him, each behind its own rock
+      const u = (t - FALL0) / (FALL1 - FALL0), scroll = u * u * 0.3 + u * 0.7, band = [far.firmament, far.gardens, far.tempest, far.spires, far.cloister, far.roots], n = band.length;
+      const total = n * 224 + (n - 1) * 50, y0 = -scroll * (total - CH * 0.4);
       px(PAL.ink, 0, 0, CW, CH);
-      band.forEach(([, im], k) => { const y = y0 + k * (224 + 50); if (im.complete && im.naturalWidth && y < CH && y > -224) g.drawImage(im, 40, 0, 320, 224, 0, Math.round(y), 320, 224); });
-      for (let k = 0; k < 2; k++){ const y = Math.round(y0 + 224 + k * 274); if (y < CH && y > -50) g.drawImage(rock, 0, y); }
+      band.forEach((im, k) => { const y = y0 + k * (224 + 50); if (im.complete && im.naturalWidth && y < CH && y > -224) g.drawImage(im, 40, 0, 320, 224, 0, Math.round(y), 320, 224); });
+      for (let k = 0; k < n - 1; k++){ const y = Math.round(y0 + 224 + k * 274); if (y < CH && y > -50) g.drawImage(rock, 0, y); }
       for (let k = 0; k < 26; k++){ const x = (k * 71 + 13) % CW, y = (k * 47 + t * 520) % (CH + 40) - 20; px(k % 3 ? PAL.light : PAL.white, x, CH - y, 1, 6 + k % 5); }
       figure(hero.fall, Math.floor(t * 10), 160 + Math.sin(t * 2.1) * 10, 80 + Math.sin(t * 1.3) * 6, t * 4.5, 56);
-      const dim = ease((t - 14.2) / 1.2); if (dim > 0){ g.globalAlpha = dim; px(PAL.ink, 0, 0, CW, CH); g.globalAlpha = 1; }
+      const dim = ease((t - (FALL1 - 1.4)) / 1.2); if (dim > 0){ g.globalAlpha = dim; px(PAL.ink, 0, 0, CW, CH); g.globalAlpha = 1; }
     } else {
       px(PAL.ink, 0, 0, CW, CH);
       if (S.said < 1){ S.said = 1; sfx.impact && sfx.impact(true); }
-      if (t > 18.4){ const k = ease((t - 18.4) / 1.5); for (let n = 0; n < 14; n++) px(n % 3 ? PAL.blue : PAL.cyan, 60 + (n * 53) % 200, 150 - (n * 29) % 40 * k, 1, 1 + n % 3); }
+      if (t > 24.4){ const k = ease((t - 24.4) / 1.5); for (let n = 0; n < 14; n++) px(n % 3 ? PAL.blue : PAL.cyan, 60 + (n * 53) % 200, 150 - (n * 29) % 40 * k, 1, 1 + n % 3); }
     }
-    for (const [a, b, text] of L) if (t > a && t < b) say(text, t < 5 || t >= 15.6 ? 0.5 : 0.82, 0.042, Math.min(1, (t - a) / 0.6, (b - t) / 0.6));
+    for (const [a, b, text] of L) if (t > a && t < b) say(text, t < FALL0 || t >= FALL1 ? 0.5 : 0.82, 0.042, Math.min(1, (t - a) / 0.6, (b - t) / 0.6));
     if (t < 3) say('press any key to skip', 0.95, 0.022, 0.5 * Math.min(1, t), '#cfe6ff');
     if (t >= LEN.intro) end();
   }
@@ -123,9 +137,9 @@ export function makeStory(hud, heroBase){
     beacon(t > 1.5, t); if (t < 1.8) marker(1, t); if (k < 0.5) snowfall(dt, -6);
     figure(hero.stand, 0, 160 - 5, APEX - 8, 0, 14);
     if (t > 1.5 && S.said < 0){ S.said = 0; sfx.gold && sfx.gold(); }
-    const L = [[2.2, 6, 'The beacon burned again.'], [6.6, 10.4, 'Below him lay the whole of the mountain.'], [10.8, 14.2, 'He had climbed it.']];
+    const L = [[2.2, 5.6, 'The beacon burned again.'], [6.0, 9.4, 'Below him lay the whole of the mountain:'], [9.6, 12.6, 'the garden, the storm, the ice, the stone, the dark.'], [13.0, 16.2, 'He had climbed it.']];
     for (const [a, b, text] of L) if (t > a && t < b) say(text, 0.86, 0.042, Math.min(1, (t - a) / 0.6, (b - t) / 0.6));
-    if (t > 14.8){ say('THE CLIMB', 0.26, 0.13, ease((t - 14.8) / 1.5)); say('thank you for playing', 0.44, 0.03, ease((t - 16) / 1.5) * 0.85, '#c0cbdc'); }
+    if (t > 16.8){ say('THE CLIMB', 0.26, 0.13, ease((t - 16.8) / 1.5)); say('thank you for playing', 0.44, 0.03, ease((t - 18) / 1.5) * 0.85, '#c0cbdc'); }
     if (t >= LEN.ending) end();
   }
 

@@ -22,6 +22,7 @@ export function ac(){
   return AC;
 }
 export const musicBus = () => MUS;
+export const loaded = () => Object.keys(BANK).length;   // how many recordings are in (a check)
 export function setMix(k, v){ MIX[k] = v; const b = k === 'sfx' ? SFX : MUS; if (b && AC) b.gain.setTargetAtTime(v, AC.currentTime, 0.05); }
 // a recording, if there is one: false if not (the caller falls back). vol, rate; jitter: how far its pitch may stray
 function sample(name, vol = 1, rate = 1, jitter = 0.05, gap = 0.04){
@@ -98,7 +99,7 @@ const USE = {
   parry: ['parry', 0.8], block: ['block', 0.7], hurt: ['hurt', 0.8], gold: ['shard', 0.5, 1, 0.1], shard: ['shard', 0.45, 1, 0.12, 0.05], ember: ['ember', 0.4, 1, 0.15, 0.05],
   crack: ['crack', 0.7], slam: ['slam', 0.9], roar: ['roar', 1], spit: ['spit', 0.6], drink: ['drink', 0.7], creak: ['creak', 0.6], rumble: ['rumble', 0.7],
   whoosh: ['roll', 0.45, 1.1, 0.1], roll: ['roll', 0.55], dash: ['dash', 0.7], snap: ['thorn', 0.7], bossDie: ['boss_die', 1], talk: ['talk', 0.35, 1, 0.12, 0.03], ui: ['ui', 0.5],
-  thunder: ['thunder', 0.9, 1, 0.1, 0.3], zap: ['zap', 0.6, 1, 0.1], bell: ['bell', 0.9, 1, 0.01],
+  thunder: ['thunder', 0.9, 1, 0.1, 0.3], glass: ['glass', 0.3, 1, 0.03, 0.5], gust: ['gust', 0.5, 1, 0.08, 0.8], zap: ['zap', 0.6, 1, 0.1], bell: ['bell', 0.9, 1, 0.01],
 };
 // any name can be called: the recording if it is loaded, else the synthesised sound, else nothing
 export const sfx = new Proxy(SYNTH, { get: (o, k) => (...a) => {

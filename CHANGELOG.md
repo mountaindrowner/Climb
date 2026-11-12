@@ -2,7 +2,18 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Shape, a real climb and plunge, drawn cuts (latest).** From PixelLab's November update.
+**Twice the mountain: three more regions, things to find, people to meet, recorded sound (latest).**
+- *Six regions.* Over the Spires (whose keeper now holds the high pass, not the summit) come **the Tempest**, the storm that wraps the mountain; **the Gardens**, above the cloud, in the sun; and **the Firmament**, the summit among the stars. Each is a file of its own (`src/side/regions/`): its rooms, its look, its creatures and how they fight, its score. REGION_TEXT
+- *New ways to move, each a region's own.* **Rising air** (the Tempest): hold jump in it and the scarf opens and carries him up. **Blooms** (the Gardens): a flower that throws him seven units and gives the air jump back. **Star-glass** (the Firmament): ledges of light that are there for half of each beat. And **cracked rock**, everywhere: it breaks, and what is behind it is his.
+- *What the keepers teach.* The Warden's weight (his plunge and finishing cut break cracked rock), the Toll's step (a roll begun in the air flies level and fast), the Wyrm's wind (the scarf's glide: a third jump press, held). The Thunderhead leaves a heart, Mother Thorn a draught for the flask. A card says what was learned.
+- *More to collect.* **Shards** (from urns, chests and what he kills; the purse is beside the flask), **scarf threads** (two hidden in each region; three make a heart, and the scarf is that much longer), and six **relics**, one behind cracked rock in each region: the Whetstone, the Lodestone, the Featherfall Charm, the Stormglass, the Seed-heart, the Star Compass. Old regions have things only a later lesson reaches.
+- *People.* Three climb the mountain as he does and are met in every region: **the Lamplighter**, who keeps the shrines and trades for shards (a draught more, the blade tempered, a thread, the region's chart); **Wren**, a climber; and **the Scribe**, who charts it and can say what is still unfound where he stands. Down (S, or the stick pulled down) talks and opens.
+- *Sound.* Recorded sound effects (48) and a recorded score (ten pieces: the title, each region, the keepers, the last keeper, the ending), made with PixelLab and packed by `tools/audio-pack.py`. `src/audio/sfx.js` plays the recording of a sound if it is there and the old synthesised one if not; the generated score remains as the fallback (and an option). An ambience under each region. Music and effects have their own volumes.
+- *Options and the save.* Music, sound, the score (recorded or made as it plays), shake, flashes, difficulty (two hearts more or fewer). The save keeps everything he has found and learned; the title offers the regions he has reached, to go back down.
+- *Touch.* No stick on the screen: touch anywhere on the left and a ring comes up under the thumb. The buttons are rings, not slabs.
+- *The story's screens* show all six regions on the mountain, and the fall goes past each.
+
+**Shape, a real climb and plunge, drawn cuts.** From PixelLab's November update.
 - *Normal maps across the board.* Every strip the warrior and the creatures are drawn with, and every piece of the three bosses, has a normal map (`tools/pixellab.py normals`, 0.1 generation each); the rock has one worked out from its own shape (edges round off, blocks are bevelled). A torch now lights the side of a thing that faces it; the light a material gets is held to six steps, so the shading stays banded like the art. The Warden's core lights its own body, the Toll is lit from the fire in its mouth, the Wyrm's eye lights its snout. `?flat` turns the maps off to compare.
 - *The ledge climb* is drawn from a start frame of him hanging by both hands: he hangs, hauls, gets his chest over, a knee up, stands.
 - *The plunge* turns the blade point-down and holds the dive with the cape streaming up; its landing drives the blade in, crouches deep and rises.
