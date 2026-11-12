@@ -21,7 +21,9 @@
 // crystals, the shrine, the warrior, a boss's eyes, a blow), in steps, dithered, so the pools of light are banded like
 // the art. Mist drifts behind the play layer and a little in front; dark shapes close to the eye (things hanging from
 // the top of the view, things standing at its foot) slide past faster than the world, for depth.
-import { T, ROCK, LEDGE, SPIKES, EMPTY, LEVEL, tileAt } from './level.js';
+import { T, ROCK, LEDGE, SPIKES, EMPTY, LEVEL, rawAt, REGION_DATA } from './level.js';
+// what the painted layers see: the level as drawn, with cracked rock and star-glass left out (they are drawn apart, since they change)
+const paintAt = (i, j) => { const t = rawAt(i, j); return t > SPIKES ? EMPTY : t; };
 const THREE = window.THREE;
 export const PPU = 16;                  // pixels to a world unit: a tile is 8, the warrior ~28 tall
 export const VIEW_H = 11.25;            // world units the screen is tall: 180 pixels
@@ -206,6 +208,8 @@ const THEMES = {
     air: { n: 120, cols: [0xffffff, 0xdfe8ff], warm: 0.5, vx: 0.5, vy: [-1.3, -0.5], drift: -0.6, steady: true },
   },
 };
+// a region's file can bring its own look (themeDef) and its own decoration (deco: (px, PAL) => { name(g, x, y, r, glow){} })
+for (const R of REGION_DATA){ if (R.themeDef) THEMES[R.theme] = R.themeDef; if (R.deco) Object.assign(DECO, R.deco(px, PAL)); }
 const pickOf = (list, p) => { let tot = 0; for (const [, w] of list) tot += w; let a = p * tot; for (const [n, w] of list){ if ((a -= w) < 0) return n; } return list[list.length - 1][0]; };
 const SEAMS = {
   rough: (x, y) => { const row = Math.floor(y / 6); if (y % 6 === 0) return true; const off = (row * 37) % 11, bx = x + off; const len = 8 + ((Math.floor(bx / 9) * 7 + row * 3) % 5); return bx % len === 0; },
@@ -259,10 +263,10 @@ function foreTex(kind){
 
 // ---- the play layer
 function paintPlay(glows, TM){
-  const Wc = LEVEL.W, Hc = LEVEL.H, pw = Wc * CELL, ph = Hc * CELL, rock = LEVEL.sky ? (i, j) => (j >= Hc ? 0 : tileAt(Math.max(0, Math.min(Wc - 1, i)), j) === ROCK ? 1 : 0) : (i, j) => (tileAt(i, j) === ROCK ? 1 : 0);   // under a sky, nothing over the top of the map
+  const Wc = LEVEL.W, Hc = LEVEL.H, pw = Wc * CELL, ph = Hc * CELL, rock = LEVEL.sky ? (i, j) => (j >= Hc ? 0 : paintAt(Math.max(0, Math.min(Wc - 1, i)), j) === ROCK ? 1 : 0) : (i, j) => (paintAt(i, j) === ROCK ? 1 : 0);   // under a sky, nothing over the top of the map
   const n1 = noise2(11), n2 = noise2(23);
   const crisp = new Uint8Array(Wc * Hc);   // edges that stay true: the top of anything he stands on, and the air over it
-  for (let j = 0; j < Hc; j++) for (let i = 0; i < Wc; i++){ const t = tileAt(i, j), up = tileAt(i, j + 1), dn = tileAt(i, j - 1); if ((t === ROCK && up !== ROCK) || (t !== ROCK && dn === ROCK)) crisp[j * Wc + i] = 1; }
+  for (let j = 0; j < Hc; j++) for (let i = 0; i < Wc; i++){ const t = paintAt(i, j), up = paintAt(i, j + 1), dn = paintAt(i, j - 1); if ((t === ROCK && up !== ROCK) || (t !== ROCK && dn === ROCK)) crisp[j * Wc + i] = 1; }
   // the shape: cell corners cut (bilinear between centres), edges worn by noise except where he stands
   const mask = new Uint8Array(pw * ph);
   for (let py = 0; py < ph; py++){
@@ -326,29 +330,29 @@ function paintPlay(glows, TM){
   for (let j = 0; j < Hc; j++){
     let i = 0;
     while (i < Wc){
-      if (tileAt(i, j) !== LEDGE){ i++; continue; }
-      let e = i; while (tileAt(e + 1, j) === LEDGE) e++;
+      if (paintAt(i, j) !== LEDGE){ i++; continue; }
+      let e = i; while (paintAt(e + 1, j) === LEDGE) e++;
       const x0 = i * CELL, x1 = (e + 1) * CELL, y0 = Y(j + 1);
       const PK = TM.plank.map(k => PAL[k]);
       px(g, PAL.ink, x0 - 1, y0 - 1, x1 - x0 + 2, 5); px(g, PK[0], x0, y0, x1 - x0, 3); px(g, PK[1], x0, y0, x1 - x0, 1); px(g, PK[2], x0, y0 + 2, x1 - x0, 1);
       for (let x = x0 + 4 + Math.floor(r() * 4); x < x1 - 2; x += 6 + Math.floor(r() * 5)) px(g, PK[2], x, y0 + 1, 1, 1);
       for (const [x, dir] of [[x0, -1], [x1 - 1, 1]]){
-        if (tileAt(dir < 0 ? i - 1 : e + 1, j) === ROCK) for (let k = 0; k < 4; k++) px(g, PAL.wood0, x - dir * k, y0 + 3 + k);
+        if (paintAt(dir < 0 ? i - 1 : e + 1, j) === ROCK) for (let k = 0; k < 4; k++) px(g, PAL.wood0, x - dir * k, y0 + 3 + k);
         else if (r() < 0.5) px(g, PAL.wood2, x - dir, y0 + 3, 1, 3 + Math.floor(r() * 5));
       }
       i = e + 1;
     }
   }
   // spikes
-  for (let j = 0; j < Hc; j++) for (let i = 0; i < Wc; i++) if (tileAt(i, j) === SPIKES){
+  for (let j = 0; j < Hc; j++) for (let i = 0; i < Wc; i++) if (paintAt(i, j) === SPIKES){
     const x0 = i * CELL, yb = Y(j);
     for (let s = 0; s < 2; s++){ const cx = x0 + 2 + s * 4, h = 5 + s;
       for (let y = 0; y < h; y++){ const half = Math.round((h - y) / h * 1.5); px(g, PAL.ink, cx - half - 1, yb - y - 1, half * 2 + 3); px(g, y > h - 2 ? PAL[TM.spike[1]] : PAL[TM.spike[0]], cx - half, yb - y - 1, half * 2 + 1); } }
   }
   // decoration, by where it sits
-  const isRock = (i, j) => tileAt(i, j) === ROCK, isAir = (i, j) => tileAt(i, j) === EMPTY;
+  const isRock = (i, j) => paintAt(i, j) === ROCK, isAir = (i, j) => paintAt(i, j) === EMPTY;
   const airBelow = (i, j) => { let n = 0; while (n < 20 && isAir(i, j - n)) n++; return n; };
-  const walkedNear = (i, j) => { for (let d = 1; d <= 6; d++) if (isAir(i, j - d) && (isRock(i, j - d - 1) || tileAt(i, j - d - 1) === LEDGE)) return true; return false; };
+  const walkedNear = (i, j) => { for (let d = 1; d <= 6; d++) if (isAir(i, j - d) && (isRock(i, j - d - 1) || paintAt(i, j - d - 1) === LEDGE)) return true; return false; };
   const marksNear = (i, j, rr) => LEVEL.marks.some(m => Math.abs(m.x - i) <= rr && Math.abs(m.y - j) <= rr);
   for (let j = 1; j < Hc - 1; j++){
     let skip = 0;
@@ -383,7 +387,7 @@ function paintBack(TM){
   const Lw = LEVEL.W * T, Lh = LEVEL.H * T, bw = Math.ceil((FB * Lw + MARGIN_X * 2) * PPU), bh = Math.ceil((FB * Lh + MARGIN_Y * 2) * PPU);
   const Wc = LEVEL.W, Hc = LEVEL.H;
   const open = new Float32Array(Wc * Hc).fill(99);   // tiles to the nearest rock
-  for (let j = 0; j < Hc; j++) for (let i = 0; i < Wc; i++) if (tileAt(i, j) === ROCK) open[j * Wc + i] = 0;
+  for (let j = 0; j < Hc; j++) for (let i = 0; i < Wc; i++) if (paintAt(i, j) === ROCK) open[j * Wc + i] = 0;
   for (let pass = 0; pass < 2; pass++) for (let s = 0; s < Wc * Hc; s++){
     const k = pass ? Wc * Hc - 1 - s : s, i = k % Wc, j = (k - i) / Wc, sg = pass ? 1 : -1;
     for (const [a, b] of [[sg, 0], [0, sg], [sg, sg], [-sg, sg]]){ const ii = i + a, jj = j + b; if (ii >= 0 && jj >= 0 && ii < Wc && jj < Hc) open[k] = Math.min(open[k], open[jj * Wc + ii] + (a && b ? 1.41 : 1)); }
@@ -428,6 +432,8 @@ function paintBack(TM){
   return { cnv, bw, bh };
 }
 
+let TM_NOW = null;
+export const themeNow = () => TM_NOW || THEMES.roots;   // the look of the region in play (props.js draws cracked rock in its stone)
 export function makeRenderer(canvas){
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(1); renderer.autoClear = false;
@@ -443,7 +449,7 @@ export function makeRenderer(canvas){
   function build(){
   for (const o of [...scene.children]){ scene.remove(o); o.traverse(m => { if (m.geometry) m.geometry.dispose(); const mt = m.material; if (mt){ if (mt.map && mt.map !== torchGlow && mt.map !== crystalGlow) mt.map.dispose(); mt.dispose(); } }); }
   layers.length = exits.length = lights.length = flames.length = motes.length = pool.length = burning.length = veils.length = glints.length = 0;
-  TM = THEMES[LEVEL.theme] || THEMES.roots;
+  TM = THEMES[LEVEL.theme] || THEMES.roots; TM_NOW = TM;
   hemi.color.setHex(TM.hemi[0]); hemi.groundColor.setHex(TM.hemi[1]); hemi.intensity = TM.hemi[2] * AMB_IN_MAT; scene.add(hemi); scene.add(heroLight);
   const W = LEVEL.W * T, Hh = LEVEL.H * T;
   // ---- the far cavern: held to the palette, a pixel a pixel, nearly still
@@ -506,9 +512,9 @@ export function makeRenderer(canvas){
   { const gg = sc.getContext('2d'); gg.fillStyle = TM.shaft || 'rgba(0,0,0,0)'; for (let y = 0; y < 64; y++) for (let x = 0; x < 16; x++){ const a = (1 - y / 64) * (1 - Math.abs(x - 7.5) / 8) * 0.7; if (B4[(y & 3) * 4 + (x & 3)] / 16 < a) gg.fillRect(x, y, 1, 1); } }
   const shaftTex = canvasTex(sc);
   if (TM.shaft) for (let i = 1; i < LEVEL.W - 1; i++) for (let j = 2; j < LEVEL.H - 1; j++){
-    if (tileAt(i, j) !== 0 || tileAt(i, j + 1) !== 0 || tileAt(i - 1, j + 1) === 0 || i % 3) continue;
-    let up = 0; while (up < 8 && tileAt(i, j + up) === 0) up++;
-    if (up < 8 || tileAt(i, j - 1) !== 0) continue;
+    if (paintAt(i, j) !== 0 || paintAt(i, j + 1) !== 0 || paintAt(i - 1, j + 1) === 0 || i % 3) continue;
+    let up = 0; while (up < 8 && paintAt(i, j + up) === 0) up++;
+    if (up < 8 || paintAt(i, j - 1) !== 0) continue;
     const sh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 7), new THREE.MeshBasicMaterial({ map: shaftTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.4 }));
     sh.position.set((i + 0.5) * T, (j + 1) * T - 3.5, -1); sh.rotation.z = 0.18; scene.add(sh);
   }

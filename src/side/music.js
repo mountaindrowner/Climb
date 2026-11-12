@@ -9,6 +9,7 @@
 //   ending    the tune turned to the major
 // makeMusic(ctx, out) -> { play(name), tick(), volume(v), stop() }. tick() is called every frame: it writes the next
 // third of a second of notes. With an OfflineAudioContext, schedule(until) writes a whole stretch at once (the test).
+import { REGION_DATA } from './level.js';
 const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
 // the four chords (bass note, three voices) and the tune over them, in D minor; a piece moves all of it by `shift`
 const MINOR = { prog: [{ b: 38, n: [50, 53, 57] }, { b: 34, n: [50, 53, 58] }, { b: 43, n: [50, 55, 58] }, { b: 45, n: [49, 52, 57] }],   // Dm, Bb, Gm, A: each for two bars
@@ -23,8 +24,10 @@ export const SONGS = {
   spires:   { set: MINOR, shift: 2, bpm: 80, pad: { g: 0.3, cut: 2000 }, bass: { g: 0.22, at: [0] }, arp: { inst: 'bell', g: 0.1, oct: 24, pat: [2, _, 4, _, 3, _, 5, _, 2, _, 4, _, 6, _, 4, _] }, lead: { inst: 'pluck', g: 0.2, oct: 12, every: 2 }, wind: 0.35 },
   ending:   { set: MAJOR, shift: 0, bpm: 66, pad: { g: 0.4, cut: 1600 }, bass: { g: 0.3, at: [0, 8] }, arp: { inst: 'pluck', g: 0.12, oct: 12, pat: [0, _, 1, _, 2, _, 3, _, 2, _, 1, _, 2, _, 3, _] }, lead: { inst: 'bell', g: 0.3, oct: 0, every: 1 } },
 };
-// a boss's piece: its region's, driven
-for (const [name, from] of [['boss_roots', 'roots'], ['boss_cloister', 'cloister'], ['boss_spires', 'spires']]){ const S = SONGS[from];
+// a region's file can bring its own pieces (songs: { <theme>: {...}, boss_<theme>: {...} })
+for (const R of REGION_DATA) if (R.songs) Object.assign(SONGS, R.songs);
+// a boss's piece, where a region has not written one: its region's, driven
+for (const [name, from] of REGION_DATA.map(R => ['boss_' + R.theme, R.theme])){ const S = SONGS[from]; if (!S || SONGS[name]) continue;
   SONGS[name] = { set: MINOR, shift: S.shift, bpm: Math.round(S.bpm * (from === 'cloister' ? 1.3 : 1.5)), pad: { g: 0.22, cut: 1300, stab: true }, bass: { g: 0.34, at: [0, 2, 4, 6, 8, 10, 12, 14], drive: true },
     arp: { inst: 'saw', g: 0.09, oct: 12, pat: [0, 2, 1, 2, 3, 2, 1, 2, 0, 2, 1, 2, 4, 3, 2, 1] }, lead: { inst: 'saw', g: 0.15, oct: 0, every: 1, octaves: true }, drums: { kick: [0, 4, 8, 11, 12], snare: [4, 12], hat: [2, 6, 10, 14], g: 0.5 } }; }
 

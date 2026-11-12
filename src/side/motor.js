@@ -8,7 +8,7 @@ import { TUNE } from '../config/tuning.js';
 import { WEAPONS } from '../config/weapons.js';
 import { IN, consume, pending } from '../core/input.js';
 import { FEEL } from '../config/feel.js';
-import { T, ROCK, LEDGE, SPIKES, tileAt } from './level.js';
+import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt } from './level.js';
 const MV = TUNE.move;
 // the side view's warrior is drawn tall and lean (gothic action proportions, ~40 pixels): his body is taller than the
 // climb's, and his jumps and run scale with him so they keep the same feel against his height
@@ -17,6 +17,13 @@ export const BODY = { hw: 0.34, stand: 2.4, crouch: 1.4, roll: 1.25 };
 // rises and falls quicker (grav), so the same arc takes less time: a snappier jump, not a floatier one
 export const SCALE = { jump: 1.48, run: 1.38, grav: 1.22 };
 const MANTLE = 2.6, STEP = T + 0.02;
+// what he has learned on the way up (the game sets these from what he has beaten; a keeper teaches one as it falls):
+//   breaker  the Warden's weight: his plunge and his finishing cut break cracked rock
+//   dash     the Toll's step: a roll begun in the air flies level and fast for a moment, once each time he leaves the ground
+//   glide    the Wyrm's wind: jump again when the jumps are spent, and hold: the scarf spreads and he falls slowly; held in
+//            rising air, it lifts him
+export const CAN = { breaker: false, dash: false, glide: false };
+export const GLIDE = { fall: 2.3, rise: 8.5, accel: 5, run: 0.88 }, AIRDASH = { time: 0.2, speed: 1.4 }, BLOOM = { height: 7 };
 
 // ---- tiles under, beside and over a box
 const tx = x => Math.floor(x / T), ty = y => Math.floor(y / T);
@@ -47,7 +54,8 @@ function launchSpeed(height, ease){
 export function newPlayer(x, y){
   return { x, y, vx: 0, vy: 0, h: BODY.stand, face: 1, grounded: true, coyote: 0, jumpBuf: 0, jumpT: 1, launch: 0, airT: 0, airJumps: 1, airTop: y,
     flip: 0, roll: 0, rollCd: 0, rollDir: 1, dive: null, plant: 0, crouch: false, mantle: null, landT: 0, drop: 0,
-    hp: TUNE.player.hp, maxHp: TUNE.player.hp, flask: TUNE.player.flask, inv: 0, hurtT: 0, atk: null, weapon: 'blade', runPhase: 0, events: [] };
+    glide: false, airDash: 1, dashT: 0, bounce: false,
+    hp: TUNE.player.hp, maxHp: TUNE.player.hp, flask: TUNE.player.flask, flaskMax: TUNE.player.flask, inv: 0, hurtT: 0, atk: null, weapon: 'blade', runPhase: 0, events: [] };
 }
 const ev = (P, type, extra) => P.events.push({ type, ...extra });
 function takeOff(P, air){
@@ -83,7 +91,8 @@ export function stepPlayer(P, dt){
   if (P.roll > 0){ P.roll = Math.max(0, P.roll - dt); if (P.roll === 0) P.rollCd = MV.roll.cooldown; }
   if (!FEEL.coyote) P.coyote = 0;
   P.airT = P.grounded || P.mantle ? 0 : P.airT + dt;
-  if (P.grounded || P.mantle) P.airJumps = FEEL.doubleJump ? 1 : 0;
+  if (P.grounded || P.mantle){ P.airJumps = FEEL.doubleJump ? 1 : 0; P.airDash = 1; P.glide = false; }
+  P.dashT = Math.max(0, P.dashT - dt);
   const stunned = P.hurtT > 0;
 
   // ---- hauling himself up onto an edge: it carries him
@@ -98,13 +107,15 @@ export function stepPlayer(P, dt){
   if (consume('jump')){
     if (P.grounded && H.down && support(P, P.x, P.y) === LEDGE){ P.drop = 0.25; P.grounded = false; P.y -= 0.03; ev(P, 'dropThrough'); }   // down + jump: through a ledge
     else if (!P.grounded && P.coyote <= 0 && !stunned && P.airJumps > 0 && !(P.vy <= 0 && heightAbove(P) < -P.vy * MV.buffer + 0.25)){
-      P.airJumps--; takeOff(P, true); P.flip = MV.flip; P.dive = null; ev(P, 'doubleJump');
+      P.airJumps--; takeOff(P, true); P.flip = MV.flip; P.dive = null; P.glide = false; ev(P, 'doubleJump');
     }
+    else if (CAN.glide && !P.grounded && P.coyote <= 0 && !stunned && !P.dive && P.airJumps <= 0 && heightAbove(P) > 1){ P.glide = true; P.flip = 0; ev(P, 'glide'); }   // the jumps are spent: the scarf
     else P.jumpBuf = FEEL.buffer ? MV.buffer : 1e-3;
   }
   if (P.roll <= 0 && P.rollCd <= 0 && !stunned && !P.dive && (FEEL.rollCancel || !P.atk || P.atk.phase !== 'active') && consume('roll')){
     const dir = H.right ? 1 : H.left ? -1 : P.face;
-    P.roll = MV.roll.time; P.rollDir = dir; P.face = dir; P.atk = null; P.crouch = false; P.plant = 0; ev(P, 'roll');
+    P.roll = MV.roll.time; P.rollDir = dir; P.face = dir; P.atk = null; P.crouch = false; P.plant = 0; P.glide = false;
+    if (!P.grounded && CAN.dash && P.airDash > 0){ P.airDash--; P.dashT = AIRDASH.time; P.vy = 0; ev(P, 'airDash'); } else ev(P, 'roll');
   }
   // attack during a roll: the dash cut
   if (P.roll > 0 && P.roll < MV.roll.time * 0.85 && weaponOf(P).dash && !boxRock(P, P.x, P.y, BODY.stand) && consume('attack')){
@@ -145,7 +156,7 @@ export function stepPlayer(P, dt){
   let target = 0, accel = P.grounded ? MV.accel : MV.airAccel;
   if (!P.grounded && FEEL.airFade) accel *= Math.max(MV.airFloor, 1 - P.airT / MV.airFade);
   if (P.dive){ P.vx = 0; }
-  else if (P.roll > 0){ P.vx = P.rollDir * MV.roll.speed * SCALE.run * (P.roll > MV.roll.time * 0.25 ? 1 : 0.5); }
+  else if (P.roll > 0){ P.vx = P.rollDir * MV.roll.speed * SCALE.run * (P.dashT > 0 ? AIRDASH.speed : P.roll > MV.roll.time * 0.25 ? 1 : 0.5); }
   else if (P.plant > 0){ target = 0; accel = MV.decel; }
   else if (P.atk && P.atk.phase !== 'rec' && swingOf(P, P.atk).dash){ target = P.face * swingOf(P, P.atk).dash; accel = 1e4; }   // the dash cut's drive
   else if (P.atk && P.atk.phase !== 'rec'){
@@ -153,7 +164,8 @@ export function stepPlayer(P, dt){
     if (FEEL.turn && dir && dir !== P.face && P.atk.phase === 'wind' && P.atk.t < swingOf(P, P.atk).wind * 0.7) P.face = dir;
   }
   else {
-    target = dir * MV.run * SCALE.run * IN.mag * (P.crouch ? MV.crouchMul : 1) * (P.blocking ? MV.blockMul : 1);
+    target = dir * MV.run * SCALE.run * IN.mag * (P.crouch ? MV.crouchMul : 1) * (P.blocking ? MV.blockMul : 1) * (P.glide ? GLIDE.run : 1);
+    if (P.glide) accel = MV.airAccel;   // under the scarf he steers freely
     if (P.grounded && (dir === 0 || Math.sign(P.vx) === -dir || Math.abs(P.vx) > Math.abs(target))) accel = MV.decel;
     if (dir !== 0 && dir !== P.face && (!P.atk || FEEL.turn)){ P.face = dir; if (P.grounded && Math.abs(P.vx) > 1.5) ev(P, 'skid'); }
   }
@@ -164,12 +176,23 @@ export function stepPlayer(P, dt){
   if (P.jumpBuf > 0 && (P.grounded || P.coyote > 0) && !stunned && (P.roll <= 0 || rollEnding) && P.plant <= 0 && !P.dive && !boxRock(P, P.x, P.y, BODY.stand)){
     P.jumpBuf = 0; P.coyote = 0; takeOff(P, false); ev(P, 'jump');
   }
+  // the scarf: held open while jump is held; in rising air it opens of itself
+  const up = CAN.glide && !P.grounded ? updraftAt(P.x, P.y + 1) : null;
+  if (P.glide && (!H.jump || P.grounded || P.dive || stunned)) P.glide = false;
+  if (!P.glide && up && H.jump && !P.dive && !stunned && P.roll <= 0 && P.vy < 4){ P.glide = true; ev(P, 'glide'); }
   if (!P.grounded){
     if (P.dive){ P.vy = -MV.dive.speed; P.dive.t += dt; }
+    else if (P.dashT > 0) P.vy = 0;
+    else if (P.glide && (up || P.vy <= 0)){
+      if (up) P.vy += (GLIDE.rise - P.vy) * Math.min(1, dt * GLIDE.accel);
+      else P.vy += (-GLIDE.fall - P.vy) * Math.min(1, dt * 9);
+      P.airTop = P.y; P.flip = 0;   // however far he came down under it, it was not a fall
+    }
     else {
       let g = P.vy > 0 ? (MV.gravityUp * SCALE.grav) * gravEase(P.jumpT, P.launch) : (MV.gravityDown * SCALE.grav);
       if (H.jump && Math.abs(P.vy) < MV.apexBand) g *= MV.apexMul;
-      if (!H.jump && P.vy > 0 && P.jumpT > MV.minHop) P.vy *= Math.pow(MV.cutMul, dt * 20);
+      if (!H.jump && P.vy > 0 && P.jumpT > MV.minHop && !P.bounce) P.vy *= Math.pow(MV.cutMul, dt * 20);
+      if (P.vy <= 0) P.bounce = false;
       P.vy = Math.max(-MV.maxFall, P.vy - g * dt);
     }
   }
@@ -182,6 +205,11 @@ export function stepPlayer(P, dt){
   }
   if (!P.grounded){ moveY(P, P.vy * dt, y0); P.airTop = Math.max(P.airTop, P.y); }
   if (P.grounded && !wasGrounded) landed(P);
+  // a bloom underfoot throws him high (and gives him his air jump back)
+  if (P.grounded && LEVEL.pads.size && P.hp > 0){
+    const m = LEVEL.pads.get(ty(P.y + 0.01) * LEVEL.W + tx(P.x));
+    if (m){ P.vy = launchSpeed(BLOOM.height, MV.launch.ground); P.launch = MV.launch.ground; P.jumpT = 0; P.grounded = false; P.crouch = false; P.roll = 0; P.plant = 0; P.atk = null; P.bounce = true; P.airJumps = FEEL.doubleJump ? 1 : 0; P.airTop = P.y; ev(P, 'bloom', { m }); }
+  }
   // ---- catching an edge in the air: a wall just ahead whose top is within reach above his feet
   if (!P.grounded && FEEL.ledge && P.roll <= 0 && !stunned && !P.dive && P.vy < 5){
     const d = H.right ? 1 : H.left ? -1 : 0;
@@ -243,13 +271,13 @@ function tryMantle(P, d){
   }
 }
 function landed(P){
-  let drop = P.airTop - P.y; P.airTop = P.y; P.flip = 0;
+  let drop = P.airTop - P.y; P.airTop = P.y; P.flip = 0; P.bounce = false; P.glide = false;
   if (P.dive){ P.dive = null; P.plant = MV.dive.rec; P.vx = 0; P.landT = 0.2; drop -= MV.dive.soak; ev(P, 'slam'); }
   else {
     P.landT = 0.12;
     if (drop > MV.hardLand){ P.vx *= 0.5; P.landT = 0.2; ev(P, 'land', { drop, hard: true }); } else ev(P, 'land', { drop });
   }
-  if (drop > SIDE.fallSafe){ P.hp -= 1; P.inv = Math.max(P.inv, 0.6); ev(P, 'hurt', { n: 1, msg: 'Fell' }); }
+  if (drop > SIDE.fallSafe && !SIDE.feather){ P.hp -= 1; P.inv = Math.max(P.inv, 0.6); ev(P, 'hurt', { n: 1, msg: 'Fell' }); }
 }
 // the masked warrior's curved blade: three heavy cuts (an overhead chop, an overhead slam, a spinning cut) and, from a
 // crouch, a rising cut. Each swing names its drawing and the moment in it the blade lands (hit, a fraction of the
@@ -264,7 +292,7 @@ export const BLADE = { name: 'Curved blade', reach: 1.9, combo: [
   dash: { dmg: 2, wind: 0.15, active: 0.08, rec: 0.28, lunge: 0, dash: 11, anim: 'atk_dash_px', hit: 7 / 13, hitEnd: 8 / 13 } };
 export const weaponOf = P => P.weapon === 'blade' ? BLADE : WEAPONS[P.weapon];
 export const swingOf = (P, A) => A.special ? weaponOf(P)[A.special] : weaponOf(P).combo[A.i];
-export const SIDE = { fallSafe: 9 };   // a metroidvania's shafts are deep: only a long drop hurts
+export const SIDE = { fallSafe: 9, feather: false };   // a metroidvania's shafts are deep: only a long drop hurts
 // set by the game: which way a foe is that a swing should turn to (0 for none), for the aim assist
 export const HOOKS = { aim: null };
 function startSwing(P, i, special = null){

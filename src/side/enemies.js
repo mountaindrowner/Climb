@@ -12,7 +12,7 @@
 //                  harpy     a white hawk: fast, and it dives twice before it wheels away (ai flitter)
 //                  wraith    drifts at you through anything, rears, and rushes: cut it as it recovers (ai wraith)
 // Each is drawn with its PixelLab strips once they exist (tools/pixellab.py), a glowing stand-in before.
-import { T, ROCK, LEDGE, LEVEL, tileAt } from './level.js';
+import { T, ROCK, LEDGE, LEVEL, tileAt, REGION_DATA } from './level.js';
 import { hurt, isRollInv } from './motor.js';
 import { makeSprite } from './render.js';
 const THREE = window.THREE;
@@ -35,8 +35,12 @@ const DEF = {
   harpy:    { ai: 'flitter', hp: 1, w: 0.5, h: 0.7, color: 0xffffff, wake: 9, circle: 0.8, dive: 0.45, commit: 0.24, leave: 0.6, dives: 2, art: 'px_harpy', fly: true, word: 'Raked' },
   wraith:   { ai: 'wraith', hp: 3, w: 0.5, h: 1.2, color: 0x2ce8f5, glow: 0x103040, wake: 8, chase: 2.3, windup: 0.5, rush: 0.28, rushSpeed: 10, recover: 1.0, an: { fly: 'float', dive: 'slash' }, art: 'px_wraith', fly: true, word: 'Frozen' },
 };
+// a region's file can bring its own creatures: `enemies` (entries like those above) and `ai` (ways of fighting those
+// name: ai[name](e, P, dt, ctx) is called every step for each living one, with the helpers in ctx (stepEnemies)
+const CUSTOM = {};
+for (const R of REGION_DATA){ if (R.enemies) Object.assign(DEF, R.enemies); if (R.ai) Object.assign(CUSTOM, R.ai); }
 const ART = { crawler: ['px_crawler', 'crawler3', 'crawler'], flitter: ['px_flitter', 'flitter2', 'flitter'], spitter: ['px_spitter', 'spitter2', 'spitter'], burrower: ['px_burrower', 'burrower2', 'burrower'] };
-export function spawnEnemies(scene){
+export function spawnEnemies(scene, R){
   const list = [];
   for (const m of LEVEL.marks){
     const d = DEF[m.type]; if (!d) continue;
@@ -52,7 +56,7 @@ export function spawnEnemies(scene){
     list.push(e);
   }
   const orbMats = {}, orbMat = c => orbMats[c] || (orbMats[c] = new THREE.MeshBasicMaterial({ color: c }));
-  return { list, orbGeo: new THREE.SphereGeometry(0.18, 8, 6), orbMat, scene };
+  return { list, orbGeo: new THREE.SphereGeometry(0.18, 8, 6), orbMat, scene, R };
 }
 const anim = (e, name0, frac, dy = 0, z = 0.03) => { if (!e.sprite) return; const A = e.meta.anims, name = (e.d.an && e.d.an[name0]) || name0; const n = A[name] ? name : Object.keys(A).find(k => k !== 'stand') || 'stand'; e.sprite.show(n, frac, e.x, (e.d.fly ? e.y - e.d.h * 0.7 : e.y) + dy, e.face, z); };
 
@@ -190,6 +194,14 @@ export function stepEnemies(E, P, dt, fx, events){
       anim(e, 'snap', e.st === 'rise' ? e.tm / e.d.rise * 0.3 : e.st === 'up' ? 0.3 + Math.min(0.69, e.tm / 0.45 * 0.7) : 0, -(1 - out) * 2.2, -0.05);
       e.stand.visible = !e.sprite && show;
     }
+    else if (CUSTOM[ai]){
+      // a region's own way of fighting. ctx: go(state), dx, dy, dist (to him), events, fx, E (E.scene, E.R the renderer),
+      // anim(e, name, frac, dy, z), shoot(E, e, P, lob), hurt(P, n, fromX, word), isRollInv(P), ground(x, y), solidAt(x, y),
+      // kill(e, events), tileAt, T; hit(x0, y0, x1, y1, word, fromX): hurts him if his body is in that box and he is not
+      // rolling through (true if it did)
+      CUSTOM[ai](e, P, dt, { go, dx, dy, dist, events, fx, E, anim, shoot, hurt, isRollInv, ground, solidAt, kill: killEnemy, tileAt, T,
+        hit: (x0, y0, x1, y1, word, fromX) => P.x + 0.34 > x0 && P.x - 0.34 < x1 && P.y + P.h > y0 && P.y < y1 && !isRollInv(P) && hurt(P, 1, fromX == null ? (x0 + x1) / 2 : fromX, word || e.d.word || 'Struck') });
+    }
     // what it threw, in flight: a glob or a bolt goes straight, a chunk of ice falls in its arc
     if (e.orb){
       const O = e.orb; O.t += dt; O.vy -= O.g * dt; O.x += O.vx * dt; O.y += O.vy * dt; O.m.position.set(O.x, O.y, 0.1);
@@ -202,7 +214,7 @@ export function stepEnemies(E, P, dt, fx, events){
       } else if (O.t > (O.g ? 3 : 1.6) || tile === ROCK || (O.g && O.vy < 0 && tile === LEDGE)){ fx.burst({ x: O.x, y: O.y }, O.g ? 12 : 6, O.col); E.scene.remove(O.m); e.orb = null; }
     }
     if (!e.sprite) e.stand.position.set(e.x, e.y + e.d.h / 2, 0.03);
-    if (e.sprite) e.sprite.mat.emissive.setHex(e.flash > 0 ? 0xffffff : (e.st === 'windup' || e.st === 'charge' || e.st === 'rise' || e.st === 'swat') && Math.sin(e.tm * 40) > 0 ? 0x601010 : (e.d.glow || 0));
+    if (e.sprite) e.sprite.mat.emissive.setHex(e.flash > 0 ? 0xffffff : (e.st === 'windup' || e.st === 'charge' || e.st === 'rise' || e.st === 'swat' || e.warn) && Math.sin(e.tm * 40) > 0 ? 0x601010 : (e.d.glow || 0));
   }
 }
 function killEnemy(e, events){ e.alive = false; e.dead = 0; events.push({ type: 'kill', e, at: { x: e.x, y: e.y + e.d.h / 2 } }); if (e.sprite) e.sprite.g.visible = false; e.stand.visible = false; }
@@ -213,7 +225,8 @@ export function strikeEnemies(E, P, reach, dmg, events){
     if (!e.alive || (e.d.ai === 'burrower' && !(e.st === 'rise' || e.st === 'up'))) continue;
     const ahead = (e.x - P.x) * P.face, top = e.y + e.d.h, bottom = e.d.fly ? e.y - e.d.h / 2 : e.y;
     if (ahead < -0.4 || ahead > reach + e.d.w || top < P.y - 0.2 || bottom > P.y + 2.7) continue;
-    any = true; e.hp -= dmg; e.flash = 0.12;
+    if (e.d.guard && e.d.guard(e, P)){ events.push({ type: 'block', at: { x: e.x - P.face * e.d.w, y: e.y + e.d.h * 0.6 } }); any = true; continue; }   // it turns the blow
+    any = true; e.hp -= dmg; e.flash = 0.12; if (e.d.onHit) e.d.onHit(e, dmg, P);
     if ((e.d.ai === 'crawler' && (e.st === 'windup' || e.st === 'chase')) || (e.d.ai === 'thrower' && e.st !== 'stunned')){ e.st = 'stunned'; e.tm = 0; e.stun = e.d.ai === 'thrower' ? 0.4 : 0.5; }
     if (e.d.ai === 'wraith' && e.st !== 'rush'){ e.st = 'spent'; e.tm = Math.max(0, e.d.recover - 0.5); }
     if (e.d.perch && e.st === 'idle'){ e.st = 'circle'; e.tm = 0; e.left = 1; }
@@ -228,7 +241,7 @@ export function slamEnemies(E, P, radius, dmg, events){
   for (const e of E.list){
     if (!e.alive || (e.d.ai === 'burrower' && !(e.st === 'rise' || e.st === 'up'))) continue;
     if (Math.abs(e.x - P.x) > radius + e.d.w || e.y > P.y + 1.2 || e.y + e.d.h < P.y - 0.8) continue;
-    e.hp -= dmg; e.flash = 0.12; e.x += Math.sign(e.x - P.x || 1) * 0.5;
+    e.hp -= dmg; e.flash = 0.12; e.x += Math.sign(e.x - P.x || 1) * 0.5; if (e.d.onHit) e.d.onHit(e, dmg, P, true);
     if (e.d.ai === 'crawler' || e.d.ai === 'thrower'){ e.st = 'stunned'; e.tm = 0; e.stun = 0.8; }
     events.push({ type: 'hit', e, at: { x: e.x, y: e.y + e.d.h / 2 }, heavy: true });
     if (e.hp <= 0) killEnemy(e, events);

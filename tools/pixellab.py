@@ -19,7 +19,7 @@
 import json, os, sys, time, io, zipfile, urllib.request
 API = 'https://api.pixellab.ai/v2'
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.normpath(os.path.join(HERE, '..'))
-OUT = os.path.join(ROOT, 'assets', 'side'); BOOK = os.path.join(OUT, 'pixellab.json')
+OUT = os.path.join(ROOT, 'assets', 'side'); BOOK = os.environ.get('PIXELLAB_BOOK') or os.path.join(OUT, 'pixellab.json')   # PIXELLAB_BOOK: a book of its own, for several runs at once
 
 def call(method, path, body=None, raw=False):
     req = urllib.request.Request(API + path, method=method, data=json.dumps(body).encode() if body is not None else None,
@@ -188,5 +188,5 @@ if __name__ == '__main__':
     elif cmd == 'pull': pull(a[0])
     elif cmd == 'image': image(a[0], a[1], a[2], a[3], len(a) > 4 and a[4] == 'alpha')
     elif cmd == 'unbg': unbg(a[0])
-    elif cmd == 'normals': normals(a[0], a[1:] or None, 'object' if a[0] in ('warden', 'colossus', 'toll', 'wyrm') else 'character')
+    elif cmd == 'normals': normals(a[0], a[1:] or None, 'object' if a[0] in ('warden', 'colossus', 'toll', 'wyrm', 'thunderhead', 'mother', 'fallen', 'props') else 'character')
     elif cmd == 'tileset': tileset(a[0], a[1], a[2] if len(a) > 2 else '')

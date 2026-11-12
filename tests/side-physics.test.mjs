@@ -6,19 +6,21 @@
 import { clock } from './helpers/browser.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-const { LEVEL, LEVELS, loadLevel, T, tileAt, ROCK, LEDGE } = await import('../src/side/level.js');
+const { LEVEL, LEVELS, loadLevel, T, tileAt, ROCK, LEDGE, PHASE } = await import('../src/side/level.js');
 const M = await import('../src/side/motor.js');
 const I = await import('../src/core/input.js');
 const H120 = 1 / 120;
+M.CAN.breaker = M.CAN.dash = M.CAN.glide = true;   // he is played with everything the keepers teach
+PHASE.all = true;                                   // star-glass is waited for: here it is always there
 let W, H, marks, rooms;   // of the region being played
 
 // one input program from where he stands; returns where he came to rest, by tile (grounded, not hurt). Places are
 // kept as where he really stood, not tile centres: a tile's centre can be inside a wall for a body 0.68 wide
-function run(x, y, prog){
+function run(x, y, prog, frames = 150){
   I.release(); clock.t += 10;
   const P = M.newPlayer(x, y), hp0 = P.hp, out = new Map();
   let t = 0, left = false;
-  for (let f = 0; f < 150; f++){
+  for (let f = 0; f < frames; f++){
     prog(t, I, P);
     for (let s = 0; s < 2; s++){ M.stepPlayer(P, H120); clock.t += H120; t += H120; }
     I.endFrame(); P.events.length = 0;
@@ -38,6 +40,12 @@ for (const d of ['left', 'right']){
   for (const steer of [0.2, 0.35]) PROGS.push((t, I) => { I.hold(d, t > steer); if (t < 0.01 || Math.abs(t - 0.3) < 0.008) I.tap('jump'); I.hold('jump', t < 0.8); });   // straight up, then over
   PROGS.push((t, I) => { I.hold(d, t > 0.1 && t < 0.25); });                                                   // a step off an edge
 }
+// under the scarf: jump, jump again, and a third press held (a glide); and jump held from the ground (it opens in rising air)
+const LONG = [];
+for (const d of ['left', 'right']){
+  LONG.push((t, I) => { I.hold(d, true); for (const at of [0, 0.3, 0.6]) if (Math.abs(t - at) < 0.008) I.tap('jump'); I.hold('jump', t < 0.32 || t > 0.6); });
+  for (const steer of [0.3, 1.0, 1.8]) LONG.push((t, I) => { I.hold(d, t > steer); if (t < 0.01) I.tap('jump'); I.hold('jump', true); });
+}
 PROGS.push((t, I) => { I.hold('down', true); if (t < 0.01) I.tap('jump'); });                                   // drop through a ledge
 PROGS.push((t, I) => { if (t < 0.01 || Math.abs(t - 0.3) < 0.008) I.tap('jump'); I.hold('jump', t < 0.8); });  // straight up through a ledge
 
@@ -52,6 +60,7 @@ function graph(){
   while (q.length){
     const k = q.pop(), [x, y] = pos.get(k), nx = new Set();
     for (const p of PROGS) for (const [c, at] of run(x, y, p)) if (c !== k){ nx.add(c); if (!pos.has(c)) pos.set(c, at); }
+    if (LEVEL.updrafts.length) for (const p of LONG) for (const [c, at] of run(x, y, p, 420)) if (c !== k){ nx.add(c); if (!pos.has(c)) pos.set(c, at); }   // where there is rising air to ride
     edges.set(k, nx);
     for (const c of nx) if (!seen.has(c)){ seen.add(c); q.push(c); }
   }

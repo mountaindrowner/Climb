@@ -6,14 +6,13 @@ import { TUNE } from '../config/tuning.js';
 import { IN, bindInput, endFrame, pollPads } from '../core/input.js';
 import { sfx, ac } from '../audio/sfx.js';
 import '../ui/feel.js';
-import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt } from './level.js';
-import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf } from './motor.js';
+import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE } from './level.js';
+import { makeProps } from './props.js';
+import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, CAN } from './motor.js';
 import { makeRenderer, makeSprite, VIEW_H, makeSwingFx } from './render.js';
 import { spawnFx, stepFx } from './fx.js';
 import { spawnEnemies, stepEnemies, strikeEnemies, slamEnemies } from './enemies.js';
-import { makeWarden } from './boss.js';
-import { makeToll } from './toll.js';
-import { makeWyrm } from './wyrm.js';
+import { KEEPERS } from './keepers.js';
 import { makeStory, REGION_SPAN } from './story.js';
 import { makeHud } from './hud.js';
 import { makeScarf, SCARF } from './scarf.js';
@@ -33,20 +32,19 @@ const HEROES = { masked: 'mask_tall_c', a: 'px_knight', b: 'px_hood', c: 'px_mas
 const loadHero = name => fetch(`assets/side/${name}/sprite.json`).then(r => r.ok ? r.json() : Promise.reject()).then(meta => { hero.meta = meta; hero.name = name; hero.sprite = makeSprite(R.scene, `assets/side/${name}`, meta); });
 loadHero(HERO).catch(() => loadHero('hero_a')).catch(() => loadHero('hero'));
 // what a region has in it: made by setup, again each time he comes into one
-let fx, E, BOSS, SHRINES, MAP, SCF, SWINGFX;
+let fx, E, BOSS, SHRINES, MAP, SCF, SWINGFX, PROPS;
 const HUD = makeHud(hud);
 // embers: what he takes from what he kills. Ten grow a length of the scarf back (a heart); a full ten are kept until needed
 const EMBER = { n: 0, max: 10 };
 let FLIGHT = null, SLOW = 0, FLASH = 0, PAUSE = false, PLAYED = 0, PLACE = { name: '', t: 9 };
 let CHECK = null, BANNER = null, WON = false, DEATH = 0;
-const SUB = ['the bottom of the mountain', 'a house of stone over the Warden\'s hall', 'the open air, and the peak'];
-const CARD = ['', 'The Roots are below him. The climb goes on.', 'Out of the stone, into the open air.'];   // what the card says, coming up into a region
+const SUB = LEVELS.map(l => l.sub), CARD = LEVELS.map(l => l.card);   // under a region's name; and what the card says, coming up into it
 // how far he has got is kept, so the climb can be taken up again
 const SAVE = { get(){ try { return JSON.parse(localStorage.getItem('climb-side') || 'null'); } catch (e){ return null; } }, set(v){ try { if (v) localStorage.setItem('climb-side', JSON.stringify(v)); else localStorage.removeItem('climb-side'); } catch (e){} } };
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
 function setup(){
-  SWINGFX = makeSwingFx(R.scene);
-  fx = spawnFx(R.scene); E = spawnEnemies(R.scene); SCF = makeScarf(R.scene); FLIGHT = null; BOSS = [makeWarden, makeToll, makeWyrm][LEVEL.index](R.scene, R);   // each region's keeper
+  SWINGFX = makeSwingFx(R.scene); PROPS = makeProps(R.scene, R);
+  fx = spawnFx(R.scene); E = spawnEnemies(R.scene, R); SCF = makeScarf(R.scene); FLIGHT = null; BOSS = (KEEPERS[LEVEL.theme] || (() => null))(R.scene, R);   // each region's keeper
   // the shrine: it fills the flask and the hearts, and is where he wakes after a death
   SHRINES = LEVEL.marks.filter(m => m.type === 'shrine').map(m => { const x = (m.x + 0.5) * T, y = m.y * T; return { x, y, room: roomAt(x, y + 0.5) }; });
   CHECK = null; WON = false; DEATH = 0;
@@ -200,7 +198,7 @@ function frame(ts){
   // hit-stop: a hit freezes the world a few frames (the effects keep running)
   let sdt = dt; if (FEEL_FX.hitstop > 0){ FEEL_FX.hitstop -= dt; sdt = dt * 0.06; }
   if (SLOW > 0){ SLOW -= dt; sdt *= 0.3; }   // a boss's last moment, drawn out
-  FLASH = Math.max(0, FLASH - dt); PLAYED += dt;
+  FLASH = Math.max(0, FLASH - dt); PLAYED += dt; PHASE.t += sdt; PROPS.step(sdt, time);
   acc += sdt; time += dt;
   const h = 1 / 120;
   while (acc >= h){ const x0 = P.x; if (DEATH <= 0 && !FLIGHT && !GO.st && WAKE <= 0) stepPlayer(P, h); P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
@@ -269,7 +267,8 @@ function frame(ts){
 
     SWINGFX.show(anim, frac, P.x, P.y - SINK, P.face);
     // the dash cut leaves afterimages and streaks, and kicks the floor up behind him
-    if (P.atk && P.atk.special === 'dash' && P.atk.phase !== 'rec' && (FX2.ghostT -= dt) <= 0){
+    FX2.dashGhost = Math.max(0, (FX2.dashGhost || 0) - dt);
+    if (((P.atk && P.atk.special === 'dash' && P.atk.phase !== 'rec') || FX2.dashGhost > 0) && (FX2.ghostT -= dt) <= 0){
       FX2.ghostT = 0.035; const m = hero.sprite.ghost(0x4fc8ff); if (m) FX2.ghosts.push({ m, life: 0.22 });
       fx.streak({ x: P.x, y: P.y }, P.face); if (P.grounded) fx.kick({ x: P.x, y: P.y }, -P.face, 3, 3);
     }
@@ -306,6 +305,9 @@ function onEvent(e){
     case 'roll': sfx.whoosh(); fx.kick(at, -P.rollDir, 10, 2.6); break;
     case 'dashCut': sfx.dash(); fx.kick(at, -P.face, 14, 3.4); FX2.ghostT = 0; break;
     case 'dive': sfx.whoosh(); break;
+    case 'glide': sfx.whoosh(); break;
+    case 'airDash': sfx.dash(); fx.ring({ x: P.x, y: P.y + 1 }, 0xffd27a); FX2.dashGhost = 0.2; break;
+    case 'bloom': sfx.jump(); PROPS.bounce(e.m); fx.puff(at, 14, 3); fx.burst({ x: P.x, y: P.y + 0.3 }, 10, 0xf6757a); R.glint(P.x, P.y + 0.5, 0xfeae34, 0.7, 4, 0.3); break;
     case 'strike': {
       // the blow: the swoosh of light, the air bending round it, the floor kicked up, a thump, the view nudged
       const big = e.finisher, tilt = { atk_slam_v3: -0.7, atk_slam_px: -0.7, atk_rise_px: 1.0, atk_spin_px: 0.1, atk_dash_px: 0.25 }[e.sw.anim] || 0;
@@ -340,7 +342,7 @@ function onEvent(e){
 }
 const HINT = { keys: ['A D MOVE · SPACE JUMP, AGAIN IN THE AIR · SHIFT ROLL', 'CLICK CUT · S + CLICK RISING CUT · CLICK IN A ROLL: DASH CUT', 'S + CLICK IN THE AIR: PLUNGE · S + SPACE: DROP · ESC PAUSE · M MUSIC'],
   pad: ['STICK MOVE · A JUMP, AGAIN IN THE AIR · ROLL · CUT', 'DOWN + CUT: RISING CUT · IN THE AIR: PLUNGE'], touch: [] };
-const EPITHET = ['KEEPER OF THE ROOTS', 'THE VOICE OF THE CLOISTER', 'IT KEEPS THE SUMMIT'];
+const EPITHET = LEVELS.map(l => l.epithet);
 function drawHud(dt){
   HUD.begin(R.size().w); const W = HUD.W, v = new window.THREE.Vector3();
   // a red ! over a creature winding up
@@ -368,7 +370,7 @@ function drawHud(dt){
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, TUNE.player.flask - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, get props(){ return PROPS; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

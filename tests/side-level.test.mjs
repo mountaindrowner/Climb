@@ -6,9 +6,9 @@ import assert from 'node:assert/strict';
 import { LEVEL, LEVELS, loadLevel, ROCK, LEDGE, EMPTY } from '../src/side/level.js';
 
 for (let N = 0; N < LEVELS.length; N++){
-const { W, H, tiles, marks, rooms } = { ...loadLevel(N) }, NAME = LEVELS[N].name;
+const { W, H, tiles, marks, rooms, pads, updrafts } = { ...loadLevel(N) }, NAME = LEVELS[N].name;
 const GOAL = marks.find(m => m.type === 'boss') || marks.find(m => m.type === 'exit');   // where the region leads: its boss, or its way out
-const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i];
+const at = (i, j) => { if (i < 0 || j < 0 || i >= W || j >= H) return ROCK; const t = tiles[j * W + i]; return t === 4 ? ROCK : t === 5 || t === 6 ? LEDGE : t; };   // cracked rock is rock; star-glass, a ledge (he waits for it)
 const solid = (i, j) => at(i, j) === ROCK;
 const support = (i, j) => { const t = at(i, j); return t === ROCK || t === LEDGE; };
 const BODY = 5;   // tiles tall, rounded up (he is 2.4 units: 4.8 tiles)
@@ -43,6 +43,12 @@ function reach(edges){
     if (!stand(i, j)) continue;
     // straight up through a ledge above
     for (let dy = 1; dy <= 7; dy++) if (stand(i, j + dy) && clear(i, i, j, j + dy + BODY - 1)) push(i, j + dy);
+    // a bloom throws him high (fourteen tiles, and his air jump after): up its column, then across
+    if (pads.has(j * W + i)) for (let dy = 1; dy <= 17; dy++){ if (!clear(i, i, j, j + dy + BODY - 1)) break; for (let dx = -9; dx <= 9; dx++){ const ti = i + dx, tj = j + dy; if (stand(ti, tj) && clear(i, ti, tj, tj + BODY - 1)) push(ti, tj); for (let d2 = 1; d2 <= 6; d2++) if (stand(ti, tj - d2) && clear(i, ti, tj, tj + BODY - 1) && clear(ti, ti, tj - d2, tj + BODY - 1)) push(ti, tj - d2); } }
+    // rising air carries him (the scarf) up its height, and out a little way either side at any level
+    for (const u of updrafts){ const x0 = Math.round(u.x0 * 2), x1 = Math.round(u.x1 * 2) - 1, y0 = Math.round(u.y0 * 2), y1 = Math.round(u.y1 * 2);
+      if (i < x0 - 2 || i > x1 + 2 || j < y0 - 6 || j > y1) continue;
+      for (let tj = j; tj <= y1 + 3; tj++) for (let ti = x0 - 7; ti <= x1 + 7; ti++){ if (!stand(ti, tj)) continue; const a = Math.max(x0, Math.min(x1, ti)); if (clear(a, ti, tj, tj + BODY - 1)) push(ti, tj); } }
     // drop through the ledge underfoot
     if (at(i, j - 1) === LEDGE){ const fj = fall(i, j - 1); push(i, fj); }
   }

@@ -4,13 +4,14 @@
 // back. When he dies it is the scarf that goes on, alone, back to the last shrine, and he gets up there under it.
 const THREE = window.THREE;
 const N = 20, SEG = 0.15;
-export function makeScarf(scene){
+// cols: its edge, body and shade (his is red; another's can be its own)
+export function makeScarf(scene, cols = { edge: 0x181425, body: 0xe43b44, shade: 0xa22633, glow: 0xffa040 }){
   const pts = []; for (let i = 0; i < N; i++) pts.push({ x: 0, y: 0, px: 0, py: 0 });
   const strip = (color, z) => { const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 2 * 3), 3));
     const idx = []; for (let i = 0; i < N - 1; i++){ const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); } geo.setIndex(idx);
     const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide })); m.frustumCulled = false; m.position.z = z; scene.add(m); return m; };
-  const edge = strip(0x181425, 0.036), body = strip(0xe43b44, 0.038), shade = strip(0xa22633, 0.04);
-  const tipGlow = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.9), new THREE.MeshBasicMaterial({ color: 0xffa040, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
+  const edge = strip(cols.edge, 0.036), body = strip(cols.body, 0.038), shade = strip(cols.shade, 0.04);
+  const tipGlow = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.9), new THREE.MeshBasicMaterial({ color: cols.glow || 0xffa040, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
   { const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d'), gr = g.createRadialGradient(16, 16, 0, 16, 16, 16); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 32, 32); tipGlow.material.map = new THREE.CanvasTexture(c); }
   tipGlow.position.z = 0.05; scene.add(tipGlow);
   const S = { pts, len: N, set: false, t: 0 };

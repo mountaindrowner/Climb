@@ -18,7 +18,7 @@ const APEX = 24, FOOT = 178;
 const flank = y => { const t = Math.max(0, (y - APEX) / (FOOT - APEX)), w = 3 + Math.pow(t, 1.2) * 118, cx = 160 + Math.sin(y * 0.045) * 7; return { l: Math.round(cx - w * 0.92 - Math.sin(y * 0.31) * 3 * t - Math.sin(y * 0.11) * 6 * t), r: Math.round(cx + w * 1.06 + Math.sin(y * 0.27 + 2) * 3 * t + Math.sin(y * 0.09 + 1) * 7 * t) }; };
 // how high he is, 0 at the foot to 1 at the top, to a place on its left ridge
 const ridge = f => { const y = FOOT - 2 - f * (FOOT - 2 - APEX - 3), F = flank(y); return { x: F.l + 2 + (1 - f) * 10, y }; };
-export const REGION_SPAN = [[0, 0.34], [0.34, 0.62], [0.62, 1]];   // each region's share of the climb, bottom to top
+export const REGION_SPAN = [[0, 0.2], [0.2, 0.36], [0.36, 0.54], [0.54, 0.7], [0.7, 0.85], [0.85, 1]];   // each region's share of the climb, bottom to top
 
 // the mountain, at night or at dawn: sky, far ranges, and the mountain with its three regions told apart: crystals in
 // its roots, lit windows in its middle, snow and spires at its top

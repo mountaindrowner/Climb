@@ -1,31 +1,14 @@
 // The side view's world: a grid of tiles, half a unit square, climbing up through rooms joined by doorways, shafts and
 // tunnels, the way a metroidvania's map is. Rooms are built from a few pieces (walls, doors, ledges, stairs, low
-// tunnels) so each is easy to read and change; a region is a grid of rooms, and there are three, one over the other:
-// the Roots (caves), the Cloister (a ruined monastery) and the Spires (the open air near the top). One is in play at a
-// time (LEVEL; loadLevel changes it). Tile y counts up from the bottom.
-//   0 empty   1 rock   2 ledge (one-way: stand on it, jump up through it)   3 spikes
-// Markers (spawns, lights, the exit) are kept apart from the tiles, in tile coordinates.
-export const T = 0.5;                       // a tile, in world units (the warrior is about 1.75 tall)
-export const ROOM = { w: 40, h: 23 };       // a room is a screen: 20 x 11.5 units
-export const EMPTY = 0, ROCK = 1, LEDGE = 2, SPIKES = 3;
-
-// a room spans cw x ch screens (most are one)
-function room(cw = 1, ch = 1){ const r = { w: ROOM.w * cw, h: ROOM.h * ch, tiles: [], marks: [] }; for (let y = 0; y < r.h; y++) r.tiles.push(new Array(r.w).fill(EMPTY)); return r; }
-const put = (r, x, y, v) => { if (x >= 0 && y >= 0 && x < r.w && y < r.h) r.tiles[y][x] = v; };
-const rect = (r, x0, y0, x1, y1, v = ROCK) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) put(r, x, y, v); };
-const walls = r => { rect(r, 0, 0, r.w - 1, 1); rect(r, 0, r.h - 2, r.w - 1, r.h - 1); rect(r, 0, 0, 1, r.h - 1); rect(r, r.w - 2, 0, r.w - 1, r.h - 1); };
-// openings in the border: left/right take rows y0..y1, top/bottom take columns x0..x1
-const door = (r, side, a, b) => {
-  if (side === 'left') rect(r, 0, a, 1, b, EMPTY); else if (side === 'right') rect(r, r.w - 2, a, r.w - 1, b, EMPTY);
-  else if (side === 'top') rect(r, a, r.h - 2, b, r.h - 1, EMPTY); else rect(r, a, 0, b, 1, EMPTY);
-};
-const ledge = (r, x0, x1, y) => rect(r, x0, y, x1, y, LEDGE);
-// stairs: n steps, each `run` tiles long and one tile (half a unit) high, rising toward dir (+1 right, -1 left), the
-// rock filled in under them
-function stairs(r, x, y, n, dir, run = 2){
-  for (let i = 0; i < n; i++) for (let k = 0; k < run; k++){ const cx = x + dir * (i * run + k); rect(r, cx, 0, cx, y + i, ROCK); }
-}
-const mark = (r, type, x, y, extra) => r.marks.push({ type, x, y, ...extra });
+// tunnels, rooms.js) so each is easy to read and change; a region is a grid of rooms, and there are six, one over the
+// other: the Roots (caves), the Cloister (a ruined monastery), the Spires (ice, and the high pass), then, each in its own
+// file under regions/, the Tempest (the storm round the mountain), the Gardens (above the cloud) and the Firmament (the
+// summit, among the stars). One is in play at a time (LEVEL; loadLevel changes it).
+import { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, room, put, rect, walls, door, ledge, stairs, mark, open } from './rooms.js';
+import tempest from './regions/tempest.js';
+import gardens from './regions/gardens.js';
+import firmament from './regions/firmament.js';
+export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B };
 
 // ---- the first region: up from the bottom of the mountain
 function start(){
@@ -197,7 +180,6 @@ function chapel(){
 // ---- the third region: the Spires, out in the open air near the summit. Nothing is filled in here: the rock is
 // what each piece draws, the rest is sky. Caves in the mountain on the left; outside, a climb up between a needle and
 // a tower, a rope bridge back across, a cavern of ice, the tower's teeth, a last bridge, and the summit.
-const open = (cw, ch) => { const r = room(cw, ch); r.open = true; return r; };
 function massif(){ const r = room(); rect(r, 0, 0, r.w - 1, r.h - 1); r.filler = true; return r; }   // the mountain itself
 // the mountain's brow: the rock under the ice cave, leaning out over the gap
 function brow(){ const r = room(); rect(r, 0, 13, r.w - 1, r.h - 1); rect(r, 0, 7, 27, 12); rect(r, 0, 1, 12, 6); r.filler = true; return r; }
@@ -309,15 +291,18 @@ function crown(){
 // the regions, from the bottom of the mountain up: rooms on a grid, [column, row, builder, columns wide, rows tall].
 // `fill` is what is between the rooms; `wear` is how hard the organic pass works the rock
 const REGIONS = [
-  { name: 'The Roots', theme: 'roots', seed: 1234567, wear: { sag: 1, swell: 1, humps: 0.8 },
+  { name: 'The Roots', theme: 'roots', sub: 'the bottom of the mountain', card: '', epithet: 'KEEPER OF THE ROOTS', quiet: ['arena'], seed: 1234567, wear: { sag: 1, swell: 1, humps: 0.8 },
     layout: [[0, 0, start], [1, 0, corridor], [1, 1, shaft], [0, 1, tunnel], [0, 2, chamber], [1, 2, ascent], [2, 2, gallery], [3, 2, well, 1, 2], [0, 3, roost], [1, 3, bridge], [2, 3, grotto], [2, 4, arena, 2, 2]] },
-  { name: 'The Cloister', theme: 'cloister', seed: 7654321, wear: { sag: 0.55, swell: 0.5, humps: 0.4 },
+  { name: 'The Cloister', theme: 'cloister', sub: 'a house of stone over the Warden\'s hall', card: 'The Roots are below him. The climb goes on.', epithet: 'THE VOICE OF THE CLOISTER', quiet: ['chapel'], seed: 7654321, wear: { sag: 0.55, swell: 0.5, humps: 0.4 },
     layout: [[0, 0, undercroft], [1, 0, nave, 2, 1], [3, 0, belfry, 1, 3], [0, 1, stairwell, 1, 2], [1, 1, cells], [2, 1, library], [1, 2, cloister, 2, 1], [1, 3, chapel, 2, 1]] },
-  { name: 'The Spires', theme: 'spires', seed: 2468101, fill: EMPTY, sky: true, wear: { sag: 1.1, swell: 0.5, humps: 0.6 },
+  { name: 'The Spires', theme: 'spires', sub: 'the open air, and the high pass', card: 'Out of the stone, into the open air.', epithet: 'IT KEEPS THE HIGH PASS', quiet: ['crown'], seed: 2468101, fill: EMPTY, sky: true, wear: { sag: 1.1, swell: 0.5, humps: 0.6 },
     layout: [[0, 0, mouth], [1, 0, saddle, 2, 1], [0, 1, massif], [1, 1, nest], [2, 1, spire, 1, 2], [0, 2, hollow], [1, 2, ropeway], [0, 3, chimney], [1, 3, brow], [0, 4, icecave, 2, 1], [2, 3, teeth, 1, 2],
       [0, 5, eyrie, 2, 1], [2, 5, span], [0, 6, crown, 2, 2]], cols: 3 },
+  tempest, gardens, firmament,   // each in its own file (regions/)
 ];
-export const LEVELS = REGIONS.map(r => ({ name: r.name, theme: r.theme }));
+export const LEVELS = REGIONS.map(r => ({ name: r.name, theme: r.theme, sub: r.sub || '', card: r.card || '', epithet: r.epithet || '' }));
+export const REGION_DATA = REGIONS;   // a region's own look, creatures and music, where its file has them (themeDef, deco, enemies, ai, songs)
+const QUIET = new Set(REGIONS.flatMap(r => r.quiet || []));   // a boss's stage stays flat (its blows run along it)
 
 function build(n){
   const R = REGIONS[n], LAYOUT = R.layout;
@@ -331,7 +316,13 @@ function build(n){
   }
   const raw = tiles.slice();
   organic(tiles, W, H, marks, rooms, R.seed, R.wear);
-  return { index: n, name: R.name, theme: R.theme, sky: !!R.sky, W, H, tiles, marks, rooms, raw };
+  // what the motor asks about every step: the flowers' tiles, and the rising air (in world units)
+  const pads = new Map(), updrafts = [];
+  for (const m of marks){
+    if (m.type === 'bloom') for (let a = -1; a <= 1; a++) pads.set(m.y * W + m.x + a, m);
+    if (m.type === 'updraft') updrafts.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 12)) * T });
+  }
+  return { index: n, name: R.name, theme: R.theme, sky: !!R.sky, W, H, tiles, marks, rooms, raw, pads, updrafts, tiles0: tiles.slice() };
 }
 // the region in play. One object, refilled when he goes up a region, so everything that reads it reads the new one
 export const LEVEL = {};
@@ -346,7 +337,7 @@ loadLevel(typeof location !== 'undefined' && location.search ? (parseInt(new URL
 // raises low humps along long floors. The same every load (a fixed seed).
 function organic(tiles, W, H, marks, rooms, seed0 = 1234567, wear = { sag: 1, swell: 1, humps: 0.8 }){
   let seed = seed0; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647, ri = (a, b) => a + Math.floor(rnd() * (b - a + 1));
-  const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i];
+  const at = (i, j) => { if (i < 0 || j < 0 || i >= W || j >= H) return ROCK; const t = tiles[j * W + i]; return t === CRACKED ? ROCK : t === GLASS_A || t === GLASS_B ? LEDGE : t; };   // cracked rock is rock, star-glass a ledge
   const set = (i, j, v) => { if (i > 0 && j > 0 && i < W - 1 && j < H - 1) tiles[j * W + i] = v; };
   const air = (i, j) => at(i, j) === EMPTY, rock = (i, j) => at(i, j) === ROCK, support = (i, j) => { const t = at(i, j); return t === ROCK || t === LEDGE; };
   const stand = (i, j) => air(i, j) && support(i, j - 1);
@@ -368,7 +359,7 @@ function organic(tiles, W, H, marks, rooms, seed0 = 1234567, wear = { sag: 1, sw
   }
   for (const m of marks) for (let a = -2; a <= 2; a++) for (let b = -1; b <= 3; b++){ mark(near, m.x + a, m.y + b); mark(far, m.x + a, m.y + b); }
   const free = (arr, i, j) => air(i, j) && !arr[j * W + i];
-  const quiet = r => r && (r.name === 'arena' || r.name === 'chapel' || r.name === 'crown');   // a boss's stage stays flat (its blows run along it)
+  const quiet = r => r && QUIET.has(r.name);
   const added = new Uint8Array(W * H), put = (i, j) => { set(i, j, ROCK); if (i >= 0 && j >= 0 && i < W && j < H) added[j * W + i] = 1; };
   // smooth noise along a line: a value every few tiles, eased between
   const noise = (period, s0) => { const v = []; for (let k = 0; k < 400; k++) v.push(rnd()); return x => { const f = (x + s0) / period, k = Math.floor(f), t = f - k, e = t * t * (3 - 2 * t); return v[k % 400] * (1 - e) + v[(k + 1) % 400] * e; }; };
@@ -446,7 +437,15 @@ function organic(tiles, W, H, marks, rooms, seed0 = 1234567, wear = { sag: 1, sw
   }
 }
 // the tile at a tile coordinate (outside the map: rock)
-export const tileAt = (tx, ty) => tx < 0 || ty < 0 || tx >= LEVEL.W || ty >= LEVEL.H ? ROCK : LEVEL.tiles[ty * LEVEL.W + tx];
+// star-glass keeps time: the first kind is there for the first half of each beat, the second for the other (`all`: both
+// always, for the tests, which cannot wait)
+export const PHASE = { t: 0, period: 2.4, all: false };
+export const glassOn = k => PHASE.all || ((PHASE.t / PHASE.period) % 2 < 1) === (k === GLASS_A);
+// the tile as it is drawn into the level (cracked rock and star-glass as themselves)
+export const rawAt = (tx, ty) => tx < 0 || ty < 0 || tx >= LEVEL.W || ty >= LEVEL.H ? ROCK : LEVEL.tiles[ty * LEVEL.W + tx];
+// the tile as he meets it now: cracked rock is rock, star-glass a ledge while it is there
+export const tileAt = (tx, ty) => { if (tx < 0 || ty < 0 || tx >= LEVEL.W || ty >= LEVEL.H) return ROCK; const t = LEVEL.tiles[ty * LEVEL.W + tx]; return t < CRACKED ? t : t === CRACKED ? ROCK : glassOn(t) ? LEDGE : EMPTY; };
+export const updraftAt = (x, y) => { for (const u of LEVEL.updrafts) if (x >= u.x0 && x < u.x1 && y >= u.y0 && y < u.y1) return u; return null; };
 export const tileOf = (x, y) => tileAt(Math.floor(x / T), Math.floor(y / T));
 export const solidAt = (x, y) => tileOf(x, y) === ROCK;
 export const roomAt = (x, y) => LEVEL.rooms.find(r => x >= r.x0 && x < r.x1 && y >= r.y0 && y < r.y1) || null;
