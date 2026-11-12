@@ -432,6 +432,22 @@ function paintBack(TM){
   return { cnv, bw, bh };
 }
 
+// one painting laid into another over some rectangles, its edge broken up: solid `band` pixels in from a rectangle's
+// edge, dithered and ragged before that (a room that wears another region's look: its stone gives way to this one's)
+function blend(dst, src, rects, band, extra){
+  const g = dst.getContext('2d'), sg = src.getContext('2d'), n = noise2(7), eg = extra ? extra[0].getContext('2d') : null, es = extra ? extra[1].getContext('2d') : null;
+  for (let [x0, y0, x1, y1] of rects){
+    x0 = Math.max(0, Math.round(x0)); y0 = Math.max(0, Math.round(y0)); x1 = Math.min(dst.width, Math.round(x1)); y1 = Math.min(dst.height, Math.round(y1)); const w = x1 - x0, h = y1 - y0; if (w < 2 || h < 2) continue;
+    const a = g.getImageData(x0, y0, w, h), b = sg.getImageData(x0, y0, w, h), ea = eg ? eg.getImageData(x0, y0, w, h) : null, eb = es ? es.getImageData(x0, y0, w, h) : null;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++){
+      const d = Math.min(x, y, w - 1 - x, h - 1 - y), k = d / band + (n((x0 + x) / 26, (y0 + y) / 26) - 0.5) * 1.1 - 0.15;
+      if (k < 1 && B4[((y0 + y) & 3) * 4 + ((x0 + x) & 3)] / 16 >= k) continue;
+      const q = (y * w + x) * 4; a.data[q] = b.data[q]; a.data[q + 1] = b.data[q + 1]; a.data[q + 2] = b.data[q + 2]; a.data[q + 3] = b.data[q + 3];
+      if (ea){ ea.data[q] = eb.data[q]; ea.data[q + 1] = eb.data[q + 1]; ea.data[q + 2] = eb.data[q + 2]; ea.data[q + 3] = eb.data[q + 3]; }
+    }
+    g.putImageData(a, x0, y0); if (eg) eg.putImageData(ea, x0, y0);
+  }
+}
 let TM_NOW = null;
 export const themeNow = () => TM_NOW || THEMES.roots;   // the look of the region in play (props.js draws cracked rock in its stone)
 export function makeRenderer(canvas){
@@ -442,20 +458,28 @@ export function makeRenderer(canvas){
   const camera = new THREE.OrthographicCamera(-10, 10, VIEW_H / 2, -VIEW_H / 2, -200, 200); camera.position.z = 100;
   const hemi = new THREE.HemisphereLight(0xffffff, 0x9aa6d0, 0.95), heroLight = new THREE.PointLight(0xffd2a0, 0.5, 7, 2), rnd = rng(7);
   const torchGlow = glowTex('rgba(255,170,60,1)'), crystalGlow = glowTex('rgba(80,240,255,1)');
-  const layers = [], exits = [], lights = [], flames = [], motes = [], pool = [], burning = [], veils = [], glints = [];
+  const layers = [], exits = [], lights = [], flames = [], motes = [], pool = [], burning = [], veils = [], glints = [], fars = [];
+  let ALT = [];        // the other looks worn in this region
+  const LOOKW = {};   // how far he is into a room that wears another region's look, by that look: 0 not at all, 1 deep in it
   const flameTexs = [flameStrip(), flameStrip(), flameStrip()], ambNow = [1, 1, 1];
   let ready = null, TM = THEMES.roots;
   // ---- the region: everything in the scene is made here, and made again when he goes up to the next (load)
   function build(){
   for (const o of [...scene.children]){ scene.remove(o); o.traverse(m => { if (m.geometry) m.geometry.dispose(); const mt = m.material; if (mt){ if (mt.map && mt.map !== torchGlow && mt.map !== crystalGlow) mt.map.dispose(); mt.dispose(); } }); }
-  layers.length = exits.length = lights.length = flames.length = motes.length = pool.length = burning.length = veils.length = glints.length = 0;
+  layers.length = exits.length = lights.length = flames.length = motes.length = pool.length = burning.length = veils.length = glints.length = fars.length = 0; for (const k in LOOKW) delete LOOKW[k];
   TM = THEMES[LEVEL.theme] || THEMES.roots; TM_NOW = TM;
   hemi.color.setHex(TM.hemi[0]); hemi.groundColor.setHex(TM.hemi[1]); hemi.intensity = TM.hemi[2] * AMB_IN_MAT; scene.add(hemi); scene.add(heroLight);
   const W = LEVEL.W * T, Hh = LEVEL.H * T;
   // ---- the far cavern: held to the palette, a pixel a pixel, nearly still
-  const FF = 0.04, far = new THREE.Mesh(new THREE.PlaneGeometry(400 / PPU, 224 / PPU), new THREE.MeshBasicMaterial({ color: 0xffffff })); far.position.z = -60; scene.add(far);
-  loadImg(`assets/side/bg/${TM.far.img}.png`).then(img => { if (img){ far.material.map = TM.far.raw ? canvasTex(img) : canvasTex(onPalette(img, TM.far.dim, TM.far.dither || 0)); far.material.needsUpdate = true; } });
-  layers.push({ obj: far, f: FF, ax: W / 2, ay: Hh / 2 });   // drawn at anchor + (camera - anchor) * (1 - f)
+  // rooms that wear another region's look (the way in still looks like where he came from): which looks, and where
+  ALT = [...new Set(LEVEL.rooms.map(r => r.look).filter(l => l && THEMES[l] && THEMES[l] !== TM))];
+  const lookAt = (wx, wy) => { const r = LEVEL.rooms.find(q => wx >= q.x0 && wx < q.x1 && wy >= q.y0 && wy < q.y1); return r && r.look && ALT.includes(r.look) ? r.look : null; };
+  const FF = 0.04;
+  const farOf = (TMx, look, z) => { const far = new THREE.Mesh(new THREE.PlaneGeometry(400 / PPU, 224 / PPU), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: !!look, opacity: look ? 0 : 1, depthWrite: false })); far.position.z = z; scene.add(far);
+    loadImg(`assets/side/bg/${TMx.far.img}.png`).then(img => { if (img){ far.material.map = TMx.far.raw ? canvasTex(img) : canvasTex(onPalette(img, TMx.far.dim, TMx.far.dither || 0)); far.material.needsUpdate = true; } });
+    layers.push({ obj: far, f: FF, ax: W / 2, ay: Hh / 2 }); if (look) fars.push({ m: far, look }); };   // drawn at anchor + (camera - anchor) * (1 - f)
+  farOf(TM, null, -60); ALT.forEach((l, k) => farOf(THEMES[l], l, -59.9 + k * 0.01));
+  { const sp = LEVEL.marks.find(m => m.type === 'spawn'), l0 = sp && lookAt((sp.x + 0.5) * T, sp.y * T + 0.5); for (const l of ALT) LOOKW[l] = l === l0 ? 1 : 0; LOOKW[''] = l0 ? 0 : 1; }   // the look he wakes in, before the first frame
 
   // ---- the painted layers
   const glowAt = (x, y, kind) => {   // canvas pixels of the play layer to a glow in the world
@@ -465,9 +489,13 @@ export function makeRenderer(canvas){
     if (rnd() < 0.5) lights.push({ x: wx, y: wy, color: warm ? 0xff9a40 : 0x40e0ff, power: warm ? 1.0 : 0.7, range: 5, ph: rnd() * 9 });
   };
   ready = (async () => {
-    const back = paintBack(TM), backGroup = canvasPlanes(scene, back.cnv, 0, 0, -30, false);
+    const back = paintBack(TM), pxLook = (x, y) => lookAt(x / PPU, (LEVEL.H * CELL - y) / PPU);
+    for (const l of ALT) blend(back.cnv, paintBack(THEMES[l]).cnv, LEVEL.rooms.filter(r => r.look === l).map(r => [(r.x0 * FB + MARGIN_X) * PPU, back.bh - (r.y1 * FB + MARGIN_Y) * PPU, (r.x1 * FB + MARGIN_X) * PPU, back.bh - (r.y0 * FB + MARGIN_Y) * PPU]), 44);
+    const backGroup = canvasPlanes(scene, back.cnv, 0, 0, -30, false);
     layers.push({ obj: backGroup, back: true, h: back.bh / PPU });
-    const play = paintPlay(glowAt, TM), g = play.getContext('2d'), Y = j => (LEVEL.H - j) * CELL, rr = rng(5);
+    const play = paintPlay((x, y, kind) => { if (!pxLook(x, y)) glowAt(x, y, kind); }, TM), g = play.getContext('2d'), Y = j => (LEVEL.H - j) * CELL, rr = rng(5);
+    for (const l of ALT){ const alt = paintPlay((x, y, kind) => { if (pxLook(x, y) === l) glowAt(x, y, kind); }, THEMES[l]);
+      blend(play, alt, LEVEL.rooms.filter(r => r.look === l).map(r => [r.tx0 * CELL, (LEVEL.H - r.ty1) * CELL, r.tx1 * CELL, (LEVEL.H - r.ty0) * CELL]), 52, play.normals && alt.normals ? [play.normals, alt.normals] : null); }
     for (const m of LEVEL.marks){
       const x = (m.x + 0.5) * T, y = m.y * T, cx = Math.round(x * PPU);
       if (m.type === 'torch'){
@@ -477,7 +505,7 @@ export function makeRenderer(canvas){
         const ft = flameTexs[burning.length % flameTexs.length], core = new THREE.Mesh(new THREE.PlaneGeometry(8 / PPU, 12 / PPU), new THREE.MeshBasicMaterial({ map: ft, transparent: true, alphaTest: 0.5 })); core.position.set(x, y + 0.86, 0.9); scene.add(core); burning.push(core);   // the flame itself, drawn, four frames
         lights.push({ x, y: y + 0.8, color: 0xff9a40, power: 1.5, range: 7, ph: rnd() * 9, torch: true });
       }
-      if (m.type === 'crystal') DECO[TM.gem](g, cx, Y(m.y), rr, glowAt);
+      if (m.type === 'crystal') DECO[(THEMES[lookAt(x, y + 0.2)] || TM).gem](g, cx, Y(m.y), rr, glowAt);
       if (m.type === 'bell') DECO.bell(g, cx, Y(m.y));
       if (m.type === 'shrine'){
         const b = Y(m.y);
@@ -490,23 +518,30 @@ export function makeRenderer(canvas){
     }
     canvasPlanes(scene, play, 0, Hh, 0, true, play.normals);
   })();
-  // the way on: shut until the Warden falls
+  // the way on: shut until the keeper falls. A tall arch, and in it a little of the next region's sky: where he is going
+  // can be seen from here (the last region's is only light: the beacon)
+  const NEXT = REGION_DATA[LEVEL.index + 1], NTM = NEXT && THEMES[NEXT.theme];
   for (const m of LEVEL.marks) if (m.type === 'exit'){
-    const x = (m.x + 0.5) * T, y = m.y * T;
-    const c = document.createElement('canvas'); c.width = 24; c.height = 32; const gg = c.getContext('2d');
-    gg.fillStyle = PAL.ink; gg.fillRect(2, 4, 20, 28); gg.fillStyle = PAL.fire3; gg.fillRect(4, 6, 16, 26); gg.fillStyle = PAL.white; gg.fillRect(7, 9, 10, 23);
-    const arch = new THREE.Mesh(new THREE.PlaneGeometry(24 / PPU, 32 / PPU), new THREE.MeshBasicMaterial({ map: canvasTex(c), transparent: true }));
-    arch.position.set(x, y + 1, 0.02); scene.add(arch);
-    const gl = new THREE.Mesh(new THREE.PlaneGeometry(4, 4), new THREE.MeshBasicMaterial({ map: torchGlow, transparent: true, depthWrite: false, color: 0xffe0a0, blending: THREE.AdditiveBlending, opacity: 0.7 })); gl.position.set(x, y + 1, 1); scene.add(gl);
-    const light = { x, y: y + 1, color: 0xffe0a0, power: 2.4, range: 9, ph: 0, off: true }; lights.push(light);
-    arch.visible = gl.visible = false; exits.push({ x, y, set(on){ arch.visible = gl.visible = on; light.off = !on; } });
+    const x = (m.x + 0.5) * T, y = m.y * T, tint = NTM ? NTM.air.cols[1] : 0xffe0a0;
+    const c = document.createElement('canvas'); c.width = 34; c.height = 46; const gg = c.getContext('2d'), tex = canvasTex(c);
+    const frame = img => { gg.clearRect(0, 0, 34, 46);
+      for (let yy = 0; yy < 46; yy++) for (let xx = 0; xx < 34; xx++){ const cx = xx - 16.5, top = yy < 17 ? Math.hypot(cx, yy - 17) : Math.abs(cx), inner = top < 13, outer = top < 16.5; if (!outer) continue;
+        gg.fillStyle = inner ? PAL.white : top > 15.5 || top < 14 ? PAL.ink : (xx + yy) % 5 === 0 ? PAL.dark : PAL.mid; gg.fillRect(xx, yy, 1, 1); }
+      if (img){ gg.save(); gg.beginPath(); for (let yy = 0; yy < 46; yy++){ const half = yy < 17 ? Math.sqrt(Math.max(0, 13 * 13 - (yy - 17) * (yy - 17))) : 13; gg.rect(Math.round(16.5 - half) + 1, yy, Math.round(half * 2) - 1, 1); } gg.clip(); gg.imageSmoothingEnabled = false; gg.drawImage(img, 120, 20, 104, 184, 3, 0, 28, 46); gg.restore(); }
+      tex.needsUpdate = true; };
+    frame(null); if (NTM) loadImg(`assets/side/bg/${NTM.far.img}.png`).then(img => { if (img) frame(img); });
+    const arch = new THREE.Mesh(new THREE.PlaneGeometry(34 / PPU, 46 / PPU), new THREE.MeshBasicMaterial({ map: tex, transparent: true }));
+    arch.position.set(x, y + 23 / PPU, 0.02); scene.add(arch);
+    const gl = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), new THREE.MeshBasicMaterial({ map: torchGlow, transparent: true, depthWrite: false, color: tint, blending: THREE.AdditiveBlending, opacity: 0.45 })); gl.position.set(x, y + 1.4, 0.015); scene.add(gl); flames.push({ m: gl, ph: 0, slow: true });   // behind the arch: a halo round it, the picture in it left clear
+    const light = { x, y: y + 1.4, color: 0xffffff, power: 1.6, range: 7, ph: 0, off: true }; lights.push(light);
+    arch.visible = gl.visible = false; exits.push({ x, y, tint, cols: NTM ? NTM.air.cols : [0xffe0a0, 0xfee761], next: NEXT ? NEXT.theme : '', on: false, set(on){ this.on = on; arch.visible = gl.visible = on; light.off = !on; } });
   }
-  // ---- the air: motes, a pixel each, drifting
-
-  for (let k = 0; k < TM.air.n; k++){
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(1 / PPU, 1 / PPU), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, color: rnd() < TM.air.warm ? TM.air.cols[0] : TM.air.cols[1] }));
-    m.position.set(rnd() * W, rnd() * Hh, 2); scene.add(m); motes.push({ m, vx: (rnd() - 0.5) * TM.air.vx + (TM.air.drift || 0), vy: TM.air.vy[0] + rnd() * (TM.air.vy[1] - TM.air.vy[0]), steady: !!TM.air.steady, ph: rnd() * 9 });
-  }
+  // ---- the air: motes, a pixel each, drifting (the region's, and those of any other look worn in it: `look` says whose)
+  const airOf = (TMx, look) => { for (let k = 0; k < TMx.air.n; k++){
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(1 / PPU, 1 / PPU), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, color: rnd() < TMx.air.warm ? TMx.air.cols[0] : TMx.air.cols[1] }));
+    m.position.set(rnd() * W, rnd() * Hh, 2); scene.add(m); motes.push({ m, look, vx: (rnd() - 0.5) * TMx.air.vx + (TMx.air.drift || 0), vy: TMx.air.vy[0] + rnd() * (TMx.air.vy[1] - TMx.air.vy[0]), steady: !!TMx.air.steady, ph: rnd() * 9 });
+  } };
+  airOf(TM, null); for (const l of ALT) airOf(THEMES[l], l);
   // ---- soft shafts of light under openings in a roof, dithered
   const sc = document.createElement('canvas'); sc.width = 16; sc.height = 64;
   { const gg = sc.getContext('2d'); gg.fillStyle = TM.shaft || 'rgba(0,0,0,0)'; for (let y = 0; y < 64; y++) for (let x = 0; x < 16; x++){ const a = (1 - y / 64) * (1 - Math.abs(x - 7.5) / 8) * 0.7; if (B4[(y & 3) * 4 + (x & 3)] / 16 < a) gg.fillRect(x, y, 1, 1); } }
@@ -521,9 +556,12 @@ export function makeRenderer(canvas){
   for (let k = 0; k < 6; k++){ const L = new THREE.PointLight(0xffffff, 0, 7, 2); scene.add(L); pool.push(L); }
   // ---- mist behind the play layer and a thin one before it, and the dark shapes close to the eye; all ride with the
   // camera, their pictures sliding at their own rates
-  const veil = (tex, z, f, opacity, drift, tw, th) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(26, VIEW_H + 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity, depthWrite: false })); m.position.z = z; scene.add(m); veils.push({ m, tex, f, drift, tw, th, w: 26 * PPU, h: (VIEW_H + 1) * PPU }); };
-  if (TM.mist){ veil(mistTex(TM.mist, 41, false), -6, 0.8, TM.mist.a, TM.mist.drift, 256, 128); veil(mistTex(TM.mist, 87, true), 3, 1.15, TM.mist.a * 0.45, TM.mist.drift * 1.6, 256, 128); }
-  if (TM.fore){ const t = foreTex(TM.fore), m = new THREE.Mesh(new THREE.PlaneGeometry(26, VIEW_H), new THREE.MeshBasicMaterial({ map: t, transparent: true, alphaTest: 0.5, depthWrite: false })); m.position.z = 6; scene.add(m); veils.push({ m, tex: t, f: 1.4, drift: 0, tw: 512, th: TH, w: 26 * PPU, h: TH, fore: true }); }
+  const veil = (tex, z, f, opacity, drift, tw, th, look) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(26, VIEW_H + 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity, depthWrite: false })); m.position.z = z; scene.add(m); veils.push({ m, tex, f, drift, tw, th, w: 26 * PPU, h: (VIEW_H + 1) * PPU, look, a: opacity }); };
+  const mistOf = (TMx, look, dz) => {
+    if (TMx.mist){ veil(mistTex(TMx.mist, 41, false), -6 + dz, 0.8, TMx.mist.a, TMx.mist.drift, 256, 128, look); veil(mistTex(TMx.mist, 87, true), 3 + dz, 1.15, TMx.mist.a * 0.45, TMx.mist.drift * 1.6, 256, 128, look); }
+    if (TMx.fore){ const t = foreTex(TMx.fore), m = new THREE.Mesh(new THREE.PlaneGeometry(26, VIEW_H), new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false })); m.position.z = 6 + dz; scene.add(m); veils.push({ m, tex: t, f: 1.4, drift: 0, tw: 512, th: TH, w: 26 * PPU, h: TH, fore: true, look, a: 1 }); }
+  };
+  mistOf(TM, null, 0); ALT.forEach((l, k) => mistOf(THEMES[l], l, 0.01 * (k + 1)));
   for (let k = 0; k < 3; k++) ambNow[k] = TM.amb[k];
   }
   build();
@@ -571,7 +609,7 @@ export function makeRenderer(canvas){
   addEventListener('resize', resize); resize();
   const cam = { x: 0, y: 0 }, snap = v => Math.round(v * PPU) / PPU;
   return {
-    scene, camera, exits, get ready(){ return ready; }, size: () => size, load(){ build(); bloom(); }, theme: () => LEVEL.theme,
+    scene, camera, exits, get ready(){ return ready; }, look: () => { let best = LEVEL.theme, w = LOOKW[''] === undefined ? 1 : LOOKW['']; for (const l in LOOKW) if (l && LOOKW[l] > w){ w = LOOKW[l]; best = l; } return best; }, lookW: () => LOOKW, size: () => size, load(){ build(); bloom(); }, theme: () => LEVEL.theme,
     // a light for a moment (a blow, a burst) or for this frame only (a boss's eyes, kept up by calling it each frame)
     glint(x, y, color, power = 1, range = 4, life = 0){ glints.push({ x, y, color, power, range, life, t: 0 }); },
     shock(x, y, big){ const S = shocks[shockK]; shockK = (shockK + 1) % shocks.length; Object.assign(S, { t: 0, x, y, big: !!big }); },
@@ -588,7 +626,12 @@ export function makeRenderer(canvas){
     },
     frame(t, hero){
       resize();
-      for (const o of motes){ o.m.position.x += (o.vx + Math.sin(t * 0.7 + o.ph) * 0.05) * 0.016; o.m.position.y += o.vy * 0.016; if (o.m.position.y > cam.y + 7) o.m.position.y = cam.y - 7; else if (o.m.position.y < cam.y - 7) o.m.position.y = cam.y + 7; if (Math.abs(o.m.position.x - cam.x) > 12) o.m.position.x = cam.x + (rnd() - 0.5) * 22; o.m.material.opacity = o.steady ? 0.9 : 0.5 + 0.5 * Math.sin(t * 2 + o.ph); }
+      // how deep he is in a room that wears another look: from its edge in, over five units
+      { for (const l of ALT) LOOKW[l] = 0; const rm = hero && LEVEL.rooms.find(r => hero.x >= r.x0 && hero.x < r.x1 && hero.y >= r.y0 && hero.y < r.y1);
+        if (rm && rm.look && ALT.includes(rm.look)){ const d = Math.min(hero.x - rm.x0, rm.x1 - hero.x, hero.y + 1 - rm.y0, rm.y1 - hero.y - 1), u = Math.max(0, Math.min(1, d / 5)); LOOKW[rm.look] = u * u * (3 - 2 * u); }
+        let own = 1; for (const l of ALT) own -= LOOKW[l]; LOOKW[''] = Math.max(0, own); for (const F of fars) F.m.material.opacity = LOOKW[F.look]; }
+      const wOf = look => LOOKW[look || ''];
+      for (const o of motes){ o.m.position.x += (o.vx + Math.sin(t * 0.7 + o.ph) * 0.05) * 0.016; o.m.position.y += o.vy * 0.016; if (o.m.position.y > cam.y + 7) o.m.position.y = cam.y - 7; else if (o.m.position.y < cam.y - 7) o.m.position.y = cam.y + 7; if (Math.abs(o.m.position.x - cam.x) > 12) o.m.position.x = cam.x + (rnd() - 0.5) * 22; o.m.material.opacity = (o.steady ? 0.9 : 0.5 + 0.5 * Math.sin(t * 2 + o.ph)) * wOf(o.look); }
       for (const f of flames){ const k = f.slow ? 0.06 : 0.12; f.m.scale.setScalar(1 + Math.sin(t * (f.slow ? 2 : 13) + f.ph) * k + (f.slow ? 0 : Math.sin(t * 7.3 + f.ph) * 0.06)); }
       const near = lights.filter(l => !l.off).map(l => ({ l, d: Math.hypot(l.x - cam.x, l.y - cam.y) })).sort((a, b) => a.d - b.d);
       pool.forEach((L, k) => { const n = near[k]; if (!n || n.d > 16){ L.intensity = 0; return; } L.position.set(n.l.x, n.l.y, LIGHT_Z); L.color.setHex(n.l.color); L.distance = n.l.range * 1.15; L.intensity = n.l.power * LIGHT_GAIN * (1 + Math.sin(t * 11 + n.l.ph) * 0.06); });
@@ -596,10 +639,11 @@ export function makeRenderer(canvas){
       // flames: four frames, each torch a little out of step with the next
       flameTexs.forEach((ft, k) => ft.offset.set(Math.floor(t * 9 + k * 1.3) % 4 / 4, 0));
       // mist and the near shapes slide at their own rates (and the mist drifts), a whole pixel at a time
-      for (const V of veils){ V.tex.repeat.set(V.w / V.tw, V.h / V.th); V.tex.offset.set(Math.round(cam.x * PPU * V.f + t * V.drift * PPU) / V.tw, V.fore ? 0 : Math.round(cam.y * PPU * V.f) / V.th); }
+      for (const V of veils){ V.m.material.opacity = V.a * wOf(V.look); V.m.visible = V.m.material.opacity > 0.01; V.tex.repeat.set(V.w / V.tw, V.h / V.th); V.tex.offset.set(Math.round(cam.x * PPU * V.f + t * V.drift * PPU) / V.tw, V.fore ? 0 : Math.round(cam.y * PPU * V.f) / V.th); }
       // light: the region's ambient (dimmer inside, where it has an inside), then the nearest lights
-      { const rm = hero && LEVEL.rooms.find(r => hero.x >= r.x0 && hero.x < r.x1 && hero.y >= r.y0 && hero.y < r.y1), want = TM.ambIn && rm && !rm.open ? TM.ambIn : TM.amb;
-        for (let k = 0; k < 3; k++) ambNow[k] += (want[k] - ambNow[k]) * 0.04; comp.uniforms.amb.value.set(ambNow[0], ambNow[1], ambNow[2]); comp.uniforms.res.value.set(size.w, size.h);
+      { const rm = hero && LEVEL.rooms.find(r => hero.x >= r.x0 && hero.x < r.x1 && hero.y >= r.y0 && hero.y < r.y1), inOf = TMx => TMx.ambIn && rm && !rm.open ? TMx.ambIn : TMx.amb, want = [0, 0, 0];
+        for (let k = 0; k < 3; k++){ want[k] = inOf(TM)[k] * LOOKW['']; for (const l of ALT) want[k] += inOf(THEMES[l])[k] * LOOKW[l]; }
+        for (let k = 0; k < 3; k++) ambNow[k] += (want[k] - ambNow[k]) * 0.06; comp.uniforms.amb.value.set(ambNow[0], ambNow[1], ambNow[2]); comp.uniforms.res.value.set(size.w, size.h);
         const hw = size.w / 2 / PPU, hh = VIEW_H / 2, list = [];
         if (hero) list.push({ x: hero.x, y: hero.y + 1.3, color: 0xffe2c0, power: 0.42, range: 5.5, d: -1 });
         for (const n of near){ if (n.d > 20) break; const l = n.l; list.push({ x: l.x, y: l.y, color: l.color, power: (l.torch ? 0.62 : l.power > 1.6 ? 0.7 : 0.34) * (1 + Math.sin(t * 11 + l.ph) * 0.05 + Math.sin(t * 3.1 + l.ph * 2) * 0.04), range: l.torch ? 6.5 : l.range > 6 ? 7 : 4.2, d: n.d }); }

@@ -345,6 +345,12 @@ function build(n){
     for (const m of r.marks) marks.push({ ...m, x: ox + m.x, y: oy + m.y });
     if (!r.filler) rooms.push({ name: make.name, open: !!r.open, x0: ox * T, y0: oy * T, x1: (ox + r.w) * T, y1: (oy + r.h) * T, tx0: ox, ty0: oy, tx1: ox + r.w, ty1: oy + r.h });
   }
+  // the way in still wears the look of the region below: he comes up into what he just left, and it changes round him
+  // as he goes on (render.js paints such a room in both looks and lays one into the other). A region can say otherwise:
+  // `looks: { room: theme }`, or `vestibule: false`
+  const spawn = marks.find(m => m.type === 'spawn'), first = spawn && rooms.find(r => spawn.x >= r.tx0 && spawn.x < r.tx1 && spawn.y >= r.ty0 && spawn.y < r.ty1);
+  if (n > 0 && first && R.vestibule !== false) first.look = REGIONS[n - 1].theme;
+  for (const r of rooms) if (R.looks && R.looks[r.name]) r.look = R.looks[r.name];
   const raw = tiles.slice();
   organic(tiles, W, H, marks, rooms, R.seed, R.wear);
   // what the motor asks about every step: the flowers' tiles, and the rising air (in world units)

@@ -42,7 +42,7 @@ loadHero(HERO).catch(() => loadHero('hero_a')).catch(() => loadHero('hero'));
 // what a region has in it: made by setup, again each time he comes into one
 let fx, E, BOSS, SHRINES, MAP, SCF, SWINGFX, PROPS, ITEMS;
 const TALK = makeTalk();
-let NOTE = null, SCREEN = '', DIRTY = 0;   // a card that waits for a press (something learned, a relic); which menu is up; the save wants writing
+let NOTE = null, SCREEN = '', DIRTY = 0, NAMED = true;   // a card that waits for a press (something learned, a relic); which menu is up; the save wants writing
 const HUD = makeHud(hud);
 // embers: what he takes from what he kills. Ten grow a length of the scarf back (a heart); a full ten are kept until needed
 const EMBER = { n: 0, max: 10 };
@@ -78,7 +78,7 @@ function enter(n){
   FX2.ghosts.length = 0; setup();
   const s = spawnPoint(), old = P; P = born(s.x, s.y); P.hp = Math.max(1, Math.min(P.maxHp, old.hp)); P.flask = Math.min(P.flaskMax, old.flask);
   CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0;
-  banner(LEVEL.name, SUB[LEVEL.index] || '', 4); marks(); G.level = LEVEL.index; G.top = Math.max(G.top, G.level); G.began = true; store();
+  BANNER = null; NAMED = !(roomAt(s.x, s.y + 0.5) || {}).look; if (NAMED) banner(LEVEL.name, SUB[LEVEL.index] || '', 4); marks(); G.level = LEVEL.index; G.top = Math.max(G.top, G.level); G.began = true; store();
 }
 // going up: the picture goes dark, the next region is made, it comes back
 const GO = { to: -1, t: 0, st: '', from: -1 };
@@ -166,12 +166,13 @@ const SCORE = makeScore(), AMB = { roots: 'cave', cloister: 'cave', spires: 'win
 function score(){
   if (!HEARD) return; const A = ac(); if (!A) return; if (!MUSIC) MUSIC = makeMusic(A, musicBus() || A.destination);
   const k = STORY.kind, fight = BOSS && BOSS.active() && BOSS.st !== 'die', quiet = BOSS && (BOSS.st === 'die' || (BOSS.st === 'dead' && !WON));
-  const rec = k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? (LEVEL.index === LEVELS.length - 1 ? 'boss_final' : 'boss') : LEVEL.theme;
-  const gen = k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? 'boss_' + LEVEL.theme : LEVEL.theme;
+  const here = R.look(), door = !fight && R.exits.find(x => x.on && x.next && Math.hypot(P.x - x.x, P.y - x.y) < 7);   // by an open way on, the next region can be heard
+  const rec = k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? (LEVEL.index === LEVELS.length - 1 ? 'boss_final' : 'boss') : here;
+  const gen = k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? 'boss_' + LEVEL.theme : here;
   // the recording of the piece if there is one; else the score made as it plays
   if (SCORE.has(rec) && !OPT.synth){ SCORE.play(quiet ? '' : rec); MUSIC.play(''); } else { SCORE.play(''); MUSIC.play(quiet ? '' : gen); }
   const v = MUTED ? 0 : PAUSE || TALK.on ? 0.35 : 1; SCORE.duck(v); MUSIC.volume(v * 0.7); MUSIC.tick();
-  ambience(k || MUTED ? '' : AMB[LEVEL.theme] || '', LEVEL.theme === 'tempest' ? 0.5 : 0.3);
+  const amb = door ? door.next : here; ambience(k || MUTED ? '' : AMB[amb] || '', amb === 'tempest' ? 0.5 : door ? 0.45 : 0.3);
 }
 function hudBegin(){ const w = hud.clientWidth, h = hud.clientHeight, dpr = devicePixelRatio || 1; if (hud.width !== Math.round(w * dpr)){ hud.width = Math.round(w * dpr); hud.height = Math.round(h * dpr); } hx.setTransform(dpr, 0, 0, dpr, 0, 0); hx.clearRect(0, 0, w, h); }
 const banner = (a, b, t = 3.2) => { BANNER = { a, b, t, life: t }; };
@@ -185,7 +186,7 @@ HOOKS.aim = P => {
 };
 const CAM = { x: sp.x, y: sp.y + 2, lead: 0, zoom: 1 };
 bindInput(); marks();
-if (/[?&](level|play)\b/.test(location.search)) banner(LEVEL.name, SUB[LEVEL.index] || '', 4); else title();   // straight in with ?level=2 or ?play
+if (/[?&](level|play)\b/.test(location.search)){ NAMED = !(roomAt(sp.x, sp.y + 0.5) || {}).look; if (NAMED) banner(LEVEL.name, SUB[LEVEL.index] || '', 4); } else title();   // straight in with ?level=2 or ?play
 
 // the drawings the masked warrior uses for these moves, where he has them
 const MOVES = { roll: ['roll2_px', 'roll_px', 'roll'], flip: ['flip_px'], climb: ['climb_hang2', 'climb_px', 'climb_v3'], land: ['land_px', 'land_v3'] };
@@ -263,6 +264,9 @@ function frame(ts){
   if (PAUSE){ drawHud(0); endFrame(); requestAnimationFrame(frame); return; }
   if (STORY.active() && !GO.st){ hudBegin(); STORY.draw(dt); endFrame(); requestAnimationFrame(frame); return; }   // a story screen is up: the world waits
   if (WAKE > 0) WAKE -= dt;
+  if (!NAMED && R.look() === LEVEL.theme && !GO.st){ NAMED = true; banner(LEVEL.name, SUB[LEVEL.index] || '', 4.5); sfx.gust(); }   // out of the way in: this is the new place
+  // an open way on breathes the next region out: its air drifts from the arch
+  for (const x of R.exits) if (x.on && Math.random() < dt * 16){ const a = Math.random() * Math.PI * 2; fx.burst({ x: x.x + Math.cos(a) * 0.6, y: x.y + 1.3 + Math.sin(a) * 0.9 }, 1, x.cols[Math.random() < 0.5 ? 0 : 1]); }
   for (let i = LATER.length - 1; i >= 0; i--) if ((LATER[i].t -= dt) <= 0){ const L = LATER[i]; LATER.splice(i, 1); L.f(); }
   // hit-stop: a hit freezes the world a few frames (the effects keep running)
   let sdt = dt; if (FEEL_FX.hitstop > 0){ FEEL_FX.hitstop -= dt; sdt = dt * 0.06; }
@@ -357,7 +361,7 @@ function frame(ts){
   // the scarf: from his neck (lower when he crouches or rolls), as long as his hearts; the wind is the region's
   { const M = P.mantle, low = P.roll > 0 ? 0.8 : P.crouch ? 1.15 : P.dive ? 1.5 : WAKE > 0.5 ? 0.9 : 1.92;
     const ax = FLIGHT ? FLIGHT.x : M ? M.wall - M.d * 0.25 : P.x - P.face * 0.14, ay = FLIGHT ? FLIGHT.y : M ? Math.min(M.y1 + 1.8, P.y + 1.9) : P.y + low - SINK, fc = FLIGHT ? FLIGHT.face : M ? M.d : P.face;
-    const links = hp => SCARF.base + Math.min(5, Math.max(0, hp)) * SCARF.perHeart + Math.max(0, hp - 5) * SCARF.more, want = FLIGHT ? links(5) : links(P.hp), wind = LEVEL.theme === 'spires' && (roomAt(P.x, P.y) || {}).open !== false ? -5 : LEVEL.theme === 'spires' ? -1 : -0.6;
+    const links = hp => SCARF.base + Math.min(5, Math.max(0, hp)) * SCARF.perHeart + Math.max(0, hp - 5) * SCARF.more, want = FLIGHT ? links(5) : links(P.hp), lk = R.look(), out = (roomAt(P.x, P.y) || {}).open !== false, wind = (lk === 'spires' || lk === 'tempest') && out ? (lk === 'tempest' ? -7 : -5) : lk === 'spires' || lk === 'tempest' || lk === 'firmament' ? -1.2 : lk === 'gardens' && out ? -2 : -0.6;
     SCF.step(dt, ax, ay, fc, want, wind, solidAt, P.glide ? 15 : 0); SCF.draw(!(P.hp <= 0 && DEATH > 0.45 && !FLIGHT) || true, EMBER.n / EMBER.max * (P.hp < P.maxHp ? 1 : 0.6)); }
   // embers go to him; ten make a heart
   stepFx(fx, dt, P.hp > 0 ? { x: P.x, y: P.y + 1.3 } : null, () => {

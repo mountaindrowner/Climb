@@ -773,13 +773,13 @@
   }
  },
  "px_lamplighter": {
-  "id": "bc540cef-b1e4-4078-b42b-f3e8a015fb10",
-  "description": "an old stooped lamplighter with a long white beard, a patched brown coat and a wide brimmed hat, carrying a long pole with a glowing orange lantern hanging from it, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer friendly character",
+  "id": "242fd8d1-9bec-4b8d-a89d-cfd972612786",
+  "description": "a small stooped old lamplighter with a long white beard, a patched brown coat and a wide brimmed hat, holding a short pole with a glowing orange lantern hanging from it, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer friendly character",
   "anims": {
    "idle": {
     "action": "standing still, breathing slowly, the lantern swaying gently",
     "frames": 8,
-    "group": "7c464bce-3dda-4f13-8c88-8dfe22f43f96"
+    "group": "920a25b8-a4bb-46e8-a322-8b3b58853a58"
    }
   }
  },
@@ -832,13 +832,13 @@
   }
  },
  "px_wren": {
-  "id": "1f24254c-0039-4d49-9a9d-6238471f5065",
-  "description": "a young mountain climber girl in a green hooded cloak with a big backpack, a coiled rope and an ice axe, a red knitted hat, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer friendly character",
+  "id": "a1a89ad9-7979-4459-8614-bb6713340f7c",
+  "description": "a small young mountain climber girl in a green hooded cloak with a backpack, a coiled rope at her hip and a red knitted hat, standing upright, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer friendly character",
   "anims": {
    "idle": {
     "action": "standing still, breathing, shifting her weight, the cloak stirring",
     "frames": 8,
-    "group": "3d8f3384-723f-4212-aadd-745e971fbd2f"
+    "group": "19a0fc2a-0a4c-48b5-96cb-d7ca279fa6f2"
    }
   }
  },
@@ -886,13 +886,13 @@
   }
  },
  "px_scribe": {
-  "id": "401f3fbf-5157-49c3-b4cf-2e01c0582971",
-  "description": "a small old scholar wrapped in a big blue star-patterned robe with a tall pointed hood, round glasses, carrying a huge rolled map on the back and a brass telescope, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer friendly character",
+  "id": "0acb53c5-c069-4749-874f-89f68fc6f5d4",
+  "description": "a small thin old scholar in a blue star-patterned robe with a tall pointed hood and round glasses, holding a brass telescope, a rolled map under one arm, standing upright, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer friendly character",
   "anims": {
    "idle": {
     "action": "standing still, breathing, adjusting the glasses",
     "frames": 8,
-    "group": "a0c02a76-52eb-4374-873f-5f81b00d06c7"
+    "group": "f9089244-47c3-41b8-848c-bb3e816e9b46"
    }
   }
  }
