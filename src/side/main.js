@@ -17,6 +17,7 @@ import { makeWyrm } from './wyrm.js';
 import { makeStory, REGION_SPAN } from './story.js';
 import { makeHud } from './hud.js';
 import { makeScarf, SCARF } from './scarf.js';
+import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
@@ -99,6 +100,16 @@ function pause(on){
 }
 addEventListener('keydown', e => { if ((e.code === 'Escape' || e.code === 'KeyP') && !STORY.active()){ pause(!PAUSE); return; } if (!STORY.active()) return; if (STORY.kind === 'title'){ if (e.code === 'Enter' || e.code === 'Space'){ const b = MENU.querySelector('button'); if (b) b.dispatchEvent(new PointerEvent('pointerdown')); } } else STORY.press(); });
 addEventListener('pointerdown', () => { if (STORY.active()) STORY.press(); });
+// ---- the score (music.js): which piece, by where he is; it starts with the first key or touch (a browser's rule)
+let MUSIC = null, HEARD = false, MUTED = (() => { try { return localStorage.getItem('climb-side-mute') === '1'; } catch (e){ return false; } })();
+const hear = () => { HEARD = true; ac(); }; addEventListener('pointerdown', hear); addEventListener('keydown', hear);
+addEventListener('keydown', e => { if (e.code === 'KeyM'){ MUTED = !MUTED; try { localStorage.setItem('climb-side-mute', MUTED ? '1' : '0'); } catch (err){} banner('', MUTED ? 'music off' : 'music on', 1.6); } });
+function score(){
+  if (!HEARD) return; const A = ac(); if (!A) return; if (!MUSIC) MUSIC = makeMusic(A, A.destination);
+  const k = STORY.kind, fight = BOSS && BOSS.active() && BOSS.st !== 'die';
+  MUSIC.play(k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? 'boss_' + LEVEL.theme : LEVEL.theme);
+  MUSIC.volume(MUTED ? 0 : PAUSE ? 0.18 : 0.5); MUSIC.tick();
+}
 function hudBegin(){ const w = hud.clientWidth, h = hud.clientHeight, dpr = devicePixelRatio || 1; if (hud.width !== Math.round(w * dpr)){ hud.width = Math.round(w * dpr); hud.height = Math.round(h * dpr); } hx.setTransform(dpr, 0, 0, dpr, 0, 0); hx.clearRect(0, 0, w, h); }
 const banner = (a, b, t = 3.2) => { BANNER = { a, b, t, life: t }; };
 const FEEL_FX = { hitstop: 0, shake: 0, kick: 0 };
@@ -169,7 +180,7 @@ const CAPTURE = { on: false, left: 0, dt: 1 / 24 };
 function frame(ts){
   const now = ts / 1000; let dt = last ? Math.min(0.05, now - last) : 1 / 60; last = now;
   if (CAPTURE.on){ if (CAPTURE.left <= 0){ requestAnimationFrame(frame); return; } CAPTURE.left--; dt = CAPTURE.dt; }
-  pollPads();
+  pollPads(); score();
   PBTN.style.display = STORY.active() || DEVICE.kind !== 'touch' ? 'none' : 'block';
   if (PAUSE){ drawHud(0); endFrame(); requestAnimationFrame(frame); return; }
   if (STORY.active() && !GO.st){ hudBegin(); STORY.draw(dt); endFrame(); requestAnimationFrame(frame); return; }   // a story screen is up: the world waits
@@ -311,7 +322,7 @@ function onEvent(e){
     case 'flask': if (P.flask > 0 && P.hp < P.maxHp){ P.flask--; P.hp = Math.min(P.maxHp, P.hp + TUNE.player.flaskHeal); sfx.drink(); fx.ring({ x: P.x, y: P.y + 0.8 }, 0x5ce1c6); } break;
   }
 }
-const HINT = { keys: ['A D MOVE · SPACE JUMP, AGAIN IN THE AIR · SHIFT ROLL · CLICK CUT · S + CLICK RISING CUT', 'CLICK IN A ROLL: DASH CUT · S + CLICK IN THE AIR: PLUNGE · S + SPACE: DROP · ESC: PAUSE'],
+const HINT = { keys: ['A D MOVE · SPACE JUMP, AGAIN IN THE AIR · SHIFT ROLL', 'CLICK CUT · S + CLICK RISING CUT · CLICK IN A ROLL: DASH CUT', 'S + CLICK IN THE AIR: PLUNGE · S + SPACE: DROP · ESC PAUSE · M MUSIC'],
   pad: ['STICK MOVE · A JUMP, AGAIN IN THE AIR · ROLL · CUT', 'DOWN + CUT: RISING CUT · IN THE AIR: PLUNGE'], touch: [] };
 const EPITHET = ['KEEPER OF THE ROOTS', 'THE VOICE OF THE CLOISTER', 'IT KEEPS THE SUMMIT'];
 function drawHud(dt){

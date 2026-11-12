@@ -618,9 +618,9 @@
   "description": "a hunched hooded monk in a tattered dark red robe, face hidden in the hood with two glowing orange eyes, holding a heavy iron mace, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
   "anims": {
    "walk": {
-    "action": "shuffling forward, hunched, robe swaying",
-    "frames": 8,
-    "group": "ffe1e3aa-16a8-4057-8799-228b6ca83f50"
+    "action": "template:walking-6-frames",
+    "frames": 6,
+    "group": "ac9815cd-01ab-4645-b41d-074870e22f3b"
    },
    "attack": {
     "action": "raising the mace high overhead with both arms, then smashing it down hard in front, body bending forward",
