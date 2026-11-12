@@ -1,0 +1,36 @@
+{
+ "name": "px_sentinel",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 64,
+   "h": 64,
+   "foot": 63,
+   "cx": 26.5,
+   "footLast": 63,
+   "cxLast": 26.5,
+   "n": 1
+  },
+  "attack": {
+   "frames": 9,
+   "w": 88,
+   "h": 88,
+   "foot": 75,
+   "cx": 38.5,
+   "footLast": 75,
+   "cxLast": 44.0,
+   "n": 1
+  },
+  "walk": {
+   "frames": 9,
+   "w": 88,
+   "h": 88,
+   "foot": 75,
+   "cx": 38.5,
+   "footLast": 73,
+   "cxLast": 44.5,
+   "n": 1
+  }
+ }
+}

@@ -35,7 +35,17 @@ export function makeHud(hud){
     for (let i = 0; i < flaskMax; i++){ const on = i < P.flask, x = fx + i * 8;
       px(C.ink, x + 1, 5, 3, 2); px(C.ink, x, 7, 5, 6); px(C.light, x + 2, 5, 1, 2); px(on ? C.cyan : C.deep, x + 1, 8, 3, 4); if (on){ px(C.white, x + 1, 8, 1, 1); px(C.blue, x + 1, 11, 3, 1); } }
   };
-  H.place = (name, alpha) => { g.globalAlpha = alpha; fine(g, name, 6, 20, C.pale); g.globalAlpha = 1; };
+  // what he has gathered, after the flask: shards (the number comes forward when it changes) and the threads toward a heart
+  H.purse = (P, flaskMax, shards, pop, threads, per) => {
+    const x = 16 + P.maxHp * 8 + 5 + flaskMax * 8 + 5;
+    for (let k = 0; k < 3; k++){ px(C.ink, x + 2 - k - 1, 6 + k, k * 2 + 3, 1); px(C.ink, x + 2 - k - 1, 11 - k, k * 2 + 3, 1); } for (let k = 0; k < 3; k++){ px(k ? C.cyan : C.white, x + 2 - k, 6 + k + 0, k * 2 + 1, 1); px(C.blue, x + 2 - k, 11 - k, k * 2 + 1, 1); }
+    g.globalAlpha = pop > 0 ? 1 : 0.75; text(g, String(shards), x + 8, 6, pop > 0 ? C.cream : C.pale, 1, 'left'); g.globalAlpha = 1;
+    for (let k = 0; k < per; k++){ const tx = 16 + k * 4; px(C.ink, tx, 17, 3, 3); px(k < threads ? C.red1 : C.deep, tx, 17, 2, 2); }
+  };
+  // a key over something he can use
+  H.prompt = (sx, sy, str, t) => { const w = width(str) + 6, x = Math.round(sx - w / 2), y = Math.round(sy + Math.sin(t * 3) * 1.5); px(C.ink, x, y, w, 11); px(C.bone, x, y, w, 1); px(C.bone, x, y + 10, w, 1); text(g, str, x + 3, y + 2, C.cream, 1, 'left', null); px(C.ink, sx - 1, y + 11, 3, 1); px(C.ink, sx, y + 12, 1, 1); };
+  H.fine = (...a) => fine(g, ...a);
+  H.place = (name, alpha) => { g.globalAlpha = alpha; fine(g, name, 6, 23, C.pale); g.globalAlpha = 1; };
   // the boss's bar: its name, its health, and behind that what it has just lost, running down after
   H.boss = (b, dt) => {
     if (!b){ H.bossLag = 1; return; }
@@ -52,10 +62,10 @@ export function makeHud(hud){
     for (const r of seen){ const sx = r.x0 / T, sy = LH - r.y1 / T, sw = (r.x1 - r.x0) / T, sh = (r.y1 - r.y0) / T; g.globalAlpha = r === room ? 1 : 0.6; g.drawImage(mapCanvas, sx, sy, sw, sh, mx + Math.round(sx * k), my + Math.round(sy * k), Math.round(sw * k), Math.round(sh * k)); }
     g.globalAlpha = 1;
     for (const d of dots) if (!d.blink || Math.floor(t * 3) % 2 === 0) px(d.c, mx + Math.round(d.x / T * k) - (d.r || 0), my + Math.round((LH - d.y / T) * k) - (d.r || 0), 1 + (d.r || 0) * 2, 1 + (d.r || 0) * 2);
-    // the mountain: three lengths, one over the other, and a mark
+    // the mountain: a length for each region, one over the other, and a mark
     const gx = H.W - 9, gy = my, gh = Math.max(40, mh), f = span[index][0] + (span[index][1] - span[index][0]) * height;
     px(C.ink, gx - 1, gy - 1, 5, gh + 2);
-    [C.blue, C.rust, C.pale].forEach((c, n) => { const a = span[n]; g.globalAlpha = n === index ? 1 : 0.4; px(c, gx, gy + Math.round(gh * (1 - a[1])), 3, Math.max(1, Math.round(gh * (a[1] - a[0])) - 1)); }); g.globalAlpha = 1;
+    [C.blue, C.rust, C.pale, C.mid, '#63c74d', C.fire3].forEach((c, n) => { const a = span[n]; if (!a) return; g.globalAlpha = n === index ? 1 : 0.4; px(c, gx, gy + Math.round(gh * (1 - a[1])), 3, Math.max(1, Math.round(gh * (a[1] - a[0])) - 1)); }); g.globalAlpha = 1;
     const yy = gy + Math.round(gh * (1 - f)); px(C.ink, gx - 3, yy - 2, 9, 3); px(C.fire3, gx - 2, yy - 1, 7, 1);
     fine(g, Math.round(f * 1000) + ' M', H.W - 5, gy + gh + 4, C.pale, 'right');
   };

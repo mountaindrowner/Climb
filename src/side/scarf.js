@@ -3,7 +3,7 @@
 // heart is a length of it. A blow burns the end off; a shrine, the flask, or embers taken from what he kills grow it
 // back. When he dies it is the scarf that goes on, alone, back to the last shrine, and he gets up there under it.
 const THREE = window.THREE;
-const N = 20, SEG = 0.15;
+const N = 30, SEG = 0.15;
 // cols: its edge, body and shade (his is red; another's can be its own)
 export function makeScarf(scene, cols = { edge: 0x181425, body: 0xe43b44, shade: 0xa22633, glow: 0xffa040 }){
   const pts = []; for (let i = 0; i < N; i++) pts.push({ x: 0, y: 0, px: 0, py: 0 });
@@ -18,7 +18,8 @@ export function makeScarf(scene, cols = { edge: 0x181425, body: 0xe43b44, shade:
   // put it all at one place (a start, a wake)
   S.reset = (x, y) => { for (const p of pts){ p.x = p.px = x; p.y = p.py = y; } S.set = true; };
   // ax, ay: his neck. want: how many links long it should be. wind: the air's push. solid(x, y): rock there?
-  S.step = (dt, ax, ay, face, want, wind, solid) => {
+  // lift: under a glide it is held up and open over him
+  S.step = (dt, ax, ay, face, want, wind, solid, lift = 0) => {
     if (!S.set || Math.hypot(pts[0].x - ax, pts[0].y - ay) > 4) S.reset(ax, ay);   // a start, or he was put somewhere else
     S.t += dt; S.len += (want - S.len) * Math.min(1, dt * 5);
     const n = Math.max(1, Math.round(dt / (1 / 120))), h = dt / n;
@@ -27,7 +28,7 @@ export function makeScarf(scene, cols = { edge: 0x181425, body: 0xe43b44, shade:
       for (let i = 1; i < N; i++){
         const p = pts[i], vx = (p.x - p.px) * 0.985, vy = (p.y - p.py) * 0.985; p.px = p.x; p.py = p.y;
         const gust = Math.sin(S.t * 2.3 + i * 0.5) * 2.2 + Math.sin(S.t * 5.1 + i * 0.9) * 1.1;
-        p.x += vx + (wind + gust * (0.4 + Math.abs(wind) * 0.3) - face * 3.2) * h * h; p.y += vy + (-7.5 + Math.sin(S.t * 3.7 + i * 0.7) * 2.5) * h * h;
+        p.x += vx + (wind + gust * (0.4 + Math.abs(wind) * 0.3) - face * 3.2) * h * h; p.y += vy + (-7.5 + lift + Math.sin(S.t * 3.7 + i * 0.7) * 2.5) * h * h;
       }
       for (let k = 0; k < 3; k++) for (let i = 1; i < N; i++){
         const a = pts[i - 1], p = pts[i], dx = p.x - a.x, dy = p.y - a.y, d = Math.hypot(dx, dy) || 1e-4, f = (d - SEG) / d;
@@ -56,4 +57,4 @@ export function makeScarf(scene, cols = { edge: 0x181425, body: 0xe43b44, shade:
   S.at = i => pts[Math.max(0, Math.min(N - 1, i))];
   return S;
 }
-export const SCARF = { base: 4, perHeart: 2.6 };   // links: a stub at his neck, and so many for each heart
+export const SCARF = { base: 4, perHeart: 2.6, more: 1.5 };   // `more`: for each heart over the first five   // links: a stub at his neck, and so many for each heart

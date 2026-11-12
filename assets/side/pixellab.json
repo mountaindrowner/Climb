@@ -728,5 +728,172 @@
     "group": "d1128bb5-6e6d-47f3-b1d0-04eea3277212"
    }
   }
+ },
+ "px_squall": {
+  "id": "5b6f1d58-b888-47a3-ba6a-b084beb98a83",
+  "description": "a storm knight in dark blue plate armour with a horned helm, hiding behind a tall iron tower shield held in front, a short spear in the other hand, yellow lightning crackling on the shield, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "walk": {
+    "action": "marching forward step by step behind its raised tower shield",
+    "frames": 8,
+    "group": "63a1666a-69b2-4e4d-83dc-993cedda6ece"
+   },
+   "attack": {
+    "action": "pulling the spear back, then thrusting the spear far forward past the shield, then pulling it back",
+    "frames": 8,
+    "group": "978a0fb3-f1eb-499f-8f64-16d3f9deb338"
+   }
+  }
+ },
+ "px_nimbus": {
+  "id": "06fa6dc8-a751-4f5c-aba0-fb07c51d9bbe",
+  "description": "a small dark grey storm cloud creature with an angry scowling face and two glowing yellow eyes, tiny lightning bolts under its belly, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "float": {
+    "action": "hovering in the air, puffing and billowing",
+    "frames": 8,
+    "group": "7bd48ce2-655a-4e46-9986-a1878537cf30"
+   },
+   "cast": {
+    "action": "swelling up darker and bigger, flashing, then shooting a lightning bolt straight down from its belly",
+    "frames": 8,
+    "group": "6c723809-078b-4b28-a2cd-48bbe6c6048e"
+   }
+  }
+ },
+ "px_spark": {
+  "id": "e93d9b84-a06c-4975-bef9-f883dfcc2cc3",
+  "description": "a round ball of crackling yellow-white lightning with one angry eye, arcs of electricity jumping around it, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "idle": {
+    "action": "crackling and pulsing, arcs of lightning flickering around it",
+    "frames": 8,
+    "group": "66bd400b-eb9d-4fed-b76c-d34a670e3176"
+   }
+  }
+ },
+ "px_lamplighter": {
+  "id": "bc540cef-b1e4-4078-b42b-f3e8a015fb10",
+  "description": "an old stooped lamplighter with a long white beard, a patched brown coat and a wide brimmed hat, carrying a long pole with a glowing orange lantern hanging from it, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer friendly character",
+  "anims": {
+   "idle": {
+    "action": "standing still, breathing slowly, the lantern swaying gently",
+    "frames": 8,
+    "group": "7c464bce-3dda-4f13-8c88-8dfe22f43f96"
+   }
+  }
+ },
+ "px_thornback": {
+  "id": "c6bc5112-a0ee-406d-b53e-ae12422835ef",
+  "description": "a stout wild boar covered in mossy bark and thorns, two big curled tusks, small red eyes, a pink flower growing on its back, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "walk": {
+    "action": "trotting forward",
+    "frames": 8,
+    "group": "72ce1f03-5064-47aa-aaf7-f4b4e24c040c"
+   },
+   "attack": {
+    "action": "lowering its head and pawing the ground, then charging forward at full gallop with tusks out",
+    "frames": 8,
+    "group": "5b9b205f-a8c2-4029-894b-b8d034c8e6fa"
+   }
+  }
+ },
+ "px_lasher": {
+  "id": "bbc76eb6-8f93-485f-ba21-89fc20f178d1",
+  "description": "a carnivorous plant with a big toothy green flower head on a thick stalk rooted in the ground, two long thorny vine whips, pink petals, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "idle": {
+    "action": "swaying gently, its vine whips curling",
+    "frames": 8,
+    "group": "8105ccfd-6028-4c4e-80ea-f781dc7d89d9"
+   },
+   "attack": {
+    "action": "rearing its head back, then lashing a long thorny vine whip far forward, then drawing it back",
+    "frames": 8,
+    "group": "cb0a03bc-a3d0-44b8-8bd1-d7895cb11c54"
+   }
+  }
+ },
+ "px_puff": {
+  "id": "c770d54e-1a5d-49d8-9894-b4eb5a267e7f",
+  "description": "a floating round pink spore pod puffball with a small sleepy face and little dangling roots, yellow spores drifting off it, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "float": {
+    "action": "bobbing in the air, pulsing gently",
+    "frames": 8,
+    "group": "0bc58ff9-c7a1-4e03-9db9-8afe283b113c"
+   },
+   "burst": {
+    "action": "swelling up bigger and bigger, turning bright red, then bursting open in a cloud of spores",
+    "frames": 8,
+    "group": "0d78dacf-e6bd-4a54-8ec2-848235663ed1"
+   }
+  }
+ },
+ "px_wren": {
+  "id": "1f24254c-0039-4d49-9a9d-6238471f5065",
+  "description": "a young mountain climber girl in a green hooded cloak with a big backpack, a coiled rope and an ice axe, a red knitted hat, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer friendly character",
+  "anims": {
+   "idle": {
+    "action": "standing still, breathing, shifting her weight, the cloak stirring",
+    "frames": 8,
+    "group": "3d8f3384-723f-4212-aadd-745e971fbd2f"
+   }
+  }
+ },
+ "px_sentinel": {
+  "id": "6d08f9a9-08c6-4edc-967b-78f93d4fa812",
+  "description": "a tall brass clockwork sentinel knight with a round ring halo behind its head, a glowing blue star-glass chest, holding a long halberd in both hands, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "walk": {
+    "action": "striding forward heavily, halberd held upright",
+    "frames": 8,
+    "group": "d0c46ff3-6c20-4b98-bf52-1c033f49d769"
+   },
+   "attack": {
+    "action": "raising the halberd high overhead, then sweeping it down and forward in a wide heavy arc",
+    "frames": 8,
+    "group": "6f9d475c-8ab2-4cec-ae05-2db286412197"
+   }
+  }
+ },
+ "px_oculus": {
+  "id": "526a39c7-04ca-4536-90da-d44a8e6de03f",
+  "description": "a floating brass armillary sphere with a single big glowing blue eye in its centre and two brass rings orbiting around it, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "float": {
+    "action": "hovering in the air, its rings slowly turning, the eye looking around",
+    "frames": 8,
+    "group": "9d16c403-919f-4392-be58-a7102cb0f8b8"
+   },
+   "cast": {
+    "action": "the rings lining up, the eye glowing brighter and brighter, then firing a bright beam of light forward",
+    "frames": 8,
+    "group": "cd09a948-cb84-431d-b155-6321739ac175"
+   }
+  }
+ },
+ "px_mote": {
+  "id": "ab67482b-b89f-457b-998a-896e7a4f543c",
+  "description": "a small living star, a spiky glowing white-gold four pointed star with a tiny dark face, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "idle": {
+    "action": "twinkling and pulsing, spinning slowly",
+    "frames": 8,
+    "group": "a2955a7b-c299-4af8-a91d-79bc4cde8876"
+   }
+  }
+ },
+ "px_scribe": {
+  "id": "401f3fbf-5157-49c3-b4cf-2e01c0582971",
+  "description": "a small old scholar wrapped in a big blue star-patterned robe with a tall pointed hood, round glasses, carrying a huge rolled map on the back and a brass telescope, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer friendly character",
+  "anims": {
+   "idle": {
+    "action": "standing still, breathing, adjusting the glasses",
+    "frames": 8,
+    "group": "a0c02a76-52eb-4374-873f-5f81b00d06c7"
+   }
+  }
  }
 }

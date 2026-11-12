@@ -1,0 +1,36 @@
+{
+ "name": "px_oculus",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 48,
+   "h": 48,
+   "foot": 47,
+   "cx": 25.0,
+   "footLast": 47,
+   "cxLast": 25.0,
+   "n": 1
+  },
+  "float": {
+   "frames": 9,
+   "w": 68,
+   "h": 68,
+   "foot": 57,
+   "cx": 35.0,
+   "footLast": 56,
+   "cxLast": 35.0,
+   "n": 1
+  },
+  "cast": {
+   "frames": 9,
+   "w": 68,
+   "h": 68,
+   "foot": 57,
+   "cx": 35.0,
+   "footLast": 57,
+   "cxLast": 39.0,
+   "n": 1
+  }
+ }
+}

@@ -1,0 +1,26 @@
+{
+ "name": "px_lamplighter",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 64,
+   "h": 64,
+   "foot": 61,
+   "cx": 33.5,
+   "footLast": 61,
+   "cxLast": 33.5,
+   "n": 1
+  },
+  "idle": {
+   "frames": 9,
+   "w": 84,
+   "h": 84,
+   "foot": 71,
+   "cx": 43.5,
+   "footLast": 71,
+   "cxLast": 42.0,
+   "n": 1
+  }
+ }
+}

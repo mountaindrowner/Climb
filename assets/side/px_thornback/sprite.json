@@ -1,0 +1,36 @@
+{
+ "name": "px_thornback",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 48,
+   "h": 48,
+   "foot": 46,
+   "cx": 26.0,
+   "footLast": 46,
+   "cxLast": 26.0,
+   "n": 1
+  },
+  "attack": {
+   "frames": 9,
+   "w": 64,
+   "h": 64,
+   "foot": 54,
+   "cx": 34.0,
+   "footLast": 51,
+   "cxLast": 33.5,
+   "n": 1
+  },
+  "walk": {
+   "frames": 9,
+   "w": 64,
+   "h": 64,
+   "foot": 54,
+   "cx": 34.0,
+   "footLast": 53,
+   "cxLast": 34.5,
+   "n": 1
+  }
+ }
+}

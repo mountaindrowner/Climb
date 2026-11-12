@@ -147,23 +147,35 @@ export function bindInput(){
     const up = e => { fingers.delete(e.pointerId); set(); };
     b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('lostpointercapture', up);
   });
-  // the stick: a fixed centre; left or right of it moves, below it crouches, and both together crouch-walk
-  const stick = document.getElementById('stick'), knob = stick && stick.querySelector('.knob');
+  // the stick. Floating (class 'float', the side view): there is none on the screen; a touch anywhere on the left is
+  // its centre, a ring comes up under the thumb, and if the thumb runs past the ring the centre follows it. Fixed (the
+  // climb): a pad with a centre of its own. Either way: left or right of the centre moves, below it crouches.
+  const stick = document.getElementById('stick'), thumb = document.getElementById('thumb'), knob = (thumb || stick || document).querySelector('.knob');
   if (stick){
-    let id = null;
+    const float = stick.classList.contains('float'), RAD = 52;
+    let id = null, ox = 0, oy = 0;
     const read = e => {
-      const r = stick.getBoundingClientRect(), dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2), dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
-      padHeld.left = dx < -0.2; padHeld.right = dx > 0.2; padHeld.down = dy > 0.38;
+      let dx, dy;
+      if (float){
+        let ax = e.clientX - ox, ay = e.clientY - oy; const L = Math.hypot(ax, ay);
+        if (L > RAD * 1.25){ ox += ax / L * (L - RAD * 1.25); oy += ay / L * (L - RAD * 1.25); ax = e.clientX - ox; ay = e.clientY - oy; }   // the centre is dragged along
+        dx = ax / RAD; dy = ay / RAD;
+        if (thumb){ thumb.style.left = ox + 'px'; thumb.style.top = oy + 'px'; }
+        if (knob){ const k = Math.min(1, 1 / Math.max(1e-3, Math.hypot(dx, dy))); knob.style.transform = `translate(${dx * k * 30}px, ${dy * k * 30}px)`; }
+      } else {
+        const r = stick.getBoundingClientRect(); dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2); dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+        if (knob) knob.style.transform = `translate(${Math.max(-1, Math.min(1, dx)) * 36}%, ${Math.max(-1, Math.min(1, dy)) * 30}%)`;
+      }
+      padHeld.left = dx < -0.2; padHeld.right = dx > 0.2; padHeld.down = dy > (float ? 0.6 : 0.38);
       padMag = clamp01((Math.abs(dx) - 0.2) / 0.5, 0.3);
-      if (knob) knob.style.transform = `translate(${Math.max(-1, Math.min(1, dx)) * 36}%, ${Math.max(-1, Math.min(1, dy)) * 30}%)`;
       ['left', 'right', 'down'].forEach(sync);
       stick.dataset.dir = (padHeld.left ? 'l' : padHeld.right ? 'r' : '') + (padHeld.down ? 'd' : '');
     };
-    const end = () => { id = null; padHeld.left = padHeld.right = padHeld.down = false; ['left', 'right', 'down'].forEach(sync); if (knob) knob.style.transform = ''; stick.dataset.dir = ''; };
-    stick.addEventListener('pointerdown', e => { e.preventDefault(); ac(); setDevice('touch'); id = e.pointerId; stick.setPointerCapture?.(id); read(e); });
+    const end = () => { id = null; padHeld.left = padHeld.right = padHeld.down = false; ['left', 'right', 'down'].forEach(sync); if (knob) knob.style.transform = ''; stick.dataset.dir = ''; if (thumb) thumb.classList.remove('on'); };
+    stick.addEventListener('pointerdown', e => { if (id !== null) return; e.preventDefault(); ac(); setDevice('touch'); id = e.pointerId; stick.setPointerCapture?.(id); ox = e.clientX; oy = e.clientY; if (float && thumb) thumb.classList.add('on'); read(e); });
     stick.addEventListener('pointermove', e => { if (e.pointerId === id) read(e); });
     stick.addEventListener('pointerup', e => { if (e.pointerId === id) end(); });
-    stick.addEventListener('pointercancel', end);
+    stick.addEventListener('pointercancel', e => { if (e.pointerId === id) end(); });
   }
   document.addEventListener('contextmenu', e => e.preventDefault());
   document.addEventListener('visibilitychange', () => { if (document.hidden){ save(); release(); if (hooks.pause) hooks.pause(true); } });

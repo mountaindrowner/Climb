@@ -15,6 +15,8 @@ function start(){
   const r = room(); walls(r); door(r, 'right', 2, 7);
   ledge(r, 8, 13, 6); rect(r, 2, 2, 4, 3);
   mark(r, 'spawn', 6, 2); mark(r, 'torch', 5, 7); mark(r, 'torch', 30, 7); mark(r, 'crystal', 20, 2);
+  ledge(r, 20, 24, 12); mark(r, 'thread', 22, 13);                    // a thread, high: the first thing worth a second jump
+  mark(r, 'npc', 27, 2, { who: 'wren' }); mark(r, 'urn', 16, 2); mark(r, 'urn', 33, 2);
   return r;
 }
 function corridor(){
@@ -22,6 +24,7 @@ function corridor(){
   rect(r, 16, 0, 21, 1, EMPTY); rect(r, 16, 0, 21, 0, SPIKES);   // a pit with spikes: jump it
   ledge(r, 30, 36, 6); ledge(r, 25, 30, 10); ledge(r, 32, 37, 14); ledge(r, 26, 31, 18); ledge(r, 30, 36, 21);   // the last, in the doorway: up into the shaft
   mark(r, 'crawler', 10, 2); mark(r, 'torch', 12, 8); mark(r, 'torch', 26, 6); mark(r, 'crystal', 37, 15);
+  mark(r, 'urn', 6, 2); mark(r, 'urn', 26, 2); mark(r, 'chest', 33, 15, { holds: 'shards' });
   return r;
 }
 function shaft(){
@@ -29,6 +32,8 @@ function shaft(){
   rect(r, 2, 2, 22, 13);                                          // the rock the shaft is cut beside
   ledge(r, 33, 37, 5); ledge(r, 25, 29, 9); ledge(r, 33, 37, 13); ledge(r, 24, 28, 17);
   mark(r, 'flitter', 30, 16); mark(r, 'crystal', 24, 2); mark(r, 'crystal', 37, 20); mark(r, 'torch', 10, 17);
+  rect(r, 8, 2, 21, 7, EMPTY); rect(r, 22, 2, 22, 6, CRACKED);         // a room in the rock beside the shaft, walled up
+  mark(r, 'chest', 12, 2, { holds: 'relic:whetstone' }); mark(r, 'urn', 16, 2); mark(r, 'urn', 19, 2);
   return r;
 }
 function tunnel(){
@@ -38,6 +43,7 @@ function tunnel(){
   stairs(r, 13, 14, 8, -1, 1);                                    // up to the hole in the roof
   rect(r, 2, 2, 5, 20);                                           // the stair meets the wall: no pit beside its top
   mark(r, 'burrower', 30, 14); mark(r, 'torch', 33, 18); mark(r, 'crystal', 20, 14);
+  mark(r, 'urn', 34, 14); mark(r, 'urn', 22, 14);
   return r;
 }
 function chamber(){
@@ -46,6 +52,7 @@ function chamber(){
   ledge(r, 12, 18, 5); ledge(r, 22, 28, 9); ledge(r, 10, 16, 13); ledge(r, 24, 32, 16); ledge(r, 26, 32, 20);
   rect(r, 18, 2, 20, 3);
   mark(r, 'flitter', 20, 12); mark(r, 'torch', 11, 15); mark(r, 'torch', 29, 18); mark(r, 'crystal', 30, 2); mark(r, 'crystal', 14, 14); mark(r, 'crawler', 30, 2);
+  mark(r, 'npc', 24, 2, { who: 'scribe' }); mark(r, 'chest', 11, 14, { holds: 'shards' });
   return r;
 }
 function ascent(){
@@ -61,7 +68,9 @@ function gallery(){
   ledge(r, 14, 19, 12); ledge(r, 22, 27, 8);                      // down to the floor
   rect(r, 28, 0, 31, 1, EMPTY); rect(r, 28, 0, 31, 0, SPIKES);    // a spiked gap before the well
   rect(r, 16, 19, 18, 20); rect(r, 30, 18, 33, 20);               // teeth in the roof
-  mark(r, 'crawler', 22, 2); mark(r, 'spitter', 35, 13); mark(r, 'torch', 6, 19); mark(r, 'torch', 25, 6); mark(r, 'crystal', 13, 2); mark(r, 'crystal', 36, 2);
+  mark(r, 'crawler', 22, 2); mark(r, 'spitter', 35, 13); mark(r, 'torch', 6, 19); mark(r, 'torch', 25, 6); mark(r, 'crystal', 15, 2); mark(r, 'crystal', 36, 2);
+  rect(r, 4, 2, 11, 6, EMPTY); rect(r, 12, 2, 12, 5, CRACKED);          // a nook under the walkway
+  mark(r, 'thread', 7, 3); mark(r, 'urn', 20, 2);
   return r;
 }
 // two screens tall: ledges up to the arena, and a door halfway up to the grotto
@@ -71,6 +80,7 @@ function well(){
     .forEach(([a, b, y]) => ledge(r, a, b, y));
   mark(r, 'flitter', 20, 24); mark(r, 'flitter', 26, 36); mark(r, 'spitter', 36, 30);
   mark(r, 'torch', 34, 8); mark(r, 'torch', 4, 20); mark(r, 'torch', 34, 26); mark(r, 'torch', 20, 42); mark(r, 'crystal', 3, 2); mark(r, 'crystal', 37, 18); mark(r, 'crystal', 3, 26);
+  mark(r, 'urn', 12, 2); mark(r, 'chest', 8, 26, { holds: 'shards' });
   return r;
 }
 function roost(){
@@ -79,6 +89,7 @@ function roost(){
   ledge(r, 16, 22, 5); ledge(r, 5, 11, 8); ledge(r, 14, 20, 11); ledge(r, 27, 37, 13);
   rect(r, 6, 16, 9, 20); rect(r, 20, 18, 23, 20);                 // hanging rock
   mark(r, 'flitter', 10, 14); mark(r, 'flitter', 30, 17); mark(r, 'torch', 3, 12); mark(r, 'torch', 34, 4); mark(r, 'crystal', 18, 2); mark(r, 'crystal', 35, 14);
+  mark(r, 'chest', 7, 9, { holds: 'shards' }); mark(r, 'urn', 30, 14);
   return r;
 }
 function bridge(){
@@ -88,6 +99,7 @@ function bridge(){
   ledge(r, 13, 15, 12); ledge(r, 19, 21, 14); ledge(r, 25, 27, 12);
   rect(r, 15, 18, 17, 20); rect(r, 24, 19, 26, 20);
   mark(r, 'flitter', 20, 17); mark(r, 'torch', 5, 17); mark(r, 'torch', 34, 17); mark(r, 'crystal', 20, 3); mark(r, 'crystal', 12, 3); mark(r, 'crystal', 28, 3);
+  mark(r, 'urn', 4, 14); mark(r, 'urn', 36, 14);
   return r;
 }
 // a basin of crystals and the shrine: it fills the flask and is where you wake
@@ -98,6 +110,7 @@ function grotto(){
   rect(r, 30, 14, 37, 14);                                        // a step up to the well
   mark(r, 'shrine', 20, 8); mark(r, 'crystal', 13, 8); mark(r, 'crystal', 26, 8); mark(r, 'crystal', 18, 8);
   mark(r, 'torch', 6, 17); mark(r, 'torch', 33, 18);
+  mark(r, 'npc', 23, 8, { who: 'lamplighter' });
   return r;
 }
 // the top: a vast cavern over a long stage. The Warden rises at the back of it; the way on opens when it falls
@@ -117,6 +130,7 @@ function undercroft(){
   rect(r, 13, 2, 17, 4); rect(r, 25, 2, 29, 4);                   // tombs: hop them
   ledge(r, 19, 23, 8);
   mark(r, 'spawn', 6, 2); mark(r, 'torch', 4, 7); mark(r, 'torch', 21, 12); mark(r, 'torch', 35, 9); mark(r, 'crystal', 15, 5); mark(r, 'crystal', 27, 5); mark(r, 'acolyte', 33, 2);
+  mark(r, 'npc', 21, 2, { who: 'scribe' }); mark(r, 'urn', 10, 2); mark(r, 'urn', 36, 2);
   return r;
 }
 function nave(){
@@ -126,6 +140,7 @@ function nave(){
   rect(r, 38, 2, 41, 3);                                          // a plinth mid-hall
   mark(r, 'acolyte', 30, 2); mark(r, 'acolyte', 62, 2); mark(r, 'wisp', 40, 11); mark(r, 'gargoyle', 22, 13); mark(r, 'gargoyle', 58, 14); mark(r, 'crawler', 70, 2);
   mark(r, 'torch', 5, 8); mark(r, 'torch', 28, 12); mark(r, 'torch', 46, 6); mark(r, 'torch', 60, 12); mark(r, 'torch', 75, 8); mark(r, 'crystal', 11, 7); mark(r, 'crystal', 70, 11); mark(r, 'crystal', 34, 2);
+  mark(r, 'urn', 6, 2); mark(r, 'urn', 46, 2); mark(r, 'urn', 76, 2); mark(r, 'chest', 38, 11, { holds: 'shards' });
   return r;
 }
 // three screens tall: ledges up past a door to the library, to a door onto the cloister walk; the bell's rope hangs above
@@ -135,6 +150,7 @@ function belfry(){
     .forEach(([a, b, y]) => ledge(r, a, b, y));
   mark(r, 'gargoyle', 20, 16); mark(r, 'gargoyle', 12, 36); mark(r, 'wisp', 33, 37); mark(r, 'wisp', 6, 12); mark(r, 'bell', 20, 64);
   mark(r, 'torch', 34, 8); mark(r, 'torch', 5, 28); mark(r, 'torch', 34, 42); mark(r, 'torch', 5, 51); mark(r, 'crystal', 3, 2); mark(r, 'crystal', 34, 18); mark(r, 'crystal', 32, 56);
+  mark(r, 'npc', 20, 22, { who: 'wren' }); mark(r, 'thread', 34, 56);
   return r;
 }
 function library(){
@@ -142,12 +158,14 @@ function library(){
   rect(r, 13, 2, 27, 2); rect(r, 15, 3, 25, 3);                   // the dais, stepped
   ledge(r, 5, 11, 8); ledge(r, 29, 35, 8);
   mark(r, 'shrine', 20, 4); mark(r, 'crystal', 8, 9); mark(r, 'crystal', 32, 9); mark(r, 'torch', 4, 13); mark(r, 'torch', 36, 13); mark(r, 'torch', 14, 9); mark(r, 'torch', 26, 9);
+  mark(r, 'npc', 23, 4, { who: 'lamplighter' });
   return r;
 }
 function cells(){
   const r = room(); walls(r); door(r, 'right', 2, 7); door(r, 'left', 2, 7);
   rect(r, 9, 5, 13, 20); rect(r, 19, 5, 23, 20); rect(r, 29, 5, 33, 20);   // the cell walls: crouch or roll under each
   mark(r, 'burrower', 16, 2); mark(r, 'acolyte', 26, 2); mark(r, 'torch', 5, 9); mark(r, 'torch', 16, 9); mark(r, 'torch', 26, 9); mark(r, 'torch', 36, 9); mark(r, 'crystal', 16, 2);
+  mark(r, 'urn', 6, 2); mark(r, 'urn', 36, 2);
   return r;
 }
 function stairwell(){
@@ -156,6 +174,8 @@ function stairwell(){
   ledge(r, 13, 19, 15); ledge(r, 22, 29, 18); ledge(r, 31, 37, 21); ledge(r, 30, 37, 24);   // and on up to the walk
   rect(r, 2, 30, 14, 43);                                         // the wall closes in over the landing
   mark(r, 'wisp', 26, 12); mark(r, 'gargoyle', 24, 30); mark(r, 'acolyte', 6, 12); mark(r, 'torch', 35, 9); mark(r, 'torch', 16, 12); mark(r, 'torch', 20, 26); mark(r, 'torch', 35, 34); mark(r, 'crystal', 4, 12); mark(r, 'crystal', 25, 19);
+  ledge(r, 16, 21, 28); rect(r, 4, 32, 12, 37, EMPTY); rect(r, 13, 32, 14, 36, CRACKED);   // a cell in the wall over the landing, walled up
+  mark(r, 'chest', 6, 32, { holds: 'relic:lodestone' }); mark(r, 'thread', 10, 33); mark(r, 'urn', 8, 32); mark(r, 'chest', 8, 12, { holds: 'shards' });
   return r;
 }
 function cloister(){
@@ -166,6 +186,7 @@ function cloister(){
   mark(r, 'shrine', 36, 2);                                       // the last before the chapel
   mark(r, 'acolyte', 23, 2); mark(r, 'acolyte', 54, 2); mark(r, 'gargoyle', 40, 13); mark(r, 'gargoyle', 20, 14); mark(r, 'wisp', 50, 9);
   mark(r, 'torch', 5, 8); mark(r, 'torch', 24, 9); mark(r, 'torch', 42, 6); mark(r, 'torch', 57, 9); mark(r, 'torch', 75, 8); mark(r, 'crystal', 10, 2); mark(r, 'crystal', 76, 2); mark(r, 'crystal', 30, 2);
+  mark(r, 'urn', 4, 2); mark(r, 'urn', 33, 2); mark(r, 'chest', 62, 10, { holds: 'shards' });
   return r;
 }
 // the top of the Cloister: the chapel, two screens high, where the Toll hangs. The way on opens when it falls
@@ -182,11 +203,14 @@ function chapel(){
 // a tower, a rope bridge back across, a cavern of ice, the tower's teeth, a last bridge, and the summit.
 function massif(){ const r = room(); rect(r, 0, 0, r.w - 1, r.h - 1); r.filler = true; return r; }   // the mountain itself
 // the mountain's brow: the rock under the ice cave, leaning out over the gap
-function brow(){ const r = room(); rect(r, 0, 13, r.w - 1, r.h - 1); rect(r, 0, 7, 27, 12); rect(r, 0, 1, 12, 6); r.filler = true; return r; }
+function brow(){ const r = room(); rect(r, 0, 13, r.w - 1, r.h - 1); rect(r, 0, 7, 27, 12); rect(r, 0, 1, 12, 6); r.filler = true;
+  rect(r, 0, 6, 11, 10, EMPTY); mark(r, 'chest', 6, 6, { holds: 'relic:featherfall' }); mark(r, 'thread', 9, 7); mark(r, 'urn', 3, 6);   // the hole behind the chimney's wall
+  return r; }
 function mouth(){
   const r = room(); rect(r, 0, 0, r.w - 1, r.h - 1); rect(r, 2, 2, 37, 20, EMPTY); door(r, 'right', 2, 7);
   rect(r, 2, 2, 4, 3); ledge(r, 12, 18, 6);
   mark(r, 'spawn', 7, 2); mark(r, 'torch', 5, 8); mark(r, 'torch', 30, 7); mark(r, 'crystal', 22, 2); mark(r, 'crystal', 15, 7);
+  mark(r, 'npc', 28, 2, { who: 'scribe' }); mark(r, 'urn', 33, 2); mark(r, 'urn', 35, 2);
   return r;
 }
 function saddle(){
@@ -198,6 +222,8 @@ function saddle(){
   ledge(r, 58, 65, 5); ledge(r, 58, 61, 9); ledge(r, 62, 65, 13); ledge(r, 58, 61, 17); ledge(r, 62, 65, 21);   // up between them
   mark(r, 'harpy', 26, 12); mark(r, 'harpy', 46, 10); mark(r, 'yeti', 40, 2); mark(r, 'burrower', 16, 2);
   mark(r, 'torch', 6, 9); mark(r, 'crystal', 12, 4); mark(r, 'crystal', 33, 6); mark(r, 'crystal', 52, 2); mark(r, 'torch', 64, 8);
+  rect(r, 40, 13, 44, 14); mark(r, 'thread', 42, 15);                    // a rock adrift in the air, and what is caught on it
+  mark(r, 'urn', 8, 2); mark(r, 'urn', 50, 2); mark(r, 'chest', 35, 6, { holds: 'shards' });
   return r;
 }
 function spire(){
@@ -214,6 +240,7 @@ function nest(){
   rect(r, 0, 0, 5, 22); rect(r, 6, 8, 30, 11);                    // the mountain's face; a shelf out of it, under the bridge
   ledge(r, 6, 10, 16); ledge(r, 6, 10, 20);                       // back up to the bridge
   mark(r, 'harpy', 18, 16); mark(r, 'yeti', 24, 12); mark(r, 'crystal', 26, 12); mark(r, 'crystal', 12, 12);
+  mark(r, 'npc', 16, 12, { who: 'wren' });
   return r;
 }
 function ropeway(){
@@ -228,6 +255,7 @@ function hollow(){
   rect(r, 21, 2, 31, 2); rect(r, 23, 3, 29, 3);                   // the shrine's step
   [[10, 16, 5], [16, 22, 9], [10, 16, 13], [8, 14, 17], [8, 14, 21]].forEach(([a, b, y]) => ledge(r, a, b, y));
   mark(r, 'shrine', 26, 4); mark(r, 'torch', 34, 9); mark(r, 'torch', 5, 9); mark(r, 'torch', 26, 14); mark(r, 'crystal', 34, 2); mark(r, 'crystal', 4, 2);
+  mark(r, 'npc', 29, 4, { who: 'lamplighter' });
   return r;
 }
 function chimney(){
@@ -236,6 +264,7 @@ function chimney(){
   [[14, 20, 5], [22, 28, 9], [26, 32, 13], [26, 32, 17], [26, 32, 21]].forEach(([a, b, y]) => ledge(r, a, b, y));
   rect(r, 4, 14, 8, 20); rect(r, 33, 2, 37, 5);
   mark(r, 'wraith', 35, 12); mark(r, 'wraith', 10, 8); mark(r, 'torch', 4, 7); mark(r, 'torch', 35, 18); mark(r, 'crystal', 35, 6); mark(r, 'crystal', 17, 6);
+  rect(r, 38, 6, 39, 10, CRACKED);                                   // the wall is thin here: there is a hole in the brow behind it
   return r;
 }
 // a cavern of ice through the mountain, out to its far face
@@ -247,6 +276,7 @@ function icecave(){
   ledge(r, 14, 20, 6); ledge(r, 33, 37, 6); ledge(r, 64, 70, 7);
   mark(r, 'yeti', 20, 2); mark(r, 'wraith', 34, 12); mark(r, 'wraith', 66, 12); mark(r, 'yeti', 72, 2);
   mark(r, 'torch', 5, 9); mark(r, 'torch', 24, 10); mark(r, 'torch', 43, 9); mark(r, 'torch', 58, 10); mark(r, 'torch', 75, 10); mark(r, 'crystal', 7, 6); mark(r, 'crystal', 44, 2); mark(r, 'crystal', 67, 8); mark(r, 'crystal', 57, 2);
+  mark(r, 'urn', 16, 2); mark(r, 'urn', 30, 2); mark(r, 'urn', 74, 2); mark(r, 'chest', 4, 6, { holds: 'shards' });
   return r;
 }
 // outside again, high over the tower: its teeth to cross, and the horn to climb
@@ -275,6 +305,7 @@ function eyrie(){
   rect(r, 2, 2, 8, 4);
   mark(r, 'shrine', 56, 4); mark(r, 'yeti', 14, 2); mark(r, 'wraith', 22, 14);
   mark(r, 'torch', 5, 9); mark(r, 'torch', 30, 5); mark(r, 'torch', 46, 9); mark(r, 'torch', 66, 9); mark(r, 'torch', 75, 9); mark(r, 'crystal', 4, 5); mark(r, 'crystal', 70, 2); mark(r, 'crystal', 44, 2);
+  mark(r, 'chest', 7, 5, { holds: 'shards' }); mark(r, 'urn', 47, 2); mark(r, 'urn', 68, 2);
   return r;
 }
 // the summit: a crown of rock under the open sky, where the Rime Wyrm keeps the peak. The beacon is lit when it falls
@@ -327,6 +358,7 @@ function build(n){
 // the region in play. One object, refilled when he goes up a region, so everything that reads it reads the new one
 export const LEVEL = {};
 const BUILT = [];
+export function resetLevels(){ BUILT.length = 0; }   // build them again when next wanted (a new game: the cracked rock whole again)
 export function loadLevel(n){ n = Math.max(0, Math.min(REGIONS.length - 1, n | 0)); Object.assign(LEVEL, BUILT[n] || (BUILT[n] = build(n))); return LEVEL; }
 loadLevel(typeof location !== 'undefined' && location.search ? (parseInt(new URLSearchParams(location.search).get('level')) || 1) - 1 : 0);
 

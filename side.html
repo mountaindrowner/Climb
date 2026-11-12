@@ -12,9 +12,23 @@
 </head>
 <body>
 <style>/* the side view: the hero stands low and in the middle, so the flask goes up under the hearts */
-#pad .mid{position:fixed;left:calc(env(safe-area-inset-left,0px) + 14px);top:calc(env(safe-area-inset-top,0px) + 62px);height:auto;align-items:flex-start}
+#pad .mid{position:fixed;left:calc(env(safe-area-inset-left,0px) + 14px);top:calc(env(safe-area-inset-top,0px) + 62px);height:auto;align-items:flex-start;z-index:6}
 #pad .mid .btn.flask{padding:6px 10px;font-size:12px}
-#pad .right{grid-column:3}</style>
+#pad{z-index:5;grid-template-columns:1fr 1fr minmax(190px,26vw)}
+#pad .right{grid-column:3}
+#pad .col.left{pointer-events:none}
+/* no stick on the screen: the left of it is the stick. A ring comes up where the thumb lands and goes when it lifts */
+#stick.float{position:absolute;left:0;top:28%;bottom:0;width:46%;z-index:4;touch-action:none;display:none}
+#thumb{position:absolute;left:0;top:0;width:112px;height:112px;margin:-56px 0 0 -56px;border-radius:50%;border:2px solid rgba(234,212,170,.5);background:radial-gradient(circle,rgba(24,20,37,.05),rgba(24,20,37,.42));z-index:5;pointer-events:none;opacity:0;transition:opacity .12s}
+#thumb.on{opacity:1}
+#thumb .knob{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:rgba(255,242,208,.82);box-shadow:0 0 0 2px #181425}
+/* the buttons: rings, not slabs */
+#pad .col.right .btn{background:rgba(24,20,37,.38);box-shadow:none;border:2px solid rgba(234,212,170,.5);color:#fff2d0}
+#pad .col.right .btn small{color:rgba(255,242,208,.7)}
+#pad .col.right .btn.on{transform:scale(.93);background:rgba(234,212,170,.3);box-shadow:none}
+@media (pointer:coarse){ #stick.float{display:block} }
+@media (hover:hover) and (pointer:fine){ #stick.float,#thumb{display:none} }
+</style>
 <div id="app">
   <div id="rotate" role="alert"><div class="icon" aria-hidden="true">⟲</div>Turn your phone sideways to climb.</div>
   <div id="stage">
@@ -22,13 +36,10 @@
     <canvas id="hud"></canvas>
     <div id="overlay" role="dialog" aria-live="polite"></div>
   </div>
+  <div id="stick" class="float" role="group" aria-label="Move: touch anywhere on the left and drag; down to crouch"></div>
+  <div id="thumb" aria-hidden="true"><span class="knob"></span></div>
   <div id="pad">
-    <div class="col left">
-      <div id="stick" class="stick" role="group" aria-label="Move: left and right along the stair, down to crouch">
-        <span class="arrow l" aria-hidden="true">◀</span><span class="arrow r" aria-hidden="true">▶</span><span class="arrow d" aria-hidden="true">▼</span>
-        <span class="knob" aria-hidden="true"></span>
-      </div>
-    </div>
+    <div class="col left"></div>
     <div class="col mid">
       <button class="btn flask" data-k="flask" aria-label="Drink flask">flask<span class="pips" id="pips">●●●</span></button>
     </div>

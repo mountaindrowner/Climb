@@ -1,0 +1,248 @@
+{
+ "music": {
+  "boss": {
+   "f": "music/boss.mp3",
+   "s": 89.6,
+   "v": 1.06
+  },
+  "boss_final": {
+   "f": "music/boss_final.mp3",
+   "s": 89.9,
+   "v": 1.12
+  },
+  "cloister": {
+   "f": "music/cloister.mp3",
+   "s": 89.9,
+   "v": 1.05
+  },
+  "ending": {
+   "f": "music/ending.mp3",
+   "s": 79.6,
+   "v": 1.02
+  },
+  "firmament": {
+   "f": "music/firmament.mp3",
+   "s": 89.9,
+   "v": 0.91
+  },
+  "gardens": {
+   "f": "music/gardens.mp3",
+   "s": 89.4,
+   "v": 0.96
+  },
+  "roots": {
+   "f": "music/roots.mp3",
+   "s": 79.9,
+   "v": 0.95
+  },
+  "spires": {
+   "f": "music/spires.mp3",
+   "s": 89.2,
+   "v": 1.0
+  },
+  "tempest": {
+   "f": "music/tempest.mp3",
+   "s": 90.0,
+   "v": 0.99
+  },
+  "title": {
+   "f": "music/title.mp3",
+   "s": 69.6,
+   "v": 1.05
+  }
+ },
+ "sfx": {
+  "ability": {
+   "f": "sfx/ability.wav",
+   "s": 2.92
+  },
+  "amb_cave": {
+   "f": "sfx/amb_cave.wav",
+   "s": 5.54
+  },
+  "amb_garden": {
+   "f": "sfx/amb_garden.wav",
+   "s": 5.54
+  },
+  "amb_storm": {
+   "f": "sfx/amb_storm.wav",
+   "s": 5.54
+  },
+  "amb_wind": {
+   "f": "sfx/amb_wind.wav",
+   "s": 5.54
+  },
+  "beam": {
+   "f": "sfx/beam.wav",
+   "s": 0.99
+  },
+  "bell": {
+   "f": "sfx/bell.wav",
+   "s": 2.83
+  },
+  "block": {
+   "f": "sfx/block.wav",
+   "s": 0.56
+  },
+  "bloom": {
+   "f": "sfx/bloom.wav",
+   "s": 0.66
+  },
+  "boss_die": {
+   "f": "sfx/boss_die.wav",
+   "s": 2.81
+  },
+  "break": {
+   "f": "sfx/break.wav",
+   "s": 1.32
+  },
+  "buy": {
+   "f": "sfx/buy.wav",
+   "s": 0.84
+  },
+  "chest": {
+   "f": "sfx/chest.wav",
+   "s": 1.33
+  },
+  "crack": {
+   "f": "sfx/crack.wav",
+   "s": 0.94
+  },
+  "creak": {
+   "f": "sfx/creak.wav",
+   "s": 0.97
+  },
+  "dash": {
+   "f": "sfx/dash.wav",
+   "s": 0.51
+  },
+  "death": {
+   "f": "sfx/death.wav",
+   "s": 1.49
+  },
+  "door": {
+   "f": "sfx/door.wav",
+   "s": 1.45
+  },
+  "drink": {
+   "f": "sfx/drink.wav",
+   "s": 1.15
+  },
+  "ember": {
+   "f": "sfx/ember.wav",
+   "s": 0.42
+  },
+  "glass": {
+   "f": "sfx/glass.wav",
+   "s": 0.44
+  },
+  "glide": {
+   "f": "sfx/glide.wav",
+   "s": 1.01
+  },
+  "gust": {
+   "f": "sfx/gust.wav",
+   "s": 1.39
+  },
+  "hit": {
+   "f": "sfx/hit.wav",
+   "s": 0.48
+  },
+  "hurt": {
+   "f": "sfx/hurt.wav",
+   "s": 0.5
+  },
+  "impact": {
+   "f": "sfx/impact.wav",
+   "s": 0.84
+  },
+  "jump": {
+   "f": "sfx/jump.wav",
+   "s": 0.41
+  },
+  "kill": {
+   "f": "sfx/kill.wav",
+   "s": 0.93
+  },
+  "land": {
+   "f": "sfx/land.wav",
+   "s": 0.53
+  },
+  "parry": {
+   "f": "sfx/parry.wav",
+   "s": 0.71
+  },
+  "relic": {
+   "f": "sfx/relic.wav",
+   "s": 2.16
+  },
+  "roar": {
+   "f": "sfx/roar.wav",
+   "s": 2.49
+  },
+  "roll": {
+   "f": "sfx/roll.wav",
+   "s": 0.46
+  },
+  "rumble": {
+   "f": "sfx/rumble.wav",
+   "s": 1.51
+  },
+  "shard": {
+   "f": "sfx/shard.wav",
+   "s": 0.46
+  },
+  "shrine": {
+   "f": "sfx/shrine.wav",
+   "s": 2.12
+  },
+  "slam": {
+   "f": "sfx/slam.wav",
+   "s": 1.02
+  },
+  "spit": {
+   "f": "sfx/spit.wav",
+   "s": 0.48
+  },
+  "step": {
+   "f": "sfx/step.wav",
+   "s": 0.46
+  },
+  "swing": {
+   "f": "sfx/swing.wav",
+   "s": 0.38
+  },
+  "swing_big": {
+   "f": "sfx/swing_big.wav",
+   "s": 0.75
+  },
+  "talk": {
+   "f": "sfx/talk.wav",
+   "s": 0.46
+  },
+  "thorn": {
+   "f": "sfx/thorn.wav",
+   "s": 0.54
+  },
+  "thread": {
+   "f": "sfx/thread.wav",
+   "s": 1.49
+  },
+  "thunder": {
+   "f": "sfx/thunder.wav",
+   "s": 1.76
+  },
+  "ui": {
+   "f": "sfx/ui.wav",
+   "s": 0.4
+  },
+  "urn": {
+   "f": "sfx/urn.wav",
+   "s": 0.7
+  },
+  "zap": {
+   "f": "sfx/zap.wav",
+   "s": 0.56
+  }
+ }
+}
