@@ -7,9 +7,10 @@
 //   G.relics  ids of the relics he carries (RELICS)
 //   G.got[n]  what has been taken in region n (chests, threads, urns), G.broke[n] the cracked rock broken there
 //   G.met     how many times each person has been spoken to, by region; G.charts regions whose chart he has bought
+//   G.falls   how many times he has fallen, which is how many times he has been raised
 import { TUNE } from '../config/tuning.js';
 const KEY = 'climb-side', OKEY = 'climb-side-opts';
-const blank = () => ({ level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], got: {}, broke: {}, met: {}, charts: [], began: false });
+const blank = () => ({ level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], got: {}, broke: {}, met: {}, charts: [], began: false, falls: 0 });
 export const G = blank();
 export const OPT = { music: 0.7, sfx: 1, shake: 1, flash: 1, diff: 1, synth: false };   // diff: 0 story, 1 climber, 2 summit
 const read = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e){ return null; } };
@@ -37,8 +38,8 @@ export const RELICS = {
 export const TEACH = [
   { can: 'breaker', name: 'The Warden\'s Weight', lines: ['His plunge and his finishing cut now break cracked stone.', 'Plunge: down + cut, in the air.'] },
   { can: 'dash',    name: 'The Toll\'s Step',     lines: ['A roll begun in the air now flies level and fast.', 'Once, each time he leaves the ground.'] },
-  { can: 'glide',   name: 'The Wyrm\'s Wind',     lines: ['The scarf opens: jump again when the jumps are spent, and hold.', 'In rising air it carries him up.'] },
-  { heart: 1,       name: 'A Storm\'s Heart',     lines: ['A heart more: the scarf grows a length.'] },
-  { flask: 1,       name: 'The Garden\'s Dew',    lines: ['The flask holds a draught more.'] },
+  { can: 'glide',   name: 'The Wyrm\'s Wind',     lines: ['The thread opens: jump again when the jumps are spent, and hold.', 'In rising air it carries him. He need not do it all himself.'] },
+  { heart: 1,       name: 'A Storm\'s Heart',     lines: ['A heart more: the thread grows a length.'] },
+  { flask: 1,       name: 'The Garden\'s Dew',    lines: ['The flask holds a draught more of the water.'] },
   { name: '', lines: [] },
 ];

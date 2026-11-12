@@ -54,7 +54,7 @@ export function makeItems(scene, R, n){
     }
     else if (mk.type === 'thread'){ if (took(n, id)) continue; const m = flat(tt, 9, 13), gl = halo(0xff5040, 1.6, 0.45); m.position.set(x, y + 0.5, 0.04); gl.position.set(x, y + 0.9, 0.03); list.push({ type: 'thread', id, x, y, m, gl, ph: rnd() * 6 }); }
     else if (mk.type === 'npc'){
-      const who = mk.who, P = PEOPLE[who]; if (!P) continue; const N = { type: 'npc', who, x, y, face: -1, sprite: null, meta: null, stand: null, ph: rnd() * 6 };
+      const who = mk.who, P0 = PEOPLE[who]; if (!P0) continue; const P = P0.late && n >= P0.late.from ? { ...P0, art: P0.late.art } : P0; const N = { type: 'npc', who, art: P.art, x, y, face: -1, sprite: null, meta: null, stand: null, ph: rnd() * 6 };
       N.stand = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 1.9), new THREE.MeshBasicMaterial({ color: 0x262b44 })); N.stand.position.set(x, y + 0.95, 0.02); scene.add(N.stand);
       fetch(`assets/side/${P.art}/sprite.json`).then(r => r.ok ? r.json() : null).then(meta => { if (meta){ N.meta = meta; N.sprite = makeSprite(scene, `assets/side/${P.art}`, meta); N.stand.visible = false; } }).catch(() => {});
       people.push(N);

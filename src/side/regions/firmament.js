@@ -331,7 +331,7 @@ function tick(dt, time, ctx){
   } else m.material.opacity = 0;
 }
 
-export default { name: 'The Firmament', theme: 'firmament', sub: 'the summit, among the stars', card: 'The last of the mountain. The stars are close.', epithet: 'WHAT HE LEFT AT THE TOP',
+export default { name: 'The Firmament', theme: 'firmament', sub: 'the summit, among the stars', card: 'The last of the mountain. He has been here before.', epithet: 'WHAT HE LEFT AT THE TOP',
   quiet: ['zenith'], seed: 7770123, fill: EMPTY, sky: true, cols: 3, wear: { sag: 0.5, swell: 0.4, humps: 0.3 }, themeDef, deco, enemies, ai, songs, tick,
   layout: [[0, 0, threshold], [1, 0, terrace, 2, 1], [0, 1, meridian, 2, 1], [2, 1, orrery], [0, 2, gnomon, 1, 2], [1, 2, archive], [2, 2, lens], [1, 3, transit, 2, 1],
     [0, 4, ascension], [1, 4, vigil], [2, 4, aphelion], [0, 5, zenith, 2, 2], [2, 5, shoulder], [2, 6, shoulderTop]] };

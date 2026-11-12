@@ -1,0 +1,26 @@
+{
+ "name": "px_wren_free",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 48,
+   "h": 48,
+   "foot": 47,
+   "cx": 23.0,
+   "footLast": 47,
+   "cxLast": 23.0,
+   "n": 1
+  },
+  "idle": {
+   "frames": 9,
+   "w": 68,
+   "h": 68,
+   "foot": 57,
+   "cx": 33.0,
+   "footLast": 57,
+   "cxLast": 31.5,
+   "n": 1
+  }
+ }
+}

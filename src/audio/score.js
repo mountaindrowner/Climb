@@ -22,6 +22,8 @@ export function makeScore(){
     if (loading.has(key)) return; loading.add(key); const A = ac(); if (!A){ loading.delete(key); return; }
     fetch(MANIFEST.base + MANIFEST.music[key].f).then(r => r.arrayBuffer()).then(b => A.decodeAudioData(b)).then(buf => { bufs.set(key, buf); loading.delete(key); if (want === key) start(key); }).catch(() => { loading.delete(key); delete MANIFEST.music[key]; });
   };
+  // the piece run fast (a fall, run back) or at its own speed again
+  S.warp = rate => { const A = ac(); if (cur && A) cur.s.playbackRate.setTargetAtTime(rate, A.currentTime, 0.12); };
   S.duck = v => { const A = ac(); if (duck && A) duck.gain.setTargetAtTime(v, A.currentTime, 0.15); };
   return S;
 }

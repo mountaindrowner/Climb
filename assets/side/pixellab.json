@@ -895,5 +895,16 @@
     "group": "f9089244-47c3-41b8-848c-bb3e816e9b46"
    }
   }
+ },
+ "px_wren_free": {
+  "id": "65e56d9a-9569-4a3f-8e53-bd8b7816d235",
+  "description": "a small young mountain climber girl in a green hooded cloak and a red knitted hat, a coiled rope at her hip, no backpack, empty hands held loosely at her sides, standing upright and at ease, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer friendly character",
+  "anims": {
+   "idle": {
+    "action": "standing still, breathing easily, looking up, the cloak stirring",
+    "frames": 8,
+    "group": "aaa97609-4a9a-4711-9576-d9cc65416ba3"
+   }
+  }
  }
 }

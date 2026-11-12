@@ -288,7 +288,7 @@ const songs = {
   gardens: { set: BRIGHT, shift: 0, bpm: 84, pad: { g: 0.3, cut: 1700 }, bass: { g: 0.24, at: [0, 8] }, arp: { inst: 'pluck', g: 0.14, oct: 12, pat: [0, _, 2, _, 1, _, 3, _, 2, _, 4, _, 3, _, 1, _] }, lead: { inst: 'bell', g: 0.17, oct: 0, every: 2 } },
 };
 
-export default { name: 'The Gardens', theme: 'gardens', sub: 'above the cloud, in the sun', card: 'Above the storm: sun, and green things growing.', epithet: 'WHAT THE GARDEN GREW', quiet: ['bower'],
+export default { name: 'The Gardens', theme: 'gardens', sub: 'above the cloud, in the sun', card: 'Above the storm: sun, and a garden no one has tended.', epithet: 'WHAT THE GARDEN GREW, UNTENDED', quiet: ['bower'],
   seed: 6660123, fill: EMPTY, sky: true, cols: 3, wear: { sag: 0.7, swell: 0.4, humps: 0.3 },
   layout: [[0, 0, stormdoor], [1, 0, terraces, 2, 1], [0, 1, wellspring, 1, 2], [1, 1, brambles], [2, 1, arbor], [1, 2, orangery], [2, 2, cascade, 1, 2], [0, 3, sundial], [1, 3, canopy], [0, 4, bower, 2, 2]],
   themeDef, deco, enemies, ai, songs };

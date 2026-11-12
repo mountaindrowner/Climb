@@ -13,9 +13,10 @@ export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B };
 // ---- the first region: up from the bottom of the mountain
 function start(){
   const r = room(); walls(r); door(r, 'right', 2, 7);
-  ledge(r, 8, 13, 6); rect(r, 2, 2, 4, 3);
+  ledge(r, 12, 17, 6);
+  mark(r, 'pool', 3, 2, { w: 8 });                                 // the water at the bottom of the world: he wakes in it, and it gives him back
   mark(r, 'spawn', 6, 2); mark(r, 'torch', 5, 7); mark(r, 'torch', 30, 7); mark(r, 'crystal', 20, 2);
-  ledge(r, 20, 24, 12); mark(r, 'thread', 22, 13);                    // a thread, high: the first thing worth a second jump
+  ledge(r, 22, 26, 12); mark(r, 'thread', 24, 13);                    // a thread, high: the first thing worth a second jump
   mark(r, 'npc', 27, 2, { who: 'wren' }); mark(r, 'urn', 16, 2); mark(r, 'urn', 33, 2);
   return r;
 }
@@ -322,11 +323,11 @@ function crown(){
 // the regions, from the bottom of the mountain up: rooms on a grid, [column, row, builder, columns wide, rows tall].
 // `fill` is what is between the rooms; `wear` is how hard the organic pass works the rock
 const REGIONS = [
-  { name: 'The Roots', theme: 'roots', sub: 'the bottom of the mountain', card: '', epithet: 'KEEPER OF THE ROOTS', quiet: ['arena'], seed: 1234567, wear: { sag: 1, swell: 1, humps: 0.8 },
+  { name: 'The Roots', theme: 'roots', sub: 'the bottom of the world, and the water there', card: '', epithet: 'IT HAS FORGOTTEN WHAT IT GUARDS', quiet: ['arena'], seed: 1234567, wear: { sag: 1, swell: 1, humps: 0.8 },
     layout: [[0, 0, start], [1, 0, corridor], [1, 1, shaft], [0, 1, tunnel], [0, 2, chamber], [1, 2, ascent], [2, 2, gallery], [3, 2, well, 1, 2], [0, 3, roost], [1, 3, bridge], [2, 3, grotto], [2, 4, arena, 2, 2]] },
-  { name: 'The Cloister', theme: 'cloister', sub: 'a house of stone over the Warden\'s hall', card: 'The Roots are below him. The climb goes on.', epithet: 'THE VOICE OF THE CLOISTER', quiet: ['chapel'], seed: 7654321, wear: { sag: 0.55, swell: 0.5, humps: 0.4 },
+  { name: 'The Cloister', theme: 'cloister', sub: 'a house that kept the hours of the flame', card: 'The dark is below him. He is still being called.', epithet: 'IT RINGS FOR A LIGHT IT CANNOT SEE', quiet: ['chapel'], seed: 7654321, wear: { sag: 0.55, swell: 0.5, humps: 0.4 },
     layout: [[0, 0, undercroft], [1, 0, nave, 2, 1], [3, 0, belfry, 1, 3], [0, 1, stairwell, 1, 2], [1, 1, cells], [2, 1, library], [1, 2, cloister, 2, 1], [1, 3, chapel, 2, 1]] },
-  { name: 'The Spires', theme: 'spires', sub: 'the open air, and the high pass', card: 'Out of the stone, into the open air.', epithet: 'IT KEEPS THE HIGH PASS', quiet: ['crown'], seed: 2468101, fill: EMPTY, sky: true, wear: { sag: 1.1, swell: 0.5, humps: 0.6 },
+  { name: 'The Spires', theme: 'spires', sub: 'the open air, and the high pass', card: 'Out of the stone, into the cold and the sky.', epithet: 'IT COILS ON THE PASS, AND LETS NONE BY', quiet: ['crown'], seed: 2468101, fill: EMPTY, sky: true, wear: { sag: 1.1, swell: 0.5, humps: 0.6 },
     layout: [[0, 0, mouth], [1, 0, saddle, 2, 1], [0, 1, massif], [1, 1, nest], [2, 1, spire, 1, 2], [0, 2, hollow], [1, 2, ropeway], [0, 3, chimney], [1, 3, brow], [0, 4, icecave, 2, 1], [2, 3, teeth, 1, 2],
       [0, 5, eyrie, 2, 1], [2, 5, span], [0, 6, crown, 2, 2]], cols: 3 },
   tempest, gardens, firmament,   // each in its own file (regions/)

@@ -64,6 +64,7 @@ function noise(dur, vol, freq){
 export function setVolume(v){ if (OUT) OUT.gain.value = v; }
 const SYNTH = {
   step(){ tone(72, 0.09, 'sine', 0.22, -30); noise(0.05, 0.05, 380); },
+  rewind(){ tone(110, 1.6, 'sawtooth', 0.05, 1500); tone(220, 1.6, 'triangle', 0.05, 2600); noise(1.5, 0.05, 5200); },   // everything running back: rising, thin, fast
   creep(){ tone(64, 0.06, 'sine', 0.06, -16); noise(0.035, 0.015, 300); },   // a crouched, careful footfall: barely there
   jump(){ tone(260, 0.12, 'square', 0.04, 220); },
   slash(){ noise(0.09, 0.09, 2600); },

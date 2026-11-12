@@ -328,7 +328,7 @@ const songs = {
     lead: { inst: 'saw', g: 0.16, oct: 0, every: 1, octaves: true }, drums: { kick: [0, 3, 6, 8, 11, 14], snare: [4, 12], hat: [2, 6, 10, 14], g: 0.55 }, wind: 0.6 },
 };
 
-export default { name: 'The Tempest', theme: 'tempest', sub: 'the storm that wraps the mountain', card: 'Over the pass, the mountain goes on, into the storm.', epithet: 'THE STORM HAS A FACE',
+export default { name: 'The Tempest', theme: 'tempest', sub: 'the storm that came when the flame went dark', card: 'Above the pass the mountain goes on, into the storm.', epithet: 'THE STORM HAS A FACE',
   quiet: ['gale'], seed: 5550123, fill: EMPTY, sky: true, cols: 3, wear: { sag: 0.9, swell: 0, humps: 0.5 },
   layout: [[0, 0, landing], [1, 0, rigging, 2, 1], [0, 1, bluff], [1, 1, anchorage], [2, 1, stacks, 1, 2], [0, 2, watch], [1, 2, gantry],
     [0, 3, flue, 1, 2], [1, 3, buttress], [2, 3, corbel], [1, 4, crossing, 2, 2], [0, 5, cap], [1, 6, anvil], [2, 6, masthead], [1, 7, gale, 2, 2]],

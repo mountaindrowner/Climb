@@ -41,6 +41,17 @@ function crackTex(w, h, seed){
   return texOf(c);
 }
 
+// the water at the bottom of the world: a band of it, lit; and the light that comes down to it from far above
+function waterTex(w){
+  const c = cnv(w, 6), g = c.getContext('2d');
+  for (let x = 0; x < w; x++){ px(g, x % 9 < 5 ? PAL.white : PAL.pale, x, 0); px(g, (x + 3) % 7 < 3 ? PAL.pale : PAL.cyan, x, 1); for (let y = 2; y < 6; y++) px(g, B4[(y & 3) * 4 + (x & 3)] < 6 + y ? PAL.cyan : PAL.blue, x, y); }
+  const t = texOf(c); t.wrapS = THREE.RepeatWrapping; return t;
+}
+function shaftTex(){
+  const c = cnv(48, 144), g = c.getContext('2d');
+  for (let y = 0; y < 144; y++){ const half = 5 + y * 0.12; for (let x = 0; x < 48; x++){ const d = Math.abs(x - 23.5) / half, a = d < 0.5 ? 0.75 : d < 1 ? 0.4 : 0.12; if (d < 1.3 && B4[(y & 3) * 4 + (x & 3)] / 16 < a * (0.35 + y / 260)) px(g, d < 0.4 ? '#ffffff' : '#bfe8ff', x, y); } }
+  return texOf(c);
+}
 export function makeProps(scene, R){
   const W = LEVEL.W, H = LEVEL.H, glass = [], blooms = [], drafts = [], cracks = [], rnd = rng(99), warm = LEVEL.theme === 'gardens';
   const basic = (map, o = {}) => new THREE.MeshBasicMaterial({ map, transparent: true, depthWrite: false, ...o });
@@ -76,10 +87,21 @@ export function makeProps(scene, R){
     m.position.set((x0 + w / 2) * T, (y0 + h / 2) * T, 0.01); scene.add(m);
     cracks.push({ id: `${i},${j}`, tiles, m, x: m.position.x, y: m.position.y, w: w * T, h: h * T, gone: false });
   }
+  // ---- the pool
+  const pools = [];
+  for (const mk of LEVEL.marks) if (mk.type === 'pool'){
+    const w = (mk.w || 8) * T, x = mk.x * T + w / 2, y = mk.y * T, wt = waterTex(Math.round(w * PPU));
+    const water = new THREE.Mesh(new THREE.PlaneGeometry(w, 6 / PPU), basic(wt, { opacity: 0.72 })); water.position.set(x, y + 3 / PPU, 0.07); scene.add(water);   // before him: he stands in it
+    const shaft = new THREE.Mesh(new THREE.PlaneGeometry(48 / PPU, 144 / PPU), basic(shaftTex(), { blending: THREE.AdditiveBlending, opacity: 0.3 })); shaft.position.set(x, y + 72 / PPU, 0.012); scene.add(shaft);
+    const motes = []; for (let k = 0; k < 14; k++){ const m = new THREE.Mesh(new THREE.PlaneGeometry(1 / PPU, 1 / PPU), basic(null, { color: 0xdff4ff, blending: THREE.AdditiveBlending })); m.position.set(x + (rnd() - 0.5) * 2, y + rnd() * 7, 0.6); scene.add(m); motes.push({ m, v: 0.5 + rnd() * 0.9, ph: rnd() * 9, x: m.position.x }); }
+    pools.push({ x, y, w, water, wt, shaft, motes });
+  }
   const shatter = (C, quiet) => { if (C.gone) return; C.gone = true; for (const [a, b] of C.tiles) LEVEL.tiles[b * W + a] = EMPTY; scene.remove(C.m); C.m.geometry.dispose(); C.m.material.map.dispose(); C.m.material.dispose(); };
   return {
-    cracks, glass, blooms,
+    cracks, glass, blooms, pools,
     step(dt, t){
+      for (const W of pools){ W.wt.offset.x = Math.floor(t * 5) / (W.w * PPU); W.shaft.material.opacity = 0.26 + Math.sin(t * 0.9) * 0.05; R.glint(W.x, W.y + 0.8, 0xbfe8ff, 0.85, 7);
+        for (const M of W.motes){ M.m.position.y += M.v * dt; M.m.position.x = M.x + Math.sin(t * 0.8 + M.ph) * 0.25; if (M.m.position.y > W.y + 8){ M.m.position.y = W.y + 0.2; M.x = W.x + (rnd() - 0.5) * 2.4; } M.m.material.opacity = 0.4 + 0.4 * Math.sin(t * 2 + M.ph); } }
       const left = PHASE.period - (PHASE.t % PHASE.period);   // until the beat turns
       for (const G of glass){ const on = glassOn(G.k), going = on && left < 0.5 && !PHASE.all;
         G.m.material.opacity = on ? (going && Math.floor(t * 16) % 2 ? 0.45 : 1) : 0.13; G.gl.material.opacity = on ? 0.16 + Math.sin(t * 3 + G.x) * 0.04 : 0.02; G.turned = G.was !== null && G.was !== on; G.was = on; }
