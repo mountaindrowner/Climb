@@ -5,7 +5,8 @@ below is ever said outright in the game, and no line in the game should say it f
 
 ## The shape of it
 
-He stood at the top of the world, beside a flame he was given to keep. He let it die, and he fell: the whole height of
+He stood at the top of the world, beside a flame he was given to keep. He let it die (`What is true`, below, says how;
+the game never does), and he fell: the whole height of
 the mountain, into the water at its roots. The water gave him back. Far above there is a light, and it is calling him
 home. He was not made to stay where he was left.
 
@@ -20,6 +21,28 @@ That is all the game tells. What it is about:
   after the flame went dark, and forgot what the duty was for. The last of them is himself: what he was when he let the
   flame die, still standing at the top, sure that it is him.
 - **The light was never only at the top.** The ending says so in one line: it had gone down into the dark to find him.
+
+## What is true (never said)
+
+The whole of what happened, written down so that every fragment in the game agrees with it (`docs/writing.md`, rule 3).
+None of this is said in the game. Pieces of it are shown.
+
+- **The night of the fall.** He kept the flame in a cradle of stone at the summit. The people below had stopped looking
+  up, and he thought the flame needed carrying to them, and that it needed *him* to carry it. He lifted it out of its
+  cradle and started down. It went out in his hands on the first ledge. He fell with it, the whole height of the
+  mountain. *Shown:* the empty cradle at the summit; the scorch of it on the stone; the Fallen carries a dark lamp and
+  will not put it down; Ordric, in the storm: "I always wanted to do the carrying."
+- **Everyone below did the same thing he did.** The house, the guild, the Wrights, the astronomers: each tried to make
+  the light themselves. That is why the mountain is the way it is. The flame was never theirs, or his, to carry.
+- **The water.** It runs under the whole mountain, from the Source at the bottom of the Hollow up to the pool, and up
+  again by the Aqueducts to the Gardens. It was there before the house or the guild. It gives back whatever falls into it.
+- **The thread.** Tied on him in the water, the first time. By whom is the one thing this file does not say either.
+- **The light at the bottom.** When the flame went out at the top, the light did not end. It had gone down: the flame
+  beside the Source, which no one keeps, is the same light. The ending's one line is true literally.
+- **The shard.** The piece of the summit that broke when he lifted the flame out. It held the light so long that some is
+  still in it.
+- **The Fallen.** What he was in that moment, sure the flame needed him, left at the top still holding the dark lamp. It
+  is not killed: when it is spent, he takes it back. The dark runs off it and its scarf goes to him.
 
 ## Voice
 
@@ -88,6 +111,8 @@ always about to break), and every section's answer is the same as the story's: n
 is given.
 
 ## Rules of thumb
+
+The full rules for writing, naming and the people are in `docs/writing.md`. The short form:
 
 - He never speaks, and has no name.
 - Nobody says grace, faith, sin, salvation, redemption, heaven or God.

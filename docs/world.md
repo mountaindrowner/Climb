@@ -3,7 +3,8 @@
 The plan for the mountain at three times its size: every section of it, from the bottom of the mines to the shard above
 the summit, with its history, what is happening there now, who is in it, how it is lit, the rooms it is made of, and
 what it is about underneath. `docs/story.md` is the direction; `docs/cast.md` is the cast; `docs/world-blueprint.md`
-is the engine plan and the first sizing. This replaces that file's list of wings.
+is the engine plan and the first sizing; `docs/writing.md` holds the rules every line and name here is held to,
+including which of the eight kinds of fun each kind of section is for. This replaces that file's list of wings.
 
 The picture is `docs/world-section.png`: the mountain cut through, with every section placed at its height.
 
@@ -36,7 +37,8 @@ round its light. A house was built on the mountain's face to keep the flame's ho
 above the cloud to feed the keepers. Pilgrims came up the Bell Road to see the light. The air above the pass was still.
 At the roots the water lay clear and quiet, and people called it the Well, and did not go near it, for it was deep.
 
-**The Night of the Fall.** He let the flame die. Why is never said. The shard broke from the summit and stayed hanging
+**The Night of the Fall.** He let the flame die. The game never says how (`docs/story.md`, "What is true": he lifted it
+out of its cradle to carry it down himself, and it went out in his hands). The shard broke from the summit and stayed hanging
 in the air. He fell the whole height of the mountain into the water. That night the storm came, and it has not gone.
 
 **The Long Dark.** The people did not wait. Every one of them tried to make the light come back, and every way they tried
@@ -102,7 +104,7 @@ the game keep their names; new rooms are in *italic*.
 ## The Deep
 
 Under the water. The Lamp-guild's mines, and what they broke into. Entered from the Roots by the Pithead; each level
-down needs something he has learned, so the Deep is gone into four times across the game, and each time it is darker.
+down needs something he has learned, so the Deep is gone into three times across the game, and each time it is darker.
 Its keeper is the Auger.
 
 ### The Workings
@@ -116,7 +118,7 @@ vein went down. So did they.
 some of them still burn: someone is filling them. The Hewers are still at the faces. The cage at the shaft is stuck
 halfway. Every wall is marked with a depth and a date, and the dates stop.
 
-**Who is here.** *Hob*, the last of the guild (new person; see below), trimming lamps, counting his oil. Hewers (miners
+**Who is here.** *Hob*, the last of the guild (new person; see below), on a ladder filling a lamp, counting his oil. Hewers (miners
 still at their faces, who swing at anything that moves in their light), lamp-moths (drawn to his light, burst in a
 flash), timber-creeps (rot in the props, which drop the roof). Elite: *the Shift-boss*, who still calls the shifts.
 
@@ -127,13 +129,13 @@ the dark is something to cross.
 never do.
 
 **Rooms.** *pithead* (the winding gear, the guild's sign, the first lamp) · *the cage* (a shaft with the lift stuck in it;
-he climbs the frame) · *the tally-house* (the shifts chalked on a wall, the last one half done) · *bunkhouse* (cots,
-boots, a hymn scratched on a beam, unfinished) · *the long level* (a rail line across the whole section, carts, Hewers) ·
+he climbs the frame) · *the tally-house* (two hundred years of shifts chalked on a wall, all in one hand) · *bunkhouse* (cots,
+boots, a hymn scratched on a beam, every verse numbered so none would be missed) · *the long level* (a rail line across the whole section, carts, Hewers) ·
 *the props* (a gallery held up by rotten timbers: it falls behind him) · *the cistern* (the bottom of the Workings, where
 the water came in; see the Flooded Levels).
 
 ### The Flooded Levels
-*−600 to −1,300 m · 12 screens · needs the breath (found in the cistern)*
+*−600 to −1,300 m · 12 screens · needs the Wyrm's wind (under the water it carries him too)*
 
 **History.** At six hundred metres the guild cut into water. It was the same water as the pool above: it had been under
 the whole mountain all along. It rose and took four levels in a night. The guild built a great pump to drive it out, and
@@ -148,10 +150,10 @@ stopped (fought among its pistons and valves).
 
 **Light.** Cold green under the water, from the drowned lamps; almost none above it.
 
-**Underneath.** Being overwhelmed: the water over his head. But it is the water that gives him back. Here he learns it
-holds him: he can go under, and it does not take him. Nobody says so; he finds he can breathe it.
+**Underneath.** Being overwhelmed: the water over his head. But it is the water that gives him back. Here he finds it
+holds him: the thread opens under the water as it does in rising air, and carries him. Nobody says so.
 
-**Rooms.** *the cistern* (shared with the Workings; where he first goes under) · *drowned level* (a whole gallery under
+**Rooms.** *the cistern* (shared with the Workings; where he first goes under, and the thread opens) · *drowned level* (a whole gallery under
 water, lamps still lit along it) · *air-pockets* (rooms of trapped air in a flooded level, one after the other) · *the
 pump-house* (the elite) · *the overflow* (where the water pours down a stair into the dark) · *the chapel of the shift*
 (a niche the miners carved, flooded to the altar; a guild lamp on it, still burning under the water).
@@ -428,7 +430,8 @@ climbers still meant to go through it.
 
 **Now.** Warm. A fire Ordric keeps, a pot, blankets, beds. The storm through the window. Everything about it says stay.
 
-**Who is here.** Ordric; sometimes all three. No creatures.
+**Who is here.** Ordric, and this once he does not stay: he goes on ahead into the storm, and the next flame he is met
+at is one he lit himself, somewhere it had never been. Sometimes all three are here. No creatures.
 
 **Underneath.** Staying where it is safe. He has to leave it, and the door is heavy.
 
@@ -592,7 +595,8 @@ unhurried), Corwen in the archive.
 **Underneath.** The self it builds: the Fallen thinks it is him.
 
 **Rooms.** threshold · terrace · meridian · orrery (*the Orrery Wing opens off it*) · gnomon · archive · lens · transit ·
-ascension · vigil · aphelion · zenith.
+ascension · vigil · aphelion · zenith (*the cradle*: the stone the flame stood in, empty, scorched; the beacon above it).
+The Fallen carries a dark lamp, and does not put it down even to fight; when it is spent, the lamp goes out of its hand.
 
 ### The Orrery Wing
 *Firmament, west · 9 screens · open*
@@ -641,17 +645,16 @@ not climb. Met for the last time at the Source, sitting by the flame no one keep
 
 ## New things he learns
 
-The three he has open most of the mountain at double size. At three times it needs two more, and both come from the
-Deep:
+The three gifts he has open most of the mountain. At three times its size it needs one more, and a light; and before
+adding anything, the gifts he has are deepened (`docs/writing.md`, "What he learns"):
 
 | Learned | Where | What it does | What it opens |
 |---|---|---|---|
-| The lamp | Ordric gives it, at the Roots' first flame after the Warden | A small light he carries | The Deep below the Workings is too dark to cross without it |
-| The breath | The cistern (Flooded Levels) | He can go under the water | The Flooded Levels; drowned rooms in the Ossuary and the Aqueducts |
+| The lamp | Ordric gives it, at the Roots' first flame after the Warden | A small light he carries; it lights the guild's lamps, which then stay lit | The Deep below the Workings |
 | The Warden's weight | The Warden | Breaks stone (as now) | The Ossuary, the Bell-Foundry, the Vein's seal |
 | The Toll's step | The Toll | Dash in the air (as now) | The Scriptorium, the Glacier Galleries, the Keepers' Houses |
-| The Wyrm's wind | The Rime Wyrm | Glide (as now) | The Cairns, the Eye, the Great Shaft |
-| The grip | The Auger | Cling to rock and climb it | The Shard; the climb out of the Hollow; high ledges throughout |
+| The Wyrm's wind | The Rime Wyrm | Glide (as now); and under the water the thread carries him as rising air does | The Cairns, the Eye, the Flooded Levels, the Great Shaft |
+| The Auger's grip | The Auger | Cling to rough rock and climb it (never ice, brass or glass) | The Shard; the climb out of the Hollow; high ledges throughout |
 
 The lamp is given, not found, and it does not burn down: the guild's lamps do.
 
@@ -659,8 +662,8 @@ The lamp is given, not found, and it does not burn down: the guild's lamps do.
 
 He climbs; the mountain keeps sending him down. A first run of the climb sees the Workings, the Bell Road, the Last Hut,
 the Breach, the Long Stair and the open wings. Each keeper's gift opens something already passed. The Deep is gone into
-four times: once at the start (the Workings), once for the breath, once after the Warden for the Vein, and once after the
-Wyrm for the Shaft and the Hollow. The Source can be found before the Fallen or after; the ending reads differently
+three times: once at the start (the Workings), once after the Warden for the Vein, and once after the Wyrm for the
+Flooded Levels, the Shaft and the Hollow. The Source can be found before the Fallen or after; the ending reads differently
 either way, and should never need it.
 
 ## Building it
@@ -672,7 +675,7 @@ Then, in this order, so that each step is playable:
    one takes.
 2. **The seams**: short, mostly scenery, they make the regions one mountain at once.
 3. **The wings**, two regions at a time, with the chunk library drawn from what the Workings taught.
-4. **The rest of the Deep**, the breath and the grip, the Auger and the Source.
+4. **The rest of the Deep**, the wind under water and the grip, the Auger and the Source.
 5. **The Shard** last.
 
 Every section, before it is built, gets a sheet: its rooms in order, what each one is for (a fight, a climb, a look, a

@@ -11,6 +11,8 @@ import '../ui/feel.js';
 import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels } from './level.js';
 import { makeProps } from './props.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, CAN, SIDE } from './motor.js';
+import { width as textWidth } from './pixelfont.js';
+const wrapText = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };
 import { G, OPT, loadSave, store, storeOpt, wipe, has, maxHearts, maxFlask, RELICS, TEACH, THREADS_A_HEART, DIFF } from './state.js';
 import { makeItems } from './items.js';
 import { makeTalk, SCRIPT } from './talk.js';
@@ -26,7 +28,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 21';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 22';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -541,7 +543,7 @@ function onEvent(e){
     case 'thread': { G.threads++; sfx.thread(); fx.ring(e.at, 0xff5040); fx.burst(e.at, 18, 0xe43b44); R.glint(e.at.x, e.at.y, 0xff5040, 1, 5, 0.5); const k = G.threads % THREADS_A_HEART;
       if (k === 0){ const m = maxHearts(); if (m > P.maxHp){ P.maxHp = m; P.hp = m; } banner('The thread lengthens', 'three strands: a heart more', 4); } else banner('A red strand', `${k} of ${THREADS_A_HEART} toward a heart`, 3.4);
       store(); break; }
-    case 'relic': { const r = RELICS[e.id]; if (!r || has(e.id)) break; G.relics.push(e.id); learn(); store(); sfx.relic(); LATER.push({ t: 0.7, f: () => { NOTE = { title: r.name, lines: [r.line], t: 0, relic: true }; release(); } }); break; }
+    case 'relic': { const r = RELICS[e.id]; if (!r || has(e.id)) break; G.relics.push(e.id); learn(); store(); sfx.relic(); LATER.push({ t: 0.7, f: () => { NOTE = { title: r.name, lines: r.lore ? [r.line, r.lore] : [r.line], t: 0, relic: true }; release(); } }); break; }
     case 'flask': if (P.flask > 0 && P.hp < P.maxHp){ P.flask--; P.hp = Math.min(P.maxHp, P.hp + TUNE.player.flaskHeal); sfx.drink(); fx.ring({ x: P.x, y: P.y + 0.8 }, 0x5ce1c6); } break;
   }
 }
@@ -580,7 +582,8 @@ function drawHud(dt){
   if (USE && !PAUSE && !TALK.on && !NOTE){ v.set(USE.x, USE.y + (USE.type === 'npc' ? 2.6 : 1.5), 0).project(R.camera); HUD.prompt(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180), (DEVICE.kind === 'keys' ? 'S  ' : DEVICE.kind === 'touch' ? 'DRAG DOWN  ' : 'DOWN  ') + (USE.type === 'npc' ? 'TALK' : 'OPEN'), time); }
   TALK.draw(HUD, dt, time);
   if (NOTE){ HUD.dark(0.62); HUD.text(NOTE.relic ? 'A RELIC' : 'HE HAS LEARNED', W / 2, 44, '#c0cbdc', 1, 'center'); HUD.text(NOTE.title.toUpperCase(), W / 2, 56, '#fee761', 2, 'center'); HUD.rule(Math.round(W / 2), 78, 70, '#ead4aa');
-    NOTE.lines.forEach((l, i) => HUD.text(l, W / 2, 88 + i * 11, '#fff2d0', 1, 'center')); if (NOTE.t > 0.7 && Math.floor(time * 2) % 2) HUD.text('PRESS TO GO ON', W / 2, 132, '#8b9bb4', 1, 'center'); }
+    // the lines, wrapped to the picture; a relic's second line (whose it was) is quieter
+    let ny = 88; NOTE.lines.forEach((l, i) => { const lore = NOTE.relic && i > 0; if (lore) ny += 3; wrapText(l, W - 48).forEach(ln => { HUD.text(ln, W / 2, ny, lore ? '#c0cbdc' : '#fff2d0', 1, 'center'); ny += lore ? 9 : 11; }); }); if (NOTE.t > 0.7 && Math.floor(time * 2) % 2) HUD.text('PRESS TO GO ON', W / 2, Math.max(132, ny + 10), '#8b9bb4', 1, 'center'); }
   if (PAUSE && SCREEN === 'annals') drawAnnals(W);
   else if (PAUSE && SCREEN === 'shop') HUD.dark(0.55);
   else if (PAUSE){ HUD.dark(0.66); HUD.text('PAUSED', W / 2, 14, '#fff2d0', 2, 'center'); HUD.rule(Math.round(W / 2), 34, 60, '#ead4aa');

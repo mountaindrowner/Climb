@@ -12,29 +12,29 @@ export const PEOPLE = { lamplighter: { name: 'ORDRIC OF THE VIGIL', art: 'px_lam
 //   Mirel climbs to arrive deserving it. She carries a great pack and counts her falls so they can be held against her;
 //         the water keeps giving her back anyway, and somewhere above the storm she puts the pack down.
 //   Corwen records the mountain exactly and cannot account for it.
-export const SCRIPT = {
+export const SCRIPT = {   // at most three lines a meeting, each short and new; the theme is never said (docs/writing.md)
   lamplighter: [
-    ['You came up out of the water. They all do, the ones it wants.', 'I keep the low flames. No one has told me to stop, so I have not.', 'That red thread at your neck is not yours. It was tied on you. It burns down when you are hurt, and it mends at a flame.', 'If you find shards of the old lamps, bring them. I can do a little. The rest was never mine to do.'],
-    ['They built this house to keep the hours of the flame above. When it went dark they went on ringing. Habit outlives faith. I should know.', 'What the Warden left you: come down hard on cracked stone, and it gives.', 'Shards, if you have them.'],
-    ['Cold. The pass is above us, and what coils on it.', 'You will fall here. Everyone falls here. The water does not seem to mind.', 'Shards, if you have them.'],
-    ['There was no storm while the flame burned. I remember the sky.', 'Open the thread in the rising air and let it carry you. You do not have to do all of this yourself. That is the whole of the lesson, and I am too old to learn it.', 'Shards, if you have them.'],
-    ['Sun. I had forgotten it has a smell.', 'Someone planted all this for those who kept the flame. No one told the garden they were gone. It went on growing.', 'Shards, if you have them.'],
-    ['This is my last flame. After it there is only the one above, and that was never mine to light.', 'What waits beside it has your walk. I have watched it pace. It thinks it is you.', 'Go up. You are expected. You always were.'],
+    ['You came up out of the water. They all do, the ones it gives back.', 'That red thread was tied on you. It burns when you are hurt. A flame mends it.', 'Bring me shards of the old lamps. I can do a little. The rest was never mine.'],
+    ['They rang the hours for the flame. When it went dark, they rang louder.', 'Come down hard on cracked stone now, and it gives.', 'Shards, if you have them.'],
+    ['The pass is above us, and what coils on it.', 'You will fall here. Everyone does. The water does not seem to mind.', 'Shards, if you have them.'],
+    ['Open the thread in the rising air, and let it take you up.', 'I never could. I always wanted to do the carrying.', 'Shards, if you have them.'],
+    ['Sun. I had forgotten it has a smell.', 'Planted for the keepers of the flame. No one told the garden they had gone.', 'Shards, if you have them.'],
+    ['My last flame. After it there is only the one above, and that was never mine.', 'What waits by it has your walk. It holds a lamp, and will not set it down.', 'Go up. You are expected.'],
   ],
   wren: [
-    ['You fell past me. I counted it as one of mine, out of habit.', 'I am Mirel. I am climbing to the flame, and I mean to arrive deserving it. You see what I carry.', 'Break the urns. Those who came before hid what they could not carry up.'],
-    ['Forty falls. I keep the count so that it can be held against me when I get there.', 'There are threads caught in the high places. Red, like yours. Mine is grey. I do not know why you were given red.'],
+    ['You fell past me. I counted it as one of mine, out of habit.', 'I am Mirel. I mean to reach the flame deserving it. You see what I carry.', 'Break the urns. Those before us hid what they could not carry up.'],
+    ['Forty falls. I keep the count, so it can be held against me at the top.', 'Threads are caught in the high places. Red, like yours. Mine is grey.', 'I do not know why you were given red.'],
     ['My hands have stopped working. I will not rest. Resting is how the count goes up.', 'There is a crack in the rock with a draught through it. Something was walled in.'],
-    ['I cannot carry this through the storm. I have tried. Each time the water gives me back, and the pack is waiting on the bank.', 'It keeps giving me back. I have not earned one of those.'],
-    ['I put it down. The pack. Over there somewhere, in the flowers.', 'I had it backwards. I thought the climb was the price. No one is asking a price.', 'I have stopped counting. I do not know what to do with my hands.'],
-    ['This is as far as I go, for now. I can see it from here.', 'What is up there is yours to face. But you will not be facing it alone, will you. You never were.', 'Go on. I will be along. There is no hurry any more.'],
+    ['I cannot carry it through the storm. I have tried.', 'Each time the water gives me back, and the pack is waiting on the bank.', 'It keeps giving me back. I have not earned one of those.'],
+    ['I put it down. The pack. Over there somewhere, in the flowers.', 'I went back for it twice. Then I sat beside it a while.', 'I have stopped counting. I do not know what to do with my hands.'],
+    ['This is as far as I go, for now. I can see it from here.', 'What is up there is yours to face.', 'Go on. I will be along. There is no hurry any more.'],
   ],
   scribe: [
-    ['Hm. Another from the water. I record the mountain. Someone must, now that no one looks up at it.', 'These are the Roots. Everything above stands on what is down here, and forgets it.'],
-    ['The Cloister kept the hours of the flame. Read the walls: every bell is a night. The last entry is a night with no bell.'],
+    ['Another from the water. I write the mountain down. Someone must; no one looks up now.', 'These are the Roots. Everything above stands on what is down here, and forgets it.'],
+    ['The house kept the flame\'s hours. Every mark on these walls is a night rung.', 'The last mark is a night with no bell.'],
     ['The Spires are the mountain\'s own bones. Nothing was built here. Things only cling.'],
     ['The Tempest is new. My oldest pages have clear sky on them.'],
-    ['The Gardens fed the keepers of the flame. See how well it does untended. I have no entry that explains it.'],
+    ['The Gardens fed the keepers of the flame. See how well it does untended.', 'I have no entry that explains that.'],
     ['The Firmament. I have charted every star from here but one.', 'That one is on the ground, up ahead, and dark. I have left the page open.'],
   ],
 };

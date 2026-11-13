@@ -2,7 +2,13 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Further back, his own climb, a scarf that does not catch (latest).**
+**How the story is written (latest).** Rules for every line, name and person (`docs/writing.md`), condensed from Hidetaka Miyazaki and FromSoftware, Hayao Miyazaki and Ghibli, Brandon Sanderson, what players say they love and hate (Reddit and elsewhere), and LeBlanc's eight kinds of fun, and then applied:
+- *The hidden truth written down* (`docs/story.md`, "What is true"): he lifted the flame out of its cradle to carry it down himself, and it went out in his hands. Never said; shown by an empty cradle at the summit, the Fallen's dark lamp, and one line of Ordric's.
+- *Every line rewritten to the rules*: at most three a meeting, each short and new, the theme never said. Gone: "you do not have to do all of this yourself", "no one is asking a price", "you never were [alone]", "he need not do it all himself".
+- *The relics are someone's*: the Well-keeper's Whetstone, the Bell-ringer's Lodestone, the Climber's Knot, the Wright's Stormglass, the Gardener's Seed, the Astronomer's Compass, each with a line of whose it was. The keepers' gifts are named for them (the Thunderhead's Heart, Mother Thorn's Dew).
+- *The world plan held to the rules*: the breath folded into the Wyrm's wind (deepen a gift before adding one), the dead-man's-note clichés cut, each person given a later act of help and a task they are always met doing, and the eight kinds of fun mapped to the sections.
+
+**Further back, his own climb, a scarf that does not catch.**
 - *The view* is drawn back a fifth: 13.5 units tall (216 pixels), from 11.25. The far painting keeps covering it (its drift is held so its edge never shows; it is made larger only on a screen wider than it), and the mist and the near shapes are wider.
 - *The ledge climb* is made from his own drawings (`tools/compose-climb.py`): he reaches up from his jump, hauls, comes over in his landing's crouch and rises to his idle. The drawn climbs had turned him away from us, mask and all, so for a moment he was someone else.
 - *The scarf* no longer catches on the rock. A point of it that goes into rock is pushed out the shortest way and slides along the face (it used to be put back where it had been, which pinned it there while he went on); and where it is drawn much tighter than its length, caught round a corner, it lets go. Measured as he runs and jumps: in the Roots' tunnel the points touching rock that stayed pinned while he moved went from 100% to 0.2%; in the Cloister's cells from 31% to 7% (the rest is cloth lying on the floor as he crawls).

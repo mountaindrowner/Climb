@@ -12,7 +12,7 @@ export const ANNALS = [
   { region: 'The Cloister', keeper: { theme: 'cloister', art: 'toll/bell', name: 'The Toll', line: 'It rings for a light it cannot see.' },
     creatures: [
       { type: 'acolyte', name: 'Acolyte', art: 'px_acolyte', line: 'It still keeps the hours. It no longer knows for whom.' },
-      { type: 'gargoyle', name: 'Gargoyle', art: 'px_gargoyle', line: 'Set on the eaves to watch the flame. It watches you.' },
+      { type: 'gargoyle', name: 'Gargoyle', art: 'px_gargoyle', line: 'Set on the eaves to watch the flame. It watches him.' },
       { type: 'wisp', name: 'House-lamp', art: 'px_wisp', line: 'A lamp of the house, burning on with no hand to carry it.' } ] },
   { region: 'The Spires', keeper: { theme: 'spires', art: 'wyrm/head', name: 'The Rime Wyrm', line: 'It coils on the pass, and lets none by.' },
     creatures: [
@@ -32,7 +32,7 @@ export const ANNALS = [
   { region: 'The Firmament', keeper: { theme: 'firmament', art: 'mask_tall_c/stand', name: 'The Fallen', line: 'What he left at the top. It has his walk, and thinks it is him.' },
     creatures: [
       { type: 'sentinel', name: 'Sentinel', art: 'px_sentinel', line: 'Brass, and faithful to a door no one comes to.' },
-      { type: 'oculus', name: 'Oculus', art: 'px_oculus', line: 'The great lens, still looking. It does not like what it sees.' },
+      { type: 'oculus', name: 'Oculus', art: 'px_oculus', line: 'The great lens, still looking for the star that went out.' },
       { type: 'mote', name: 'Star-cinder', art: 'px_mote', line: 'A cinder of the star that fell. There were very many.' } ] },
 ];
 export const PEOPLE_PAGE = [

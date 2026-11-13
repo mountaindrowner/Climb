@@ -27,20 +27,20 @@ export const took = (n, id) => (G.got[n] || []).includes(id);
 export const take = (n, id) => { (G.got[n] = G.got[n] || []).push(id); store(); };
 export const DIFF = ['Story', 'Climber', 'Summit'];
 // the relics: one hidden in each region
-export const RELICS = {
-  whetstone:   { name: 'Whetstone',        line: 'The third cut bites deeper.' },
-  lodestone:   { name: 'Lodestone',        line: 'Shards and embers come to him from further off.' },
-  featherfall: { name: 'Featherfall Charm', line: 'No fall can hurt him.' },
-  stormglass:  { name: 'Stormglass',       line: 'His plunge lands with lightning: wider, and harder.' },
-  seedheart:   { name: 'Seed-heart',       line: 'Seven embers mend a heart, where it took ten.' },
-  starcompass: { name: 'Star Compass',     line: 'The map shows what is still to be found.' },
+export const RELICS = {   // name: whose it was; line: what it does; lore: whose it was, and what became of them (docs/writing.md, names 7)
+  whetstone:   { name: 'Well-keeper\'s Whetstone', line: 'The third cut bites deeper.',                    lore: 'Worn hollow by the Well\'s keepers, honing the hooks they drew water with.' },
+  lodestone:   { name: 'Bell-ringer\'s Lodestone', line: 'Shards and embers come to him from further off.', lore: 'Hung in the belfry, so the ringers knew where the summit was on a night with no light.' },
+  featherfall: { name: 'Climber\'s Knot',          line: 'No fall can hurt him.',                          lore: 'Tied by one who sat down to rest. The rope is gone; the knot held.' },
+  stormglass:  { name: 'Wright\'s Stormglass',     line: 'His plunge lands with lightning: wider, and harder.', lore: 'The Wrights\' first jar. It caught one bolt and kept it, which was the whole trouble.' },
+  seedheart:   { name: 'Gardener\'s Seed',         line: 'Seven embers mend a heart, where it took ten.',  lore: 'The gardeners kept back one seed from every sowing, in case. This was the last.' },
+  starcompass: { name: 'Astronomer\'s Compass',    line: 'The map shows what is still to be found.',       lore: 'It does not point north. It points at the star that is missing.' },
 };
 // what each keeper leaves him, by region
 export const TEACH = [
   { can: 'breaker', name: 'The Warden\'s Weight', lines: ['His plunge and his finishing cut now break cracked stone.', 'Plunge: down + cut, in the air.'] },
   { can: 'dash',    name: 'The Toll\'s Step',     lines: ['A roll begun in the air now flies level and fast.', 'Once, each time he leaves the ground.'] },
-  { can: 'glide',   name: 'The Wyrm\'s Wind',     lines: ['The thread opens: jump again when the jumps are spent, and hold.', 'In rising air it carries him. He need not do it all himself.'] },
-  { heart: 1,       name: 'A Storm\'s Heart',     lines: ['A heart more: the thread grows a length.'] },
-  { flask: 1,       name: 'The Garden\'s Dew',    lines: ['The flask holds a draught more of the water.'] },
+  { can: 'glide',   name: 'The Wyrm\'s Wind',     lines: ['The thread opens: jump again when the jumps are spent, and hold.', 'In rising air it carries him.'] },
+  { heart: 1,       name: 'The Thunderhead\'s Heart',     lines: ['A heart more: the thread grows a length.'] },
+  { flask: 1,       name: 'Mother Thorn\'s Dew',    lines: ['The flask holds a draught more of the water.'] },
   { name: '', lines: [] },
 ];

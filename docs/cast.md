@@ -64,6 +64,8 @@ little robot on legs; it is a floating brass sphere with an eye). Ball Lightning
 
 ## The people and their stations
 
+How they are written (their sliders, their work, their arcs, and the help each gives him later) is in `docs/writing.md`.
+
 The three who climb are met once in each region, each at a station of their own in a room of their own, never the first
 room, as far apart as the region allows, clear of creatures, on rock rather than a plank where there is any, and Ordric beside his flame, not on it (`STATIONS` in `level.js`; a station names a room, or rooms in the order
 wanted). Each station is drawn and lit (`items.js` `STATION`), its name shows beside the place's name when he is near,
