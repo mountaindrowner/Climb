@@ -78,6 +78,15 @@ In the level files they are still `lamplighter`, `wren` and `scribe` (marker nam
 - **Corwen the Annalist.** Records the mountain exactly and cannot account for it. He also says what is still unfound
   where he stands. His last page is left open.
 
+## The whole mountain, and what is under it
+
+The mountain at three times its size, from the mines three thousand metres under the water to the shard above the
+summit, is planned section by section in `docs/world.md`: each section's history, what is happening there now, who is in
+it, its light and its rooms. That file also holds the second thing under the story, never said in the game either: the
+mountain is also what anxiety is like from inside (the dark you dig down into, the hours rung for nothing, the storm
+always about to break), and every section's answer is the same as the story's: not that he beats it, but that something
+is given.
+
 ## Rules of thumb
 
 - He never speaks, and has no name.

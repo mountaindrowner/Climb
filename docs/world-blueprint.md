@@ -1,6 +1,8 @@
 # The World Blueprint: doubling or tripling the mountain
 
-A plan, not a commitment. The picture is `docs/world-blueprint.png`: the six regions as they are (solid, drawn from the
+A plan, not a commitment. The world to triple it is now set out section by section in `docs/world.md` (with
+`docs/world-section.png`), which replaces the list of wings and seams below; the measurements and engine work here still
+stand. The picture is `docs/world-blueprint.png`: the six regions as they are (solid, drawn from the
 real tile maps, with the spawn, flames, people, keeper and way on marked), and what this plan would add (dashed).
 
 ## Where the world is now (build 21)
