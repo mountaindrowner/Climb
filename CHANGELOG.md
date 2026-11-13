@@ -2,7 +2,12 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Cast (latest).** An audit of every keeper, creature and person (`docs/cast.md`): is it unique, does it belong where it is, is it drawn the way he is.
+**Further back, his own climb, a scarf that does not catch (latest).**
+- *The view* is drawn back a fifth: 13.5 units tall (216 pixels), from 11.25. The far painting keeps covering it (its drift is held so its edge never shows; it is made larger only on a screen wider than it), and the mist and the near shapes are wider.
+- *The ledge climb* is made from his own drawings (`tools/compose-climb.py`): he reaches up from his jump, hauls, comes over in his landing's crouch and rises to his idle. The drawn climbs had turned him away from us, mask and all, so for a moment he was someone else.
+- *The scarf* no longer catches on the rock. A point of it that goes into rock is pushed out the shortest way and slides along the face (it used to be put back where it had been, which pinned it there while he went on); and where it is drawn much tighter than its length, caught round a corner, it lets go. Measured as he runs and jumps: in the Roots' tunnel the points touching rock that stayed pinned while he moved went from 100% to 0.2%; in the Cloister's cells from 31% to 7% (the rest is cloth lying on the floor as he crawls).
+
+**The Cast.** An audit of every keeper, creature and person (`docs/cast.md`): is it unique, does it belong where it is, is it drawn the way he is.
 - *Keepers:* all six are unique in shape, motion and in what beats them, and each is made of its region. Two lines brought up to date (the Warden's, the Wyrm's).
 - *Creatures:* all are drawn at his density (16 pixels a unit). Eight broke the tone and are redrawn: the Pale Bat (a smudge; now a blind bat, wings spread), the Bile-sac and the Delver (cartoon faces; now a pale sac on wet rock and a blind worm of the deep), the Nimbus (a scowling cloud; now a knot of storm wearing the Thunderhead's mask), the Rot-pod (a sleepy face; now a spined seed pod), the Oculus (it had come out as a robot on legs; now a floating brass sphere round one eye), and Ball Lightning and the Star-cinder, drawn by rule (`tools/energy-parts.py`): energy has no face.
 - *People:* Ordric, Mirel and Corwen redrawn in his proportions (they were big-headed beside him), and both of Mirel's drawings now from one description. Each has a **station** in each region, in a room of their own (never the first), apart, clear of creatures: Ordric's Vigil (a lamp-post by a flame), Mirel's Rest (a small fire, her bedroll), Corwen's Desk (a desk, an open book, a candle). Each is lit, its name shows beside the place's name, and it is marked on the map once found.

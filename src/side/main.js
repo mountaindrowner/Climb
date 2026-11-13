@@ -26,7 +26,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 20';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 21';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -258,7 +258,7 @@ bindInput(); marks();
 if (/[?&](level|play)\b/.test(location.search)){ NAMED = !(roomAt(sp.x, sp.y + 0.5) || {}).look; if (NAMED) banner(LEVEL.name, SUB[LEVEL.index] || '', 4); } else title();   // straight in with ?level=2 or ?play
 
 // the drawings the masked warrior uses for these moves, where he has them
-const MOVES = { roll: ['roll2_px', 'roll_px', 'roll'], flip: ['flip_px'], climb: ['climb_hang2', 'climb_px', 'climb_v3'], land: ['land_px', 'land_v3'] };
+const MOVES = { roll: ['roll2_px', 'roll_px', 'roll'], flip: ['flip_px'], climb: ['climb_own', 'climb_hang2', 'climb_px', 'climb_v3'], land: ['land_px', 'land_v3'] };
 const LAND_T = 0.3;   // how long a landing plays (cut short if he runs on)
 const SINK = 2 / 16;  // he is drawn two pixels into the floor's lip, so his boots stand in it, not on its outline
 // the ledge climb, set on the ledge: for each frame of the drawing, the column and row of its canvas that sit on the
@@ -280,7 +280,7 @@ function heroPose(P, t){
   const A = hero.meta ? hero.meta.anims : {}, has = n => !!A[n], pick = k => MOVES[k].find(has);
   if (WAKE > 0 && has('getup')) return ['getup', Math.min(0.999, Math.max(0, 1 - WAKE / 1.4))];   // where he fell: up off the ground
   if (P.mantle && pick('climb')){
-    const name = pick('climb'), C = CLIMB[name], M = P.mantle;
+    const name = pick('climb'), C = CLIMB[name] || A[name].climb, M = P.mantle;   // climb_own carries its table (tools/compose-climb.py)
     if (C && M.wall != null){
       const n = A[name].frames, hpx = (M.y1 - M.y0) * 16; let f0 = C.first; while (f0 < n - 2 && C.depth[f0] > hpx + 5) f0++;   // the frame that fits where he caught it
       const f = Math.min(n - 1, f0 + Math.floor(M.t / M.dur * (n - f0))), [cx, foot] = C.corner[f];

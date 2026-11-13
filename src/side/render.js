@@ -26,7 +26,7 @@ import { T, ROCK, LEDGE, SPIKES, EMPTY, LEVEL, rawAt, REGION_DATA } from './leve
 const paintAt = (i, j) => { const t = rawAt(i, j); return t > SPIKES ? EMPTY : t; };
 const THREE = window.THREE;
 export const PPU = 16;                  // pixels to a world unit: a tile is 8, the warrior ~28 tall
-export const VIEW_H = 11.25;            // world units the screen is tall: 180 pixels
+export const VIEW_H = 13.5;             // world units the screen is tall: 216 pixels (it was 11.25, 180: drawn back a fifth, to see more of the world)
 const TH = Math.round(VIEW_H * PPU), CELL = T * PPU;
 const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];   // ordered dither
 // the palette, by what each colour is for here
@@ -477,7 +477,7 @@ export function makeRenderer(canvas){
   const FF = 0.04;
   const farOf = (TMx, look, z) => { const far = new THREE.Mesh(new THREE.PlaneGeometry(400 / PPU, 224 / PPU), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: !!look, opacity: look ? 0 : 1, depthWrite: false })); far.position.z = z; scene.add(far);
     loadImg(`assets/side/bg/${TMx.far.img}.png`).then(img => { if (img){ far.material.map = TMx.far.raw ? canvasTex(img) : canvasTex(onPalette(img, TMx.far.dim, TMx.far.dither || 0)); far.material.needsUpdate = true; } });
-    layers.push({ obj: far, f: FF, ax: W / 2, ay: Hh / 2 }); if (look) fars.push({ m: far, look }); };   // drawn at anchor + (camera - anchor) * (1 - f)
+    layers.push({ obj: far, f: FF, ax: W / 2, ay: Hh / 2, far: true }); if (look) fars.push({ m: far, look }); };   // drawn at anchor + (camera - anchor) * (1 - f)
   farOf(TM, null, -60); ALT.forEach((l, k) => farOf(THEMES[l], l, -59.9 + k * 0.01));
   { const sp = LEVEL.marks.find(m => m.type === 'spawn'), l0 = sp && lookAt((sp.x + 0.5) * T, sp.y * T + 0.5); for (const l of ALT) LOOKW[l] = l === l0 ? 1 : 0; LOOKW[''] = l0 ? 0 : 1; }   // the look he wakes in, before the first frame
 
@@ -556,10 +556,10 @@ export function makeRenderer(canvas){
   for (let k = 0; k < 6; k++){ const L = new THREE.PointLight(0xffffff, 0, 7, 2); scene.add(L); pool.push(L); }
   // ---- mist behind the play layer and a thin one before it, and the dark shapes close to the eye; all ride with the
   // camera, their pictures sliding at their own rates
-  const veil = (tex, z, f, opacity, drift, tw, th, look) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(26, VIEW_H + 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity, depthWrite: false })); m.position.z = z; scene.add(m); veils.push({ m, tex, f, drift, tw, th, w: 26 * PPU, h: (VIEW_H + 1) * PPU, look, a: opacity }); };
+  const veil = (tex, z, f, opacity, drift, tw, th, look) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(44, VIEW_H + 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity, depthWrite: false })); m.position.z = z; scene.add(m); veils.push({ m, tex, f, drift, tw, th, w: 44 * PPU, h: (VIEW_H + 1) * PPU, look, a: opacity }); };
   const mistOf = (TMx, look, dz) => {
     if (TMx.mist){ veil(mistTex(TMx.mist, 41, false), -6 + dz, 0.8, TMx.mist.a, TMx.mist.drift, 256, 128, look); veil(mistTex(TMx.mist, 87, true), 3 + dz, 1.15, TMx.mist.a * 0.45, TMx.mist.drift * 1.6, 256, 128, look); }
-    if (TMx.fore){ const t = foreTex(TMx.fore), m = new THREE.Mesh(new THREE.PlaneGeometry(26, VIEW_H), new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false })); m.position.z = 6 + dz; scene.add(m); veils.push({ m, tex: t, f: 1.4, drift: 0, tw: 512, th: TH, w: 26 * PPU, h: TH, fore: true, look, a: 1 }); }
+    if (TMx.fore){ const t = foreTex(TMx.fore), m = new THREE.Mesh(new THREE.PlaneGeometry(44, VIEW_H), new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false })); m.position.z = 6 + dz; scene.add(m); veils.push({ m, tex: t, f: 1.4, drift: 0, tw: 512, th: TH, w: 44 * PPU, h: TH, fore: true, look, a: 1 }); }
   };
   mistOf(TM, null, 0); ALT.forEach((l, k) => mistOf(THEMES[l], l, 0.01 * (k + 1)));
   for (let k = 0; k < 3; k++) ambNow[k] = TM.amb[k];
@@ -620,6 +620,9 @@ export function makeRenderer(canvas){
       for (const L of layers){
         // the back canvas: back-space point b sits at b + camera * (1 - FB), so what is behind w shows behind w
         if (L.back){ L.obj.position.set(snap(cam.x * (1 - FB) - MARGIN_X), snap(cam.y * (1 - FB) - MARGIN_Y + L.h), L.obj.position.z); continue; }
+        if (L.far){   // the painting: never so far off the middle that its edge shows, and made larger only if the view is larger than it
+          const vw = size.w / PPU, sc = Math.max(1, (vw + 0.4) / (400 / PPU), (VIEW_H + 0.4) / (224 / PPU)), sx = Math.max(0, (400 / PPU * sc - vw) / 2 - 0.1), sy = Math.max(0, (224 / PPU * sc - VIEW_H) / 2 - 0.1);
+          L.obj.scale.set(sc, sc, 1); L.obj.position.set(snap(cam.x + Math.max(-sx, Math.min(sx, (L.ax - cam.x) * L.f))), snap(cam.y + Math.max(-sy, Math.min(sy, (L.ay - cam.y) * L.f))), L.obj.position.z); continue; }
         L.obj.position.set(snap(L.ax + (cam.x - L.ax) * (1 - L.f)), snap(L.ay + (cam.y - L.ay) * (1 - L.f)), L.obj.position.z);
       }
       for (const V of veils){ V.m.position.x = cam.x; V.m.position.y = cam.y; }

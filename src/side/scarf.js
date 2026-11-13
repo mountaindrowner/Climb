@@ -30,13 +30,31 @@ export function makeScarf(scene, cols = { edge: 0x181425, body: 0xe43b44, shade:
         const gust = Math.sin(S.t * 2.3 + i * 0.5) * 2.2 + Math.sin(S.t * 5.1 + i * 0.9) * 1.1;
         p.x += vx + (wind + gust * (0.4 + Math.abs(wind) * 0.3) - face * 3.2) * h * h; p.y += vy + (-7.5 + lift + Math.sin(S.t * 3.7 + i * 0.7) * 2.5) * h * h;
       }
-      for (let k = 0; k < 3; k++) for (let i = 1; i < N; i++){
-        const a = pts[i - 1], p = pts[i], dx = p.x - a.x, dy = p.y - a.y, d = Math.hypot(dx, dy) || 1e-4, f = (d - SEG) / d;
-        if (i === 1){ p.x -= dx * f; p.y -= dy * f; } else { p.x -= dx * f * 0.5; p.y -= dy * f * 0.5; a.x += dx * f * 0.5; a.y += dy * f * 0.5; }
+      for (let k = 0; k < 3; k++){
+        for (let i = 1; i < N; i++){
+          const a = pts[i - 1], p = pts[i], dx = p.x - a.x, dy = p.y - a.y, d = Math.hypot(dx, dy) || 1e-4, f = (d - SEG) / d;
+          if (i === 1){ p.x -= dx * f; p.y -= dy * f; } else { p.x -= dx * f * 0.5; p.y -= dy * f * 0.5; a.x += dx * f * 0.5; a.y += dy * f * 0.5; }
+        }
+        // the rock: a point in it is pushed out the shortest way and slides along the face (it used to be put back where it
+        // was, which held it there, caught, while he went on). Where the cloth is drawn much tighter than its length (it is
+        // caught round a corner behind him) it is let go, and slips through
+        if (solid){ let run = 0;
+          for (let i = 2; i < N; i++){ const a = pts[i - 1], p = pts[i]; run += Math.hypot(p.x - a.x, p.y - a.y);
+            if (Math.hypot(p.x - ax, p.y - ay) > i * SEG * 1.02 && run > i * SEG * 1.35) break;   // caught: the rest goes free
+            if (solid(p.x, p.y)) pushOut(p, solid); } }
       }
-      if (solid) for (let i = 2; i < N; i++){ const p = pts[i]; if (solid(p.x, p.y)){ p.x = p.px; p.y = p.py; } }
     }
   };
+  // out of the rock by the shortest way: tried in eight directions, a little further each time; it keeps what it was
+  // doing along the face, and loses what went into it
+  function pushOut(p, solid){
+    for (let r = 0.04; r <= 0.5; r += 0.04) for (let k = 0; k < 8; k++){
+      const a = k * Math.PI / 4, nx = Math.cos(a), ny = Math.sin(a), x = p.x + nx * r, y = p.y + ny * r;
+      if (solid(x, y)) continue;
+      const vx = p.x - p.px, vy = p.y - p.py, into = vx * nx + vy * ny;   // the motion into the face is lost, the motion along it kept (a little dragged)
+      p.x = x; p.y = y; p.px = x - (vx - Math.min(0, into) * nx) * 0.8; p.py = y - (vy - Math.min(0, into) * ny) * 0.8; return;
+    }
+  }
   // draw what there is of it: a ribbon about each link, three pixels wide at his neck, one at its end
   S.draw = (visible, glow = 0) => {
     const live = Math.max(2, Math.min(N, S.len)), last = Math.min(N - 1, Math.ceil(live) - 1);
