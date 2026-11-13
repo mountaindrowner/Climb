@@ -7,29 +7,29 @@
    "w": 48,
    "h": 48,
    "foot": 44,
-   "cx": 23.5,
+   "cx": 22.5,
    "footLast": 44,
-   "cxLast": 23.5,
+   "cxLast": 22.5,
    "n": 1
   },
   "cast": {
    "frames": 9,
    "w": 60,
    "h": 60,
-   "foot": 50,
-   "cx": 29.5,
-   "footLast": 50,
-   "cxLast": 29.5,
+   "foot": 60,
+   "cx": 28.5,
+   "footLast": 54,
+   "cxLast": 29.0,
    "n": 1
   },
   "float": {
    "frames": 9,
    "w": 60,
    "h": 60,
-   "foot": 51,
-   "cx": 29.5,
-   "footLast": 47,
-   "cxLast": 29.5,
+   "foot": 50,
+   "cx": 28.5,
+   "footLast": 49,
+   "cxLast": 28.5,
    "n": 1
   }
  }

@@ -6,16 +6,20 @@
    "frames": 1,
    "w": 48,
    "h": 48,
-   "foot": 45,
-   "cx": 24.5,
+   "foot": 48,
+   "cx": 24.0,
+   "footLast": 48,
+   "cxLast": 24.0,
    "n": 1
   },
   "snap": {
    "frames": 9,
-   "w": 60,
-   "h": 60,
-   "foot": 51,
-   "cx": 30.5,
+   "w": 68,
+   "h": 68,
+   "foot": 58,
+   "cx": 34.0,
+   "footLast": 58,
+   "cxLast": 34.0,
    "n": 1
   }
  }

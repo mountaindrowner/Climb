@@ -389,18 +389,18 @@
   }
  },
  "px_flitter": {
-  "id": "10f37721-ae52-483d-9fea-4bcec362a9d9",
-  "description": "a small round dark bat with big pointed ears, tiny wings and glowing red eyes, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "id": "bf291920-cce6-4a50-be42-8a677dc2326d",
+  "description": "a cave bat seen from the side with its two big leathery wings spread wide open, a small pale grey furry body, blind milky eyes, an open mouth of needle fangs, grim dark fantasy, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
   "anims": {
    "fly": {
-    "action": "flapping its wings fast, bobbing in the air",
+    "action": "flapping its big wings up and down, hovering in the air",
     "frames": 8,
-    "group": "f517e570-c694-4df2-8ac0-c950e971b002"
+    "group": "2fc95829-3518-4688-aecd-4eebfc73bf1c"
    },
    "dive": {
-    "action": "folding its wings and diving forward",
+    "action": "folding its wings back and diving forward, fangs bared",
     "frames": 8,
-    "group": "92ac1424-7652-429e-91ab-7c47d77f7af2"
+    "group": "a85d206c-5564-4e0f-909e-9cf70ca5f281"
    }
   }
  },
@@ -426,24 +426,24 @@
   }
  },
  "px_spitter": {
-  "id": "b792e19b-8cca-49f0-9c20-2df2a0808a3a",
-  "description": "a small green blob plant creature with a big round mouth, clinging, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "id": "d7712b12-a613-461c-b69e-75aec704ca9a",
+  "description": "a pale bloated sac creature clinging to wet rock with thin black insect legs, translucent skin with a dim green glow inside, a puckered opening at its front, eyeless, no face, grim dark fantasy, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
   "anims": {
    "charge": {
-    "action": "swelling up then spitting a glob forward",
+    "action": "swelling up, its glow brightening, then spitting a glob of green bile forward",
     "frames": 8,
-    "group": "883558b9-fde8-411f-a18c-f8273b7cd01c"
+    "group": "38635c87-49ba-43c3-9017-e740d56d0367"
    }
   }
  },
  "px_burrower": {
-  "id": "596bb689-206c-4ea9-a0cf-d3bf7a8b405a",
-  "description": "a big pale grub worm rearing up with a wide mouth full of teeth, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "id": "ec48d020-1ffc-48a3-a2cc-51cbb5b68f44",
+  "description": "a huge pale blind cave worm rearing up out of the ground, segmented and glistening, its round mouth ringed with hooked teeth, eyeless, no face, grim dark fantasy, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
   "anims": {
    "snap": {
-    "action": "lunging upward and snapping its jaws shut",
+    "action": "lunging upward and snapping its ringed jaws shut",
     "frames": 8,
-    "group": "76724164-ec02-471c-950d-9d8a0515f678"
+    "group": "73f83a40-0ce0-425f-a1ab-a5f93ca5ecdd"
    }
   }
  },
@@ -756,40 +756,40 @@
   }
  },
  "px_nimbus": {
-  "id": "06fa6dc8-a751-4f5c-aba0-fb07c51d9bbe",
-  "description": "a small dark grey storm cloud creature with an angry scowling face and two glowing yellow eyes, tiny lightning bolts under its belly, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "id": "f474d0c4-a9ce-4f82-96e1-aa70a05b54a9",
+  "description": "a small knot of black storm cloud with a cracked pale white mask set in it, like a piece of a greater storm, small forks of lightning under it, grim dark fantasy, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
   "anims": {
    "float": {
-    "action": "hovering in the air, puffing and billowing",
+    "action": "hanging in the air, its cloud churning around the mask",
     "frames": 8,
-    "group": "7bd48ce2-655a-4e46-9986-a1878537cf30"
+    "group": "ba26fa1a-301e-4ed1-a9f9-39c3a3ed72de"
    },
    "cast": {
-    "action": "swelling up darker and bigger, flashing, then shooting a lightning bolt straight down from its belly",
+    "action": "the cloud darkening and swelling, flashing, then a bolt of lightning striking straight down from beneath it",
     "frames": 8,
-    "group": "6c723809-078b-4b28-a2cd-48bbe6c6048e"
+    "group": "568637b8-0c2e-49d2-9e11-ab5f53b48122"
    }
   }
  },
  "px_spark": {
-  "id": "e93d9b84-a06c-4975-bef9-f883dfcc2cc3",
-  "description": "a round ball of crackling yellow-white lightning with one angry eye, arcs of electricity jumping around it, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "id": "1c920949-bd0f-4af1-b3e4-53df67770051",
+  "description": "a crackling ball of white and yellow ball lightning with arcs of electricity jumping off it, no eyes, no face, grim dark fantasy, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
   "anims": {
    "idle": {
-    "action": "crackling and pulsing, arcs of lightning flickering around it",
+    "action": "crackling and pulsing, arcs flickering around it",
     "frames": 8,
-    "group": "66bd400b-eb9d-4fed-b76c-d34a670e3176"
+    "group": "00eadcc5-94ce-4cd8-b573-9d120fdd6a70"
    }
   }
  },
  "px_lamplighter": {
-  "id": "242fd8d1-9bec-4b8d-a89d-cfd972612786",
-  "description": "a small stooped old lamplighter with a long white beard, a patched brown coat and a wide brimmed hat, holding a short pole with a glowing orange lantern hanging from it, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer friendly character",
+  "id": "00807137-8e16-4915-a5ee-0f6ecdc03dbe",
+  "description": "an old stooped lamp-keeper with a long white beard, a long patched dark brown coat and a wide-brimmed hat, holding a tall iron pole with a small lantern hanging from its hook, tall and lean with long legs, Castlevania-style proportions, a small head, grim and dignified, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer character",
   "anims": {
    "idle": {
-    "action": "standing still, breathing slowly, the lantern swaying gently",
+    "action": "standing still, breathing slowly, the lantern swaying a little",
     "frames": 8,
-    "group": "920a25b8-a4bb-46e8-a322-8b3b58853a58"
+    "group": "8a6d22e4-bd61-42cc-b8eb-f087ec1063f8"
    }
   }
  },
@@ -826,29 +826,29 @@
   }
  },
  "px_puff": {
-  "id": "c770d54e-1a5d-49d8-9894-b4eb5a267e7f",
-  "description": "a floating round pink spore pod puffball with a small sleepy face and little dangling roots, yellow spores drifting off it, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "id": "439a5844-96f8-4186-9314-d4568469c882",
+  "description": "a pale swollen seed pod covered in short spines, a few dangling root threads under it, yellow spores leaking from its seams, floating, no face, grim dark fantasy, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
   "anims": {
    "float": {
-    "action": "bobbing in the air, pulsing gently",
+    "action": "bobbing in the air, swelling and shrinking slowly",
     "frames": 8,
-    "group": "0bc58ff9-c7a1-4e03-9db9-8afe283b113c"
+    "group": "fc037300-606d-4a57-99fa-63f8375dfff5"
    },
    "burst": {
-    "action": "swelling up bigger and bigger, turning bright red, then bursting open in a cloud of spores",
+    "action": "swelling bigger and bigger, turning red, then bursting open in a cloud of spores",
     "frames": 8,
-    "group": "0d78dacf-e6bd-4a54-8ec2-848235663ed1"
+    "group": "d3c1c073-a0b4-4092-8b65-73917d49a98a"
    }
   }
  },
  "px_wren": {
-  "id": "a1a89ad9-7979-4459-8614-bb6713340f7c",
-  "description": "a small young mountain climber girl in a green hooded cloak with a backpack, a coiled rope at her hip and a red knitted hat, standing upright, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer friendly character",
+  "id": "1432a8c6-05e5-47e4-ba15-1d3c3ae3323e",
+  "description": "a lean young woman pilgrim in a long grey hooded travelling cloak, a red knitted cap, a coiled rope at her hip, carrying a huge heavy pack on her back stacked with bundles, tall and lean with long legs, Castlevania-style proportions, a small head, grim and dignified, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer character",
   "anims": {
    "idle": {
-    "action": "standing still, breathing, shifting her weight, the cloak stirring",
+    "action": "standing still, breathing, bent a little under the weight of the pack",
     "frames": 8,
-    "group": "19a0fc2a-0a4c-48b5-96cb-d7ca279fa6f2"
+    "group": "1fed1b6a-315d-4e33-b677-57a58bbfbc91"
    }
   }
  },
@@ -869,51 +869,51 @@
   }
  },
  "px_oculus": {
-  "id": "526a39c7-04ca-4536-90da-d44a8e6de03f",
-  "description": "a floating brass armillary sphere with a single big glowing blue eye in its centre and two brass rings orbiting around it, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "id": "952796eb-90db-4403-b2ef-76f4e094cadb",
+  "description": "a floating brass armillary sphere with no body and no legs: several thin brass rings around a single great glowing blue eye in the middle, hovering in the air, grim dark fantasy, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
   "anims": {
    "float": {
-    "action": "hovering in the air, its rings slowly turning, the eye looking around",
+    "action": "hovering in the air, its rings slowly turning around the eye",
     "frames": 8,
-    "group": "9d16c403-919f-4392-be58-a7102cb0f8b8"
+    "group": "f2125329-5bc0-4969-8e74-6f8a2d68a87c"
    },
    "cast": {
-    "action": "the rings lining up, the eye glowing brighter and brighter, then firing a bright beam of light forward",
+    "action": "the rings lining up, the eye glowing brighter and brighter, then a bright beam of light firing forward from it",
     "frames": 8,
-    "group": "cd09a948-cb84-431d-b155-6321739ac175"
+    "group": "8c4b7835-b56c-41ff-8736-12ba53237757"
    }
   }
  },
  "px_mote": {
-  "id": "ab67482b-b89f-457b-998a-896e7a4f543c",
-  "description": "a small living star, a spiky glowing white-gold four pointed star with a tiny dark face, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "id": "a5ee52ca-40e3-4cf6-b7c5-eb01395e20ac",
+  "description": "a small falling cinder of starlight, a jagged shard of white-gold light trailing sparks, no eyes, no face, grim dark fantasy, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
   "anims": {
    "idle": {
-    "action": "twinkling and pulsing, spinning slowly",
+    "action": "flickering and burning, sparks trailing off it",
     "frames": 8,
-    "group": "a2955a7b-c299-4af8-a91d-79bc4cde8876"
+    "group": "bec40592-8e03-4a3a-94ff-431fd61d5479"
    }
   }
  },
  "px_scribe": {
-  "id": "0acb53c5-c069-4749-874f-89f68fc6f5d4",
-  "description": "a small thin old scholar in a blue star-patterned robe with a tall pointed hood and round glasses, holding a brass telescope, a rolled map under one arm, standing upright, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer friendly character",
+  "id": "890d5865-f7f1-4c05-a68d-665e06adf1bd",
+  "description": "a tall thin old scholar in a long dark blue robe embroidered with silver stars, a tall pointed hood, round spectacles, a brass telescope at his belt and a satchel of scrolls, tall and lean with long legs, Castlevania-style proportions, a small head, grim and dignified, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer character",
   "anims": {
    "idle": {
-    "action": "standing still, breathing, adjusting the glasses",
+    "action": "standing still, breathing, turning a page of a small book in his hands",
     "frames": 8,
-    "group": "f9089244-47c3-41b8-848c-bb3e816e9b46"
+    "group": "86572be6-1a9c-4ab0-9217-4389d2416223"
    }
   }
  },
  "px_wren_free": {
-  "id": "65e56d9a-9569-4a3f-8e53-bd8b7816d235",
-  "description": "a small young mountain climber girl in a green hooded cloak and a red knitted hat, a coiled rope at her hip, no backpack, empty hands held loosely at her sides, standing upright and at ease, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer friendly character",
+  "id": "ec33ea11-d979-4b9e-b861-3211f91d9860",
+  "description": "a lean young woman pilgrim in a long grey hooded travelling cloak, a red knitted cap, a coiled rope at her hip, carrying nothing, standing upright and at ease, tall and lean with long legs, Castlevania-style proportions, a small head, grim and dignified, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer character",
   "anims": {
    "idle": {
     "action": "standing still, breathing easily, looking up, the cloak stirring",
     "frames": 8,
-    "group": "aaa97609-4a9a-4711-9576-d9cc65416ba3"
+    "group": "6806fc7c-0c61-4577-a21e-26751ff2e4a7"
    }
   }
  }

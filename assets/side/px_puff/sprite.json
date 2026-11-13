@@ -6,30 +6,30 @@
    "frames": 1,
    "w": 32,
    "h": 32,
-   "foot": 28,
-   "cx": 16.0,
-   "footLast": 28,
-   "cxLast": 16.0,
-   "n": 1
-  },
-  "float": {
-   "frames": 9,
-   "w": 36,
-   "h": 36,
    "foot": 30,
-   "cx": 18.0,
+   "cx": 15.5,
    "footLast": 30,
-   "cxLast": 18.0,
+   "cxLast": 15.5,
    "n": 1
   },
   "burst": {
    "frames": 9,
-   "w": 36,
-   "h": 36,
-   "foot": 30,
-   "cx": 18.0,
-   "footLast": 30,
-   "cxLast": 18.0,
+   "w": 40,
+   "h": 40,
+   "foot": 34,
+   "cx": 19.5,
+   "footLast": 34,
+   "cxLast": 19.5,
+   "n": 1
+  },
+  "float": {
+   "frames": 9,
+   "w": 40,
+   "h": 40,
+   "foot": 34,
+   "cx": 19.5,
+   "footLast": 34,
+   "cxLast": 19.5,
    "n": 1
   }
  }

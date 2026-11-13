@@ -369,7 +369,7 @@ export const STATIONS = [
   { lamplighter: 'grotto', wren: 'bridge', scribe: 'chamber' },
   { lamplighter: 'cloister', wren: 'belfry', scribe: 'library' },
   { lamplighter: 'hollow', wren: ['nest', 'eyrie', 'icecave'], scribe: 'saddle' },
-  { lamplighter: 'watch', wren: 'gantry', scribe: ['anchorage', 'stacks', 'buttress', 'corbel', 'cap', 'bluff'] },
+  { lamplighter: ['watch', 'masthead'], wren: 'gantry', scribe: ['anchorage', 'stacks', 'buttress', 'corbel', 'cap', 'bluff'] },
   { lamplighter: 'orangery', wren: 'cascade', scribe: 'terraces' },
   { lamplighter: 'vigil', wren: 'transit', scribe: 'archive' },
 ];
@@ -391,10 +391,12 @@ function stations(tiles, W, H, marks, rooms, S){
       for (let a = -3; a <= 3 && ok; a++){ if (!solid(at(i + a, j - 1)) || at(i + a, j - 1) === LEDGE && Math.abs(a) < 2 && false) ok = false; for (let d = 0; d < 6; d++) if (at(i + a, j + d) !== EMPTY) ok = false; }
       if (!ok) continue;
       if (marks.some(k => k !== m && k.type !== 'torch' && k.type !== 'crystal' && Math.abs(k.x - i) < (k.type === 'urn' ? 2 : 5) && Math.abs(k.y - j) < 4 && !(flame && k === flame))) continue;   // an urn may stand close by
+      if (flame && Math.abs(flame.x - i) < 4 && Math.abs(flame.y - j) < 4) continue;   // beside his flame, not on it
       if (marks.some(k => !NOT_FOE.has(k.type) && Math.abs(k.x - i) < 10 && Math.abs(k.y - j) < 6)) continue;   // and no creature at their elbow
       // as near what is wanted as fits, and as far as can be from the other two (they each have a place of their own)
       const others = marks.filter(k => k.type === 'npc' && k !== m && k.station).map(k => Math.hypot(k.x - i, k.y - j)), apart = others.length ? Math.min(...others) : 99;
-      const d = Math.min(...want.map(([x, y]) => Math.abs(x - i) + Math.abs(y - j) * 1.5)) + Math.max(0, 30 - apart) * 2;
+      let plank = 0; for (let a = -3; a <= 3; a++) if (at(i + a, j - 1) === LEDGE) plank++;   // rock underfoot, rather than a plank, where there is any
+      const d = Math.min(...want.map(([x, y]) => Math.abs(x - i) + Math.abs(y - j) * 1.5)) + Math.max(0, 30 - apart) * 2 + plank * 12;
       if (d < bd){ bd = d; best = [i, j]; }
     }
     if (best){ m.x = best[0]; m.y = best[1]; m.station = name; break; }

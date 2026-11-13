@@ -6,20 +6,20 @@
    "frames": 1,
    "w": 48,
    "h": 48,
-   "foot": 46,
-   "cx": 21.0,
-   "footLast": 46,
-   "cxLast": 21.0,
+   "foot": 47,
+   "cx": 22.5,
+   "footLast": 47,
+   "cxLast": 22.5,
    "n": 1
   },
   "idle": {
    "frames": 9,
-   "w": 64,
-   "h": 64,
-   "foot": 54,
-   "cx": 29.0,
-   "footLast": 54,
-   "cxLast": 29.5,
+   "w": 68,
+   "h": 68,
+   "foot": 57,
+   "cx": 32.5,
+   "footLast": 57,
+   "cxLast": 32.0,
    "n": 1
   }
  }

@@ -4,26 +4,32 @@
  "anims": {
   "stand": {
    "frames": 1,
-   "w": 32,
-   "h": 32,
-   "foot": 29,
-   "cx": 17.0,
-   "n": 1
-  },
-  "dive": {
-   "frames": 9,
    "w": 40,
    "h": 40,
-   "foot": 33,
-   "cx": 21.0,
+   "foot": 36,
+   "cx": 19.0,
+   "footLast": 36,
+   "cxLast": 19.0,
    "n": 1
   },
   "fly": {
    "frames": 9,
-   "w": 40,
-   "h": 40,
-   "foot": 33,
-   "cx": 21.0,
+   "w": 48,
+   "h": 48,
+   "foot": 42,
+   "cx": 23.0,
+   "footLast": 39,
+   "cxLast": 23.0,
+   "n": 1
+  },
+  "dive": {
+   "frames": 9,
+   "w": 48,
+   "h": 48,
+   "foot": 40,
+   "cx": 23.0,
+   "footLast": 40,
+   "cxLast": 23.5,
    "n": 1
   }
  }

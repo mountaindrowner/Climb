@@ -60,18 +60,18 @@ out of date and are fixed: the Warden's (now *it will not let you rise* / *what 
 eight of them broke the rules above and are redrawn: the Pale Bat (a featureless smudge), the Bile-sac and the Delver
 (cartoon faces, cute), the Nimbus (a scowling cartoon cloud; now a knot of storm wearing the Thunderhead's mask, its
 child), Ball Lightning (an eye), the Rot-pod (a sleepy face), the Star-cinder (a face) and the Oculus (it came out as a
-little robot on legs; it is a floating brass sphere with an eye).
+little robot on legs; it is a floating brass sphere with an eye). Ball Lightning and the Star-cinder are drawn by rule (`tools/energy-parts.py`), since PixelLab's character drawings give energy a body and a face. The old drawings are not in the repository's assets any more; git has them.
 
 ## The people and their stations
 
 The three who climb are met once in each region, each at a station of their own in a room of their own, never the first
-room, and as far apart as the region allows (`STATIONS` in `level.js`; a station names a room, or rooms in the order
+room, as far apart as the region allows, clear of creatures, on rock rather than a plank where there is any, and Ordric beside his flame, not on it (`STATIONS` in `level.js`; a station names a room, or rooms in the order
 wanted). Each station is drawn and lit (`items.js` `STATION`), its name shows beside the place's name when he is near,
 and it is marked on the map once found.
 
 | Person | Station | Where (Roots, Cloister, Spires, Tempest, Gardens, Firmament) |
 |---|---|---|
-| Ordric of the Vigil | **Ordric's Vigil**: an iron lamp-post he tends, by a flame | grotto, cloister, hollow, watch, orangery, vigil |
+| Ordric of the Vigil | **Ordric's Vigil**: an iron lamp-post he tends, by a flame | grotto, cloister, hollow, masthead, orangery, vigil |
 | Mirel the Penitent | **Mirel's Rest**: a small fire in a ring of stones, her bedroll | bridge, belfry, eyrie, gantry, cascade, transit |
 | Corwen the Annalist | **Corwen's Desk**: a folding desk, an open book, a candle | chamber, library, saddle, stacks, terraces, archive |
 

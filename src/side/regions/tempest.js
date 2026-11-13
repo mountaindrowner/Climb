@@ -200,7 +200,7 @@ const enemies = {
     guard: squallGuard, onHit(e){ if (e.st === 'march' || e.st === 'idle'){ e.st = 'stunned'; e.tm = 0; e.stun = 0.4; } } },
   nimbus: { ai: 'nimbus', hp: 2, w: 0.6, h: 0.9, color: 0x8b9bb4, wake: 9, drift: 2.9, hang: 4.4, charge: 0.85, strike: 0.22, rest: 1.1, cooldown: 1.5, art: 'px_nimbus', fly: true, word: 'Struck by lightning',
     onHit(e){ if (e.st === 'charge'){ e.st = 'rest'; e.tm = 0; e.warn = false; } } },
-  spark: { ai: 'spark', hp: 1, w: 0.35, h: 0.6, color: 0xfee761, glow: 0x403000, speed: 4.4, lx: 4.5, ly: 3.2, art: 'px_spark', fly: true, word: 'Shocked' },
+  spark: { ai: 'spark', hp: 1, w: 0.35, h: 0.6, color: 0xbfe8ff, glow: 0x183040, speed: 4.4, lx: 4.5, ly: 3.2, art: 'px_spark', fly: true, word: 'Shocked' },
 };
 // bolts of lightning are drawn here (a jagged strip, added light) and fade by themselves (tick)
 const SKY = { next: 4, pend: [], bolts: [], rain: [], tex: null, scene: null };

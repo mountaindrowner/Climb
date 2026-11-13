@@ -4,18 +4,22 @@
  "anims": {
   "stand": {
    "frames": 1,
-   "w": 32,
-   "h": 32,
-   "foot": 29,
-   "cx": 15.5,
+   "w": 40,
+   "h": 40,
+   "foot": 37,
+   "cx": 20.0,
+   "footLast": 37,
+   "cxLast": 20.0,
    "n": 1
   },
   "charge": {
    "frames": 9,
-   "w": 40,
-   "h": 40,
-   "foot": 33,
-   "cx": 19.5,
+   "w": 48,
+   "h": 48,
+   "foot": 42,
+   "cx": 24.0,
+   "footLast": 41,
+   "cxLast": 24.0,
    "n": 1
   }
  }
