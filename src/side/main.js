@@ -272,7 +272,7 @@ const GATE = (() => {
   let mus = 0, heroOk = 0;
   const music = manifestReady().then(() => Promise.all(['title', 'roots'].map(k => SCORE.prefetch(k)))).then(() => { mus = 1; });
   // his drawings for the first minute: the rest are asked for once the opening is in
-  const FIRST = ['stand', 'idle', 'run', 'jump', 'fall', 'getup', 'land_px', 'roll2_px', 'attack1', 'attack2', 'attack3', 'hurt', 'climb_own'];
+  const FIRST = ['stand', 'idle', 'run', 'jump', 'fall', 'getup', 'land_px', 'roll2_px', 'atk_slam_px', 'atk_spin_px', 'atk_rise_px', 'atk_dash_px', 'hurt', 'climb_own'];
   const heroIn = HERO_P.then(() => { if (hero.sprite) hero.sprite.warm(FIRST); }).then(() => new Promise(res => { const chk = () => (!hero.sprite || hero.sprite.in()) ? res() : setTimeout(chk, 80); chk(); })).then(() => { heroOk = 1; });
   // the textures all in, and nothing new asked for in a moment
   const quiet = () => new Promise(res => { const chk = () => (got >= tot && performance.now() - last > 350) ? res() : setTimeout(chk, 80); chk(); });

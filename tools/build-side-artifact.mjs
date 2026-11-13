@@ -45,5 +45,10 @@ html,body{height:100%}
 ${ASSETS === BUILD ? body : body.replace('src="src/side/main.js"', `src="../${BUILD}/src/side/main.js"`)}`;
 mkdirSync(root + 'dist', { recursive: true });
 writeFileSync(root + 'dist/side-artifact.html', page);
-writeFileSync(root + 'dist/side-files.json', JSON.stringify(Object.fromEntries(files.map(f => [(isCode(f) ? BUILD : ASSETS) + '/' + f, f])), null, 1));
+// his sprite.json lists every strip he has; the one shipped lists only those shipped, so nothing asks for one that is not there
+const heroMeta = JSON.parse(readFileSync(join(root, 'assets/side/mask_tall_c/sprite.json'), 'utf8'));
+heroMeta.anims = Object.fromEntries(Object.entries(heroMeta.anims).filter(([k]) => HERO.includes(k)));
+writeFileSync(root + 'dist/hero-sprite.json', JSON.stringify(heroMeta, null, 1));
+const srcOf = f => f === 'assets/side/mask_tall_c/sprite.json' ? 'dist/hero-sprite.json' : f;
+writeFileSync(root + 'dist/side-files.json', JSON.stringify(Object.fromEntries(files.map(f => [(isCode(f) ? BUILD : ASSETS) + '/' + f, srcOf(f)])), null, 1));
 console.log('dist/side-artifact.html', page.length, 'bytes;', files.length, 'files under', BUILD + '/');
