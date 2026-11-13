@@ -7,6 +7,9 @@ export function makeScore(){
   const bufs = new Map(), loading = new Set(); let cur = null, want = '', duck = null;
   const S = { now: '' };
   S.has = key => !!MANIFEST.music[key];
+  // a piece fetched ahead (before the sound may start, or while something else plays): kept as it came, decoded when asked for
+  const raw = new Map();
+  S.prefetch = key => { if (!S.has(key) || raw.has(key) || bufs.has(key)) return Promise.resolve(); const p = fetch(MANIFEST.base + MANIFEST.music[key].f).then(r => r.ok ? r.arrayBuffer() : null).catch(() => null); raw.set(key, p); return p; };
   function start(key){
     const A = ac(), bus = musicBus(); if (!A || !bus) return;
     if (!duck){ duck = A.createGain(); duck.connect(bus); }
@@ -20,7 +23,7 @@ export function makeScore(){
     key = key && S.has(key) ? key : ''; want = key; if (key === S.now) return;
     if (!key || bufs.has(key)){ start(key); return; }
     if (loading.has(key)) return; loading.add(key); const A = ac(); if (!A){ loading.delete(key); return; }
-    fetch(MANIFEST.base + MANIFEST.music[key].f).then(r => r.arrayBuffer()).then(b => A.decodeAudioData(b)).then(buf => { bufs.set(key, buf); loading.delete(key); if (want === key) start(key); }).catch(() => { loading.delete(key); delete MANIFEST.music[key]; });
+    (raw.get(key) || fetch(MANIFEST.base + MANIFEST.music[key].f).then(r => r.arrayBuffer())).then(b => { raw.delete(key); return A.decodeAudioData(b); }).then(buf => { bufs.set(key, buf); loading.delete(key); if (want === key) start(key); }).catch(() => { loading.delete(key); delete MANIFEST.music[key]; });
   };
   // the piece run fast (a fall, run back) or at its own speed again
   S.warp = rate => { const A = ac(); if (cur && A) cur.s.playbackRate.setTargetAtTime(rate, A.currentTime, 0.12); };

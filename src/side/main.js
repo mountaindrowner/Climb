@@ -5,7 +5,7 @@
 import { TUNE } from '../config/tuning.js';
 import { IN, bindInput, endFrame, pollPads, release, rumble } from '../core/input.js';
 import { SET, saveSettings } from '../core/settings.js';
-import { sfx, ac, musicBus, ambience, setMix, MIX } from '../audio/sfx.js';
+import { sfx, ac, musicBus, ambience, setMix, MIX, warm, manifestReady } from '../audio/sfx.js';
 import { makeScore } from '../audio/score.js';
 import '../ui/feel.js';
 import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels } from './level.js';
@@ -21,14 +21,14 @@ import { makeRenderer, makeSprite, VIEW_H, makeSwingFx } from './render.js';
 import { spawnFx, stepFx } from './fx.js';
 import { spawnEnemies, stepEnemies, strikeEnemies, slamEnemies } from './enemies.js';
 import { KEEPERS } from './keepers.js';
-import { makeStory, REGION_SPAN } from './story.js';
+import { makeStory, REGION_SPAN, storyImages } from './story.js';
 import { makeHud } from './hud.js';
 import { makeScarf, SCARF } from './scarf.js';
 import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 23';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 24';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -42,7 +42,7 @@ const hero = { sprite: null, meta: null };
 // the warrior: one of the drawn options (?hero=a|b|c|d), falling back to the first, larger drawing
 const HEROES = { masked: 'mask_tall_c', a: 'px_knight', b: 'px_hood', c: 'px_mask', d: 'px_hat' }, HERO = HEROES[new URLSearchParams(location.search).get('hero')] || HEROES.masked;   // the tall masked warrior; ?hero=a..d the small options
 const loadHero = name => fetch(`assets/side/${name}/sprite.json`).then(r => r.ok ? r.json() : Promise.reject()).then(meta => { hero.meta = meta; hero.name = name; hero.sprite = makeSprite(R.scene, `assets/side/${name}`, meta); });
-loadHero(HERO).catch(() => loadHero('hero_a')).catch(() => loadHero('hero'));
+const HERO_P = loadHero(HERO).catch(() => loadHero('hero_a')).catch(() => loadHero('hero')).catch(() => {});
 // what a region has in it: made by setup, again each time he comes into one
 let fx, E, BOSS, SHRINES, MAP, SCF, SWINGFX, PROPS, ITEMS;
 const TALK = makeTalk();
@@ -106,16 +106,21 @@ const menuMark = () => menuItems().forEach((b, i) => { b.style.outline = i === M
 const menuShow = (rows, left = false, back = null) => { MENU.back = back; MENU.innerHTML = ''; MENU.style.bottom = ''; MENU.style.display = 'flex'; MENU.style.alignItems = left ? 'flex-start' : 'center'; MENU.style.paddingLeft = left ? '4%' : '0'; MENU.style.top = left ? '36%' : '56%'; for (const r of rows) if (r) MENU.appendChild(r); MSEL = 0; menuMark(); };
 const menuHide = () => { MENU.style.display = 'none'; MENU.innerHTML = ''; MENU.back = null; release(); };   // and nothing pressed in it carries into play
 function begin(){   // from the start: the fall, then he gets up at the bottom
-  menuHide(); wipe(); resetLevels(); enter(0); { const s = spawnPoint(); P = born(s.x, s.y); }   // everything as it was at the first: the rock unbroken, the chests shut
+  // a first climb finds the Roots already made (they were made behind the title, as they are at the first): made again
+  // only when there is something to undo, so the press does not wait on the painting
+  const fresh = !G.began && LEVEL.index === 0 && !Object.keys(G.broke || {}).length;
+  menuHide(); wipe(); if (!fresh){ resetLevels(); enter(0); } { const s = spawnPoint(); P = born(s.x, s.y); }   // everything as it was at the first: the rock unbroken, the chests shut
   STORY.start('intro', {}, () => { WAKE = 1.7; banner(LEVEL.name, SUB[0], 4); G.began = true; store(); });
 }
 function resume(n){ menuHide(); STORY.kind = null; SCREEN = ''; PAUSE = false; if (LEVEL.index !== n) enter(n); else { const s = spawnPoint(); P = born(s.x, s.y); CHECK = null; if (BOSS) BOSS.reset(); banner(LEVEL.name, SUB[n] || '', 4); G.level = n; store(); } }
 function title(){
+  // until the opening is in hand the title is shown without its buttons, a thin bar filling under it
+  if (!GATE.ready){ menuHide(); SCREEN = ''; PAUSE = false; STORY.start('title', { progress: GATE.progress }); if (!GATE.waiting){ GATE.waiting = true; GATE.p.then(() => { if (STORY.kind === 'title' && !SCREEN) title(); }); } return; }
   const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;justify-content:center;max-width:92vw';
   const top = DEV ? LEVELS.length - 1 : G.top; if (top > 0) LEVELS.forEach((l, n) => { if (n <= top) row.appendChild(menuButton(`${n + 1} ${l.name.replace('The ', '')}`, () => resume(n), true)); });
   let sure = false; const again = menuButton(G.began ? 'Begin again' : 'Begin the climb', () => { if (G.began && !sure){ sure = true; again.textContent = 'Begin again? All is lost'; return; } begin(); }, G.began);
   menuShow([G.began ? menuButton('Climb on: ' + LEVELS[Math.min(G.level, LEVELS.length - 1)].name, () => resume(Math.min(G.level, LEVELS.length - 1))) : null, again, top > 0 ? row : null, menuButton('Options', () => options(title), true)], true);
-  SCREEN = ''; PAUSE = false; STORY.start('title');
+  SCREEN = ''; PAUSE = false; if (STORY.kind === 'title') STORY.opts = {}; else STORY.start('title');   // already up (it was waiting): it is not begun again
 }
 // the options: each button steps its setting on
 function options(back){
@@ -256,6 +261,29 @@ HOOKS.aim = P => {
   return !ahead && behind ? -P.face : 0;
 };
 const CAM = { x: sp.x, y: sp.y + 2, lead: 0, zoom: 1 };
+// ---- the opening, made ready before it is offered. The title's buttons wait until the pictures of the fall, his
+// drawings, the Roots and the opening's music are in; then the rest (every sound, the rest of his drawings) comes on
+// behind, a few at a time. On a quick line it is not seen; on a slow one a thin bar fills under the title. It never
+// waits longer than GATE_MAX: past that the climb is offered as it is
+const GATE_MAX = 25000;
+const GATE = (() => {
+  const LM = THREE.DefaultLoadingManager, prev = LM.onProgress; let tot = 0, got = 0, last = performance.now();
+  LM.onProgress = (u, l, t) => { got = l; tot = t; last = performance.now(); if (prev) prev(u, l, t); };
+  let mus = 0, heroOk = 0;
+  const music = manifestReady().then(() => Promise.all(['title', 'roots'].map(k => SCORE.prefetch(k)))).then(() => { mus = 1; });
+  // his drawings for the first minute: the rest are asked for once the opening is in
+  const FIRST = ['stand', 'idle', 'run', 'jump', 'fall', 'getup', 'land_px', 'roll2_px', 'attack1', 'attack2', 'attack3', 'hurt', 'climb_own'];
+  const heroIn = HERO_P.then(() => { if (hero.sprite) hero.sprite.warm(FIRST); }).then(() => new Promise(res => { const chk = () => (!hero.sprite || hero.sprite.in()) ? res() : setTimeout(chk, 80); chk(); })).then(() => { heroOk = 1; });
+  // the textures all in, and nothing new asked for in a moment
+  const quiet = () => new Promise(res => { const chk = () => (got >= tot && performance.now() - last > 350) ? res() : setTimeout(chk, 80); chk(); });
+  const G0 = { ready: false, waiting: false };
+  G0.progress = () => { if (G0.ready) return null; const st = storyImages(); return Math.min(0.99, (st.done + got + mus * 3 + heroOk * 2) / Math.max(1, st.all + tot + 3 + 2)); };
+  const at = k => () => { G0.times[k] = Math.round(performance.now()); };   // when each part came in (a check: window.__side.gate.times)
+  G0.times = {};
+  const all = Promise.all([storyImages().ready.then(at('story')), R.ready.then(at('roots')), heroIn.then(at('hero')), music.then(at('music'))]).then(quiet).then(at('quiet'));
+  G0.p = Promise.race([all, new Promise(r => setTimeout(r, GATE_MAX))]).then(() => { G0.ready = true; warm(); if (hero.sprite) hero.sprite.warm(); });
+  return G0;
+})();
 bindInput(); marks();
 if (/[?&](level|play)\b/.test(location.search)){ NAMED = !(roomAt(sp.x, sp.y + 0.5) || {}).look; if (NAMED) banner(LEVEL.name, SUB[LEVEL.index] || '', 4); } else title();   // straight in with ?level=2 or ?play
 
@@ -598,7 +626,7 @@ function drawHud(dt){
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

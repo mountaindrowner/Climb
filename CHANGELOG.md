@@ -2,7 +2,14 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The folk (latest).** The people are no longer human. He and the Fallen are the only human shapes alive on the mountain; the humans who were here are the ones who tried to carry the light, and are gone. Those who live there now are the mountain's own folk, each one's shape its story (`docs/cast.md`):
+**The fall, and a first minute without waiting (latest).**
+- *The fall in the intro is drawn as a fall*: face down, arms and legs out to the dark under him, his cloak and scarf torn upward, sixteen frames of it working in the wind (`fall_dive`). It was his standing drawings turned on their side. Made from his own drawings as reference (PixelLab's image model with his stand as the subject and his idle as the style), then animated.
+- *The opening is in hand before it is offered.* The title shows at once; its buttons wait (a thin bar fills where they will be) until the pictures of the fall, his drawings for the first minute, the Roots and the opening's music are in, then the rest comes on behind. Measured on a slow line (1.5 MB/s, 120 ms): the intro's paintings had been arriving about 7 s in, after the title could already be pressed, and the music at 17 s; now nothing in the opening arrives after it is wanted.
+- *Sound in the order it is wanted*, four at a time, the intro's first: all 48 recordings (3 MB) had been asked for at once, crowding out the pictures.
+- *Pressing Begin no longer paints the Roots again* (they were made behind the title): the fall starts in about 40 ms, where the press had waited on the painting.
+- *Creatures never blink out*: a creature's drawing replaces its stand-in only once every strip of it has come.
+
+**The folk.** The people are no longer human. He and the Fallen are the only human shapes alive on the mountain; the humans who were here are the ones who tried to carry the light, and are gone. Those who live there now are the mountain's own folk, each one's shape its story (`docs/cast.md`):
 - *Ordric* is an old moth with a lantern, who keeps the flames and has never flown at one.
 - *Mirel* is a hermit crab under a great borrowed shell; in the Gardens she has set it down. Her bare drawing is made from her shelled one (`tools/unshell.py`), so the two are plainly the same crab.
 - *Corwen* is a rook in a robe of stars. *Hob* (for the Deep, to come) is drawn: an old blind mole with a lamp on his cap.

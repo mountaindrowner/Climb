@@ -51,7 +51,9 @@ export function spawnEnemies(scene, R){
     scene.add(e.stand);
     // the newest drawing that is there (drawn flat, at the game's pixel scale), else the first
     const tryArt = names => { if (!names.length) return; const n = names[0];
-      fetch(`assets/side/${n}/sprite.json`).then(r => r.ok ? r.json() : null).then(meta => { if (meta && Object.keys(meta.anims).length > 1){ e.sprite = makeSprite(scene, `assets/side/${n}`, meta); e.meta = meta; e.stand.visible = false; } else tryArt(names.slice(1)); }).catch(() => tryArt(names.slice(1))); };
+      fetch(`assets/side/${n}/sprite.json`).then(r => r.ok ? r.json() : null).then(meta => { if (meta && Object.keys(meta.anims).length > 1){ const sp = makeSprite(scene, `assets/side/${n}`, meta).warm(); sp.g.visible = false; e.meta = meta;
+        // its drawing replaces the stand-in only once every strip of it is in: it never blinks out while they come
+        let tries = 0; const swap = () => { if (sp.in() || ++tries > 400){ e.sprite = sp; sp.g.visible = true; e.stand.visible = false; } else setTimeout(swap, 60); }; swap(); } else tryArt(names.slice(1)); }).catch(() => tryArt(names.slice(1))); };
     tryArt(ART[m.type] || [d.art]);
     list.push(e);
   }

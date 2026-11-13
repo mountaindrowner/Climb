@@ -8,12 +8,27 @@ let AC = null, OUT = null, SFX = null, MUS = null;   // OUT: the master; SFX, MU
 export const MIX = { sfx: 1, music: 0.7 };
 export const MANIFEST = { sfx: {}, music: {}, base: 'assets/audio/' };
 const BANK = {}, LAST = {};
-let asked = false;
-function loadBank(){
-  if (asked || !AC) return; asked = true;
-  for (const [name, m] of Object.entries(MANIFEST.sfx)) fetch(MANIFEST.base + m.f).then(r => r.ok ? r.arrayBuffer() : null).then(b => b && AC.decodeAudioData(b)).then(buf => { if (buf) BANK[name] = buf; }).catch(() => {});
+// The recordings are fetched in the order they are wanted, a few at a time, so they never crowd out the pictures the
+// first minute needs: warm() starts it (the game calls it once the opening is in hand; the first press does too). What
+// is fetched before the sound is allowed to start (a browser waits for a press) is kept, and decoded the moment it can be.
+const FIRST = ['crack', 'whoosh', 'thunder', 'bell', 'splash', 'impact', 'ui', 'talk', 'step', 'jump', 'land', 'swing', 'hit', 'roll', 'amb_cave', 'urn', 'shard'];
+const RAW = {};
+let warmed = false;
+const decode = name => { if (!AC || !RAW[name] || BANK[name]) return; const b = RAW[name]; RAW[name] = null; AC.decodeAudioData(b).then(buf => { if (buf) BANK[name] = buf; }).catch(() => {}); };
+const READY = (typeof fetch === 'function' && typeof location !== 'undefined')
+  ? fetch(MANIFEST.base + 'manifest.json').then(r => r.ok ? r.json() : null).then(m => { if (m){ Object.assign(MANIFEST.sfx, m.sfx); Object.assign(MANIFEST.music, m.music); } }).catch(() => {})
+  : Promise.resolve();
+export const manifestReady = () => READY;
+export function warm(){
+  if (warmed) return; warmed = true;
+  READY.then(() => {
+    const names = Object.keys(MANIFEST.sfx), queue = [...FIRST.filter(n => names.includes(n)), ...names.filter(n => !FIRST.includes(n))];
+    const next = () => { const name = queue.shift(); if (!name) return;
+      fetch(MANIFEST.base + MANIFEST.sfx[name].f).then(r => r.ok ? r.arrayBuffer() : null).then(b => { if (b){ RAW[name] = b; decode(name); } }).catch(() => {}).finally(next); };
+    for (let k = 0; k < 4; k++) next();
+  });
 }
-if (typeof fetch === 'function' && typeof location !== 'undefined') fetch(MANIFEST.base + 'manifest.json').then(r => r.ok ? r.json() : null).then(m => { if (m){ Object.assign(MANIFEST.sfx, m.sfx); Object.assign(MANIFEST.music, m.music); if (AC){ asked = false; loadBank(); } } }).catch(() => {});
+function loadBank(){ warm(); for (const name in RAW) decode(name); }
 export function ac(){
   if (!AC){ try { AC = new (window.AudioContext || window.webkitAudioContext)(); OUT = AC.createGain(); OUT.gain.value = SET.volume; OUT.connect(AC.destination);
     SFX = AC.createGain(); SFX.gain.value = MIX.sfx; SFX.connect(OUT); MUS = AC.createGain(); MUS.gain.value = MIX.music; MUS.connect(OUT); } catch (e) {} }

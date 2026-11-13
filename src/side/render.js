@@ -670,7 +670,7 @@ export function makeRenderer(canvas){
 // ---- a sprite: frames from a strip (tools/pixellab.py), on a lit plane, feet on its position, mirrored to face left,
 // placed on the pixel grid. A strip says its own pixels to a unit (32 now; the first art was drawn at 64)
 function strip(url, frames){
-  const t = new THREE.TextureLoader().load(url, tx => { tx.needsUpdate = true; });
+  const t = new THREE.TextureLoader().load(url, tx => { tx.needsUpdate = true; tx.ready = true; }, undefined, () => { t.ready = true; });
   t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; t.generateMipmaps = false; t.repeat.set(1 / frames, 1);
   return t;
 }
@@ -681,6 +681,10 @@ export function makeSprite(scene, base, meta){
   // strips are loaded when first drawn (a character has more than it uses); a strip's normal map shares its frames
   const tex = {}, nrm = {}, texOf = a => tex[a] || (tex[a] = strip(`${base}/${a}.png`, meta.anims[a].frames)), nrmOf = a => !meta.anims[a].n ? null : nrm[a] || (nrm[a] = strip(`${base}/${a}_n.png`, meta.anims[a].frames));
   const ppu = meta.ppu || 64, S = { g, plane, mat, anim: null };
+  // the strips asked for ahead of their first use (all of them, or those named), so nothing is drawn before it is in;
+  // in(): whether every strip asked for so far has come
+  S.warm = names => { for (const a of names || Object.keys(meta.anims)) if (meta.anims[a]){ texOf(a); if (!FLAT) nrmOf(a); } return S; };
+  S.in = () => Object.values(tex).every(t => t.ready);
   // anchor 'last': place the drawing by where its last frame stands (a climb ends on top of the ledge he is put on).
   // anchor { foot, cx }: place it by that row and column of its canvas (a climb, each frame set on the ledge's corner)
   S.show = (anim, frac, x, y, face, z = 0.05, rot = 0, anchor = null) => {

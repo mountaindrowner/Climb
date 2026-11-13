@@ -11,7 +11,10 @@ const PAL = { ink: '#181425', deep: '#262b44', dark: '#3a4466', mid: '#5a6988', 
 const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], CW = 320, CH = 180;
 const rng = seed => { let s = seed; return () => (s = (s * 16807) % 2147483647) / 2147483647; };
 const canvas = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
-const img = url => { const i = new Image(); i.src = url; return i; };
+// every picture the story screens use, and a promise of each having come (or failed): the title waits for them
+const IMGS = []; let IMGS_IN = 0;
+const img = url => { const i = new Image(); IMGS.push(new Promise(r => { i.onload = i.onerror = () => { IMGS_IN++; r(); }; })); i.src = url; return i; };
+export const storyImages = () => ({ all: IMGS.length, done: IMGS_IN, ready: Promise.all(IMGS) });
 const ease = t => t < 0 ? 0 : t > 1 ? 1 : t * t * (3 - 2 * t);
 // The mountain. It is too large to be seen whole: its foot runs off both sides of the picture and out of the bottom of
 // it, and its peak leans out over its own base. Where its middle and its two flanks are at each row (the apex at APEX):
@@ -159,7 +162,7 @@ export function makeStory(hud, heroBase){
   const far = { firmament: img('assets/side/bg/firmament.png'), gardens: img('assets/side/bg/gardens.png'), tempest: img('assets/side/bg/tempest.png'), spires: img('assets/side/bg/spires.png'), cloister: img('assets/side/bg/cloister.png'), roots: img('assets/side/bg/far.png') };
   // the rock between two regions, as he falls past: dark, its edges broken up
   const rock = canvas(CW, 50); { const rg = rock.getContext('2d'); rg.fillStyle = PAL.ink; for (let yy = 0; yy < 50; yy++) for (let x = 0; x < CW; x++){ const e = Math.min(yy, 49 - yy) / 8; if (e >= 1 || B4[(yy & 3) * 4 + (x & 3)] / 16 < e) rg.fillRect(x, yy, 1, 1); } }
-  const hero = { fall: img(`${heroBase}/fall.png`), stand: img(`${heroBase}/stand.png`), getup: img(`${heroBase}/getup.png`), back: img(`${heroBase}/fall_back.png`) };
+  const hero = { fall: img(`${heroBase}/fall.png`), stand: img(`${heroBase}/stand.png`), getup: img(`${heroBase}/getup.png`), back: img(`${heroBase}/fall_back.png`), dive: img(`${heroBase}/fall_dive.png`) };
   const S = { kind: null, t: 0, opts: {}, done: null, snow: Array.from({ length: 60 }, (_, k) => ({ x: (k * 53) % CW, y: (k * 97) % CH, v: 20 + (k * 7) % 30 })) };
   const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), w, h); };
   S.maps = MAPS;
@@ -193,7 +196,13 @@ export function makeStory(hud, heroBase){
   // the dark under him, coat and thread streaming up), and the same mirrored. Made once the drawing is in
   let FALLING = null;
   function falling(){
-    if (FALLING) return FALLING; const im = hero.back; if (!im.complete || !im.naturalWidth) return null;
+    if (FALLING) return FALLING;
+    // the drawing of the fall itself (fall_dive: face down, arms and legs out to the dark under him, his cloak and
+    // scarf torn upward), and the same mirrored; else the old one, turned
+    const dv = hero.dive; if (dv.complete && dv.naturalWidth){ const { n, w, h } = strip(dv), make = flip => { const c = canvas(dv.naturalWidth, h); c.id = 'dive' + flip; const cg = c.getContext('2d'); cg.imageSmoothingEnabled = false;
+        for (let i = 0; i < n; i++){ cg.save(); cg.translate(i * w + w / 2, h / 2); if (flip) cg.scale(-1, 1); cg.drawImage(dv, i * w, 0, w, h, -w / 2, -h / 2, w, h); cg.restore(); } c.naturalWidth = c.width; c.naturalHeight = c.height; c.complete = true; return c; };
+      FALLING = [make(false), make(true)]; FALLING.dive = n; return FALLING; }
+    const im = hero.back; if (!im.complete || !im.naturalWidth) return null;
     const { n, w, h } = strip(im), use = [4, 5, 6, 7, 8].filter(f => f < n), make = flip => { const c = canvas(h * use.length, w); c.id = 'falling' + flip; const cg = c.getContext('2d'); cg.imageSmoothingEnabled = false;
       use.forEach((f, i) => { cg.save(); cg.translate(i * h + h / 2, w / 2); cg.rotate(Math.PI / 2); if (flip) cg.scale(1, -1); cg.drawImage(im, f * w, 0, w, h, -w / 2, -h / 2, w, h); cg.restore(); }); c.naturalWidth = c.width; c.naturalHeight = c.height; c.complete = true; return c; };
     return FALLING = [make(false), make(true)];
@@ -244,6 +253,8 @@ export function makeStory(hud, heroBase){
     g.drawImage(night, 0, 0); beacon(false, S.t); marker(0, S.t); snowfall(dt, -8);
     say('THE CLIMB', 0.115, 0.08, Math.min(1, S.t / 1.2), '#fff2d0', 12);
     say('what fell is called back up', 0.262, 0.032, ease((S.t - 0.8) / 1.2) * 0.85, '#cfe6ff', 13);
+    // while the opening is still coming in: a thin bar where the buttons will be
+    const pr = S.opts.progress && S.opts.progress(); if (pr != null){ px(PAL.ink, 12, 101, 102, 4); px('#3a4466', 13, 102, 100, 2); px(PAL.fire3, 13, 102, Math.max(1, Math.round(100 * pr)), 2); }
   }
   function intro(dt){
     const t = S.t;
@@ -278,7 +289,7 @@ export function makeStory(hud, heroBase){
       if (k === 2){ S.bolt = (S.bolt || 0) - dt; if (S.bolt < -1.3) S.bolt = 0.12; if (S.bolt > 0){ g.globalAlpha = 0.45; px(PAL.white, 0, 0, CW, CH); g.globalAlpha = 1; let bx = 40 + Math.floor(t * 37) % 120; for (let y = 0; y < CH; y += 3){ bx += Math.round(Math.sin(y * 1.7 + t * 5) * 3); px(PAL.white, bx, y, 2, 3); px(PAL.pale, bx + 2, y, 1, 3); } } }
       weather(k, t, 0.5);   // what is behind him, a little
       const F = falling(), sx = SH.x + Math.sin(t * 0.9) * 3, sy = SH.y - 8 + (whip ? 0 : hold) * 16 + Math.sin(t * 1.3) * 2;
-      const fr = [0, 1, 2, 3, 4, 3, 2, 1][Math.floor(t * 7) % 8];   // the arms and the coat working, back and forth
+      const fr = F && F.dive ? Math.floor(t * 11) % F.dive : [0, 1, 2, 3, 4, 3, 2, 1][Math.floor(t * 7) % 8];   // the cloak working in the wind
       const neck = F ? pose(F[SH.flip], fr, sx, sy, SH.k) : pose(hero.fall, Math.floor(t * 8), sx, sy, SH.k);
       if (neck) thread(neck, t, SH.k, k === 0 ? { x: SH.x - 46, y: 10 } : null);
       weather(k, t * 1.3 + 7, 1);   // and what goes past in front of him
