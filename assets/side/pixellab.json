@@ -916,5 +916,49 @@
     "group": "6806fc7c-0c61-4577-a21e-26751ff2e4a7"
    }
   }
+ },
+ "px_moth": {
+  "id": "7df1ff5c-fef1-49f3-802a-b51dd3cdb0d5",
+  "description": "an old moth standing upright, a big round furry moth head with two large dark glossy eyes and two big feathery fern-like antennae sweeping back, a ruff of pale fur at its neck, tattered dusty grey-brown wings folded down its back like a long cloak, thin dark legs, holding a tall iron pole with a small lantern hanging from its hook, an anthropomorphic creature standing upright on two legs like a person, tall and lean with long thin legs, worn and weathered, grim and dignified, not cute, not chibi, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer character",
+  "anims": {
+   "idle": {
+    "action": "standing still, breathing slowly, antennae twitching, the lantern swaying a little",
+    "frames": 8,
+    "group": "966429ce-38fa-43f8-9175-31e369597154"
+   }
+  }
+ },
+ "px_hermit": {
+  "id": "79b4b1e1-f7a0-43b0-87da-e2ca78ba7a1c",
+  "description": "a hermit crab pilgrim standing upright, a long grey hooded travelling cloak over its pale pink soft body, one big claw and one small, long thin jointed legs, carrying a huge heavy spiral sea shell on its back like a pack, tied on with rope and bundles, an anthropomorphic creature standing upright on two legs like a person, tall and lean with long thin legs, worn and weathered, grim and dignified, not cute, not chibi, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer character",
+  "anims": {
+   "idle": {
+    "action": "standing still, breathing, bent a little under the weight of the shell",
+    "frames": 8,
+    "group": "2e963527-b78d-4f98-bce3-3912ab1901cb"
+   }
+  }
+ },
+ "px_rook": {
+  "id": "3b03104b-0174-4e04-988b-8b93e5cd45f0",
+  "description": "an old black rook standing upright, ragged black feathers, a long pale grey beak, round brass spectacles, a long dark blue robe embroidered with silver stars, a satchel of scrolls, an anthropomorphic creature standing upright on two legs like a person, tall and lean with long thin legs, worn and weathered, grim and dignified, not cute, not chibi, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer character",
+  "anims": {
+   "idle": {
+    "action": "standing still, breathing, turning a page of a small book in its claws",
+    "frames": 8,
+    "group": "7a8933f7-2b58-4145-b500-392577a52d0d"
+   }
+  }
+ },
+ "px_mole": {
+  "id": "db68c503-888f-4485-825c-f4695fd9cbd8",
+  "description": "an old blind mole miner standing upright, dark grey velvet fur, a long pink snout, huge broad digging claws, a battered leather miner's cap with a small brass lamp on it, a pick slung on his back, an anthropomorphic creature standing upright on two legs like a person, tall and lean with long thin legs, worn and weathered, grim and dignified, not cute, not chibi, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer character",
+  "anims": {
+   "idle": {
+    "action": "standing still, breathing, wiping the little lamp on his cap with a claw",
+    "frames": 8,
+    "group": "20ff4d72-7cd4-4c38-9eb5-419ea81657b8"
+   }
+  }
  }
 }

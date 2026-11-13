@@ -76,9 +76,10 @@ they lose. *(Players on Elden Ring and Dark Souls.)*
 2. **A person has a short worn name and a plain title.** One or two syllables, said aloud before it is kept: Ordric of
    the Vigil, Mirel the Penitent, Corwen the Annalist, Hob of the guild. No apostrophes, no names over three syllables,
    nothing straining to sound old.
-3. **Each people has one sound.** The house's monks are known by their office (the Corrector, the Sexton). The guild
-   has plain English pit names (Hob). The keepers of the flame and those who knew the summit have older, softer names
-   (Corwen, Ordric). Pilgrims come from places never seen, and may say so ("of the Lowmarsh").
+3. **Each people has one sound.** The living are the mountain's folk (moth, crab, rook, mole): short, worn, English
+   names with a plain title (Ordric, Mirel, Corwen, Hob). The vanished humans are known by office, not name: the
+   house's monks by theirs (the Corrector, the Sexton), the Wrights and the astronomers by their works. Pilgrims came
+   from places never seen, and their names are cut on the Bell Road's shrines.
 4. **Two names on the same map never share a first sound and a length.** (Sanderson renamed a hero for sounding like
    another.) Check every new name against `docs/cast.md` and `docs/world.md`.
 5. **A place is what it is, or what was done there.** The Drowned Galleries, the Bell-Foundry, the Last Hut. Plain
@@ -94,10 +95,10 @@ one deliberately low, and their arc is that slider moving:
 
 | Person | Low slider | Arc | Their work | Their help, later |
 |---|---|---|---|---|
-| Ordric of the Vigil | Acts: he keeps what he was given and never goes further | At the Last Hut he goes ahead for once, and lights a flame in a wing before him | Trimming flames | A flame lit where there was none |
-| Mirel the Penitent | Liked: she is hard on herself and on him at first | She puts the pack down; by the top she is unhurried | Counting falls, carrying | A rope left down a climb for him |
-| Corwen the Annalist | Capable of the one thing that matters: he cannot account for it | His last page is left open, unwritten | Writing | The map, and what is still unfound |
-| Hob of the guild | Acts in the wrong direction: always deeper | At the Source he sits down with his lamp out, not needing it | Filling lamps | His lamp-oil, left at a dark turning |
+| Ordric of the Vigil (a moth) | Acts: he keeps what he was given and never goes further | At the Last Hut he goes ahead for once, and lights a flame in a wing before him | Trimming flames | A flame lit where there was none |
+| Mirel the Penitent (a hermit crab) | Liked: she is hard on herself and on him at first | She puts the shell down; by the top she is unhurried | Counting falls, carrying | A rope left down a climb for him |
+| Corwen the Annalist (a rook) | Capable of the one thing that matters: he cannot account for it | His last page is left open, unwritten | Writing | The map, and what is still unfound |
+| Hob of the guild (a mole) | Acts in the wrong direction: always deeper | At the Source he sits down with his lamp out, not needing it | Filling lamps | His lamp-oil, left at a dark turning |
 
 No person dies to make a point. None of them can be lost.
 

@@ -1,25 +1,25 @@
 {
- "name": "px_wren_free",
+ "name": "px_hermit_free",
  "ppu": 16,
  "anims": {
   "stand": {
    "frames": 1,
    "w": 48,
    "h": 48,
-   "foot": 47,
-   "cx": 20.5,
-   "footLast": 47,
-   "cxLast": 20.5,
+   "foot": 46,
+   "cx": 25.5,
+   "footLast": 46,
+   "cxLast": 25.5,
    "n": 1
   },
   "idle": {
    "frames": 9,
    "w": 68,
    "h": 68,
-   "foot": 57,
-   "cx": 30.5,
-   "footLast": 57,
-   "cxLast": 29.5,
+   "foot": 56,
+   "cx": 35.5,
+   "footLast": 56,
+   "cxLast": 35.5,
    "n": 1
   }
  }

@@ -36,7 +36,7 @@ export const ANNALS = [
       { type: 'mote', name: 'Star-cinder', art: 'px_mote', line: 'A cinder of the star that fell. There were very many.' } ] },
 ];
 export const PEOPLE_PAGE = [
-  { who: 'lamplighter', name: 'Ordric of the Vigil', art: 'px_lamplighter', line: 'Keeps the flames. No one has told him to stop.' },
-  { who: 'wren', name: 'Mirel the Penitent', art: 'px_wren', line: 'She climbs to arrive deserving it. She keeps a count.' },
-  { who: 'scribe', name: 'Corwen the Annalist', art: 'px_scribe', line: 'He writes the mountain down. He cannot account for it.' },
+  { who: 'lamplighter', name: 'Ordric of the Vigil', art: 'px_moth', line: 'An old moth who keeps the flames, and does not fly at them.' },
+  { who: 'wren', name: 'Mirel the Penitent', art: 'px_hermit', line: 'She climbs to arrive deserving it, under a shell not her own.' },
+  { who: 'scribe', name: 'Corwen the Annalist', art: 'px_rook', line: 'A rook who writes the mountain down, and cannot account for it.' },
 ];

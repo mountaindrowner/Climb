@@ -87,18 +87,27 @@ the region below, and each way on shows the sky of the one above: it is one moun
 | Gardens | Mother Thorn | What the garden grew, untended. |
 | Firmament | The Fallen | What he left at the top. It has his walk and thinks it is him. |
 
+## Who is on the mountain
+
+He and the Fallen are the only human shapes alive on it. The humans who were here, the house, the guild, the Wrights, the
+astronomers and the pilgrims, are the ones who tried to carry the light themselves; they are gone, and what is left of
+them is ruins, statues, and what they became. Those who live there now are the mountain's own folk, creatures who stayed:
+an old moth, a hermit crab, a rook, a mole. They speak, they climb, they keep things; they are not human, and he is.
+Nothing in the game remarks on it.
+
 ## The three who climb
 
 In the level files they are still `lamplighter`, `wren` and `scribe` (marker names); their names and lines are in
 `src/side/talk.js`.
 
-- **Ordric of the Vigil.** Old. Keeps the flames because he was asked to and no one has told him to stop. Faithful past
+- **Ordric of the Vigil.** An old moth. He keeps the flames and has never flown at one. Keeps the flames because he was asked to and no one has told him to stop. Faithful past
   the point of understanding why, and dry about it. He can do a little for shards; "the rest was never mine to do."
-- **Mirel the Penitent.** A pilgrim with a great pack: everything she thinks she owes. She means to arrive deserving the
+- **Mirel the Penitent.** A hermit crab, a pilgrim under a great borrowed shell: everything she thinks she owes, and not
+  even hers. She means to arrive deserving the
   flame, and counts her falls so they can be held against her. The water keeps giving her back anyway. In the storm she
-  cannot carry the pack; in the Gardens she has put it down and does not know what to do with her hands; at the top she
+  cannot carry the shell; in the Gardens she has put it down and does not know what to do with her hands; at the top she
   waits, unhurried. She is the game's argument, made in six short meetings, and she must never state it.
-- **Corwen the Annalist.** Records the mountain exactly and cannot account for it. He also says what is still unfound
+- **Corwen the Annalist.** A rook. Records the mountain exactly and cannot account for it. He also says what is still unfound
   where he stands. His last page is left open.
 
 ## The whole mountain, and what is under it

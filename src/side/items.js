@@ -137,6 +137,7 @@ export function makeItems(scene, R, n){
   I.slam = (P, radius, evs) => { for (const it of list){ if (it.gone || it.type === 'thread' || (it.type === 'chest' && it.open)) continue; if (Math.abs(it.x - P.x) < radius + it.w && Math.abs(it.y - P.y) < 1.2) give(it, evs); } };
   // what he can use where he stands: a person to talk to, or a shut chest
   // the station he is beside, if any (for the place's name)
+  I.people = people;   // for tests and checks
   I.station = P => { for (const N of people) if (Math.abs(N.x - P.x) < 4.5 && Math.abs(N.y - P.y) < 2.5) return N; return null; };
   I.near = P => { for (const N of people) if (Math.abs(P.x - N.x) < 1.3 && Math.abs(P.y - N.y) < 1.2) return N; for (const it of list) if (it.type === 'chest' && !it.open && Math.abs(P.x - it.x) < 1 && Math.abs(P.y - it.y) < 1) return it; return null; };
   I.open = (it, evs) => give(it, evs);

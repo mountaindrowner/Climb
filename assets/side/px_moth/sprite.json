@@ -1,5 +1,5 @@
 {
- "name": "px_scribe",
+ "name": "px_moth",
  "ppu": 16,
  "anims": {
   "stand": {
@@ -7,9 +7,9 @@
    "w": 48,
    "h": 48,
    "foot": 46,
-   "cx": 21.0,
+   "cx": 21.5,
    "footLast": 46,
-   "cxLast": 21.0,
+   "cxLast": 21.5,
    "n": 1
   },
   "idle": {
@@ -17,9 +17,9 @@
    "w": 64,
    "h": 64,
    "foot": 54,
-   "cx": 29.0,
+   "cx": 29.5,
    "footLast": 54,
-   "cxLast": 31.0,
+   "cxLast": 29.0,
    "n": 1
   }
  }

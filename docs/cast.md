@@ -12,7 +12,10 @@ pause) hold the same entries in the game's own voice.
    pieces are sized `/ 16`), PixelLab's chunky style in Endesga 32, a single ink outline, a normal map. Nothing scaled.
 3. **No faces on the faceless.** Grim, not cute. A creature has eyes only if it is a thing with eyes, and never a cartoon
    mouth or a scowl. The one face among the keepers is a mask (the Thunderhead's), and it is meant to be one.
-4. **The people are drawn in his proportions**: tall, lean, long-legged, a small head. Never big-headed.
+4. **The people are the mountain's own folk, not humans**: creatures standing upright, tall, lean and long-legged in his
+   proportions, worn and weathered, never cute. He and the Fallen are the only human shapes alive on the mountain; the
+   humans who were here (the house, the guild, the Wrights, the astronomers, the pilgrims) are gone, and what is left of
+   them is ruins, statues, and the creatures they became (the Acolytes, the Squall Knight, the Stopped).
 5. **Each fight asks something different of him**, and the keeper's mechanic is its region's: no two keepers are beaten
    the same way.
 
@@ -73,9 +76,23 @@ and it is marked on the map once found.
 
 | Person | Station | Where (Roots, Cloister, Spires, Tempest, Gardens, Firmament) |
 |---|---|---|
-| Ordric of the Vigil | **Ordric's Vigil**: an iron lamp-post he tends, by a flame | grotto, cloister, hollow, masthead, orangery, vigil |
-| Mirel the Penitent | **Mirel's Rest**: a small fire in a ring of stones, her bedroll | bridge, belfry, eyrie, gantry, cascade, transit |
-| Corwen the Annalist | **Corwen's Desk**: a folding desk, an open book, a candle | chamber, library, saddle, stacks, terraces, archive |
+| Ordric of the Vigil, an old moth | **Ordric's Vigil**: an iron lamp-post he tends, by a flame | grotto, cloister, hollow, masthead, orangery, vigil |
+| Mirel the Penitent, a hermit crab | **Mirel's Rest**: a small fire in a ring of stones, her bedroll | bridge, belfry, eyrie, gantry, cascade, transit |
+| Corwen the Annalist, a rook | **Corwen's Desk**: a folding desk, an open book, a candle | chamber, library, saddle, stacks, terraces, archive |
 
 **Audit:** they were drawn big-headed and cute beside him, and Mirel without her pack did not match Mirel with it. All
-three are redrawn in his proportions, and both drawings of Mirel are made from one description.
+three were redrawn in his proportions, and both drawings of Mirel are made from one description.
+
+**The folk (build 23).** Too many people looked like him. They are now the mountain's own creatures, each one's shape
+its story, so that no line has to say it:
+
+| Person | Is | Why |
+|---|---|---|
+| Ordric of the Vigil | An old moth, wings folded like a cloak, a lantern on a pole | A moth flies at a flame; he is the one who learned to keep them instead. *The one above, I have never flown at.* |
+| Mirel the Penitent | A hermit crab under a great borrowed shell | The shell is her pack: everything she thinks she owes, and not even hers. In the Gardens she has set it down, and is soft and bare for the first time |
+| Corwen the Annalist | A rook in a robe of stars, spectacles, a satchel of scrolls | Rooks watch, keep and remember; his name already sounds like one. Not an owl: the wise owl is worn out |
+| Hob of the guild (to come, in the Deep) | An old blind mole, a lamp on his cap, a pick | A miner who cannot see, always digging deeper, by his own little light |
+
+They are drawn as creatures standing upright with his long legs and his weight, grim and worn, never as mascots; and as a
+mixed folk (moth, crab, rook, mole), not one kind of animal, so that the mountain does not read as a kingdom of bugs or
+birds.

@@ -2,7 +2,13 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**How the story is written (latest).** Rules for every line, name and person (`docs/writing.md`), condensed from Hidetaka Miyazaki and FromSoftware, Hayao Miyazaki and Ghibli, Brandon Sanderson, what players say they love and hate (Reddit and elsewhere), and LeBlanc's eight kinds of fun, and then applied:
+**The folk (latest).** The people are no longer human. He and the Fallen are the only human shapes alive on the mountain; the humans who were here are the ones who tried to carry the light, and are gone. Those who live there now are the mountain's own folk, each one's shape its story (`docs/cast.md`):
+- *Ordric* is an old moth with a lantern, who keeps the flames and has never flown at one.
+- *Mirel* is a hermit crab under a great borrowed shell; in the Gardens she has set it down. Her bare drawing is made from her shelled one (`tools/unshell.py`), so the two are plainly the same crab.
+- *Corwen* is a rook in a robe of stars. *Hob* (for the Deep, to come) is drawn: an old blind mole with a lamp on his cap.
+- Their lines follow: Ordric's *the one above, I have never flown at*; Mirel's shell, *never mine; I found it on a shore somewhere*. Each portrait in the talk box is framed on the head.
+
+**How the story is written.** Rules for every line, name and person (`docs/writing.md`), condensed from Hidetaka Miyazaki and FromSoftware, Hayao Miyazaki and Ghibli, Brandon Sanderson, what players say they love and hate (Reddit and elsewhere), and LeBlanc's eight kinds of fun, and then applied:
 - *The hidden truth written down* (`docs/story.md`, "What is true"): he lifted the flame out of its cradle to carry it down himself, and it went out in his hands. Never said; shown by an empty cradle at the summit, the Fallen's dark lamp, and one line of Ordric's.
 - *Every line rewritten to the rules*: at most three a meeting, each short and new, the theme never said. Gone: "you do not have to do all of this yourself", "no one is asking a price", "you never were [alone]", "he need not do it all himself".
 - *The relics are someone's*: the Well-keeper's Whetstone, the Bell-ringer's Lodestone, the Climber's Knot, the Wright's Stormglass, the Gardener's Seed, the Astronomer's Compass, each with a line of whose it was. The keepers' gifts are named for them (the Thunderhead's Heart, Mother Thorn's Dew).

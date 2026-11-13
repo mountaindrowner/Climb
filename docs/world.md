@@ -54,7 +54,9 @@ is a section of the mountain now:
 
 None of it worked, and none of it stopped. The things that are still doing it are the keepers and the creatures.
 
-**Now.** He rises out of the water at the bottom of the world.
+**Now.** He rises out of the water at the bottom of the world. The humans are gone. The mountain's own folk, who stayed,
+are still at the things they were given to do: an old moth keeps the flames, a hermit crab climbs under a borrowed shell,
+a rook writes it all down, and a mole is still digging.
 
 ## The undertow
 
@@ -638,8 +640,8 @@ The three keep their stations in the six regions (`docs/cast.md`) and appear onc
 Ordric in the Last Hut, Mirel on the Bell Road and sitting down in the Glacier Galleries, Corwen at the Source if he gets
 there (he does not, and his last page has the depth of it written, and nothing else).
 
-**New: Hob, the last of the Lamp-guild.** Met in the Workings, the Flooded Levels and the Vein, always further down. Old,
-blackened, a little lamp on his hat. He fills the guild's lamps and counts his oil, and is sure the vein will come good
+**New: Hob, the last of the Lamp-guild.** Met in the Workings, the Flooded Levels and the Vein, always further down. An
+old blind mole, a little lamp on his cap (the guild were human; he dug for them, and kept on). He fills the guild's lamps and counts his oil, and is sure the vein will come good
 lower down. He is the Deep's answer to Ordric: Ordric keeps flames he was given; Hob makes lights that burn out. He does
 not climb. Met for the last time at the Source, sitting by the flame no one keeps, with his lamp out, not needing it.
 

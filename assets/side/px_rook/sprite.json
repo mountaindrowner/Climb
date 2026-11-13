@@ -1,5 +1,5 @@
 {
- "name": "px_wren",
+ "name": "px_rook",
  "ppu": 16,
  "anims": {
   "stand": {
@@ -7,9 +7,9 @@
    "w": 48,
    "h": 48,
    "foot": 47,
-   "cx": 22.5,
+   "cx": 24.0,
    "footLast": 47,
-   "cxLast": 22.5,
+   "cxLast": 24.0,
    "n": 1
   },
   "idle": {
@@ -17,9 +17,9 @@
    "w": 68,
    "h": 68,
    "foot": 57,
-   "cx": 32.5,
+   "cx": 34.0,
    "footLast": 57,
-   "cxLast": 32.0,
+   "cxLast": 35.0,
    "n": 1
   }
  }
