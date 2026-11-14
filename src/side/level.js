@@ -14,8 +14,11 @@ export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B };
 function start(){
   const r = room(); walls(r); door(r, 'right', 2, 7);
   ledge(r, 12, 17, 6);
-  mark(r, 'pool', 3, 2, { w: 8 });                                 // the water at the bottom of the world: he wakes in it, and it gives him back
-  mark(r, 'spawn', 6, 2); mark(r, 'torch', 5, 7); mark(r, 'torch', 30, 7); mark(r, 'crystal', 20, 2);
+  // the water at the bottom of the world, in a basin cut a tile into the floor: he wakes standing in it, and it gives him
+  // back. A cistern older than anything above it (props.js draws it)
+  rect(r, 3, 1, 12, 1, EMPTY);
+  mark(r, 'pool', 3, 1, { w: 10 });
+  mark(r, 'spawn', 7, 1); mark(r, 'torch', 5, 7); mark(r, 'torch', 30, 7); mark(r, 'crystal', 20, 2);
   ledge(r, 22, 26, 12); mark(r, 'thread', 24, 13);                    // a thread, high: the first thing worth a second jump
   mark(r, 'npc', 27, 2, { who: 'wren' }); mark(r, 'urn', 16, 2); mark(r, 'urn', 33, 2);
   return r;

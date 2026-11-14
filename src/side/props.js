@@ -42,11 +42,47 @@ function crackTex(w, h, seed){
 }
 
 // the water at the bottom of the world: a band of it, lit; and the light that comes down to it from far above
-function waterTex(w){
-  const c = cnv(w, 6), g = c.getContext('2d');
-  for (let x = 0; x < w; x++){ px(g, x % 9 < 5 ? PAL.white : PAL.pale, x, 0); px(g, (x + 3) % 7 < 3 ? PAL.pale : PAL.cyan, x, 1); for (let y = 2; y < 6; y++) px(g, B4[(y & 3) * 4 + (x & 3)] < 6 + y ? PAL.cyan : PAL.blue, x, y); }
+function waterTex(w, h = 6){
+  const c = cnv(w, h), g = c.getContext('2d');
+  // the surface bright and broken, then down into the deep: cyan, blue, navy, dithered
+  for (let x = 0; x < w; x++){ px(g, x % 9 < 5 ? PAL.white : PAL.pale, x, 0); px(g, (x + 3) % 7 < 3 ? PAL.pale : PAL.cyan, x, 1); for (let y = 2; y < h; y++){ const d = (y - 2) / Math.max(1, h - 2), b = B4[(y & 3) * 4 + (x & 3)] / 16; px(g, d < 0.35 ? (b < 0.7 - d ? PAL.cyan : PAL.blue) : d < 0.75 ? (b < 0.9 - d ? PAL.blue : PAL.navy) : PAL.navy, x, y); } }
   const t = texOf(c); t.wrapS = THREE.RepeatWrapping; return t;
 }
+// the cistern's apse: a tall round-arched niche in worn blocks between two columns, dark inside and lit from below by the
+// water, a ring carved at its crown. Older than the house above it; no one remembers who cut it
+const apseW = 128, apseH = 150;
+function apseTex(){
+  const W = apseW, H = apseH, c = cnv(W, H), g = c.getContext('2d', { willReadFrequently: true }), r = (() => { let s = 77; return () => (s = (s * 16807) % 2147483647) / 2147483647; })();
+  const cx = W / 2, R0 = 34, R1 = 46, base = H - 2, spring = 64;   // the niche's radius, the arch's outer radius, its foot, where the arch springs
+  const inNiche = (x, y) => y >= spring ? Math.abs(x - cx) < R0 : Math.hypot(x - cx, y - spring) < R0;
+  const inArch = (x, y) => y >= spring ? Math.abs(x - cx) < R1 : Math.hypot(x - cx, y - spring) < R1;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++){
+    if (inNiche(x, y)){   // the niche: deep dark, and the water's light rising in it from the foot, dithered
+      const l = Math.max(0, 1 - (base - y) / 70), b = B4[(y & 3) * 4 + (x & 3)] / 16;
+      px(g, l > 0.82 && b < (l - 0.82) * 2.4 ? PAL.cyan : l > 0.45 && b < (l - 0.45) * 1.6 ? PAL.blue : l > 0.12 && b < l * 0.9 ? PAL.navy : PAL.ink, x, y); continue; }
+    if (inArch(x, y)){   // the arch: voussoirs, each a worn block with a lit edge facing the light
+      const a = Math.atan2(y - spring, x - cx), seg = Math.floor((a + Math.PI) / (Math.PI / 9)), rr = y >= spring ? Math.abs(x - cx) : Math.hypot(x - cx, y - spring);
+      const edge = rr < R0 + 1.5 || rr > R1 - 1.5 || (y < spring && Math.abs(((a + Math.PI) / (Math.PI / 9)) - seg) < 0.08) || (y >= spring && (y - spring) % 12 === 0);
+      px(g, edge ? PAL.ink : rr < R0 + 3 ? PAL.light : (seg + (y >> 3)) % 3 ? PAL.mid : PAL.dark, x, y); continue; }
+  }
+  // the columns either side, with a capital and a base
+  for (const sx of [cx - R1 - 9, cx + R1 + 1]){
+    px(g, PAL.ink, sx - 1, 40, 10, base - 40 + 1); px(g, PAL.dark, sx, 41, 8, base - 41); px(g, PAL.mid, sx + 1, 41, 2, base - 41); px(g, PAL.light, sx + 1, 41, 1, base - 41);
+    for (let y = 48; y < base - 6; y += 9) px(g, PAL.ink, sx, y, 8, 1);   // its drums
+    px(g, PAL.ink, sx - 3, 35, 14, 6); px(g, PAL.light, sx - 2, 36, 12, 1); px(g, PAL.mid, sx - 2, 37, 12, 3);   // capital
+    px(g, PAL.ink, sx - 3, base - 5, 14, 6); px(g, PAL.mid, sx - 2, base - 4, 12, 4); px(g, PAL.light, sx - 2, base - 4, 12, 1); }
+  // the ring carved at its crown, the water's light in it, and a line down from it into the niche
+  const ry = spring - R1 + 4;
+  for (let k = 0; k < 40; k++){ const a = k / 40 * Math.PI * 2; px(g, PAL.ink, cx + Math.cos(a) * 5 - 0.5, ry + Math.sin(a) * 5); px(g, PAL.cyan, cx + Math.cos(a) * 4 - 0.5, ry + Math.sin(a) * 4); }
+  // water stains down the stones, and moss at the foot
+  for (let k = 0; k < 14; k++){ const x = Math.floor(r() * W), y0 = Math.floor(r() * 60) + 30, L = 8 + Math.floor(r() * 30); for (let y = y0; y < Math.min(base, y0 + L); y++){ const p = g.getImageData(x, y, 1, 1).data; if (p[3] && !inNiche(x, y)) px(g, (y + x) % 3 ? PAL.navy : PAL.teal, x, y); } }
+  for (let x = 0; x < W; x++){ const p = g.getImageData(x, base - 1, 1, 1).data; if (p[3] && r() < 0.5) px(g, r() < 0.5 ? PAL.moss1 : PAL.moss0, x, base - 1 - Math.floor(r() * 2), 1, 2); }
+  return texOf(c);
+}
+// a falling thread of water: bright dashes on a faint line, repeating, run downward
+function fallTex(){ const c = cnv(1, 32), g = c.getContext('2d'); for (let y = 0; y < 32; y++) px(g, y % 8 < 3 ? PAL.white : y % 8 < 5 ? PAL.pale : PAL.cyan, 0, y); const t = texOf(c); t.wrapT = THREE.RepeatWrapping; return t; }
+// a soft round glow
+function glowTexOf(){ const c = cnv(64, 64), g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); }
 function shaftTex(){
   const c = cnv(48, 144), g = c.getContext('2d');
   for (let y = 0; y < 144; y++){ const half = 5 + y * 0.12; for (let x = 0; x < 48; x++){ const d = Math.abs(x - 23.5) / half, a = d < 0.5 ? 0.75 : d < 1 ? 0.4 : 0.12; if (d < 1.3 && B4[(y & 3) * 4 + (x & 3)] / 16 < a * (0.35 + y / 260)) px(g, d < 0.4 ? '#ffffff' : '#bfe8ff', x, y); } }
@@ -87,21 +123,33 @@ export function makeProps(scene, R){
     m.position.set((x0 + w / 2) * T, (y0 + h / 2) * T, 0.01); scene.add(m);
     cracks.push({ id: `${i},${j}`, tiles, m, x: m.position.x, y: m.position.y, w: w * T, h: h * T, gone: false });
   }
-  // ---- the pool
+  // ---- the pool: the sacred water at the bottom of the world, in its cistern. A basin cut into the floor, the water deep
+  // and lit from below; behind it an apse older than anything above, its arch carved and its stones worn; threads of
+  // water falling into it out of the dark (the water runs under the whole mountain, and comes back here); a glow on it
   const pools = [];
   for (const mk of LEVEL.marks) if (mk.type === 'pool'){
-    const w = (mk.w || 8) * T, x = mk.x * T + w / 2, y = mk.y * T, wt = waterTex(Math.round(w * PPU));
-    const water = new THREE.Mesh(new THREE.PlaneGeometry(w, 6 / PPU), basic(wt, { opacity: 0.72 })); water.position.set(x, y + 3 / PPU, 0.07); scene.add(water);   // before him: he stands in it
-    const shaft = new THREE.Mesh(new THREE.PlaneGeometry(48 / PPU, 144 / PPU), basic(shaftTex(), { blending: THREE.AdditiveBlending, opacity: 0.3 })); shaft.position.set(x, y + 72 / PPU, 0.012); scene.add(shaft);
-    const motes = []; for (let k = 0; k < 14; k++){ const m = new THREE.Mesh(new THREE.PlaneGeometry(1 / PPU, 1 / PPU), basic(null, { color: 0xdff4ff, blending: THREE.AdditiveBlending })); m.position.set(x + (rnd() - 0.5) * 2, y + rnd() * 7, 0.6); scene.add(m); motes.push({ m, v: 0.5 + rnd() * 0.9, ph: rnd() * 9, x: m.position.x }); }
-    pools.push({ x, y, w, water, wt, shaft, motes });
+    const w = (mk.w || 8) * T, x = mk.x * T + w / 2, y = mk.y * T, wpx = Math.round(w * PPU), deep = 10, wt = waterTex(wpx, deep);
+    const water = new THREE.Mesh(new THREE.PlaneGeometry(w, deep / PPU), basic(wt, { opacity: 0.8 })); water.position.set(x, y + T + 2 / PPU - deep / 2 / PPU, 0.07); scene.add(water);   // before him: he stands in it
+    const apse = new THREE.Mesh(new THREE.PlaneGeometry(apseW / PPU, apseH / PPU), basic(apseTex(), { opacity: 1 })); apse.position.set(x, y + T + apseH / 2 / PPU - 2 / PPU, -0.4); scene.add(apse);
+    const glow = new THREE.Mesh(new THREE.PlaneGeometry(w * 1.5, 3), basic(glowTexOf(), { blending: THREE.AdditiveBlending, opacity: 0.2, color: 0x9fe8ff })); glow.position.set(x, y + T + 0.3, 0.06); scene.add(glow);
+    const shaft = new THREE.Mesh(new THREE.PlaneGeometry(64 / PPU, 160 / PPU), basic(shaftTex(), { blending: THREE.AdditiveBlending, opacity: 0.3 })); shaft.position.set(x, y + 80 / PPU, 0.012); scene.add(shaft);
+    // the falling threads: from the dark over the apse into the water, each with its rings where it lands
+    const falls = [-0.32, 0.12, 0.38].map((f, k) => { const fx = x + f * w, top = y + 9, len = top - (y + T);
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(1 / PPU, len), basic(fallTex(), { blending: THREE.AdditiveBlending, opacity: 0.55 })); m.position.set(fx, y + T + len / 2, 0.065); m.material.map.repeat.set(1, len * PPU / 32); scene.add(m);
+      return { m, x: fx, ph: k * 1.7, spl: [] }; });
+    const motes = []; for (let k = 0; k < 22; k++){ const m = new THREE.Mesh(new THREE.PlaneGeometry(1 / PPU, 1 / PPU), basic(null, { color: 0xdff4ff, blending: THREE.AdditiveBlending })); m.position.set(x + (rnd() - 0.5) * w, y + rnd() * 7, 0.6); scene.add(m); motes.push({ m, x: m.position.x, v: 0.25 + rnd() * 0.5, ph: rnd() * 9 }); }
+    pools.push({ x, y, w, water, wt, shaft, glow, falls, motes });
   }
   const shatter = (C, quiet) => { if (C.gone) return; C.gone = true; for (const [a, b] of C.tiles) LEVEL.tiles[b * W + a] = EMPTY; scene.remove(C.m); C.m.geometry.dispose(); C.m.material.map.dispose(); C.m.material.dispose(); };
   return {
     cracks, glass, blooms, pools,
     step(dt, t){
-      for (const W of pools){ W.wt.offset.x = Math.floor(t * 5) / (W.w * PPU); W.shaft.material.opacity = 0.26 + Math.sin(t * 0.9) * 0.05; R.glint(W.x, W.y + 0.8, 0xbfe8ff, 0.85, 7);
-        for (const M of W.motes){ M.m.position.y += M.v * dt; M.m.position.x = M.x + Math.sin(t * 0.8 + M.ph) * 0.25; if (M.m.position.y > W.y + 8){ M.m.position.y = W.y + 0.2; M.x = W.x + (rnd() - 0.5) * 2.4; } M.m.material.opacity = 0.4 + 0.4 * Math.sin(t * 2 + M.ph); } }
+      for (const W of pools){ W.wt.offset.x = Math.floor(t * 5) / (W.w * PPU); W.shaft.material.opacity = 0.26 + Math.sin(t * 0.9) * 0.05; W.glow.material.opacity = 0.17 + Math.sin(t * 1.3) * 0.04; R.glint(W.x, W.y + 1.6, 0xbfe8ff, 0.7, 7);
+        for (const F of W.falls){ F.m.material.map.offset.y = -((t * 3 + F.ph) % 1); F.m.material.opacity = 0.45 + Math.sin(t * 2 + F.ph) * 0.12;
+          if (rnd() < dt * 5){ const ring = new THREE.Mesh(new THREE.PlaneGeometry(1, 1 / PPU), basic(null, { color: 0xdff4ff, blending: THREE.AdditiveBlending, opacity: 0.8 })); ring.position.set(F.x, W.y + T + 1 / PPU, 0.075); scene.add(ring); F.spl.push({ m: ring, t: 0 }); }
+          for (const S of F.spl){ S.t += dt; S.m.scale.set(0.15 + S.t * 1.6, 1, 1); S.m.material.opacity = Math.max(0, 0.8 - S.t * 1.6); }
+          while (F.spl.length && F.spl[0].t > 0.5){ const S = F.spl.shift(); scene.remove(S.m); S.m.geometry.dispose(); S.m.material.dispose(); } }
+        for (const M of W.motes){ M.m.position.y += M.v * dt; M.m.position.x = M.x + Math.sin(t * 0.8 + M.ph) * 0.25; if (M.m.position.y > W.y + 8){ M.m.position.y = W.y + 0.5; M.x = W.x + (rnd() - 0.5) * W.w; } M.m.material.opacity = 0.4 + 0.4 * Math.sin(t * 2 + M.ph); } }
       const left = PHASE.period - (PHASE.t % PHASE.period);   // until the beat turns
       for (const G of glass){ const on = glassOn(G.k), going = on && left < 0.5 && !PHASE.all;
         G.m.material.opacity = on ? (going && Math.floor(t * 16) % 2 ? 0.45 : 1) : 0.13; G.gl.material.opacity = on ? 0.16 + Math.sin(t * 3 + G.x) * 0.04 : 0.02; G.turned = G.was !== null && G.was !== on; G.was = on; }
