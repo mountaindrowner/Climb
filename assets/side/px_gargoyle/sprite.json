@@ -31,6 +31,36 @@
    "footLast": 41,
    "cxLast": 24.0,
    "n": 1
+  },
+  "launch": {
+   "frames": 5,
+   "w": 48,
+   "h": 48,
+   "foot": 41,
+   "cx": 23.5,
+   "footLast": 41,
+   "cxLast": 22.0,
+   "n": 1
+  },
+  "flap": {
+   "frames": 4,
+   "w": 48,
+   "h": 48,
+   "foot": 41,
+   "cx": 22.0,
+   "footLast": 40,
+   "cxLast": 23.0,
+   "n": 1
+  },
+  "swoop": {
+   "frames": 2,
+   "w": 48,
+   "h": 48,
+   "foot": 41,
+   "cx": 23.0,
+   "footLast": 41,
+   "cxLast": 24.0,
+   "n": 1
   }
  }
 }

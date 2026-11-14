@@ -357,6 +357,19 @@ export function paintRegion(n, own = true){
     if (m.type === 'torch') DECO.torch(g, cx, Y(m.y) - 2);
     if (m.type === 'crystal') DECO[(THEMES[lookAt(x, y + 0.2)] || TM).gem](g, cx, Y(m.y), rr, glow);
     if (m.type === 'bell') DECO.bell(g, cx, Y(m.y));
+    if (m.perch){   // a gargoyle's perch: a carved corbel out of the wall, or a plinth from the floor
+      const P = m.perch, top = Y(P.y), stone = (x, y, w, h) => { px(g, PAL.ink, x, y, w, h); px(g, PAL.mid, x + 1, y + 1, w - 2, h - 2); px(g, PAL.light, x + 1, y + 1, w - 2, 1); px(g, PAL.dark, x + 1, y + h - 2, w - 2, 1); };
+      if (P.side){
+        const face = P.side < 0 ? (P.wall + 1) * CELL : P.wall * CELL, len = 3 * CELL + 2, x0 = P.side < 0 ? face - 2 : face - len + 2;
+        stone(x0, top, len, 7);   // its slab
+        for (let k = 0; k < 9; k++){ const w = Math.max(2, Math.round((len - 6) * (1 - k / 9))), xx = P.side < 0 ? face - 2 : face + 2 - w; px(g, PAL.ink, xx, top + 7 + k, w, 1); if (w > 3) px(g, k % 3 ? PAL.dark : PAL.mid, P.side < 0 ? xx : xx + 1, top + 7 + k, w - 1, 1); }   // the bracket under it, tapering into the wall
+      } else {
+        const cx = (P.x + 0.5) * CELL, base = Y(P.base);
+        stone(Math.round(cx - 1.5 * CELL), top, 3 * CELL, 5);   // its cap
+        for (let y = top + 5; y < base - 4; y++){ px(g, PAL.ink, Math.round(cx - CELL + 2), y, 2 * CELL - 4, 1); px(g, (y % 9) === 0 ? PAL.ink : PAL.deep, Math.round(cx - CELL + 3), y, 2 * CELL - 6, 1); px(g, PAL.dark, Math.round(cx - CELL + 3), y, 1, 1); }   // its shaft, dark as the wall behind: he goes past it, not into it
+        stone(Math.round(cx - 1.5 * CELL), base - 5, 3 * CELL, 5);   // its foot
+      }
+    }
     if (m.type === 'shrine'){ const b = Y(m.y);
       px(g, PAL.ink, cx - 8, b - 6, 17, 6); px(g, PAL.dark, cx - 7, b - 5, 15, 5); px(g, PAL.light, cx - 7, b - 5, 15, 1);
       for (let k = 0; k < 12; k++){ const half = Math.round(Math.sin(Math.PI * k / 12) * 3); px(g, PAL.ink, cx - half - 1, b - 6 - k, half * 2 + 3); px(g, k > 7 ? PAL.fire3 : PAL.fire2, cx - half, b - 6 - k, half * 2 + 1); } }

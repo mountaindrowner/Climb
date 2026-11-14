@@ -373,6 +373,17 @@ function build(n){
   stations(tiles, W, H, marks, rooms, STATIONS[n]);
   const raw = tiles.slice();
   organic(tiles, W, H, marks, rooms, R.seed, R.wear);
+  // where a gargoyle sits: a stone corbel out of the nearest wall at its height, or, with no wall near, a plinth up from
+  // the floor under it. Worked out once, here, so the painter draws the stone (paint.js) and the creature sits on it
+  // (enemies.js); the stone stays when the creature is gone. perch: { x, y (where its feet are), side (-1 the wall to
+  // its left, 1 to its right, 0 a plinth), wall, base }
+  { const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i];
+    for (const m of marks) if (m.type === 'gargoyle'){
+      const py = m.y + 2; let best = null;
+      for (let k = 1; k <= 9 && !best; k++) for (const s of [-1, 1]){ const i = m.x + s * k; if (at(i, py) === ROCK && at(i, py + 1) === ROCK && at(i - s, py) !== ROCK && at(i - s, py + 1) !== ROCK && at(i - s, py + 2) !== ROCK){ best = { s, i }; break; } }
+      if (best) m.perch = { x: best.i - best.s * 2, y: py + 1, side: best.s, wall: best.i };
+      else { let j = m.y; while (j > 0 && at(m.x, j - 1) !== ROCK && at(m.x, j - 1) !== LEDGE) j--; m.perch = { x: m.x, y: Math.max(j + 4, Math.min(m.y + 2, j + 10)), side: 0, base: j }; }
+    } }
   // what the motor asks about every step: the flowers' tiles, and the rising air (in world units)
   const pads = new Map(), updrafts = [];
   for (const m of marks){

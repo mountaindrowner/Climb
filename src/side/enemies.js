@@ -31,7 +31,7 @@ const DEF = {
   spitter:  { ai: 'spitter', hp: 2, w: 0.6, h: 0.8, color: 0x70ff70, range: 8, charge: 0.7, speed: 8, cooldown: 2.0, art: 'px_leech', fly: true, cling: 'wall' },
   lamprey:  { ai: 'spitter', hp: 3, w: 0.5, h: 1.2, color: 0xf6757a, range: 9, charge: 0.65, speed: 10, cooldown: 1.8, burst: 2, orb: 0xd8ff80, art: 'px_lamprey', fly: true, cling: 'ceiling', mouthY: -0.44, word: 'Spat on' },
   barnacle: { ai: 'spitter', hp: 3, w: 0.8, h: 1.6, color: 0x5a6988, range: 7, charge: 0.6, speed: 9, cooldown: 1.6, variants: ['px_barn_a', 'px_barn_b', 'px_barn_c'], fly: false, cling: 'floor', word: 'Spat on' },
-  toad:     { ai: 'spitter', hp: 5, w: 0.9, h: 2.0, color: 0xc0cbdc, range: 10, charge: 0.9, speed: 9, cooldown: 2.0, lob: true, orb: 0xb8f060, variants: ['px_toad_a', 'px_toad_b', 'px_toad_c'], fly: false, cling: 'floor', word: 'Spat on' },
+  toad:     { ai: 'spitter', hp: 5, w: 0.9, h: 2.0, color: 0xc0cbdc, range: 10, charge: 0.9, speed: 9, cooldown: 2.0, lob: true, orb: 0xb8f060, variants: ['px_toad_b'], fly: false, cling: 'floor', word: 'Spat on' },
   burrower: { ai: 'burrower', hp: 2, w: 0.6, h: 1.1, color: 0xd0a070, wake: 6, plough: 6, rise: 0.3, up: 1.4, art: 'burrower', fly: false },
   acolyte:  { ai: 'crawler', hp: 5, w: 0.6, h: 1.9, color: 0xa22633, wake: 8, reach: 2.1, chase: 2.0, windup: 0.62, lunge: 0.2, lungeDist: 1.5, recover: 0.8, stun: 0.5, hitR: 1.2, art: 'px_acolyte', fly: false, word: 'Struck' },
   gargoyle: { ai: 'flitter', hp: 3, w: 0.55, h: 0.9, color: 0x8b9bb4, wake: 6, circle: 1.5, dive: 0.6, commit: 0.34, leave: 1.0, perch: true, art: 'px_gargoyle', fly: true, word: 'Clawed' },
@@ -49,8 +49,8 @@ export function spawnEnemies(scene, R){
   const list = [];
   for (const m of LEVEL.marks){
     const d = DEF[m.type]; if (!d) continue;
-    const x = (m.x + 0.5) * T, y = d.fly ? m.y * T + 1.6 : m.y * T;
-    const e = { type: m.type, d, x, y, home: { x, y }, vx: 0, vy: 0, face: -1, hp: d.hp, st: 'idle', tm: 0, age: Math.random() * 6, flash: 0, dead: 0, alive: true, orb: null };
+    const x = d.perch && m.perch ? (m.perch.x + 0.5) * T : (m.x + 0.5) * T, y = d.perch && m.perch ? m.perch.y * T + d.h * 0.7 : d.fly ? m.y * T + 1.6 : m.y * T;   // a percher sits on its perch (level.js)
+    const e = { type: m.type, d, x, y, home: { x, y }, vx: 0, vy: 0, face: d.perch && m.perch && m.perch.side ? -m.perch.side : -1, hp: d.hp, st: 'idle', tm: 0, age: Math.random() * 6, flash: 0, dead: 0, alive: true, orb: null };
     // a stand-in until the art loads: a glowing shape
     e.stand = new THREE.Mesh(new THREE.PlaneGeometry(d.w * 2, d.h), new THREE.MeshBasicMaterial({ color: d.color }));
     scene.add(e.stand);
@@ -61,6 +61,7 @@ export function spawnEnemies(scene, R){
         let tries = 0; const swap = () => { if (sp.in() || ++tries > 400){ e.sprite = sp; sp.g.visible = true; e.stand.visible = false; } else setTimeout(swap, 60); }; swap(); } else tryArt(names.slice(1)); }).catch(() => tryArt(names.slice(1))); };
     tryArt(d.variants ? [d.variants[(m.x * 7 + m.y * 3) % d.variants.length]] : ART[m.type] || [d.art]);
     if (d.cling === 'floor'){ const gy = ground(x, y + 0.3); if (gy > -Infinity){ e.y = e.home.y = gy; } }
+    if (e.d.perch) e.home.face = e.face;
     list.push(e);
   }
   const orbMats = {}, orbMat = c => orbMats[c] || (orbMats[c] = new THREE.MeshBasicMaterial({ color: c }));
@@ -137,7 +138,12 @@ export function stepEnemies(E, P, dt, fx, events){
       anim(e, e.st === 'windup' || e.st === 'lunge' ? 'attack' : 'walk', e.st === 'windup' ? e.tm / e.d.windup * 0.5 : e.st === 'lunge' ? 0.5 + e.tm / e.d.lunge * 0.5 : e.st === 'chase' ? e.tm * 1.6 : 0);
     }
     else if (ai === 'flitter'){
-      if (e.st === 'idle'){ if (!e.d.perch){ e.x = e.home.x + Math.sin(e.tm * 1.3) * 0.6; e.y = e.home.y + Math.sin(e.tm * 2.1) * 0.3; } if (dist < e.d.wake){ go('circle'); e.left = e.d.dives || 1; } }   // a gargoyle sits like stone until then
+      const W8 = e.meta && e.meta.anims.flap;   // one that perches and has its wingbeat drawn (the gargoyle): sits, launches, flies, comes home
+      if (e.st === 'idle'){ if (!e.d.perch){ e.x = e.home.x + Math.sin(e.tm * 1.3) * 0.6; e.y = e.home.y + Math.sin(e.tm * 2.1) * 0.3; } if (dist < e.d.wake){ if (e.d.perch && W8){ go('launch'); events.push({ type: 'tell', e }); } else go('circle'); e.left = e.d.dives || 1; } }
+      else if (e.st === 'launch'){ e.y = e.home.y + Math.min(1, e.tm / 0.45) * 0.6; e.face = Math.sign(dx) || e.face; if (e.tm >= 0.45) go('circle'); }
+      else if (e.st === 'home'){ const k = Math.min(1, dt * 2.5); e.x += (e.home.x - e.x) * k; e.y += (e.home.y + 0.4 - e.y) * k; e.face = Math.sign(e.home.x - e.x) || e.face;
+        if (Math.hypot(e.home.x - e.x, e.home.y + 0.4 - e.y) < 0.12) go('land'); else if (dist < e.d.wake * 0.8) go('circle'); }
+      else if (e.st === 'land'){ e.x = e.home.x; e.y = e.home.y + (1 - Math.min(1, e.tm / 0.35)) * 0.4; if (e.tm >= 0.35){ e.face = e.d.perch && e.home.face ? e.home.face : e.face; go('idle'); } }   // a gargoyle sits like stone until then
       else if (e.st === 'circle'){
         const a = e.tm * 3.2, cx = P.x, cy = P.y + 2.4;
         e.x += (cx + Math.cos(a) * 1.6 - e.x) * Math.min(1, dt * 3); e.y += (cy + Math.sin(a) * 0.5 - e.y) * Math.min(1, dt * 3);
@@ -151,7 +157,10 @@ export function stepEnemies(E, P, dt, fx, events){
         if (e.tm >= e.d.dive + 0.15){ e.hit = false; if (--e.left > 0){ go('leave'); e.again = true; } else { go('leave'); e.again = false; } }
       }
       else if (e.st === 'leave'){ e.y += dt * 3; e.x -= e.face * dt * 2; if (e.tm > (e.again ? 0.3 : e.d.leave)){ if (e.again){ go('dive'); e.tx = P.x; e.ty = P.y + 1.3; e.again = false; events.push({ type: 'tell', e }); } else { go('circle'); e.left = e.d.dives || 1; } } }
-      anim(e, e.st === 'dive' ? 'dive' : 'fly', e.st === 'dive' ? e.tm / e.d.dive : e.st === 'idle' && e.d.perch ? 0 : e.tm * 2.5);
+      if (W8){   // sitting as stone; the wings opening off the perch (and closing back onto it); the wingbeat; the swoop
+        if (e.st === 'idle') anim(e, 'stand', 0); else if (e.st === 'launch') anim(e, 'launch', Math.min(0.999, e.tm / 0.45)); else if (e.st === 'land') anim(e, 'launch', Math.max(0, 0.999 - e.tm / 0.35)); else if (e.st === 'dive') anim(e, 'swoop', Math.min(0.999, e.tm / e.d.dive)); else anim(e, 'flap', e.age * 2.6);
+        if (e.st === 'circle' && e.d.perch && dist > e.d.wake * 1.8) go('home');   // he has gone: back to its perch
+      } else anim(e, e.st === 'dive' ? 'dive' : 'fly', e.st === 'dive' ? e.tm / e.d.dive : e.st === 'idle' && e.d.perch ? 0 : e.tm * 2.5);
     }
     else if (ai === 'spitter'){
       e.face = e.fixFace || Math.sign(dx) || e.face; e.cd = Math.max(0, (e.cd || 0) - dt);
