@@ -35,9 +35,14 @@ export const ANNALS = [
       { type: 'sentinel', name: 'Sentinel', art: 'px_sentinel', line: 'Brass, and faithful to a door no one comes to.' },
       { type: 'oculus', name: 'Oculus', art: 'px_oculus', line: 'The great lens, still looking for the star that went out.' },
       { type: 'mote', name: 'Star-cinder', art: 'px_mote', line: 'A cinder of the star that fell. There were very many.' } ] },
+  { region: 'The Workings', keeper: { theme: 'workings', art: 'px_mole/stand', name: 'The Auger', line: 'The guild\'s engine. Its order was deeper. It is somewhere below, still at it.' },
+    creatures: [
+      { type: 'lamprey', name: 'Sump Lamprey', art: 'px_lamprey', line: 'It fastened to the roof when the levels flooded, and never let go.' },
+      { type: 'barnacle', name: 'Pit Barnacle', art: 'px_barn_a', line: 'It grew where the water rose, and stayed when the water went down.' } ] },
 ];
 export const PEOPLE_PAGE = [
   { who: 'lamplighter', name: 'Ordric of the Vigil', art: 'px_moth', line: 'An old moth who keeps the flames, and does not fly at them.' },
   { who: 'wren', name: 'Mirel the Penitent', art: 'px_hermit', line: 'She climbs to arrive deserving it, under a shell not her own.' },
+  { who: 'hob', name: 'Hob of the guild', art: 'px_mole', line: 'A mole who dug for the guild, and is digging still. Always a little further down.' },
   { who: 'scribe', name: 'Corwen the Annalist', art: 'px_rook', line: 'A rook who writes the mountain down, and cannot account for it.' },
 ];

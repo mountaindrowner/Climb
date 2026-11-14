@@ -130,6 +130,7 @@ export function makeProps(scene, R){
   for (const mk of LEVEL.marks) if (mk.type === 'pool'){
     const w = (mk.w || 8) * T, x = mk.x * T + w / 2, y = mk.y * T, wpx = Math.round(w * PPU), deep = 10, wt = waterTex(wpx, deep);
     const water = new THREE.Mesh(new THREE.PlaneGeometry(w, deep / PPU), basic(wt, { opacity: 0.8 })); water.position.set(x, y + T + 2 / PPU - deep / 2 / PPU, 0.07); scene.add(water);   // before him: he stands in it
+    if (mk.plain){ pools.push({ x, y, w, water, wt, plain: true, falls: [], motes: [] }); continue; }   // only water: the cistern's, which nothing is holy about
     const apse = new THREE.Mesh(new THREE.PlaneGeometry(apseW / PPU, apseH / PPU), basic(apseTex(), { opacity: 1 })); apse.position.set(x, y + T + apseH / 2 / PPU - 2 / PPU, -0.4); scene.add(apse);
     const glow = new THREE.Mesh(new THREE.PlaneGeometry(w * 1.5, 3), basic(glowTexOf(), { blending: THREE.AdditiveBlending, opacity: 0.2, color: 0x9fe8ff })); glow.position.set(x, y + T + 0.3, 0.06); scene.add(glow);
     const shaft = new THREE.Mesh(new THREE.PlaneGeometry(64 / PPU, 160 / PPU), basic(shaftTex(), { blending: THREE.AdditiveBlending, opacity: 0.3 })); shaft.position.set(x, y + 80 / PPU, 0.012); scene.add(shaft);
@@ -144,7 +145,7 @@ export function makeProps(scene, R){
   return {
     cracks, glass, blooms, pools,
     step(dt, t){
-      for (const W of pools){ W.wt.offset.x = Math.floor(t * 5) / (W.w * PPU); W.shaft.material.opacity = 0.26 + Math.sin(t * 0.9) * 0.05; W.glow.material.opacity = 0.17 + Math.sin(t * 1.3) * 0.04; R.glint(W.x, W.y + 1.6, 0xbfe8ff, 0.7, 7);
+      for (const W of pools){ W.wt.offset.x = Math.floor(t * 5) / (W.w * PPU); if (W.plain) continue; W.shaft.material.opacity = 0.26 + Math.sin(t * 0.9) * 0.05; W.glow.material.opacity = 0.17 + Math.sin(t * 1.3) * 0.04; R.glint(W.x, W.y + 1.6, 0xbfe8ff, 0.7, 7);
         for (const F of W.falls){ F.m.material.map.offset.y = -((t * 3 + F.ph) % 1); F.m.material.opacity = 0.45 + Math.sin(t * 2 + F.ph) * 0.12;
           if (rnd() < dt * 5){ const ring = new THREE.Mesh(new THREE.PlaneGeometry(1, 1 / PPU), basic(null, { color: 0xdff4ff, blending: THREE.AdditiveBlending, opacity: 0.8 })); ring.position.set(F.x, W.y + T + 1 / PPU, 0.075); scene.add(ring); F.spl.push({ m: ring, t: 0 }); }
           for (const S of F.spl){ S.t += dt; S.m.scale.set(0.15 + S.t * 1.6, 1, 1); S.m.material.opacity = Math.max(0, 0.8 - S.t * 1.6); }

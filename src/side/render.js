@@ -21,7 +21,7 @@
 // crystals, the shrine, the warrior, a boss's eyes, a blow), in steps, dithered, so the pools of light are banded like
 // the art. Mist drifts behind the play layer and a little in front; dark shapes close to the eye (things hanging from
 // the top of the view, things standing at its foot) slide past faster than the world, for depth.
-import { T, ROCK, LEDGE, SPIKES, EMPTY, LEVEL, rawAt, REGION_DATA } from './level.js';
+import { T, ROCK, LEDGE, SPIKES, EMPTY, LEVEL, rawAt, REGION_DATA, CLIMB_TOP } from './level.js';
 import { paintAt, PPU, VIEW_H, TH, CELL, B4, PAL, rgb, PALETTE, nearest, rng, newCanvas, noise2, px, DECO, THEMES, pickOf, SEAMS, paintPlay, FB, MARGIN_X, MARGIN_Y, paintBack, blend, paintRegion } from './paint.js';
 export { PPU, VIEW_H, PAL };
 const THREE = window.THREE;
@@ -220,11 +220,12 @@ export function makeRenderer(canvas){
     if (gen !== LOADS) return;
     try { renderer.compile(scene, camera); } catch (e){}   // and its shaders made now, not on the first frame he can see
     READY = true;
-    want(LEVEL.index + 1);   // and the region above, ahead of him
+    if (LEVEL.index < CLIMB_TOP) want(LEVEL.index + 1);   // and the region above, ahead of him
+    for (const m of LEVEL.marks) if (m.type === 'pass') want(m.to);   // and where his passages lead
   })();
   // the way on: shut until the keeper falls. A tall arch, and in it a little of the next region's sky: where he is going
   // can be seen from here (the last region's is only light: the beacon)
-  const NEXT = REGION_DATA[LEVEL.index + 1], NTM = NEXT && THEMES[NEXT.theme];
+  const NEXT = LEVEL.index < CLIMB_TOP ? REGION_DATA[LEVEL.index + 1] : null, NTM = NEXT && THEMES[NEXT.theme];   // the way on: the next of the climb (the summit's is only light)
   for (const m of LEVEL.marks) if (m.type === 'exit'){
     const x = (m.x + 0.5) * T, y = m.y * T, tint = NTM ? NTM.air.cols[1] : 0xffe0a0;
     const c = document.createElement('canvas'); c.width = 34; c.height = 46; const gg = c.getContext('2d'), tex = canvasTex(c);

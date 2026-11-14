@@ -50,6 +50,12 @@ const STATION = {
     px(g, PAL.ink, 3, 42, 10, 2); px(g, PAL.dark, 4, 42, 8, 1);
     for (let y = 18; y < 42; y += 4){ px(g, PAL.wood1, 10, y, 4, 1); } px(g, PAL.wood0, 10, 18, 1, 24); px(g, PAL.wood0, 13, 18, 1, 24);
     px(g, PAL.ink, 0, 37, 5, 7); px(g, PAL.rust, 1, 38, 3, 5); px(g, PAL.fire2, 1, 38, 3, 1); } },
+  // Hob's: a guild lamp on its hook, burning low, and his oil can under it
+  hob: { name: "HOB'S LAMP", col: 0xffc060, w: 14, h: 30, at: 7, glow: [7, 6], draw(g){
+    px(g, PAL.ink, 6, 0, 2, 28); px(g, PAL.wood1, 6, 0, 1, 28); px(g, PAL.ink, 2, 0, 10, 2); px(g, PAL.wood0, 3, 0, 8, 1);   // the post and its arm
+    px(g, PAL.ink, 3, 2, 1, 2); px(g, PAL.ink, 1, 4, 5, 7); px(g, PAL.fire1, 2, 5, 3, 5); px(g, PAL.fire3, 3, 6, 1, 3); px(g, PAL.ink, 1, 11, 5, 1);   // the lamp, low
+    px(g, PAL.ink, 8, 23, 6, 7); px(g, PAL.rust, 9, 24, 4, 5); px(g, PAL.fire2, 9, 24, 4, 1); px(g, PAL.ink, 12, 21, 1, 3);   // the can
+    px(g, PAL.ink, 4, 28, 7, 2); } },
   // Mirel's: a small fire in a ring of stones, her bedroll beside it
   wren: { name: "MIREL'S REST", col: 0xff8a40, w: 30, h: 14, at: 9, glow: [9, 8], fire: [9, 9], draw(g){
     for (const [x, y] of [[3, 11], [6, 12], [10, 12], [14, 11]]){ px(g, PAL.ink, x - 1, y - 1, 4, 3); px(g, PAL.mid, x, y - 1, 2, 2); px(g, PAL.light, x, y - 1, 2, 1); }
@@ -103,7 +109,7 @@ export function makeItems(scene, R, n){
     Object.assign(s, { on: true, x, y: y + 0.3, vx: Math.cos(a) * (2 + rnd() * 3), vy: Math.sin(a) * (4 + rnd() * 3), v, t: 0, rest: false }); s.m.visible = true; s.m.material.color.setHex(v > 1 ? 0xfee761 : 0x2ce8f5); s.m.scale.setScalar(v > 1 ? 1.4 : 1); } };
   const give = (it, evs) => {
     const at = { x: it.x, y: it.y + 0.6 };
-    if (it.type === 'urn'){ it.gone = true; scene.remove(it.m); take(n, it.id); spill(it.x, it.y, 3 + Math.floor(rnd() * 4)); evs.push({ type: 'urn', at }); }
+    if (it.type === 'urn'){ it.gone = true; scene.remove(it.m); take(n, it.id); spill(it.x, it.y, Math.round((3 + Math.floor(rnd() * 4)) * (has('tally') ? 1.5 : 1))); evs.push({ type: 'urn', at }); }
     else if (it.type === 'chest' && !it.open){ it.open = true; it.tex.offset.x = 0.5; if (it.gl){ scene.remove(it.gl); it.gl = null; } take(n, it.id); it.t = 0;
       evs.push({ type: 'chest', at });
       if (it.holds.startsWith('relic:')) evs.push({ type: 'relic', id: it.holds.slice(6), at }); else if (it.holds === 'thread') evs.push({ type: 'thread', at }); else spill(it.x, it.y + 0.4, 26 + Math.floor(rnd() * 12)); }

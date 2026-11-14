@@ -8,7 +8,7 @@ import { SET, saveSettings } from '../core/settings.js';
 import { sfx, ac, musicBus, ambience, setMix, MIX, warm, manifestReady } from '../audio/sfx.js';
 import { makeScore } from '../audio/score.js';
 import '../ui/feel.js';
-import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels } from './level.js';
+import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP } from './level.js';
 import { makeProps } from './props.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, CAN, SIDE } from './motor.js';
 import { width as textWidth } from './pixelfont.js';
@@ -28,7 +28,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 27';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 28';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -53,6 +53,7 @@ const HUD = makeHud(hud);
 const EMBER = { n: 0, max: 10 };
 let FLIGHT = null, SLOW = 0, FLASH = 0, PAUSE = false, PLAYED = 0, PLACE = { name: '', t: 9 };
 let CHECK = null, BANNER = null, WON = false, DEATH = 0;
+const SPANS = REGION_DATA.map((R, n) => R.depth || REGION_SPAN[n]);   // each region's height on the mountain (the Deep's below the water: negative)
 const SUB = LEVELS.map(l => l.sub), CARD = LEVELS.map(l => l.card);   // under a region's name; and what the card says, coming up into it
 // what he can do, from what he has beaten and what he carries
 function learn(){
@@ -78,18 +79,22 @@ function setup(){
 setup();
 // into region n: the world is made again, he stands at its start with the hearts and flask he had
 const ENTERED = [];
-function enter(n){
+// `at`: where he comes in, by name (an arrive mark: a passage's other end); else the region's start
+function enter(n, at){
   const t0 = performance.now(); loadLevel(n); const t1 = performance.now(); R.load(); const t2 = performance.now();
   if (hero.meta) hero.sprite = makeSprite(R.scene, `assets/side/${hero.name}`, hero.meta);
   FX2.ghosts.length = 0; setup(); const t3 = performance.now();
   ENTERED.push({ n, build: Math.round(t1 - t0), load: Math.round(t2 - t1), setup: Math.round(t3 - t2) });   // what going into a region costs (a check: window.__side.entered)
-  const s = spawnPoint(), old = P; P = born(s.x, s.y); P.hp = Math.max(1, Math.min(P.maxHp, old.hp)); P.flask = Math.min(P.flaskMax, old.flask);
+  const am = at && LEVEL.marks.find(m => m.type === 'arrive' && m.name === at), s = am ? { x: (am.x + 0.5) * T, y: am.y * T } : spawnPoint(), old = P; P = born(s.x, s.y); PASS.cool = 1.2; P.hp = Math.max(1, Math.min(P.maxHp, old.hp)); P.flask = Math.min(P.flaskMax, old.flask);
   CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0;
-  BANNER = null; NAMED = !(roomAt(s.x, s.y + 0.5) || {}).look; if (NAMED) banner(LEVEL.name, SUB[LEVEL.index] || '', 4); marks(); G.level = LEVEL.index; G.top = Math.max(G.top, G.level); G.began = true; store();
+  BANNER = null; NAMED = !(roomAt(s.x, s.y + 0.5) || {}).look; if (NAMED) banner(LEVEL.name, SUB[LEVEL.index] || '', 4); marks(); G.level = LEVEL.index; if (!LEVEL.deep) G.top = Math.max(G.top, G.level); G.began = true; store();
 }
 // going up: the picture goes dark, the next region is made, it comes back
-const GO = { to: -1, t: 0, st: '', from: -1 };
-const go = n => { if (!GO.st){ GO.to = n; GO.from = LEVEL.index; GO.t = 0; GO.st = 'out'; } };
+const GO = { to: -1, t: 0, st: '', from: -1, at: null };
+const go = (n, at = null) => { if (!GO.st){ GO.to = n; GO.from = LEVEL.index; GO.at = at; GO.t = 0; GO.st = 'out'; } };
+// a passage (pass marks): walked into, it takes him to another region, to its arrive mark of that name. Not again until
+// he has been out of it a moment (he comes in beside the other end's)
+const PASS = { cool: 0 };
 // the regions' buttons
 const marks = () => {};
 // ---- the story's screens (story.js) and the title's buttons
@@ -257,14 +262,16 @@ addEventListener('pointerdown', () => { if (TALK.on || NOTE) press(); else if (S
 // ---- the score (music.js): which piece, by where he is; it starts with the first key or touch (a browser's rule)
 let MUSIC = null, HEARD = false, MUTED = (() => { try { return localStorage.getItem('climb-side-mute') === '1'; } catch (e){ return false; } })();
 const hear = () => { HEARD = true; ac(); }; addEventListener('pointerdown', hear); addEventListener('keydown', hear);
-addEventListener('keydown', e => { if (e.code === 'KeyM'){ MUTED = !MUTED; try { localStorage.setItem('climb-side-mute', MUTED ? '1' : '0'); } catch (err){} banner('', MUTED ? 'music off' : 'music on', 1.6); } });
-const SCORE = makeScore(), AMB = { roots: 'cave', cloister: 'cave', spires: 'wind', tempest: 'storm', gardens: 'garden', firmament: 'wind' };
+addEventListener('keydown', e => { if (e.code === 'KeyN'){ MUTED = !MUTED; try { localStorage.setItem('climb-side-mute', MUTED ? '1' : '0'); } catch (err){} banner('', MUTED ? 'music off' : 'music on', 1.6); } });
+// a region with no music of its own has another's (musicOf: the Workings, the Roots')
+const alias = theme => { const R = REGION_DATA.find(q => q.theme === theme); return (R && R.musicOf) || theme; };
+const SCORE = makeScore(), AMB = { workings: 'cave', roots: 'cave', cloister: 'cave', spires: 'wind', tempest: 'storm', gardens: 'garden', firmament: 'wind' };
 function score(){
   if (!HEARD) return; const A = ac(); if (!A) return; if (!MUSIC) MUSIC = makeMusic(A, musicBus() || A.destination);
   const k = STORY.kind, fight = BOSS && BOSS.active() && BOSS.st !== 'die', quiet = BOSS && (BOSS.st === 'die' || (BOSS.st === 'dead' && !WON));
   const here = R.look(), door = !fight && R.exits.find(x => x.on && x.next && Math.hypot(P.x - x.x, P.y - x.y) < 7);   // by an open way on, the next region can be heard
-  const rec = k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? (LEVEL.index === LEVELS.length - 1 ? 'boss_final' : 'boss') : here;
-  const gen = k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? 'boss_' + LEVEL.theme : here;
+  const rec = k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? (LEVEL.index === CLIMB_TOP ? 'boss_final' : 'boss') : alias(here);
+  const gen = k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? 'boss_' + LEVEL.theme : alias(here);
   // the recording of the piece if there is one; else the score made as it plays
   if (SCORE.has(rec) && !OPT.synth){ SCORE.play(quiet ? '' : rec); MUSIC.play(''); } else { SCORE.play(''); MUSIC.play(quiet ? '' : gen); }
   const v = MUTED ? 0 : PAUSE || TALK.on ? 0.35 : 1; SCORE.duck(v); MUSIC.volume(v * 0.7); MUSIC.tick();
@@ -410,6 +417,10 @@ function frame(ts){
   { const RD = REGION_DATA[LEVEL.index]; if (RD.tick) RD.tick(sdt, time, TICK); }   // the region's own weather and workings (its file)
   if (BOSS) BOSS.step(P, sdt, fx, evs);
   for (const e of P.events) onEvent(e);
+  // a passage: walked into, he goes through it
+  PASS.cool = Math.max(0, PASS.cool - dt);
+  if (!GO.st && PASS.cool <= 0 && P.hp > 0 && !FLIGHT) for (const m of LEVEL.marks) if (m.type === 'pass'){ const x0 = m.x * T, y0 = m.y * T, x1 = x0 + (m.w || 2) * T, y1 = y0 + (m.h || 2) * T, cy = P.y + 0.8;
+    if (P.x >= x0 && P.x <= x1 && cy >= y0 && cy <= y1){ PASS.cool = 9; go(m.to, m.at); break; } }
   P.events.length = 0;
   for (const e of evs) onEvent(e);
   // a death: he is gone in a burst; the scarf hangs there a moment, then goes back alone to the last shrine (or the
@@ -433,12 +444,12 @@ function frame(ts){
   }
   if ((!BOSS || BOSS.st === 'dead') && !WON && R.exits.some(x => Math.abs(P.x - x.x) < 1 && Math.abs(P.y - x.y) < 1.5)){
     WON = true; sfx.gold();
-    if (LEVEL.index < LEVELS.length - 1) go(LEVEL.index + 1); else { G.done = true; store(); STORY.start('ending', {}, title); }   // the beacon: the end of the climb
+    if (LEVEL.index < CLIMB_TOP) go(LEVEL.index + 1); else { G.done = true; store(); STORY.start('ending', {}, title); }   // the beacon: the end of the climb
   }
   if (GO.st){
     GO.t += dt;
     if (GO.st === 'out' && GO.t > 0.6){ GO.st = 'load'; GO.t = 0; }                 // a frame fully dark before the work
-    else if (GO.st === 'load' && GO.t > 0.05){ const up = GO.to === GO.from + 1; enter(GO.to); acc = 0; GO.t = 0;
+    else if (GO.st === 'load' && GO.t > 0.05){ const up = GO.to === GO.from + 1 && GO.to <= CLIMB_TOP; enter(GO.to, GO.at); acc = 0; GO.t = 0;
       if (up){ GO.st = 'card'; STORY.start('card', { from: GO.from, to: GO.to, name: LEVEL.name, line: CARD[GO.to] || '' }, () => { GO.st = 'in'; GO.t = 0; }); } else GO.st = 'in'; }   // going up: the card shows the mountain and where he is on it
     else if (GO.st === 'in' && !R.isReady) GO.t = 0;   // dark until the region's paintings are in
     else if (GO.st === 'in' && GO.t > 0.7) GO.st = '';
@@ -619,7 +630,7 @@ function drawHud(dt){
     HUD.place(place, PLACE.t < 3 ? 1 : Math.max(0.45, 1 - (PLACE.t - 3) * 0.5));
     HUD.boss(BOSS && BOSS.hud(), dt);
     const dots = mapDots();
-    HUD.map(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, room, T, dots, Math.max(0, Math.min(1, P.y / (LEVEL.H * T))), REGION_SPAN, LEVEL.index, time, P);
+    HUD.map(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, room, T, dots, Math.max(0, Math.min(1, P.y / (LEVEL.H * T))), SPANS, LEVEL.index, time, P);
   }
   if (BANNER && !TALK.on && !NOTE && SCREEN !== 'annals'){ BANNER.t -= dt; HUD.banner(BANNER.a, BANNER.b, Math.max(0, Math.min(1, BANNER.t, (BANNER.life - BANNER.t) * 3))); if (BANNER.t <= 0) BANNER = null; }
   HUD.hint(HINT[DEVICE.kind === 'keys' ? 'keys' : DEVICE.kind === 'touch' ? 'touch' : 'pad'], PAUSE ? 1 : Math.max(0, Math.min(0.8, (16 - PLAYED) * 0.5)) * (rising || TALK.on || NOTE ? 0 : 1));

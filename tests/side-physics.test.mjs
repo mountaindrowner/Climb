@@ -71,13 +71,16 @@ const nearSeen = (seen, mx, my, r = 4) => { for (let a = -r; a <= r; a++) for (l
 test(`${NAME}, played with the real motor: every room, the shrine, the stage and the way out are reached from the spawn`, () => {
   const { seen } = graph();
   for (const r of rooms){ let any = false; for (const k of seen){ const i = k % W, j = (k - i) / W; if (i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1){ any = true; break; } } assert.ok(any, `room ${r.name} is not reached`); }
-  for (const t of ['shrine', 'boss', 'exit']){ const m = marks.find(k => k.type === t); if (m || t !== 'boss') assert.ok(m && nearSeen(seen, m.x, m.y), `${t} is not reached`); }
+  const deep = !marks.some(k => k.type === 'exit');   // a section of the Deep: its passage back, not a way on
+  for (const t of ['shrine', 'boss', deep ? 'pass' : 'exit']){ const m = marks.find(k => k.type === t); if (m || t !== 'boss') assert.ok(m && (nearSeen(seen, m.x, m.y) || nearSeen(seen, m.x + 2, m.y + 1)), `${t} is not reached`); }
 });
 test(`${NAME}, played with the real motor: from anywhere he gets to, he can still get to where the region leads`, () => {
   const { seen, edges } = graph(), back = new Map();
   for (const [a, nx] of edges) for (const b of nx){ if (!back.has(b)) back.set(b, []); back.get(b).push(a); }
-  const boss = marks.find(m => m.type === 'boss') || marks.find(m => m.type === 'exit'), ok = new Set(), q = [];
-  for (const k of seen){ const i = k % W, j = (k - i) / W; if (Math.abs(i - boss.x) < 12 && Math.abs(j - boss.y) < 2){ ok.add(k); q.push(k); } }
+  const boss = marks.find(m => m.type === 'boss') || marks.find(m => m.type === 'exit') || marks.find(m => m.type === 'pass'), ok = new Set(), q = [];
+  // a passage is jumped into, not stood in: where he stands under it (to three below its foot) counts as there
+  const pass = boss.type === 'pass', near = (i, j) => pass ? i >= boss.x - 6 && i <= boss.x + (boss.w || 2) + 6 && j >= boss.y - 3 && j <= boss.y + (boss.h || 2) : Math.abs(i - boss.x) < 12 && Math.abs(j - boss.y) < 2;
+  for (const k of seen){ const i = k % W, j = (k - i) / W; if (near(i, j)){ ok.add(k); q.push(k); } }
   while (q.length){ const k = q.pop(); for (const p of back.get(k) || []) if (!ok.has(p)){ ok.add(p); q.push(p); } }
   const stuck = [...seen].filter(k => !ok.has(k)).map(k => { const i = k % W, j = (k - i) / W, r = rooms.find(r => i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1); return `${r ? r.name : '?'} ${i},${j}`; });
   assert.equal(stuck.length, 0, `${stuck.length} places he gets to but not out of, e.g. ${stuck.slice(0, 6).join('; ')}`);

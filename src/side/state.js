@@ -33,6 +33,7 @@ export const RELICS = {   // name: whose it was; line: what it does; lore: whose
   featherfall: { name: 'Climber\'s Knot',          line: 'No fall can hurt him.',                          lore: 'Tied by one who sat down to rest. The rope is gone; the knot held.' },
   stormglass:  { name: 'Wright\'s Stormglass',     line: 'His plunge lands with lightning: wider, and harder.', lore: 'The Wrights\' first jar. It caught one bolt and kept it, which was the whole trouble.' },
   seedheart:   { name: 'Gardener\'s Seed',         line: 'Seven embers mend a heart, where it took ten.',  lore: 'The gardeners kept back one seed from every sowing, in case. This was the last.' },
+  tally:       { name: 'Guild Tally',            line: 'Urns spill half again as many shards.',          lore: 'Every shift was chalked up and paid in shards. The last was never paid.' },
   starcompass: { name: 'Astronomer\'s Compass',    line: 'The map shows what is still to be found.',       lore: 'It does not point north. It points at the star that is missing.' },
 };
 // what each keeper leaves him, by region
@@ -43,4 +44,5 @@ export const TEACH = [
   { heart: 1,       name: 'The Thunderhead\'s Heart',     lines: ['A heart more: the thread grows a length.'] },
   { flask: 1,       name: 'Mother Thorn\'s Dew',    lines: ['The flask holds a draught more of the water.'] },
   { name: '', lines: [] },
+  { name: '', lines: [] },   // the Workings: no keeper
 ];

@@ -8,6 +8,7 @@ import { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, room, p
 import tempest from './regions/tempest.js';
 import gardens from './regions/gardens.js';
 import firmament from './regions/firmament.js';
+import workings from './regions/workings.js';
 export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B };
 
 // ---- the first region: up from the bottom of the mountain
@@ -24,7 +25,7 @@ function start(){
   return r;
 }
 function corridor(){
-  const r = room(); walls(r); door(r, 'left', 2, 7); door(r, 'top', 30, 36);
+  const r = room(); walls(r); door(r, 'left', 2, 7); door(r, 'top', 30, 36); door(r, 'right', 2, 7);
   rect(r, 16, 0, 21, 1, EMPTY); rect(r, 16, 0, 21, 0, SPIKES);   // a pit with spikes: jump it
   ledge(r, 30, 36, 6); ledge(r, 25, 30, 10); ledge(r, 32, 37, 14); ledge(r, 26, 31, 18); ledge(r, 30, 36, 21);   // the last, in the doorway: up into the shaft
   mark(r, 'crawler', 10, 2); mark(r, 'torch', 12, 8); mark(r, 'torch', 26, 6); mark(r, 'crystal', 37, 15);
@@ -38,6 +39,17 @@ function shaft(){
   mark(r, 'flitter', 30, 16); mark(r, 'crystal', 24, 2); mark(r, 'crystal', 37, 20); mark(r, 'torch', 10, 17);
   rect(r, 8, 2, 21, 7, EMPTY); rect(r, 22, 2, 22, 6, CRACKED);         // a room in the rock beside the shaft, walled up
   mark(r, 'chest', 12, 2, { holds: 'relic:whetstone' }); mark(r, 'urn', 16, 2); mark(r, 'urn', 19, 2);
+  return r;
+}
+// the Pithead: where the Lamp-guild went down. The winding gear over the old cage shaft, the guild's lamps, and the hole:
+// down it is the Workings (regions/workings.js), the first of the Deep
+function pithead(){
+  const r = room(); walls(r); door(r, 'left', 2, 7); door(r, 'bottom', 18, 22);
+  ledge(r, 15, 25, 9);                                            // the headframe's deck over the hole
+  rect(r, 14, 2, 14, 8); rect(r, 26, 2, 26, 8);                    // its legs
+  mark(r, 'pass', 18, 0, { w: 5, h: 3, to: 6, at: 'down' }); mark(r, 'arrive', 9, 2, { name: 'pithead' });
+  mark(r, 'torch', 12, 8); mark(r, 'torch', 28, 8); mark(r, 'torch', 34, 12); mark(r, 'crystal', 32, 2);
+  mark(r, 'urn', 5, 2); mark(r, 'urn', 35, 2); mark(r, 'flitter', 30, 15);
   return r;
 }
 function tunnel(){
@@ -327,16 +339,19 @@ function crown(){
 // `fill` is what is between the rooms; `wear` is how hard the organic pass works the rock
 const REGIONS = [
   { name: 'The Roots', theme: 'roots', sub: 'the bottom of the world, and the water there', card: '', epithet: 'IT HAS FORGOTTEN WHAT IT GUARDS', quiet: ['arena'], seed: 1234567, wear: { sag: 1, swell: 1, humps: 0.8 },
-    layout: [[0, 0, start], [1, 0, corridor], [1, 1, shaft], [0, 1, tunnel], [0, 2, chamber], [1, 2, ascent], [2, 2, gallery], [3, 2, well, 1, 2], [0, 3, roost], [1, 3, bridge], [2, 3, grotto], [2, 4, arena, 2, 2]] },
+    layout: [[0, 0, start], [1, 0, corridor], [2, 0, pithead], [1, 1, shaft], [0, 1, tunnel], [0, 2, chamber], [1, 2, ascent], [2, 2, gallery], [3, 2, well, 1, 2], [0, 3, roost], [1, 3, bridge], [2, 3, grotto], [2, 4, arena, 2, 2]] },
   { name: 'The Cloister', theme: 'cloister', sub: 'a house that kept the hours of the flame', card: 'The dark is below him. He is still being called.', epithet: 'IT RINGS FOR A LIGHT IT CANNOT SEE', quiet: ['chapel'], seed: 7654321, wear: { sag: 0.55, swell: 0.5, humps: 0.4 },
     layout: [[0, 0, undercroft], [1, 0, nave, 2, 1], [3, 0, belfry, 1, 3], [0, 1, stairwell, 1, 2], [1, 1, cells], [2, 1, library], [1, 2, cloister, 2, 1], [1, 3, chapel, 2, 1]] },
   { name: 'The Spires', theme: 'spires', sub: 'the open air, and the high pass', card: 'Out of the stone, into the cold and the sky.', epithet: 'IT COILS ON THE PASS, AND LETS NONE BY', quiet: ['crown'], seed: 2468101, fill: EMPTY, sky: true, wear: { sag: 1.1, swell: 0.5, humps: 0.6 },
     layout: [[0, 0, mouth], [1, 0, saddle, 2, 1], [0, 1, massif], [1, 1, nest], [2, 1, spire, 1, 2], [0, 2, hollow], [1, 2, ropeway], [0, 3, chimney], [1, 3, brow], [0, 4, icecave, 2, 1], [2, 3, teeth, 1, 2],
       [0, 5, eyrie, 2, 1], [2, 5, span], [0, 6, crown, 2, 2]], cols: 3 },
   tempest, gardens, firmament,   // each in its own file (regions/)
+  workings,   // the Deep: off the climb, under it (deep: true)
 ];
 export const LEVELS = REGIONS.map(r => ({ name: r.name, theme: r.theme, sub: r.sub || '', card: r.card || '', epithet: r.epithet || '' }));
-export const REGION_DATA = REGIONS;   // a region's own look, creatures and music, where its file has them (themeDef, deco, enemies, ai, songs)
+export const REGION_DATA = REGIONS;
+// the climb: the regions one above another (the Deep is off it); its top is the summit
+export const CLIMB_TOP = REGIONS.reduce((t, R, n) => R.deep ? t : n, 0);   // a region's own look, creatures and music, where its file has them (themeDef, deco, enemies, ai, songs)
 const QUIET = new Set(REGIONS.flatMap(r => r.quiet || []));   // a boss's stage stays flat (its blows run along it)
 
 function build(n){
@@ -364,7 +379,7 @@ function build(n){
     if (m.type === 'bloom') for (let a = -1; a <= 1; a++) pads.set(m.y * W + m.x + a, m);
     if (m.type === 'updraft') updrafts.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 12)) * T });
   }
-  return { index: n, name: R.name, theme: R.theme, sky: !!R.sky, W, H, tiles, marks, rooms, raw, pads, updrafts, tiles0: tiles.slice() };
+  return { index: n, name: R.name, theme: R.theme, sky: !!R.sky, deep: !!R.deep, W, H, tiles, marks, rooms, raw, pads, updrafts, tiles0: tiles.slice() };
 }
 // ---- where the three who climb are found in each region: a room each, never the first, spread through it. Each stands
 // at a station of their own (items.js draws it and lights it): Ordric at a flame, Mirel at a fire, Corwen at a desk
@@ -375,10 +390,11 @@ export const STATIONS = [
   { lamplighter: ['watch', 'masthead'], wren: 'gantry', scribe: ['anchorage', 'stacks', 'buttress', 'corbel', 'cap', 'bluff'] },
   { lamplighter: 'orangery', wren: 'cascade', scribe: 'terraces' },
   { lamplighter: 'vigil', wren: 'transit', scribe: 'archive' },
+  { hob: 'bunk' },   // the Workings: Hob alone
 ];
 // each is moved to the best place in its room: a flat floor seven tiles wide with six of air over it, clear of the other
 // markers. Ordric stands four tiles from the room's flame (on the side with room); the others as near the room's middle as fits
-const NOT_FOE = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep']);
+const NOT_FOE = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep']);
 function stations(tiles, W, H, marks, rooms, S){
   if (!S) return;
   const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i], solid = t => t === ROCK || t === LEDGE;
