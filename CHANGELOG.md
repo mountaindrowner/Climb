@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The fall, and a first minute without waiting (latest).**
+**The folk in profile (latest).** Ordric, Mirel and Corwen had been drawn turned a little toward us (PixelLab's "east" is nearer three-quarters than flat). Each is turned to a flat profile, facing straight left or right like him (PixelLab's rotate, from their own drawings), and given a new idle from that: Mirel bent under the shell, Ordric's lantern swinging, Corwen reading. Mirel without her shell is cut from the new drawing, the carrier the shell sat in with it (`tools/unshell.py`). The talk box shows each one's head and shoulders, one pixel to one.
+
+**The fall, and a first minute without waiting.**
 - *The fall in the intro is drawn as a fall*: face down, arms and legs out to the dark under him, his cloak and scarf torn upward, sixteen frames of it working in the wind (`fall_dive`). It was his standing drawings turned on their side. Made from his own drawings as reference (PixelLab's image model with his stand as the subject and his idle as the style), then animated.
 - *The opening is in hand before it is offered.* The title shows at once; its buttons wait (a thin bar fills where they will be) until the pictures of the fall, his drawings for the first minute, the Roots and the opening's music are in, then the rest comes on behind. Measured on a slow line (1.5 MB/s, 120 ms): the intro's paintings had been arriving about 7 s in, after the title could already be pressed, and the music at 17 s; now nothing in the opening arrives after it is wanted.
 - *Sound in the order it is wanted*, four at a time, the intro's first: all 48 recordings (3 MB) had been asked for at once, crowding out the pictures.

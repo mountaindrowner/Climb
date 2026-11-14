@@ -14,9 +14,9 @@ export const PEOPLE = { lamplighter: { name: 'ORDRIC OF THE VIGIL', art: 'px_mot
 //   Mirel climbs to arrive deserving it. She carries a great borrowed shell and counts her falls so they can be held
 //         against her; the water keeps giving her back anyway, and somewhere above the storm she puts the shell down.
 //   Corwen records the mountain exactly and cannot account for it.
-// where each one's face is in their standing drawing (its top-left, 16 pixels square): the box shows the head, not the
+// where each one's face is in their standing drawing (its top-left, and how many pixels square: 32 is shown 1:1): the box shows the head, not the
 // middle of the figure (Mirel's middle is her shell)
-const FACES = { px_moth: [20, 4], px_hermit: [21, 6], px_hermit_free: [21, 6], px_rook: [22, 3] };
+const FACES = { px_moth: [18, 7, 32], px_hermit: [22, 10, 32], px_hermit_free: [22, 10, 32], px_rook: [20, 8, 32] };
 export const SCRIPT = {   // at most three lines a meeting, each short and new; the theme is never said (docs/writing.md)
   lamplighter: [
     ['You came up out of the water. They all do, the ones it gives back.', 'That red thread was tied on you. It burns when you are hurt. A flame mends it.', 'Bring me shards of the old lamps. I can do a little. The rest was never mine.'],
@@ -50,7 +50,7 @@ export function makeTalk(){
   const face = (who, art) => { const key = who + (art || ''); if (faces[key] !== undefined) return faces[key]; faces[key] = null; const P = PEOPLE[who]; if (!P) return null; const im = new Image(); who = key; im.onload = () => {
       const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight; const g = c.getContext('2d'); g.drawImage(im, 0, 0); const d = g.getImageData(0, 0, c.width, c.height).data;
       let x0 = c.width, x1 = 0, y0 = c.height, y1 = 0; for (let y = 0; y < c.height; y++) for (let x = 0; x < c.width; x++) if (d[(y * c.width + x) * 4 + 3] > 40){ x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
-      const s = y1 - y0 > 50 ? 32 : 16, at = FACES[art || P.art]; faces[who] = at ? { im: c, x: at[0], y: at[1], s } : { im: c, x: Math.max(0, Math.min(c.width - s, Math.round((x0 + x1) / 2 - s / 2))), y: Math.max(0, y0 - 1), s }; }; im.src = `assets/side/${art || P.art}/stand.png`; return null; };
+      const at = FACES[art || P.art], s = at ? (at[2] || 16) : y1 - y0 > 50 ? 32 : 16; faces[who] = at ? { im: c, x: at[0], y: at[1], s } : { im: c, x: Math.max(0, Math.min(c.width - s, Math.round((x0 + x1) / 2 - s / 2))), y: Math.max(0, y0 - 1), s }; }; im.src = `assets/side/${art || P.art}/stand.png`; return null; };
   S.start = (who, lines, after = null, art = null) => { S.on = true; S.who = who; S.art = art; S.lines = lines.slice(); S.i = 0; S.n = 0; S.after = after; S.held = 0; face(who, art); };
   S.press = () => { if (!S.on || S.held < 0.15) return; const L = S.lines[S.i] || ''; if (S.n < L.length){ S.n = L.length; return; } S.i++; S.n = 0; S.held = 0; if (S.i >= S.lines.length){ S.on = false; const a = S.after; S.after = null; if (a) a(); } };
   S.draw = (H, dt, t) => {

@@ -45,6 +45,17 @@ def unshell(fr):
             c=px[x,y]
             if c[3]>=128 and not ink(c) and any(0<=x+dx<W and 0<=y+dy<H and px[x+dx,y+dy][3]<128 and (x+dx,y+dy) in gone for dx,dy in ((1,0),(-1,0),(0,1),(0,-1))): out.append((x,y))
     for p in out: px[p]=(24,20,37,255)
+    # the carrier the shell sat in (on her back, just under it): in the rows from the shell down a little way, whatever is
+    # behind the back of her cloak goes, then its edge is inked as above
+    def greyish(c): r,g,b,a_=c; return a_>=128 and b+6>=r and max(r,g,b)-min(r,g,b)<40 and max(r,g,b)>45
+    cut=set()
+    for y in range(max(0,y0),min(H,y1+15)):
+        back=next((x for x in range(W) if greyish(px[x,y])), None)
+        if back is None: continue
+        for x in range(0,back):
+            if px[x,y][3]>=128: px[x,y]=(0,0,0,0); cut.add((x,y))
+    for (x,y) in [(x,y) for y in range(H) for x in range(W) if px[x,y][3]>=128 and not ink(px[x,y]) and any((x+dx,y+dy) in cut for dx,dy in ((1,0),(-1,0),(0,1),(0,-1)))]:
+        px[x,y]=(24,20,37,255)
     # keep only her: the largest piece; specks of the shell's shading left in the air go
     seen=set(); best=[]
     for y in range(H):

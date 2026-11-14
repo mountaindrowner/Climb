@@ -4,22 +4,22 @@
  "anims": {
   "stand": {
    "frames": 1,
-   "w": 48,
-   "h": 48,
-   "foot": 46,
-   "cx": 25.5,
-   "footLast": 46,
-   "cxLast": 25.5,
+   "w": 64,
+   "h": 64,
+   "foot": 60,
+   "cx": 32.5,
+   "footLast": 60,
+   "cxLast": 32.5,
    "n": 1
   },
   "idle": {
-   "frames": 9,
-   "w": 68,
-   "h": 68,
-   "foot": 56,
-   "cx": 35.5,
-   "footLast": 56,
-   "cxLast": 35.5,
+   "frames": 16,
+   "w": 64,
+   "h": 64,
+   "foot": 60,
+   "cx": 32.5,
+   "footLast": 60,
+   "cxLast": 32.5,
    "n": 1
   }
  }
