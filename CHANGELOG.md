@@ -2,7 +2,15 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The guard (latest).** Blocking has a drawing of its own (`block`): he brings the blade up level and forward and braces, in profile, in its first five frames (0.12 s, as quick as the parry's moment), and holds it while he blocks. He had stood as if idle. The key hints now say how to block (right click, or K).
+**The Workings, the spitters, the pool (latest).** The game is a Metroidvania now, not a roguelike, and grows by sections (`docs/side.md`, `docs/world.md`).
+- *The Workings*, the first of the Deep, the Lamp-guild's mines under the water: down a hole in a new Roots room, the Pithead, off the corridor. The cage shaft (the cage still hangs in it; he climbs its frame), the tally-house with a flame, the bunkhouse where Hob fills his lamp, the timbered props, the long level on its rail line, and the cistern at the bottom where the water came in. About thirteen screens, from 130 m to 600 m below the water on the height bar. Every part of it can be climbed back out of (the tests prove it with the real motor). Hob speaks; the Guild Tally is its relic.
+- *Passages between regions*, and *the Deep off the climb*: a region can now be under the climb rather than on it, reached and left by passages, without touching the way on, the ending or the title.
+- *The spitters, a family*, from the drawings chosen: the Black Leech on the Roots' walls (in place of the Bile-sac), the Sump Lamprey hanging from the Workings' roofs (twice a spit), Pit Barnacles on its rock, and Fountain Toads in the Gardens (three drawings, a lob, more to cut through). Each clings to what it holds to: wall, ceiling or floor.
+- *The pool* is a cistern now: a basin cut into the floor, the water deep and lit from below, an old apse behind it with a ring carved at its crown, threads of water falling into it out of the dark.
+- *M is the map, N the music* (they had both been M).
+- The engine work, checked end to end: every region painted and in, with the worker and without, the maps, the sleeping.
+
+**The guard.** Blocking has a drawing of its own (`block`): he brings the blade up level and forward and braces, in profile, in its first five frames (0.12 s, as quick as the parry's moment), and holds it while he blocks. He had stood as if idle. The key hints now say how to block (right click, or K).
 
 **Ready for a bigger mountain.** The engine work the blueprint says must come before the world grows (`docs/world-blueprint.md`):
 - *Regions are painted off the page.* The painter is its own module (`paint.js`) and runs in a worker (`paintworker.js`): each region is painted once and kept, and the region above him is painted while he climbs this one, so going up never waits on it and the game never stops for it. Where a page allows no worker, the old way still works. The paintings go to the graphics card a piece at a time before a region is shown, and canvases that are read back are kept in memory (one read of the far painting had taken 2.2 s). Measured going up three regions in a software-drawn browser: the longest the game stood still fell from 3.2 to 3.7 s to 0.4 to 0.5 s.

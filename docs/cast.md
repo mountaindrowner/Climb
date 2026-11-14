@@ -65,6 +65,12 @@ eight of them broke the rules above and are redrawn: the Pale Bat (a featureless
 child), Ball Lightning (an eye), the Rot-pod (a sleepy face), the Star-cinder (a face) and the Oculus (it came out as a
 little robot on legs; it is a floating brass sphere with an eye). Ball Lightning and the Star-cinder are drawn by rule (`tools/energy-parts.py`), since PixelLab's character drawings give energy a body and a face. The old drawings are not in the repository's assets any more; git has them.
 
+## Him, later
+
+His look is to be revisited (not yet): taller and slimmer, more defined; his sword loses its edge against some
+backgrounds and some frames look odd. His character (the mask, the red scarf, the cape) stays. Nothing is to change
+until it is taken up.
+
 ## The people and their stations
 
 How they are written (their sliders, their work, their arcs, and the help each gives him later) is in `docs/writing.md`.

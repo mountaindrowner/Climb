@@ -11,6 +11,18 @@ The picture is `docs/world-section.png`: the mountain cut through, with every se
 Nothing in this file is said outright in the game. The game shows a place, and a line or two carved, written or spoken
 in it. This file is so that whoever builds a room knows what happened there.
 
+## Where it stands
+
+| Section | Built | Notes |
+|---|---|---|
+| The six regions of the climb | Yes | |
+| The Workings | **Yes (build 28)** | Down the Pithead, a new Roots room off the corridor (not the tunnel). Cage shaft, tally-house (a flame), bunkhouse (Hob), props, long level, cistern. Lampreys and barnacles; the Roots' crawlers, bats and delvers for now. The Guild Tally (urns spill half again as many shards). The Hewers and the Wick-flies (the lamp-moths, renamed: a wild moth would muddle Ordric) wait on art; the Shift-boss too |
+| The Flooded Levels, the Vein, the Great Shaft, the Hollow, the Source | No | The way on down is under the cistern's water, closed to him yet |
+| The wings, the seams | No | |
+
+**Direction:** a Metroidvania, not a roguelike (`docs/side.md`). The world grows by sections the gifts open, and is gone
+back through.
+
 ## The shape
 
 The mountain is not only what stands up out of the land. Under the water at its roots the mines go down, level below
