@@ -1,0 +1,32 @@
+{
+ "name": "px_leech",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 64,
+   "h": 64,
+   "foot": 64,
+   "cx": 30.0,
+   "footLast": 64,
+   "cxLast": 30.0,
+   "n": 1
+  },
+  "charge": {
+   "frames": 16,
+   "w": 64,
+   "h": 64,
+   "foot": 64,
+   "cx": 30.0,
+   "footLast": 64,
+   "cxLast": 30.0,
+   "n": 1
+  }
+ },
+ "box": {
+  "l": 0,
+  "t": 25,
+  "r": 60,
+  "b": 64
+ }
+}

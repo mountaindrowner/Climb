@@ -26,7 +26,12 @@ const solidAt = (x, y) => tileAt(Math.floor(x / T), Math.floor(y / T)) === ROCK;
 const DEF = {
   crawler:  { ai: 'crawler', hp: 3, w: 0.55, h: 0.8, color: 0xc060ff, wake: 7, reach: 1.9, chase: 2.6, windup: 0.5, lunge: 0.26, lungeDist: 2.2, recover: 0.6, stun: 0.6, art: 'crawler', fly: false },
   flitter:  { ai: 'flitter', hp: 1, w: 0.4, h: 0.5, color: 0xffb040, glow: 0x3a2a4a, wake: 7, circle: 1.2, dive: 0.55, commit: 0.3, leave: 0.8, art: 'flitter', fly: true },
-  spitter:  { ai: 'spitter', hp: 2, w: 0.5, h: 0.6, color: 0x70ff70, range: 8, charge: 0.7, speed: 8, cooldown: 2.0, art: 'spitter', fly: true },
+  // the spitters, a family, harder as the mountain goes on. cling: what it holds to ('wall', 'ceiling', 'floor'): it is
+  // set against the nearest of it, its drawing's rock against the rock. variants: drawings it is one of, by where it is
+  spitter:  { ai: 'spitter', hp: 2, w: 0.6, h: 0.8, color: 0x70ff70, range: 8, charge: 0.7, speed: 8, cooldown: 2.0, art: 'px_leech', fly: true, cling: 'wall' },
+  lamprey:  { ai: 'spitter', hp: 3, w: 0.5, h: 1.2, color: 0xf6757a, range: 9, charge: 0.65, speed: 10, cooldown: 1.8, burst: 2, orb: 0xd8ff80, art: 'px_lamprey', fly: true, cling: 'ceiling', mouthY: -0.44, word: 'Spat on' },
+  barnacle: { ai: 'spitter', hp: 3, w: 0.8, h: 1.6, color: 0x5a6988, range: 7, charge: 0.6, speed: 9, cooldown: 1.6, variants: ['px_barn_a', 'px_barn_b', 'px_barn_c'], fly: false, cling: 'floor', word: 'Spat on' },
+  toad:     { ai: 'spitter', hp: 5, w: 0.9, h: 2.0, color: 0xc0cbdc, range: 10, charge: 0.9, speed: 9, cooldown: 2.0, lob: true, orb: 0xb8f060, variants: ['px_toad_a', 'px_toad_b', 'px_toad_c'], fly: false, cling: 'floor', word: 'Spat on' },
   burrower: { ai: 'burrower', hp: 2, w: 0.6, h: 1.1, color: 0xd0a070, wake: 6, plough: 6, rise: 0.3, up: 1.4, art: 'burrower', fly: false },
   acolyte:  { ai: 'crawler', hp: 5, w: 0.6, h: 1.9, color: 0xa22633, wake: 8, reach: 2.1, chase: 2.0, windup: 0.62, lunge: 0.2, lungeDist: 1.5, recover: 0.8, stun: 0.5, hitR: 1.2, art: 'px_acolyte', fly: false, word: 'Struck' },
   gargoyle: { ai: 'flitter', hp: 3, w: 0.55, h: 0.9, color: 0x8b9bb4, wake: 6, circle: 1.5, dive: 0.6, commit: 0.34, leave: 1.0, perch: true, art: 'px_gargoyle', fly: true, word: 'Clawed' },
@@ -39,7 +44,7 @@ const DEF = {
 // name: ai[name](e, P, dt, ctx) is called every step for each living one, with the helpers in ctx (stepEnemies)
 const CUSTOM = {};
 for (const R of REGION_DATA){ if (R.enemies) Object.assign(DEF, R.enemies); if (R.ai) Object.assign(CUSTOM, R.ai); }
-const ART = { crawler: ['px_crawler', 'crawler3', 'crawler'], flitter: ['px_flitter', 'flitter2', 'flitter'], spitter: ['px_spitter', 'spitter2', 'spitter'], burrower: ['px_burrower', 'burrower2', 'burrower'] };
+const ART = { crawler: ['px_crawler', 'crawler3', 'crawler'], flitter: ['px_flitter', 'flitter2', 'flitter'], spitter: ['px_leech', 'px_spitter'], burrower: ['px_burrower', 'burrower2', 'burrower'] };
 export function spawnEnemies(scene, R){
   const list = [];
   for (const m of LEVEL.marks){
@@ -51,20 +56,37 @@ export function spawnEnemies(scene, R){
     scene.add(e.stand);
     // the newest drawing that is there (drawn flat, at the game's pixel scale), else the first
     const tryArt = names => { if (!names.length) return; const n = names[0];
-      fetch(`assets/side/${n}/sprite.json`).then(r => r.ok ? r.json() : null).then(meta => { if (meta && Object.keys(meta.anims).length > 1){ const sp = makeSprite(scene, `assets/side/${n}`, meta).warm(); sp.g.visible = false; e.meta = meta;
+      fetch(`assets/side/${n}/sprite.json`).then(r => r.ok ? r.json() : null).then(meta => { if (meta && Object.keys(meta.anims).length > 1){ const sp = makeSprite(scene, `assets/side/${n}`, meta).warm(); sp.g.visible = false; e.meta = meta; if (d.cling) cling(e, meta);
         // its drawing replaces the stand-in only once every strip of it is in: it never blinks out while they come
         let tries = 0; const swap = () => { if (sp.in() || ++tries > 400){ e.sprite = sp; sp.g.visible = true; e.stand.visible = false; } else setTimeout(swap, 60); }; swap(); } else tryArt(names.slice(1)); }).catch(() => tryArt(names.slice(1))); };
-    tryArt(ART[m.type] || [d.art]);
+    tryArt(d.variants ? [d.variants[(m.x * 7 + m.y * 3) % d.variants.length]] : ART[m.type] || [d.art]);
+    if (d.cling === 'floor'){ const gy = ground(x, y + 0.3); if (gy > -Infinity){ e.y = e.home.y = gy; } }
     list.push(e);
   }
   const orbMats = {}, orbMat = c => orbMats[c] || (orbMats[c] = new THREE.MeshBasicMaterial({ color: c }));
   return { list, orbGeo: new THREE.SphereGeometry(0.18, 8, 6), orbMat, scene, R };
 }
-const anim = (e, name0, frac, dy = 0, z = 0.03) => { if (!e.sprite) return; const A = e.meta.anims, name = (e.d.an && e.d.an[name0]) || name0; const n = A[name] ? name : Object.keys(A).find(k => k !== 'stand') || 'stand'; e.sprite.show(n, frac, e.x, (e.d.fly ? e.y - e.d.h * 0.7 : e.y) + dy, e.face, z); };
+const anim = (e, name0, frac, dy = 0, z = 0.03) => { if (!e.sprite) return; const A = e.meta.anims, name = (e.d.an && e.d.an[name0]) || name0; const n = A[name] ? name : Object.keys(A).find(k => k !== 'stand') || 'stand'; e.sprite.show(n, frac, e.x, (e.d.fly ? e.y - e.d.h * 0.7 : e.y) + dy, e.face, z, e.rot || 0); };
 
+// set a clinging creature against what it clings to, by its drawing (its sprite.json's box: the drawing's edges in
+// its canvas). A wall: the nearest to either side, its rock to the wall, facing out, never turning. A ceiling: the
+// nearest above, hanging from it; with none near, the nearest wall, turned to hang from that. With nothing near it
+// stays where it was put
+function cling(e, meta){
+  const A = meta.anims.stand, B = meta.box || { l: 0, t: 0, r: A.w, b: A.foot }, P = 1 / 16, d = e.d, mx = e.home.x, my = e.home.y;
+  const wallAt = () => { for (let k = 0; k <= 12; k++) for (const s of [-1, 1]){ const tx = Math.floor(mx / T) + s * k; if (solidAt((tx + 0.5) * T, my - d.h * 0.4)) return { s, x: s < 0 ? (tx + 1) * T : tx * T }; } return null; };
+  if (d.cling === 'wall'){ const w = wallAt(); if (!w) return;
+    e.fixFace = -w.s; e.face = e.fixFace; e.x = e.home.x = w.x - w.s * ((A.cx - B.l) * P - P); }
+  if (d.cling === 'ceiling'){
+    let ceil = null; for (let k = 0; k < 14; k++){ const ty = Math.floor(my / T) + k; if (solidAt(mx, (ty + 0.5) * T)){ ceil = ty * T; break; } }
+    if (ceil !== null){ const drawY = ceil - (A.foot - B.t) * P + P; e.y = e.home.y = drawY + d.h * 0.7; return; }
+    const w = wallAt(); if (!w) return;   // turned a quarter, its tail to the wall
+    e.rot = w.s < 0 ? -Math.PI / 2 : Math.PI / 2; e.fixFace = 1; e.face = 1; e.x = e.home.x = w.x - w.s * ((A.foot - B.t) * P * 0.5 - P);
+  }
+}
 const LOB_G = 15;
 function shoot(E, e, P, lob){
-  const col = e.d.orb || 0x9dff70, x0 = e.x + e.face * e.d.w * 0.6, y0 = e.d.fly ? e.y : e.y + e.d.h * 0.9;
+  const col = e.d.orb || 0x9dff70, x0 = e.x + e.face * e.d.w * 0.6, y0 = e.d.fly ? e.y + (e.d.mouthY || 0) : e.y + e.d.h * 0.9;
   let vx, vy;
   if (lob){ const t = Math.max(0.6, Math.min(1.25, Math.abs(P.x - x0) / 7)), tx = P.x + P.vx * t * 0.5, ty = P.y + 0.8; vx = (tx - x0) / t; vy = (ty - y0 + 0.5 * LOB_G * t * t) / t; }
   else {   // leads him: where he will be when it gets there
@@ -132,11 +154,11 @@ export function stepEnemies(E, P, dt, fx, events){
       anim(e, e.st === 'dive' ? 'dive' : 'fly', e.st === 'dive' ? e.tm / e.d.dive : e.st === 'idle' && e.d.perch ? 0 : e.tm * 2.5);
     }
     else if (ai === 'spitter'){
-      e.face = Math.sign(dx) || e.face; e.cd = Math.max(0, (e.cd || 0) - dt);
+      e.face = e.fixFace || Math.sign(dx) || e.face; e.cd = Math.max(0, (e.cd || 0) - dt);
       if (e.d.hover){ e.x = e.home.x + Math.sin(e.age * 1.1) * 0.5; e.y = e.home.y + Math.sin(e.age * 2) * 0.25; }
       if (e.st === 'idle' && dist < e.d.range && e.cd <= 0){ go('charge'); e.shots = 0; events.push({ type: 'tell', e }); }
       if (e.st === 'charge' && e.tm >= e.d.charge){
-        shoot(E, e, P, false); events.push({ type: 'spit', e });
+        shoot(E, e, P, !!e.d.lob); events.push({ type: 'spit', e });
         if (++e.shots < (e.d.burst || 1)){ e.tm = e.d.charge - 0.3; } else { go('idle'); e.cd = e.d.cooldown; }
       }
       anim(e, e.st === 'charge' ? 'charge' : 'idle', e.st === 'charge' ? e.tm / e.d.charge * 0.75 : e.d.hover ? e.age * 1.2 : 0);

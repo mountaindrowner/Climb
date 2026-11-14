@@ -1,0 +1,32 @@
+{
+ "name": "px_toad_b",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 64,
+   "h": 64,
+   "foot": 62,
+   "cx": 34.0,
+   "footLast": 62,
+   "cxLast": 34.0,
+   "n": 1
+  },
+  "charge": {
+   "frames": 16,
+   "w": 64,
+   "h": 64,
+   "foot": 62,
+   "cx": 34.0,
+   "footLast": 62,
+   "cxLast": 34.0,
+   "n": 1
+  }
+ },
+ "box": {
+  "l": 7,
+  "t": 22,
+  "r": 61,
+  "b": 62
+ }
+}

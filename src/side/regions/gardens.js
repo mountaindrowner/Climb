@@ -54,7 +54,7 @@ function arbor(){
   slab(r); rect(r, 26, 0, 32, 1, EMPTY); ledge(r, 26, 32, 1);     // the walk, the way up through it
   rect(r, 36, 0, 39, 22);                                          // the cliff
   ledge(r, 31, 35, 8); mark(r, 'chest', 33, 9, { holds: 'shards' });
-  mark(r, 'lasher', 15, 2); mark(r, 'gargoyle', 22, 12);
+  mark(r, 'lasher', 15, 2); mark(r, 'gargoyle', 22, 12); mark(r, 'toad', 29, 2);
   mark(r, 'crystal', 34, 2); mark(r, 'crystal', 7, 2); mark(r, 'urn', 11, 2); mark(r, 'torch', 35, 5);
   return r;
 }
@@ -100,7 +100,7 @@ function cascade(){
   mark(r, 'npc', 29, 14, { who: 'wren' }); mark(r, 'bloom', 35, 14);
   ledge(r, 30, 36, 21); ledge(r, 19, 25, 23); rect(r, 0, 23, 14, 24);   // caught, over it; across; the walk above, toward the canopy
   ledge(r, 30, 35, 30); mark(r, 'chest', 33, 31, { holds: 'shards' });   // straight up off the high bloom
-  mark(r, 'lasher', 14, 2); mark(r, 'thornback', 33, 2); mark(r, 'harpy', 20, 30); mark(r, 'harpy', 8, 36); mark(r, 'puff', 22, 27);
+  mark(r, 'lasher', 14, 2); mark(r, 'thornback', 33, 2); mark(r, 'toad', 25, 2); mark(r, 'harpy', 20, 30); mark(r, 'harpy', 8, 36); mark(r, 'puff', 22, 27);
   mark(r, 'crystal', 2, 2); mark(r, 'crystal', 32, 14); mark(r, 'crystal', 4, 25); mark(r, 'crystal', 12, 25); mark(r, 'urn', 8, 25);
   return r;
 }
@@ -118,7 +118,7 @@ function sundial(){
   const r = cave(); door(r, 'right', 2, 7); door(r, 'top', 8, 14);
   rect(r, 22, 2, 32, 2); rect(r, 24, 3, 30, 3);                    // the shrine's step
   [[10, 16, 5], [16, 22, 9], [10, 16, 13], [8, 14, 17], [8, 14, 21]].forEach(([a, b, y]) => ledge(r, a, b, y));
-  mark(r, 'shrine', 27, 4); mark(r, 'thornback', 15, 2);
+  mark(r, 'shrine', 27, 4); mark(r, 'thornback', 15, 2); mark(r, 'toad', 6, 2);
   mark(r, 'torch', 5, 9); mark(r, 'torch', 34, 10); mark(r, 'torch', 20, 16); mark(r, 'crystal', 36, 2); mark(r, 'crystal', 3, 2); mark(r, 'urn', 34, 2);
   return r;
 }

@@ -1,0 +1,32 @@
+{
+ "name": "px_lamprey",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 64,
+   "h": 64,
+   "foot": 61,
+   "cx": 32.5,
+   "footLast": 61,
+   "cxLast": 32.5,
+   "n": 1
+  },
+  "charge": {
+   "frames": 12,
+   "w": 64,
+   "h": 64,
+   "foot": 62,
+   "cx": 32.5,
+   "footLast": 61,
+   "cxLast": 32.5,
+   "n": 1
+  }
+ },
+ "box": {
+  "l": 16,
+  "t": 3,
+  "r": 49,
+  "b": 61
+ }
+}

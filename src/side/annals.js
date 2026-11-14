@@ -7,7 +7,7 @@ export const ANNALS = [
     creatures: [
       { type: 'crawler', name: 'Crawler', art: 'px_crawler', line: 'It eats what falls this far. Most of what falls this far.' },
       { type: 'flitter', name: 'Pale Bat', art: 'px_flitter', line: 'Born in the dark. It has never seen light, and hates it.' },
-      { type: 'spitter', name: 'Bile-sac', art: 'px_spitter', line: 'It drinks what drips from above, and gives it back.' },
+      { type: 'spitter', name: 'Black Leech', art: 'px_leech', line: 'It drinks what drips from above, and gives it back.' },
       { type: 'burrower', name: 'Delver', art: 'px_burrower', line: 'A blind worm of the deep. It hears every step.' } ] },
   { region: 'The Cloister', keeper: { theme: 'cloister', art: 'toll/bell', name: 'The Toll', line: 'It rings for a light it cannot see.' },
     creatures: [
@@ -28,6 +28,7 @@ export const ANNALS = [
     creatures: [
       { type: 'thornback', name: 'Thornback', art: 'px_thornback', line: 'Kept once, for the keepers\' table. It keeps itself now.' },
       { type: 'lasher', name: 'Lasher', art: 'px_lasher', line: 'It was a flower. No one told it when to stop.' },
+      { type: 'toad', name: 'Fountain Toad', art: 'px_toad_b', line: 'It sat in the keepers\' fountain, and was fed. No one feeds it now. It swells anyway.' },
       { type: 'puff', name: 'Rot-pod', art: 'px_puff', line: 'The garden\'s seed, gone bad in the sun.' } ] },
   { region: 'The Firmament', keeper: { theme: 'firmament', art: 'mask_tall_c/stand', name: 'The Fallen', line: 'What he left at the top. It has his walk, and thinks it is him.' },
     creatures: [

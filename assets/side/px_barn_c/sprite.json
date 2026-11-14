@@ -1,0 +1,32 @@
+{
+ "name": "px_barn_c",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 64,
+   "h": 64,
+   "foot": 62,
+   "cx": 33.0,
+   "footLast": 62,
+   "cxLast": 33.0,
+   "n": 1
+  },
+  "charge": {
+   "frames": 16,
+   "w": 64,
+   "h": 64,
+   "foot": 62,
+   "cx": 33.0,
+   "footLast": 62,
+   "cxLast": 33.0,
+   "n": 1
+  }
+ },
+ "box": {
+  "l": 6,
+  "t": 19,
+  "r": 60,
+  "b": 62
+ }
+}
