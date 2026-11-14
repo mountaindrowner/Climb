@@ -74,10 +74,17 @@ function shoot(E, e, P, lob){
   if (e.orb) E.scene.remove(e.orb.m);
   e.orb = { x: x0, y: y0, vx, vy, g: lob ? LOB_G : 0, col, t: 0, m: new THREE.Mesh(E.orbGeo, E.orbMat(col)) }; if (lob) e.orb.m.scale.setScalar(1.5); E.scene.add(e.orb.m);
 }
+// how far from him (world units, either way) a creature at rest sleeps: well beyond the edge of the view
+export const SLEEP = { x: 24, y: 15 };
 export function stepEnemies(E, P, dt, fx, events){
   for (const e of E.list){
     e.flash = Math.max(0, e.flash - dt);
     if (!e.alive){ e.dead += dt; e.y -= dt * (e.d.fly ? 6 : 0); if (e.orb){ E.scene.remove(e.orb.m); e.orb = null; } continue; }
+    // asleep: far out of sight and at rest, it does nothing and is not drawn until he comes near (a region three times
+    // the size has three times the creatures; only those near him think). One in the middle of something finishes it
+    const far = Math.abs(P.x - e.x) > SLEEP.x || Math.abs(P.y - e.y) > SLEEP.y, rest = (e.st === 'idle' || e.st === 'patrol' || e.st === 'perch' || e.st === 'hide' || e.st === 'float' || e.st === 'circle' || e.st === 'drift' || !e.st) && !e.orb;
+    if (far && rest && e.age > 0.5){ if (!e.asleep){ e.asleep = true; if (e.sprite) e.sprite.g.visible = false; e.stand.visible = false; } continue; }
+    if (e.asleep){ e.asleep = false; if (e.sprite) e.sprite.g.visible = true; else e.stand.visible = true; }
     e.tm += dt; e.age += dt;
     const ai = e.d.ai, dx = P.x - e.x, dy = P.y - e.y, dist = Math.hypot(dx, dy);
     const go = st => { e.st = st; e.tm = 0; };
