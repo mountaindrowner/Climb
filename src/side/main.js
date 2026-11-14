@@ -17,7 +17,7 @@ import { G, OPT, loadSave, store, storeOpt, wipe, has, maxHearts, maxFlask, RELI
 import { makeItems } from './items.js';
 import { makeTalk, SCRIPT } from './talk.js';
 import { ANNALS, PEOPLE_PAGE } from './annals.js';
-import { makeRenderer, makeSprite, VIEW_H, makeSwingFx } from './render.js';
+import { makeRenderer, makeSprite, VIEW_H, makeSwingFx, LOW } from './render.js';
 import { spawnFx, stepFx } from './fx.js';
 import { spawnEnemies, stepEnemies, strikeEnemies, slamEnemies } from './enemies.js';
 import { KEEPERS } from './keepers.js';
@@ -28,12 +28,16 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 29';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 30';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
 const sp = spawnPoint();
-loadSave(); setMix('music', OPT.music); setMix('sfx', OPT.sfx); if (OPT.rumble === false) SET.rumble = false;
+loadSave();
+// the phone mode: by the device (a touch screen no wider than a small tablet), or as the options say
+const phoneNow = () => OPT.phone === 'auto' ? (typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches && Math.max(screen.width, screen.height) <= 1400) : !!OPT.phone;
+LOW.on = phoneNow();
+setMix('music', OPT.music); setMix('sfx', OPT.sfx); if (OPT.rumble === false) SET.rumble = false;
 const DEV = /[?&]level=/.test(location.search);   // straight into a region by its address: he has what the keepers below it teach
 // he is made with what he has earned: hearts (threads, keepers, the difficulty), and the flask's draughts
 const born = (x, y) => { const p = newPlayer(x, y); p.maxHp = maxHearts(); p.hp = p.maxHp; p.flaskMax = maxFlask(); p.flask = p.flaskMax; return p; };
@@ -139,6 +143,7 @@ function options(back){
     cyc('Shake', 'shake', [0, 0.5, 1], ['off', 'soft', 'full']),
     cyc('Flashes', 'flash', [0, 1], ['off', 'on']),
     cyc('Difficulty', 'diff', [0, 1, 2], DIFF.map((d, i) => d + [' (two hearts more)', '', ' (two hearts fewer)'][i]), () => { P.maxHp = maxHearts(); P.hp = Math.min(P.hp, P.maxHp); }),
+    cyc('Phone mode', 'phone', ['auto', true, false], [phoneNow() && OPT.phone === 'auto' ? 'auto (on)' : 'auto', 'on', 'off'], () => { LOW.on = phoneNow(); banner('', 'phone mode ' + (LOW.on ? 'on' : 'off') + ': from the next region', 2.4); }),
     cyc('Rumble', 'rumble', [true, false], ['on', 'off'], () => { SET.rumble = OPT.rumble; saveSettings(); if (OPT.rumble) rumble(0.5, 0.5, 160); }),
     menuButton('Back', back, true)], false, back);
 }
@@ -626,7 +631,7 @@ function drawHud(dt){
   if (!rising && !TALK.on && !FLIGHT){
     HUD.status(P, EMBER.n, EMBER.max, P.flaskMax, time); PURSE = Math.max(0, PURSE - dt); HUD.purse(P, P.flaskMax, G.shards, PURSE, G.threads % THREADS_A_HEART, THREADS_A_HEART);
     const room = roomAt(P.x, P.y); if (room) MAP.seen.add(room);
-    const st = ITEMS.station(P), place = LEVEL.name + (room ? ' · ' + room.name : '') + (st ? ' · ' + st.station.name : '');   // beside one of the three: their station's name if (place !== PLACE.name){ PLACE.name = place; PLACE.t = 0; } PLACE.t += dt;
+    const st = ITEMS.station(P), place = LEVEL.name + (room ? ' · ' + (room.title || room.name) : '') + (st ? ' · ' + st.station.name : '');   // beside one of the three: their station's name if (place !== PLACE.name){ PLACE.name = place; PLACE.t = 0; } PLACE.t += dt;
     HUD.place(place, PLACE.t < 3 ? 1 : Math.max(0.45, 1 - (PLACE.t - 3) * 0.5));
     HUD.boss(BOSS && BOSS.hud(), dt);
     const dots = mapDots();
@@ -658,7 +663,7 @@ function drawHud(dt){
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { get GO(){ return GO; }, entered: ENTERED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { get GO(){ return GO; }, low: LOW, entered: ENTERED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

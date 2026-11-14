@@ -33,7 +33,8 @@ const BUILD = process.env.BUILD || ('b' + Date.now().toString(36));
 // ASSETS: the folder the art and sound are already in, when only the code has changed (they are large, and the same):
 // the page's <base> points there and its script is taken from this build's folder
 const ASSETS = process.env.ASSETS || BUILD, isCode = f => f.startsWith('src/');
-const page = `<base href="${ASSETS}/">
+const page = `<meta charset="utf-8">
+<base href="${ASSETS}/">
 <title>The Climb: Side View</title>
 <meta name="theme-color" content="#0b1024">
 <link rel="preconnect" href="https://fonts.googleapis.com">

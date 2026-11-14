@@ -11,11 +11,19 @@
 //   G.seen, G.slain, G.keepers: what he has met, killed, and which keepers he has faced (Corwen's Annals, annals.js)
 import { TUNE } from '../config/tuning.js';
 const KEY = 'climb-side', OKEY = 'climb-side-opts';
-const blank = () => ({ level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], got: {}, broke: {}, met: {}, charts: [], began: false, falls: 0, seen: {}, slain: {}, keepers: {} });
+const blank = () => ({ seamed: 1, level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], got: {}, broke: {}, met: {}, charts: [], began: false, falls: 0, seen: {}, slain: {}, keepers: {} });
 export const G = blank();
-export const OPT = { music: 0.7, sfx: 1, shake: 1, flash: 1, diff: 1, synth: false, rumble: true };   // diff: 0 story, 1 climber, 2 summit
+export const OPT = { music: 0.7, sfx: 1, shake: 1, flash: 1, diff: 1, synth: false, rumble: true, phone: 'auto' };   // phone: 'auto' (by the device), true, false   // diff: 0 story, 1 climber, 2 summit
 const read = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e){ return null; } };
-export function loadSave(){ const s = read(KEY); Object.assign(G, blank()); if (s && typeof s === 'object'){ Object.assign(G, s); G.top = Math.max(G.top || 0, G.level || 0); G.began = true; } const o = read(OKEY); if (o) Object.assign(OPT, o); return G; }
+// the seams (build 30) moved the Cloister and the regions above it up three rooms (69 tiles): what a save had found and
+// broken there is by tile, so it is moved up with them, once
+const SEAM_ROWS = 69;
+function seamed(S){
+  if (S.seamed) return; S.seamed = 1;
+  const up = id => { const m = /^([a-z]?)(-?\d+),(-?\d+)$/.exec(id); return m ? m[1] + m[2] + ',' + (+m[3] + SEAM_ROWS) : id; };
+  for (const n of [1, 2, 3, 4, 5]){ if (S.got && S.got[n]) S.got[n] = S.got[n].map(up); if (S.broke && S.broke[n]) S.broke[n] = S.broke[n].map(up); }
+}
+export function loadSave(){ const s = read(KEY); Object.assign(G, blank()); if (s && typeof s === 'object'){ Object.assign(G, s); seamed(G); G.top = Math.max(G.top || 0, G.level || 0); G.began = true; } const o = read(OKEY); if (o) Object.assign(OPT, o); return G; }
 export function store(){ try { localStorage.setItem(KEY, JSON.stringify(G)); } catch (e){} }
 export function storeOpt(){ try { localStorage.setItem(OKEY, JSON.stringify(OPT)); } catch (e){} }
 export function wipe(){ Object.assign(G, blank()); try { localStorage.removeItem(KEY); } catch (e){} }

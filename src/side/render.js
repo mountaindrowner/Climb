@@ -29,7 +29,11 @@ const THREE = window.THREE;
 // each is made once, in a worker where the page allows one (paintworker.js: it never stops the game), and kept; the
 // region above him is made ahead, while he climbs this one. Where there is no worker the region he is in is painted
 // here, as it always was. At most KEEP are kept (the bitmaps of the oldest are let go).
-const PAINTED = new Map(), KEEP = 3, ASKED = new Map();
+// the phone mode (LOW.on: set from the options, main.js): lighter on memory and the graphics card. Only the region he is
+// in is kept painted and nothing is painted ahead; fewer motes in the air, fewer lights at once. Not done yet: smaller
+// paintings, a lower frame rate on a hot phone, a layout for a phone held upright (docs/side.md)
+export const LOW = { on: false };
+const PAINTED = new Map(), ASKED = new Map(), keep = () => LOW.on ? 1 : 3;
 let LOADS = 0, READY = false, WK = null, WK_OK = null;
 function worker(){
   if (WK !== null) return WK;
@@ -49,11 +53,11 @@ export function painted(n, local = false){
   if (PAINTED.has(n)){ const p = PAINTED.get(n); PAINTED.delete(n); PAINTED.set(n, p); return p; }   // the most recent last
   const p = viaWorker(n).catch(e => { if (local && LEVEL.index === n) return paintRegion(n, false); PAINTED.delete(n); throw e; });
   PAINTED.set(n, p);
-  while (PAINTED.size > KEEP){ const [k, old] = PAINTED.entries().next().value; PAINTED.delete(k); old.then(r => { for (const b of [r.back, r.play, r.normals]) if (b && b.close) b.close(); }).catch(() => {}); }
+  while (PAINTED.size > keep()){ const [k, old] = PAINTED.entries().next().value; PAINTED.delete(k); old.then(r => { for (const b of [r.back, r.play, r.normals]) if (b && b.close) b.close(); }).catch(() => {}); }
   return p;
 }
 // region n made ahead, if a worker can (never here: that would stop the game)
-export const want = n => { if (n >= 0 && n < REGION_DATA.length && !PAINTED.has(n)) painted(n).catch(() => {}); };
+export const want = n => { if (!LOW.on && n >= 0 && n < REGION_DATA.length && !PAINTED.has(n)) painted(n).catch(() => {}); };
 // a material lit by the scene's lights through a normal map (if it has one), the light it gets held to a few steps so
 // shading stays banded like pixel art
 const SHADE_STEPS = 6;
@@ -242,7 +246,7 @@ export function makeRenderer(canvas){
     arch.visible = gl.visible = false; exits.push({ x, y, tint, cols: NTM ? NTM.air.cols : [0xffe0a0, 0xfee761], next: NEXT ? NEXT.theme : '', on: false, set(on){ this.on = on; arch.visible = gl.visible = on; light.off = !on; } });
   }
   // ---- the air: motes, a pixel each, drifting (the region's, and those of any other look worn in it: `look` says whose)
-  const airOf = (TMx, look) => { for (let k = 0; k < TMx.air.n; k++){
+  const airOf = (TMx, look) => { for (let k = 0; k < (LOW.on ? TMx.air.n >> 1 : TMx.air.n); k++){
     const m = new THREE.Mesh(new THREE.PlaneGeometry(1 / PPU, 1 / PPU), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, color: rnd() < TMx.air.warm ? TMx.air.cols[0] : TMx.air.cols[1] }));
     m.position.set(rnd() * W, rnd() * Hh, 2); scene.add(m); motes.push({ m, look, vx: (rnd() - 0.5) * TMx.air.vx + (TMx.air.drift || 0), vy: TMx.air.vy[0] + rnd() * (TMx.air.vy[1] - TMx.air.vy[0]), steady: !!TMx.air.steady, ph: rnd() * 9 });
   } };
@@ -258,7 +262,7 @@ export function makeRenderer(canvas){
     const sh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 7), new THREE.MeshBasicMaterial({ map: shaftTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.4 }));
     sh.position.set((i + 0.5) * T, (j + 1) * T - 3.5, -1); sh.rotation.z = 0.18; scene.add(sh);
   }
-  for (let k = 0; k < 6; k++){ const L = new THREE.PointLight(0xffffff, 0, 7, 2); scene.add(L); pool.push(L); }
+  for (let k = 0; k < (LOW.on ? 3 : 6); k++){ const L = new THREE.PointLight(0xffffff, 0, 7, 2); scene.add(L); pool.push(L); }
   // ---- mist behind the play layer and a thin one before it, and the dark shapes close to the eye; all ride with the
   // camera, their pictures sliding at their own rates
   const veil = (tex, z, f, opacity, drift, tw, th, look) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(44, VIEW_H + 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity, depthWrite: false })); m.position.z = z; scene.add(m); veils.push({ m, tex, f, drift, tw, th, w: 44 * PPU, h: (VIEW_H + 1) * PPU, look, a: opacity }); };
@@ -336,7 +340,7 @@ export function makeRenderer(canvas){
       resize();
       // how deep he is in a room that wears another look: from its edge in, over five units
       { for (const l of ALT) LOOKW[l] = 0; const rm = hero && LEVEL.rooms.find(r => hero.x >= r.x0 && hero.x < r.x1 && hero.y >= r.y0 && hero.y < r.y1);
-        if (rm && rm.look && ALT.includes(rm.look)){ const d = Math.min(hero.x - rm.x0, rm.x1 - hero.x, hero.y + 1 - rm.y0, rm.y1 - hero.y - 1), u = Math.max(0, Math.min(1, d / 5)); LOOKW[rm.look] = u * u * (3 - 2 * u); }
+        if (rm && rm.look && ALT.includes(rm.look)){ const E = 99, d = Math.min(rm.x0 > 0 ? hero.x - rm.x0 : E, rm.x1 < LEVEL.W * T ? rm.x1 - hero.x : E, rm.y0 > 0 ? hero.y + 1 - rm.y0 : E, rm.y1 < LEVEL.H * T ? rm.y1 - hero.y - 1 : E), u = Math.max(0, Math.min(1, d / 5)); LOOKW[rm.look] = u * u * (3 - 2 * u); }
         let own = 1; for (const l of ALT) own -= LOOKW[l]; LOOKW[''] = Math.max(0, own); for (const F of fars) F.m.material.opacity = LOOKW[F.look]; }
       const wOf = look => LOOKW[look || ''];
       for (const o of motes){ o.m.position.x += (o.vx + Math.sin(t * 0.7 + o.ph) * 0.05) * 0.016; o.m.position.y += o.vy * 0.016; if (o.m.position.y > cam.y + 7) o.m.position.y = cam.y - 7; else if (o.m.position.y < cam.y - 7) o.m.position.y = cam.y + 7; if (Math.abs(o.m.position.x - cam.x) > 12) o.m.position.x = cam.x + (rnd() - 0.5) * 22; o.m.material.opacity = (o.steady ? 0.9 : 0.5 + 0.5 * Math.sin(t * 2 + o.ph)) * wOf(o.look); }

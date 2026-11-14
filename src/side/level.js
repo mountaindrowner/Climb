@@ -9,6 +9,7 @@ import tempest from './regions/tempest.js';
 import gardens from './regions/gardens.js';
 import firmament from './regions/firmament.js';
 import workings from './regions/workings.js';
+import { SEAMS } from './seams.js';
 export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B };
 
 // ---- the first region: up from the bottom of the mountain
@@ -342,7 +343,7 @@ const REGIONS = [
     layout: [[0, 0, start], [1, 0, corridor], [2, 0, pithead], [1, 1, shaft], [0, 1, tunnel], [0, 2, chamber], [1, 2, ascent], [2, 2, gallery], [3, 2, well, 1, 2], [0, 3, roost], [1, 3, bridge], [2, 3, grotto], [2, 4, arena, 2, 2]] },
   { name: 'The Cloister', theme: 'cloister', sub: 'a house that kept the hours of the flame', card: 'The dark is below him. He is still being called.', epithet: 'IT RINGS FOR A LIGHT IT CANNOT SEE', quiet: ['chapel'], seed: 7654321, wear: { sag: 0.55, swell: 0.5, humps: 0.4 },
     layout: [[0, 0, undercroft], [1, 0, nave, 2, 1], [3, 0, belfry, 1, 3], [0, 1, stairwell, 1, 2], [1, 1, cells], [2, 1, library], [1, 2, cloister, 2, 1], [1, 3, chapel, 2, 1]] },
-  { name: 'The Spires', theme: 'spires', sub: 'the open air, and the high pass', card: 'Out of the stone, into the cold and the sky.', epithet: 'IT COILS ON THE PASS, AND LETS NONE BY', quiet: ['crown'], seed: 2468101, fill: EMPTY, sky: true, wear: { sag: 1.1, swell: 0.5, humps: 0.6 },
+  { name: 'The Spires', theme: 'spires', sub: 'the open air, and the high pass', card: 'Out of the stone, into the cold and the sky.', epithet: 'IT COILS ON THE PASS, AND LETS NONE BY', quiet: ['crown'], seed: 2468102, fill: EMPTY, sky: true, wear: { sag: 1.1, swell: 0.5, humps: 0.6 },
     layout: [[0, 0, mouth], [1, 0, saddle, 2, 1], [0, 1, massif], [1, 1, nest], [2, 1, spire, 1, 2], [0, 2, hollow], [1, 2, ropeway], [0, 3, chimney], [1, 3, brow], [0, 4, icecave, 2, 1], [2, 3, teeth, 1, 2],
       [0, 5, eyrie, 2, 1], [2, 5, span], [0, 6, crown, 2, 2]], cols: 3 },
   tempest, gardens, firmament,   // each in its own file (regions/)
@@ -355,14 +356,20 @@ export const CLIMB_TOP = REGIONS.reduce((t, R, n) => R.deep ? t : n, 0);   // a 
 const QUIET = new Set(REGIONS.flatMap(r => r.quiet || []));   // a boss's stage stays flat (its blows run along it)
 
 function build(n){
-  const R = REGIONS[n], LAYOUT = R.layout;
+  // a seam (seams.js) goes under the region's first room: the region is moved up by its rows, its rooms beneath
+  const R = REGIONS[n], SEAM = SEAMS[n], LAYOUT = SEAM ? [...SEAM.layout, ...R.layout.map(l => [l[0], l[1] + SEAM.rows, ...l.slice(2)])] : R.layout;
   const cols = Math.max(R.cols || 0, ...LAYOUT.map(l => l[0] + (l[3] || 1))), rows = Math.max(...LAYOUT.map(l => l[1] + (l[4] || 1)));
   const W = cols * ROOM.w, H = rows * ROOM.h, tiles = new Uint8Array(W * H).fill(R.fill === undefined ? ROCK : R.fill), marks = [], rooms = [];
+  if (SEAM) tiles.fill(ROCK, 0, SEAM.rows * ROOM.h * W);   // under a region of sky, the seam is in the mountain: rock beside it
   for (const [cx, cy, make] of LAYOUT){
     const r = make(), ox = cx * ROOM.w, oy = cy * ROOM.h;
     for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) tiles[(oy + y) * W + ox + x] = r.tiles[y][x];
     for (const m of r.marks) marks.push({ ...m, x: ox + m.x, y: oy + m.y });
-    if (!r.filler) rooms.push({ name: make.name, open: !!r.open, x0: ox * T, y0: oy * T, x1: (ox + r.w) * T, y1: (oy + r.h) * T, tx0: ox, ty0: oy, tx1: ox + r.w, ty1: oy + r.h });
+    if (!r.filler) rooms.push({ name: make.name, title: r.title || '', open: !!r.open, x0: ox * T, y0: oy * T, x1: (ox + r.w) * T, y1: (oy + r.h) * T, tx0: ox, ty0: oy, tx1: ox + r.w, ty1: oy + r.h });
+  }
+  if (SEAM){   // he comes in at the seam's foot (the region's own start is let go); a hole up into the first room, boarded
+    let first = true; for (let k = marks.length - 1; k >= 0; k--) if (marks[k].type === 'spawn'){ if (marks.slice(0, k).some(m => m.type === 'spawn')) marks.splice(k, 1); }
+    const y0 = SEAM.rows * ROOM.h; for (let x = SEAM.link[0]; x <= SEAM.link[1]; x++){ for (let y = y0 - 2; y <= y0; y++) tiles[y * W + x] = EMPTY; tiles[(y0 + 1) * W + x] = LEDGE; }
   }
   // the way in still wears the look of the region below: he comes up into what he just left, and it changes round him
   // as he goes on (render.js paints such a room in both looks and lays one into the other). A region can say otherwise:

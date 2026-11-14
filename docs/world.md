@@ -18,7 +18,10 @@ in it. This file is so that whoever builds a room knows what happened there.
 | The six regions of the climb | Yes | |
 | The Workings | **Yes (build 28)** | Down the Pithead, a new Roots room off the corridor (not the tunnel). Cage shaft, tally-house (a flame), bunkhouse (Hob), props, long level, cistern. Lampreys and barnacles; the Roots' crawlers, bats and delvers for now. The Guild Tally (urns spill half again as many shards). The Hewers and the Wick-flies (the lamp-moths, renamed: a wild moth would muddle Ordric) wait on art; the Shift-boss too |
 | The Flooded Levels, the Vein, the Great Shaft, the Hollow, the Source | No | The way on down is under the cistern's water, closed to him yet |
-| The wings, the seams | No | |
+| The seams | **First pass (build 30)** | All five, three screens each (a foot in the region below's look, two screens up into the region's own), where the plan below is six to ten: the Crypt Stair (founders' tombs, the house's light coming down), the Bell Road (a shrine at the turn), the Last Hut (a flame kept, bunks), the Breach (the wall's courses either side), the Long Stair. More rooms, and their own creatures, later |
+| The wings | No | |
+
+**Travel between flames** is a later ability, found or earned, not there from the start.
 
 **Direction:** a Metroidvania, not a roguelike (`docs/side.md`). The world grows by sections the gifts open, and is gone
 back through.
