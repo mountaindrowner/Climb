@@ -92,7 +92,7 @@ Hand-building 200 more screens room by room is months. The rooms we have are alr
 
 ## Engine work first
 
-None of this is safe until these are done:
+None of this is safe until these are done. **Done (build 26):** painting off the page and ahead of him (a worker paints each region and keeps it; the next is painted while he climbs; the longest stop going into a region fell from 3.2 to 3.7 s to 0.4 to 0.5 s on a software-drawn browser), sleeping creatures, and the scrolling map with the whole map in the pause. Travel between flames and memory on phones wait on two decisions (below).
 
 1. **Paint by room, not by region.** Paint the rooms near him and paint the rest as he nears them (or in idle time).
    Region load drops from 1.1 to 2.7 s to a fraction of a second whatever the size. This is the must-have.
