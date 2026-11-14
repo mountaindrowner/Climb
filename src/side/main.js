@@ -28,7 +28,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 25';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 26';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -77,10 +77,12 @@ function setup(){
 }
 setup();
 // into region n: the world is made again, he stands at its start with the hearts and flask he had
+const ENTERED = [];
 function enter(n){
-  loadLevel(n); R.load();
+  const t0 = performance.now(); loadLevel(n); const t1 = performance.now(); R.load(); const t2 = performance.now();
   if (hero.meta) hero.sprite = makeSprite(R.scene, `assets/side/${hero.name}`, hero.meta);
-  FX2.ghosts.length = 0; setup();
+  FX2.ghosts.length = 0; setup(); const t3 = performance.now();
+  ENTERED.push({ n, build: Math.round(t1 - t0), load: Math.round(t2 - t1), setup: Math.round(t3 - t2) });   // what going into a region costs (a check: window.__side.entered)
   const s = spawnPoint(), old = P; P = born(s.x, s.y); P.hp = Math.max(1, Math.min(P.maxHp, old.hp)); P.flask = Math.min(P.flaskMax, old.flask);
   CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0;
   BANNER = null; NAMED = !(roomAt(s.x, s.y + 0.5) || {}).look; if (NAMED) banner(LEVEL.name, SUB[LEVEL.index] || '', 4); marks(); G.level = LEVEL.index; G.top = Math.max(G.top, G.level); G.began = true; store();
@@ -154,7 +156,7 @@ function entry(x, y, art, name, line, known, note, col){
   const g = HUD.g, im = portrait(art), whole = art.includes('/'); HUD.px('#181425', x, y, 24, 24); HUD.px(whole ? '#3a1a24' : '#262b44', x + 1, y + 1, 22, 22);
   if (whole && known && im.complete && im.naturalWidth){ const sc = Math.min(1, 22 / im.naturalWidth, 22 / im.naturalHeight), w = Math.max(1, Math.round(im.naturalWidth * sc)), h = Math.max(1, Math.round(im.naturalHeight * sc)); g.imageSmoothingEnabled = false; g.drawImage(im, 0, 0, im.naturalWidth, im.naturalHeight, x + 1 + Math.round((22 - w) / 2), y + 1 + Math.round((22 - h) / 2), w, h); }
   else if (!whole && known && im.complete && im.naturalWidth){
-    let c = CROP[art]; if (!c){ const tc = document.createElement('canvas'); tc.width = im.naturalWidth; tc.height = im.naturalHeight; const tg = tc.getContext('2d'); tg.drawImage(im, 0, 0);
+    let c = CROP[art]; if (!c){ const tc = document.createElement('canvas'); tc.width = im.naturalWidth; tc.height = im.naturalHeight; const tg = tc.getContext('2d', { willReadFrequently: true }); tg.drawImage(im, 0, 0);
       const d = tg.getImageData(0, 0, tc.width, tc.height).data; let x0 = tc.width, x1 = 0, y0 = tc.height; for (let yy = 0; yy < tc.height; yy++) for (let xx = 0; xx < tc.width; xx++) if (d[(yy * tc.width + xx) * 4 + 3] > 40){ x0 = Math.min(x0, xx); x1 = Math.max(x1, xx); y0 = Math.min(y0, yy); }
       c = CROP[art] = { x: Math.max(0, Math.round((x0 + x1) / 2) - 11), y: Math.max(0, y0 - 1) }; }
     g.imageSmoothingEnabled = false; g.drawImage(im, c.x, c.y, 22, 22, x + 1, y + 1, 22, 22); }
@@ -417,6 +419,7 @@ function frame(ts){
     if (GO.st === 'out' && GO.t > 0.6){ GO.st = 'load'; GO.t = 0; }                 // a frame fully dark before the work
     else if (GO.st === 'load' && GO.t > 0.05){ const up = GO.to === GO.from + 1; enter(GO.to); acc = 0; GO.t = 0;
       if (up){ GO.st = 'card'; STORY.start('card', { from: GO.from, to: GO.to, name: LEVEL.name, line: CARD[GO.to] || '' }, () => { GO.st = 'in'; GO.t = 0; }); } else GO.st = 'in'; }   // going up: the card shows the mountain and where he is on it
+    else if (GO.st === 'in' && !R.isReady) GO.t = 0;   // dark until the region's paintings are in
     else if (GO.st === 'in' && GO.t > 0.7) GO.st = '';
     if (GO.st === 'card'){ hudBegin(); STORY.draw(dt); endFrame(); requestAnimationFrame(frame); return; }
   }
@@ -626,7 +629,7 @@ function drawHud(dt){
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { get GO(){ return GO; }, entered: ENTERED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

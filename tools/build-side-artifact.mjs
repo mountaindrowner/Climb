@@ -19,6 +19,7 @@ function walk(file){
   }
 }
 walk('src/side/main.js');
+walk('src/side/paintworker.js');   // the painter's worker (started by URL, not by import)
 const files = [...seen, 'vendor/three/three.min.js', 'vendor/three/GLTFLoader.js'];
 // the art the game loads now: the 16-pixel cast (with the normal maps that light it by its shape), the warrior's strips
 // that are drawn (not every one he has), the bosses in pieces, the combo's effects, the far paintings, the palette

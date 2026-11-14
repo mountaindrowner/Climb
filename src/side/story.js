@@ -188,7 +188,7 @@ export function makeStory(hud, heroBase){
   const strip = im => { const n = Math.max(1, Math.round(im.naturalWidth / im.naturalHeight)); return { n, w: im.naturalWidth / n, h: im.naturalHeight }; };
   const tops = new Map();
   // where the thread leaves him in a frame: the highest of the red of his scarf (else the highest of him)
-  function topOf(im, f){ const key = (im.src || im.id) + '#' + f; if (tops.has(key)) return tops.get(key); const { w, h } = strip(im), c = canvas(w, h), cg = c.getContext('2d'); cg.drawImage(im, f * w, 0, w, h, 0, 0, w, h);
+  function topOf(im, f){ const key = (im.src || im.id) + '#' + f; if (tops.has(key)) return tops.get(key); const { w, h } = strip(im), c = canvas(w, h), cg = c.getContext('2d', { willReadFrequently: true }); cg.drawImage(im, f * w, 0, w, h, 0, 0, w, h);
     const d = cg.getImageData(0, 0, w, h).data; let best = null, any = null;
     for (let y = 0; y < h && !best; y++) for (let x = 0; x < w; x++){ const q = (y * w + x) * 4; if (d[q + 3] < 120) continue; if (!any) any = { x: x - w / 2, y: y - h / 2 }; if (d[q] > 150 && d[q + 1] < 90 && d[q + 2] < 100){ best = { x: x - w / 2, y: y - h / 2 }; break; } }
     tops.set(key, best || any || { x: 0, y: -h / 2 }); return tops.get(key); }

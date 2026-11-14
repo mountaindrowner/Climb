@@ -48,7 +48,7 @@ export function makeTalk(){
   const S = { on: false, who: '', lines: [], i: 0, n: 0, after: null, held: 0 }, faces = {};
   // a face for the box: the head and shoulders of their standing drawing, at a whole number of pixels to one
   const face = (who, art) => { const key = who + (art || ''); if (faces[key] !== undefined) return faces[key]; faces[key] = null; const P = PEOPLE[who]; if (!P) return null; const im = new Image(); who = key; im.onload = () => {
-      const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight; const g = c.getContext('2d'); g.drawImage(im, 0, 0); const d = g.getImageData(0, 0, c.width, c.height).data;
+      const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight; const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(im, 0, 0); const d = g.getImageData(0, 0, c.width, c.height).data;
       let x0 = c.width, x1 = 0, y0 = c.height, y1 = 0; for (let y = 0; y < c.height; y++) for (let x = 0; x < c.width; x++) if (d[(y * c.width + x) * 4 + 3] > 40){ x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
       const at = FACES[art || P.art], s = at ? (at[2] || 16) : y1 - y0 > 50 ? 32 : 16; faces[who] = at ? { im: c, x: at[0], y: at[1], s } : { im: c, x: Math.max(0, Math.min(c.width - s, Math.round((x0 + x1) / 2 - s / 2))), y: Math.max(0, y0 - 1), s }; }; im.src = `assets/side/${art || P.art}/stand.png`; return null; };
   S.start = (who, lines, after = null, art = null) => { S.on = true; S.who = who; S.art = art; S.lines = lines.slice(); S.i = 0; S.n = 0; S.after = after; S.held = 0; face(who, art); };
