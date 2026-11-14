@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Ready for a bigger mountain (latest).** The engine work the blueprint says must come before the world grows (`docs/world-blueprint.md`):
+**The guard (latest).** Blocking has a drawing of its own (`block`): he brings the blade up level and forward and braces, in profile, in its first five frames (0.12 s, as quick as the parry's moment), and holds it while he blocks. He had stood as if idle. The key hints now say how to block (right click, or K).
+
+**Ready for a bigger mountain.** The engine work the blueprint says must come before the world grows (`docs/world-blueprint.md`):
 - *Regions are painted off the page.* The painter is its own module (`paint.js`) and runs in a worker (`paintworker.js`): each region is painted once and kept, and the region above him is painted while he climbs this one, so going up never waits on it and the game never stops for it. Where a page allows no worker, the old way still works. The paintings go to the graphics card a piece at a time before a region is shown, and canvases that are read back are kept in memory (one read of the far painting had taken 2.2 s). Measured going up three regions in a software-drawn browser: the longest the game stood still fell from 3.2 to 3.7 s to 0.4 to 0.5 s.
 - *Creatures far off sleep*: at rest and well out of sight, a creature does nothing and is not drawn until he comes near (13 of the Roots' 14 at the start; all 24 of the Tempest's). A region three times the size costs no more to run.
 - *The map scrolls.* The corner map keeps one scale whatever the size of the region, centred on him; the whole map is in the pause, and on M (or Select on a controller), with his room outlined and a key.

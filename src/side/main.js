@@ -28,7 +28,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 26';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 27';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -292,7 +292,7 @@ const GATE = (() => {
   let mus = 0, heroOk = 0;
   const music = manifestReady().then(() => Promise.all(['title', 'roots'].map(k => SCORE.prefetch(k)))).then(() => { mus = 1; });
   // his drawings for the first minute: the rest are asked for once the opening is in
-  const FIRST = ['stand', 'idle', 'run', 'jump', 'fall', 'getup', 'land_px', 'roll2_px', 'atk_slam_px', 'atk_spin_px', 'atk_rise_px', 'atk_dash_px', 'hurt', 'climb_own'];
+  const FIRST = ['stand', 'idle', 'run', 'jump', 'fall', 'getup', 'land_px', 'roll2_px', 'block', 'atk_slam_px', 'atk_spin_px', 'atk_rise_px', 'atk_dash_px', 'hurt', 'climb_own'];
   const heroIn = HERO_P.then(() => { if (hero.sprite) hero.sprite.warm(FIRST); }).then(() => new Promise(res => { const chk = () => (!hero.sprite || hero.sprite.in()) ? res() : setTimeout(chk, 80); chk(); })).then(() => { heroOk = 1; });
   // the textures all in, and nothing new asked for in a moment
   const quiet = () => new Promise(res => { const chk = () => (got >= tot && performance.now() - last > 350) ? res() : setTimeout(chk, 80); chk(); });
@@ -357,6 +357,9 @@ function heroPose(P, t){
       return [sw, Math.min(0.999, f)];
     }
   }
+  // the guard: the blade comes up and level in its first five frames (as fast as the parry's moment), then is held,
+  // breathing, for as long as he blocks
+  if (P.blocking && has('block')){ const bt = performance.now() / 1000 - (P.blockAt || 0), UP = 0.12, n = A.block.frames, f = bt < UP ? Math.floor(bt / UP * 5) : 5 + Math.floor((bt - UP) * 4) % (n - 5); return ['block', (Math.min(n - 1, f) + 0.5) / n]; }
   if (!P.grounded && !P.mantle){
     if (P.vy > 0 && has('jump')) return ['jump', Math.min(0.999, P.jumpT / 0.45)];
     if (has('fall')) return ['fall', t * 2];
@@ -599,7 +602,7 @@ function onEvent(e){
 // the lines of help at the foot of the screen, for what he is playing with. A controller's are its own buttons, as bound
 const PADN = { xbox: ['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT'], ps: ['CROSS', 'CIRCLE', 'SQUARE', 'TRIANGLE', 'L1', 'R1', 'L2', 'R2'] };
 const padKey = a => { const i = (SET.pad[a] || [])[0], N = PADN[DEVICE.kind === 'ps' ? 'ps' : 'xbox']; return i == null ? '-' : N[i] || 'B' + i; };
-const HINT = { keys: ['A D MOVE · SPACE JUMP, AGAIN IN THE AIR · SHIFT ROLL', 'CLICK CUT · S + CLICK RISING CUT · CLICK IN A ROLL: DASH CUT', 'S + CLICK IN THE AIR: PLUNGE · S + SPACE: DROP · S: TALK, OPEN · M MAP · ESC PAUSE'], touch: ['TOUCH THE LEFT OF THE SCREEN AND DRAG TO MOVE', 'DRAG DOWN: CROUCH, TALK, OPEN · DOWN + A IN THE AIR: PLUNGE'],
+const HINT = { keys: ['A D MOVE · SPACE JUMP, AGAIN IN THE AIR · SHIFT ROLL', 'CLICK CUT · RIGHT CLICK OR K BLOCK · S + CLICK RISING CUT · CLICK IN A ROLL: DASH CUT', 'S + CLICK IN THE AIR: PLUNGE · S + SPACE: DROP · S: TALK, OPEN · M MAP · ESC PAUSE'], touch: ['TOUCH THE LEFT OF THE SCREEN AND DRAG TO MOVE', 'DRAG DOWN: CROUCH, TALK, OPEN · DOWN + A IN THE AIR: PLUNGE'],
   get pad(){ const k = padKey; return [`STICK MOVE · ${k('jump')} JUMP, AGAIN IN THE AIR · ${k('roll')} ROLL · ${k('attack')} CUT · ${k('block')} BLOCK`, `DOWN + ${k('attack')}: RISING CUT · DOWN + ${k('attack')} IN THE AIR: PLUNGE · ${k('flask')} DRINK`, `DOWN: TALK, OPEN · DOWN + ${k('jump')}: DROP · SELECT: MAP · START: PAUSE`]; } };
 const EPITHET = LEVELS.map(l => l.epithet);
 function drawHud(dt){
