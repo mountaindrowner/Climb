@@ -56,18 +56,41 @@ export function makeHud(hud){
     for (const sx of [x - 5, x + w + 4]) for (let k = 0; k < 3; k++){ px(C.bone, sx - k, y - 1 + k, 1 + k * 2, 1); px(C.bone, sx - k, y + 4 - k, 1 + k * 2, 1); }
   };
   // the map (each room once he has been in it) and how high on the mountain he is, top right
-  H.map = (mapCanvas, LW, LH, seen, room, T, dots, height, span, index, t) => {
-    const k = Math.min(0.34, 62 / LH, 58 / LW), mw = Math.round(LW * k), mh = Math.round(LH * k), mx = H.W - mw - 16, my = 6;
+  // the map in the corner: the rooms he has been in, at one scale whatever the size of the region (a pixel for two
+  // tiles), centred on him and scrolling with him; `at` is where he is in the world
+  H.map = (mapCanvas, LW, LH, seen, room, T, dots, height, span, index, t, at) => {
+    const k = 0.5, mw = 64, mh = 50, mx = H.W - mw - 16, my = 6;
+    const ox = Math.round(mx + mw / 2 - (at ? at.x / T : LW / 2) * k), oy = Math.round(my + mh / 2 - (LH - (at ? at.y / T : LH / 2)) * k);
     px(C.ink, mx - 2, my - 2, mw + 4, mh + 4); px(C.deep, mx - 1, my - 1, mw + 2, mh + 2); px(C.ink, mx, my, mw, mh);
-    for (const r of seen){ const sx = r.x0 / T, sy = LH - r.y1 / T, sw = (r.x1 - r.x0) / T, sh = (r.y1 - r.y0) / T; g.globalAlpha = r === room ? 1 : 0.6; g.drawImage(mapCanvas, sx, sy, sw, sh, mx + Math.round(sx * k), my + Math.round(sy * k), Math.round(sw * k), Math.round(sh * k)); }
+    g.save(); g.beginPath(); g.rect(mx, my, mw, mh); g.clip();
+    for (const r of seen){ const sx = r.x0 / T, sy = LH - r.y1 / T, sw = (r.x1 - r.x0) / T, sh = (r.y1 - r.y0) / T; g.globalAlpha = r === room ? 1 : 0.6; g.drawImage(mapCanvas, sx, sy, sw, sh, ox + Math.round(sx * k), oy + Math.round(sy * k), Math.round(sw * k), Math.round(sh * k)); }
     g.globalAlpha = 1;
-    for (const d of dots) if (!d.blink || Math.floor(t * 3) % 2 === 0) px(d.c, mx + Math.round(d.x / T * k) - (d.r || 0), my + Math.round((LH - d.y / T) * k) - (d.r || 0), 1 + (d.r || 0) * 2, 1 + (d.r || 0) * 2);
+    for (const d of dots) if (!d.blink || Math.floor(t * 3) % 2 === 0) px(d.c, ox + Math.round(d.x / T * k) - (d.r || 0), oy + Math.round((LH - d.y / T) * k) - (d.r || 0), 1 + (d.r || 0) * 2, 1 + (d.r || 0) * 2);
+    g.restore();
     // the mountain: a length for each region, one over the other, and a mark
     const gx = H.W - 9, gy = my, gh = Math.max(40, mh), f = span[index][0] + (span[index][1] - span[index][0]) * height;
     px(C.ink, gx - 1, gy - 1, 5, gh + 2);
     [C.blue, C.rust, C.pale, C.mid, '#63c74d', C.fire3].forEach((c, n) => { const a = span[n]; if (!a) return; g.globalAlpha = n === index ? 1 : 0.4; px(c, gx, gy + Math.round(gh * (1 - a[1])), 3, Math.max(1, Math.round(gh * (a[1] - a[0])) - 1)); }); g.globalAlpha = 1;
     const yy = gy + Math.round(gh * (1 - f)); px(C.ink, gx - 3, yy - 2, 9, 3); px(C.fire3, gx - 2, yy - 1, 7, 1);
     fine(g, Math.round(f * 1000) + ' M', H.W - 5, gy + gh + 4, C.pale, 'right');
+  };
+  // the whole map (from the pause): the region fitted to the picture, the rooms he has been in, the room he is in
+  // outlined, and what is marked on it, with a key
+  H.fullmap = (mapCanvas, LW, LH, seen, room, T, dots, t, name) => {
+    H.dark(0.86);
+    text(g, name.toUpperCase(), H.W / 2, 8, C.cream, 1, 'center'); H.rule(Math.round(H.W / 2), 18, 50, C.bone);
+    const k = Math.min((H.W - 40) / LW, 116 / LH, 2), mw = Math.round(LW * k), mh = Math.round(LH * k), mx = Math.round((H.W - mw) / 2), my = 24 + Math.round((116 - mh) / 2);
+    px(C.ink, mx - 2, my - 2, mw + 4, mh + 4); px(C.deep, mx - 1, my - 1, mw + 2, mh + 2); px(C.ink, mx, my, mw, mh);
+    for (const r of seen){ const sx = r.x0 / T, sy = LH - r.y1 / T, sw = (r.x1 - r.x0) / T, sh = (r.y1 - r.y0) / T; g.globalAlpha = r === room ? 1 : 0.75; g.drawImage(mapCanvas, sx, sy, sw, sh, mx + Math.round(sx * k), my + Math.round(sy * k), Math.round(sw * k), Math.round(sh * k)); }
+    g.globalAlpha = 1;
+    if (room){ const x0 = mx + Math.round(room.x0 / T * k), y0 = my + Math.round((LH - room.y1 / T) * k), w = Math.round((room.x1 - room.x0) / T * k), h = Math.round((room.y1 - room.y0) / T * k);
+      px(C.cream, x0 - 1, y0 - 1, w + 2, 1); px(C.cream, x0 - 1, y0 + h, w + 2, 1); px(C.cream, x0 - 1, y0, 1, h); px(C.cream, x0 + w, y0, 1, h); }
+    for (const d of dots) if (!d.blink || Math.floor(t * 3) % 2 === 0){ const r = d.blink ? 1 : 1; px(C.ink, mx + Math.round(d.x / T * k) - r - 1, my + Math.round((LH - d.y / T) * k) - r - 1, r * 2 + 3, r * 2 + 3); px(d.c, mx + Math.round(d.x / T * k) - r, my + Math.round((LH - d.y / T) * k) - r, r * 2 + 1, r * 2 + 1); }
+    // the key
+    const KEY = [['#ffffff', 'HIM'], ['#fee761', 'FLAME'], ['#feae34', 'ORDRIC'], ['#63c74d', 'MIREL'], ['#2ce8f5', 'CORWEN'], ['#e43b44', 'KEEPER']];
+    if (dots.some(d => d.find)) KEY.push(['#f6757a', 'UNFOUND']);
+    let kx = Math.round(H.W / 2 - KEY.reduce((a, [, s]) => a + width(s) + 12, 0) / 2);
+    for (const [c, s] of KEY){ px(C.ink, kx - 1, 147, 5, 5); px(c, kx, 148, 3, 3); text(g, s, kx + 6, 146, C.pale, 1, 'left'); kx += width(s) + 12; }
   };
   // words that come up in the middle: a name large, a line under it
   H.banner = (a, b, alpha) => {

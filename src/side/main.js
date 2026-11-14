@@ -142,6 +142,22 @@ function options(back){
 let PAGE = 0;
 // art: a character's folder (its standing drawing, cropped to head and shoulders), or a picture's path (a keeper's piece, fitted whole)
 const PORTRAIT = {}, portrait = art => { if (!art) return null; if (PORTRAIT[art]) return PORTRAIT[art]; const im = new Image(); im.src = art.includes('/') ? `assets/side/${art}.png` : `assets/side/${art}/stand.png`; return PORTRAIT[art] = im; };
+// what is marked on the map: the flames, the keeper, the three's stations he has found, what is still to be found (with
+// the compass or a chart), and him
+function mapDots(){
+  const dots = SHRINES.filter(S => MAP.seen.has(S.room)).map(S => ({ x: S.x, y: S.y + 0.5, c: '#fee761' }));
+  if (BOSS && MAP.seen.has(BOSS.room)) dots.push({ x: BOSS.cx, y: BOSS.stageY + 1, c: BOSS.st === 'dead' ? '#5a6988' : '#e43b44', r: 1 });
+  for (const N of ITEMS.people) if (MAP.seen.has(roomAt(N.x, N.y + 0.5))) dots.push({ x: N.x, y: N.y + 0.5, c: { lamplighter: '#feae34', wren: '#63c74d', scribe: '#2ce8f5' }[N.who] });   // the stations he has found
+  if (has('starcompass') || G.charts.includes(LEVEL.index)) for (const it of ITEMS.left().all) dots.push({ x: it.x, y: it.y + 0.5, c: '#f6757a', find: true });   // what is still to be found
+  dots.push({ x: P.x, y: P.y + 0.8, c: '#ffffff', blink: true });
+  return dots;
+}
+// the whole map, from the pause (or M, or Select)
+function mapScreen(){
+  SCREEN = 'map'; PAUSE = true; release();
+  menuShow([menuButton('Back', () => pause(true), true)], false, () => pause(true)); MENU.style.top = 'auto'; MENU.style.bottom = '1.5%'; MSEL = 0; menuMark();
+}
+function drawMap(){ HUD.fullmap(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, roomAt(P.x, P.y), T, mapDots(), time, LEVEL.name); }
 function annals(page){
   SCREEN = 'annals'; PAUSE = true; PAGE = Math.max(0, Math.min(ANNALS.length, page)); release();
   const turn = d => () => { PAGE = (PAGE + d + ANNALS.length + 1) % (ANNALS.length + 1); sfx.ui(); };
@@ -196,7 +212,7 @@ const PBTN = menuButton('II', () => pause(!PAUSE), true); PBTN.style.cssText += 
 function pause(on){
   if (STORY.active() || GO.st || TALK.on || NOTE) return; if (SCREEN === 'shop'){ SCREEN = ''; PAUSE = false; menuHide(); return; }
   PAUSE = on; SCREEN = on ? 'pause' : ''; if (!on){ menuHide(); return; } release();
-  menuShow([menuButton('Go on', () => pause(false)), menuButton('The Annals', () => annals(LEVEL.index), true), menuButton('Options', () => options(() => pause(true)), true), menuButton('To the title', () => { PAUSE = false; SCREEN = ''; title(); }, true)], false, () => pause(false));
+  menuShow([menuButton('Go on', () => pause(false)), menuButton('The Map', mapScreen, true), menuButton('The Annals', () => annals(LEVEL.index), true), menuButton('Options', () => options(() => pause(true)), true), menuButton('To the title', () => { PAUSE = false; SCREEN = ''; title(); }, true)], false, () => pause(false));
 }
 addEventListener('keydown', e => {
   if (TALK.on || NOTE){ if (['Enter', 'Space', 'KeyE', 'KeyS', 'ArrowDown', 'KeyJ'].includes(e.code)) press(); return; }
@@ -206,6 +222,7 @@ addEventListener('keydown', e => {
     if (e.code === 'Enter' || e.code === 'Space'){ const b = items[MSEL]; if (b) b.dispatchEvent(new PointerEvent('pointerdown')); menuMark(); e.preventDefault(); return; }
   }
   if ((e.code === 'Escape' || e.code === 'KeyP') && !STORY.active()){ pause(!PAUSE); return; }
+  if (e.code === 'KeyM' && !STORY.active() && !GO.st && !TALK.on && !NOTE){ if (SCREEN === 'map') pause(false); else mapScreen(); return; }
   if (STORY.active() && STORY.kind !== 'title') STORY.press();
 });
 // a controller, outside play (input.js's pollPads drives him; this drives everything round him): up and down on the
@@ -230,6 +247,7 @@ function padUI(){
   }
   PADUI.dir = dir;
   if (edge(9) && !GO.st) pause(!PAUSE);
+  if (edge(8) && !GO.st && !STORY.active()){ if (SCREEN === 'map') pause(false); else mapScreen(); }   // Select: the map
 }
 // a buzz in the hands, for a blow that lands, one taken, and the big moments (Options: Rumble)
 const buzz = (s, w, ms) => { if (OPT.rumble !== false) rumble(s, w, ms); };
@@ -581,8 +599,8 @@ function onEvent(e){
 // the lines of help at the foot of the screen, for what he is playing with. A controller's are its own buttons, as bound
 const PADN = { xbox: ['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT'], ps: ['CROSS', 'CIRCLE', 'SQUARE', 'TRIANGLE', 'L1', 'R1', 'L2', 'R2'] };
 const padKey = a => { const i = (SET.pad[a] || [])[0], N = PADN[DEVICE.kind === 'ps' ? 'ps' : 'xbox']; return i == null ? '-' : N[i] || 'B' + i; };
-const HINT = { keys: ['A D MOVE · SPACE JUMP, AGAIN IN THE AIR · SHIFT ROLL', 'CLICK CUT · S + CLICK RISING CUT · CLICK IN A ROLL: DASH CUT', 'S + CLICK IN THE AIR: PLUNGE · S + SPACE: DROP · S: TALK, OPEN · ESC PAUSE'], touch: ['TOUCH THE LEFT OF THE SCREEN AND DRAG TO MOVE', 'DRAG DOWN: CROUCH, TALK, OPEN · DOWN + A IN THE AIR: PLUNGE'],
-  get pad(){ const k = padKey; return [`STICK MOVE · ${k('jump')} JUMP, AGAIN IN THE AIR · ${k('roll')} ROLL · ${k('attack')} CUT · ${k('block')} BLOCK`, `DOWN + ${k('attack')}: RISING CUT · DOWN + ${k('attack')} IN THE AIR: PLUNGE · ${k('flask')} DRINK`, `DOWN: TALK, OPEN · DOWN + ${k('jump')}: DROP · START: PAUSE`]; } };
+const HINT = { keys: ['A D MOVE · SPACE JUMP, AGAIN IN THE AIR · SHIFT ROLL', 'CLICK CUT · S + CLICK RISING CUT · CLICK IN A ROLL: DASH CUT', 'S + CLICK IN THE AIR: PLUNGE · S + SPACE: DROP · S: TALK, OPEN · M MAP · ESC PAUSE'], touch: ['TOUCH THE LEFT OF THE SCREEN AND DRAG TO MOVE', 'DRAG DOWN: CROUCH, TALK, OPEN · DOWN + A IN THE AIR: PLUNGE'],
+  get pad(){ const k = padKey; return [`STICK MOVE · ${k('jump')} JUMP, AGAIN IN THE AIR · ${k('roll')} ROLL · ${k('attack')} CUT · ${k('block')} BLOCK`, `DOWN + ${k('attack')}: RISING CUT · DOWN + ${k('attack')} IN THE AIR: PLUNGE · ${k('flask')} DRINK`, `DOWN: TALK, OPEN · DOWN + ${k('jump')}: DROP · SELECT: MAP · START: PAUSE`]; } };
 const EPITHET = LEVELS.map(l => l.epithet);
 function drawHud(dt){
   HUD.begin(R.size().w); const W = HUD.W, v = new window.THREE.Vector3();
@@ -597,12 +615,8 @@ function drawHud(dt){
     const st = ITEMS.station(P), place = LEVEL.name + (room ? ' · ' + room.name : '') + (st ? ' · ' + st.station.name : '');   // beside one of the three: their station's name if (place !== PLACE.name){ PLACE.name = place; PLACE.t = 0; } PLACE.t += dt;
     HUD.place(place, PLACE.t < 3 ? 1 : Math.max(0.45, 1 - (PLACE.t - 3) * 0.5));
     HUD.boss(BOSS && BOSS.hud(), dt);
-    const dots = SHRINES.filter(S => MAP.seen.has(S.room)).map(S => ({ x: S.x, y: S.y + 0.5, c: '#fee761' }));
-    if (BOSS && MAP.seen.has(BOSS.room)) dots.push({ x: BOSS.cx, y: BOSS.stageY + 1, c: BOSS.st === 'dead' ? '#5a6988' : '#e43b44', r: 1 });
-    for (const N of ITEMS.people) if (MAP.seen.has(roomAt(N.x, N.y + 0.5))) dots.push({ x: N.x, y: N.y + 0.5, c: { lamplighter: '#feae34', wren: '#63c74d', scribe: '#2ce8f5' }[N.who] });   // the stations he has found
-    if (has('starcompass') || G.charts.includes(LEVEL.index)) for (const it of ITEMS.left().all) dots.push({ x: it.x, y: it.y + 0.5, c: it.type === 'thread' ? '#e43b44' : '#feae34' });   // what is still to be found
-    dots.push({ x: P.x, y: P.y + 0.8, c: '#ffffff', blink: true });
-    HUD.map(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, room, T, dots, Math.max(0, Math.min(1, P.y / (LEVEL.H * T))), REGION_SPAN, LEVEL.index, time);
+    const dots = mapDots();
+    HUD.map(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, room, T, dots, Math.max(0, Math.min(1, P.y / (LEVEL.H * T))), REGION_SPAN, LEVEL.index, time, P);
   }
   if (BANNER && !TALK.on && !NOTE && SCREEN !== 'annals'){ BANNER.t -= dt; HUD.banner(BANNER.a, BANNER.b, Math.max(0, Math.min(1, BANNER.t, (BANNER.life - BANNER.t) * 3))); if (BANNER.t <= 0) BANNER = null; }
   HUD.hint(HINT[DEVICE.kind === 'keys' ? 'keys' : DEVICE.kind === 'touch' ? 'touch' : 'pad'], PAUSE ? 1 : Math.max(0, Math.min(0.8, (16 - PLAYED) * 0.5)) * (rising || TALK.on || NOTE ? 0 : 1));
@@ -616,6 +630,7 @@ function drawHud(dt){
     // the lines, wrapped to the picture; a relic's second line (whose it was) is quieter
     let ny = 88; NOTE.lines.forEach((l, i) => { const lore = NOTE.relic && i > 0; if (lore) ny += 3; wrapText(l, W - 48).forEach(ln => { HUD.text(ln, W / 2, ny, lore ? '#c0cbdc' : '#fff2d0', 1, 'center'); ny += lore ? 9 : 11; }); }); if (NOTE.t > 0.7 && Math.floor(time * 2) % 2) HUD.text('PRESS TO GO ON', W / 2, Math.max(132, ny + 10), '#8b9bb4', 1, 'center'); }
   if (PAUSE && SCREEN === 'annals') drawAnnals(W);
+  else if (PAUSE && SCREEN === 'map') drawMap();
   else if (PAUSE && SCREEN === 'shop') HUD.dark(0.55);
   else if (PAUSE){ HUD.dark(0.66); HUD.text('PAUSED', W / 2, 14, '#fff2d0', 2, 'center'); HUD.rule(Math.round(W / 2), 34, 60, '#ead4aa');
     // what he carries
