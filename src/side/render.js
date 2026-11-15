@@ -33,6 +33,8 @@ const THREE = window.THREE;
 // in is kept painted and nothing is painted ahead; fewer motes in the air, fewer lights at once. Not done yet: smaller
 // paintings, a lower frame rate on a hot phone, a layout for a phone held upright (docs/side.md)
 export const LOW = { on: false };
+// the mood of the moment (entrance.js): dark dims the region's ambient and its lights; flicker makes the lights stutter
+export const MOOD = { dark: 0, flicker: 0 };
 const PAINTED = new Map(), ASKED = new Map(), keep = () => LOW.on ? 1 : 3;
 let LOADS = 0, READY = false, WK = null, WK_OK = null;
 function worker(){
@@ -363,10 +365,12 @@ export function makeRenderer(canvas){
       // light: the region's ambient (dimmer inside, where it has an inside), then the nearest lights
       { const rm = hero && LEVEL.rooms.find(r => hero.x >= r.x0 && hero.x < r.x1 && hero.y >= r.y0 && hero.y < r.y1), inOf = TMx => TMx.ambIn && rm && !rm.open ? TMx.ambIn : TMx.amb, want = [0, 0, 0];
         for (let k = 0; k < 3; k++){ want[k] = inOf(TM)[k] * LOOKW['']; for (const l of ALT) want[k] += inOf(THEMES[l])[k] * LOOKW[l]; }
+        for (let k = 0; k < 3; k++) want[k] *= 1 - MOOD.dark * 0.6;
         for (let k = 0; k < 3; k++) ambNow[k] += (want[k] - ambNow[k]) * 0.06; comp.uniforms.amb.value.set(ambNow[0], ambNow[1], ambNow[2]); comp.uniforms.res.value.set(size.w, size.h);
         const hw = size.w / 2 / PPU, hh = VIEW_H / 2, list = [];
         if (hero) list.push({ x: hero.x, y: hero.y + 1.3, color: 0xffe2c0, power: 0.42, range: 5.5, d: -1 });
-        for (const n of near){ if (n.d > 20) break; const l = n.l; list.push({ x: l.x, y: l.y, color: l.color, power: (l.torch ? 0.62 : l.power > 1.6 ? 0.7 : 0.34) * (1 + Math.sin(t * 11 + l.ph) * 0.05 + Math.sin(t * 3.1 + l.ph * 2) * 0.04), range: l.torch ? 6.5 : l.range > 6 ? 7 : 4.2, d: n.d }); }
+        const dim = l => (1 - MOOD.dark * 0.75) * (MOOD.flicker && Math.sin(t * 23 + l.ph * 7) + Math.sin(t * 9.7 + l.ph) > 2 - MOOD.flicker * 1.6 ? 0.25 : 1);   // the lights cower
+        for (const n of near){ if (n.d > 20) break; const l = n.l; list.push({ x: l.x, y: l.y, color: l.color, power: dim(l) * (l.torch ? 0.62 : l.power > 1.6 ? 0.7 : 0.34) * (1 + Math.sin(t * 11 + l.ph) * 0.05 + Math.sin(t * 3.1 + l.ph * 2) * 0.04), range: l.torch ? 6.5 : l.range > 6 ? 7 : 4.2, d: n.d }); }
         for (let i = glints.length - 1; i >= 0; i--){ const G = glints[i]; G.t += 1 / 60; const k = G.life > 0 ? Math.max(0, 1 - G.t / G.life) : 1; list.push({ x: G.x, y: G.y, color: G.color, power: G.power * k, range: G.range, d: -0.5 }); if (G.life <= 0 || G.t >= G.life) glints.splice(i, 1); }
         list.sort((a, b) => a.d - b.d);
         for (let k = 0; k < NL; k++){ const l = list[k]; if (!l){ lc[k].set(0, 0, 0); lp[k].set(0, 0, 0.001); continue; }

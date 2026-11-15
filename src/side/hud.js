@@ -107,6 +107,8 @@ export function makeHud(hud){
   };
   H.tell = (sx, sy) => { for (let y = -5; y <= 5; y++) for (let x = -5; x <= 5; x++) if (Math.hypot(x, y) < 5.2) px(Math.hypot(x, y) > 4 ? C.red1 : C.ink, sx + x, sy + y); px(C.red1, sx, sy - 3, 1, 4); px(C.red1, sx, sy + 2, 1, 1); };
   H.hint = (lines, alpha) => { if (alpha <= 0) return; g.globalAlpha = alpha; lines.forEach((l, i) => fine(g, l, H.W / 2, 180 - 8 - (lines.length - 1 - i) * 7, C.pale, 'center')); g.globalAlpha = 1; };
+  // the edges of the picture closing in (a keeper's entrance): bands of ink, thickest at the edge
+  H.vignette = a => { if (a <= 0) return; for (let k = 0; k < 12; k++){ g.globalAlpha = Math.min(1, a) * 0.5 * (1 - k / 12); const w = 4; px(C.ink, k * w, 0, w, 180); px(C.ink, H.W - (k + 1) * w, 0, w, 180); px(C.ink, 0, k * 3, H.W, 3); px(C.ink, 0, 180 - (k + 1) * 3, H.W, 3); } g.globalAlpha = 1; };
   H.dark = (alpha, col = C.ink) => { if (alpha <= 0) return; g.globalAlpha = Math.min(1, alpha); px(col, 0, 0, H.W, 180); g.globalAlpha = 1; };
   H.label = (str) => { g.globalAlpha = 0.35; fine(g, str, H.W - 3, 180 - 7, C.light, 'right'); g.globalAlpha = 1; };
   return H;

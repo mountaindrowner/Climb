@@ -12,7 +12,7 @@ export function spawnFx(scene){
   const DN = 220, dust = [], DUST = [0xc0cbdc, 0x8b9bb4, 0x8b9bb4, 0x5a6988];
   for (let i = 0; i < DN; i++){ const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xffffff })); m.visible = false; scene.add(m); dust.push({ m, life: 0 }); }
   let dk = 0;
-  const grit = (x, y, vx, vy, px, life) => { const p = dust[dk]; dk = (dk + 1) % DN; Object.assign(p, { x, y, vx, vy, life, max: life, px, floor: y }); p.m.material.color.setHex(DUST[Math.floor(Math.random() * DUST.length)]); p.m.visible = true; p.m.scale.set(px / 16, px / 16, 1); };
+  const grit = (x, y, vx, vy, px, life, floor = y) => { const p = dust[dk]; dk = (dk + 1) % DN; Object.assign(p, { x, y, vx, vy, life, max: life, px, floor }); p.m.material.color.setHex(DUST[Math.floor(Math.random() * DUST.length)]); p.m.visible = true; p.m.scale.set(px / 16, px / 16, 1); };
   // the crescent of a cut: a band of light drawn in pixels, flashed in front of him
   const cres = (() => { const c = document.createElement('canvas'); c.width = c.height = 48; const g = c.getContext('2d');
     for (let y = 0; y < 48; y++) for (let x = 0; x < 48; x++){ const dx = x - 14, dy = y - 24, r = Math.hypot(dx, dy), a = Math.atan2(dy, dx), band = 22 - Math.abs(a) * 7;
@@ -29,6 +29,8 @@ export function spawnFx(scene){
     Object.assign(p, { x: at.x, y: at.y, vx: Math.cos(a) * s, vy: Math.abs(Math.sin(a)) * s + 1.5, life: 6, t: -Math.random() * 0.25 }); p.m.visible = true; p.m.material.color.setHex(Math.random() < 0.3 ? 0xfee761 : 0xfeae34); } };
   // dust kicked one way (dir) along the floor at his feet; dust thrown both ways (a landing)
   F.kick = (at, dir, n, spd = 2.4) => { for (let i = 0; i < n; i++) grit(at.x + (Math.random() - 0.5) * 0.3, at.y + 0.03, dir * spd * (0.3 + Math.random()) + (Math.random() - 0.5) * 0.5, 0.6 + Math.random() * 1.8, Math.random() < 0.3 ? 2 : 1, 0.25 + Math.random() * 0.3); };
+  // grit shaken loose from a roof (top) between x0 and x1, falling to the floor below it
+  F.debris = (x0, x1, top, floor, n) => { for (let i = 0; i < n; i++) grit(x0 + Math.random() * (x1 - x0), top - Math.random() * 0.6, (Math.random() - 0.5) * 0.4, -Math.random() * 1.5, Math.random() < 0.25 ? 3 : Math.random() < 0.5 ? 2 : 1, 1.6 + Math.random() * 0.9, floor); };
   F.puff = (at, n, spd = 2.6) => { F.kick(at, -1, n >> 1, spd); F.kick(at, 1, n - (n >> 1), spd); };
   // the swoosh of a cut: big for a finisher, gold
   F.crescent = (at, face, big, tilt = 0) => { const p = arcs[ak]; ak = (ak + 1) % arcs.length; const sz = big ? 2.9 : 2.3;
