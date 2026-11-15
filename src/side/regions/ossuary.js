@@ -24,7 +24,8 @@ function aisle(){
   rect(r, 16, 2, 18, 3); rect(r, 40, 2, 43, 4); rect(r, 66, 2, 68, 3);              // heaps of bones
   upTo(r, 58, 63, 5);
   mark(r, 'acolyte', 28, 2); mark(r, 'acolyte', 52, 2); mark(r, 'wisp', 36, 12); mark(r, 'wisp', 74, 12);
-  mark(r, 'urn', 6, 2); mark(r, 'urn', 41, 5); mark(r, 'urn', 76, 2); mark(r, 'crystal', 12, 2); mark(r, 'chest', 67, 4, { holds: 'shards' });
+  mark(r, 'urn', 9, 2); mark(r, 'urn', 41, 5); mark(r, 'urn', 76, 2); mark(r, 'crystal', 12, 2); mark(r, 'chest', 67, 4, { holds: 'shards' });
+  mark(r, 'chest', 5, 2, { holds: 'thread' }); mark(r, 'crystal', 3, 2);   // just inside the door, lit: seen from the well's foot before the wall can be broken
   return r;
 }
 function sorting(){
@@ -44,6 +45,7 @@ function niches(){
   for (const y of [8, 14, 20, 26, 32, 38]) { rect(r, 35, y, 37, y); mark(r, 'crystal', 36, y + 1); }
   for (const [x0, x1, y] of [[26, 32, 5], [16, 22, 9], [26, 32, 13], [16, 22, 17], [8, 14, 21]]) ledge(r, x0, x1, y);
   ledge(r, 2, 12, 24);                                                              // the step through to the yard
+  mark(r, 'shrine', 7, 25);                                                         // a flame kept here, before the Sexton's yard
   mark(r, 'wisp', 22, 30); mark(r, 'wisp', 28, 39); mark(r, 'flitter', 12, 36);
   mark(r, 'torch', 6, 12); mark(r, 'torch', 30, 24); mark(r, 'torch', 10, 40); mark(r, 'urn', 9, 25);
   return r;

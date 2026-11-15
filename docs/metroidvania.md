@@ -160,7 +160,7 @@ route, a shortcut, a landmark, a flame and a fight, and a map that marks somethi
 ## Build order
 
 1. **What each gift opens:** gift-aware gates and the per-gift report (idea 6). The rest is measured by it. *Done:* `tests/helpers/reach.mjs`, the motor tests per gift set, and `node tools/gifts-report.mjs` writing `docs/gifts-report.md`. It shows, as expected, that the Warden's weight opens the Ossuary and the Toll's step and the Wyrm's wind open next to nothing.
-2. **The Roots slice:** finish it to the list above.
+2. **The Roots slice:** finish it to the list above. *Done (build 37):* a thread in a lit chest just inside the Ossuary's door, seen from the well's foot from the first minute; a light in each walled-up nook, showing round the cracked stone; the gallery nook's floor is rotten boards (a plunge with the Warden's weight breaks them) over the well-keepers' old ladder down to the Pithead, a shortcut opened from above that runs both ways after; a second flame, in the Ossuary before the Sexton. The rope after the Warden became this shortcut down instead: the report showed the Roots' flame is already 6 s from the Warden, so a way back *up* saved nothing, and the way *down* (to the Pithead, the pool, the Workings) is the long one. Corwen's marks on the map are step 3.
 3. **Corwen's map:** seen, visited, open and stopped ways, newly open, falls, sealed pages (idea 2).
 4. **Keepers re-tune their regions** and the given shortcuts (ideas 3, 4), one region at a time, with the next wings.
 5. **Knowledge gates** as each wing is built (idea 5); rough rock drawn everywhere (idea 7).

@@ -32,7 +32,8 @@ for (let N = 0; N < LEVELS.length; N++){
   if (!later.length) out.push('- Every gift is already his here.');
   // the runbacks, with what he has when he comes
   const goal = goalOf(marks), near = nearGoal(goal), what = goal.type === 'boss' ? 'the keeper' : goal.type === 'exit' ? 'the way on' : 'the way back';
-  const flames = marks.filter(m => m.type === 'shrine').map(m => ({ m, r: runback(G0, m, near) }));
+  // each flame with the gifts it takes to reach it (a flame in a wing is found only after its gate)
+  const flames = marks.filter(m => m.type === 'shrine').map(m => { for (const G of Gs){ const r = runback(G, m, near); if (r) return { m, r }; } return { m, r: null }; });
   const spawn = marks.find(m => m.type === 'spawn'), fromStart = runback(G0, spawn, near);
   out.push('', `Runbacks to ${what}:`);
   if (fromStart) out.push(`- from where he comes in: ${fromStart.secs.toFixed(0)} s`);

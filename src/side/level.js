@@ -40,18 +40,30 @@ function shaft(){
   ledge(r, 33, 37, 5); ledge(r, 25, 29, 9); ledge(r, 33, 37, 13); ledge(r, 24, 28, 17);
   mark(r, 'flitter', 30, 16); mark(r, 'crystal', 24, 2); mark(r, 'crystal', 37, 20); mark(r, 'torch', 10, 17);
   rect(r, 8, 2, 21, 7, EMPTY); rect(r, 22, 2, 22, 6, CRACKED);         // a room in the rock beside the shaft, walled up
-  mark(r, 'chest', 12, 2, { holds: 'relic:whetstone' }); mark(r, 'urn', 16, 2); mark(r, 'urn', 19, 2);
+  mark(r, 'chest', 12, 2, { holds: 'relic:whetstone' }); mark(r, 'urn', 16, 2); mark(r, 'urn', 19, 2); mark(r, 'crystal', 9, 2);   // its light shows round the cracked stone
   return r;
 }
 // the Pithead: where the Lamp-guild went down. The winding gear over the old cage shaft, the guild's lamps, and the hole:
 // down it is the Workings (regions/workings.js), the first of the Deep
 function pithead(){
-  const r = room(); walls(r); door(r, 'left', 2, 7); door(r, 'bottom', 18, 22);
+  const r = room(); walls(r); door(r, 'left', 2, 7); door(r, 'bottom', 18, 22); door(r, 'top', 5, 8);
+  for (const y of [6, 11, 16, 21]) ledge(r, 5, 8, y);                // the well-keepers' old ladder, up into its shaft (oldshaft)
   ledge(r, 15, 25, 9);                                            // the headframe's deck over the hole
   rect(r, 14, 2, 14, 8); rect(r, 26, 2, 26, 8);                    // its legs
   mark(r, 'pass', 18, 0, { w: 5, h: 3, to: 6, at: 'down' }); mark(r, 'arrive', 9, 2, { name: 'pithead' });
   mark(r, 'torch', 12, 8); mark(r, 'torch', 28, 8); mark(r, 'torch', 34, 12); mark(r, 'crystal', 32, 2);
-  mark(r, 'urn', 5, 2); mark(r, 'urn', 35, 2); mark(r, 'flitter', 30, 15);
+  mark(r, 'urn', 3, 2); mark(r, 'urn', 35, 2); mark(r, 'flitter', 30, 15);
+  return r;
+}
+// the well-keepers' old ladder shaft, from the Pithead up under the gallery. Its top is the gallery nook's floor, rotten
+// boards: from below he cannot break them, and the ladder ends under them; from above, the Warden's weight plunges
+// through, and the way from the top of the Roots down to the Pithead and the pool is open, both ways, from then on
+function oldshaft(){
+  const r = room(); walls(r); door(r, 'bottom', 5, 8); door(r, 'top', 5, 8);
+  rect(r, 12, 0, 39, 22);                                        // the rock round it: a narrow shaft
+  for (const y of [4, 9, 14, 19]) ledge(r, 5, 8, y);
+  for (let y = 3; y <= 18; y += 3) { mark(r, 'keep', 4, y); mark(r, 'keep', 9, y); }   // the wear leaves it open
+  mark(r, 'torch', 10, 11); mark(r, 'urn', 10, 2);
   return r;
 }
 function tunnel(){
@@ -87,8 +99,9 @@ function gallery(){
   rect(r, 28, 0, 31, 1, EMPTY); rect(r, 28, 0, 31, 0, SPIKES);    // a spiked gap before the well
   rect(r, 16, 19, 18, 20); rect(r, 30, 18, 33, 20);               // teeth in the roof
   mark(r, 'crawler', 22, 2); mark(r, 'spitter', 35, 13); mark(r, 'torch', 6, 19); mark(r, 'torch', 25, 6); mark(r, 'crystal', 15, 2); mark(r, 'crystal', 36, 2);
-  rect(r, 4, 2, 11, 6, EMPTY); rect(r, 12, 2, 12, 5, CRACKED);          // a nook under the walkway
-  mark(r, 'thread', 7, 3); mark(r, 'urn', 20, 2);
+  rect(r, 4, 2, 11, 10, EMPTY); rect(r, 12, 2, 12, 5, CRACKED);         // a nook under the walkway, tall enough to plunge in
+  rect(r, 5, 0, 8, 1, CRACKED);                                       // its floor rotten boards: under them the well-keepers' old ladder, down to the Pithead (oldshaft)
+  mark(r, 'thread', 7, 3); mark(r, 'urn', 20, 2); mark(r, 'crystal', 10, 2);
   return r;
 }
 // two screens tall: ledges up to the arena, and a door halfway up to the grotto
@@ -343,7 +356,7 @@ function crown(){
 // `fill` is what is between the rooms; `wear` is how hard the organic pass works the rock
 const REGIONS = [
   { name: 'The Roots', theme: 'roots', sub: 'the bottom of the world, and the water there', card: '', epithet: 'IT HAS FORGOTTEN WHAT IT GUARDS', quiet: ['arena', ...OSSUARY.QUIET], seed: 1234567, wear: { sag: 1, swell: 1, humps: 0.8 },
-    layout: [[0, 0, start], [1, 0, corridor], [2, 0, pithead], [1, 1, shaft], [0, 1, tunnel], [0, 2, chamber], [1, 2, ascent], [2, 2, gallery], [3, 2, well, 1, 2], [0, 3, roost], [1, 3, bridge], [2, 3, grotto], [2, 4, arena, 2, 2], ...OSSUARY.LAYOUT], looks: OSSUARY.LOOKS },
+    layout: [[0, 0, start], [1, 0, corridor], [2, 0, pithead], [2, 1, oldshaft], [1, 1, shaft], [0, 1, tunnel], [0, 2, chamber], [1, 2, ascent], [2, 2, gallery], [3, 2, well, 1, 2], [0, 3, roost], [1, 3, bridge], [2, 3, grotto], [2, 4, arena, 2, 2], ...OSSUARY.LAYOUT], looks: OSSUARY.LOOKS },
   { name: 'The Cloister', theme: 'cloister', sub: 'a house that kept the hours of the flame', card: 'The dark is below him. He is still being called.', epithet: 'IT RINGS FOR A LIGHT IT CANNOT SEE', quiet: ['chapel'], seed: 7654321, wear: { sag: 0.55, swell: 0.5, humps: 0.4 },
     layout: [[0, 0, undercroft], [1, 0, nave, 2, 1], [3, 0, belfry, 1, 3], [0, 1, stairwell, 1, 2], [1, 1, cells], [2, 1, library], [1, 2, cloister, 2, 1], [1, 3, chapel, 2, 1]] },
   { name: 'The Spires', theme: 'spires', sub: 'the open air, and the high pass', card: 'Out of the stone, into the cold and the sky.', epithet: 'IT COILS ON THE PASS, AND LETS NONE BY', quiet: ['crown'], seed: 2468102, fill: EMPTY, sky: true, wear: { sag: 1.1, swell: 0.5, humps: 0.6 },

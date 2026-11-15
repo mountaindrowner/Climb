@@ -9,7 +9,7 @@ what docs/metroidvania.md sets out to change. Runbacks are the shortest way from
 
 | Region | He comes with | Places | What each later gift opens | Flames | Nearest flame to where it leads |
 |---|---|---|---|---|---|
-| The Roots | nothing yet | 930 | The Warden's Weight +571; The Toll's Step +5; The Wyrm's Wind +0 | 1 | 6 s |
+| The Roots | nothing yet | 980 | The Warden's Weight +573; The Toll's Step +5; The Wyrm's Wind +0 | 2 | 6 s |
 | The Cloister | The Warden's Weight | 996 | The Toll's Step +1; The Wyrm's Wind +0 | 2 | 4 s |
 | The Spires | The Warden's Weight, The Toll's Step | 1120 | The Wyrm's Wind +0 | 3 | 2 s |
 | The Tempest | The Warden's Weight, The Toll's Step, The Wyrm's Wind | 992 | (all his) | 3 | 3 s |
@@ -19,15 +19,16 @@ what docs/metroidvania.md sets out to change. Runbacks are the shortest way from
 
 ## The Roots
 
-He comes with nothing yet: **930 places**.
+He comes with nothing yet: **980 places**.
 
-- **The Warden's Weight** opens **571** more places: The Ossuary: aisle 182, The Ossuary: niches 115, The Ossuary: count 87, The Ossuary: yard 76, The Ossuary: sorting 68, arena 17, shaft 15, gallery 9, well 2. Rooms opened: aisle, sorting, niches, yard, count.
+- **The Warden's Weight** opens **573** more places: The Ossuary: aisle 182, The Ossuary: niches 115, The Ossuary: count 87, The Ossuary: yard 76, The Ossuary: sorting 68, arena 17, shaft 15, gallery 7, oldshaft 4, well 2. Rooms opened: aisle, sorting, niches, yard, count.
 - **The Toll's Step** opens **5** more places: arena 2, The Ossuary: count 1, roost 1, chamber 1.
 - **The Wyrm's Wind** opens **0** more places.
 
 Runbacks to the keeper:
 - from where he comes in: 22 s
 - from the flame in grotto: 6 s
+- from the flame in The Ossuary: niches: 7 s
 
 ## The Cloister
 
