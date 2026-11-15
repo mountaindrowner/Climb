@@ -10,6 +10,7 @@ import gardens from './regions/gardens.js';
 import firmament from './regions/firmament.js';
 import workings from './regions/workings.js';
 import { SEAMS } from './seams.js';
+import * as OSSUARY from './regions/ossuary.js';
 export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B };
 
 // ---- the first region: up from the bottom of the mountain
@@ -93,6 +94,7 @@ function gallery(){
 // two screens tall: ledges up to the arena, and a door halfway up to the grotto
 function well(){
   const r = room(1, 2); walls(r); door(r, 'left', 2, 7); door(r, 'left', 38, 42); door(r, 'top', 30, 36);
+  rect(r, 38, 2, 39, 6, CRACKED);                                   // the Ossuary's door, walled up: bones behind it (regions/ossuary.js)
   [[24, 32, 5], [8, 16, 9], [22, 30, 13], [30, 37, 17], [14, 22, 21], [2, 10, 25], [16, 24, 29], [8, 16, 33], [2, 12, 37], [16, 24, 36], [30, 37, 38], [30, 36, 42]]
     .forEach(([a, b, y]) => ledge(r, a, b, y));
   mark(r, 'flitter', 20, 24); mark(r, 'flitter', 26, 36); mark(r, 'spitter', 36, 30);
@@ -136,6 +138,7 @@ function arena(){
   rect(r, 2, 2, 77, 8);                                           // the stage
   rect(r, 70, 0, 76, 8, EMPTY); ledge(r, 70, 76, 1); ledge(r, 70, 76, 5); ledge(r, 70, 76, 8);   // up through it
   ledge(r, 9, 17, 15); ledge(r, 62, 70, 15);                      // high ground at either end, out of the sweep
+  door(r, 'right', 33, 38); rect(r, 64, 32, 77, 32);              // the deadhouse stair from the Ossuary comes out on a shelf too high to climb back to
   mark(r, 'boss', 40, 9); mark(r, 'exit', 6, 9);
   mark(r, 'torch', 8, 13); mark(r, 'torch', 30, 12); mark(r, 'torch', 50, 12); mark(r, 'torch', 72, 13); mark(r, 'crystal', 20, 9); mark(r, 'crystal', 60, 9);
   return r;
@@ -339,8 +342,8 @@ function crown(){
 // the regions, from the bottom of the mountain up: rooms on a grid, [column, row, builder, columns wide, rows tall].
 // `fill` is what is between the rooms; `wear` is how hard the organic pass works the rock
 const REGIONS = [
-  { name: 'The Roots', theme: 'roots', sub: 'the bottom of the world, and the water there', card: '', epithet: 'IT HAS FORGOTTEN WHAT IT GUARDS', quiet: ['arena'], seed: 1234567, wear: { sag: 1, swell: 1, humps: 0.8 },
-    layout: [[0, 0, start], [1, 0, corridor], [2, 0, pithead], [1, 1, shaft], [0, 1, tunnel], [0, 2, chamber], [1, 2, ascent], [2, 2, gallery], [3, 2, well, 1, 2], [0, 3, roost], [1, 3, bridge], [2, 3, grotto], [2, 4, arena, 2, 2]] },
+  { name: 'The Roots', theme: 'roots', sub: 'the bottom of the world, and the water there', card: '', epithet: 'IT HAS FORGOTTEN WHAT IT GUARDS', quiet: ['arena', ...OSSUARY.QUIET], seed: 1234567, wear: { sag: 1, swell: 1, humps: 0.8 },
+    layout: [[0, 0, start], [1, 0, corridor], [2, 0, pithead], [1, 1, shaft], [0, 1, tunnel], [0, 2, chamber], [1, 2, ascent], [2, 2, gallery], [3, 2, well, 1, 2], [0, 3, roost], [1, 3, bridge], [2, 3, grotto], [2, 4, arena, 2, 2], ...OSSUARY.LAYOUT], looks: OSSUARY.LOOKS },
   { name: 'The Cloister', theme: 'cloister', sub: 'a house that kept the hours of the flame', card: 'The dark is below him. He is still being called.', epithet: 'IT RINGS FOR A LIGHT IT CANNOT SEE', quiet: ['chapel'], seed: 7654321, wear: { sag: 0.55, swell: 0.5, humps: 0.4 },
     layout: [[0, 0, undercroft], [1, 0, nave, 2, 1], [3, 0, belfry, 1, 3], [0, 1, stairwell, 1, 2], [1, 1, cells], [2, 1, library], [1, 2, cloister, 2, 1], [1, 3, chapel, 2, 1]] },
   { name: 'The Spires', theme: 'spires', sub: 'the open air, and the high pass', card: 'Out of the stone, into the cold and the sky.', epithet: 'IT COILS ON THE PASS, AND LETS NONE BY', quiet: ['crown'], seed: 2468102, fill: EMPTY, sky: true, wear: { sag: 1.1, swell: 0.5, humps: 0.6 },
@@ -365,7 +368,7 @@ function build(n){
     const r = make(), ox = cx * ROOM.w, oy = cy * ROOM.h;
     for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) tiles[(oy + y) * W + ox + x] = r.tiles[y][x];
     for (const m of r.marks) marks.push({ ...m, x: ox + m.x, y: oy + m.y });
-    if (!r.filler) rooms.push({ name: make.name, title: r.title || '', open: !!r.open, x0: ox * T, y0: oy * T, x1: (ox + r.w) * T, y1: (oy + r.h) * T, tx0: ox, ty0: oy, tx1: ox + r.w, ty1: oy + r.h });
+    if (!r.filler) rooms.push({ name: make.name, title: r.title || '', gate: r.gate || '', open: !!r.open, x0: ox * T, y0: oy * T, x1: (ox + r.w) * T, y1: (oy + r.h) * T, tx0: ox, ty0: oy, tx1: ox + r.w, ty1: oy + r.h });
   }
   if (SEAM){   // he comes in at the seam's foot (the region's own start is let go); a hole up into the first room, boarded
     let first = true; for (let k = marks.length - 1; k >= 0; k--) if (marks[k].type === 'spawn'){ if (marks.slice(0, k).some(m => m.type === 'spawn')) marks.splice(k, 1); }

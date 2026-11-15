@@ -34,6 +34,9 @@ const DEF = {
   toad:     { ai: 'spitter', hp: 5, w: 0.9, h: 2.0, color: 0xc0cbdc, range: 10, charge: 0.9, speed: 9, cooldown: 2.0, lob: true, orb: 0xb8f060, variants: ['px_toad_b'], fly: false, cling: 'floor', word: 'Spat on' },
   burrower: { ai: 'burrower', hp: 2, w: 0.6, h: 1.1, color: 0xd0a070, wake: 6, plough: 6, rise: 0.3, up: 1.4, art: 'burrower', fly: false },
   acolyte:  { ai: 'crawler', hp: 5, w: 0.6, h: 1.9, color: 0xa22633, wake: 8, reach: 2.1, chase: 2.0, windup: 0.62, lunge: 0.2, lungeDist: 1.5, recover: 0.8, stun: 0.5, hitR: 1.2, art: 'px_acolyte', fly: false, word: 'Struck' },
+  // the Ossuary's elite (regions/ossuary.js): the house's sexton, a head taller than his men, slow to start and hard to
+  // stop, two hearts a blow. Blocked, he staggers; turned at the right moment, he is open a long while. scale: drawn larger
+  sexton:   { ai: 'crawler', hp: 18, w: 0.9, h: 2.8, color: 0x6b3f2a, wake: 9, reach: 3.0, chase: 1.9, windup: 0.8, lunge: 0.26, lungeDist: 2.8, recover: 0.9, stun: 0.5, hitR: 1.6, dmg: 2, scale: 1.5, art: 'px_acolyte', fly: false, word: 'Buried' },
   gargoyle: { ai: 'flitter', hp: 3, w: 0.55, h: 0.9, color: 0x8b9bb4, wake: 6, circle: 1.5, dive: 0.6, commit: 0.34, leave: 1.0, perch: true, art: 'px_gargoyle', fly: true, word: 'Clawed' },
   wisp:     { ai: 'spitter', hp: 2, w: 0.45, h: 0.8, color: 0xf77622, range: 9, charge: 0.8, speed: 9, cooldown: 2.4, burst: 2, hover: true, orb: 0xfeae34, an: { charge: 'cast', idle: 'float' }, art: 'px_wisp', fly: true, word: 'Burned' },
   yeti:     { ai: 'thrower', hp: 6, w: 0.7, h: 1.8, color: 0xc0cbdc, wake: 10, range: 9, keep: 4.5, chase: 1.7, windup: 0.7, recover: 0.7, cooldown: 1.9, stun: 0.45, orb: 0x2ce8f5, an: { attack: 'throw' }, art: 'px_yeti', fly: false, word: 'Struck by ice' },
@@ -67,7 +70,8 @@ export function spawnEnemies(scene, R){
   const orbMats = {}, orbMat = c => orbMats[c] || (orbMats[c] = new THREE.MeshBasicMaterial({ color: c }));
   return { list, orbGeo: new THREE.SphereGeometry(0.18, 8, 6), orbMat, scene, R };
 }
-const anim = (e, name0, frac, dy = 0, z = 0.03) => { if (!e.sprite) return; const A = e.meta.anims, name = (e.d.an && e.d.an[name0]) || name0; const n = A[name] ? name : Object.keys(A).find(k => k !== 'stand') || 'stand'; e.sprite.show(n, frac, e.x, (e.d.fly ? e.y - e.d.h * 0.7 : e.y) + dy, e.face, z, e.rot || 0); };
+const anim = (e, name0, frac, dy = 0, z = 0.03) => { if (!e.sprite) return; const A = e.meta.anims, name = (e.d.an && e.d.an[name0]) || name0; const n = A[name] ? name : Object.keys(A).find(k => k !== 'stand') || 'stand'; e.sprite.show(n, frac, e.x, (e.d.fly ? e.y - e.d.h * 0.7 : e.y) + dy, e.face, z, e.rot || 0);
+  if (e.d.scale){ const s = e.d.scale, piv = (A.stand ? A.stand.h : 32) / (e.meta.ppu || 64) * 0.45; e.sprite.g.scale.setScalar(s); e.sprite.g.position.y += piv * (s - 1); } };   // drawn larger, its feet kept where they were
 
 // set a clinging creature against what it clings to, by its drawing (its sprite.json's box: the drawing's edges in
 // its canvas). A wall: the nearest to either side, its rock to the wall, facing out, never turning. A ceiling: the
@@ -127,7 +131,7 @@ export function stepEnemies(E, P, dt, fx, events){
         if (!e.hit && Math.abs(P.x - e.x) < (e.d.hitR || 0.75) && P.y < e.y + 1.2 && P.y > e.y - 0.6){
           e.hit = true;
           if (P.blocking && P.face === -e.face){ const parry = performance.now() / 1000 - (P.blockAt || -9) < 0.18; go('stunned'); e.stun = parry ? 1.4 : 0.7; e.x -= e.face * 0.5; events.push({ type: parry ? 'parry' : 'block', at: { x: P.x, y: P.y + 1 } }); }
-          else hurt(P, 1, e.x, e.d.word || 'Bitten');
+          else hurt(P, e.d.dmg || 1, e.x, e.d.word || 'Bitten');
         }
         if (e.tm >= e.d.lunge && e.st === 'lunge') go('recover');
       }

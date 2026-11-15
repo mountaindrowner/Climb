@@ -1,5 +1,5 @@
 // What there is to find is all there, in every region: one relic (a known one, no two regions the same), two scarf
-// threads, the three people once each, and every urn, chest and person standing on something with room over it.
+// threads (on the climb; a wing behind a gate has a relic of its own, and may have more), the three people once each, and every urn, chest and person standing on something with room over it.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { LEVELS, loadLevel, ROCK, LEDGE } from '../src/side/level.js';
@@ -8,12 +8,15 @@ import { SCRIPT, PEOPLE } from '../src/side/talk.js';
 
 const relics = [];
 for (let N = 0; N < LEVELS.length; N++){
-  const { W, H, tiles, marks } = { ...loadLevel(N) }, NAME = LEVELS[N].name;
+  const { W, H, tiles, marks, rooms } = { ...loadLevel(N) }, NAME = LEVELS[N].name;
+  const wingOf = m => { const r = rooms.find(r => r.gate && m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1); return r ? r.title || r.name : ''; };
   const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i];
   test(`${NAME}: a relic, two threads, the three people`, () => {
-    const chests = marks.filter(m => m.type === 'chest'), rel = chests.filter(m => /^relic:/.test(m.holds || ''));
+    const chests = marks.filter(m => m.type === 'chest'), relic = m => /^relic:/.test(m.holds || ''), wings = new Set(marks.map(wingOf).filter(Boolean));
+    const rel = chests.filter(m => relic(m) && !wingOf(m));
     assert.equal(rel.length, 1, 'one relic'); const id = rel[0].holds.slice(6); assert.ok(RELICS[id], `relic ${id} is not a known one`); relics.push(id);
-    assert.equal(marks.filter(m => m.type === 'thread').length + chests.filter(m => m.holds === 'thread').length, 2, 'two threads');
+    for (const w of wings){ const wr = chests.filter(m => relic(m) && wingOf(m) === w); assert.equal(wr.length, 1, `one relic in ${w}`); const wid = wr[0].holds.slice(6); assert.ok(RELICS[wid], `relic ${wid} is not a known one`); relics.push(wid); }
+    assert.equal(marks.filter(m => m.type === 'thread' && !wingOf(m)).length + chests.filter(m => m.holds === 'thread' && !wingOf(m)).length, 2, 'two threads on the climb');
     const deep = !marks.some(m => m.type === 'exit');   // the Deep has its own people (Hob); the climb has the three
     for (const who of Object.keys(PEOPLE).filter(w => (w === 'hob') === deep)){ assert.equal(marks.filter(m => m.type === 'npc' && m.who === who).length, 1, `${who} once`); assert.ok((SCRIPT[who][N] || []).length, `${who} has something to say here`); }
     for (const m of chests) assert.ok(!m.holds || m.holds === 'shards' || m.holds === 'thread' || /^relic:/.test(m.holds), `a chest holds ${m.holds}`);

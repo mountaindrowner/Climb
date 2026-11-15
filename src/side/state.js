@@ -42,6 +42,7 @@ export const RELICS = {   // name: whose it was; line: what it does; lore: whose
   stormglass:  { name: 'Wright\'s Stormglass',     line: 'His plunge lands with lightning: wider, and harder.', lore: 'The Wrights\' first jar. It caught one bolt and kept it, which was the whole trouble.' },
   seedheart:   { name: 'Gardener\'s Seed',         line: 'Seven embers mend a heart, where it took ten.',  lore: 'The gardeners kept back one seed from every sowing, in case. This was the last.' },
   tally:       { name: 'Guild Tally',            line: 'Urns spill half again as many shards.',          lore: 'Every shift was chalked up and paid in shards. The last was never paid.' },
+  stylus:      { name: 'Sexton\'s Stylus',       line: 'Every creature he strikes down gives two embers more.', lore: 'It scratched a mark for every one of his falls. Under them, in another hand, the whole count is struck through.' },
   starcompass: { name: 'Astronomer\'s Compass',    line: 'The map shows what is still to be found.',       lore: 'It does not point north. It points at the star that is missing.' },
 };
 // what each keeper leaves him, by region

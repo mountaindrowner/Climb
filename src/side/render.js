@@ -169,6 +169,14 @@ export function makeRenderer(canvas){
   const torchGlow = glowTex('rgba(255,170,60,1)'), crystalGlow = glowTex('rgba(80,240,255,1)');
   const layers = [], exits = [], lights = [], flames = [], motes = [], pool = [], burning = [], veils = [], glints = [], fars = [];
   let ALT = [];        // the other looks worn in this region
+  // does this side of a room open into somewhere that wears another look? Only there does the look fade toward the
+  // edge: a floor, a wall, a doorway into more of the same look, the world's own edge, are not ways out of it
+  const opensTo = (rm, side) => { const L = LEVEL, n = side === 'l' || side === 'r' ? rm.ty1 - rm.ty0 : rm.tx1 - rm.tx0;
+    for (let k = 0; k < n; k++){ const [i, j, bi, bj] = side === 'l' ? [rm.tx0, rm.ty0 + k, rm.tx0 - 1, rm.ty0 + k] : side === 'r' ? [rm.tx1 - 1, rm.ty0 + k, rm.tx1, rm.ty0 + k] : side === 'b' ? [rm.tx0 + k, rm.ty0, rm.tx0 + k, rm.ty0 - 1] : [rm.tx0 + k, rm.ty1 - 1, rm.tx0 + k, rm.ty1];
+      if (bi < 0 || bj < 0 || bi >= L.W || bj >= L.H) return false;
+      const shut = t => t === ROCK || t === 4; if (shut(L.tiles[j * L.W + i]) || shut(L.tiles[bj * L.W + bi])) continue;
+      const o = L.rooms.find(q => bi >= q.tx0 && bi < q.tx1 && bj >= q.ty0 && bj < q.ty1); if (!o || o.look !== rm.look) return true; }
+    return false; };
   const LOOKW = {};   // how far he is into a room that wears another region's look, by that look: 0 not at all, 1 deep in it
   const flameTexs = [flameStrip(), flameStrip(), flameStrip()], ambNow = [1, 1, 1];
   let ready = null, TM = THEMES.roots;
@@ -340,7 +348,7 @@ export function makeRenderer(canvas){
       resize();
       // how deep he is in a room that wears another look: from its edge in, over five units
       { for (const l of ALT) LOOKW[l] = 0; const rm = hero && LEVEL.rooms.find(r => hero.x >= r.x0 && hero.x < r.x1 && hero.y >= r.y0 && hero.y < r.y1);
-        if (rm && rm.look && ALT.includes(rm.look)){ const E = 99, d = Math.min(rm.x0 > 0 ? hero.x - rm.x0 : E, rm.x1 < LEVEL.W * T ? rm.x1 - hero.x : E, rm.y0 > 0 ? hero.y + 1 - rm.y0 : E, rm.y1 < LEVEL.H * T ? rm.y1 - hero.y - 1 : E), u = Math.max(0, Math.min(1, d / 5)); LOOKW[rm.look] = u * u * (3 - 2 * u); }
+        if (rm && rm.look && ALT.includes(rm.look)){ const E = 99, d = Math.min(opensTo(rm, 'l') ? hero.x - rm.x0 : E, opensTo(rm, 'r') ? rm.x1 - hero.x : E, opensTo(rm, 'b') ? hero.y + 1 - rm.y0 : E, opensTo(rm, 't') ? rm.y1 - hero.y - 1 : E), u = Math.max(0, Math.min(1, d / 5)); LOOKW[rm.look] = u * u * (3 - 2 * u); }
         let own = 1; for (const l of ALT) own -= LOOKW[l]; LOOKW[''] = Math.max(0, own); for (const F of fars) F.m.material.opacity = LOOKW[F.look]; }
       const wOf = look => LOOKW[look || ''];
       for (const o of motes){ o.m.position.x += (o.vx + Math.sin(t * 0.7 + o.ph) * 0.05) * 0.016; o.m.position.y += o.vy * 0.016; if (o.m.position.y > cam.y + 7) o.m.position.y = cam.y - 7; else if (o.m.position.y < cam.y - 7) o.m.position.y = cam.y + 7; if (Math.abs(o.m.position.x - cam.x) > 12) o.m.position.x = cam.x + (rnd() - 0.5) * 22; o.m.material.opacity = (o.steady ? 0.9 : 0.5 + 0.5 * Math.sin(t * 2 + o.ph)) * wOf(o.look); }

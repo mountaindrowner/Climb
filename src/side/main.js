@@ -28,7 +28,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 30';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 31';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -582,7 +582,7 @@ function onEvent(e){
       strikeEnemies(E, from, reach, dmg, out); if (BOSS) BOSS.strike(from, reach, dmg, out); ITEMS.strike(from, reach, out);
       breakRock(P.x + P.face * 1.2, P.y + 1.2, big ? 1.3 : -1); for (const o of out) onEvent(o); break; }
     case 'hit': buzz(e.heavy ? 0.35 : 0.15, e.heavy ? 0.5 : 0.3, e.heavy ? 90 : 50); sfx.hit(); fx.burst(e.at, e.heavy ? 18 : 12, 0xffe0a8); R.glint(e.at.x, e.at.y, 0xffe0a8, e.heavy ? 0.9 : 0.6, 3.5, 0.16); FEEL_FX.hitstop = e.heavy ? 0.09 : 0.05; FEEL_FX.shake = Math.max(FEEL_FX.shake, e.heavy ? 0.18 : 0.1); break;
-    case 'kill': if (e.e){ (G.slain = G.slain || {})[e.e.type] = (G.slain[e.e.type] || 0) + 1; (G.seen = G.seen || {})[e.e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; } sfx.kill(); ITEMS.spill(e.at.x, e.at.y, 1 + Math.min(5, e.e ? e.e.d.hp : 1)); fx.burst(e.at, 26, 0xff70d0); fx.ring(e.at, 0xffc0ff); FEEL_FX.hitstop = 0.1; fx.ember(e.at, 2 + Math.min(5, e.e ? e.e.d.hp : 2)); R.glint(e.at.x, e.at.y, 0xff9040, 1, 5, 0.35); break;
+    case 'kill': if (e.e){ (G.slain = G.slain || {})[e.e.type] = (G.slain[e.e.type] || 0) + 1; (G.seen = G.seen || {})[e.e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; } sfx.kill(); ITEMS.spill(e.at.x, e.at.y, 1 + Math.min(5, e.e ? e.e.d.hp : 1)); fx.burst(e.at, 26, 0xff70d0); fx.ring(e.at, 0xffc0ff); FEEL_FX.hitstop = 0.1; fx.ember(e.at, 2 + Math.min(5, e.e ? e.e.d.hp : 2) + (has('stylus') ? 2 : 0)); R.glint(e.at.x, e.at.y, 0xff9040, 1, 5, 0.35); break;
     case 'parry': buzz(0.3, 0.7, 110); sfx.parry(); fx.ring(e.at, 0x9fd0ff); FEEL_FX.hitstop = 0.12; break;
     case 'block': sfx.block(); fx.burst(e.at, 8, 0xc9d2e0); break;
     case 'spit': sfx.spit(); break;
@@ -654,7 +654,7 @@ function drawHud(dt){
   else if (PAUSE){ HUD.dark(0.66); HUD.text('PAUSED', W / 2, 14, '#fff2d0', 2, 'center'); HUD.rule(Math.round(W / 2), 34, 60, '#ead4aa');
     // what he carries
     const can = [CAN.breaker && 'THE WARDEN\'S WEIGHT', CAN.dash && 'THE TOLL\'S STEP', CAN.glide && 'THE WYRM\'S WIND'].filter(Boolean), found = Object.values(G.got).flat();
-    HUD.text(`SHARDS ${G.shards}   ·   STRANDS ${G.threads}   ·   RELICS ${G.relics.length} OF 6`, W / 2, 41, '#c0cbdc', 1, 'center');
+    HUD.text(`SHARDS ${G.shards}   ·   STRANDS ${G.threads}   ·   RELICS ${G.relics.length} OF ${Object.keys(RELICS).length}`, W / 2, 41, '#c0cbdc', 1, 'center');
     if (G.falls) HUD.fine(`FALLEN ${G.falls} TIME${G.falls === 1 ? '' : 'S'}. RAISED ${G.falls} TIME${G.falls === 1 ? '' : 'S'}.`, W / 2, 61, '#8b9bb4', 'center');
     if (can.length) HUD.text(can.join('  ·  '), W / 2, 51, '#2ce8f5', 1, 'center');
     G.relics.slice(0, 6).forEach((id, i) => { const r = RELICS[id]; if (r) HUD.fine(`${r.name.toUpperCase()}: ${r.line.toUpperCase()}`, W / 2, 150 - (G.relics.length - 1 - i) * 7, '#fee761', 'center'); });

@@ -2,7 +2,13 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The seams, and a phone mode (latest).**
+**The Ossuary, the first wing (latest).** At the foot of the Roots' well, a wall of cracked stone he walks past on the way up; with the Warden's weight it breaks, and behind it is where the house laid its dead. Eight screens off the climb, in the house's brick and candlelight: the long aisle where the house's acolytes are still counting, the sorting, a climb up a wall of niches with house-lamps drifting in it, the Sexton's yard, and the count at the top, where the Sexton's Stylus is (every creature struck down gives two embers more). The Sexton is the wing's elite: a head taller than his men, slow to start, two hearts a blow; block him and he staggers, turn him at the right moment and he is open a long while. From the count the deadhouse stair lets out high over the Warden's hall, a drop back to the way on that cannot be climbed the other way.
+- *Gates the tests understand*: a room behind a gate must be shut before it and open after, played both ways by the reachability model and by the real motor, and no traps either way.
+- *A look fades only at an opening* into somewhere that wears another: standing on a floor had counted as being at a room's edge, so a room in another region's look had mostly worn its own.
+- The relic count in the pause counts every relic there is (it said six).
+- Planned as the Drowned Galleries; `docs/world.md` had folded those into the Flooded Levels and made the Ossuary the Roots' wing.
+
+**The seams, and a phone mode.**
 - *The five seams*: between each two regions of the climb, a short way of its own that is neither and both, where he had gone straight from one region's top into the next one's first room. The Crypt Stair into the Cloister (the house's founders in the walls, its light coming down to meet him), the Bell Road into the Spires (a shrine at the turn), the Last Hut into the Tempest (a flame kept, bunks), the Breach into the Gardens (the garden wall broken through), the Long Stair into the Firmament. Each is three screens: a foot in the look of the region he left, and a climb up into the new one through a boarded hole. The place line names it. A first pass: `docs/world.md` plans six to ten screens each. Saves from before are moved up with the regions.
 - *A phone mode*, real but not finished: on by itself on a touch screen, or set in the Options. It keeps one region painted, not three, paints nothing ahead, and draws less air and fewer lights. The touch buttons' symbols are fixed (the page now says it is UTF-8).
 - The region's banner waits until he is well into it (the edge of the world had counted as a way out of the room).

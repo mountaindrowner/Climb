@@ -8,7 +8,9 @@ import { LEVEL, LEVELS, loadLevel, ROCK, LEDGE, EMPTY } from '../src/side/level.
 for (let N = 0; N < LEVELS.length; N++){
 const { W, H, tiles, marks, rooms, pads, updrafts } = { ...loadLevel(N) }, NAME = LEVELS[N].name;
 const GOAL = marks.find(m => m.type === 'boss') || marks.find(m => m.type === 'exit') || marks.find(m => m.type === 'pass');   // where the region leads: its boss, its way out, or (in the Deep, off the climb) the passage back
-const at = (i, j) => { if (i < 0 || j < 0 || i >= W || j >= H) return ROCK; const t = tiles[j * W + i]; return t === 4 ? ROCK : t === 5 || t === 6 ? LEDGE : t; };   // cracked rock is rock; star-glass, a ledge (he waits for it)
+// BROKE: he has the Warden's weight and has broken the cracked stone (a gated room is played both ways)
+let BROKE = false; const GATED = rooms.some(r => r.gate);
+const at = (i, j) => { if (i < 0 || j < 0 || i >= W || j >= H) return ROCK; const t = tiles[j * W + i]; return t === 4 ? (BROKE ? EMPTY : ROCK) : t === 5 || t === 6 ? LEDGE : t; };   // cracked rock is rock (until broken); star-glass, a ledge (he waits for it)
 const solid = (i, j) => at(i, j) === ROCK;
 const support = (i, j) => { const t = at(i, j); return t === ROCK || t === LEDGE; };
 const BODY = 5;   // tiles tall, rounded up (he is 2.4 units: 4.8 tiles)
@@ -57,11 +59,10 @@ function reach(edges){
 const near = (seen, mx, my, r = 3) => { for (let a = -r; a <= r; a++) for (let b = -r; b <= r; b++){ const i = mx + a, j = my + b; if (i >= 0 && j >= 0 && i < W && j < H && seen[j * W + i]) return true; } return false; };
 
 test(`${NAME}: every room, the shrine, the boss's stage and the way out can be reached from the spawn`, () => {
-  const seen = reach();
-  for (const r of rooms){
-    let any = false; for (let j = r.ty0; j < r.ty1 && !any; j++) for (let i = r.tx0; i < r.tx1; i++) if (seen[j * W + i]){ any = true; break; }
-    assert.ok(any, `room ${r.name} is cut off`);
-  }
+  const seen = reach(), inRoom = (seen, r) => { for (let j = r.ty0; j < r.ty1; j++) for (let i = r.tx0; i < r.tx1; i++) if (seen[j * W + i]) return true; return false; };
+  // a room behind a gate (a wing) is shut until he has what opens it, and open after
+  for (const r of rooms) if (r.gate) assert.ok(!inRoom(seen, r), `room ${r.name} is open before its gate (${r.gate})`); else assert.ok(inRoom(seen, r), `room ${r.name} is cut off`);
+  if (GATED){ BROKE = true; const after = reach(); BROKE = false; for (const r of rooms) assert.ok(inRoom(after, r), `room ${r.name} is cut off, even with its gate open`); }
   const deep = !marks.some(k => k.type === 'exit');   // a section of the Deep: no way on, its passages instead
   for (const t of ['shrine', 'boss', deep ? 'pass' : 'exit']){ const m = marks.find(k => k.type === t); if (m || t !== 'boss') assert.ok(m && near(seen, m.x, m.y), `${t} cannot be reached`); }
   for (const m of marks.filter(k => k.type === 'pass')) assert.ok(near(seen, m.x + 1, m.y + 1) || near(seen, m.x + 2, m.y), `a passage at ${m.x},${m.y} cannot be reached`);
@@ -70,8 +71,8 @@ test(`${NAME}: the organic pass leaves every marker in open air`, () => {
   for (const m of marks) assert.notEqual(at(m.x, m.y), ROCK, `${m.type} at ${m.x},${m.y} is in rock`);
 });
 
-test(`${NAME}: no traps: from anywhere he can get to, he can still get to where the region leads`, () => {
-  const edges = [], seen = reach(edges), back = new Map();
+for (const broke of GATED ? [false, true] : [false]) test(`${NAME}: no traps${broke ? ' (its gates open)' : ''}: from anywhere he can get to, he can still get to where the region leads`, () => {
+  BROKE = broke; const edges = [], seen = reach(edges), back = new Map(); BROKE = false;
   for (let k = 0; k < edges.length; k += 2){ const a = edges[k], b = edges[k + 1]; if (!back.has(b)) back.set(b, []); back.get(b).push(a); }
   const boss = GOAL, ok = new Uint8Array(W * H), q = [];
   for (let a = -6; a <= 6; a++) for (let b = -2; b <= 3; b++){ const k = (boss.y + b) * W + boss.x + a; if (seen[k]){ ok[k] = 1; q.push(k); } }

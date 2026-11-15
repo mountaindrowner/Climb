@@ -51,10 +51,13 @@ PROGS.push((t, I) => { if (t < 0.01 || Math.abs(t - 0.3) < 0.008) I.tap('jump');
 
 for (let N = 0; N < LEVELS.length; N++){
 const NAME = LEVELS[N].name;
-let GRAPH;
-function graph(){
+// broke: the cracked stone broken (he has the Warden's weight, and a wing behind it is open); played both ways where
+// the region has a gated room
+const GRAPHS = {};
+function graph(broke = false){
   ({ W, H, marks, rooms } = loadLevel(N));
-  if (GRAPH) return GRAPH;
+  if (broke) LEVEL.tiles = LEVEL.tiles.map(t => t === 4 ? 0 : t);   // a copy: the next load is whole again
+  if (GRAPHS[broke]) return GRAPHS[broke];
   const sp = marks.find(m => m.type === 'spawn'), start = sp.y * W + sp.x, pos = new Map([[start, [(sp.x + 0.5) * T, sp.y * T]]]);
   const seen = new Set([start]), q = [start], edges = new Map();
   while (q.length){
@@ -64,18 +67,21 @@ function graph(){
     edges.set(k, nx);
     for (const c of nx) if (!seen.has(c)){ seen.add(c); q.push(c); }
   }
-  return GRAPH = { seen, edges };
+  return GRAPHS[broke] = { seen, edges };
 }
 const nearSeen = (seen, mx, my, r = 4) => { for (let a = -r; a <= r; a++) for (let b = -2; b <= r; b++) if (seen.has((my + b) * W + mx + a)) return true; return false; };
 
+const GATED = loadLevel(N).rooms.some(r => r.gate);
+const reached = (seen, r) => { for (const k of seen){ const i = k % W, j = (k - i) / W; if (i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1) return true; } return false; };
 test(`${NAME}, played with the real motor: every room, the shrine, the stage and the way out are reached from the spawn`, () => {
   const { seen } = graph();
-  for (const r of rooms){ let any = false; for (const k of seen){ const i = k % W, j = (k - i) / W; if (i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1){ any = true; break; } } assert.ok(any, `room ${r.name} is not reached`); }
+  for (const r of rooms) if (r.gate) assert.ok(!reached(seen, r), `room ${r.name} is reached before its gate (${r.gate})`); else assert.ok(reached(seen, r), `room ${r.name} is not reached`);
+  if (GATED){ const after = graph(true).seen; for (const r of rooms) assert.ok(reached(after, r), `room ${r.name} is not reached, even with its gate open`); }
   const deep = !marks.some(k => k.type === 'exit');   // a section of the Deep: its passage back, not a way on
   for (const t of ['shrine', 'boss', deep ? 'pass' : 'exit']){ const m = marks.find(k => k.type === t); if (m || t !== 'boss') assert.ok(m && (nearSeen(seen, m.x, m.y) || nearSeen(seen, m.x + 2, m.y + 1)), `${t} is not reached`); }
 });
-test(`${NAME}, played with the real motor: from anywhere he gets to, he can still get to where the region leads`, () => {
-  const { seen, edges } = graph(), back = new Map();
+for (const broke of GATED ? [false, true] : [false]) test(`${NAME}, played with the real motor${broke ? ' (its gates open)' : ''}: from anywhere he gets to, he can still get to where the region leads`, () => {
+  const { seen, edges } = graph(broke), back = new Map();
   for (const [a, nx] of edges) for (const b of nx){ if (!back.has(b)) back.set(b, []); back.get(b).push(a); }
   const boss = marks.find(m => m.type === 'boss') || marks.find(m => m.type === 'exit') || marks.find(m => m.type === 'pass'), ok = new Set(), q = [];
   // a passage is jumped into, not stood in: where he stands under it (to three below its foot) counts as there
