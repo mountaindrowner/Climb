@@ -10,7 +10,7 @@ import { makeScore } from '../audio/score.js';
 import '../ui/feel.js';
 import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP } from './level.js';
 import { makeProps } from './props.js';
-import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, CAN, SIDE } from './motor.js';
+import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, CAN, SIDE, ARTS, startArt } from './motor.js';
 import { width as textWidth } from './pixelfont.js';
 const wrapText = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };
 import { G, OPT, loadSave, store, storeOpt, wipe, has, maxHearts, maxFlask, RELICS, TEACH, THREADS_A_HEART, DIFF } from './state.js';
@@ -19,7 +19,7 @@ import { makeTalk, SCRIPT } from './talk.js';
 import { ANNALS, PEOPLE_PAGE } from './annals.js';
 import { makeRenderer, makeSprite, VIEW_H, makeSwingFx, LOW } from './render.js';
 import { spawnFx, stepFx } from './fx.js';
-import { spawnEnemies, stepEnemies, strikeEnemies, slamEnemies } from './enemies.js';
+import { spawnEnemies, stepEnemies, strikeEnemies, slamEnemies, hitBox } from './enemies.js';
 import { KEEPERS } from './keepers.js';
 import { makeEntrance } from './entrance.js';
 import { makeStory, REGION_SPAN, storyImages } from './story.js';
@@ -29,7 +29,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 37';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 38';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -55,7 +55,9 @@ let NOTE = null, SCREEN = '', DIRTY = 0, NAMED = true;
 const TRAIL = [];   // where he has been since he last rose, to run back when he falls   // a card that waits for a press (something learned, a relic); which menu is up; the save wants writing
 const HUD = makeHud(hud);
 // embers: what he takes from what he kills. Ten grow a length of the scarf back (a heart); a full ten are kept until needed
-const EMBER = { n: 0, max: 10 };
+// embers: what fallen creatures and landed blows give him, three measures of ten. A measure mends a heart (when the
+// flask is dry: the flask key), or pays for an ember art (the art key: ARTS in motor.js). The Gardener's Seed: seven mend
+const EMBER = { n: 0, cap: 30, mend: 10 };
 let FLIGHT = null, SLOW = 0, FLASH = 0, PAUSE = false, PLAYED = 0, PLACE = { name: '', t: 9 };
 let CHECK = null, BANNER = null, WON = false, DEATH = 0;
 const SPANS = REGION_DATA.map((R, n) => R.depth || REGION_SPAN[n]);   // each region's height on the mountain (the Deep's below the water: negative)
@@ -63,7 +65,7 @@ const SUB = LEVELS.map(l => l.sub), CARD = LEVELS.map(l => l.card);   // under a
 // what he can do, from what he has beaten and what he carries
 function learn(){
   const b = n => !!G.beat[n] || G.top > n || (DEV && LEVEL.index > n);
-  CAN.breaker = b(0); CAN.dash = b(1); CAN.glide = b(2); SIDE.feather = has('featherfall'); EMBER.max = has('seedheart') ? 7 : 10;
+  CAN.breaker = b(0); CAN.dash = b(1); CAN.glide = b(2); SIDE.feather = has('featherfall'); EMBER.mend = has('seedheart') ? 7 : 10;
 }
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
 function setup(){
@@ -374,6 +376,7 @@ const PLUNGE_LAND = 0.5; let PLUNGE_T = 0;   // how long the plunge's landing pl
 function heroPose(P, t){
   const A = hero.meta ? hero.meta.anims : {}, has = n => !!A[n], pick = k => MOVES[k].find(has);
   if (WAKE > 0 && has('getup')) return ['getup', Math.min(0.999, Math.max(0, 1 - WAKE / 1.4))];   // where he fell: up off the ground
+  if (P.art){ const name = { cleave: 'atk_dash_px', gust: 'atk_rise_px', slam: 'plunge_land' }[P.art.k]; if (has(name)) return [name, Math.min(0.999, P.art.t / P.art.dur)]; }   // an ember art
   if (P.mantle && pick('climb')){
     const name = pick('climb'), C = CLIMB[name] || A[name].climb, M = P.mantle;   // climb_own carries its table (tools/compose-climb.py)
     if (C && M.wall != null){
@@ -452,7 +455,7 @@ function frame(ts){
   endFrame();
   if (P.hp > 0 && !FLIGHT && !GO.st && (TRAILT -= dt) <= 0){ TRAILT = 0.05; const [an, fr] = heroPose(P, time); TRAIL.push({ x: P.x, y: P.y, face: P.face, an, fr });
     if (TRAIL.length > 2400) TRAIL.splice(0, 1200, ...TRAIL.slice(0, 1200).filter((_, i) => i % 2)); }   // a long way: the far end of it kept more thinly
-  if (!ENT.lead) stepEnemies(E, P, sdt, fx, evs); ITEMS.step(sdt, time, P, evs);   // while a keeper's hall shuts and he cannot move, nothing else moves either
+  if (!ENT.lead) stepEnemies(E, P, sdt, fx, evs); stepArts(sdt); ITEMS.step(sdt, time, P, evs);   // while a keeper's hall shuts and he cannot move, nothing else moves either
   for (const e of E.list) if (e.alive && !(G.seen = G.seen || {})[e.type] && Math.abs(e.x - P.x) < 9 && Math.abs(e.y - P.y) < 5){ G.seen[e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; }   // met: entered in the Annals
   { const RD = REGION_DATA[LEVEL.index]; if (RD.tick) RD.tick(sdt, time, TICK); }   // the region's own weather and workings (its file)
   if (BOSS) BOSS.step(P, ENT.lead ? 0 : sdt, fx, evs);   // held, while its hall shuts and the ground begins to go
@@ -546,19 +549,50 @@ function frame(ts){
   { const M = P.mantle, low = P.roll > 0 ? 0.8 : P.crouch ? 1.15 : P.dive ? 1.5 : WAKE > 0.5 ? 0.9 : 1.92;
     const ax = FLIGHT ? FLIGHT.x : M ? M.wall - M.d * 0.25 : P.x - P.face * 0.14, ay = FLIGHT ? FLIGHT.y : M ? Math.min(M.y1 + 1.8, P.y + 1.9) : P.y + low - SINK, fc = FLIGHT ? FLIGHT.face : M ? M.d : P.face;
     const links = hp => SCARF.base + Math.min(5, Math.max(0, hp)) * SCARF.perHeart + Math.max(0, hp - 5) * SCARF.more, want = links(FLIGHT ? 1 : P.hp), lk = R.look(), out = (roomAt(P.x, P.y) || {}).open !== false, wind = (lk === 'spires' || lk === 'tempest') && out ? (lk === 'tempest' ? -7 : -5) : lk === 'spires' || lk === 'tempest' || lk === 'firmament' ? -1.2 : lk === 'gardens' && out ? -2 : -0.6;
-    SCF.step(dt, ax, ay, fc, want, wind, solidAt, P.glide ? 15 : 0); SCF.draw(!(P.hp <= 0 && DEATH > 0.45 && !FLIGHT) || true, EMBER.n / EMBER.max * (P.hp < P.maxHp ? 1 : 0.6)); }
+    SCF.step(dt, ax, ay, fc, want, wind, solidAt, P.glide ? 15 : 0); SCF.draw(!(P.hp <= 0 && DEATH > 0.45 && !FLIGHT) || true, EMBER.n / EMBER.cap); }
   // embers go to him; ten make a heart
   stepFx(fx, dt, P.hp > 0 ? { x: P.x, y: P.y + 1.3 } : null, () => {
-    EMBER.n = Math.min(EMBER.max, EMBER.n + 1); sfx.step();
-    if (EMBER.n >= EMBER.max && P.hp < P.maxHp){ EMBER.n = 0; P.hp++; sfx.drink(); fx.ring({ x: P.x, y: P.y + 1.2 }, 0xff8060); R.glint(P.x, P.y + 1.2, 0xff8060, 0.9, 5, 0.5); }
+    EMBER.n = Math.min(EMBER.cap, EMBER.n + 1); sfx.step();
   });
-  if (EMBER.n >= EMBER.max && P.hp > 0 && P.hp < P.maxHp){ EMBER.n = 0; P.hp++; sfx.drink(); fx.ring({ x: P.x, y: P.y + 1.2 }, 0xff8060); }   // a full ten kept until it was needed
   R.frame(time, P);
   drawHud(dt);
   requestAnimationFrame(frame);
 }
 // cracked rock within r of a blow: it breaks if he has the Warden's weight; if not, he is told once what it wants
 const HINTED = {}, LATER = []; let PURSE = 0, USE = null, TRAILT = 0;
+// ---- the ember arts. Which: down = the slam (the Warden's weight), in the air = the gust (the Wyrm's wind), else the
+// cleave (the Toll's step); each needs its gift and a measure of embers. Their blows are hitBox's (enemies.js): once a
+// creature, and they give no embers back
+const ART_GIFT = { slam: 'breaker', cleave: 'dash', gust: 'glide' }, WAVES = [];
+function art(e){
+  const kind = e.down ? 'slam' : e.air ? 'gust' : 'cleave';
+  if (!CAN[ART_GIFT[kind]]){ sfx.block(); if (!HINTED.artGift){ HINTED.artGift = 1; banner('', 'he has not been given that yet', 2.4); } return; }
+  if (EMBER.n < ARTS.cost){ sfx.block(); fx.burst({ x: P.x, y: P.y + 1.3 }, 4, 0x5a6988); if (!HINTED.artCost){ HINTED.artCost = 1; banner('', 'it takes a full measure of embers', 2.4); } return; }
+  EMBER.n -= ARTS.cost; const how = startArt(P, kind), at = { x: P.x, y: P.y + 1.2 };
+  fx.ember(at, 0); R.glint(at.x, at.y, 0xff8060, 1.1, 6, 0.4); buzz(0.5, 0.4, 160);
+  if (how === 'slam'){ sfx.slam(); sfx.impact(true); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.4); fx.puff({ x: P.x, y: P.y }, 26, 4); fx.ring({ x: P.x, y: P.y + 0.2 }, 0xffd27a); R.shock(P.x, P.y + 0.3, true); waves(P.x, P.y); }
+  else if (how === 'dive') sfx.whoosh();
+  else if (how === 'cleave'){ sfx.dash(); sfx.swing(true); P.art.seen = new Set(); FEEL_FX.kick = P.face * 0.3; }
+  else if (how === 'gust'){ sfx.whoosh(); sfx.gust(); const out = []; hitBox(E, P.x - 2.6, P.x + 2.6, P.y - 0.6, P.y + 3.2, 2, out, new Set(), P.x, 1.2); if (BOSS) BOSS.slam(P, 2.4, 1, out); for (const o of out){ o.art = true; onEvent(o); }
+    fx.ring({ x: P.x, y: P.y + 1 }, 0xc0f4ff); fx.burst({ x: P.x, y: P.y + 1 }, 24, 0xc0cbdc); R.shock(P.x, P.y + 1, false); }
+}
+// the slam's blow, run out along the floor both ways: it strikes what it reaches, breaks cracked stone, stops at a wall
+function waves(x, y){ for (const dir of [-1, 1]) WAVES.push({ x: x + dir * 0.6, y, dir, t: 0, seen: new Set(), boss: false }); }
+function stepArts(dt){
+  const out = [];
+  if (P.art && P.art.k === 'cleave'){ const a = P.art;   // all that he rushes through
+    hitBox(E, Math.min(a.from, P.x) - 0.7, Math.max(a.from, P.x) + 0.7, P.y - 0.3, P.y + 2.6, 2, out, a.seen, P.x - a.dir * 2);
+    if (BOSS && !a.boss && BOSS.strike(P, 1.6, 2, out)) a.boss = true;
+    fx.streak({ x: P.x, y: P.y }, a.dir); if (Math.random() < 0.6) fx.burst({ x: P.x, y: P.y + 1.2 }, 2, 0xfee761); }
+  if (P.art && P.art.k === 'gust'){ fx.burst({ x: P.x + Math.cos(P.art.t * 30) * 1.2, y: P.y + 1 + Math.sin(P.art.t * 30) * 0.6 }, 2, 0xc0f4ff); }
+  for (let i = WAVES.length - 1; i >= 0; i--){ const w = WAVES[i]; w.t += dt; w.x += w.dir * 14 * dt;
+    if (w.t > 0.8 || solidAt(w.x + w.dir * 0.3, w.y + 0.4) || !solidAt(w.x, w.y - 0.3)){ breakRock(w.x + w.dir * 0.4, w.y + 0.2, 0.9); fx.dust({ x: w.x, y: w.y }, 8, 2.5); WAVES.splice(i, 1); continue; }   // a wall (cracked stone breaks), or the floor ends
+    hitBox(E, w.x - 0.7, w.x + 0.7, w.y - 0.3, w.y + 1.8, 2, out, w.seen, w.x - w.dir);
+    if (BOSS && !w.boss && BOSS.slam({ x: w.x, y: w.y, face: w.dir }, 0.7, 1, out)) w.boss = true;
+    breakRock(w.x, w.y + 0.2, 0.9);
+    fx.kick({ x: w.x, y: w.y }, w.dir, 3, 3); R.glint(w.x, w.y + 0.4, 0xffd27a, 0.5, 3); }
+  for (const o of out){ o.art = true; onEvent(o); }
+}
 function breakRock(x, y, r){
   if (r < 0){ if (!CAN.breaker && PROPS.nearCrack(x, y, 1.3) && !HINTED.crack){ HINTED.crack = 1; banner('', 'cracked stone: something heavier would break it', 3); } return; }
   if (!PROPS.nearCrack(x, y, r)) return;
@@ -596,7 +630,7 @@ function onEvent(e){
     case 'jump': sfx.jump(); fx.puff(at, 8, 1.6); break;
     case 'doubleJump': sfx.jump(); fx.ring(at, 0x9ff0ff); FX2.flipped = true; break;
     case 'land': sfx.step(); fx.puff(at, e.hard ? 20 : 8, e.hard ? 3.2 : 2); if (e.hard) FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.12); if (e.hard || (e.drop || 0) > 0.8 || FX2.flipped){ landT = LAND_T; } FX2.flipped = false; break;
-    case 'slam': { PLUNGE_T = PLUNGE_LAND; landT = 0; sfx.slam(); fx.puff(at, 24, 3.6); R.shock(P.x, P.y + 0.3, true); fx.ring(at, 0xffd27a);
+    case 'slam': { if (e.art) waves(P.x, P.y); PLUNGE_T = PLUNGE_LAND; landT = 0; sfx.slam(); fx.puff(at, 24, 3.6); R.shock(P.x, P.y + 0.3, true); fx.ring(at, 0xffd27a);
       buzz(0.55, 0.45, 150); const storm = has('stormglass'), rad = MV.dive.radius * (storm ? 1.5 : 1), dmg = MV.dive.dmg + (storm ? 1 : 0) + (G.edge ? 1 : 0), out = [];
       if (storm){ sfx.thunder(); R.glint(P.x, P.y + 1, 0xcfe6ff, 1.4, 8, 0.25); FLASH = Math.max(FLASH, 0.1); for (let k = 0; k < 14; k++) fx.burst({ x: P.x + (Math.random() - 0.5) * 0.5, y: P.y + k * 0.7 }, 3, 0xcfe6ff); }
       slamEnemies(E, P, rad, dmg, out); if (BOSS) BOSS.slam(P, rad, dmg, out); ITEMS.slam(P, rad, out); breakRock(P.x, P.y + 0.2, 1.5); for (const o of out) onEvent(o); break; }
@@ -618,7 +652,8 @@ function onEvent(e){
       const dmg = e.sw.dmg + (big && has('whetstone') ? 1 : 0) + (G.edge >= 2 || (G.edge && big) ? 1 : 0), out = [];   // the whetstone, and the tempering
       strikeEnemies(E, from, reach, dmg, out); if (BOSS) BOSS.strike(from, reach, dmg, out); ITEMS.strike(from, reach, out);
       breakRock(P.x + P.face * 1.2, P.y + 1.2, big ? 1.3 : -1); for (const o of out) onEvent(o); break; }
-    case 'hit': buzz(e.heavy ? 0.35 : 0.15, e.heavy ? 0.5 : 0.3, e.heavy ? 90 : 50); sfx.hit(); fx.burst(e.at, e.heavy ? 18 : 12, 0xffe0a8); R.glint(e.at.x, e.at.y, 0xffe0a8, e.heavy ? 0.9 : 0.6, 3.5, 0.16); FEEL_FX.hitstop = e.heavy ? 0.09 : 0.05; FEEL_FX.shake = Math.max(FEEL_FX.shake, e.heavy ? 0.18 : 0.1); break;
+    case 'hit': if (!e.art) EMBER.n = Math.min(EMBER.cap, EMBER.n + 1);   // a landed blow gives an ember (not an art's)
+      buzz(e.heavy ? 0.35 : 0.15, e.heavy ? 0.5 : 0.3, e.heavy ? 90 : 50); sfx.hit(); fx.burst(e.at, e.heavy ? 18 : 12, 0xffe0a8); R.glint(e.at.x, e.at.y, 0xffe0a8, e.heavy ? 0.9 : 0.6, 3.5, 0.16); FEEL_FX.hitstop = e.heavy ? 0.09 : 0.05; FEEL_FX.shake = Math.max(FEEL_FX.shake, e.heavy ? 0.18 : 0.1); break;
     case 'kill': if (e.e){ (G.slain = G.slain || {})[e.e.type] = (G.slain[e.e.type] || 0) + 1; (G.seen = G.seen || {})[e.e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; } sfx.kill(); ITEMS.spill(e.at.x, e.at.y, 1 + Math.min(5, e.e ? e.e.d.hp : 1)); fx.burst(e.at, 26, 0xff70d0); fx.ring(e.at, 0xffc0ff); FEEL_FX.hitstop = 0.1; fx.ember(e.at, 2 + Math.min(5, e.e ? e.e.d.hp : 2) + (has('stylus') ? 2 : 0)); R.glint(e.at.x, e.at.y, 0xff9040, 1, 5, 0.35); break;
     case 'parry': buzz(0.3, 0.7, 110); sfx.parry(); fx.ring(e.at, 0x9fd0ff); FEEL_FX.hitstop = 0.12; break;
     case 'block': sfx.block(); fx.burst(e.at, 8, 0xc9d2e0); break;
@@ -649,14 +684,18 @@ function onEvent(e){
       if (k === 0){ const m = maxHearts(); if (m > P.maxHp){ P.maxHp = m; P.hp = m; } banner('The thread lengthens', 'three strands: a heart more', 4); } else banner('A red strand', `${k} of ${THREADS_A_HEART} toward a heart`, 3.4);
       store(); break; }
     case 'relic': { const r = RELICS[e.id]; if (!r || has(e.id)) break; G.relics.push(e.id); learn(); store(); sfx.relic(); LATER.push({ t: 0.7, f: () => { NOTE = { title: r.name, lines: r.lore ? [r.line, r.lore] : [r.line], t: 0, relic: true }; release(); } }); break; }
-    case 'flask': if (P.flask > 0 && P.hp < P.maxHp){ P.flask--; P.hp = Math.min(P.maxHp, P.hp + TUNE.player.flaskHeal); sfx.drink(); fx.ring({ x: P.x, y: P.y + 0.8 }, 0x5ce1c6); } break;
+    case 'flask': if (P.flask > 0 && P.hp < P.maxHp){ P.flask--; P.hp = Math.min(P.maxHp, P.hp + TUNE.player.flaskHeal); sfx.drink(); fx.ring({ x: P.x, y: P.y + 0.8 }, 0x5ce1c6); }
+      else if (P.hp < P.maxHp && EMBER.n >= EMBER.mend){ EMBER.n -= EMBER.mend; P.hp++; sfx.drink(); fx.ring({ x: P.x, y: P.y + 1.2 }, 0xff8060); R.glint(P.x, P.y + 1.2, 0xff8060, 0.9, 5, 0.5); fx.ember({ x: P.x, y: P.y + 1.2 }, 0); }   // the flask is dry: a measure of embers mends a heart
+      else if (P.hp < P.maxHp && !HINTED.mend){ HINTED.mend = 1; banner('', 'a full measure of embers will mend a heart', 2.8); }
+      break;
+    case 'art': art(e); break;
   }
 }
 // the lines of help at the foot of the screen, for what he is playing with. A controller's are its own buttons, as bound
 const PADN = { xbox: ['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT'], ps: ['CROSS', 'CIRCLE', 'SQUARE', 'TRIANGLE', 'L1', 'R1', 'L2', 'R2'] };
 const padKey = a => { const i = (SET.pad[a] || [])[0], N = PADN[DEVICE.kind === 'ps' ? 'ps' : 'xbox']; return i == null ? '-' : N[i] || 'B' + i; };
-const HINT = { keys: ['A D MOVE · SPACE JUMP, AGAIN IN THE AIR · SHIFT ROLL', 'CLICK CUT · RIGHT CLICK OR K BLOCK · S + CLICK RISING CUT · CLICK IN A ROLL: DASH CUT', 'S + CLICK IN THE AIR: PLUNGE · S + SPACE: DROP · S: TALK, OPEN · M MAP · ESC PAUSE'], touch: ['TOUCH THE LEFT OF THE SCREEN AND DRAG TO MOVE', 'DRAG DOWN: CROUCH, TALK, OPEN · DOWN + A IN THE AIR: PLUNGE'],
-  get pad(){ const k = padKey; return [`STICK MOVE · ${k('jump')} JUMP, AGAIN IN THE AIR · ${k('roll')} ROLL · ${k('attack')} CUT · ${k('block')} BLOCK`, `DOWN + ${k('attack')}: RISING CUT · DOWN + ${k('attack')} IN THE AIR: PLUNGE · ${k('flask')} DRINK`, `DOWN: TALK, OPEN · DOWN + ${k('jump')}: DROP · SELECT: MAP · START: PAUSE`]; } };
+const HINT = { keys: ['A D MOVE · SPACE JUMP, AGAIN IN THE AIR · SHIFT ROLL', 'CLICK CUT · RIGHT CLICK OR K BLOCK · S + CLICK RISING CUT · CLICK IN A ROLL: DASH CUT', 'S + CLICK IN THE AIR: PLUNGE · S + SPACE: DROP · S: TALK, OPEN · M MAP · ESC PAUSE', 'E: EMBER ART (S + E, OR IN THE AIR) · Q: FLASK, OR EMBERS TO MEND'], touch: ['TOUCH THE LEFT OF THE SCREEN AND DRAG TO MOVE', 'DRAG DOWN: CROUCH, TALK, OPEN · DOWN + A IN THE AIR: PLUNGE', 'EMBERS: AN ART (WITH DOWN, OR IN THE AIR) · FLASK: DRINK, OR MEND'],
+  get pad(){ const k = padKey; return [`STICK MOVE · ${k('jump')} JUMP, AGAIN IN THE AIR · ${k('roll')} ROLL · ${k('attack')} CUT · ${k('block')} BLOCK`, `DOWN + ${k('attack')}: RISING CUT · DOWN + ${k('attack')} IN THE AIR: PLUNGE · ${k('flask')} DRINK`, `DOWN: TALK, OPEN · DOWN + ${k('jump')}: DROP · SELECT: MAP · START: PAUSE`, `${k('art')}: EMBER ART (WITH DOWN, OR IN THE AIR) · ${k('flask')} WITH NONE LEFT: EMBERS MEND`]; } };
 const EPITHET = LEVELS.map(l => l.epithet);
 function drawHud(dt){
   HUD.begin(R.size().w); const W = HUD.W, v = new window.THREE.Vector3();
@@ -668,7 +707,7 @@ function drawHud(dt){
   HUD.title(ENT.title);
   if (BOSS && BOSS.st === 'fight' && !BOSS.shown && !ENT.title){ BOSS.shown = true; banner('', BOSS.hint, 3.5); }   // once it is up: how it is hurt
   if (!rising && !TALK.on && !FLIGHT){
-    HUD.status(P, EMBER.n, EMBER.max, P.flaskMax, time); PURSE = Math.max(0, PURSE - dt); HUD.purse(P, P.flaskMax, G.shards, PURSE, G.threads % THREADS_A_HEART, THREADS_A_HEART);
+    HUD.status(P, EMBER.n, EMBER.cap, P.flaskMax, time, ARTS.cost); PURSE = Math.max(0, PURSE - dt); HUD.purse(P, P.flaskMax, G.shards, PURSE, G.threads % THREADS_A_HEART, THREADS_A_HEART);
     const room = roomAt(P.x, P.y); if (room) MAP.seen.add(room);
     const st = ITEMS.station(P), place = LEVEL.name + (room ? ' · ' + (room.title || room.name) : '') + (st ? ' · ' + st.station.name : '');   // beside one of the three: their station's name if (place !== PLACE.name){ PLACE.name = place; PLACE.t = 0; } PLACE.t += dt;
     HUD.place(place, PLACE.t < 3 ? 1 : Math.max(0.45, 1 - (PLACE.t - 3) * 0.5));

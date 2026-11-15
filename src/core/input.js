@@ -8,13 +8,13 @@ import { ac } from '../audio/sfx.js';
 import { SET } from './settings.js';
 import { setDevice } from './prompts.js';
 
-export const ACTIONS = ['left', 'right', 'down', 'jump', 'attack', 'block', 'roll', 'flask'];
+export const ACTIONS = ['left', 'right', 'down', 'jump', 'attack', 'block', 'roll', 'flask', 'art'];
 // mag: how hard he is asked to move, 0..1 (a stick pushed part way walks; keys and the d-pad are always 1)
 export const IN = { held: Object.fromEntries(ACTIONS.map(a => [a, false])), pressed: new Set(), at: {}, mag: 1 };
 // The input queue (Dead Cells keeps presses; so does the developer's own game-feel demo, deepnight/gamefeel, MIT): a press
 // is kept until the game can act on it, for this long (seconds, real time), instead of being dropped at the end of the
 // frame it came in. So an attack pressed in the last moments of a roll, or a roll pressed as a stun wears off, happens.
-export const QUEUE = { jump: 0.14, attack: 0.24, roll: 0.2, flask: 0.2, block: 0.1 };
+export const QUEUE = { jump: 0.14, attack: 0.24, roll: 0.2, flask: 0.2, block: 0.1, art: 0.2 };
 export const FEEL_INPUT = { queue: true };   // the feel panel can switch the queue off, to compare
 const blank = () => Object.fromEntries(ACTIONS.map(a => [a, false]));
 const keyHeld = blank(), padHeld = blank(), gpHeld = blank(), botHeld = blank();

@@ -1,5 +1,7 @@
 # The Circle of the Moon project (theory)
 
+> **Shelved, for now (kept as an option).** We are building the Ember system instead (`docs/side.md`, *Ember arts*). This stays as a possible later layer on top of it.
+
 An idea for The Climb, taken from what made *Castlevania: Circle of the Moon* (Konami, Game Boy Advance, 2001) so loved:
 its **Dual Set-up System**, where two small sets of collectibles multiply into a large set of powers. Nothing here is
 built yet. Everything we have stays: the blade and its combo, the keepers' gifts, the relics, the Metroidvania plan

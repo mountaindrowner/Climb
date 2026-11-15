@@ -22,7 +22,7 @@ export function makeHud(hud){
   H.rule = (cx, y, half, col) => { px(col, cx - half, y, half - 4, 1); px(col, cx + 5, y, half - 4, 1); for (let k = 0; k < 3; k++){ px(col, cx - k, y - 2 + k, 1 + k * 2, 1); px(col, cx - k, y + 2 - k, 1 + k * 2, 1); } };
 
   // his life, embers and flask, top left
-  H.status = (P, embers, emberMax, flaskMax, t) => {
+  H.status = (P, embers, emberMax, flaskMax, t, measure = emberMax) => {
     for (let r = 0; r < MASK.length; r++) for (let c = 0; c < 7; c++) if (MASK[r][c] === '#') px(r >= 2 && r <= 3 && (c === 1 || c === 5) ? C.ink : C.white, 6 + c, 5 + r);
     px(C.ink, 5, 5, 1, 7); px(C.ink, 13, 5, 1, 7); px(C.ink, 6, 4, 7, 1); px(C.ink, 7, 13, 5, 1); px(C.ink, 7, 7, 1, 2); px(C.ink, 11, 7, 1, 2);
     const x0 = 16;
@@ -30,7 +30,11 @@ export function makeHud(hud){
       const x = x0 + i * 8, on = i < P.hp, last = i === P.hp - 1, low = P.hp <= 1 && on && Math.floor(t * 5) % 2;
       px(C.ink, x, 6, 8, 6); px(on ? (low ? C.fire2 : C.red1) : C.deep, x, 7, 7, 4); if (on){ px(low ? C.fire3 : C.rose || '#f6757a', x, 7, 7, 1); px(C.red0, x, 10, 7, 1); if (last){ px(C.ink, x + 6, 7, 1, 1); px(C.ink, x + 6, 10, 1, 1); } }
     }
-    const ew = P.maxHp * 8 - 1; px(C.ink, x0 - 1, 13, ew + 2, 3); px(C.deep, x0, 14, ew, 1); px(embers >= emberMax ? C.fire3 : C.fire2, x0, 14, Math.round(ew * Math.min(1, embers / emberMax)), 1);
+    // the embers: a measure to a segment; a full one glints (it will pay for an art, or mend a heart)
+    const segs = Math.max(1, Math.round(emberMax / measure)), bw = Math.max(P.maxHp * 8 - 1, segs * 14), sw = Math.floor((bw - (segs - 1) * 2) / segs);
+    px(C.ink, x0 - 1, 13, bw + 2, 4);
+    for (let k = 0; k < segs; k++){ const sx = x0 + k * (sw + 2), have = Math.max(0, Math.min(1, (embers - k * measure) / measure)); px(C.deep, sx, 14, sw, 2);
+      if (have > 0) px(have >= 1 ? C.fire3 : C.fire2, sx, 14, Math.max(1, Math.round(sw * have)), 2); if (have >= 1) px(C.cream, sx + Math.floor((t * 6 + k * 3) % sw), 14, 1, 1); }
     let fx = x0 + P.maxHp * 8 + 5;
     for (let i = 0; i < flaskMax; i++){ const on = i < P.flask, x = fx + i * 8;
       px(C.ink, x + 1, 5, 3, 2); px(C.ink, x, 7, 5, 6); px(C.light, x + 2, 5, 1, 2); px(on ? C.cyan : C.deep, x + 1, 8, 3, 4); if (on){ px(C.white, x + 1, 8, 1, 1); px(C.blue, x + 1, 11, 3, 1); } }

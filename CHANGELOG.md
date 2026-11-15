@@ -2,7 +2,13 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Roots, finished as the example (latest).** Step two of the Metroidvania plan: the Roots made to the research's checklist for one complete area.
+**Embers to spend: the ember arts (latest).** Embers are now something to choose how to spend, as in Hollow Knight. They come from fallen creatures and now also from every blow that lands, up to three measures (shown as three segments under the hearts, a full one glinting). They no longer mend him by themselves: with the flask dry, the flask key spends a measure to mend a heart. Or the new ember key (E, the middle mouse button, RB on a controller, or the touch button) spends a measure on an art, each a keeper's gift turned into a blow:
+- *Down and the ember key: the slam* (the Warden's weight). He stamps (or, in the air, plunges), and the blow runs along the floor both ways, striking everything it reaches and breaking cracked stone where it runs into it.
+- *The ember key on the ground: the cleave* (the Toll's step). A level rush forward through everything in the way, and nothing can touch him while it lasts.
+- *The ember key in the air: the gust* (the Wyrm's wind). He goes up turning, and a wind throws what is round him.
+Each comes with its gift (the gift's message says how). The Circle of the Moon idea (`docs/circle.md`) is shelved as an option for later.
+
+**The Roots, finished as the example.** Step two of the Metroidvania plan: the Roots made to the research's checklist for one complete area.
 - *Seen before it can be reached:* just inside the Ossuary's door, a chest with a scarf thread in it, lit, visible from the foot of the well beyond the cracked wall from the first minute.
 - *The two walled-up nooks* (the Whetstone behind one, a thread behind the other) have a light inside now, so a glow shows round the cracked stone.
 - *A second use of the Warden's weight:* the gallery nook's floor is rotten boards. A plunge breaks them, onto the well-keepers' old ladder down a shaft to the Pithead. It can be climbed from the bottom, but the boards only break from above: a shortcut opened from the far side, both ways after. The way from the top of the Roots back down to the pool and the Workings is now short.

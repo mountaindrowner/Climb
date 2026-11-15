@@ -73,7 +73,7 @@ function heightAbove(P){
 }
 
 export function hurt(P, n, fromX, msg){
-  if (P.inv > 0 || isRollInv(P) || SIDE.watching) return false;   // watching (main.js: the keepers' entrances) nothing touches him
+  if (P.inv > 0 || isRollInv(P) || SIDE.watching || (P.art && P.art.safe && !(P.art.k === 'gust' && P.art.t > ARTS.gust.safe))) return false;   // watching (main.js: the keepers' entrances) nothing touches him
   P.hp -= n; P.inv = TUNE.player.invuln || 1; P.hurtT = MV.hurtStun; P.atk = null; P.dive = null;
   const away = fromX == null ? -P.face : Math.sign(P.x - fromX) || -P.face;
   P.vx = away * MV.knock; P.vy = MV.knockUp; P.grounded = false;
@@ -112,7 +112,7 @@ export function stepPlayer(P, dt){
     else if (CAN.glide && !P.grounded && P.coyote <= 0 && !stunned && !P.dive && P.airJumps <= 0 && heightAbove(P) > 1){ P.glide = true; P.flip = 0; ev(P, 'glide'); }   // the jumps are spent: the scarf
     else P.jumpBuf = FEEL.buffer ? MV.buffer : 1e-3;
   }
-  if (P.roll <= 0 && P.rollCd <= 0 && !stunned && !P.dive && (FEEL.rollCancel || !P.atk || P.atk.phase !== 'active') && consume('roll')){
+  if (P.roll <= 0 && P.rollCd <= 0 && !stunned && !P.dive && !P.art && (FEEL.rollCancel || !P.atk || P.atk.phase !== 'active') && consume('roll')){
     const dir = H.right ? 1 : H.left ? -1 : P.face;
     P.roll = MV.roll.time; P.rollDir = dir; P.face = dir; P.atk = null; P.crouch = false; P.plant = 0; P.glide = false;
     if (!P.grounded && CAN.dash && P.airDash > 0){ P.airDash--; P.dashT = AIRDASH.time; P.vy = 0; ev(P, 'airDash'); } else ev(P, 'roll');
@@ -125,12 +125,14 @@ export function stepPlayer(P, dt){
   if (rollEnding && pending('attack') && !boxRock(P, P.x, P.y, BODY.stand)){ P.roll = 0; P.rollCd = MV.roll.cooldown; }
   if (consume('block')) P.blockAt = performance.now() / 1000;
   P.blocking = H.block && P.roll <= 0 && !stunned && !P.atk;
-  if (P.roll <= 0 && !stunned && !P.dive && P.plant <= 0 && consume('attack')){
+  if (P.roll <= 0 && !stunned && !P.dive && !P.art && P.plant <= 0 && consume('attack')){
     if (FEEL.dive && !P.grounded && H.down && heightAbove(P) > MV.dive.min){ P.dive = { t: 0 }; P.atk = null; P.vx = 0; P.vy = -MV.dive.speed; P.flip = 0; ev(P, 'dive'); }
     else if (!P.atk) startSwing(P, 0, P.grounded && H.down && weaponOf(P).rise ? 'rise' : null);   // from a crouch: the rising cut
     else P.atk.queued = true;
   }
   if (consume('flask')) ev(P, 'flask');
+  if (!P.art && !P.dive && !stunned && consume('art')) ev(P, 'art', { down: !!H.down, air: !P.grounded });   // (a press while he cannot waits its moment)   // main.js: which, and whether he has the embers
+  if (P.art){ P.art.t += dt; if (P.art.t >= P.art.dur) P.art = null; }
 
   // ---- the swing
   if (P.atk){
@@ -156,6 +158,8 @@ export function stepPlayer(P, dt){
   let target = 0, accel = P.grounded ? MV.accel : MV.airAccel;
   if (!P.grounded && FEEL.airFade) accel *= Math.max(MV.airFloor, 1 - P.airT / MV.airFade);
   if (P.dive){ P.vx = 0; }
+  else if (P.art && P.art.k === 'cleave'){ P.vx = P.art.dir * ARTS.cleave.speed; }
+  else if (P.art && P.art.k === 'slam'){ P.vx = 0; }
   else if (P.roll > 0){ P.vx = P.rollDir * MV.roll.speed * SCALE.run * (P.dashT > 0 ? AIRDASH.speed : P.roll > MV.roll.time * 0.25 ? 1 : 0.5); }
   else if (P.plant > 0){ target = 0; accel = MV.decel; }
   else if (P.atk && P.atk.phase !== 'rec' && swingOf(P, P.atk).dash){ target = P.face * swingOf(P, P.atk).dash; accel = 1e4; }   // the dash cut's drive
@@ -182,7 +186,7 @@ export function stepPlayer(P, dt){
   if (!P.glide && up && H.jump && !P.dive && !stunned && P.roll <= 0 && P.vy < 4){ P.glide = true; ev(P, 'glide'); }
   if (!P.grounded){
     if (P.dive){ P.vy = -MV.dive.speed; P.dive.t += dt; }
-    else if (P.dashT > 0) P.vy = 0;
+    else if (P.dashT > 0 || (P.art && P.art.k === 'cleave')) P.vy = 0;
     else if (P.glide && (up || P.vy <= 0)){
       if (up) P.vy += (GLIDE.rise - P.vy) * Math.min(1, dt * GLIDE.accel);
       else P.vy += (-GLIDE.fall - P.vy) * Math.min(1, dt * 9);
@@ -272,7 +276,7 @@ function tryMantle(P, d){
 }
 function landed(P){
   let drop = P.airTop - P.y; P.airTop = P.y; P.flip = 0; P.bounce = false; P.glide = false;
-  if (P.dive){ P.dive = null; P.plant = MV.dive.rec; P.vx = 0; P.landT = 0.2; drop -= MV.dive.soak; ev(P, 'slam'); }
+  if (P.dive){ const art = !!P.dive.art; P.dive = null; P.plant = MV.dive.rec; P.vx = 0; P.landT = 0.2; drop -= MV.dive.soak; ev(P, 'slam', { art }); }
   else {
     P.landT = 0.12;
     if (drop > MV.hardLand){ P.vx *= 0.5; P.landT = 0.2; ev(P, 'land', { drop, hard: true }); } else ev(P, 'land', { drop });
@@ -292,7 +296,19 @@ export const BLADE = { name: 'Curved blade', reach: 1.9, combo: [
   dash: { dmg: 2, wind: 0.15, active: 0.08, rec: 0.28, lunge: 0, dash: 11, anim: 'atk_dash_px', hit: 7 / 13, hitEnd: 8 / 13 } };
 export const weaponOf = P => P.weapon === 'blade' ? BLADE : WEAPONS[P.weapon];
 export const swingOf = (P, A) => A.special ? weaponOf(P)[A.special] : weaponOf(P).combo[A.i];
-export const SIDE = { fallSafe: 9, feather: false, watching: false };   // a metroidvania's shafts are deep: only a long drop hurts
+export const SIDE = { fallSafe: 9, feather: false, watching: false };
+// the ember arts (main.js spends the embers and says which): each a keeper's gift turned to a blow.
+//   slam   the Warden's weight: down on the ground (from the air, a plunge first); the blow runs along the floor both ways
+//   cleave the Toll's step: a level rush forward through everything in the way, untouchable while it lasts
+//   gust   the Wyrm's wind: up, turning, in a rising wind that throws what is round him
+export const ARTS = { cost: 10, slam: { time: 0.32 }, cleave: { time: 0.26, speed: 19 }, gust: { up: 14, time: 0.42, safe: 0.3 } };
+export function startArt(P, kind){
+  P.atk = null; P.roll = 0; P.glide = false; P.blocking = false;
+  if (kind === 'slam' && !P.grounded && heightAbove(P) > 0.6){ P.dive = { t: 0, art: true }; P.vx = 0; P.vy = -MV.dive.speed * 1.2; P.flip = 0; return 'dive'; }
+  if (kind === 'slam'){ P.art = { k: 'slam', t: 0, dur: ARTS.slam.time }; P.vx = 0; return 'slam'; }
+  if (kind === 'cleave'){ P.art = { k: 'cleave', t: 0, dur: ARTS.cleave.time, dir: P.face, safe: true, from: P.x }; P.vy = Math.max(0, P.vy); return 'cleave'; }
+  P.art = { k: 'gust', t: 0, dur: ARTS.gust.time, safe: true }; P.vy = ARTS.gust.up; P.grounded = false; P.coyote = 0; P.flip = 0; return 'gust';
+}   // a metroidvania's shafts are deep: only a long drop hurts
 // set by the game: which way a foe is that a swing should turn to (0 for none), for the aim assist
 export const HOOKS = { aim: null };
 function startSwing(P, i, special = null){

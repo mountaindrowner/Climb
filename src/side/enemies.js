@@ -281,6 +281,19 @@ export function strikeEnemies(E, P, reach, dmg, events){
   }
   return any;
 }
+// an ember art's blow: everything in a box, each creature once (seen: the ones already struck by this blow), pushed
+// from fromX; the hits are marked art, so they give no embers back (main.js)
+export function hitBox(E, x0, x1, y0, y1, dmg, events, seen, fromX, lift = 0){
+  for (const e of E.list){
+    if (!e.alive || seen.has(e) || (e.d.ai === 'burrower' && !(e.st === 'rise' || e.st === 'up'))) continue;
+    const top = e.y + e.d.h, bottom = e.d.fly ? e.y - e.d.h / 2 : e.y;
+    if (e.x + e.d.w < x0 || e.x - e.d.w > x1 || top < y0 || bottom > y1) continue;
+    seen.add(e); e.hp -= dmg; e.flash = 0.15; e.x += Math.sign(e.x - fromX || 1) * 0.8; if (lift && e.d.fly) e.y += lift; if (e.d.onHit) e.d.onHit(e, dmg, { x: fromX, y: y0, face: Math.sign(e.x - fromX) || 1 }, true);
+    if (e.d.ai === 'crawler' || e.d.ai === 'thrower'){ e.st = 'stunned'; e.tm = 0; e.stun = 0.9; }
+    events.push({ type: 'hit', e, at: { x: e.x, y: e.y + e.d.h / 2 }, heavy: true, art: true });
+    if (e.hp <= 0) killEnemy(e, events);
+  }
+}
 // his plunge landing: everything close around where he lands
 export function slamEnemies(E, P, radius, dmg, events){
   for (const e of E.list){

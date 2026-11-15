@@ -47,9 +47,9 @@ export const RELICS = {   // name: whose it was; line: what it does; lore: whose
 };
 // what each keeper leaves him, by region
 export const TEACH = [
-  { can: 'breaker', name: 'The Warden\'s Weight', lines: ['His plunge and his finishing cut now break cracked stone.', 'Plunge: down + cut, in the air.'] },
-  { can: 'dash',    name: 'The Toll\'s Step',     lines: ['A roll begun in the air now flies level and fast.', 'Once, each time he leaves the ground.'] },
-  { can: 'glide',   name: 'The Wyrm\'s Wind',     lines: ['The thread opens: jump again when the jumps are spent, and hold.', 'In rising air it carries him.'] },
+  { can: 'breaker', name: 'The Warden\'s Weight', lines: ['His plunge and his finishing cut now break cracked stone.', 'Plunge: down + cut, in the air.', 'With a measure of embers, down and the ember key: the blow runs along the floor.'] },
+  { can: 'dash',    name: 'The Toll\'s Step',     lines: ['A roll begun in the air now flies level and fast.', 'Once, each time he leaves the ground.', 'With a measure of embers, the ember key: he rushes through what is before him.'] },
+  { can: 'glide',   name: 'The Wyrm\'s Wind',     lines: ['The thread opens: jump again when the jumps are spent, and hold.', 'In rising air it carries him.', 'With a measure of embers, the ember key in the air: a wind throws what is round him.'] },
   { heart: 1,       name: 'The Thunderhead\'s Heart',     lines: ['A heart more: the thread grows a length.'] },
   { flask: 1,       name: 'Mother Thorn\'s Dew',    lines: ['The flask holds a draught more of the water.'] },
   { name: '', lines: [] },
