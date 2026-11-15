@@ -71,7 +71,7 @@ function setup(){
   for (const id of G.broke[LEVEL.index] || []) PROPS.breakId(id);   // the rock he broke here before stays broken
   ITEMS = makeItems(R.scene, R, LEVEL.index); learn();
   fx = spawnFx(R.scene); E = spawnEnemies(R.scene, R); SCF = makeScarf(R.scene); FLIGHT = null; BOSS = (KEEPERS[LEVEL.theme] || (() => null))(R.scene, R);   // each region's keeper
-  ENT = makeEntrance(R.scene, R, { fx: () => fx, sfx, shake: v => { FEEL_FX.shake = Math.max(FEEL_FX.shake, v); }, flash: v => { FLASH = Math.max(FLASH, v); }, buzz: (a, b, ms) => buzz(a, b, ms) });
+  ENT = makeEntrance(R.scene, R, { fx: () => fx, sfx, shake: v => { FEEL_FX.shake = Math.max(FEEL_FX.shake, v); }, flash: v => { FLASH = Math.max(FLASH, Math.min(0.42, v)); }, buzz: (a, b, ms) => buzz(a, b, ms), slow: v => { SLOW = Math.max(SLOW, v); } });
   // the shrine: it fills the flask and the hearts, and is where he wakes after a death
   SHRINES = LEVEL.marks.filter(m => m.type === 'shrine').map(m => { const x = (m.x + 0.5) * T, y = m.y * T; return { x, y, room: roomAt(x, y + 0.5) }; });
   CHECK = null; WON = false; DEATH = 0; TRAIL.length = 0;
@@ -276,14 +276,15 @@ const alias = theme => { const R = REGION_DATA.find(q => q.theme === theme); ret
 const SCORE = makeScore(), AMB = { workings: 'cave', roots: 'cave', cloister: 'cave', spires: 'wind', tempest: 'storm', gardens: 'garden', firmament: 'wind' };
 function score(){
   if (!HEARD) return; const A = ac(); if (!A) return; if (!MUSIC) MUSIC = makeMusic(A, musicBus() || A.destination);
-  const k = STORY.kind, fight = BOSS && BOSS.active() && BOSS.st !== 'die', quiet = ENT.lead || (BOSS && (BOSS.st === 'die' || (BOSS.st === 'dead' && !WON)));
+  const k = STORY.kind, fight = BOSS && BOSS.active() && BOSS.st !== 'die', quiet = ENT.hush || (BOSS && (BOSS.st === 'die' || (BOSS.st === 'dead' && !WON)));
   const here = R.look(), door = !fight && R.exits.find(x => x.on && x.next && Math.hypot(P.x - x.x, P.y - x.y) < 7);   // by an open way on, the next region can be heard
   const rec = k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? (LEVEL.index === CLIMB_TOP ? 'boss_final' : 'boss') : alias(here);
   const gen = k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? 'boss_' + LEVEL.theme : alias(here);
   // the recording of the piece if there is one; else the score made as it plays
-  if (SCORE.has(rec) && !OPT.synth){ SCORE.play(quiet ? '' : rec); MUSIC.play(''); } else { SCORE.play(''); MUSIC.play(quiet ? '' : gen); }
+  const cue = ENT.cue; ENT.cue = false;   // a keeper's name: its music in on the beat, not faded up
+  if (SCORE.has(rec) && !OPT.synth){ SCORE.play(quiet ? '' : rec, cue); MUSIC.play(''); } else { SCORE.play(''); MUSIC.play(quiet ? '' : gen, cue ? 0.05 : undefined); }
   const v = MUTED ? 0 : PAUSE || TALK.on ? 0.35 : 1; SCORE.duck(v); MUSIC.volume(v * 0.7); MUSIC.tick();
-  const amb = door ? door.next : here; ambience(k || MUTED || ENT.lead ? '' : AMB[amb] || '', amb === 'tempest' ? 0.5 : door ? 0.45 : 0.3);
+  const amb = door ? door.next : here; ambience(k || MUTED || ENT.hush ? '' : AMB[amb] || '', amb === 'tempest' ? 0.5 : door ? 0.45 : 0.3);
 }
 function hudBegin(){ const w = hud.clientWidth, h = hud.clientHeight, dpr = devicePixelRatio || 1; if (hud.width !== Math.round(w * dpr)){ hud.width = Math.round(w * dpr); hud.height = Math.round(h * dpr); } hx.setTransform(dpr, 0, 0, dpr, 0, 0); hx.clearRect(0, 0, w, h); }
 const banner = (a, b, t = 3.2) => { BANNER = { a, b, t, life: t }; };
@@ -413,6 +414,7 @@ function frame(ts){
   acc += sdt; time += dt;
   const evs = [];
   // what is in reach to use: someone to talk to, a chest to open (down)
+  if (ENT.lead && !ENT.first && (IN.pressed.has('jump') || IN.pressed.has('attack'))){ IN.pressed.delete('jump'); IN.pressed.delete('attack'); ENT.skip(); }   // seen it before: a press goes straight to the keeper
   USE = P.hp > 0 && P.grounded && !FLIGHT && !GO.st && WAKE <= 0 && !(BOSS && BOSS.active() && BOSS.st !== 'dead') ? ITEMS.near(P) : null;
   if (USE && IN.pressed.has('down')){ IN.pressed.delete('down'); if (USE.type === 'npc') talkTo(USE); else ITEMS.open(USE, evs); }
   const h = 1 / 120;
@@ -420,7 +422,7 @@ function frame(ts){
   endFrame();
   if (P.hp > 0 && !FLIGHT && !GO.st && (TRAILT -= dt) <= 0){ TRAILT = 0.05; const [an, fr] = heroPose(P, time); TRAIL.push({ x: P.x, y: P.y, face: P.face, an, fr });
     if (TRAIL.length > 2400) TRAIL.splice(0, 1200, ...TRAIL.slice(0, 1200).filter((_, i) => i % 2)); }   // a long way: the far end of it kept more thinly
-  stepEnemies(E, P, sdt, fx, evs); ITEMS.step(sdt, time, P, evs);
+  if (!ENT.lead) stepEnemies(E, P, sdt, fx, evs); ITEMS.step(sdt, time, P, evs);   // while a keeper's hall shuts and he cannot move, nothing else moves either
   for (const e of E.list) if (e.alive && !(G.seen = G.seen || {})[e.type] && Math.abs(e.x - P.x) < 9 && Math.abs(e.y - P.y) < 5){ G.seen[e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; }   // met: entered in the Annals
   { const RD = REGION_DATA[LEVEL.index]; if (RD.tick) RD.tick(sdt, time, TICK); }   // the region's own weather and workings (its file)
   if (BOSS) BOSS.step(P, ENT.lead ? 0 : sdt, fx, evs);   // held, while its hall shuts and the ground begins to go
@@ -596,7 +598,7 @@ function onEvent(e){
     case 'mantle': sfx.whoosh(); break;
     case 'hurt': { buzz(0.7, 0.5, 200); sfx.hurt(); fx.burst({ x: P.x, y: P.y + 1.3 }, 10, 0xff6060); const a = SCF.tip(); fx.burst({ x: a.x, y: a.y }, 12, 0xff7030); fx.burst({ x: a.x, y: a.y }, 6, 0xfee761); FLASH = Math.max(FLASH, 0.12); break; }   // the end of the scarf burns off
     case 'skid': fx.kick(at, Math.sign(P.vx) || P.face, 6, 2.2); break;
-    case 'bossWake': { const first = !(G.keepers && G.keepers[LEVEL.theme]); (G.keepers = G.keepers || {})[LEVEL.theme] = 1; store(); BOSS.shown = false; BANNER = null; ENT.start(BOSS, first, P); break; }   // the hall shuts, then it comes (entrance.js); its name comes up with the bars (drawHud)
+    case 'bossWake': { const first = !(G.keepers && G.keepers[LEVEL.theme]); (G.keepers = G.keepers || {})[LEVEL.theme] = 1; store(); BOSS.shown = false; BANNER = null; ENT.start(BOSS, first, P, { theme: LEVEL.theme, epithet: EPITHET[LEVEL.index] || '' }); SCORE.load(LEVEL.index === CLIMB_TOP ? 'boss_final' : 'boss'); break; }   // the hall shuts, then it comes (entrance.js); its name comes up with the bars (drawHud)
     case 'bossToll': sfx.parry(); sfx.rumble(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.2); break;
     case 'bossTell': sfx.creak(); break;
     case 'bossSlam': buzz(e.soft ? 0.4 : 0.8, 0.5, e.soft ? 120 : 260); sfx.impact(true); sfx.slam(); fx.dust(e.at, e.soft ? 10 : 26, 4); R.glint(e.at.x, e.at.y + 0.5, 0xffd27a, e.soft ? 0.4 : 0.9, 6, 0.3); if (!e.soft) fx.ring(e.at, 0xffd27a); FEEL_FX.shake = Math.max(FEEL_FX.shake, e.soft ? 0.18 : 0.42); break;
@@ -631,9 +633,10 @@ function drawHud(dt){
   // a red ! over a creature winding up
   for (const e of E.list){ if (!e.alive || !(e.tellT > 0)) continue; e.tellT -= dt; v.set(e.x, e.y + e.d.h + 0.7, 0).project(R.camera); HUD.tell(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180)); }
   const rising = !!(BOSS && BOSS.st === 'rise');
-  HUD.dark((ENT.vig || 0) * 0.32); HUD.vignette(ENT.vig || 0);   // the hall darkens, the sky too, and closes in
-  HUD.cinema(rising && ENT.st !== 'seal', dt, rising ? BOSS.name : '', EPITHET[LEVEL.index] || '', rising ? BOSS.tm : 0);
-  if (BOSS && BOSS.st === 'fight' && !BOSS.shown){ BOSS.shown = true; banner('', BOSS.hint, 3.5); }   // once it is up: how it is hurt
+  HUD.dark((ENT.vig || 0) * 0.32, ENT.tint); HUD.vignette(ENT.vig || 0, ENT.vigCol); HUD.sweep(ENT.sweep);   // the hall darkens, the sky too, and closes in; something passes over
+  HUD.cinema(rising && ENT.st !== 'seal', dt, '', '', 0);   // the bars; its name is the entrance's (HUD.title)
+  HUD.title(ENT.title);
+  if (BOSS && BOSS.st === 'fight' && !BOSS.shown && !ENT.title){ BOSS.shown = true; banner('', BOSS.hint, 3.5); }   // once it is up: how it is hurt
   if (!rising && !TALK.on && !FLIGHT){
     HUD.status(P, EMBER.n, EMBER.max, P.flaskMax, time); PURSE = Math.max(0, PURSE - dt); HUD.purse(P, P.flaskMax, G.shards, PURSE, G.threads % THREADS_A_HEART, THREADS_A_HEART);
     const room = roomAt(P.x, P.y); if (room) MAP.seen.add(room);

@@ -107,8 +107,27 @@ export function makeHud(hud){
   };
   H.tell = (sx, sy) => { for (let y = -5; y <= 5; y++) for (let x = -5; x <= 5; x++) if (Math.hypot(x, y) < 5.2) px(Math.hypot(x, y) > 4 ? C.red1 : C.ink, sx + x, sy + y); px(C.red1, sx, sy - 3, 1, 4); px(C.red1, sx, sy + 2, 1, 1); };
   H.hint = (lines, alpha) => { if (alpha <= 0) return; g.globalAlpha = alpha; lines.forEach((l, i) => fine(g, l, H.W / 2, 180 - 8 - (lines.length - 1 - i) * 7, C.pale, 'center')); g.globalAlpha = 1; };
-  // the edges of the picture closing in (a keeper's entrance): bands of ink, thickest at the edge
-  H.vignette = a => { if (a <= 0) return; for (let k = 0; k < 12; k++){ g.globalAlpha = Math.min(1, a) * 0.5 * (1 - k / 12); const w = 4; px(C.ink, k * w, 0, w, 180); px(C.ink, H.W - (k + 1) * w, 0, w, 180); px(C.ink, 0, k * 3, H.W, 3); px(C.ink, 0, 180 - (k + 1) * 3, H.W, 3); } g.globalAlpha = 1; };
+  // the edges of the picture closing in (a keeper's entrance): bands of its colour (ink; the Wyrm's, frost), thickest at the edge
+  H.vignette = (a, col = C.ink) => { if (a <= 0) return; for (let k = 0; k < 12; k++){ g.globalAlpha = Math.min(1, a) * 0.5 * (1 - k / 12); const w = 4; px(col, k * w, 0, w, 180); px(col, H.W - (k + 1) * w, 0, w, 180); px(col, 0, k * 3, H.W, 3); px(col, 0, 180 - (k + 1) * 3, H.W, 3); } g.globalAlpha = 1; };
+  // something huge passing over (the Wyrm, before it comes): a shadow across the top of the picture, f 0 to 1
+  H.sweep = f => { if (f < 0 || f > 1) return; const cx = -H.W * 0.6 + f * H.W * 2.2, a = 0.7 * Math.sin(f * Math.PI);
+    // a long body and two swept wings, soft-edged: three passes, each smaller and darker
+    for (const [k, al] of [[1.15, 0.25], [1, 0.35], [0.8, 0.5]]){ g.globalAlpha = a * al; for (let y = 6; y < 110; y++){ const u = (y - 46) / 40, body = Math.sqrt(Math.max(0, 1 - u * u)) * H.W * 0.14, wing = Math.max(0, 1 - Math.abs(y - 40) / 18) * H.W * 0.36, w = Math.round(Math.max(body, wing) * k); if (w > 0) px(C.ink, Math.round(cx - w), y, w * 2, 1); } }
+    g.globalAlpha = 1; };
+  // a keeper's name, big (entrance.js title): it slams in with a flash, a line over it says what it keeps, a rule runs
+  // out under it and its words come up; held, then gone. Scaled whole pixels to fit the width
+  H.title = T => {
+    if (!T || T.t > 4.4) return; const t = T.t, a = t < 3.6 ? 1 : Math.max(0, 1 - (t - 3.6) / 0.8), cx = Math.round(H.W / 2);
+    const s = Math.max(2, Math.min(5, Math.floor((H.W - 24) / Math.max(1, width(T.name, 1))))), slam = t < 0.16 ? 1 - t / 0.16 : 0, sc = s + (slam > 0.5 ? 1 : 0), y = 92 - Math.round(slam * 4);
+    g.globalAlpha = a * 0.6; px(C.ink, 0, 78, H.W, 7 * s + 40);                                         // a band to set it on
+    if (t < 0.3){ g.globalAlpha = (1 - t / 0.3) * 0.85; px('#ffffff', 0, y - 3, H.W, 7 * sc + 6); }     // the flash it comes in on
+    g.globalAlpha = a * 0.45; for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1], [-2, 0], [2, 0]]) text(g, T.name, cx + dx, y + dy, T.glow, sc, 'center', null);   // its glow
+    g.globalAlpha = a; text(g, T.name, cx, y, T.color, sc, 'center', C.ink);
+    g.globalAlpha = a * Math.min(1, t / 0.35); fine(g, T.role, cx, 82, C.light, 'center');
+    const half = Math.round(Math.min(1, Math.max(0, (t - 0.12) / 0.45)) * Math.min(H.W / 2 - 16, width(T.name, sc) / 2 + 16)); g.globalAlpha = a; if (half > 6) H.rule(cx, y + 7 * sc + 6, half, T.glow);
+    g.globalAlpha = a * Math.min(1, Math.max(0, (t - 0.5) / 0.5)); text(g, T.epithet, cx, y + 7 * sc + 12, C.pale, 1, 'center');
+    g.globalAlpha = 1;
+  };
   H.dark = (alpha, col = C.ink) => { if (alpha <= 0) return; g.globalAlpha = Math.min(1, alpha); px(col, 0, 0, H.W, 180); g.globalAlpha = 1; };
   H.label = (str) => { g.globalAlpha = 0.35; fine(g, str, H.W - 3, 180 - 7, C.light, 'right'); g.globalAlpha = 1; };
   return H;
