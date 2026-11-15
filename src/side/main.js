@@ -29,7 +29,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 40';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 41';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -544,7 +544,8 @@ function frame(ts){
   CAM.x += (wantX - CAM.x) * Math.min(1, dt * (FLIGHT ? 16 : ENT.cam ? 2.6 : 5)); CAM.y += (wantY - CAM.y) * Math.min(1, dt * (FLIGHT ? 16 : P.grounded ? 4 : 6));
   const halfH = VIEW_H / 2 * CAM.zoom, halfW = halfH * (R.size().w / R.size().h);
   const box = fight && !FLIGHT ? BOSS.room : { x0: 0, y0: 0, x1: LEVEL.W * T, y1: LEVEL.H * T };
-  const cx = Math.max(box.x0 + halfW, Math.min(box.x1 - halfW, CAM.x)), cy = Math.max(box.y0 + halfH, Math.min(box.y1 - halfH, CAM.y));
+  const keep = (c, a, b, h) => b - a < h * 2 ? (a + b) / 2 : Math.max(a + h, Math.min(b - h, c));   // a hall smaller than the view: kept in the middle of it
+  const cx = keep(CAM.x, box.x0, box.x1, halfW), cy = keep(CAM.y, box.y0, box.y1, halfH);
   FEEL_FX.shake = Math.max(0, FEEL_FX.shake - dt * 1.2); const sk = FEEL_FX.shake * OPT.shake;
   FEEL_FX.kick *= Math.exp(-dt * 14);   // a blow nudges the view the way it goes
   R.setCamera(cx + (Math.random() - 0.5) * sk + FEEL_FX.kick, cy + (Math.random() - 0.5) * sk, CAM.zoom);

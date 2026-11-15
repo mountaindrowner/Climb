@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**A second weapon: the Sexton's spade (latest).** Step three of the Ember plan. When the Sexton falls in the Ossuary, he leaves his spade, and the new swap key (R, or LB; a touch button once he has it) changes between it and the blade.
+**Drawn back a little (latest).** The view shows about 15% more of the world (15.5 units tall, was 13.5), on every screen. A keeper's hall shorter than the view is now kept in the middle of it, rather than its floor at the bottom edge. On a phone, the flask and embers buttons were squeezed into each other (the flask's text ran out of its frame): each is now as wide as its words, with a gap between.
+
+**A second weapon: the Sexton's spade.** Step three of the Ember plan. When the Sexton falls in the Ossuary, he leaves his spade, and the new swap key (R, or LB; a touch button once he has it) changes between it and the blade.
 - *The spade:* one great overhead swing, slow to lift, far-reaching, three times a cut's harm, and it breaks cracked stone wherever it lands. It has no combo and no rising or dashing cut, and he cannot guard with it.
 - *The blade* keeps everything it had: the three-cut combo, the rising and dashing cuts, the guard and the parry.
 - *Drawn for it* (PixelLab, about 5 cents in all): the swing, and him leaning on the spade at rest, each with its light map.
