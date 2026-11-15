@@ -159,7 +159,7 @@ route, a shortcut, a landmark, a flame and a fight, and a map that marks somethi
 
 ## Build order
 
-1. **What each gift opens:** gift-aware gates and the per-gift report (idea 6). The rest is measured by it.
+1. **What each gift opens:** gift-aware gates and the per-gift report (idea 6). The rest is measured by it. *Done:* `tests/helpers/reach.mjs`, the motor tests per gift set, and `node tools/gifts-report.mjs` writing `docs/gifts-report.md`. It shows, as expected, that the Warden's weight opens the Ossuary and the Toll's step and the Wyrm's wind open next to nothing.
 2. **The Roots slice:** finish it to the list above.
 3. **Corwen's map:** seen, visited, open and stopped ways, newly open, falls, sealed pages (idea 2).
 4. **Keepers re-tune their regions** and the given shortcuts (ideas 3, 4), one region at a time, with the next wings.

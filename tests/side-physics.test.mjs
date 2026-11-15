@@ -1,94 +1,55 @@
-// The side view's region, played with the real motor: from every place he can stand, the inputs a player has (walk,
-// jump, jump and double jump at several moments, jump straight up then steer, crouch-walk, drop through a ledge) run
-// through stepPlayer at its fixed step, and where he comes to rest is somewhere he can get to. Nothing guessed about
-// how high or far he goes. Checks every room, the shrine, the Warden's stage and the way out are reached from the
-// spawn without a hurt, and that nowhere he can reach is a place he cannot get back out of toward the stage.
-import { clock } from './helpers/browser.mjs';
+// The side view's regions, played with the real motor (tests/helpers/reach.mjs): from every place he can stand, the
+// inputs a player has run through stepPlayer, and where he comes to rest is somewhere he can get to. Each region is
+// played with the gifts he has when he first comes to it (the keepers below it) and with every gift:
+//   - with what he has on arrival: every room not behind a gate, the shrine, the stage and the way out are reached
+//     without a hurt. (No region may need a gift he is only given above it.)
+//   - with every gift: every room is reached
+//   - a room behind a gate (a wing) is shut without that gift, every other gift in hand
+//   - and both ways, nowhere he can get to is a place he cannot get back out of toward where the region leads
+//   - a keeper retried is not a long walk: the nearest flame is within RUNBACK seconds of its stage (or the way on)
+// (A keeper's own gift is never needed to reach it: the first test plays each region without it.) tools/gifts-report.mjs
+// writes what each gift opens from the same graphs, to docs/gifts-report.md
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-const { LEVEL, LEVELS, loadLevel, T, tileAt, ROCK, LEDGE, PHASE } = await import('../src/side/level.js');
-const M = await import('../src/side/motor.js');
-const I = await import('../src/core/input.js');
-const H120 = 1 / 120;
-M.CAN.breaker = M.CAN.dash = M.CAN.glide = true;   // he is played with everything the keepers teach
-PHASE.all = true;                                   // star-glass is waited for: here it is always there
-let W, H, marks, rooms;   // of the region being played
+import { graph, arrival, GIFTS, giftName, reached, goalOf, nearGoal, runback, LEVELS, loadLevel } from './helpers/reach.mjs';
+const RUNBACK = 40;   // seconds at a run from the nearest flame to where the region leads (a keeper's retry), at most
 
-// one input program from where he stands; returns where he came to rest, by tile (grounded, not hurt). Places are
-// kept as where he really stood, not tile centres: a tile's centre can be inside a wall for a body 0.68 wide
-function run(x, y, prog, frames = 150){
-  I.release(); clock.t += 10;
-  const P = M.newPlayer(x, y), hp0 = P.hp, out = new Map();
-  let t = 0, left = false;
-  for (let f = 0; f < frames; f++){
-    prog(t, I, P);
-    for (let s = 0; s < 2; s++){ M.stepPlayer(P, H120); clock.t += H120; t += H120; }
-    I.endFrame(); P.events.length = 0;
-    if (P.hp < hp0) return out;
-    if (!P.grounded) left = true;
-    if (P.grounded && P.vy === 0){ const ci = Math.floor(P.x / T), cj = Math.round(P.y / T), k = cj * W + ci; if (!out.has(k)) out.set(k, [P.x, P.y]); if (left && f > 20) break; }
-  }
-  I.release();
-  return out;
-}
-const PROGS = [];
-for (const d of ['left', 'right']){
-  PROGS.push((t, I) => { I.hold(d, true); });                                                                   // walk
-  PROGS.push((t, I) => { I.hold(d, true); I.hold('down', true); });                                             // crouch-walk
-  PROGS.push((t, I) => { I.hold(d, true); if (t < 0.01) I.tap('jump'); I.hold('jump', t < 0.5); });             // a jump
-  for (const dj of [0.15, 0.3, 0.45]) PROGS.push((t, I) => { I.hold(d, true); if (t < 0.01 || Math.abs(t - dj) < 0.008) I.tap('jump'); I.hold('jump', t < dj + 0.45); });   // and a double jump
-  for (const steer of [0.2, 0.35]) PROGS.push((t, I) => { I.hold(d, t > steer); if (t < 0.01 || Math.abs(t - 0.3) < 0.008) I.tap('jump'); I.hold('jump', t < 0.8); });   // straight up, then over
-  PROGS.push((t, I) => { I.hold(d, t > 0.1 && t < 0.25); });                                                   // a step off an edge
-}
-// under the scarf: jump, jump again, and a third press held (a glide); and jump held from the ground (it opens in rising air)
-const LONG = [];
-for (const d of ['left', 'right']){
-  LONG.push((t, I) => { I.hold(d, true); for (const at of [0, 0.3, 0.6]) if (Math.abs(t - at) < 0.008) I.tap('jump'); I.hold('jump', t < 0.32 || t > 0.6); });
-  for (const steer of [0.3, 1.0, 1.8]) LONG.push((t, I) => { I.hold(d, t > steer); if (t < 0.01) I.tap('jump'); I.hold('jump', true); });
-}
-PROGS.push((t, I) => { I.hold('down', true); if (t < 0.01) I.tap('jump'); });                                   // drop through a ledge
-PROGS.push((t, I) => { if (t < 0.01 || Math.abs(t - 0.3) < 0.008) I.tap('jump'); I.hold('jump', t < 0.8); });  // straight up through a ledge
+const nearSeen = (seen, W, mx, my, r = 4) => { for (let a = -r; a <= r; a++) for (let b = -2; b <= r; b++) if (seen.has((my + b) * W + mx + a)) return true; return false; };
+const said = gifts => gifts.length ? gifts.map(giftName).join(', ') : 'no gift';
 
 for (let N = 0; N < LEVELS.length; N++){
-const NAME = LEVELS[N].name;
-// broke: the cracked stone broken (he has the Warden's weight, and a wing behind it is open); played both ways where
-// the region has a gated room
-const GRAPHS = {};
-function graph(broke = false){
-  ({ W, H, marks, rooms } = loadLevel(N));
-  if (broke) LEVEL.tiles = LEVEL.tiles.map(t => t === 4 ? 0 : t);   // a copy: the next load is whole again
-  if (GRAPHS[broke]) return GRAPHS[broke];
-  const sp = marks.find(m => m.type === 'spawn'), start = sp.y * W + sp.x, pos = new Map([[start, [(sp.x + 0.5) * T, sp.y * T]]]);
-  const seen = new Set([start]), q = [start], edges = new Map();
-  while (q.length){
-    const k = q.pop(), [x, y] = pos.get(k), nx = new Set();
-    for (const p of PROGS) for (const [c, at] of run(x, y, p)) if (c !== k){ nx.add(c); if (!pos.has(c)) pos.set(c, at); }
-    if (LEVEL.updrafts.length) for (const p of LONG) for (const [c, at] of run(x, y, p, 420)) if (c !== k){ nx.add(c); if (!pos.has(c)) pos.set(c, at); }   // where there is rising air to ride
-    edges.set(k, nx);
-    for (const c of nx) if (!seen.has(c)){ seen.add(c); q.push(c); }
-  }
-  return GRAPHS[broke] = { seen, edges };
-}
-const nearSeen = (seen, mx, my, r = 4) => { for (let a = -r; a <= r; a++) for (let b = -2; b <= r; b++) if (seen.has((my + b) * W + mx + a)) return true; return false; };
+  const NAME = LEVELS[N].name, ARR = arrival(N), ALL = GIFTS;
+  const gates = [...new Set(loadLevel(N).rooms.filter(r => r.gate).map(r => r.gate))];
 
-const GATED = loadLevel(N).rooms.some(r => r.gate);
-const reached = (seen, r) => { for (const k of seen){ const i = k % W, j = (k - i) / W; if (i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1) return true; } return false; };
-test(`${NAME}, played with the real motor: every room, the shrine, the stage and the way out are reached from the spawn`, () => {
-  const { seen } = graph();
-  for (const r of rooms) if (r.gate) assert.ok(!reached(seen, r), `room ${r.name} is reached before its gate (${r.gate})`); else assert.ok(reached(seen, r), `room ${r.name} is not reached`);
-  if (GATED){ const after = graph(true).seen; for (const r of rooms) assert.ok(reached(after, r), `room ${r.name} is not reached, even with its gate open`); }
-  const deep = !marks.some(k => k.type === 'exit');   // a section of the Deep: its passage back, not a way on
-  for (const t of ['shrine', 'boss', deep ? 'pass' : 'exit']){ const m = marks.find(k => k.type === t); if (m || t !== 'boss') assert.ok(m && (nearSeen(seen, m.x, m.y) || nearSeen(seen, m.x + 2, m.y + 1)), `${t} is not reached`); }
-});
-for (const broke of GATED ? [false, true] : [false]) test(`${NAME}, played with the real motor${broke ? ' (its gates open)' : ''}: from anywhere he gets to, he can still get to where the region leads`, () => {
-  const { seen, edges } = graph(broke), back = new Map();
-  for (const [a, nx] of edges) for (const b of nx){ if (!back.has(b)) back.set(b, []); back.get(b).push(a); }
-  const boss = marks.find(m => m.type === 'boss') || marks.find(m => m.type === 'exit') || marks.find(m => m.type === 'pass'), ok = new Set(), q = [];
-  // a passage is jumped into, not stood in: where he stands under it (to three below its foot) counts as there
-  const pass = boss.type === 'pass', near = (i, j) => pass ? i >= boss.x - 6 && i <= boss.x + (boss.w || 2) + 6 && j >= boss.y - 3 && j <= boss.y + (boss.h || 2) : Math.abs(i - boss.x) < 12 && Math.abs(j - boss.y) < 2;
-  for (const k of seen){ const i = k % W, j = (k - i) / W; if (near(i, j)){ ok.add(k); q.push(k); } }
-  while (q.length){ const k = q.pop(); for (const p of back.get(k) || []) if (!ok.has(p)){ ok.add(p); q.push(p); } }
-  const stuck = [...seen].filter(k => !ok.has(k)).map(k => { const i = k % W, j = (k - i) / W, r = rooms.find(r => i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1); return `${r ? r.name : '?'} ${i},${j}`; });
-  assert.equal(stuck.length, 0, `${stuck.length} places he gets to but not out of, e.g. ${stuck.slice(0, 6).join('; ')}`);
-});
+  test(`${NAME}, played with the real motor and what he has when he comes (${said(ARR)}): every open room, the shrine, the stage and the way out`, () => {
+    const { seen, W, marks, rooms } = graph(N, ARR);
+    for (const r of rooms){
+      if (r.gate && !ARR.includes(r.gate)) assert.ok(!reached(seen, r, W), `room ${r.name} is reached before its gate (${giftName(r.gate)})`);
+      else assert.ok(reached(seen, r, W), `room ${r.name} is not reached with ${said(ARR)}`);
+    }
+    const deep = !marks.some(k => k.type === 'exit');   // a section of the Deep: its passage back, not a way on
+    for (const t of ['shrine', 'boss', deep ? 'pass' : 'exit']){ const m = marks.find(k => k.type === t); if (m || t !== 'boss') assert.ok(m && (nearSeen(seen, W, m.x, m.y) || nearSeen(seen, W, m.x + 2, m.y + 1)), `${t} is not reached with ${said(ARR)}`); }
+  });
+  if (ALL.length > ARR.length) test(`${NAME}, played with the real motor and every gift: every room`, () => {
+    const { seen, W, rooms } = graph(N, ALL);
+    for (const r of rooms) assert.ok(reached(seen, r, W), `room ${r.name} is not reached, even with every gift`);
+  });
+  for (const g of gates) test(`${NAME}, played with the real motor: what is behind ${giftName(g)} stays shut without it`, () => {
+    const { seen, W, rooms } = graph(N, ALL.filter(x => x !== g));
+    for (const r of rooms.filter(r => r.gate === g)) assert.ok(!reached(seen, r, W), `room ${r.name} is reached without ${giftName(g)}`);
+  });
+  test(`${NAME}, played with the real motor: a flame within ${RUNBACK} s of where the region leads`, () => {
+    const G = graph(N, ARR), near = nearGoal(goalOf(G.marks)), flames = G.marks.filter(m => m.type === 'shrine');
+    const best = Math.min(...flames.map(m => { const r = runback(G, m, near); return r ? r.secs : 1e9; }));
+    assert.ok(best <= RUNBACK, `the nearest flame is ${best >= 1e9 ? 'not connected' : best.toFixed(0) + ' s'} from where the region leads`);
+  });
+  for (const gifts of ALL.length > ARR.length ? [ARR, ALL] : [ARR]) test(`${NAME}, played with the real motor (${said(gifts)}): from anywhere he gets to, he can still get to where the region leads`, () => {
+    const { seen, edges, W, marks, rooms } = graph(N, gifts), back = new Map();
+    for (const [a, nx] of edges) for (const b of nx.keys()){ if (!back.has(b)) back.set(b, []); back.get(b).push(a); }
+    const near = nearGoal(goalOf(marks)), ok = new Set(), q = [];
+    for (const k of seen){ const i = k % W, j = (k - i) / W; if (near(i, j)){ ok.add(k); q.push(k); } }
+    while (q.length){ const k = q.pop(); for (const p of back.get(k) || []) if (!ok.has(p)){ ok.add(p); q.push(p); } }
+    const stuck = [...seen].filter(k => !ok.has(k)).map(k => { const i = k % W, j = (k - i) / W, r = rooms.find(r => i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1); return `${r ? r.name : '?'} ${i},${j}`; });
+    assert.equal(stuck.length, 0, `${stuck.length} places he gets to but not out of, e.g. ${stuck.slice(0, 6).join('; ')}`);
+  });
 }
