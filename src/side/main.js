@@ -29,7 +29,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 34';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 35';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -126,14 +126,43 @@ function begin(){   // from the start: the fall, then he gets up at the bottom
   menuHide(); wipe(); if (!fresh){ resetLevels(); enter(0); } { const s = spawnPoint(); P = born(s.x, s.y); }   // everything as it was at the first: the rock unbroken, the chests shut
   STORY.start('intro', {}, () => { WAKE = 1.7; banner(LEVEL.name, SUB[0], 4); G.began = true; store(); });
 }
+// ---- the keepers' entrances, to watch (the title's 'The keepers'): each in full, as the first time it is met, then
+// back to the list. Nothing touches him; the save is put back as it was when he is done watching
+const VIEW = { on: false, list: [], snap: null, n: -1, wait: false, done: false, t: 0, back: null };
+const KEPT = () => LEVELS.map((l, n) => ({ n, region: l.name, keeper: KEEPERS[l.theme] && ANNALS[n] && ANNALS[n].region === l.name ? ANNALS[n].keeper.name : '' })).filter(k => k.keeper);
+function keepers(){
+  const list = KEPT(), rows = [menuLabel('THE KEEPERS: HOW EACH ONE COMES')];
+  rows.push(menuButton(`All ${list.length}, one after another`, () => watch(list.map(k => k.n))));
+  const grid = document.createElement('div'); grid.style.cssText = 'display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;justify-content:center;max-width:min(92vw,560px)';
+  for (const k of list) grid.appendChild(menuButton(k.keeper, () => watch([k.n]), true)); rows.push(grid);
+  rows.push(menuButton('Back', title, true)); menuShow(rows, false, title);
+}
+function watch(list){ if (!VIEW.on){ VIEW.snap = JSON.stringify(G); VIEW.on = true; } VIEW.list = list.slice(); SIDE.watching = true; nextView(); }
+function nextView(){
+  if (!VIEW.list.length){ VIEW.wait = true; VIEW.n = -1; setTimeout(() => { title(); keepers(); }, 0); return; }   // after this frame is done (it would wake the keeper again)
+  const n = VIEW.list.shift(); VIEW.n = n; VIEW.wait = true; VIEW.done = false; G.keepers = {};   // as if it were the first time
+  if (BOSS) BOSS.reset(); ENT.reset(); resume(n);
+}
+function viewStep(dt){
+  if (VIEW.wait){
+    if (GO.st || !BOSS || LEVEL.index !== VIEW.n || !R.isReady) return;
+    VIEW.wait = false; const B = BOSS; BOSS.reset(); ENT.reset(); P = born(Math.max(B.cx - 5, B.room.x0 + 10), B.stageY + 0.02); P.face = 1; CHECK = null; WAKE = 0; BANNER = null;
+    CAM.x = P.x; CAM.y = P.y + 2; NAMED = true; return;
+  }
+  P.hp = P.maxHp;
+  if (!VIEW.done && ENT.title && ENT.title.t > 4.2){ VIEW.done = true; VIEW.t = 0.8; }
+  if (VIEW.done && (VIEW.t -= dt) <= 0){ VIEW.done = false; nextView(); }
+}
+function endView(){ VIEW.on = false; VIEW.list = []; SIDE.watching = false; ENT.reset(); if (BOSS) BOSS.reset(); for (const k of Object.keys(G)) delete G[k]; Object.assign(G, JSON.parse(VIEW.snap)); store(); }
 function resume(n){ menuHide(); STORY.kind = null; SCREEN = ''; PAUSE = false; if (LEVEL.index !== n) enter(n); else { const s = spawnPoint(); P = born(s.x, s.y); CHECK = null; if (BOSS) BOSS.reset(); ENT.reset(); banner(LEVEL.name, SUB[n] || '', 4); G.level = n; store(); } }
 function title(){
+  if (VIEW.on) endView();   // back from watching: the save as it was
   // until the opening is in hand the title is shown without its buttons, a thin bar filling under it
   if (!GATE.ready){ menuHide(); SCREEN = ''; PAUSE = false; STORY.start('title', { progress: GATE.progress }); if (!GATE.waiting){ GATE.waiting = true; GATE.p.then(() => { if (STORY.kind === 'title' && !SCREEN) title(); }); } return; }
   const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;justify-content:center;max-width:92vw';
   const top = DEV ? LEVELS.length - 1 : G.top; if (top > 0) LEVELS.forEach((l, n) => { if (n <= top) row.appendChild(menuButton(`${n + 1} ${l.name.replace('The ', '')}`, () => resume(n), true)); });
   let sure = false; const again = menuButton(G.began ? 'Begin again' : 'Begin the climb', () => { if (G.began && !sure){ sure = true; again.textContent = 'Begin again? All is lost'; return; } begin(); }, G.began);
-  menuShow([G.began ? menuButton('Climb on: ' + LEVELS[Math.min(G.level, LEVELS.length - 1)].name, () => resume(Math.min(G.level, LEVELS.length - 1))) : null, again, top > 0 ? row : null, menuButton('Options', () => options(title), true)], true);
+  menuShow([G.began ? menuButton('Climb on: ' + LEVELS[Math.min(G.level, LEVELS.length - 1)].name, () => resume(Math.min(G.level, LEVELS.length - 1))) : null, again, top > 0 ? row : null, menuButton('The keepers', keepers, true), menuButton('Options', () => options(title), true)], true);
   SCREEN = ''; PAUSE = false; if (STORY.kind === 'title') STORY.opts = {}; else STORY.start('title');   // already up (it was waiting): it is not begun again
 }
 // the options: each button steps its setting on
@@ -414,6 +443,7 @@ function frame(ts){
   acc += sdt; time += dt;
   const evs = [];
   // what is in reach to use: someone to talk to, a chest to open (down)
+  if (VIEW.on) viewStep(dt);
   if (ENT.lead && !ENT.first && (IN.pressed.has('jump') || IN.pressed.has('attack'))){ IN.pressed.delete('jump'); IN.pressed.delete('attack'); ENT.skip(); }   // seen it before: a press goes straight to the keeper
   USE = P.hp > 0 && P.grounded && !FLIGHT && !GO.st && WAKE <= 0 && !(BOSS && BOSS.active() && BOSS.st !== 'dead') ? ITEMS.near(P) : null;
   if (USE && IN.pressed.has('down')){ IN.pressed.delete('down'); if (USE.type === 'npc') talkTo(USE); else ITEMS.open(USE, evs); }

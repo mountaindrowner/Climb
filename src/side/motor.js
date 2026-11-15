@@ -73,7 +73,7 @@ function heightAbove(P){
 }
 
 export function hurt(P, n, fromX, msg){
-  if (P.inv > 0 || isRollInv(P)) return false;
+  if (P.inv > 0 || isRollInv(P) || SIDE.watching) return false;   // watching (main.js: the keepers' entrances) nothing touches him
   P.hp -= n; P.inv = TUNE.player.invuln || 1; P.hurtT = MV.hurtStun; P.atk = null; P.dive = null;
   const away = fromX == null ? -P.face : Math.sign(P.x - fromX) || -P.face;
   P.vx = away * MV.knock; P.vy = MV.knockUp; P.grounded = false;
@@ -292,7 +292,7 @@ export const BLADE = { name: 'Curved blade', reach: 1.9, combo: [
   dash: { dmg: 2, wind: 0.15, active: 0.08, rec: 0.28, lunge: 0, dash: 11, anim: 'atk_dash_px', hit: 7 / 13, hitEnd: 8 / 13 } };
 export const weaponOf = P => P.weapon === 'blade' ? BLADE : WEAPONS[P.weapon];
 export const swingOf = (P, A) => A.special ? weaponOf(P)[A.special] : weaponOf(P).combo[A.i];
-export const SIDE = { fallSafe: 9, feather: false };   // a metroidvania's shafts are deep: only a long drop hurts
+export const SIDE = { fallSafe: 9, feather: false, watching: false };   // a metroidvania's shafts are deep: only a long drop hurts
 // set by the game: which way a foe is that a swing should turn to (0 for none), for the aim assist
 export const HOOKS = { aim: null };
 function startSwing(P, i, special = null){

@@ -35,6 +35,10 @@ Sources:
 - [Pepper Grinder boss intro thread (Steam)](https://steamcommunity.com/app/2076580/discussions/0/4358995119366644009)
 - [Balancing challenge and hype (RPG Maker forums)](https://rpgmaker.net/forums/topics/18743)
 
+## Watching them
+
+The title has **The keepers**: pick one, or all six one after another. Each plays in full, as the first time it is met, in its own hall, and then it is back to the list. Nothing touches him while he watches, and the save is put back exactly as it was (`main.js` `keepers`, `watch`, `VIEW`).
+
 ## The shape every entrance has
 
 | Beat | What happens | Rule |
