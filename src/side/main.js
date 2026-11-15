@@ -13,7 +13,7 @@ import { makeProps } from './props.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, CAN, SIDE, ARTS, startArt } from './motor.js';
 import { width as textWidth } from './pixelfont.js';
 const wrapText = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };
-import { G, OPT, loadSave, store, storeOpt, wipe, has, maxHearts, maxFlask, RELICS, TEACH, THREADS_A_HEART, DIFF } from './state.js';
+import { G, OPT, loadSave, store, storeOpt, wipe, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, THREADS_A_HEART, DIFF } from './state.js';
 import { makeItems } from './items.js';
 import { makeTalk, SCRIPT } from './talk.js';
 import { ANNALS, PEOPLE_PAGE } from './annals.js';
@@ -29,7 +29,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 38';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 39';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -241,6 +241,7 @@ const WARES = () => [
   { name: 'A deeper flask of the water', cost: [120, 260][G.flasks], buy(){ G.flasks++; P.flaskMax = maxFlask(); P.flask = P.flaskMax; } },
   { name: G.edge ? 'Temper the blade again: every cut' : 'Temper the blade: finishing cuts', cost: [180, 380][G.edge], buy(){ G.edge++; } },
   { name: 'A red strand he has kept', cost: G.boughtThread ? undefined : 150, buy(){ G.boughtThread = true; onEvent({ type: 'thread', at: { x: P.x, y: P.y + 1.2 } }); } },
+  { name: 'Tie another knot in the scarf', cost: knots() < KNOTS.most ? KNOTS.cost[G.knots || 0] : undefined, buy(){ G.knots = (G.knots || 0) + 1; } },
   { name: 'A chart of ' + LEVEL.name, cost: G.charts.includes(LEVEL.index) ? undefined : 40, buy(){ G.charts.push(LEVEL.index); for (const r of LEVEL.rooms) MAP.seen.add(r); } },
 ];
 function shop(){
@@ -250,11 +251,36 @@ function shop(){
   if (rows.length === 1) rows.push(menuLabel('He can do no more. The rest was never his to do.'));
   const leave = () => { SCREEN = ''; PAUSE = false; menuHide(); }; rows.push(menuButton('Leave', leave, true)); menuShow(rows, false, leave);
 }
+// the knots: at a flame, he chooses which relics he wears. Each is a knot in his scarf; he can carry more than he can
+// wear. The one picked is tied or untied; with every knot tied, one must be untied first
+let KSEL = null, KNOTMSG = '';
+function knotMenu(){
+  SCREEN = 'knots'; PAUSE = true; release(); const keep = MSEL;
+  const rows = [menuLabel(`HIS SCARF  ·  ${G.worn.length} OF ${knots()} KNOTS TIED`)], grid = document.createElement('div');
+  grid.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:min(92vw,560px)';
+  KSEL = G.relics.filter(id => RELICS[id]);
+  KSEL.forEach((id, i) => { const on = has(id), b = menuButton(RELICS[id].name, () => {
+      if (!wear(id, !on)){ sfx.block(); KNOTMSG = 'every knot is tied: untie one first'; } else { KNOTMSG = ''; on ? sfx.ui() : sfx.relic(); learn(); store(); }
+      MSEL = i; knotMenu(); }, true);
+    b.addEventListener('pointerenter', () => { if (MSEL !== i){ MSEL = i; menuMark(); } });   // what it does shows under the mouse too
+    if (on){ b.style.color = '#fee761'; b.style.borderColor = '#fee761'; } grid.appendChild(b); });
+  rows.push(grid);
+  const leave = () => { SCREEN = ''; PAUSE = false; KSEL = null; KNOTMSG = ''; menuHide(); }; rows.push(menuButton('Leave the flame', leave, true));
+  menuShow(rows, false, leave); MENU.style.top = '30%'; MSEL = Math.min(keep, menuItems().length - 1); menuMark();
+}
+function drawKnots(W){
+  HUD.dark(0.9, '#181425'); HUD.text('THE KNOTS', W / 2, 14, '#fff2d0', 2, 'center'); HUD.rule(Math.round(W / 2), 34, 60, '#ead4aa');
+  const id = KSEL && KSEL[MSEL], r = id && RELICS[id];
+  if (r){ HUD.text(r.name.toUpperCase(), W / 2, 100, has(id) ? '#fee761' : '#c0cbdc', 1, 'center'); let y = 111; for (const ln of wrapText(r.line, W - 48)){ HUD.text(ln, W / 2, y, '#fff2d0', 1, 'center'); y += 10; }
+    HUD.fine(has(id) ? 'TIED. PICK IT TO UNTIE IT.' : 'CARRIED. PICK IT TO TIE IT.', W / 2, y + 2, '#8b9bb4', 'center'); }
+  else HUD.fine('THE FLAME WILL KEEP HIM WHILE HE CHOOSES.', W / 2, 104, '#8b9bb4', 'center');
+  if (KNOTMSG) HUD.fine(KNOTMSG.toUpperCase(), W / 2, 140, '#f6757a', 'center');
+}
 // a pause: Esc or P (or the II button): the world stops; go on, or back to the title
 const PBTN = menuButton('II', () => pause(!PAUSE), true); PBTN.style.cssText += ';position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:6;padding:3px 9px;font-size:12px;display:none;opacity:0.6;background:rgba(24,20,37,.4);box-shadow:none;border:2px solid rgba(234,212,170,.5);border-radius:10px';
 (document.getElementById('stage') || document.body).appendChild(PBTN);
 function pause(on){
-  if (STORY.active() || GO.st || TALK.on || NOTE) return; if (SCREEN === 'shop'){ SCREEN = ''; PAUSE = false; menuHide(); return; }
+  if (STORY.active() || GO.st || TALK.on || NOTE) return; if (SCREEN === 'shop' || SCREEN === 'knots'){ SCREEN = ''; PAUSE = false; menuHide(); return; }
   PAUSE = on; SCREEN = on ? 'pause' : ''; if (!on){ menuHide(); return; } release();
   menuShow([menuButton('Go on', () => pause(false)), menuButton('The Map', mapScreen, true), menuButton('The Annals', () => annals(LEVEL.index), true), menuButton('Options', () => options(() => pause(true)), true), menuButton('To the title', () => { PAUSE = false; SCREEN = ''; title(); }, true)], false, () => pause(false));
 }
@@ -449,7 +475,8 @@ function frame(ts){
   if (VIEW.on) viewStep(dt);
   if (ENT.lead && !ENT.first && (IN.pressed.has('jump') || IN.pressed.has('attack'))){ IN.pressed.delete('jump'); IN.pressed.delete('attack'); ENT.skip(); }   // seen it before: a press goes straight to the keeper
   USE = P.hp > 0 && P.grounded && !FLIGHT && !GO.st && WAKE <= 0 && !(BOSS && BOSS.active() && BOSS.st !== 'dead') ? ITEMS.near(P) : null;
-  if (USE && IN.pressed.has('down')){ IN.pressed.delete('down'); if (USE.type === 'npc') talkTo(USE); else ITEMS.open(USE, evs); }
+  if (!USE && P.hp > 0 && P.grounded && !FLIGHT && !GO.st && WAKE <= 0 && G.relics.length){ const S = SHRINES.find(S => Math.abs(P.x - S.x) < 1.1 && Math.abs(P.y - S.y) < 1.5); if (S) USE = { type: 'flame', x: S.x, y: S.y }; }   // at a flame: the knots
+  if (USE && IN.pressed.has('down')){ IN.pressed.delete('down'); if (USE.type === 'npc') talkTo(USE); else if (USE.type === 'flame') knotMenu(); else ITEMS.open(USE, evs); }
   const h = 1 / 120;
   while (acc >= h){ const x0 = P.x; if (DEATH <= 0 && !FLIGHT && !GO.st && WAKE <= 0 && !ENT.lead) stepPlayer(P, h); else if (ENT.lead){ P.vx = 0; if (ENT.face) P.face = ENT.face; if (ENT.brace && !P.blocking){ P.blocking = true; P.blockAt = performance.now() / 1000; } } P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
   endFrame();
@@ -549,7 +576,7 @@ function frame(ts){
   { const M = P.mantle, low = P.roll > 0 ? 0.8 : P.crouch ? 1.15 : P.dive ? 1.5 : WAKE > 0.5 ? 0.9 : 1.92;
     const ax = FLIGHT ? FLIGHT.x : M ? M.wall - M.d * 0.25 : P.x - P.face * 0.14, ay = FLIGHT ? FLIGHT.y : M ? Math.min(M.y1 + 1.8, P.y + 1.9) : P.y + low - SINK, fc = FLIGHT ? FLIGHT.face : M ? M.d : P.face;
     const links = hp => SCARF.base + Math.min(5, Math.max(0, hp)) * SCARF.perHeart + Math.max(0, hp - 5) * SCARF.more, want = links(FLIGHT ? 1 : P.hp), lk = R.look(), out = (roomAt(P.x, P.y) || {}).open !== false, wind = (lk === 'spires' || lk === 'tempest') && out ? (lk === 'tempest' ? -7 : -5) : lk === 'spires' || lk === 'tempest' || lk === 'firmament' ? -1.2 : lk === 'gardens' && out ? -2 : -0.6;
-    SCF.step(dt, ax, ay, fc, want, wind, solidAt, P.glide ? 15 : 0); SCF.draw(!(P.hp <= 0 && DEATH > 0.45 && !FLIGHT) || true, EMBER.n / EMBER.cap); }
+    SCF.step(dt, ax, ay, fc, want, wind, solidAt, P.glide ? 15 : 0); SCF.draw(!(P.hp <= 0 && DEATH > 0.45 && !FLIGHT) || true, EMBER.n / EMBER.cap, G.worn.length); }
   // embers go to him; ten make a heart
   stepFx(fx, dt, P.hp > 0 ? { x: P.x, y: P.y + 1.3 } : null, () => {
     EMBER.n = Math.min(EMBER.cap, EMBER.n + 1); sfx.step();
@@ -683,7 +710,9 @@ function onEvent(e){
     case 'thread': { G.threads++; sfx.thread(); fx.ring(e.at, 0xff5040); fx.burst(e.at, 18, 0xe43b44); R.glint(e.at.x, e.at.y, 0xff5040, 1, 5, 0.5); const k = G.threads % THREADS_A_HEART;
       if (k === 0){ const m = maxHearts(); if (m > P.maxHp){ P.maxHp = m; P.hp = m; } banner('The thread lengthens', 'three strands: a heart more', 4); } else banner('A red strand', `${k} of ${THREADS_A_HEART} toward a heart`, 3.4);
       store(); break; }
-    case 'relic': { const r = RELICS[e.id]; if (!r || has(e.id)) break; G.relics.push(e.id); learn(); store(); sfx.relic(); LATER.push({ t: 0.7, f: () => { NOTE = { title: r.name, lines: r.lore ? [r.line, r.lore] : [r.line], t: 0, relic: true }; release(); } }); break; }
+    case 'relic': { const r = RELICS[e.id]; if (!r || owns(e.id)) break; G.relics.push(e.id); const tied = wear(e.id, true); learn(); store(); sfx.relic();   // tied into the scarf, if a knot is free
+      const knot = tied ? 'He ties it into his scarf.' : 'Every knot in his scarf is tied. At a flame, he can choose what he wears.';
+      LATER.push({ t: 0.7, f: () => { NOTE = { title: r.name, lines: r.lore ? [r.line, r.lore, knot] : [r.line, knot], t: 0, relic: true }; release(); } }); break; }
     case 'flask': if (P.flask > 0 && P.hp < P.maxHp){ P.flask--; P.hp = Math.min(P.maxHp, P.hp + TUNE.player.flaskHeal); sfx.drink(); fx.ring({ x: P.x, y: P.y + 0.8 }, 0x5ce1c6); }
       else if (P.hp < P.maxHp && EMBER.n >= EMBER.mend){ EMBER.n -= EMBER.mend; P.hp++; sfx.drink(); fx.ring({ x: P.x, y: P.y + 1.2 }, 0xff8060); R.glint(P.x, P.y + 1.2, 0xff8060, 0.9, 5, 0.5); fx.ember({ x: P.x, y: P.y + 1.2 }, 0); }   // the flask is dry: a measure of embers mends a heart
       else if (P.hp < P.maxHp && !HINTED.mend){ HINTED.mend = 1; banner('', 'a full measure of embers will mend a heart', 2.8); }
@@ -721,7 +750,7 @@ function drawHud(dt){
   if (FLIGHT){ const u = FLIGHT.t / FLIGHT.dur; HUD.dark(0.16 + u * 0.3, '#cfe6ff'); HUD.g.globalAlpha = 0.35; for (let k = 0; k < 14; k++){ const y = (k * 37 + Math.floor(time * 60) * 13) % 180, x = (k * 71 + Math.floor(time * 60) * 29) % W; HUD.px('#ffffff', x, y, 18 + (k * 13) % 50, 1); } HUD.g.globalAlpha = 1; if (u > 0.82) HUD.dark((u - 0.82) / 0.18, '#ffffff'); }
   if (FLASH > 0 && OPT.flash) HUD.dark(FLASH * 1.4, '#ffffff');
   // over what he can use: the key for it
-  if (USE && !PAUSE && !TALK.on && !NOTE){ v.set(USE.x, USE.y + (USE.type === 'npc' ? 2.6 : 1.5), 0).project(R.camera); HUD.prompt(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180), (DEVICE.kind === 'keys' ? 'S  ' : DEVICE.kind === 'touch' ? 'DRAG DOWN  ' : 'DOWN  ') + (USE.type === 'npc' ? 'TALK' : 'OPEN'), time); }
+  if (USE && !PAUSE && !TALK.on && !NOTE){ v.set(USE.x, USE.y + (USE.type === 'npc' ? 2.6 : 1.5), 0).project(R.camera); HUD.prompt(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180), (DEVICE.kind === 'keys' ? 'S  ' : DEVICE.kind === 'touch' ? 'DRAG DOWN  ' : 'DOWN  ') + (USE.type === 'npc' ? 'TALK' : USE.type === 'flame' ? 'KNOTS' : 'OPEN'), time); }
   TALK.draw(HUD, dt, time);
   if (NOTE){ HUD.dark(0.62); HUD.text(NOTE.relic ? 'A RELIC' : 'HE HAS LEARNED', W / 2, 44, '#c0cbdc', 1, 'center'); HUD.text(NOTE.title.toUpperCase(), W / 2, 56, '#fee761', 2, 'center'); HUD.rule(Math.round(W / 2), 78, 70, '#ead4aa');
     // the lines, wrapped to the picture; a relic's second line (whose it was) is quieter
@@ -729,19 +758,22 @@ function drawHud(dt){
   if (PAUSE && SCREEN === 'annals') drawAnnals(W);
   else if (PAUSE && SCREEN === 'map') drawMap();
   else if (PAUSE && SCREEN === 'shop') HUD.dark(0.55);
+  else if (PAUSE && SCREEN === 'knots') drawKnots(W);
   else if (PAUSE){ HUD.dark(0.66); HUD.text('PAUSED', W / 2, 14, '#fff2d0', 2, 'center'); HUD.rule(Math.round(W / 2), 34, 60, '#ead4aa');
     // what he carries
     const can = [CAN.breaker && 'THE WARDEN\'S WEIGHT', CAN.dash && 'THE TOLL\'S STEP', CAN.glide && 'THE WYRM\'S WIND'].filter(Boolean), found = Object.values(G.got).flat();
     HUD.text(`SHARDS ${G.shards}   ·   STRANDS ${G.threads}   ·   RELICS ${G.relics.length} OF ${Object.keys(RELICS).length}`, W / 2, 41, '#c0cbdc', 1, 'center');
     if (G.falls) HUD.fine(`FALLEN ${G.falls} TIME${G.falls === 1 ? '' : 'S'}. RAISED ${G.falls} TIME${G.falls === 1 ? '' : 'S'}.`, W / 2, 61, '#8b9bb4', 'center');
     if (can.length) HUD.text(can.join('  ·  '), W / 2, 51, '#2ce8f5', 1, 'center');
-    G.relics.slice(0, 6).forEach((id, i) => { const r = RELICS[id]; if (r) HUD.fine(`${r.name.toUpperCase()}: ${r.line.toUpperCase()}`, W / 2, 150 - (G.relics.length - 1 - i) * 7, '#fee761', 'center'); });
+    const worn = G.worn.filter(id => RELICS[id]), spare = G.relics.length - worn.length;   // what is tied in his scarf; what he only carries (what each does: the knots, at a flame)
+    if (G.relics.length){ let ky = 71; HUD.fine(`${worn.length} OF ${knots()} KNOTS TIED${spare ? `  ·  ${spare} MORE CARRIED: CHOOSE AT A FLAME` : ''}`, W / 2, ky, '#8b9bb4', 'center');
+      for (const ln of wrapText(worn.map(id => RELICS[id].name.toUpperCase()).join('  ·  '), W - 60)){ ky += 8; HUD.fine(ln, W / 2, ky, '#fee761', 'center'); } }
     HUD.hint(HINT[DEVICE.kind === 'keys' ? 'keys' : DEVICE.kind === 'touch' ? 'touch' : 'pad'], 1); }
   if (GO.st) HUD.dark(GO.st === 'out' ? Math.min(1, GO.t / 0.6) : GO.st === 'in' ? Math.max(0, 1 - GO.t / 0.7) : 1);   // going up: dark between regions
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { knotMenu, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

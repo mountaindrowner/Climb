@@ -2,7 +2,15 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Embers to spend: the ember arts (latest).** Embers are now something to choose how to spend, as in Hollow Knight. They come from fallen creatures and now also from every blow that lands, up to three measures (shown as three segments under the hearts, a full one glinting). They no longer mend him by themselves: with the flask dry, the flask key spends a measure to mend a heart. Or the new ember key (E, the middle mouse button, RB on a controller, or the touch button) spends a measure on an art, each a keeper's gift turned into a blow:
+**Scarf knots: choosing what he wears (latest).** Step two of the Ember plan. A relic now works only while it is tied into his scarf, and there are fewer knots than relics, so what he wears is a choice, as with Hollow Knight's charms.
+- *Two knots to start.* Ordric ties more for shards (120, 240, 400), up to five, against eight relics.
+- *Found, it is tied,* if a knot is free; if not, he carries it, and the relic's card says he can choose at a flame.
+- *At a flame,* down opens the knots: every relic he carries, the tied ones in gold, what each does under it. Pick one to tie or untie it.
+- *On the scarf:* each relic worn is a small gold knot along the cloth. The pause shows how many knots are tied and what is worn.
+- *Old saves* wear what they carried, with a knot for each (up to five).
+- Fixed: a save from before the seams (build 30) was never moved up with the regions, because the check ran after the blank save's mark was copied in.
+
+**Embers to spend: the ember arts.** Embers are now something to choose how to spend, as in Hollow Knight. They come from fallen creatures and now also from every blow that lands, up to three measures (shown as three segments under the hearts, a full one glinting). They no longer mend him by themselves: with the flask dry, the flask key spends a measure to mend a heart. Or the new ember key (E, the middle mouse button, RB on a controller, or the touch button) spends a measure on an art, each a keeper's gift turned into a blow:
 - *Down and the ember key: the slam* (the Warden's weight). He stamps (or, in the air, plunges), and the blow runs along the floor both ways, striking everything it reaches and breaking cracked stone where it runs into it.
 - *The ember key on the ground: the cleave* (the Toll's step). A level rush forward through everything in the way, and nothing can touch him while it lasts.
 - *The ember key in the air: the gust* (the Wyrm's wind). He goes up turning, and a wind throws what is round him.

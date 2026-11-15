@@ -14,6 +14,10 @@ export function makeScarf(scene, cols = { edge: 0x181425, body: 0xe43b44, shade:
   const tipGlow = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.9), new THREE.MeshBasicMaterial({ color: cols.glow || 0xffa040, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
   { const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d'), gr = g.createRadialGradient(16, 16, 0, 16, 16, 16); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 32, 32); tipGlow.material.map = new THREE.CanvasTexture(c); }
   tipGlow.position.z = 0.05; scene.add(tipGlow);
+  // the knots: each relic he wears is tied into the cloth, a small gold knot along it, near his neck (state.js, KNOTS).
+  // Drawn well clear of the cloth (and of him): the low picture's depth cannot tell a hair's difference
+  const KN = []; for (let k = 0; k < 6; k++){ const m = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.15), new THREE.MeshBasicMaterial({ color: 0xfee761 })); const o = new THREE.Mesh(new THREE.PlaneGeometry(0.27, 0.27), new THREE.MeshBasicMaterial({ color: cols.edge }));
+    m.position.z = 0.075; o.position.z = 0.065; m.visible = o.visible = false; scene.add(o); scene.add(m); KN.push([m, o]); }
   const S = { pts, len: N, set: false, t: 0 };
   // put it all at one place (a start, a wake)
   S.reset = (x, y) => { for (const p of pts){ p.x = p.px = x; p.y = p.py = y; } S.set = true; };
@@ -56,7 +60,7 @@ export function makeScarf(scene, cols = { edge: 0x181425, body: 0xe43b44, shade:
     }
   }
   // draw what there is of it: a ribbon about each link, three pixels wide at his neck, one at its end
-  S.draw = (visible, glow = 0) => {
+  S.draw = (visible, glow = 0, knots = 0) => {
     const live = Math.max(2, Math.min(N, S.len)), last = Math.min(N - 1, Math.ceil(live) - 1);
     for (const [mesh, grow, shift] of [[edge, 0.07, 0], [body, 0, 0], [shade, -0.045, -0.04]]){
       const pos = mesh.geometry.attributes.position.array; mesh.visible = visible;
@@ -69,6 +73,7 @@ export function makeScarf(scene, cols = { edge: 0x181425, body: 0xe43b44, shade:
       }
       mesh.geometry.attributes.position.needsUpdate = true;
     }
+    KN.forEach(([m, o], k) => { const at = 4 + k * 3, on = visible && k < knots && at < last; m.visible = o.visible = on; if (on){ const p = pts[at]; m.position.x = o.position.x = p.x; m.position.y = o.position.y = p.y; } });
     const tip = pts[last]; tipGlow.visible = visible && glow > 0.02; tipGlow.position.x = tip.x; tipGlow.position.y = tip.y; tipGlow.material.opacity = glow * (0.5 + 0.2 * Math.sin(S.t * 8));
   };
   S.tip = () => pts[Math.min(N - 1, Math.max(1, Math.ceil(S.len) - 1))];
