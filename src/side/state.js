@@ -6,13 +6,14 @@
 //   G.hearts, G.flasks, G.edge            bought or won: hearts and flask draughts over the first, the blade tempered
 //   G.relics  ids of the relics he carries (RELICS); G.worn the ones tied into his scarf (one a knot: KNOTS)
 //   G.knots   knots Ordric has tied in the scarf over the first two
+//   G.arms    what he has besides the blade ('spade'); G.wield which he has in hand
 //   G.got[n]  what has been taken in region n (chests, threads, urns), G.broke[n] the cracked rock broken there
 //   G.met     how many times each person has been spoken to, by region; G.charts regions whose chart he has bought
 //   G.falls   how many times he has fallen, which is how many times he has been raised
 //   G.seen, G.slain, G.keepers: what he has met, killed, and which keepers he has faced (Corwen's Annals, annals.js)
 import { TUNE } from '../config/tuning.js';
 const KEY = 'climb-side', OKEY = 'climb-side-opts';
-const blank = () => ({ seamed: 1, level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], worn: [], knots: 0, got: {}, broke: {}, met: {}, charts: [], began: false, falls: 0, seen: {}, slain: {}, keepers: {} });
+const blank = () => ({ seamed: 1, level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], worn: [], knots: 0, arms: [], wield: 'blade', got: {}, broke: {}, met: {}, charts: [], began: false, falls: 0, seen: {}, slain: {}, keepers: {} });
 export const G = blank();
 export const OPT = { music: 0.7, sfx: 1, shake: 1, flash: 1, diff: 1, synth: false, rumble: true, phone: 'auto' };   // phone: 'auto' (by the device), true, false   // diff: 0 story, 1 climber, 2 summit
 const read = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e){ return null; } };

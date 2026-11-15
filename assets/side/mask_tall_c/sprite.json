@@ -475,6 +475,26 @@
    "footLast": 52,
    "cxLast": 29.0,
    "n": 1
+  },
+  "spade_idle": {
+   "frames": 8,
+   "w": 64,
+   "h": 64,
+   "foot": 52,
+   "cx": 35.0,
+   "footLast": 52,
+   "cxLast": 35.0,
+   "n": 1
+  },
+  "atk_spade": {
+   "frames": 12,
+   "w": 64,
+   "h": 64,
+   "foot": 52,
+   "cx": 35.0,
+   "footLast": 52,
+   "cxLast": 35.0,
+   "n": 1
   }
  }
 }

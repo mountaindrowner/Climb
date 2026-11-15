@@ -124,13 +124,14 @@ export function stepPlayer(P, dt){
   const rollEnding = P.roll > 0 && FEEL.rollCancel && P.roll < MV.roll.time * MV.roll.cancel;
   if (rollEnding && pending('attack') && !boxRock(P, P.x, P.y, BODY.stand)){ P.roll = 0; P.rollCd = MV.roll.cooldown; }
   if (consume('block')) P.blockAt = performance.now() / 1000;
-  P.blocking = H.block && P.roll <= 0 && !stunned && !P.atk;
+  P.blocking = H.block && P.roll <= 0 && !stunned && !P.atk && weaponOf(P).guard !== false;
   if (P.roll <= 0 && !stunned && !P.dive && !P.art && P.plant <= 0 && consume('attack')){
     if (FEEL.dive && !P.grounded && H.down && heightAbove(P) > MV.dive.min){ P.dive = { t: 0 }; P.atk = null; P.vx = 0; P.vy = -MV.dive.speed; P.flip = 0; ev(P, 'dive'); }
     else if (!P.atk) startSwing(P, 0, P.grounded && H.down && weaponOf(P).rise ? 'rise' : null);   // from a crouch: the rising cut
     else P.atk.queued = true;
   }
   if (consume('flask')) ev(P, 'flask');
+  if (!P.atk && !P.art && !P.dive && !stunned && consume('swap')) ev(P, 'swap');   // main.js: whether he has another to swap to
   if (!P.art && !P.dive && !stunned && consume('art')) ev(P, 'art', { down: !!H.down, air: !P.grounded });   // (a press while he cannot waits its moment)   // main.js: which, and whether he has the embers
   if (P.art){ P.art.t += dt; if (P.art.t >= P.art.dur) P.art = null; }
 
@@ -294,7 +295,12 @@ export const BLADE = { name: 'Curved blade', reach: 1.9, combo: [
 ], rise: { dmg: 2, wind: 0.28, active: 0.09, rec: 0.33, lunge: 0.4, anim: 'atk_rise_px', hit: 9 / 13 },
   // out of a roll: he is driven forward (dash, units a second) through the wind-up and the cut, then skids out of it
   dash: { dmg: 2, wind: 0.15, active: 0.08, rec: 0.28, lunge: 0, dash: 11, anim: 'atk_dash_px', hit: 7 / 13, hitEnd: 8 / 13 } };
-export const weaponOf = P => P.weapon === 'blade' ? BLADE : WEAPONS[P.weapon];
+// the Sexton's spade: one great swing, slow to lift and far-reaching, that lands hard and breaks cracked stone every
+// time; no combo, no rising or dashing cut, and he cannot guard with it (main.js gives it him when the Sexton falls)
+export const SPADE = { name: 'Sexton\'s spade', reach: 2.6, guard: false, digs: true, combo: [
+  { dmg: 3, wind: 0.4, active: 0.1, rec: 0.42, lunge: 0.5, anim: 'atk_spade', hit: 6 / 12 },
+] };
+export const weaponOf = P => P.weapon === 'blade' ? BLADE : P.weapon === 'spade' ? SPADE : WEAPONS[P.weapon];
 export const swingOf = (P, A) => A.special ? weaponOf(P)[A.special] : weaponOf(P).combo[A.i];
 export const SIDE = { fallSafe: 9, feather: false, watching: false };
 // the ember arts (main.js spends the embers and says which): each a keeper's gift turned to a blow.

@@ -11,14 +11,15 @@ export const DEFAULTS = {
     left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'], down: ['KeyS', 'ArrowDown'],
     jump: ['Space', 'KeyW', 'ArrowUp'], attack: ['Mouse0', 'KeyJ'], block: ['Mouse2', 'KeyK'],
     roll: ['ShiftLeft', 'KeyC', 'KeyL'], flask: ['KeyQ', 'KeyF'], art: ['KeyE', 'Mouse1', 'KeyI'],   // art: the ember arts
+    swap: ['KeyR', 'KeyU'],   // blade and spade
   },
-  pad: { jump: [0], roll: [1], attack: [2, 7], flask: [3], block: [4, 6], art: [5] },
+  pad: { jump: [0], roll: [1], attack: [2, 7], flask: [3], block: [6], art: [5], swap: [4] },
   lines: 720,       // internal render height: 540 chunky, 720 classic, 1080 fine
   volume: 0.8, shake: 1, rumble: true,
   v: 2,             // 2: the mouse layout (attack and block on the buttons)
 };
-export const REBINDABLE = ['left', 'right', 'down', 'jump', 'attack', 'block', 'roll', 'flask', 'art'];   // no sprint since 0.28: he always runs fast, as in Dead Cells
-export const PAD_REBINDABLE = ['jump', 'attack', 'block', 'roll', 'flask', 'art'];
+export const REBINDABLE = ['left', 'right', 'down', 'jump', 'attack', 'block', 'roll', 'flask', 'art', 'swap'];   // no sprint since 0.28: he always runs fast, as in Dead Cells
+export const PAD_REBINDABLE = ['jump', 'attack', 'block', 'roll', 'flask', 'art', 'swap'];
 const clone = o => JSON.parse(JSON.stringify(o));
 
 function load(){

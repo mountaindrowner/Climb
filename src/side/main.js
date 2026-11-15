@@ -10,7 +10,7 @@ import { makeScore } from '../audio/score.js';
 import '../ui/feel.js';
 import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP } from './level.js';
 import { makeProps } from './props.js';
-import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, CAN, SIDE, ARTS, startArt } from './motor.js';
+import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt } from './motor.js';
 import { width as textWidth } from './pixelfont.js';
 const wrapText = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };
 import { G, OPT, loadSave, store, storeOpt, wipe, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, THREADS_A_HEART, DIFF } from './state.js';
@@ -29,7 +29,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 39';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 40';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -41,12 +41,17 @@ LOW.on = phoneNow();
 setMix('music', OPT.music); setMix('sfx', OPT.sfx); if (OPT.rumble === false) SET.rumble = false;
 const DEV = /[?&]level=/.test(location.search);   // straight into a region by its address: he has what the keepers below it teach
 // he is made with what he has earned: hearts (threads, keepers, the difficulty), and the flask's draughts
-const born = (x, y) => { const p = newPlayer(x, y); p.maxHp = maxHearts(); p.hp = p.maxHp; p.flaskMax = maxFlask(); p.flask = p.flaskMax; return p; };
+const armed = id => id === 'blade' || (G.arms || []).includes(id);
+// the touch button for blade and spade: there once he has the spade
+function swapButton(){ const b = document.getElementById('swapbtn'); if (b) b.style.display = armed('spade') ? '' : 'none'; }
+const born = (x, y) => { const p = newPlayer(x, y); p.weapon = armed(G.wield) ? G.wield : 'blade'; p.maxHp = maxHearts(); p.hp = p.maxHp; p.flaskMax = maxFlask(); p.flask = p.flaskMax; return p; };
 let P = born(sp.x, sp.y);
 const hero = { sprite: null, meta: null };
 // the warrior: one of the drawn options (?hero=a|b|c|d), falling back to the first, larger drawing
 const HEROES = { masked: 'mask_tall_c', a: 'px_knight', b: 'px_hood', c: 'px_mask', d: 'px_hat' }, HERO = HEROES[new URLSearchParams(location.search).get('hero')] || HEROES.masked;   // the tall masked warrior; ?hero=a..d the small options
-const loadHero = name => fetch(`assets/side/${name}/sprite.json`).then(r => r.ok ? r.json() : Promise.reject()).then(meta => { hero.meta = meta; hero.name = name; hero.sprite = makeSprite(R.scene, `assets/side/${name}`, meta); });
+// his list of drawings is asked for with the build in its address (a new drawing changes it, and an old copy is never
+// used); if that is refused, by its plain address
+const loadHero = name => fetch(`assets/side/${name}/sprite.json?b=${encodeURIComponent(BUILD)}`).catch(() => null).then(r => r && r.ok ? r : fetch(`assets/side/${name}/sprite.json`)).then(r => r.ok ? r.json() : Promise.reject()).then(meta => { hero.meta = meta; hero.name = name; hero.sprite = makeSprite(R.scene, `assets/side/${name}`, meta); });
 const HERO_P = loadHero(HERO).catch(() => loadHero('hero_a')).catch(() => loadHero('hero')).catch(() => {});
 // what a region has in it: made by setup, again each time he comes into one
 let fx, E, BOSS, SHRINES, MAP, SCF, SWINGFX, PROPS, ITEMS, ENT = { lead: false, reset(){}, step(){}, start(){}, open(){} };   // ENT: the keeper's entrance (entrance.js)
@@ -71,7 +76,7 @@ let WAKE = 0;   // at the very start he lies where he fell, and gets up
 function setup(){
   SWINGFX = makeSwingFx(R.scene); PROPS = makeProps(R.scene, R);
   for (const id of G.broke[LEVEL.index] || []) PROPS.breakId(id);   // the rock he broke here before stays broken
-  ITEMS = makeItems(R.scene, R, LEVEL.index); learn();
+  ITEMS = makeItems(R.scene, R, LEVEL.index); learn(); swapButton();
   fx = spawnFx(R.scene); E = spawnEnemies(R.scene, R); SCF = makeScarf(R.scene); FLIGHT = null; BOSS = (KEEPERS[LEVEL.theme] || (() => null))(R.scene, R);   // each region's keeper
   ENT = makeEntrance(R.scene, R, { fx: () => fx, sfx, shake: v => { FEEL_FX.shake = Math.max(FEEL_FX.shake, v); }, flash: v => { FLASH = Math.max(FLASH, Math.min(0.42, v)); }, buzz: (a, b, ms) => buzz(a, b, ms), slow: v => { SLOW = Math.max(SLOW, v); } });
   // the shrine: it fills the flask and the hearts, and is where he wakes after a death
@@ -441,6 +446,7 @@ function heroPose(P, t){
   }
   if (P.grounded && landT > 0 && pick('land') && !(Math.abs(P.vx) > 1.5 && landT < LAND_T - 0.08)) return [pick('land'), Math.min(0.999, 0.2 + 0.8 * (1 - landT / LAND_T))];   // from the moment his feet meet the floor
   if (P.grounded && Math.abs(P.vx) > 0.3){ const run = has('sprint') ? 'sprint' : 'run'; if (has(run)) return [run, (P.dist || 0) / 2.6]; }
+  if (P.weapon === 'spade' && has('spade_idle')) return ['spade_idle', t / 1.6];   // leaning on the spade
   if (has('idle')) return ['idle', t / 1.4];
   return ['stand', 0];
 }
@@ -669,19 +675,24 @@ function onEvent(e){
     case 'bloom': sfx.bloom(); PROPS.bounce(e.m); fx.puff(at, 14, 3); fx.burst({ x: P.x, y: P.y + 0.3 }, 10, 0xf6757a); R.glint(P.x, P.y + 0.5, 0xfeae34, 0.7, 4, 0.3); break;
     case 'strike': {
       // the blow: the swoosh of light, the air bending round it, the floor kicked up, a thump, the view nudged
-      const big = e.finisher, tilt = { atk_slam_v3: -0.7, atk_slam_px: -0.7, atk_rise_px: 1.0, atk_spin_px: 0.1, atk_dash_px: 0.25 }[e.sw.anim] || 0;
+      const big = e.finisher, tilt = { atk_spade: -0.9, atk_slam_v3: -0.7, atk_slam_px: -0.7, atk_rise_px: 1.0, atk_spin_px: 0.1, atk_dash_px: 0.25 }[e.sw.anim] || 0;
       sfx.swing(big); if (!SWINGFX.has(e.sw.anim)) fx.crescent({ x: P.x + P.face * 1.15, y: P.y + 1.25 }, P.face, big, tilt);   // the combo's cuts have their own drawn effect
       R.glint(P.x + P.face * 1.3, P.y + 1.3, big ? 0xffd27a : 0xbfe8ff, big ? 0.9 : 0.6, 4.5, 0.22); R.shock(P.x + P.face * 1.3, P.y + 1.2, big);
       if (P.grounded) fx.kick(at, -P.face, big ? 12 : 7, big ? 3 : 2.2);
       FEEL_FX.shake = Math.max(FEEL_FX.shake, big ? 0.14 : 0.07); FEEL_FX.kick = P.face * (big ? 0.22 : 0.12);
       // the dash cut strikes all along where he dashed
-      const from = e.sw.dash && P.dashFrom != null ? { ...P, x: P.dashFrom } : P, reach = BLADE.reach + (e.sw.dash && P.dashFrom != null ? Math.abs(P.x - P.dashFrom) : 0);
+      const from = e.sw.dash && P.dashFrom != null ? { ...P, x: P.dashFrom } : P, reach = weaponOf(P).reach + (e.sw.dash && P.dashFrom != null ? Math.abs(P.x - P.dashFrom) : 0);
       const dmg = e.sw.dmg + (big && has('whetstone') ? 1 : 0) + (G.edge >= 2 || (G.edge && big) ? 1 : 0), out = [];   // the whetstone, and the tempering
       strikeEnemies(E, from, reach, dmg, out); if (BOSS) BOSS.strike(from, reach, dmg, out); ITEMS.strike(from, reach, out);
-      breakRock(P.x + P.face * 1.2, P.y + 1.2, big ? 1.3 : -1); for (const o of out) onEvent(o); break; }
+      if (weaponOf(P).digs) breakRock(P.x + P.face * 1.8, P.y + 0.6, 1.5); else breakRock(P.x + P.face * 1.2, P.y + 1.2, big ? 1.3 : -1); for (const o of out) onEvent(o); break; }   // the spade digs where it lands
     case 'hit': if (!e.art) EMBER.n = Math.min(EMBER.cap, EMBER.n + 1);   // a landed blow gives an ember (not an art's)
       buzz(e.heavy ? 0.35 : 0.15, e.heavy ? 0.5 : 0.3, e.heavy ? 90 : 50); sfx.hit(); fx.burst(e.at, e.heavy ? 18 : 12, 0xffe0a8); R.glint(e.at.x, e.at.y, 0xffe0a8, e.heavy ? 0.9 : 0.6, 3.5, 0.16); FEEL_FX.hitstop = e.heavy ? 0.09 : 0.05; FEEL_FX.shake = Math.max(FEEL_FX.shake, e.heavy ? 0.18 : 0.1); break;
-    case 'kill': if (e.e){ (G.slain = G.slain || {})[e.e.type] = (G.slain[e.e.type] || 0) + 1; (G.seen = G.seen || {})[e.e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; } sfx.kill(); ITEMS.spill(e.at.x, e.at.y, 1 + Math.min(5, e.e ? e.e.d.hp : 1)); fx.burst(e.at, 26, 0xff70d0); fx.ring(e.at, 0xffc0ff); FEEL_FX.hitstop = 0.1; fx.ember(e.at, 2 + Math.min(5, e.e ? e.e.d.hp : 2) + (has('stylus') ? 2 : 0)); R.glint(e.at.x, e.at.y, 0xff9040, 1, 5, 0.35); break;
+    case 'swap': {   // blade and spade, if he has the spade
+      const to = P.weapon === 'spade' ? 'blade' : 'spade'; if (!armed(to)){ if (!HINTED.swap){ HINTED.swap = 1; banner('', 'he has only the blade', 2.2); } break; }
+      P.weapon = G.wield = to; store(); sfx.whoosh(); fx.ring({ x: P.x, y: P.y + 1.1 }, to === 'spade' ? 0xc0cbdc : 0xffd27a); banner('', to === 'spade' ? 'the sexton\'s spade' : 'the blade', 1.4); break; }
+    case 'kill': if (e.e && e.e.type === 'sexton' && !armed('spade')){ (G.arms = G.arms || []).push('spade'); store(); swapButton();   // the Sexton's spade: his, now
+        LATER.push({ t: 1.1, f: () => { NOTE = { title: 'The Sexton\'s Spade', lines: ['One great swing: slow to lift, far-reaching, and it breaks cracked stone where it lands. He cannot guard with it.', DEVICE.kind === 'touch' ? 'The swap button changes blade and spade.' : DEVICE.kind === 'keys' ? 'R changes blade and spade.' : 'LB changes blade and spade.'], t: 0, relic: true, head: 'HE TAKES IT UP' }; release(); } }); }
+      if (e.e){ (G.slain = G.slain || {})[e.e.type] = (G.slain[e.e.type] || 0) + 1; (G.seen = G.seen || {})[e.e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; } sfx.kill(); ITEMS.spill(e.at.x, e.at.y, 1 + Math.min(5, e.e ? e.e.d.hp : 1)); fx.burst(e.at, 26, 0xff70d0); fx.ring(e.at, 0xffc0ff); FEEL_FX.hitstop = 0.1; fx.ember(e.at, 2 + Math.min(5, e.e ? e.e.d.hp : 2) + (has('stylus') ? 2 : 0)); R.glint(e.at.x, e.at.y, 0xff9040, 1, 5, 0.35); break;
     case 'parry': buzz(0.3, 0.7, 110); sfx.parry(); fx.ring(e.at, 0x9fd0ff); FEEL_FX.hitstop = 0.12; break;
     case 'block': sfx.block(); fx.burst(e.at, 8, 0xc9d2e0); break;
     case 'spit': sfx.spit(); break;
@@ -752,7 +763,7 @@ function drawHud(dt){
   // over what he can use: the key for it
   if (USE && !PAUSE && !TALK.on && !NOTE){ v.set(USE.x, USE.y + (USE.type === 'npc' ? 2.6 : 1.5), 0).project(R.camera); HUD.prompt(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180), (DEVICE.kind === 'keys' ? 'S  ' : DEVICE.kind === 'touch' ? 'DRAG DOWN  ' : 'DOWN  ') + (USE.type === 'npc' ? 'TALK' : USE.type === 'flame' ? 'KNOTS' : 'OPEN'), time); }
   TALK.draw(HUD, dt, time);
-  if (NOTE){ HUD.dark(0.62); HUD.text(NOTE.relic ? 'A RELIC' : 'HE HAS LEARNED', W / 2, 44, '#c0cbdc', 1, 'center'); HUD.text(NOTE.title.toUpperCase(), W / 2, 56, '#fee761', 2, 'center'); HUD.rule(Math.round(W / 2), 78, 70, '#ead4aa');
+  if (NOTE){ HUD.dark(0.62); HUD.text(NOTE.head || (NOTE.relic ? 'A RELIC' : 'HE HAS LEARNED'), W / 2, 44, '#c0cbdc', 1, 'center'); HUD.text(NOTE.title.toUpperCase(), W / 2, 56, '#fee761', 2, 'center'); HUD.rule(Math.round(W / 2), 78, 70, '#ead4aa');
     // the lines, wrapped to the picture; a relic's second line (whose it was) is quieter
     let ny = 88; NOTE.lines.forEach((l, i) => { const lore = NOTE.relic && i > 0; if (lore) ny += 3; wrapText(l, W - 48).forEach(ln => { HUD.text(ln, W / 2, ny, lore ? '#c0cbdc' : '#fff2d0', 1, 'center'); ny += lore ? 9 : 11; }); }); if (NOTE.t > 0.7 && Math.floor(time * 2) % 2) HUD.text('PRESS TO GO ON', W / 2, Math.max(132, ny + 10), '#8b9bb4', 1, 'center'); }
   if (PAUSE && SCREEN === 'annals') drawAnnals(W);

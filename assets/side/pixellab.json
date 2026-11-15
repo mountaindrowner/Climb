@@ -635,6 +635,16 @@
     "action": "falling down through the air on his back, one arm reaching straight up toward a light far above him, the other arm loose, coat and red scarf streaming upward, slowly turning",
     "frames": 8,
     "group": "14e47dce-aa11-4918-8df6-f1c7dacb41f8"
+   },
+   "atk_spade": {
+    "action": "a heavy two-handed swing with a long grave-digger's iron spade instead of a sword: he heaves the spade up and back over his shoulder with both hands on the long wooden handle, the wide flat iron blade high behind him, then steps forward and brings the spade down and across in a great arc, the flat blade striking the ground in front of his feet, knees bent deep, the red scarf flying",
+    "frames": 12,
+    "group": "5bd6b5e7-ef1f-4a31-b341-6dcaf68c1253"
+   },
+   "spade_idle": {
+    "action": "standing at rest, breathing slowly, holding a long grave-digger's iron spade instead of a sword: both hands rest on top of the long wooden handle, the wide flat iron blade planted in the ground beside his feet, the red scarf stirring",
+    "frames": 8,
+    "group": "91c34c62-883e-43c3-a12a-22395bbf80b4"
    }
   }
  },

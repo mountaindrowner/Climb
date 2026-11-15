@@ -2,7 +2,12 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Scarf knots: choosing what he wears (latest).** Step two of the Ember plan. A relic now works only while it is tied into his scarf, and there are fewer knots than relics, so what he wears is a choice, as with Hollow Knight's charms.
+**A second weapon: the Sexton's spade (latest).** Step three of the Ember plan. When the Sexton falls in the Ossuary, he leaves his spade, and the new swap key (R, or LB; a touch button once he has it) changes between it and the blade.
+- *The spade:* one great overhead swing, slow to lift, far-reaching, three times a cut's harm, and it breaks cracked stone wherever it lands. It has no combo and no rising or dashing cut, and he cannot guard with it.
+- *The blade* keeps everything it had: the three-cut combo, the rising and dashing cuts, the guard and the parry.
+- *Drawn for it* (PixelLab, about 5 cents in all): the swing, and him leaning on the spade at rest, each with its light map.
+
+**Scarf knots: choosing what he wears.** Step two of the Ember plan. A relic now works only while it is tied into his scarf, and there are fewer knots than relics, so what he wears is a choice, as with Hollow Knight's charms.
 - *Two knots to start.* Ordric ties more for shards (120, 240, 400), up to five, against eight relics.
 - *Found, it is tied,* if a knot is free; if not, he carries it, and the relic's card says he can choose at a flame.
 - *At a flame,* down opens the knots: every relic he carries, the tied ones in gold, what each does under it. Pick one to tie or untie it.
