@@ -117,7 +117,8 @@ export function makeHud(hud){
   // a keeper's name, big (entrance.js title): it slams in with a flash, a line over it says what it keeps, a rule runs
   // out under it and its words come up; held, then gone. Scaled whole pixels to fit the width
   H.title = T => {
-    if (!T || T.t > 4.4) return; const t = T.t, a = t < 3.6 ? 1 : Math.max(0, 1 - (t - 3.6) / 0.8), cx = Math.round(H.W / 2);
+    if (!T || T.t < 0 || T.t > 4.4) return;   // t < 0: the blow it comes on is seen first
+    const t = T.t, a = t < 3.6 ? 1 : Math.max(0, 1 - (t - 3.6) / 0.8), cx = Math.round(H.W / 2);
     const s = Math.max(2, Math.min(5, Math.floor((H.W - 24) / Math.max(1, width(T.name, 1))))), slam = t < 0.16 ? 1 - t / 0.16 : 0, sc = s + (slam > 0.5 ? 1 : 0), y = 92 - Math.round(slam * 4);
     g.globalAlpha = a * 0.6; px(C.ink, 0, 78, H.W, 7 * s + 40);                                         // a band to set it on
     if (t < 0.3){ g.globalAlpha = (1 - t / 0.3) * 0.85; px('#ffffff', 0, y - 3, H.W, 7 * sc + 6); }     // the flash it comes in on

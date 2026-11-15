@@ -30,6 +30,11 @@ export const MOTHER = {
   spore: { drift: 1.5, near: 1.5, swell: 0.9, radius: 1.7 },
   open: { unfold: 0.6, high: [2.6, 1.8], bow: [1.4, 1.1], shut: 0.6, y: 3.9 },
   plunge: 4, cd: [1.0, 0.65],
+  // her rise (B.tm): the stage breaks and thorns come up through it, out from her root both ways; the stalk climbs, the
+  // bud beating as if something in it wants out; it bursts (her name and her music come with it: entrance.js reveal);
+  // her arms come up out of the stage and lash down; then the fight
+  rise: { roots: 0.35, climb: [1.2, 3.5], beats: [1.95, 2.17, 2.65, 2.85, 3.12, 3.28, 3.42], burst: 3.6, shut: [4.5, 5.2],
+    erupt: [3.95, 4.1], lash: [4.7, 4.92], sink: 5.05, end: 5.7 },
   seq: [['thorns', 'sweep', 'thorns', 'slam', 'pods', 'tired'], ['rows', 'sweep', 'slam', 'pods', 'rows', 'tired']],
 };
 const W = MOTHER, ease = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t), DEG = Math.PI / 180;
@@ -67,6 +72,25 @@ export function makeMother(scene, R){
   // the spores her seeds hatch: the garden's puff, drawn with its strips when they are there
   let puffMeta = null; fetch('assets/side/px_puff/sprite.json').then(r => r.ok ? r.json() : null).then(m => { puffMeta = m; }).catch(() => {});
   const sporeGlow = glow('rgba(255,150,160,1)');
+  // ---- what only her rise has: thorns that break the stage round her (a row in front of her, a taller one behind), the
+  // light breaking out of the cracks they come from, the light leaking from the bud, the glow behind her when it bursts, the petals it throws
+  const RZ = W.rise, footGeo = new THREE.PlaneGeometry(1, 1).translate(0, 0.5, 0), rootMat = mat('thorn'), backMat = mat('thorn'); backMat.color.setHex(0x8b9bb4);
+  const seamTex = glow('rgba(99,199,77,1)'), seamGeo = new THREE.PlaneGeometry(1.8, 1.2);
+  const hash = k => { const v = Math.sin(k * 127.1 + 311.7) * 43758.5453; return v - Math.floor(v); };
+  const roots = [];
+  [[1.5, 2.9, 4.4, 5.8, 7.3, 8.9, 10.4], [0.9, 2.2, 3.6, 5.1, 6.6, 8.2, 9.8]].forEach((offs, back) => offs.forEach((o, j) => { for (const s of [-1, 1]){
+    const k = roots.length, x = Math.max(xMin - 2, Math.min(xMax + 2, cx + s * o)), m = new THREE.Mesh(footGeo, back ? backMat : rootMat), crack = new THREE.Mesh(seamGeo, additive(seamTex, back ? 0x63c74d : 0xfee761, 0));
+    m.visible = false; m.position.set(x, stageY - 0.05, back ? -0.9 : -0.3); scene.add(m); crack.position.set(x, stageY + 0.3, back ? -0.85 : 0.35); scene.add(crack);
+    roots.push({ m, crack, x, s, back: !!back, at: RZ.roots + o * 0.085 + (back ? -0.06 : 0.03) + hash(k) * 0.08, tall: back ? 2.3 + hash(k + 9) * 1.2 : 1.2 + hash(k + 9) * 1.0, w: (back ? 1.7 : 1.25) * (hash(k + 3) < 0.5 ? -1 : 1), tilt: -s * (0.06 + hash(k + 5) * 0.22), sink: RZ.sink + j * 0.04 + hash(k + 7) * 0.1 });
+  } }));
+  const seep = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 3.2), additive(glow('rgba(254,231,97,1)'), 0xfee761, 0)); seep.position.set(0, 0.9, 0.08); head.add(seep);
+  const halo = new THREE.Mesh(new THREE.PlaneGeometry(13, 13), additive(glow('rgba(246,117,122,1)'), 0xf6757a, 0)); halo.position.z = -0.95; scene.add(halo);
+  const petalMat = mat('petal'), flung = Array.from({ length: 12 }, () => { const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), petalMat); m.visible = false; m.position.z = 0.25; scene.add(m); return { m }; });
+  let RS = null;   // the rise as it goes: which roots came up, the arms, the thrown petals
+  const riseFresh = () => { RS = { roots: roots.map(() => ({ on: false })), arms: [{}, {}], burst: false }; };
+  // how hard the bud beats at t (0 to 1): a quick swell at each beat, and a slower settling; harder as they come faster
+  const beat = t => RZ.beats.reduce((p, b, i) => { const d = t - b, k = d < -0.15 ? 0 : d < 0 ? Math.exp(d / 0.035) : Math.exp(-d / 0.14); return Math.max(p, k * (0.6 + 0.4 * i / (RZ.beats.length - 1))); }, 0);
+  const riseHide = () => { for (const r of roots){ r.m.visible = false; r.crack.material.opacity = 0; } for (const f of flung) f.m.visible = false; seep.material.opacity = 0; halo.material.opacity = 0; head.scale.setScalar(1); };
 
   const ph = v => Array.isArray(v) ? v[B.phase - 1] : v, clampX = x => Math.max(xMin, Math.min(xMax, x));
   const go = m => { B.mode = m; B.mt = 0; B.hit = false; B.n = 0; };
@@ -79,6 +103,7 @@ export function makeMother(scene, R){
     Object.assign(B.h, { x: cx, y: stageY + W.low, lean: 0 }); clear();
     for (const L of B.loose) head.add(L.f.m); B.loose.length = 0; for (const f of fan) f.gone = false;   // her leaves are hers again
     for (const a of arms){ a.tip.x = a.root.x; a.tip.y = stageY - 0.5; }
+    RS = null; riseHide();
   };
   // ---- what she throws up and out
   const spike = (x, lag) => { const m = piece('thorn', 20, 46, 0.3, true), mark = new THREE.Mesh(markGeo, additive(warnTex, 0xff5040, 0)); m.visible = false; m.position.set(x, stageY - 0.05, 0.3); mark.position.set(x, stageY + 0.2, 0.4); scene.add(mark); B.spikes.push({ x, t: -lag, m, mark, hit: false, flip: Math.random() < 0.5 ? -1 : 1 }); };
@@ -102,14 +127,47 @@ export function makeMother(scene, R){
     const armTo = arms.map((a, i) => ({ x: a.root.x + a.s * (3.0 + Math.sin(B.tm * 0.9 + i * 2) * 0.5), y: stageY + 4.2 + Math.cos(B.tm * 1.1 + i * 2) * 0.5, rate: 3 }));
     if (B.st === 'dormant'){
       hx = cx; hy = stageY + W.low + Math.sin(B.tm * 1.1) * 0.03; lean = 0; for (let i = 0; i < 2; i++){ armTo[i].x = arms[i].root.x; armTo[i].y = stageY - 0.6; }
-      if (inRoom && P.grounded && P.y >= stageY - 0.05 && P.y < stageY + 0.5 && P.x > room.x0 + 9 && P.hp > 0){ B.st = 'rise'; B.tm = 0; events.push({ type: 'bossWake', boss: B }); }
+      if (inRoom && P.grounded && P.y >= stageY - 0.05 && P.y < stageY + 0.5 && P.x > room.x0 + 9 && P.hp > 0){ B.st = 'rise'; B.tm = 0; riseFresh(); events.push({ type: 'bossWake', boss: B }); }
     }
     else if (B.st === 'rise'){
-      // she grows: the stalk climbs, the arms come up out of the stage, the bud parts once to look at him and shuts
-      const g = ease(B.tm / 2.2); hx = cx; hy = stageY + W.low + (W.tall - W.low) * g; lean = Math.sin(B.tm * 5) * 0.06 * (1 - g); open = B.tm > 2.0 && B.tm < 2.9 ? 0.45 : 0; rate = 9;
-      for (let i = 0; i < 2; i++){ armTo[i].x = arms[i].root.x + arms[i].s * 3 * g; armTo[i].y = stageY - 0.6 + 4.8 * g; armTo[i].rate = 6; }
-      if (Math.random() < 0.5) fx.dust({ x: cx + (Math.random() - 0.5) * 4, y: stageY }, 1, 3);
-      if (B.tm > 3.3){ B.st = 'fight'; B.tm = 0; go('idle'); B.cd = 0.8; }
+      // she comes up (W.rise). Nothing in it can hurt him
+      if (!RS) riseFresh();
+      const t = B.tm, cue = c => dt > 0 && t >= c && t - dt < c, toward = Math.sign(P.x - cx) || -1, roof = room.y1 - 1.2, tr = (Math.random() - 0.5);
+      // 1. the stage cracks and heaves; thorns break up through it, out from her root, both ways (only cracks under him)
+      if (cue(0.02)) events.push({ type: 'bossSweep' });
+      if (cue(0.22) || cue(0.7)){ events.push({ type: 'rockLand', at: { x: cx, y: stageY } }); fx.debris(cx - 9, cx + 9, roof, stageY, 10); fx.puff({ x: cx, y: stageY }, 12, 3); }
+      roots.forEach((r, k) => { if (cue(Math.max(0.01, r.at - 0.4))) RS.roots[k].on = Math.abs(r.x - P.x) > (r.back ? 1.0 : 1.4); if (!cue(r.at) || !RS.roots[k].on) return;
+        fx.burst({ x: r.x, y: stageY + 0.4 }, r.back ? 5 : 8, 0x63c74d); fx.dust({ x: r.x, y: stageY }, 5, 2.5); if (!r.back) fx.puff({ x: r.x, y: stageY }, 6, 2.6);
+        if (k % 3 === 0) events.push({ type: 'rockLand', at: { x: r.x, y: stageY } }); });
+      // 2. the stalk climbs, slowly and in heaves, the bud swaying and trembling; it beats, faster and faster, and every
+      // beat squeezes it and the light leaks out between its leaves
+      const [c0, c1] = RZ.climb, u = Math.max(0, Math.min(1, (t - c0) / (c1 - c0))), g = ease(Math.max(0, Math.min(1, u + 0.055 * Math.sin(u * Math.PI * 6)))), pu = B.pulse = beat(t);
+      const shake = (t < c0 ? 0.04 : 0.02 + 0.05 * u) + (t > RZ.beats[0] ? 0.05 : 0);
+      hx = cx + Math.sin(t * 1.9) * 0.4 * g + tr * shake; hy = stageY + W.low + (W.tall - W.low) * g + (t < c0 ? 0.12 * Math.abs(Math.sin(t * 9)) * ease(t / 0.5) : 0) - 0.22 * pu;
+      lean = Math.sin(t * 1.9 + 0.7) * 0.13 * g + tr * shake * 0.8; open = 0.16 * pu + (t > 3.3 ? 0.1 * (t - 3.3) / 0.3 : 0); rate = 7;
+      if (cue(c0 + 0.05) || cue(2.35) || cue(3.0)) events.push({ type: 'bossTell' });
+      RZ.beats.forEach((b, i) => { if (cue(b)) { events.push({ type: i % 2 ? 'step' : 'bossSweep' }); fx.burst({ x: H.x, y: H.y + 1.2 }, 4 + i, 0xfee761); } });
+      if (t > c0 && t < RZ.burst && Math.random() < 0.3) fx.dust({ x: cx + (Math.random() - 0.5) * 2.4, y: stageY }, 1, 2);
+      // 3. it bursts: a scream, the petals, the light from inside; she rears up over him and leans down at him
+      if (cue(RZ.burst)){ RS.burst = true; const at = { x: H.x, y: H.y + 1.2 }; B.flash = 0.35; B.open = 0.8;
+        fx.burst(at, 46, 0xf6757a); fx.burst(at, 26, 0xfee761); fx.burst(at, 16, 0x63c74d); fx.ring(at, 0xf6757a); R.shock(at.x, at.y, true); R.glint(at.x, at.y, 0xfee761, 2.4, 13, 0.9);
+        fx.debris(cx - 12, cx + 12, roof, stageY, 40, [0xf6757a, 0xfee761, 0xe43b44], true); events.push({ type: 'spit' }, { type: 'bossSlam', at: { x: cx, y: stageY }, soft: true });
+        flung.forEach((f, i) => { const a = Math.PI * (0.05 + 0.9 * (i + Math.random() * 0.8) / flung.length), c = Math.cos(a); Object.assign(f, { x: at.x + c * 1.6, y: at.y + 0.4 + Math.sin(a) * 1.2, vx: c * (8 + Math.random() * 6), vy: Math.sin(a) * (6 + Math.random() * 5), vr: (Math.random() - 0.5) * 16, r: Math.random() * 6, age: 0, sz: 0.16 + Math.random() * 0.12 }); f.m.visible = true; }); }
+      if (t >= RZ.burst){ const k = t - RZ.burst, back = 1 - ease((k - 0.35) / 1.2), scream = Math.max(0, 1 - k / 0.9);
+        hx = cx + toward * 0.6 * back + tr * 0.16 * scream; hy = stageY + W.tall + 0.9 * back - 0.25 * ease(k / 0.12) * scream; lean = toward * 0.26 * back + tr * 0.1 * scream; rate = k < 0.25 ? 14 : 5;
+        open = t < RZ.shut[0] ? 1 : 1 - ease((t - RZ.shut[0]) / (RZ.shut[1] - RZ.shut[0])); }
+      // 4. her arms come up out of the stage (the one away from him first), rear over it writhing, and lash down hard, in
+      // front of him; they rest a moment where they struck, and go up to where they fight from
+      arms.forEach((a, i) => { const A = RS.arms[i], first = a.s === -toward ? 0 : 1, up = RZ.erupt[first], down = RZ.lash[first];
+        if (t < up){ armTo[i] = { x: a.root.x, y: stageY - 0.6, rate: 6 }; if (t > up - 0.6 && Math.random() < 0.35) fx.dust({ x: a.root.x + (Math.random() - 0.5), y: stageY }, 2, 2.4); return; }
+        if (cue(up)){ a.tip.x = a.root.x; a.tip.y = stageY + 0.4; fx.burst({ x: a.root.x, y: stageY + 0.5 }, 18, 0x63c74d); fx.puff({ x: a.root.x, y: stageY }, 14, 3.4); fx.dust({ x: a.root.x, y: stageY }, 12, 3.5); R.shock(a.root.x, stageY + 0.5, false); events.push({ type: 'rockLand', at: { x: a.root.x, y: stageY } }); }
+        if (t < down){ armTo[i] = { x: a.root.x + a.s * (1.2 + Math.sin(t * 6 + i * 2) * 0.5), y: stageY + 6.8 + Math.cos(t * 5 + i) * 0.5, rate: 8 }; return; }
+        if (A.tx == null){ let tx = a.root.x + a.s * 3.6; if (Math.sign(P.x - cx) === a.s && Math.abs(tx - P.x) < 2.4){ tx = P.x - a.s * 1.7; if ((tx - a.root.x) * a.s < 0.4) tx = P.x + a.s * 2; } A.tx = clampX(tx); }   // just short of him
+        if (A.hit == null){ a.tip.x += (A.tx - a.tip.x) * Math.min(1, dt * 14); a.tip.y -= W.slam.drop * dt; armTo[i] = { x: a.tip.x, y: a.tip.y, rate: 0 };
+          if (a.tip.y <= stageY + 0.75){ a.tip.y = stageY + 0.75; A.hit = t; events.push({ type: 'bossSlam', at: { x: a.tip.x, y: stageY } }); R.shock(a.tip.x, stageY + 0.5, true); fx.burst({ x: a.tip.x, y: stageY + 0.5 }, 14, 0x63c74d); fx.puff({ x: a.tip.x, y: stageY }, 18, 4); fx.debris(a.tip.x - 5, a.tip.x + 5, roof, stageY, 14); } return; }
+        if (t < A.hit + 0.45) armTo[i] = { x: a.tip.x, y: stageY + 0.75, rate: 0 }; else armTo[i].rate = 2.5; });
+      roots.forEach((r, k) => { if (RS.roots[k].on && cue(r.sink) && k % 4 === 0) fx.dust({ x: r.x, y: stageY }, 4, 2); });
+      if (t > RZ.end){ B.st = 'fight'; B.tm = 0; go('idle'); B.cd = 0.8; B.pulse = 0; riseHide(); }
     }
     else if (B.st === 'die'){
       // her leaves fall one by one; the stalk sags; the heart goes dark; the arms drop
@@ -234,7 +292,8 @@ export function makeMother(scene, R){
     head.position.x = H.x; head.position.y = H.y; head.rotation.z = -H.lean;
     for (const f of fan){ if (f.gone) continue; const a = f.shut + (f.open - f.shut) * B.open + f.s * Math.sin(B.tm * 1.7 + f.open) * 0.02 * (1 + B.open * 2); f.m.position.set(f.x * (1 + B.open * 0.5), f.y, f.z); f.m.rotation.z = -a; f.m.scale.set(f.m.userData.w * (f.s < 0 ? -1 : 1), f.m.userData.h, 1); }
     const glowK = (1 - B.dim) * (B.open * (0.75 + 0.2 * Math.sin(B.tm * 6)) + B.flash * 4);
-    heart.visible = B.open > 0.12 && (B.st !== 'fight' || B.mode === 'tired');   // only when it is truly bared (a seed's throw parts the bud, no more) heart.scale.setScalar(2.5 * Math.min(1, B.open * 1.6) * (1 + Math.sin(B.tm * 5) * 0.03)); heart.material.color.setScalar(1 - B.dim * 0.8); heart.material.emissive.setHex(B.flash > 0 ? 0xffffff : 0x000000);
+    heart.visible = B.open > 0.12 && (B.st !== 'fight' || B.mode === 'tired');   // only when it is truly bared (a seed's throw parts the bud, no more)
+    heart.scale.setScalar(2.5 * Math.min(1, B.open * 1.6) * (1 + Math.sin(B.tm * 5) * 0.03)); heart.material.color.setScalar(1 - B.dim * 0.8); heart.material.emissive.setHex(B.flash > 0 ? 0xffffff : 0x000000);
     heartGlow.material.opacity = heart.visible ? Math.min(1, glowK * 0.55) : 0; heartGlow.material.color.setHex(B.phase === 2 ? 0xff7050 : 0xffc860);
     for (const f of fan) f.m.material.emissive.setHex(B.flash > 0 && bared ? 0x803020 : 0x000000);
     light.position.set(B.heart.x, B.heart.y, 1.2); light.intensity = grown ? (1 - B.dim) * (0.35 + B.open * 1.3 + B.flash * 4) : 0.25; light.color.setHex(B.phase === 2 ? 0xff8060 : 0xffc860);
@@ -247,7 +306,31 @@ export function makeMother(scene, R){
       a.spin += dt * (B.mode === 'sweep' && B.st === 'fight' ? 9 : 0.6) * a.s; a.club.position.x = a.tip.x; a.club.position.y = a.tip.y; a.club.rotation.z = a.spin; a.club.visible = d > 0.6;
     }
     warn.material.opacity = warnA; warn.scale.set(warnW / 4, 1, 1); warn.position.set(warnX, warnY, 0.5);
+    if (B.st === 'rise' && RS) drawRise(B.tm, dt);
   };
+  // the rise's own pieces, at t into it
+  function drawRise(t, dt){
+    const pu = B.pulse || 0, k = t - RZ.burst;
+    roots.forEach((r, i) => {
+      // its crack glows first, then it comes up (too far, and back), stands shivering, and goes down again at the end
+      const on = RS.roots[i].on, a = t - r.at, c = r.crack.material;
+      c.opacity = !on || a < -0.4 ? 0 : a < 0 ? (a + 0.4) / 0.4 * (0.7 + 0.3 * Math.sin(t * 40 + i)) : Math.max(0.25, 1 - a / 1.2) * (1 - ease((t - r.sink) / 0.4)) * (1 + pu * 0.6);
+      const h = !RS.roots[i].on || a < 0 ? 0 : (a < 0.1 ? 1.2 * a / 0.1 : 1.2 - 0.2 * ease((a - 0.1) / 0.25)) * (1 - ease((t - r.sink) / 0.35));
+      r.m.visible = h > 0.01; if (!r.m.visible) return;
+      r.m.scale.set(r.w, r.tall * h * (1 + Math.sin(t * 13 + i) * 0.02), 1); r.m.rotation.z = r.tilt + Math.sin(t * 17 + i * 3) * 0.02 * (a < 0.6 ? 1 : 0.4);
+    });
+    // the light leaking from the bud as it beats, and swelling before it bursts; then the glow behind her as it does
+    seep.material.opacity = RS.burst ? 0 : Math.min(1, pu * 0.95 + (t > 3.2 ? (t - 3.2) / 0.4 * 0.6 : 0));
+    head.scale.setScalar(1 + 0.08 * pu + (k > 0 ? 0.14 * Math.exp(-k / 0.12) : t > 3.25 ? 0.05 * (t - 3.25) / 0.35 : 0));
+    halo.material.opacity = k > 0 ? 0.85 * Math.exp(-k / 0.9) : 0; halo.scale.setScalar(0.7 + Math.min(1, k * 1.4) * 0.6); halo.position.set(B.heart.x, B.heart.y, -0.95);
+    if (pu > 0.05 || k > 0) R.glint(B.heart.x, B.heart.y, 0xfee761, pu * 0.9 + (k > 0 ? 1.4 * Math.exp(-k / 0.7) : 0), 7);
+    light.intensity += pu * 1.2 + (k > 0 ? 2 * Math.exp(-k / 0.8) : 0);
+    leaves.scale.y = leaves.userData.h * (1 + (t < RZ.climb[0] ? 0.08 * Math.abs(Math.sin(t * 9)) : 0) + pu * 0.06);
+    // the petals she threw: tumbling down, slowing, swaying; they wither as they come down
+    for (const f of flung){ if (!f.m.visible) continue;
+      f.age += dt; f.vy -= 7 * dt; const drag = Math.exp(-dt * 1.6); f.vx *= drag; f.vy = Math.max(-2.2, f.vy * drag); f.x += (f.vx + Math.sin(f.age * 5 + f.r) * 1.2) * dt; f.y += f.vy * dt; f.r += f.vr * dt;
+      const s = f.sz * (1 - ease((f.age - 1.3) / 0.7)); f.m.position.set(f.x, Math.max(stageY + 0.2, f.y), 0.25); f.m.rotation.z = f.r; f.m.scale.set(2 * s, 4.6 * s, 1); if (s <= 0.01) f.m.visible = false; }
+  }
 
   // a wound: her health, her second wind, her end
   function wound(dmg, at, heavy, events){

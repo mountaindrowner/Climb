@@ -62,3 +62,21 @@ one, and jump or attack skips straight to the keeper (rule 5). He wakes at the l
 | **The Thunderhead** (the Tempest) | A bolt strikes the doorway and the storm stands in it, crawling | No rain, no wind: the air crackles, lightning closer and closer | Its mask comes out of the cloud (1.8 s) | The brightest flash in the game, a bolt to the stage |
 | **Mother Thorn** (the Gardens) | Thorns grow across | The light goes green, petals fall, the ground swells and settles under him like breath | Her bud parts (2.0 s) | Petals burst, a ring of green |
 | **The Fallen** (the Firmament) | Star-glass fades in | Nothing moves. The lights go out, then the stars. His own two steps. One star falls, to where it stands | It draws (2.3 s) | Time slows; a white star bursts |
+
+## Each keeper's rise (its own file)
+
+After the entrance's seal and dread, each keeper's own coming (`rise`), the moment its name lands in bold:
+
+| Keeper | Its rise |
+|---|---|
+| **The Warden** (`boss.js` `W.rise`, about 6.4 s) | Up out of the dark, unlit, nearly black, head bowed. One eye catches, then the other; the core kindles and the stone takes its colour. Both armoured fists rise high over the stage and **slam down together (4.95 s)**; it roars. |
+| **The Toll** (`toll.js` `TOLL.rise`, about 5.4 s) | Heard before seen: high in the dark, small, it tolls five times, each stroke nearer, bigger, its light flaring. Hauled up out of sight; a beat of silence; it drops out of the roof full size and **slams to a stop on its chain (3.6 s)**, and a throbbing red aura comes on round it (and stays, quieter, through the fight). |
+| **The Rime Wyrm** (`wyrm.js` `RISE`, about 5.8 s) | Glimpsed small, far off across the sky, crying out; it dives in huge just over his head, circles, crashes onto the summit, rears, throws its head back and **roars frost (4.75 s)**: a cone of cold light, ice shards bursting up toward him. |
+| **The Thunderhead** (`thunderhead.js` `TH.rise`, about 6 s) | The cloud gathers and blackens; six pairs of eyes open in it one after another; lightning walks the rods faster and faster; a hush, the eyes shut, light gathers over him; a **thunderclap (4.9 s)**: the mask drops out of the cloud, arcs to every rod, a crown of lightning. |
+| **Mother Thorn** (`mother.js` `MOTHER.rise`, about 5.7 s) | The stage cracks and thorns burst up through it in waves; the stalk climbs, the bud beats like a heart, light leaking from it; it **bursts open (3.6 s)** in a storm of petals, her arms erupt from the stage and lash down. |
+| **The Fallen** (`fallen.js`, about 6.3 s) | Its back to him, still; the fallen star's light gathers into its hand and runs up its blade; an eye opens over its shoulder; it turns, slowly; raises the blade and **drives it into the stage (5.0 s)**: cracks of cold light run out across the floor. |
+
+A keeper can tell the entrance when its name comes (`B.revealAt`, for a rise that differs, like the Toll's short one); else `STYLES[theme].reveal`. During the rise the camera holds him and the keeper both in view. The name comes a beat after the blow it lands on, so the blow is seen.
+
+**The Warden's arms** are armoured now (`tools/armor_arms.py`): its stone arms half again as thick, iron plates curved round them, rivets, teal runes in the plates, a gauntlet on each fist. **Its sweep** is tethered: the fist comes away from the arm, sweeps the stage on a crackling beam of green lightning, rests (strike it then), and flies back along the beam to lock on again; the arm stays up at the shoulder.
+

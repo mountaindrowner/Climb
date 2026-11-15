@@ -37,21 +37,61 @@ export const FALLEN = {
   shards: { raise: 0.5, n: 8, every: 0.17, step: 1.6, warn: 0.75, fall: 21, hold: 1.5, from: 11.5 },
   cd: [0.6, 0.32], beat: [2.4, 1.3],                      // between its moves; the star-glass's beat
 };
-const D = FALLEN, SINK = 2 / 16, COLD = 0x7fe8ff;
+const D = FALLEN, SINK = 2 / 16, COLD = 0x7fe8ff, STAR = 0xfee761;
+// its rise, in seconds of it (entrance.js puts its name up as the blade strikes: B.revealAt, RISE.strike)
+//   0      it stands with its back to him in the dark, still; the star that fell to it burns where it landed
+//   gather the star's light is drawn into its hand, and more out of the dark around it
+//   kindle the light runs up the blade, cold
+//   look   it turns its head: an eye opens over its shoulder
+//   turn   it turns, slowly, all the way round
+//   raise  the blade goes up over its head, and is held there; the light gathers at its point
+//   strike it drives the blade point-down into the stage: a ring of cold light, the stage cracks, the world shakes
+//   up     it gets up off its knee, drawing the blade out; at end, the fight
+const RISE = { gather: 0.35, kindle: 1.95, look: 2.55, turn: 3.2, turnLen: 0.65, raise: 4.05, raised: 4.75, strike: 5.0, up: 5.7, end: 6.3 };
+// where the blade lies in the frames the rise uses: hilt x, y, point x, y, in the strip's pixels
+const BLADE = { 'idle:0': [42, 38, 52, 42], 'block:3': [34, 34, 46, 33], 'atk_slam_px:3': [37, 29, 46, 26], 'atk_slam_px:4': [37, 19, 36, 9], 'atk_slam_px:5': [30, 11, 21, 5],
+  'atk_slam_px:6': [23, 10, 10, 9], 'atk_slam_px:7': [23, 10, 9, 10], 'atk_slam_px:8': [23, 10, 10, 9], 'plunge_land:3': [42, 31, 42, 41], 'plunge_land:4': [43, 42, 44, 50],
+  'plunge_land:5': [45, 41, 45, 47], 'plunge_land:6': [45, 41, 45, 47], 'plunge_land:7': [45, 41, 45, 47], 'plunge_land:8': [44, 42, 45, 49], 'plunge_land:9': [43, 42, 44, 51],
+  'plunge_land:10': [43, 42, 44, 51], 'plunge_land:11': [42, 40, 46, 47] };
+// and where its eye is in them (the front of its skull); in the others, where it is in the fight
+const EYE = { 'idle:0': [38, 16], 'block:3': [35, 17], 'atk_slam_px:3': [31, 13], 'atk_slam_px:4': [30, 14], 'plunge_land:3': [35, 15], 'plunge_land:4': [37, 21],
+  'plunge_land:5': [39, 25], 'plunge_land:6': [39, 25], 'plunge_land:7': [39, 25], 'plunge_land:8': [39, 25], 'plunge_land:9': [38, 24], 'plunge_land:10': [37, 21], 'plunge_land:11': [35, 18] };
+// the cracks its blade leaves in the stage: drawn once, 16 pixels a unit. The fissures run out both ways along the
+// stage's top from the middle of the bottom edge (FOOT pixels up from it is the stage's top); the cold light comes up
+// out of them
+const CRACK = { w: 12, h: 2.25, foot: 4 };
+function crackTex(){
+  const W = CRACK.w * 16, H = CRACK.h * 16, top = H - CRACK.foot, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
+  const dot = (x, y, col, a) => { g.globalAlpha = Math.max(0, Math.min(1, a)); g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), 1, 1); };
+  const run = (x, y, dir, len, a0) => {
+    for (let s = 0; s < len; s++){
+      const k = s / len, a = a0 * (1 - k * 0.8);
+      dot(x, y, k < 0.3 && a0 > 0.8 ? '#ffffff' : '#2ce8f5', a);
+      if (Math.random() < 0.09 * (1 - k)){ const h = 4 + Math.random() * (top - 6) * (1 - k); for (let j = 1; j < h; j++) dot(x, y - j, j < 3 ? '#ffffff' : '#2ce8f5', a * 0.8 * (1 - j / h)); }   // light up out of it
+      x += dir * (Math.random() < 0.85 ? 1 : 0); if (Math.random() < 0.3) y = Math.max(top - 1, Math.min(H - 1, y + (Math.random() < 0.55 ? 1 : -1)));
+      if (s > 5 && len - s > 8 && Math.random() < 0.06) run(x, y, dir, (len - s) * (0.3 + Math.random() * 0.3), a * 0.8);
+    }
+  };
+  for (const dir of [-1, 1]){ run(W / 2, top, dir, W * 0.47, 1); run(W / 2, top + 1, dir, W * 0.28, 0.9); }
+  for (let j = 0; j < top; j++) dot(W / 2, top - j, j < 6 ? '#ffffff' : '#2ce8f5', 0.9 * (1 - j / top));   // where the blade went in
+  const t = new THREE.CanvasTexture(c); t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false; return t;
+}
 
 export function makeFallen(scene, R){
   const room = LEVEL.rooms.find(r => r.name === 'zenith'), mk = LEVEL.marks.find(m => m.type === 'boss'), ex = LEVEL.marks.find(m => m.type === 'exit');
   if (!room || !mk) return null;
   PHASE.period = D.beat[0];
-  const stageY = mk.y * T, cx = (mk.x + 0.5) * T, xMin = room.x0 + 2.8, xMax = room.x1 - 2.8, homeX = Math.min(xMax - 1, ex ? (ex.x + 0.5) * T - 3.2 : cx + 9);
+  const stageY = mk.y * T, cx = (mk.x + 0.5) * T, xMin = room.x0 + 2.8, xMax = room.x1 - 2.8, home0 = Math.min(xMax - 1, ex ? (ex.x + 0.5) * T - 3.2 : cx + 9);
+  // it stands a little short of the torch there, facing it (not in it: the flame is drawn in front of everything)
+  const torch = LEVEL.marks.find(m => m.type === 'torch' && Math.abs((m.x + 0.5) * T - home0) < 1.6 && Math.abs(m.y * T - stageY) < 3), homeX = torch ? Math.max(xMin + 4, (torch.x + 0.5) * T - 1.9) : home0;
   const START = { st: 'dormant', tm: 0, hp: D.hp, phase: 1, flash: 0, cd: 0.6, mode: 'stalk', mt: 0, acts: 0, x: homeX, y: stageY, vx: 0, vy: 0, face: 1, dist: 0, mash: 0, took: 0, tookT: 0, cut: null, alpha: 1,
-    fly: null, given: false, gone: false, drawn: false, rang: false, dest: null };
+    fly: null, given: false, gone: false, drawn: false, rang: false, dest: null, beat: 0, crackT: -1, crackX: 0 };
   const B = { name: D.name, hint: 'turn its blade; cut when it is spent', rage: 'it calls on the sky', fell: 'what you left here is yours again',
-    room, stageY, cx, waves: [], shards: [], ghosts: [], drops: [], ...START };
+    room, stageY, cx, waves: [], shards: [], ghosts: [], drops: [], seen: false, revealAt: RISE.strike, ...START };
   // ---- what it is drawn with: his strips, dark; its eyes; its scarf
   const dark = new THREE.Color(0x343c60), white = new THREE.Color(0xffffff), tint = new THREE.Color();
-  let spr = null;
-  fetch(`${D.art}/sprite.json`).then(r => r.ok ? r.json() : null).then(meta => { if (!meta) return; spr = makeSprite(scene, D.art, meta); spr.mat.color.copy(dark); spr.g.visible = false; }).catch(() => {});
+  let spr = null, ART = null;
+  fetch(`${D.art}/sprite.json`).then(r => r.ok ? r.json() : null).then(meta => { if (!meta) return; ART = meta.anims; spr = makeSprite(scene, D.art, meta); spr.warm(['idle', 'block', 'atk_slam_px', 'plunge_land']); spr.mat.color.copy(dark); spr.g.visible = false; }).catch(() => {});
   const scf = makeScarf(scene, { edge: 0x181425, body: 0xc0cbdc, shade: 0x8b9bb4, glow: 0x2ce8f5 });
   const coldTex = glow('rgba(140,235,255,1)'), warnTex = glow('rgba(255,60,50,1)'), whiteTex = glow('rgba(255,255,255,1)');
   const eye = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.75), additive(coldTex, COLD, 0)); eye.position.z = 0.06; scene.add(eye);
@@ -62,6 +102,15 @@ export function makeFallen(scene, R){
   const waveGeo = new THREE.PlaneGeometry(0.9, 1.3), markGeo = new THREE.PlaneGeometry(1.3, 0.55), lineGeo = new THREE.PlaneGeometry(1 / 16, 1);
   const shardGeo = new THREE.BufferGeometry(); shardGeo.setAttribute('position', new THREE.Float32BufferAttribute([0, 0.85, 0, 0.2, 0, 0, 0, -0.85, 0, -0.2, 0, 0], 3)); shardGeo.setIndex([0, 1, 3, 1, 2, 3]);
   const shardMat = new THREE.MeshBasicMaterial({ color: 0xdff8ff, side: THREE.DoubleSide }), dropGeo = new THREE.PlaneGeometry(2 / 16, 2 / 16), dropMat = new THREE.MeshBasicMaterial({ color: 0x181425 });
+  // ---- its rise: the fallen star's light drawn into its hand, the blade kindling, the look back, the turn, the blade
+  // raised and driven into the stage (rising(), below)
+  const motes = [];
+  for (let i = 0; i < 18; i++){ const m = new THREE.Mesh(dropGeo, additive(null, STAR, 0)); m.position.z = 0.3; m.visible = false; scene.add(m); motes.push({ m, a: Math.random() * Math.PI * 2, r: 1.1 + Math.random() * 1.7, ph: i / 18, spin: Math.random() < 0.5 ? -1 : 1 }); }
+  const orb = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), additive(whiteTex, STAR, 0)); orb.position.z = 0.3; orb.visible = false; scene.add(orb);   // the star, then the light in its hand
+  const edge = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), additive(coldTex, COLD, 0)); edge.position.z = 0.065; edge.visible = false; scene.add(edge);   // the blade's light: soft
+  const core = new THREE.Mesh(new THREE.PlaneGeometry(1, 1 / 16), additive(null, 0xffffff, 0)); core.position.z = 0.066; core.visible = false; scene.add(core);   // and its edge
+  const crack = new THREE.Mesh(new THREE.PlaneGeometry(CRACK.w, CRACK.h), additive(crackTex(), 0xffffff, 0)); crack.position.z = 0.3; crack.visible = false; scene.add(crack);
+  const rush = [-1, 1].map(() => { const m = new THREE.Mesh(waveGeo, additive(coldTex, COLD, 0)); m.position.z = 0.4; m.visible = false; scene.add(m); return m; });   // the light running out along the stage
 
   const ph = v => Array.isArray(v) ? v[B.phase - 1] : v, clampX = x => Math.max(xMin, Math.min(xMax, x)), sgn = v => v < 0 ? -1 : 1;
   const go = m => { B.mode = m; B.mt = 0; B.hit = false; };
@@ -105,20 +154,17 @@ export function makeFallen(scene, R){
   B.step = (P, dt, fx, events) => {
     B.tm += dt; B.mt += dt; B.flash = Math.max(0, B.flash - dt); B.mash = Math.max(0, B.mash - dt * D.parry.fade); if ((B.tookT -= dt) <= 0) B.took = 0;
     const inRoom = P.x > room.x0 && P.x < room.x1 && P.y > room.y0 - 1 && P.y < room.y1, x0 = B.x;
-    let pose = ['idle', B.tm / 1.4], vis = true, low = 1.92, lit = 0.6, warnA = 0, warnX = 0, warnW = 1, warnH = 0.5, warnY = stageY + 0.25, spotA = 0, cold = 0, scarfOn = true;
+    let pose = ['idle', B.tm / 1.4], vis = true, low = 1.92, lit = 0.6, warnA = 0, warnX = 0, warnW = 1, warnH = 0.5, warnY = stageY + 0.25, spotA = 0, cold = 0, scarfOn = true, rv = null;
     const d = P.x - B.x, ad = Math.abs(d);
 
     if (B.st === 'dormant'){
       // it stands by the dark beacon with its back to the stage, and does not turn
-      B.x = homeX; B.y = stageY; B.face = 1; lit = 0.35;
+      B.x = homeX; B.y = stageY; B.face = 1; lit = 0.35; pose = ['idle', 0.1];   // still: not even breathing
       if (inRoom && P.grounded && Math.abs(P.y - stageY) < 0.3 && P.x > room.x0 + 8.5 && P.hp > 0){ B.st = 'rise'; B.tm = 0; events.push({ type: 'bossWake', boss: B }); }
     }
     else if (B.st === 'rise'){
-      // a moment more; then it turns, and draws
-      if (B.tm > 1.15) B.face = sgn(P.x - B.x);
-      if (B.tm > 1.6){ const u = Math.min(1, (B.tm - 1.6) / 0.8); pose = ['atk_rise_px', 0.1 + u * 0.6]; cold = u; if (u >= 1 && !B.drawn){ B.drawn = true; R.glint(B.x + B.face * 0.6, B.y + 2.4, COLD, 1.2, 6, 0.4); sfx.parry(); } }
-      lit = 0.35 + Math.min(1, B.tm / 2) * 0.5;
-      if (B.tm > 2.9){ B.st = 'fight'; B.tm = 0; B.drawn = false; go('stalk'); B.cd = 0.5; }
+      rv = rising(P, dt, fx, events); pose = rv.pose; lit = rv.lit; cold = rv.cold; low = rv.low;
+      if (rv.done){ B.st = 'fight'; B.tm = 0; B.drawn = false; B.seen = true; go('stalk'); B.cd = 0.5; }
     }
     else if (B.st === 'die') pose = dying(P, dt, fx, events);
     else if (B.st === 'fight'){
@@ -256,15 +302,19 @@ export function makeFallen(scene, R){
         tint.copy(dark).lerp(white, k); spr.mat.color.copy(tint);
         spr.mat.emissive.setHex(B.flash > 0 ? 0xffffff : B.mode === 'parry' && B.st === 'fight' ? 0x6090c0 : B.st === 'fight' && cold > 0.05 && Math.sin(B.mt * 34) > 0 ? 0x123a5c : 0x05070e);
         spr.g.visible = B.alpha > 0.5 || Math.floor(B.tm * 40) % 2 === 0;   // going, it flickers out
+        if (rv){ spr.plane.scale.x *= rv.squash; spr.mat.emissive.setHex(rv.em); }   // turning; the cold in it
       }
     }
     const headY = B.y + low + 0.12 - SINK;
     eye.visible = shown; eye.position.x = B.x + B.face * 0.14; eye.position.y = headY;
     eye.material.opacity = shown && B.st !== 'dormant' ? (0.55 + 0.25 * Math.sin(B.tm * 6) + cold * 0.3) * (B.st === 'die' ? Math.max(0, 1 - B.tm / 1.5) : 1) : 0;
     eye.material.color.setHex(B.phase === 2 ? 0xffffff : COLD); eye.scale.setScalar(B.phase === 2 ? 1.25 : 1);
+    if (rv){ const Y = rv.eye; eye.position.x = Y.x; eye.position.y = Y.y; eye.material.opacity = shown ? Y.a : 0; eye.scale.set(Y.sx, Y.sy, 1); eye.material.color.setHex(Y.col); }
+    else hush();
+    scars(dt, fx);
     aura.visible = shown && B.phase === 2 && B.st === 'fight'; aura.position.x = B.x; aura.position.y = B.y + 1.2; aura.material.opacity = 0.22 + 0.08 * Math.sin(B.tm * 5);
     light.position.set(B.x + B.face * 0.4, B.y + 1.6, 1.1); light.intensity = shown ? lit * (0.9 + cold * 0.5) + B.flash * 4 : 0;
-    if (shown && B.st !== 'dormant') R.glint(B.x, B.y + 1.4, B.phase === 2 ? 0xbfe8ff : 0x6fb8e8, 0.22 + cold * 0.2 + B.flash * 3, 4);
+    if (shown && B.st !== 'dormant' && !rv) R.glint(B.x, B.y + 1.4, B.phase === 2 ? 0xbfe8ff : 0x6fb8e8, 0.22 + cold * 0.2 + B.flash * 3, 4);
     warn.material.opacity = warnA; warn.scale.set(warnW, warnH, 1); warn.position.x = warnX; warn.position.y = warnY;
     spot.material.opacity = spotA; if (B.dest){ spot.position.x = B.dest.x; spot.position.y = B.dest.y + 1.2; }
     // its scarf: from its neck, as long as it has life left (in its death it leaves, and goes to him)
@@ -272,6 +322,110 @@ export function makeFallen(scene, R){
     const want = B.st === 'dead' || B.given ? 0 : SCARF.base + (B.st === 'die' ? 16 : frac * 22);
     scf.step(dt, ax, ay, F ? F.face : B.face, want, -2.4, solidAt); scf.draw(scarfOn && B.st !== 'dead' && !(B.given && scf.len < 2.5), B.st === 'die' ? 1 : 0.5 + cold * 0.5);
   };
+
+  // ---- its rise (RISE, at the top): it is held at its first moment while entrance.js's lead-in runs (B.tm stays 0),
+  // so nothing of it shows until the star has fallen. The second time and after, it goes at twice the pace
+  const cA = new THREE.Color(), cB = new THREE.Color(), clamp01 = v => Math.max(0, Math.min(1, v)), smooth = v => { v = clamp01(v); return v * v * (3 - 2 * v); };
+  const mix = (a, b, k) => cA.setHex(a).lerp(cB.setHex(b), clamp01(k)).getHex(), snap = v => Math.round(v * 16) / 16;
+  // a pixel of a strip's frame, where it is in the world (s: how wide it is drawn, turning)
+  const px = (anim, x, y, s = 1) => { const A = ART && ART[anim]; return A ? { x: B.x + B.face * s * (x + 0.5 - A.cx) / 16, y: B.y - SINK - 0.02 + (A.foot - y - 0.5) / 16 } : { x: B.x + B.face * 0.5, y: B.y + 1 }; };
+  const place = (m, x, y, w, h, rot = 0) => { m.visible = true; m.position.x = x; m.position.y = y; m.scale.set(w, h, 1); m.rotation.z = rot; };
+  function hush(){ orb.visible = edge.visible = core.visible = false; for (const o of motes) o.m.visible = false; }
+  function rising(P, dt, fx, events){
+    const Q = RISE, pace = B.seen ? 2 : 1, t = B.tm * pace, toward = sgn(P.x - B.x), once = bit => (B.beat & bit) ? false : (B.beat |= bit, true);
+    if (once(1)){ B.turnTo = toward; B.turnFrom = B.face; B.revealAt = Q.strike / pace; }   // entrance.js: its name as the blade strikes
+    const out = { pose: null, lit: 0.06, cold: 0, low: 1.92, squash: 1, em: 0x05070e, eye: { x: B.x, y: B.y + 2, a: 0, sx: 0.6, sy: 0.6, col: COLD }, done: t >= Q.end };
+    hush();
+    if (B.tm <= 0) { out.pose = ['idle', 0.125]; return out; }   // held: entrance.js's lead-in
+    // ---- what it does
+    let fr, s = 1;
+    if (t < Q.turn) fr = ['idle', 0];
+    else if (t < Q.turn + Q.turnLen && B.turnFrom !== B.turnTo){
+      // it turns: slowly, its shoulders square to him half-way (a narrower drawing, for the turn)
+      const e = smooth((t - Q.turn) / Q.turnLen);
+      if (e >= 0.5 && once(2)){ B.face = B.turnTo; sfx.step(); fx.kick({ x: B.x, y: B.y }, -B.face, 4, 1.4); }
+      s = 0.45 + 0.55 * Math.abs(Math.cos(e * Math.PI)); fr = Math.abs(e - 0.5) < 0.2 ? ['block', 3] : ['idle', 0];
+    }
+    else if (t < Q.raise){ fr = ['idle', 0]; B.face = toward; }
+    else if (t < Q.raised){ const u = smooth((t - Q.raise) / (Q.raised - Q.raise)); fr = ['atk_slam_px', 3 + Math.min(4, Math.floor(u * 5))]; if (once(4)) sfx.rumble(); }
+    else if (t < Q.strike - 0.08) fr = ['atk_slam_px', t > Q.strike - 0.32 && Math.floor(t * 22) % 2 ? 8 : 7];   // held up there; at the last, the arms tremble
+    else if (t < Q.strike) fr = ['plunge_land', t < Q.strike - 0.04 ? 3 : 4];                                     // and down
+    else if (t < Q.up) fr = ['plunge_land', t < Q.strike + 0.12 ? 5 : 6];                                         // on one knee, the blade in the stage
+    else fr = ['plunge_land', 7 + Math.min(4, Math.floor((t - Q.up) / (Q.end - Q.up) * 5))];                     // up, drawing it out
+    const [anim, fi] = fr, n = ART && ART[anim] ? ART[anim].frames : 4, bl = BLADE[`${anim}:${fi}`] || BLADE['idle:0'];
+    out.pose = [anim, (fi + 0.5) / n]; out.squash = s;
+    if (anim === 'plunge_land') out.low = fi >= 4 && fi <= 8 ? 1.5 : 1.75;
+    const hand = px(anim, bl[0], bl[1], s), tip = px(anim, bl[2], bl[3], s);
+    // ---- the star's light: where it fell (on it), drawn into its hand, more of it out of the dark, then up the blade
+    const g = clamp01((t - Q.gather) / (Q.kindle - Q.gather)), lit = t >= Q.kindle;
+    if (t < Q.kindle + 0.3){
+      const k = smooth((t - 0.15) / 1.2), x = B.x + (hand.x - B.x) * k, y = (stageY + 1.5) + (hand.y - stageY - 1.5) * k;
+      const flare = lit ? 1 + 0.45 * (1 - (t - Q.kindle) / 0.3) : 1, sz = (0.8 - 0.35 * k + 0.35 * g * g + 0.08 * Math.sin(t * 7) * g) * flare;
+      const col = mix(STAR, lit ? 0xffffff : COLD, lit ? 1 : g * g);
+      place(orb, snap(x), snap(y), sz, sz); orb.material.color.setHex(col); orb.material.opacity = lit ? Math.max(0, 1 - (t - Q.kindle) / 0.3) : 0.75 + 0.25 * g;
+      R.glint(x, y, col, 0.25 + 0.8 * g, 2 + 4 * g);
+      out.lit = 0.06 + 0.5 * g; out.cold = g * 0.5;
+      if (!lit) for (let i = 0; i < motes.length; i++){
+        const o = motes[i]; if (i / motes.length > g * 1.25) continue;
+        const q = ((t - Q.gather) / 0.85 + o.ph) % 1, r = o.r * Math.pow(1 - q, 1.3), a = o.a + o.spin * q * 2.4;
+        o.m.visible = true; o.m.position.set(snap(hand.x + Math.cos(a) * r), snap(hand.y + Math.sin(a) * r * 0.8), 0.3);
+        o.m.material.opacity = Math.sin(q * Math.PI) * 0.95; o.m.material.color.setHex(mix(STAR, 0xc0cbdc, q));
+      }
+    }
+    if (lit){
+      if (once(8)){ sfx.parry(); R.glint(tip.x, tip.y, 0xffffff, 1.5, 6, 0.5); fx.burst(hand, 12, 0xc0cbdc); }
+      // the blade's light: from the hilt to the point, then held; it goes out of it as it gets up
+      const kb = smooth((t - Q.kindle) / 0.35), out1 = t > Q.up ? clamp01(1 - (t - Q.up) / (Q.end - Q.up)) : 1, fl = 0.85 + 0.15 * Math.sin(t * 31);
+      const dx = tip.x - hand.x, dy = tip.y - hand.y, L = Math.hypot(dx, dy), rot = Math.atan2(dy, dx);
+      place(core, hand.x + dx * kb / 2, hand.y + dy * kb / 2, Math.max(0.01, L * kb), 1, rot); core.material.opacity = 0.9 * fl * out1;
+      place(edge, hand.x + dx / 2, hand.y + dy / 2, L + 0.7, 0.55, rot); edge.material.opacity = 0.6 * kb * fl * out1;
+      R.glint(tip.x, tip.y, COLD, (0.35 + 0.3 * kb) * out1, 3.5);
+      out.lit = 0.55; out.cold = 1; out.em = 0x0a1828;
+    }
+    // ---- its eye: first over its shoulder, a slit opening; then, turned, on him
+    const Y = out.eye;
+    if (t >= Q.look && t < Q.turn){
+      const o = smooth((t - Q.look) / 0.35), p = px('idle', 33, 16);
+      if (once(16)){ R.glint(p.x, p.y, 0xffffff, 0.8, 3, 0.35); sfx.glass(); }
+      Object.assign(Y, { x: p.x, y: p.y, a: 0.95 * o, sx: 0.5, sy: 0.12 + 0.38 * o, col: o < 0.6 ? 0xffffff : COLD });
+    }
+    else if (t >= Q.turn){
+      const ey = EYE[`${anim}:${fi}`], head = ey ? px(anim, ey[0], ey[1], s) : { x: B.x + B.face * 0.14, y: B.y + out.low + 0.12 - SINK };
+      const held = t >= Q.raised && t < Q.strike + 0.6;
+      Object.assign(Y, { x: head.x, y: head.y, a: held ? 1 : 0.85, sx: (held ? 0.75 : 0.6) * s, sy: held ? 0.5 : 0.6, col: held ? 0xffffff : COLD });
+    }
+    // ---- the blade up, and the light gathering at its point
+    if (t >= Q.raise && t < Q.strike){
+      const h = clamp01((t - Q.raise) / (Q.strike - Q.raise)), sz = 0.3 + 0.7 * h * h + 0.06 * Math.sin(t * 40) * h;
+      place(orb, snap(tip.x), snap(tip.y), sz, sz); orb.material.color.setHex(mix(COLD, 0xffffff, h)); orb.material.opacity = 0.4 + 0.6 * h;
+      R.glint(tip.x, tip.y, 0xffffff, 0.3 + 1.1 * h * h, 3 + 5 * h); out.lit = 0.55 + 0.45 * h;
+    }
+    // ---- it strikes
+    if (t >= Q.strike){
+      const ix = px('plunge_land', 45, 53).x, at = { x: ix, y: stageY };
+      if (once(32)){
+        events.push({ type: 'bossSlam', at }); R.shock(ix, stageY + 0.3, true); sfx.crack();
+        R.glint(ix, stageY + 0.6, 0xffffff, 2.6, 13, 0.9); R.glint(ix, stageY + 0.4, COLD, 1.4, 9, 2.4);
+        fx.ring(at, COLD); fx.ring({ x: ix, y: stageY + 0.5 }, 0xffffff); fx.burst({ x: ix, y: stageY + 0.3 }, 34, 0xc0cbdc); fx.burst({ x: ix, y: stageY + 0.3 }, 16, 0x2ce8f5);
+        fx.kick(at, -1, 12, 4.5); fx.kick(at, 1, 12, 4.5);
+        fx.debris(room.x0 + 1, room.x1 - 1, room.y1 - 1.2, stageY, 26, [0xffffff, 0xc0cbdc, 0x2ce8f5], true);   // stars shaken out of the sky
+        B.crackT = 0; B.crackX = ix;
+      }
+      const a = t - Q.strike; out.lit = 0.85 + 1.2 * Math.max(0, 1 - a / 0.8); out.cold = 1; out.em = a < 0.12 ? 0x6090c0 : 0x123a5c;
+    }
+    return out;
+  }
+  // the cracks it left, and the light running out along the stage; they fade into the fight
+  function scars(dt, fx){
+    if (B.crackT < 0){ crack.visible = false; rush[0].visible = rush[1].visible = false; return; }
+    const c = B.crackT += dt, k = smooth(c / 0.18), fade = clamp01(1 - (c - 2.8) / 2.6), M = crack.material.map, glowA = (c < 0.3 ? 1 : 0.62 + 0.22 * Math.sin(c * 5)) * fade;
+    crack.visible = true; crack.position.set(B.crackX, stageY - CRACK.foot / 16 + CRACK.h / 2, 0.3); crack.scale.x = Math.max(0.01, k); M.repeat.x = Math.max(0.01, k); M.offset.x = (1 - k) / 2;
+    crack.material.opacity = glowA;
+    rush.forEach((m, i) => { const u = c / 0.85; m.visible = u < 1; if (u >= 1) return; m.position.set(B.crackX + (i ? 1 : -1) * c * 11, stageY + 0.5, 0.4); m.material.opacity = (1 - u) * 0.9; m.scale.set(1, 0.5 + 0.6 * (1 - u), 1); if (Math.random() < 0.8) fx.dust({ x: m.position.x, y: stageY }, 1, 2.2); });
+    if (c < 2 && Math.random() < dt * 12){ const x = B.crackX + (Math.random() - 0.5) * CRACK.w * 0.7 * k; fx.burst({ x, y: stageY + 0.1 }, 2, Math.random() < 0.5 ? 0x2ce8f5 : 0xffffff); }
+    R.glint(B.crackX, stageY + 0.2, COLD, 0.6 * glowA, 6);
+    if (fade <= 0) B.crackT = -1;
+  }
 
   // a shard called down at x: marked first
   function shard(x){

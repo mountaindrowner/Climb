@@ -5,7 +5,7 @@
 //           (the Tempest), thorns (the Gardens), star-glass (the Firmament)
 //   dread   what he hears and sees while he waits: a heartbeat in the rock, a bell tolling closer, the wind dying and a
 //           shadow passing over, lightning without rain, the ground pulsing and petals falling, the stars going out
-//   reveal  when, in the keeper's own rise (its B.tm), its name comes; burst: what happens then
+//   reveal  when, in the keeper's own rise (its B.tm), its name comes (a keeper can say, B.revealAt); burst: what happens then
 // The first time is the whole of it, its length by how much the keeper matters (the last is the longest); after that
 // a short one, and a press of jump or attack skips it (G.keepers). If he falls, the hall is open when he is raised; when
 // the keeper falls, the seals break.
@@ -19,12 +19,12 @@ const THREE = window.THREE;
 // each keeper's. role: the line over its name; name / glow: the name's colours; accent: its light (hex number);
 // tint / vigCol: what the picture darkens to and closes in with; wait: seconds of dread the first time
 export const STYLES = {
-  roots:     { role: 'KEEPER OF THE ROOTS',     name: '#ead4aa', glow: '#feae34', accent: 0xfeae34, seal: 'stone', dread: 'heart',  wait: 3.0, reveal: 2.1, burst: 'quake', tint: '#181425', vigCol: '#181425' },
-  cloister:  { role: 'KEEPER OF THE CLOISTER',  name: '#feae34', glow: '#f77622', accent: 0xfeae34, seal: 'grate', dread: 'toll',   wait: 3.4, reveal: 0.9, burst: 'toll',  tint: '#181425', vigCol: '#3e2731' },
-  spires:    { role: 'KEEPER OF THE PASS',      name: '#ffffff', glow: '#2ce8f5', accent: 0x2ce8f5, seal: 'ice',   dread: 'frost',  wait: 3.2, reveal: 1.0, burst: 'frost', tint: '#262b44', vigCol: '#c0cbdc' },
-  tempest:   { role: 'KEEPER OF THE STORM',     name: '#fee761', glow: '#ffffff', accent: 0xfee761, seal: 'storm', dread: 'static', wait: 3.2, reveal: 1.8, burst: 'bolt',  tint: '#262b44', vigCol: '#181425' },
-  gardens:   { role: 'KEEPER OF THE GARDENS',   name: '#f6757a', glow: '#63c74d', accent: 0x63c74d, seal: 'thorn', dread: 'roots',  wait: 3.0, reveal: 2.0, burst: 'bloom', tint: '#193c3e', vigCol: '#193c3e' },
-  firmament: { role: 'AT THE TOP OF THE WORLD', name: '#ffffff', glow: '#8b9bb4', accent: 0xc0cbdc, seal: 'glass', dread: 'stars',  wait: 4.6, reveal: 2.3, burst: 'star',  tint: '#000000', vigCol: '#000000' },
+  roots:     { role: 'KEEPER OF THE ROOTS',     name: '#ead4aa', glow: '#feae34', accent: 0xfeae34, seal: 'stone', dread: 'heart',  wait: 3.0, reveal: 4.95, burst: 'quake', tint: '#181425', vigCol: '#181425' },
+  cloister:  { role: 'KEEPER OF THE CLOISTER',  name: '#feae34', glow: '#f77622', accent: 0xfeae34, seal: 'grate', dread: 'toll',   wait: 3.4, reveal: 3.6, burst: 'toll',  tint: '#181425', vigCol: '#3e2731' },
+  spires:    { role: 'KEEPER OF THE PASS',      name: '#ffffff', glow: '#2ce8f5', accent: 0x2ce8f5, seal: 'ice',   dread: 'frost',  wait: 3.2, reveal: 4.75, burst: 'frost', tint: '#262b44', vigCol: '#c0cbdc' },
+  tempest:   { role: 'KEEPER OF THE STORM',     name: '#fee761', glow: '#ffffff', accent: 0xfee761, seal: 'storm', dread: 'static', wait: 3.2, reveal: 4.9, burst: 'bolt',  tint: '#262b44', vigCol: '#181425' },
+  gardens:   { role: 'KEEPER OF THE GARDENS',   name: '#f6757a', glow: '#63c74d', accent: 0x63c74d, seal: 'thorn', dread: 'roots',  wait: 3.0, reveal: 3.6, burst: 'bloom', tint: '#193c3e', vigCol: '#193c3e' },
+  firmament: { role: 'AT THE TOP OF THE WORLD', name: '#ffffff', glow: '#8b9bb4', accent: 0xc0cbdc, seal: 'glass', dread: 'stars',  wait: 4.6, reveal: 5.0, burst: 'star',  tint: '#000000', vigCol: '#000000' },
 };
 const PLAIN = STYLES.roots;
 // how each kind of seal comes: slide (down, or across a floor), grow (up, or across), fade, strike (all at once, with a
@@ -204,8 +204,8 @@ export function makeEntrance(scene, R, H){
   const BURST = {
     quake(B, rm, fx){ H.shake(1.0); H.flash(0.3); H.buzz(1, 0.9, 700); H.sfx.roar(); H.sfx.impact(true); fx.ring({ x: B.cx, y: B.stageY }, 0xffd27a); fx.dust({ x: B.cx, y: B.stageY }, 50, 7); fx.debris(rm.x0 + 1, rm.x1 - 1, roof(), B.stageY, 60); R.shock(B.cx, B.stageY + 2, true); },
     toll(B, rm, fx){ H.shake(0.8); H.flash(0.35); H.buzz(1, 0.7, 600); H.sfx.parry(); H.sfx.roar(); for (let i = 0; i < 4; i++) later(i * 0.12, () => { fx.ring({ x: B.cx, y: B.stageY + 4 }, i % 2 ? 0xf77622 : 0xfeae34); R.shock(B.cx, B.stageY + 4, true); }); R.glint(B.cx, B.stageY + 5, 0xfeae34, 1.8, 12, 1); },
-    frost(B, rm, fx){ H.shake(0.7); H.flash(0.6); H.buzz(0.9, 0.8, 500); H.sfx.roar(); H.sfx.crack(); fx.burst({ x: B.cx, y: B.stageY + 4 }, 60, 0xc0cbdc); fx.debris(rm.x0 + 1, rm.x1 - 1, roof(), B.stageY, 90, [0xffffff, 0xc0cbdc, 0x2ce8f5], true); R.glint(B.cx, B.stageY + 5, 0x2ce8f5, 1.6, 12, 1); },
-    bolt(B, rm, fx){ H.shake(0.95); H.flash(0.9); H.buzz(1, 1, 500); H.sfx.impact(true); H.sfx.crack(); H.sfx.roar(); fx.burst({ x: B.cx, y: B.stageY }, 50, 0xfee761); fx.ring({ x: B.cx, y: B.stageY }, 0xffffff); R.glint(B.cx, B.stageY + 2, 0xffffff, 2.4, 16, 0.4); R.shock(B.cx, B.stageY + 1, true); },
+    frost(B, rm, fx){ H.shake(0.7); H.flash(0.22); H.buzz(0.9, 0.8, 500); H.sfx.roar(); H.sfx.crack(); fx.burst({ x: B.cx, y: B.stageY + 4 }, 60, 0xc0cbdc); fx.debris(rm.x0 + 1, rm.x1 - 1, roof(), B.stageY, 90, [0xffffff, 0xc0cbdc, 0x2ce8f5], true); R.glint(B.cx, B.stageY + 5, 0x2ce8f5, 1.6, 12, 1); },
+    bolt(B, rm, fx){ H.shake(0.95); H.flash(0.25); H.buzz(1, 1, 500); H.sfx.impact(true); H.sfx.crack(); H.sfx.roar(); fx.burst({ x: B.cx, y: B.stageY }, 50, 0xfee761); fx.ring({ x: B.cx, y: B.stageY }, 0xffffff); R.glint(B.cx, B.stageY + 2, 0xffffff, 2.4, 16, 0.4); R.shock(B.cx, B.stageY + 1, true); },
     bloom(B, rm, fx){ H.shake(0.55); H.flash(0.25); H.buzz(0.7, 0.8, 600); H.sfx.roar(); H.sfx.creak(); fx.burst({ x: B.cx, y: B.stageY + 4 }, 50, 0xf6757a); fx.burst({ x: B.cx, y: B.stageY + 4 }, 20, 0xfee761); fx.ring({ x: B.cx, y: B.stageY }, 0x63c74d); fx.debris(rm.x0 + 1, rm.x1 - 1, roof(), B.stageY, 50, [0xf6757a, 0xfee761, 0x63c74d], true); },
     star(B, rm, fx){ const x = B.x != null ? B.x : B.cx; H.slow(1.1); H.flash(0.6); H.shake(0.5); H.buzz(0.8, 1, 700); H.sfx.parry(); H.sfx.impact(true); fx.burst({ x, y: B.stageY + 1.5 }, 70, 0xffffff); fx.burst({ x, y: B.stageY + 1.5 }, 30, 0xfee761); fx.ring({ x, y: B.stageY }, 0xc0cbdc); R.glint(x, B.stageY + 2, 0xffffff, 2, 12, 1.2); },
   };
@@ -243,19 +243,20 @@ export function makeEntrance(scene, R, H){
       E.cam = { x: B.x != null && E.S.dread === 'stars' ? B.x : B.cx, y: B.stageY + 4.6 }; E.face = Math.sign(E.cam.x - P.x) || E.face;
       E.vig = 0.25 + 0.75 * k; E.brace = k > 0.6;
       if (rm) DREAD[E.S.dread](k, dt, B, rm, fx);
-      if (E.t >= E.wait && (!E.star || E.star.t >= 1)){ E.st = 'rise'; E.t = 0; E.lead = false; E.cam = null; E.brace = false; }
+      if (E.t >= E.wait && (!E.star || E.star.t >= 1)){ E.st = 'rise'; E.t = 0; E.lead = false; E.brace = false; }
     }
     else if (E.st === 'rise'){
-      // its own rise; at its moment, its name and its music
+      // its own rise; at its moment, its name and its music. The camera holds him and it both in view while it comes
+      { const kx = B.x != null ? B.x : B.cx; E.cam = { x: (P.x + kx) / 2, y: B.stageY + 4.6 }; }
       MOOD.flicker = Math.max(0, MOOD.flicker - dt);
       if (!E.revealed && E.S.dread === 'frost' && rm && Math.random() < 0.5) fx.debris(rm.x0 + 1, rm.x1 - 1, roof(), B.stageY, 2, [0xffffff, 0xc0cbdc], true);
-      if (!E.revealed && (B.tm >= (E.first ? E.S.reveal : Math.min(E.S.reveal, 0.6)) || B.st !== 'rise')){
+      if (!E.revealed && (B.tm >= (B.revealAt != null ? B.revealAt : E.S.reveal) || B.st !== 'rise')){
         E.revealed = true; E.hush = false; E.cue = true;
-        E.title = { t: 0, name: E.info.name.toUpperCase(), role: E.S.role, epithet: E.info.epithet, color: E.S.name, glow: E.S.glow };
+        E.title = { t: -0.35, name: E.info.name.toUpperCase(), role: E.S.role, epithet: E.info.epithet, color: E.S.name, glow: E.S.glow };
         if (rm) BURST[E.S.burst](B, rm, fx);
       }
       if (E.revealed){ MOOD.dark += (0.25 - MOOD.dark) * Math.min(1, dt * 2); E.vig = Math.max(0.3, E.vig - dt * 0.5); }
-      if (E.revealed && B.st !== 'rise'){ E.st = 'after'; E.t = 0; }
+      if (E.revealed && B.st !== 'rise'){ E.st = 'after'; E.t = 0; E.cam = null; }
     }
     else { MOOD.dark = Math.max(0, MOOD.dark - dt * 0.4); MOOD.flicker = 0; E.vig = Math.max(0, E.vig - dt * 0.5); if (E.title && E.title.t > 5) E.title = null; if (MOOD.dark <= 0 && E.vig <= 0 && !E.title) E.st = 'held'; }
   };

@@ -21,14 +21,18 @@ const THREE = window.THREE;
 export const WARDEN = {
   name: 'The Warden', hp: 24, phase2: 0.5,
   bodyF: 0.5, bodyY: 3.6, sunk: -14,                      // its body: parallax (how far back), its chest's middle over the stage, how far below the stage it waits
-  fistR: 1.4, armW: 2,
+  fistR: 1.4, armW: 3,                                   // the arms in armour (tools/armor_arms.py): 48 pixels across
   slam: { raise: [0.75, 0.6], hold: [0.42, 0.32], drop: 0.11, rest: [1.5, 1.1], lift: 0.55, reach: 1.8, high: 7.5 },
   sweep: { lower: [0.85, 0.7], speed: [12, 15], rest: [1.2, 0.9], low: 1.0, clear: 1.3 },
   ripple: { speed: 10, life: 1.1 },
   rocks: { every: 2.2, warn: 0.9, fall: 18 },
   cd: [1.6, 0.9],                                         // between blows, by phase
+  // its coming (the rise), in seconds: up out of the dark unlit; its eyes, one and then the other; its core and the
+  // light coming into the stone; both fists raised high; down on the stage together (its name, entrance.js); its roar
+  rise: { up: 3.6, eyeL: 3.2, eyeR: 3.45, core: 3.7, lit: 4.4, raise: 4.3, slam: 4.95, drop: 0.1, lift: 5.9, end: 6.4 },
 };
 const W = WARDEN;
+const TETHER = { n: 12, jag: 0.45, wide: 1.0, core: 0.24 };   // the sweep's beam: segments, how far it jumps about, its glow and its core
 // the pieces: picture, size in pixels, where its middle is from the chest's (units), how far back, and how much of
 // the body's breathing, and of its look toward him, it takes. Eyes, brow and core are where the glows sit.
 const PIECES = {
@@ -79,17 +83,19 @@ export function makeWarden(scene, R){
   const core = { m: new THREE.Mesh(new THREE.PlaneGeometry(3.2, 3.2), additive(eyeTex, 0x5fe8d8, 0)) }; scene.add(core.m);
   const backGlow = [-1, 1].map(sd => { const m = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 3.4), additive(eyeTex, 0x4fd8ff, 0)); scene.add(m); return { m, sd }; });
   // ---- the arms
-  const upTex = tex('assets/side/colossus/upperarm16.png'), foreTex = tex('assets/side/colossus/forearm16.png'), fistTex = tex('assets/side/colossus/fist16.png');
+  const upTex = tex('assets/side/colossus/upperarm_armor16.png'), foreTex = tex('assets/side/colossus/forearm_armor16.png'), fistTex = tex('assets/side/colossus/fist_armor16.png');
   const segMat = (map, n) => lit({ map, normalMap: tex(n), transparent: true, alphaTest: 0.5, color: stone, side: THREE.DoubleSide });   // shaded by their shape: the core's light catches their edges
   const warnTex = glow('rgba(255,60,50,1)');
   for (const s of [-1, 1]){
-    const up = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), segMat(upTex, 'assets/side/colossus/upperarm16_n.png')), fore = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), segMat(foreTex, 'assets/side/colossus/forearm16_n.png'));
-    const fistMat = lit({ map: fistTex, normalMap: tex('assets/side/colossus/fist16_n.png'), transparent: true, alphaTest: 0.5, color: stone, side: THREE.DoubleSide, emissive: 0x000000 });
-    const fist = new THREE.Mesh(new THREE.PlaneGeometry(3, 3), fistMat);   // 48 pixels
+    const up = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), segMat(upTex, 'assets/side/colossus/upperarm_armor16_n.png')), fore = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), segMat(foreTex, 'assets/side/colossus/forearm_armor16_n.png'));
+    const fistMat = lit({ map: fistTex, normalMap: tex('assets/side/colossus/fist_armor16_n.png'), transparent: true, alphaTest: 0.5, color: stone, side: THREE.DoubleSide, emissive: 0x000000 });
+    const fist = new THREE.Mesh(new THREE.PlaneGeometry(3.5, 3.5), fistMat);   // 56 pixels, gauntleted
     const weak = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), additive(eyeTex, 0x6ff0ff, 0));   // the glow that says: now
     const warn = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.1), additive(warnTex, 0xff5040, 0));  // the mark under a blow
     for (const m of [up, fore, fist, weak, warn]){ m.visible = false; scene.add(m); }
-    B.arms.push({ s, st: 'idle', tm: 0, up, fore, fist, fistMat, weak, warn, p: new THREE.Vector3(cx + s * 9, stageY - 6, -8), from: new THREE.Vector3(), tx: 0, hit: false });
+    // the tether: when it sweeps, the fist comes away from the arm and goes on a beam of green lightning, and comes back on it
+    const beam = []; for (let k = 0; k < TETHER.n; k++){ const o = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), additive(eyeTex, 0x63c74d, 0)), c = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ color: 0xd8ffc8, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending })); o.visible = c.visible = false; scene.add(o); scene.add(c); beam.push({ o, c }); }
+    B.arms.push({ s, st: 'idle', tm: 0, up, fore, fist, fistMat, weak, warn, beam, tether: false, wrist: new THREE.Vector3(), p: new THREE.Vector3(cx + s * 9, stageY - 6, -8), from: new THREE.Vector3(), tx: 0, hit: false });
   }
   const sweepWarn = new THREE.Mesh(new THREE.PlaneGeometry(1, 0.9), additive(warnTex, 0xff5040, 0)); scene.add(sweepWarn);
   const rockGeo = new THREE.DodecahedronGeometry(0.42), rockMat = new THREE.MeshLambertMaterial({ color: 0x7d8a8c });
@@ -107,6 +113,17 @@ export function makeWarden(scene, R){
     const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 0.01;
     mesh.position.set((a.x + b.x) / 2, (a.y + b.y) / 2, z); mesh.rotation.set(0, 0, Math.atan2(-dx, dy)); mesh.scale.set(width, len, 1);
   }
+  // the tether: a jagged line of green lightning from the wrist to the fist, made again every frame so it crawls, with a
+  // soft glow round a bright core; it lights what is near it, and throws a spark now and then
+  const FXR = { fx: null };
+  function beamTo(a, A, F){
+    const n = TETHER.n, pts = [], dx = F.x - A.x, dy = F.y - A.y, d = Math.hypot(dx, dy) || 1, nx = -dy / d, ny = dx / d;
+    for (let k = 0; k <= n; k++){ const u = k / n, j = (k === 0 || k === n) ? 0 : (Math.random() - 0.5) * 2 * TETHER.jag * Math.sin(u * Math.PI) * Math.min(1, d / 6); pts.push([A.x + dx * u + nx * j, A.y + dy * u + ny * j]); }
+    a.beam.forEach((q, k) => { const [x0, y0] = pts[k], [x1, y1] = pts[k + 1], len = Math.hypot(x1 - x0, y1 - y0) + 0.05, ang = Math.atan2(y1 - y0, x1 - x0), fl = 0.75 + Math.random() * 0.25;
+      for (const [m, w, op] of [[q.o, TETHER.wide, 0.55], [q.c, TETHER.core, 0.95]]){ m.visible = true; m.position.set((x0 + x1) / 2, (y0 + y1) / 2, -0.6); m.rotation.z = ang; m.scale.set(len, w, 1); m.material.opacity = op * fl; } });
+    R.glint(F.x, F.y, 0x63c74d, 1.0, 6); R.glint((A.x + F.x) / 2, (A.y + F.y) / 2, 0x63c74d, 0.6, 7); R.glint(A.x, A.y, 0x63c74d, 0.6, 4);
+    if (Math.random() < 0.5){ const [sx, sy] = pts[1 + Math.floor(Math.random() * (n - 1))]; FXR.fx.burst({ x: sx, y: sy }, 3, Math.random() < 0.3 ? 0xffffff : 0x63c74d); }   // sparks crawl along it
+  }
   // the elbow: the two segments are each a little over half the reach, bent outward and up
   const elbow = new THREE.Vector3();
   function bend(S, F, side){
@@ -122,16 +139,20 @@ export function makeWarden(scene, R){
   B.hud = () => B.active() ? { name: W.name, frac: Math.max(0, B.hp / W.hp), phase: B.phase } : null;
   B.reset = () => {
     B.st = 'dormant'; B.tm = 0; B.hp = W.hp; B.phase = 1; B.lift = W.sunk; B.cd = 1.2; B.reel = B.roar = B.jaw = 0;
-    for (const a of B.arms){ a.st = 'idle'; a.tm = 0; }
+    for (const a of B.arms){ a.st = 'idle'; a.tm = 0; a.slammed = false; a.tether = false; for (const q of a.beam){ q.o.visible = q.c.visible = false; } }
     for (const r of B.rocks) scene.remove(r.m); B.rocks.length = 0;
     for (const r of B.ripples) scene.remove(r.m); B.ripples.length = 0;
   };
 
   B.step = (P, dt, fx, events) => {
+    FXR.fx = fx;
     B.tm += dt; B.flash = Math.max(0, B.flash - dt); B.roar = Math.max(0, B.roar - dt); B.reel *= Math.exp(-dt * 5);
     const inArena = P.x > room.x0 && P.x < room.x1 && P.y > room.y0 && P.y < room.y1;
     if (B.st === 'dormant'){ if (inArena && P.grounded && P.y >= stageY - 0.05 && P.hp > 0){ B.st = 'rise'; B.tm = 0; events.push({ type: 'bossWake' }); } }
-    else if (B.st === 'rise'){ B.lift = W.sunk * (1 - ease(Math.min(1, B.tm / 3))); if (B.tm > 2.1 && B.tm - dt <= 2.1) B.roar = 1.1; if (B.tm > 3.2){ B.st = 'fight'; B.tm = 0; B.lift = 0; } }
+    else if (B.st === 'rise'){ const Q = W.rise, u = Math.min(1, B.tm / Q.up); B.lift = W.sunk * (1 - u * u * (3 - 2 * u));   // slowly, out of the dark
+      for (const [t, k] of [[Q.eyeL, 0], [Q.eyeR, 1]]) if (B.tm >= t && B.tm - dt < t){ events.push({ type: 'bossTell' }); B.wake = B.wake || []; B.wake[k] = 1; }   // an eye opens
+      if (B.tm >= Q.core && B.tm - dt < Q.core) events.push({ type: 'bossSweep' });   // the core kindles, with a rumble
+      if (B.tm > Q.end){ B.st = 'fight'; B.tm = 0; B.lift = 0; for (const a of B.arms){ a.st = 'idle'; a.slammed = false; } } }
     else if (B.st === 'die'){ B.lift = W.sunk * ease(Math.max(0, Math.min(1, (B.tm - 2.4) / 2.2))); if (Math.random() < dt * 8){ const a = B.arms[Math.random() < 0.5 ? 0 : 1]; fx.burst({ x: a.p.x + (Math.random() - 0.5) * 3, y: a.p.y + Math.random() * 2 }, 10, 0xc9e8d0); }
       if (B.tm > 4.8){ B.st = 'dead'; events.push({ type: 'bossDead' }); } }
     // the conductor: one blow at a time, two at once from half health
@@ -158,6 +179,12 @@ export function makeWarden(scene, R){
       if (B.st !== 'fight' && a.st !== 'idle' && B.st !== 'die') a.st = 'idle';
       if (B.st === 'die'){ a.p.y += (stageY + W.fistR * 0.6 - a.p.y) * Math.min(1, dt * 3); a.p.z += (0.2 - a.p.z) * Math.min(1, dt * 3); }
       else if (a.st === 'idle'){ const k = Math.min(1, dt * 3); const r = rest({ s: a.s, p: new THREE.Vector3() }, B.tm); a.p.lerp(r, B.st === 'rise' ? Math.min(1, dt * 1.5) : k); }
+      if (B.st === 'rise'){ const Q = W.rise, t = B.tm, hx = cx + a.s * 5.2;
+        // both fists up, high over the stage, shaking with the weight; then down on it together; then up again
+        if (t >= Q.raise && t < Q.slam){ const u = ease(Math.min(1, (t - Q.raise) / (Q.slam - Q.raise - 0.1))); if (!a.raised){ a.raised = true; a.from.copy(a.p); } a.p.set(a.from.x + (hx - a.from.x) * u + (Math.random() - 0.5) * 0.08 * u, a.from.y + (stageY + 9 - a.from.y) * u, a.from.z + (0.2 - a.from.z) * u); }
+        else if (t >= Q.slam && t < Q.lift){ const u = Math.min(1, (t - Q.slam) / Q.drop); a.p.set(hx, stageY + 9 + (W.fistR - 9) * u * u, 0.2);
+          if (u >= 1 && !a.slammed){ a.slammed = true; events.push({ type: 'bossSlam', at: { x: hx, y: stageY } }); fx.dust({ x: hx, y: stageY }, 30, 6); R.shock(hx, stageY + 1, true); if (a.s > 0){ B.roar = 1.1; B.reel = 0.08; } } if (u >= 1) a.p.x += (Math.random() - 0.5) * 0.05; }
+        else if (t >= Q.lift){ a.raised = false; const r = rest({ s: a.s, p: new THREE.Vector3() }, t); a.p.lerp(r, Math.min(1, dt * 4)); } }
       else if (a.st === 'raise'){
         const d = ph(W.slam.raise), t = Math.min(1, a.tm / d); a.tx += (Math.max(xMin, Math.min(xMax, P.x)) - a.tx) * Math.min(1, dt * 5);
         a.p.set(a.from.x + (a.tx - a.from.x) * ease(t), a.from.y + (stageY + W.slam.high - a.from.y) * ease(t), a.from.z + (0.2 - a.from.z) * ease(t)); warn = 0.3 + 0.4 * t;
@@ -193,13 +220,21 @@ export function makeWarden(scene, R){
         if ((a.s < 0 && a.p.x >= xMax) || (a.s > 0 && a.p.x <= xMin)){ a.swept = true; go(a, 'rest'); events.push({ type: 'bossSlam', at: { x: a.p.x, y: stageY }, soft: true }); }
       }
       if (a.st !== 'lower' && a.st !== 'sweep' && !B.arms.some(o => o.st === 'lower' || o.st === 'sweep')) sweepWarn.material.opacity = 0;
-      { const q = parts[a.s < 0 ? 'shoulderL' : 'shoulderR'], want = a.st === 'raise' || a.st === 'hold' ? 0.75 : a.st === 'drop' || a.st === 'rest' ? -0.35 : a.st === 'lower' || a.st === 'sweep' ? -0.25 : 0;
+      { const q = parts[a.s < 0 ? 'shoulderL' : 'shoulderR'], Q = W.rise, rs = B.st === 'rise' ? (B.tm >= Q.raise && B.tm < Q.slam ? 0.75 : B.tm >= Q.slam && B.tm < Q.lift ? -0.35 : 0) : null, want = rs !== null ? rs : a.st === 'raise' || a.st === 'hold' ? 0.75 : a.st === 'drop' || a.st === 'rest' ? -0.35 : a.st === 'lower' || a.st === 'sweep' ? -0.25 : 0;
         q.lift += (want - q.lift) * Math.min(1, dt * (a.st === 'drop' ? 30 : 5)); }
       // draw it
       if (vis){
         const S = shoulder(a.s < 0 ? 0 : 1, new THREE.Vector3()), E = bend(S, a.p, a.s).clone();
         if (B.st === 'die'){ const f = FALL[a.s < 0 ? 'shoulderL' : 'shoulderR'], u = Math.max(0, B.tm - f[0]); S.x += f[1] * u; S.y -= 7 * u * u; }   // the arm goes with its shoulder
-        span(a.up, S, E, W.armW, -5); span(a.fore, a.p, E, W.armW * 0.9, -4.9);
+        // tethered: the arm stays up, reaching after its fist, and the beam runs from its wrist to the fist
+        const teth = B.st === 'fight' && (a.st === 'lower' || a.st === 'sweep' || (a.st === 'rest' && a.swept) || (a.st === 'lift' && a.tether));
+        if (teth !== a.tether){ const at = a.tether ? a.p : a.wrist; fx.burst({ x: at.x, y: at.y }, teth ? 22 : 14, 0x63c74d); fx.burst({ x: at.x, y: at.y }, 6, 0xffffff); R.glint(at.x, at.y, 0x63c74d, 1.2, 6, 0.4); events.push({ type: teth ? 'bossTell' : 'block', at: { x: at.x, y: at.y } }); a.tether = teth; }
+        if (a.tether){
+          const r = rest({ s: a.s, p: new THREE.Vector3() }, B.tm), dx = a.p.x - r.x, dy = a.p.y - r.y, d = Math.hypot(dx, dy) || 1;
+          a.wrist.set(r.x + dx / d * 1.2, r.y + dy / d * 1.2, r.z); const E2 = bend(S, a.wrist, a.s).clone();
+          span(a.up, S, E2, W.armW, -5); span(a.fore, a.wrist, E2, W.armW * 0.9, -4.9);
+          beamTo(a, a.wrist, a.p);
+        } else { for (const q of a.beam) q.o.visible = q.c.visible = false; span(a.up, S, E, W.armW, -5); span(a.fore, a.p, E, W.armW * 0.9, -4.9); }
         a.fist.position.set(a.p.x, a.p.y, -1); a.fist.scale.x = a.s < 0 ? 1 : -1;
         a.fist.rotation.z = Math.atan2(E.x - a.p.x, E.y - a.p.y) * 0.25;
         a.fistMat.emissive.setHex(B.flash > 0 && a.st === 'rest' ? 0x9a9a9a : 0x000000);
@@ -225,7 +260,7 @@ export function makeWarden(scene, R){
     // the body: each piece from the chest's middle, breathing, leaning the way it looks, reeling from a cut
     const ba = bodyAt(), bx = ba.x, show = (B.st !== 'dormant' || B.lift > W.sunk + 0.01) && B.st !== 'dead', br = breath();
     const lookTo = B.st === 'fight' ? Math.max(-1, Math.min(1, (P.x - bx) / 11)) : 0; B.look += (lookTo - B.look) * Math.min(1, dt * 2.2);
-    const rising = B.st === 'rise' ? 1 - ease(Math.min(1, B.tm / 2.6)) : 0;                       // head bowed as it comes up
+    const rising = B.st === 'rise' ? 1 - ease(Math.min(1, B.tm / W.rise.lit)) : 0;                 // head bowed as it comes up, until it is lit
     const open = B.roar > 0 ? Math.min(1, B.roar * 4, (1.1 - B.roar) * 6 + 0.2) : B.st === 'die' ? 1 : 0; B.jaw += (open - B.jaw) * Math.min(1, dt * 14);
     const snapU = v => Math.round(v * 16) / 16, place = {};
     for (const [name, q] of Object.entries(parts)){
@@ -237,16 +272,22 @@ export function makeWarden(scene, R){
       q.m.visible = show; q.m.position.set(snapU(x), snapU(y), d.z); q.m.rotation.z = rot; place[name] = { x, y, rot };
     }
     halo.visible = show; halo.position.set(bx, ba.y + 2, -9);
-    const lit = B.st === 'fight' ? 1 : B.st === 'rise' ? Math.max(0, Math.min(1, (B.tm - 1.6) / 0.8)) : B.st === 'die' ? Math.max(0, 1 - B.tm / 2) : 0;
+    const Q = W.rise, clamp01 = v => Math.max(0, Math.min(1, v)), flick = t => t <= 0 ? 0 : t >= 0.3 ? 1 : (Math.random() < 0.55 ? 1 : 0.15);   // a light catching: it stutters on
+    const lit = B.st === 'fight' ? 1 : B.st === 'rise' ? clamp01((B.tm - Q.core) / (Q.lit - Q.core)) : B.st === 'die' ? Math.max(0, 1 - B.tm / 2) : 0;
+    const eyeLit = B.st === 'rise' ? [flick(B.tm - Q.eyeL), flick(B.tm - Q.eyeR)] : [lit, lit];
+    // until it is lit it is the dark itself: the stone near black, coming to its colour as the core takes
+    const shade = B.st === 'rise' ? 0.1 + 0.9 * clamp01((B.tm - Q.core + 0.2) / (Q.lit - Q.core + 0.2)) : 1;
+    for (const [name, q] of Object.entries(parts)){ const base = name.startsWith('shoulder') ? stone : far; q.m.material.color.setHex(base).multiplyScalar(shade); }
+    for (const a of B.arms){ for (const m of [a.up, a.fore]) m.material.color.setHex(stone).multiplyScalar(shade); a.fistMat.color.setHex(stone).multiplyScalar(shade); }
     const angry = B.phase === 2 ? 0xff8a50 : 0x7ff6ff, hd = place.head, c = Math.cos(hd.rot), sn = Math.sin(hd.rot), on = (lx, ly) => [hd.x + lx * c - ly * sn, hd.y + lx * sn + ly * c];
-    for (const e of eyes){ const [ex, ey] = on(e.p[0], e.p[1]); e.m.position.set(ex, ey, -7.8); e.m.material.opacity = lit * (0.8 + 0.2 * Math.sin(B.tm * 6)); e.m.material.color.setHex(angry); e.m.visible = show; }
+    eyes.forEach((e, k) => { const [ex, ey] = on(e.p[0], e.p[1]); e.m.position.set(ex, ey, -7.8); e.m.material.opacity = eyeLit[k] * (0.8 + 0.2 * Math.sin(B.tm * 6)) * (B.st === 'rise' && B.tm < Q.lit ? 1.4 : 1); e.m.material.color.setHex(angry); e.m.visible = show; });
     { const [x, y] = on(FACE.brow[0], FACE.brow[1]); brow.position.set(x, y, -7.8); brow.material.opacity = lit * (0.45 + 0.25 * Math.sin(B.tm * 2.2)); brow.material.color.setHex(B.phase === 2 ? 0xff8a50 : 0x5fe8d8); brow.visible = show; }
     { const [x, y] = on(0.02, -1.05 - B.jaw * 0.15); maw.position.set(x, y, -7.91); maw.material.opacity = lit * B.jaw * 0.9; maw.material.color.setHex(angry); maw.visible = show && B.jaw > 0.02; }
     core.m.position.set(place.chest.x + FACE.core[0], place.chest.y + FACE.core[1], -7.8); core.m.material.opacity = lit * (0.5 + 0.3 * Math.sin(B.tm * 2.2)) + B.flash * 3; core.m.visible = show;
     for (const g of backGlow){ const k = place[g.sd < 0 ? 'crystalL' : 'crystalR']; g.m.position.set(k.x, k.y + 0.3, -8.35); g.m.material.opacity = lit * (B.phase === 2 ? 0.55 + 0.25 * Math.sin(B.tm * 5 + g.sd) : 0.22); g.m.material.color.setHex(B.phase === 2 ? 0xff9a60 : 0x4fd8ff); g.m.visible = show; }
-    halo.material.opacity = 0.2 + lit * 0.18;
+    halo.material.opacity = (B.st === 'rise' ? 0.05 : 0.2) + lit * 0.18;
     coreLight.position.set(place.chest.x + FACE.core[0], place.chest.y + FACE.core[1], -6.7); coreLight.intensity = show ? lit * (B.phase === 2 ? 2.4 : 2.0) + B.flash * 4 : 0; coreLight.color.setHex(B.phase === 2 ? 0xff9a60 : 0x5fe8d8);
-    if (show){ R.glint(place.chest.x, place.chest.y + 0.2, 0x5fe8d8, lit * 0.55 + B.flash * 3, 7); R.glint(hd.x, hd.y, angry, lit * 0.4, 4.5); }   // its core and its eyes light what is round them
+    if (show){ R.glint(place.chest.x, place.chest.y + 0.2, 0x5fe8d8, lit * 0.55 + B.flash * 3, 7); R.glint(hd.x, hd.y, angry, Math.max(lit, (eyeLit[0] + eyeLit[1]) / 2) * 0.4, 4.5); }   // its core and its eyes light what is round them
   };
 
   // his cut: a fist resting on the stage takes it; a fist anywhere else in reach turns it (a clang)

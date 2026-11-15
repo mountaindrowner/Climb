@@ -27,6 +27,10 @@ export const THUNDERHEAD = {
   stun: { sink: 0.6, time: [4.2, 3.4], rise: 0.9, coreY: 1.5, maskY: 3.4 },
   arc: { speed: 9, reach: 7 },
   cd: [1.3, 0.85],
+  // its coming (B.tm in 'rise'): the cloud gathers and blackens; eyes open in it, one and then another, on him; lightning
+  // walks the rods, faster and faster; it holds its breath; then the thunderclap (its name and music come on this:
+  // entrance.js STYLES.tempest.reveal) and the mask breaks out of the cloud and down, crowned with lightning
+  rise: { gather: 2.0, eyes: [1.2, 1.55, 1.85, 2.1, 2.3, 2.48], walk: 2.6, gap: [0.5, 0.8, 0.12], hush: 4.4, clap: 4.9, crown: 1.1, end: 6.0 },
 };
 const TH = THUNDERHEAD;
 const BASE = 'assets/side/thunderhead/';
@@ -68,6 +72,11 @@ export function makeThunderhead(scene, R){
     const blip = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.5), additive(glowTex, 0xffffff, 0)); blip.position.set(x, stageY + 1, -0.08); scene.add(blip);
     const warn = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 0.7), additive(warnTex, 0xff5040, 0)); warn.position.set(x, stageY + 0.22, 0.4); scene.add(warn);
     return { i, x, m, g, blip, warn, st: 'off', t: 0, dur: 1, lag: 0, ring: 0 }; });
+  // the eyes that open in the cloud as it comes (from where he stood, how high over the stage, how big)
+  const SEERS = [[-6.5, 9.15, 1.0], [5.5, 8.85, 0.85], [-1.8, 9.55, 0.7], [9.2, 9.35, 1.1], [-10.6, 8.8, 0.8], [2.3, 9.0, 1.2]];
+  const seers = SEERS.map(([dx, dy, s]) => ({ dx, dy, s, ms: [-1, 1].map(() => { const m = new THREE.Mesh(new THREE.PlaneGeometry(1.15, 0.5), additive(glowTex, 0xc0cbdc, 0)); m.position.z = -0.26; m.visible = false; scene.add(m); return m; }) }));
+  const brew = new THREE.Mesh(new THREE.PlaneGeometry(7, 3.6), additive(glowTex, 0xc0cbdc, 0)); brew.position.z = -0.2; scene.add(brew);   // light gathering in the cloud, where it will break out
+  for (const p of puffs){ p.c0 = p.m.material.color.clone(); p.c1 = new THREE.Color(p.back ? 0x181425 : 0x3a4466); }   // its colour, and how black it gathers
   const markGeo = new THREE.PlaneGeometry(1.5, 0.6), zapGeo = new THREE.PlaneGeometry(1, 1), zapTexs = [zapTex(7), zapTex(91), zapTex(333)];
   // the wind, drawn: thin streaks across the picture
   const streaks = []; for (let k = 0; k < 26; k++){ const m = new THREE.Mesh(new THREE.PlaneGeometry(1.2 + (k % 4) * 0.5, 1 / 16), additive(null, 0xcfe0ff, 0)); m.position.z = 1.5; m.visible = false; scene.add(m); streaks.push({ m, ox: (k * 7.3) % 22 - 11, oy: (k * 3.7) % 10 - 4.5, v: 24 + (k % 5) * 3 }); }
@@ -89,7 +98,7 @@ export function makeThunderhead(scene, R){
   const clear = () => { for (const h of B.hz){ scene.remove(h.mark); scene.remove(h.col); } B.hz.length = 0; for (const a of B.arcs) scene.remove(a.m); B.arcs.length = 0; for (const r of rods){ r.st = 'off'; r.t = 0; } B.wind = 0; B.blown = false; };
   B.reset = () => {
     clear(); for (const z of B.zaps) scene.remove(z.m); B.zaps.length = 0;
-    Object.assign(B, { st: 'dormant', tm: 0, hp: TH.hp, phase: 1, cd: 1.2, mode: 'idle', mt: 0, acts: 0, mx: cx, my: stageY + 13, tilt: 0, out: 0, gone: 0, down: false, burst: false, swell: 1, shown: false, fallV: 0 });
+    Object.assign(B, { st: 'dormant', tm: 0, hp: TH.hp, phase: 1, cd: 1.2, mode: 'idle', mt: 0, acts: 0, mx: cx, my: stageY + 13, tilt: 0, out: 0, gone: 0, down: false, burst: false, swell: 1, shown: false, fallV: 0, clapped: false, hum: 0, churn: 0, split: 0 });
     for (const p of puffs){ p.m.visible = true; p.dead = false; p.keep = false; }
   };
 
@@ -126,14 +135,58 @@ export function makeThunderhead(scene, R){
     const inRoom = P.x > room.x0 && P.x < room.x1 && P.y > room.y0 - 1 && P.y < room.y1, floatY = stageY + TH.maskY + Math.sin(B.tm * 1.3) * 0.25;
     let eyeA = 0, eyeCol = B.phase === 2 ? 0xff7060 : 0xbfe8ff, weak = 0, mouthA = 0, wantX = clampX(P.x, 3), wantWind = 0;
     if (B.st === 'dormant'){
-      if (inRoom && P.grounded && P.y >= stageY - 0.05 && P.y < stageY + 0.5 && P.hp > 0 && P.x < xMax - 1.5 && P.x > xMin){ B.st = 'rise'; B.tm = 0; B.mx = clampX(P.x - 4, 3); B.my = stageY + 13; B.rodN = 0; events.push({ type: 'bossWake', boss: B }); B.flash = 0.4; }
+      if (inRoom && P.grounded && P.y >= stageY - 0.05 && P.y < stageY + 0.5 && P.hp > 0 && P.x < xMax - 1.5 && P.x > xMin){
+        B.st = 'rise'; B.tm = 0; B.mx = clampX(P.x, 3); B.my = stageY + 13; B.flash = 0; events.push({ type: 'bossWake', boss: B });
+        const far = Math.abs(rods[0].x - P.x) > Math.abs(rods[2].x - P.x);   // the lightning starts at the rod far from him
+        Object.assign(B, { clapped: false, hum: 0, churn: 0, split: 0, seen: 0, rum: 0, eyeX: P.x + (P.face || 1) * 2.2, walkT: TH.rise.walk, walkGap: TH.rise.gap[0], walkN: 0, walkFrom: far ? 0 : 2 });
+      }
     }
     else if (B.st === 'rise'){
-      // the cloud draws down; the mask comes out of it; each rod in turn takes a small strike (so he sees them)
-      const u = Math.min(1, Math.max(0, (B.tm - 0.5) / 1.6)), e = u * u * (3 - 2 * u); B.my = stageY + 13 + (floatY - stageY - 13) * e; B.mx += (wantX - B.mx) * Math.min(1, dt * 1.5); eyeA = Math.max(0, (B.tm - 1.6) / 0.8);
-      const n = Math.floor((B.tm - 1.3) / 0.45);
-      while (B.rodN <= n && B.rodN < rods.length && n >= 0){ const r = rods[B.rodN++]; zap(r.x + (Math.random() - 0.5), cloudAt(r.x), r.x, stageY + TH.rodTip, 0.2, 1); r.ring = 0.5; fx.burst({ x: r.x, y: stageY + TH.rodTip }, 10, 0xfee761); events.push({ type: 'rockLand', at: { x: r.x, y: stageY + TH.rodTip - 0.5 } }); B.flash = 0.15; }
-      if (B.tm > 3.1){ B.st = 'fight'; B.tm = 0; go('idle'); B.cd = 0.9; }
+      // it comes (TH.rise): it does him no harm yet. It only means him to see it
+      const Q = TH.rise, t = B.tm, ct = t - Q.clap;
+      if (B.rum === 0 && t > 0.05){ B.rum = 1; events.push({ type: 'bossSweep', at: { x: P.x, y: stageY } }); }   // a long roll of thunder, far up
+      if (B.rum === 1 && t > 1.5){ B.rum = 2; events.push({ type: 'bossSweep', at: { x: P.x, y: stageY } }); }
+      if (ct < 0){
+        B.mx = clampX(P.x + (P.face || 1) * 2.2, 3);   // where it will break out: over him, in the middle of his view
+        // the gathering: light turning over inside the cloud, more and more often
+        if (t < Q.hush && Math.random() < dt * (1.2 + 3 * t / Q.hush)){ const x = B.eyeX + (Math.random() - 0.5) * 22; R.glint(x, stageY + 9.2 + Math.random() * 0.8, 0x8b9bb4, 0.45 + Math.random() * 0.45, 3.5, 0.14); }
+        // the eyes, one after another
+        while (B.seen < Q.eyes.length && t >= Q.eyes[B.seen]){ const S = seers[B.seen++], x = B.eyeX + S.dx, y = stageY + S.dy; events.push({ type: 'bossTell' }); R.glint(x, y, 0xc0cbdc, 0.7, 3, 0.35); fx.burst({ x, y: y - 0.2 }, 4, 0x8b9bb4); }
+        // lightning walks the rods, back and forth, faster and faster
+        B.hum = Math.max(0, Math.min(1, (t - Q.walk) / (Q.hush - Q.walk)));
+        while (t >= B.walkT && B.walkT < Q.hush){
+          const k = [0, 1, 2, 1][B.walkN++ % 4], r = rods[B.walkFrom ? 2 - k : k], tip = stageY + TH.rodTip;
+          zap(r.x + (Math.random() - 0.5) * 1.6, cloudAt(r.x), r.x, tip, 0.16, 1.1 + 0.8 * B.hum); zap(r.x + (Math.random() - 0.5), cloudAt(r.x), r.x, tip, 0.1, 0.6, 0xfee761); zap(r.x + 0.15, tip - 0.2, r.x - 0.1, stageY + 0.3, 0.12, 0.5, 0xfee761);
+          r.ring = 0.45; fx.burst({ x: r.x, y: tip }, 8, 0xfee761); R.glint(r.x, tip - 0.5, 0xfee761, 0.9, 5, 0.2); events.push({ type: 'rockLand', at: { x: r.x, y: stageY } });
+          B.walkT += B.walkGap; B.walkGap = Math.max(Q.gap[2], B.walkGap * Q.gap[1]);
+        }
+        // it holds its breath: the eyes shut, the cloud draws in, light gathers in it where it will break
+        if (t >= Q.hush){ const u = (t - Q.hush) / (Q.clap - Q.hush); R.glint(B.mx, stageY + 9.6, 0xfee761, 0.25 + 0.9 * u * u, 3 + 2 * u); if (Math.random() < dt * 10 * u) zap(B.mx + (Math.random() - 0.5) * 3, stageY + 9 + Math.random(), B.mx + (Math.random() - 0.5) * 3, stageY + 9.3 + Math.random(), 0.06, 0.5, 0x8b9bb4); }
+      }
+      else {
+        // the thunderclap: the mask breaks out of the cloud and comes down, the rods all struck at once
+        if (!B.clapped){ B.clapped = true; B.hum = 0; B.my = stageY + 11.4; B.flash = 0.08;
+          const fy = stageY + TH.maskY;
+          zap(B.mx - 0.7, stageY + 12, B.mx, fy + 1.2, 0.26, 1.5, 0xfee761); zap(B.mx + 0.8, stageY + 12, B.mx + 0.2, fy + 1.6, 0.18, 0.9);
+          for (const r of rods){ zap(B.mx, fy - 1.2, r.x, stageY + TH.rodTip, 0.26, 1.4, 0xfee761); r.ring = 0.8; fx.burst({ x: r.x, y: stageY + TH.rodTip }, 14, 0xfee761); }
+          fx.ring({ x: B.mx, y: fy }, 0xfee761); fx.burst({ x: B.mx, y: fy }, 40, 0xfee761); fx.burst({ x: B.mx, y: fy }, 16, 0xffffff); R.shock(B.mx, fy, true); R.glint(B.mx, fy, 0xfee761, 0.9, 7, 0.45);
+          events.push({ type: 'bossSlam', at: { x: B.mx, y: stageY } });
+        }
+        if (ct < 0.2){ const u = ct / 0.2; B.my = stageY + 11.4 + (floatY - 0.9 - stageY - 11.4) * u * u; }   // down out of it, fast
+        else { const s = ct - 0.2; B.my = floatY - 0.9 * Math.exp(-s * 4) * Math.cos(s * 9); }                   // and it hangs there, bobbing to rest
+        // its crown of lightning, crackling round it, dying down
+        const k = Math.max(0, 1 - ct / Q.crown), cy = B.my + 0.3;
+        if (k > 0){
+          const n = dt * (20 + 110 * k); for (let i = 0; i < Math.floor(n) + (Math.random() < n % 1 ? 1 : 0); i++){
+            const a = -0.35 + Math.random() * (Math.PI + 0.7), col = Math.random() < 0.6 ? 0xfee761 : 0xffffff;
+            if (Math.random() < 0.55){ const b = a + (Math.random() < 0.5 ? -1 : 1) * (0.3 + Math.random() * 0.3), r0 = 3 + Math.random() * 0.4, r1 = 3 + Math.random() * 0.4; zap(B.mx + Math.cos(a) * r0, cy + Math.sin(a) * r0, B.mx + Math.cos(b) * r1, cy + Math.sin(b) * r1, 0.09, 0.8, col); }   // round it
+            else zap(B.mx + Math.cos(a) * 2.6, cy + Math.sin(a) * 2.6, B.mx + Math.cos(a) * (3.5 + k), cy + Math.sin(a) * (3.5 + k), 0.09, 0.7, col);   // and out from it, the crown's points
+          }
+          R.glint(B.mx, cy, 0xfee761, 0.7 * k, 6); if (Math.random() < dt * 30 * k) fx.burst({ x: B.mx + (Math.random() - 0.5) * 6, y: cy + Math.random() * 3 }, 1, 0xfee761);
+        }
+        eyeA = Math.min(1, ct / 0.12); mouthA = 0.9 * k;
+      }
+      if (t > Q.end){ B.st = 'fight'; B.tm = 0; go('idle'); B.cd = 0.9; }
     }
     else if (B.st === 'die'){
       // the cloud tears, lightning everywhere; the mask drops and breaks; its heart goes out
@@ -210,13 +263,18 @@ export function makeThunderhead(scene, R){
       }
       else if (r.st === 'live' && B.st === 'fight'){
         r.t += dt; const left = r.live - r.t; ga = 0.85 + 0.15 * Math.sin(r.t * 18); gc = 0xfff2b0; em = 1;
-        if (Math.random() < dt * 22){ const a = Math.random() * TH.rodTip, sx = (Math.random() - 0.5) * 0.9; zap(r.x + sx, stageY + a, r.x - sx, stageY + Math.min(TH.rodTip, a + 0.8 + Math.random() * 1.2), 0.06, 0.5, 0xfee761); }   // it crawls with light if (left < 0.7 && Math.floor(r.t * 14) % 2) ga *= 0.45;   // it gutters before it goes out
+        if (Math.random() < dt * 22){ const a = Math.random() * TH.rodTip, sx = (Math.random() - 0.5) * 0.9; zap(r.x + sx, stageY + a, r.x - sx, stageY + Math.min(TH.rodTip, a + 0.8 + Math.random() * 1.2), 0.06, 0.5, 0xfee761); }   // it crawls with light
+        if (left < 0.7 && Math.floor(r.t * 14) % 2) ga *= 0.45;   // it gutters before it goes out
         ba = 1; r.blip.position.y = stageY + TH.rodTip - 0.2;
         if (Math.random() < dt * 16) fx.burst({ x: r.x + (Math.random() - 0.5) * 0.8, y: stageY + 0.5 + Math.random() * TH.rodTip }, 1, 0xfee761);
         if (Math.floor(r.t / 0.5) !== Math.floor((r.t - dt) / 0.5)) fx.ring({ x: r.x, y: stageY + 2.3 }, 0xfee761);
         R.glint(r.x, stageY + 2.6, 0xfff0a0, 0.9, 6.5);
         if (left <= 0){ r.st = 'off';
           if (B.phase === 2){ for (const d of [-1, 1]){ const m = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.0), additive(glowTex, 0xfee761, 0.9)); m.position.set(r.x, stageY + 0.4, 0.45); scene.add(m); B.arcs.push({ x: r.x, x0: r.x, d, m, hit: false }); } events.push({ type: 'rockLand', at: { x: r.x, y: stageY } }); } }
+      }
+      else if (B.st === 'rise' && B.hum > 0){   // its coming: the rods hum with what is walking them, light climbing them
+        ga = Math.max(ga, 0.08 + 0.3 * B.hum); em = Math.max(em, 0.45 * B.hum); ba = 0.35 + 0.45 * B.hum;
+        r.blip.position.y = B.tm >= TH.rise.hush ? stageY + TH.rodTip - 0.2 : stageY + 0.6 + ((B.tm * (0.8 + B.hum * 3) + r.i * 0.37) % 1) * (TH.rodTip - 0.8);
       }
       r.g.material.opacity = ga; r.g.material.color.setHex(gc); r.blip.material.opacity = ba; r.warn.material.opacity = wa;
       { const k = Math.min(1, em); r.m.material.emissive.setRGB(k * 0.85, k * 0.7, k * 0.25); }
@@ -243,14 +301,33 @@ export function makeThunderhead(scene, R){
     B.windA += ((wantWind ? Math.min(1, Math.abs(wantWind)) : 0) - B.windA) * Math.min(1, dt * 5); if (wantWind) B.wind = Math.sign(wantWind);
     { const cam = R.camera.position; for (const s of streaks){ s.ox += (B.wind || 1) * s.v * dt; if (s.ox > 12) s.ox -= 24; else if (s.ox < -12) s.ox += 24; s.m.position.x = cam.x + s.ox; s.m.position.y = cam.y + s.oy; s.m.material.opacity = B.windA * 0.5; s.m.visible = B.windA > 0.02; } }
     // ---- draw it
-    const awake = B.st === 'rise' || B.st === 'fight' || B.st === 'die', dead = B.st === 'dead', calm = B.st === 'dormant' ? 1 : B.st === 'rise' ? Math.max(0, 1 - B.tm / 1.2) : 0;
+    const awake = B.st === 'rise' || B.st === 'fight' || B.st === 'die', dead = B.st === 'dead', Q = TH.rise, rising = B.st === 'rise', cT = B.tm - Q.clap;
+    const ss = u => { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); };
+    const calm = B.st === 'dormant' ? 1 : rising ? 1 - ss(B.tm / Q.gather) : 0;
+    // as it comes the cloud blackens, swells and churns; it draws in before the clap, and the clap splits it open round the mask
+    const blk = rising ? (cT < 0 ? 0.85 * ss(B.tm / (Q.gather + 0.4)) : 0.85 * (1 - ss(cT / 1.1))) : 0;
+    const swell = rising ? (cT < 0 ? 0.1 * ss(B.tm / Q.gather) - (B.tm > Q.hush ? 0.04 * ss((B.tm - Q.hush) / 0.4) : 0) : (0.06 + 0.06 * Math.max(0, 1 - cT / 0.5)) * (1 - ss((cT - 0.3) / 0.8))) : 0;
+    B.churn += ((rising && B.tm < Q.hush ? ss(B.tm / Q.gather) * (1 + 0.6 * (B.hum || 0)) : 0) - B.churn) * Math.min(1, dt * 3);
+    B.split = rising ? (cT < 0 ? -0.3 * ss((B.tm - Q.hush) / (Q.clap - Q.hush)) : Math.min(1, cT / 0.1) * Math.max(0, 1 - ss((cT - 0.15) / 1.0))) : 0;
     for (const p of puffs){
       if (p.dead) continue;
-      const lean = B.windA * (B.wind || 0) * (p.back ? 0.25 : 0.5);
-      p.m.position.x = Math.round((p.x + Math.sin(B.tm * 0.5 + p.ph) * 0.35 + lean) * 16) / 16; p.m.position.y = Math.round((p.y + calm * 1.3 + (dead ? 1.5 : 0) + Math.sin(B.tm * 0.9 + p.ph) * p.amp) * 16) / 16;
-      const s = p.k * (1 + Math.sin(B.tm * 0.7 + p.ph * 2) * 0.03); p.m.scale.set(s, s, 1);
+      const lean = B.windA * (B.wind || 0) * (p.back ? 0.25 : 0.5), dx = p.x - B.mx, open = B.split * Math.exp(-dx * dx / 20) * (p.back ? 0.5 : 1);
+      const cx2 = Math.sin(B.tm * 2.3 + p.ph * 1.7) * 0.3 * B.churn + Math.sign(dx) * 2 * open, cy2 = Math.sin(B.tm * 2.9 + p.ph) * 0.18 * B.churn + Math.max(0, open) * 0.9;
+      p.m.position.x = Math.round((p.x + Math.sin(B.tm * 0.5 + p.ph) * 0.35 + lean + cx2) * 16) / 16; p.m.position.y = Math.round((p.y + calm * 1.3 + (dead ? 1.5 : 0) + Math.sin(B.tm * 0.9 + p.ph) * p.amp + cy2) * 16) / 16;
+      const s = p.k * (1 + Math.sin(B.tm * 0.7 + p.ph * 2) * 0.03) * (1 + swell); p.m.scale.set(s, s, 1);
+      p.m.material.color.copy(p.c0).lerp(p.c1, blk);
     }
-    mask.visible = awake || (dead && B.down); mask.position.set(Math.round(B.mx * 16) / 16, Math.round(B.my * 16) / 16, dead ? -0.2 : -0.6); mask.rotation.z = B.tilt; mask.material.emissive.setHex(B.flash > 0.02 && B.st !== 'die' ? 0x404860 : 0x000000);
+    // the eyes in the cloud: open one by one, on him; narrowed as the rods are walked; shut, all, before the clap
+    seers.forEach((S, k) => {
+      const o = rising ? ss((B.tm - Q.eyes[k]) / 0.18) * (1 - ss((B.tm - Q.hush - k * 0.05) / 0.08)) : 0, show = o > 0.01;
+      const blink = Math.sin(B.tm * 1.7 + k * 2.1) > 0.985 ? 0.1 : 1, x0 = B.eyeX + S.dx + Math.sin(B.tm * 2.3 + k * 1.3) * 0.3 * B.churn, y0 = stageY + S.dy + calm * 1.3 + Math.sin(B.tm * 2.9 + k) * 0.12 * B.churn;
+      const lk = Math.max(-1, Math.min(1, (P.x - x0) / 8));
+      S.ms.forEach((m, j) => { m.visible = show; if (!show) return;
+        m.position.set(x0 + (j ? 1 : -1) * 0.6 * S.s + lk * 0.12, y0 - 0.06, -0.26); m.rotation.z = (j ? 0.4 : -0.4) + lk * 0.12;
+        m.scale.set(S.s * (1 + 0.15 * (B.hum || 0)), S.s * o * blink * (1 - 0.35 * (B.hum || 0)), 1); m.material.opacity = 0.9 + 0.1 * (B.hum || 0); });
+    });
+    { const u = rising && !B.clapped ? ss((B.tm - Q.hush + 0.3) / (Q.clap - Q.hush + 0.3)) : 0; brew.visible = u > 0; brew.position.set(B.mx, stageY + 9.1 + calm * 1.3, -0.2); brew.scale.set(0.6 + 0.6 * u, 0.6 + 0.6 * u, 1); brew.material.opacity = u * u * (0.45 + 0.15 * Math.sin(B.tm * 37)); }
+    mask.visible = (awake && !(rising && !B.clapped)) || (dead && B.down); mask.position.set(Math.round(B.mx * 16) / 16, Math.round(B.my * 16) / 16, dead ? -0.2 : -0.6); mask.rotation.z = B.tilt; mask.material.emissive.setHex(B.flash > 0.02 && B.st !== 'die' ? 0x404860 : 0x000000);
     const ct = Math.cos(B.tilt), stt = Math.sin(B.tilt), on = (lx, ly) => [B.mx + lx * ct - ly * stt, B.my + lx * stt + ly * ct];
     eyes.forEach((m, k) => { const [ex, ey] = on((k ? 1.01 : -1.01) + B.look * 0.13, -0.07); m.position.set(ex, ey, -0.55); m.rotation.z = B.tilt + (k ? 0.38 : -0.38); m.material.opacity = mask.visible && !dead ? eyeA * (0.85 + 0.15 * Math.sin(B.tm * 9)) : 0; m.material.color.setHex(eyeCol); });
     { const [qx, qy] = on(0, -1.4); mouth.position.set(qx, qy, -0.55); mouth.rotation.z = B.tilt; mouth.material.opacity = mask.visible && !dead ? mouthA * (0.6 + 0.4 * Math.sin(B.tm * 12)) : 0; }
@@ -262,9 +339,9 @@ export function makeThunderhead(scene, R){
       if (vis) R.glint(B.kx, B.ky, 0xffd27a, 0.7 * B.out + B.flash * 2, 6);
       // the cloud it trails as it comes down
       tether.forEach((m, k) => { const f = (k + 1) / 4, show = (B.mode === 'fall' || B.mode === 'down' || B.mode === 'up') && B.st === 'fight' && B.my < stageY + TH.maskY - 1; m.visible = show; if (show){ m.position.x = B.mx + Math.sin(B.tm * 1.1 + k) * 0.3 + (B.fromX - B.mx) * f * 0.5; m.position.y = B.my + 1.6 + (stageY + TH.cloudY - B.my - 1.6) * f; m.scale.setScalar(0.8 + f * 0.5); } }); }
-    const lit = awake ? (B.st === 'rise' ? Math.min(1, B.tm / 2) : B.st === 'die' ? Math.max(0, 1 - B.tm / 3) : 1) : 0;
+    const lit = awake ? (rising ? (B.clapped ? Math.min(1, cT / 0.15) : 0) : B.st === 'die' ? Math.max(0, 1 - B.tm / 3) : 1) : 0;
     light.position.set(B.mx, B.my - 0.4, 2.2); light.intensity = lit * (0.55 + 0.1 * Math.sin(B.tm * 7)) + B.flash * 7; light.color.setHex(B.phase === 2 && B.st === 'fight' ? 0xffb0a0 : 0xbfd8ff);
-    if (awake) R.glint(B.mx, B.my, B.phase === 2 ? 0xff9080 : 0xbfd8ff, lit * 0.4 * (1 - weak * 0.6) + B.flash * 4, 8);
+    if (awake && mask.visible) R.glint(B.mx, B.my, B.phase === 2 ? 0xff9080 : 0xbfd8ff, lit * 0.4 * (1 - weak * 0.6) + B.flash * 4, 8);
     if (dead && inRoom) R.glint(cx, stageY + 7, 0xcfe0ff, 0.55, 26);   // the sky, a little clearer
   };
 
