@@ -35,8 +35,9 @@ const DEF = {
   burrower: { ai: 'burrower', hp: 2, w: 0.6, h: 1.1, color: 0xd0a070, wake: 6, plough: 6, rise: 0.3, up: 1.4, art: 'burrower', fly: false },
   acolyte:  { ai: 'crawler', hp: 5, w: 0.6, h: 1.9, color: 0xa22633, wake: 8, reach: 2.1, chase: 2.0, windup: 0.62, lunge: 0.2, lungeDist: 1.5, recover: 0.8, stun: 0.5, hitR: 1.2, art: 'px_acolyte', fly: false, word: 'Struck' },
   // the Ossuary's elite (regions/ossuary.js): the house's sexton, a head taller than his men, slow to start and hard to
-  // stop, two hearts a blow. Blocked, he staggers; turned at the right moment, he is open a long while. scale: drawn larger
-  sexton:   { ai: 'crawler', hp: 18, w: 0.9, h: 2.8, color: 0x6b3f2a, wake: 9, reach: 3.0, chase: 1.9, windup: 0.8, lunge: 0.26, lungeDist: 2.8, recover: 0.9, stun: 0.5, hitR: 1.6, dmg: 2, scale: 1.5, art: 'px_acolyte', fly: false, word: 'Buried' },
+  // stop, two hearts a blow of his spade. Blocked, he staggers; turned at the right moment, he is open a long while.
+  // (scale: a creature drawn that much larger, its feet kept on the floor; none needs it now)
+  sexton:   { ai: 'crawler', hp: 18, w: 0.8, h: 3.0, color: 0x6b3f2a, wake: 9, reach: 3.0, chase: 1.9, windup: 0.8, lunge: 0.26, lungeDist: 2.8, recover: 0.9, stun: 0.5, hitR: 1.6, dmg: 2, art: 'px_sexton', fly: false, word: 'Buried' },
   gargoyle: { ai: 'flitter', hp: 3, w: 0.55, h: 0.9, color: 0x8b9bb4, wake: 6, circle: 1.5, dive: 0.6, commit: 0.34, leave: 1.0, perch: true, art: 'px_gargoyle', fly: true, word: 'Clawed' },
   wisp:     { ai: 'spitter', hp: 2, w: 0.45, h: 0.8, color: 0xf77622, range: 9, charge: 0.8, speed: 9, cooldown: 2.4, burst: 2, hover: true, orb: 0xfeae34, an: { charge: 'cast', idle: 'float' }, art: 'px_wisp', fly: true, word: 'Burned' },
   yeti:     { ai: 'thrower', hp: 6, w: 0.7, h: 1.8, color: 0xc0cbdc, wake: 10, range: 9, keep: 4.5, chase: 1.7, windup: 0.7, recover: 0.7, cooldown: 1.9, stun: 0.45, orb: 0x2ce8f5, an: { attack: 'throw' }, art: 'px_yeti', fly: false, word: 'Struck by ice' },

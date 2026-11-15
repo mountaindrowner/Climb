@@ -960,5 +960,21 @@
     "group": "20ff4d72-7cd4-4c38-9eb5-419ea81657b8"
    }
   }
+ },
+ "px_sexton": {
+  "id": "08f10301-3ec9-44e5-ae42-791d20214e5c",
+  "description": "a tall gaunt gravedigger in a long tattered dark brown monk's robe tied with a rope belt, deep hood over a pale bony face with two dim yellow eyes, a ring of iron keys at his belt, holding a long iron spade, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "walk": {
+    "action": "template:walking-6-frames",
+    "frames": 6,
+    "group": "fc9dabd0-0eae-48da-8ca4-975a2a94f348"
+   },
+   "attack": {
+    "action": "raising the long iron spade high overhead with both hands, then bringing it down hard in front of him like digging a grave, then hauling it back up",
+    "frames": 8,
+    "group": "c15a9433-3efc-4f94-90f5-d2004c9b95eb"
+   }
+  }
  }
 }
