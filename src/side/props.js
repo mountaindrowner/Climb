@@ -77,7 +77,7 @@ function apseTex(){
   // water stains down the stones, and moss at the foot
   for (let k = 0; k < 14; k++){ const x = Math.floor(r() * W), y0 = Math.floor(r() * 60) + 30, L = 8 + Math.floor(r() * 30); for (let y = y0; y < Math.min(base, y0 + L); y++){ const p = g.getImageData(x, y, 1, 1).data; if (p[3] && !inNiche(x, y)) px(g, (y + x) % 3 ? PAL.navy : PAL.teal, x, y); } }
   for (let x = 0; x < W; x++){ const p = g.getImageData(x, base - 1, 1, 1).data; if (p[3] && r() < 0.5) px(g, r() < 0.5 ? PAL.moss1 : PAL.moss0, x, base - 1 - Math.floor(r() * 2), 1, 2); }
-  return texOf(c);
+  feather(c, 6, 4); return texOf(c);
 }
 // ---- what stands behind each region's raising water (the Roots' is the apse, above). Each is drawn in the palette,
 // standing on the floor behind the water, and says where the water comes from: `src` are the points it falls from
@@ -105,7 +105,8 @@ const BACK = {
       const half = 44 - Math.max(0, (y - top) < 10 ? (10 - (y - top)) * 2.2 : 0) + Math.sin(y * 0.5) * 2;
       const d = Math.abs(x - cx); if (d > half) continue;
       const inner = d < half - 6 && y > top + 6, b = B4[(y & 3) * 4 + (x & 3)] / 16, l = Math.max(0, 1 - (base - y) / 50);
-      px(g, !inner ? (d > half - 2 || y < top + 2 ? PAL.ink : (x + y) % 5 ? PAL.pale : PAL.white) : l > 0.5 && b < (l - 0.5) * 2 ? PAL.cyan : b < 0.3 ? PAL.navy : PAL.deep, x, y);
+      if (inner){ if (l > 0.5 && b < (l - 0.5) * 2) px(g, PAL.cyan, x, y); else if (b < 0.18) px(g, PAL.navy, x, y); continue; }   // inside: the room's own wall shows, the cold over it here and there
+      px(g, d > half - 2 || y < top + 2 ? PAL.ink : (x + y) % 5 ? PAL.pale : PAL.white, x, y);
     }
     const tips = [];
     for (let k = 0; k < 9; k++){ const x = Math.round(cx - 30 + k * 7.5), L = 6 + ((k * 7) % 11); for (let y = 0; y < L; y++){ const w = Math.max(1, Math.round(3 - y * 3 / L)); px(g, PAL.ink, x - w, top + 6 + y, w * 2 + 1, 1); px(g, y < L - 2 ? PAL.pale : PAL.white, x - w + 1, top + 6 + y, Math.max(1, w * 2 - 1), 1); } if (k % 3 === 1) tips.push({ x: x - cx, y: H - (top + 6 + L), kind: 'drip' }); }
@@ -114,8 +115,6 @@ const BACK = {
   // the Last Hut's path: the climbers' iron pipe down the rock, catching the rain off the scree, its mouth over the water
   pipe(g, W, H){
     const cx = W / 2;
-    // the rock face behind, rough
-    for (let y = 20; y < H; y++) for (let x = 6; x < W - 6; x++){ const e = 6 + Math.abs(Math.sin(y * 0.3)) * 4; if (x < e || x > W - e) continue; px(g, ((x * 7 + y * 3) % 11) < 2 ? PAL.mid : ((x >> 2) + (y >> 3)) % 3 ? PAL.dark : PAL.deep, x, y); }
     // the pipe: down from the top left, a bend, along, and down to its mouth, riveted, rusted
     const seg = (x, y, w, h) => { px(g, PAL.ink, x - 1, y - 1, w + 2, h + 2); px(g, PAL.rust, x, y, w, h); px(g, PAL.fire0, x, y + (h > w ? 0 : h - 1), w > h ? w : 1, w > h ? 1 : h); };
     seg(16, 0, 5, 40); seg(16, 36, cx - 14, 5); seg(cx - 1, 36, 5, 22);
@@ -126,7 +125,8 @@ const BACK = {
   // the Breach: the garden's spring, out of a carved spout in the broken wall, the vines down over it
   spout(g, W, H){
     const cx = W / 2;
-    for (let y = 26; y < H; y++) for (let x = 10; x < W - 10; x++){ const top = 26 + Math.abs(Math.sin(x * 0.21)) * 10; if (y < top) continue; const edge = y < top + 1 || x < 11 || x > W - 12; px(g, edge ? PAL.ink : (y % 9 === 0 || (x + (Math.floor(y / 9) % 2) * 6) % 12 === 0) ? PAL.deep : (x + y) % 7 ? PAL.mid : PAL.light, x, y); }
+    const ragL = y => 14 + Math.round(Math.abs(Math.sin(y * 0.37)) * 6 + (Math.floor(y / 9) % 2) * 3), ragR = y => W - 14 - Math.round(Math.abs(Math.sin(y * 0.29 + 1)) * 6 + (Math.floor(y / 9) % 2) * 3);   // the wall's broken ends, course by course
+    for (let y = 26; y < H; y++) for (let x = ragL(y); x < ragR(y); x++){ const top = 26 + Math.abs(Math.sin(x * 0.21)) * 10; if (y < top) continue; const edge = y < top + 1 || x === ragL(y) || x === ragR(y) - 1; px(g, edge ? PAL.ink : (y % 9 === 0 || (x + (Math.floor(y / 9) % 2) * 6) % 12 === 0) ? PAL.deep : (x + y) % 7 ? PAL.mid : PAL.light, x, y); }
     // the spout: a carved lip out of the wall, a leaf over it
     px(g, PAL.ink, cx - 6, 48, 12, 7); px(g, PAL.pale, cx - 5, 49, 10, 2); px(g, PAL.light, cx - 5, 51, 10, 3); px(g, PAL.ink, cx - 2, 54, 4, 2);
     for (let k = 0; k < 7; k++){ px(g, PAL.moss1, cx - 3 + k, 44 - Math.abs(k - 3), 1, 3); } px(g, PAL.moss2, cx, 41, 1, 2);
@@ -155,7 +155,21 @@ const BACK = {
     return [{ x: 2.5, y: H - 47, kind: 'stream' }];
   },
 };
-function backTex(look){ const W = 96, H = 100, c = cnv(W, H), g = c.getContext('2d'), src = BACK[look](g, W, H); return { tex: texOf(c), w: W, h: H, src }; }
+const SLAB = new Set(['arch', 'spout']);   // the pieces that are a broad slab of stone: their edges let go into the room. The rest are drawn in lines (a ring, a pipe, a frame, icicles), which the fade would only break
+function backTex(look){ const W = 96, H = 100, c = cnv(W, H), g = c.getContext('2d'), src = BACK[look](g, W, H); if (SLAB.has(look)) feather(c, 7, 3); return { tex: texOf(c), w: W, h: H, src }; }
+// a piece's edges let go into the room in the dither the painting uses, rather than stopping on a line: each pixel within
+// `r` of the piece's outside (or the canvas's sides and top) is kept by the ordered dither, more surely the further in.
+// The bottom `keep` rows stand on the floor and are left whole
+function feather(c, r, keep){
+  const W = c.width, H = c.height, g = c.getContext('2d', { willReadFrequently: true }), im = g.getImageData(0, 0, W, H), d = im.data, a = new Uint8Array(W * H);
+  for (let k = 0; k < W * H; k++) a[k] = d[k * 4 + 3] > 40 ? 1 : 0;
+  const dist = new Float32Array(W * H).fill(r + 1);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++){ if (!a[y * W + x]) continue; let m = Math.min(x + 1, W - x, y + 1, r + 1);
+    for (let dy = -r; dy <= r && m > 1; dy++) for (let dx = -r; dx <= r; dx++){ const xx = x + dx, yy = y + dy; if (xx < 0 || yy < 0 || xx >= W || yy >= H) continue; if (!a[yy * W + xx]){ const q = Math.hypot(dx, dy); if (q < m) m = q; } }
+    dist[y * W + x] = m; }
+  for (let y = 0; y < H - keep; y++) for (let x = 0; x < W; x++){ const k = y * W + x; if (!a[k] || dist[k] > r) continue; if (B4[(y & 3) * 4 + (x & 3)] / 16 > dist[k] / r) d[k * 4 + 3] = 0; }
+  g.putImageData(im, 0, 0);
+}
 // Ordric's lamp over the raising water: an iron hook on a post at its edge, the lantern hung out over it
 function hookTex(){
   const c = cnv(26, 60), g = c.getContext('2d');
@@ -164,6 +178,15 @@ function hookTex(){
   px(g, PAL.ink, 7, 7, 1, 5);                                                                    // the chain
   px(g, PAL.ink, 3, 12, 9, 10); px(g, PAL.fire2, 4, 13, 7, 8); px(g, PAL.fire3, 5, 14, 5, 5); px(g, PAL.white, 6, 15, 2, 2); px(g, PAL.ink, 7, 12, 1, 10);   // the lantern
   px(g, PAL.ink, 18, 57, 10, 3); return texOf(c);
+}
+// the lip at one end of the water (s: -1 its left end, 1 its right): worn stone, rounded where the water meets it, a bright
+// line of the water's edge against it
+function lipTex(s){
+  const W = 6, H = 13, c = cnv(W, H), g = c.getContext('2d');
+  for (let y = 0; y < H; y++){ const w = y < 2 ? 3 + y : y < 9 ? 5 : Math.max(2, 5 - (y - 8)); for (let k = 0; k < w; k++){ const x = s > 0 ? W - 1 - k : k, edge = k === w - 1 || y === 0;
+    px(g, edge ? PAL.ink : (k + y) % 4 === 0 ? PAL.light : y < 3 ? PAL.pale : PAL.mid, x, y); }
+    if (y >= 3 && y < 9){ const x = s > 0 ? W - 1 - w : w; px(g, y === 3 ? PAL.white : PAL.cyan, x, y); } }   // the water's edge, lit, against the stone
+  return texOf(c);
 }
 // a falling thread of water: bright dashes on a faint line, repeating, run downward
 function fallTex(){ const c = cnv(1, 32), g = c.getContext('2d'); for (let y = 0; y < 32; y++) px(g, y % 8 < 3 ? PAL.white : y % 8 < 5 ? PAL.pale : PAL.cyan, 0, y); const t = texOf(c); t.wrapT = THREE.RepeatWrapping; return t; }
@@ -217,7 +240,9 @@ export function makeProps(scene, R){
   const pools = [], hookT = hookTex();
   for (const mk of LEVEL.marks) if (mk.type === 'pool'){
     const w = (mk.w || 8) * T, x = mk.x * T + w / 2, y = mk.y * T, wpx = Math.round(w * PPU), deep = 10, wt = waterTex(wpx, deep);
-    const water = new THREE.Mesh(new THREE.PlaneGeometry(w, deep / PPU), basic(wt, { opacity: 0.8 })); water.position.set(x, y + T + 2 / PPU - deep / 2 / PPU, 0.07); scene.add(water);   // before him: he stands in it
+    const water = new THREE.Mesh(new THREE.PlaneGeometry(w - 4 / PPU, deep / PPU), basic(wt, { opacity: 0.8 })); water.position.set(x, y + T + 2 / PPU - deep / 2 / PPU, 0.07); scene.add(water);   // before him: he stands in it
+    // its two ends: a worn stone lip each, the water's edge curling against it, so it sits in a basin and does not stop on a line
+    for (const s of [-1, 1]){ const L = new THREE.Mesh(new THREE.PlaneGeometry(6 / PPU, (deep + 3) / PPU), basic(lipTex(s), { opacity: 1 })); L.position.set(x + s * (w / 2 - 1 / PPU), y + T + 3.5 / PPU - (deep + 3) / 2 / PPU, 0.072); scene.add(L); }
     if (mk.plain){ pools.push({ x, y, w, water, wt, plain: true, falls: [], motes: [] }); continue; }
     const look = mk.look || 'apse', floor = y + T;
     let src;

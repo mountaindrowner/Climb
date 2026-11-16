@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Phase 2: the water (latest).** Every rest point is water now (`docs/roadmap.md`, decisions 0.1 and 0.2).
+**The water's edges softened (latest).** The raising pools met the room on hard lines. Now each end of the water has a worn stone lip, the water's lit edge curling against it, so it sits in a basin; the broad stone pieces behind (the founders' niche, the garden wall, the Roots' apse) let go into the room in the painting's own dither instead of stopping on a line; the garden wall's ends are broken course by course; the Spires' ice is a rim of ice and icicles with the room's wall showing through, not a dark block; the Tempest's pipe stands on the room's own rock, without a panel. The pieces drawn in lines (the brass ring, the pipe, the trough's frame, the icicles) are left sharp.
+
+**Phase 2: the water.** Every rest point is water now (`docs/roadmap.md`, decisions 0.1 and 0.2).
 - **One raising pool a region,** near where he comes in, each of its own place: the Roots' sacred pool under its arch; the Crypt Stair's water under the founders' pointed niche, run from a carved shell; meltwater under the Bell Road's gate, dripping from icicles; the Last Hut path's rain, caught by the climbers' iron pipe; the Breach's spring out of the broken garden wall, under the vines; a still pool at the Long Stair's foot under a brass ring, the stars in it; the Workings' trough under the hewers' pipe. Ordric's lamp hangs on its hook over each.
 - **A fall raises him there,** so a keeper is a real walk back (18 to 35 s at a run from the water to the stage, before the creatures). The tests now check every region has its raising water near where he comes in and its keeper within 60 s of it.
 - **The other flames are leaks:** water seeping from a crack in the rock into a stone bowl, a soft cold light. They mend him and fill the flask; they do not raise him. The knots can be chosen at either.
