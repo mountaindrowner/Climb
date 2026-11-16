@@ -32,6 +32,24 @@ function rockIn(x0, y0, x1, y1){   // any rock tile overlapping the box (edges e
   return false;
 }
 const boxRock = (P, x, y, h = P.h) => rockIn(x - BODY.hw, y, x + BODY.hw, y + h);
+// something else moving him sideways (a creature he walks into): as far toward x as the rock lets him, never into it.
+// Returns whether he got all the way
+export function shove(P, x){
+  if (!boxRock(P, x, P.y)){ P.x = x; return true; }
+  const d = Math.sign(x - P.x); let at = P.x;
+  for (let k = 0; k < 40; k++){ const n = at + d * 0.02; if ((x - n) * d < 0 || boxRock(P, n, P.y)) break; at = n; }
+  P.x = at; return false;
+}
+// the safety net: if he is ever inside rock (whatever put him there), out to the nearest open place, sideways first,
+// then up; so nothing can leave him stuck in a wall
+function unstick(P){
+  const h = Math.min(P.h, BODY.crouch);
+  if (!rockIn(P.x - BODY.hw, P.y + 0.02, P.x + BODY.hw, P.y + h)) return;
+  for (let r = 0.05; r <= 2.5; r += 0.05) for (const [dx, dy] of [[r, 0], [-r, 0], [0, r], [r, r], [-r, r]]){
+    const x = P.x + dx, y = P.y + dy;
+    if (!rockIn(x - BODY.hw, y + 0.02, x + BODY.hw, y + h)){ P.x = x; P.y = y; P.vx = 0; P.vy = Math.min(0, P.vy); P.grounded = false; return; }
+  }
+}
 // what holds his feet up at height y: rock, or a ledge (unless he is dropping through ledges)
 function support(P, x, y){
   const j = ty(y - 0.02); if (Math.abs((j + 1) * T - y) > 0.03) return null;
@@ -94,6 +112,7 @@ export function stepPlayer(P, dt){
   if (P.grounded || P.mantle){ P.airJumps = FEEL.doubleJump ? 1 : 0; P.airDash = 1; P.glide = false; }
   P.dashT = Math.max(0, P.dashT - dt);
   const stunned = P.hurtT > 0;
+  if (!P.mantle) unstick(P);
 
   // ---- hauling himself up onto an edge: it carries him
   if (P.mantle){
@@ -105,7 +124,7 @@ export function stepPlayer(P, dt){
 
   // ---- presses
   if (consume('jump')){
-    if (P.grounded && H.down && support(P, P.x, P.y) === LEDGE){ P.drop = 0.25; P.grounded = false; P.y -= 0.03; ev(P, 'dropThrough'); }   // down + jump: through a ledge
+    if (P.grounded && H.down && support(P, P.x, P.y) === LEDGE){ P.drop = 0.25; P.dropping = true; P.grounded = false; P.y -= 0.03; ev(P, 'dropThrough'); }   // down + jump: through a ledge
     else if (!P.grounded && P.coyote <= 0 && !stunned && P.airJumps > 0 && !(P.vy <= 0 && heightAbove(P) < -P.vy * MV.buffer + 0.25)){
       P.airJumps--; takeOff(P, true); P.flip = MV.flip; P.dive = null; P.glide = false; ev(P, 'doubleJump');
     }
@@ -216,9 +235,11 @@ export function stepPlayer(P, dt){
     if (m){ P.vy = launchSpeed(BLOOM.height, MV.launch.ground); P.launch = MV.launch.ground; P.jumpT = 0; P.grounded = false; P.crouch = false; P.roll = 0; P.plant = 0; P.atk = null; P.bounce = true; P.airJumps = FEEL.doubleJump ? 1 : 0; P.airTop = P.y; ev(P, 'bloom', { m }); }
   }
   // ---- catching an edge in the air: a wall just ahead whose top is within reach above his feet
-  if (!P.grounded && FEEL.ledge && P.roll <= 0 && !stunned && !P.dive && P.vy < 5){
+  // (never while he is going down: dropping through a plank, or holding down, he means to fall past what is near)
+  if (!P.grounded && FEEL.ledge && P.roll <= 0 && !stunned && !P.dive && P.vy < 5 && !P.dropping && !H.down){   // dropping: from a drop through a plank until he lands
     const d = H.right ? 1 : H.left ? -1 : 0;
     if (d) tryMantle(P, d);
+    if (!P.mantle) tryPlank(P);
   }
   if (P.grounded && spikesUnder(P)) hurt(P, 1, P.x - P.face, 'Spikes');
   // footfalls
@@ -260,6 +281,19 @@ function moveY(P, dy, yStart){
     }
   }
 }
+// a plank overhead, anywhere along it (not only at its end): his hands pass its top, and he hauls himself up through
+// it. A plank is passed from below, so what an edge allows at its end, its middle allows too
+function tryPlank(P){
+  const i = tx(P.x);
+  for (let j = ty(P.y + 0.3); j <= ty(P.y + MANTLE); j++){
+    if (tileAt(i, j) !== LEDGE) continue;
+    if (tileAt(i, j + 1) === ROCK) return;
+    const top = (j + 1) * T;
+    if (top - P.y < 0.35 || boxRock(P, P.x, top, BODY.stand) || boxRock(P, P.x, P.y, top - P.y + BODY.crouch)) return;
+    P.mantle = { t: 0, dur: Math.max(0.18, Math.min(0.4, 0.14 + 0.1 * (top - P.y))), x0: P.x, x1: P.x, y0: P.y, y1: top, wall: null, d: P.face }; P.vx = P.vy = 0; P.atk = null; P.flip = 0; ev(P, 'mantle');
+    return;
+  }
+}
 function tryMantle(P, d){
   const front = P.x + d * (BODY.hw + 0.12), i = tx(front);
   // the lowest top of a wall in front within reach: the tile there is solid, the one over it is open
@@ -276,7 +310,7 @@ function tryMantle(P, d){
   }
 }
 function landed(P){
-  let drop = P.airTop - P.y; P.airTop = P.y; P.flip = 0; P.bounce = false; P.glide = false;
+  let drop = P.airTop - P.y; P.airTop = P.y; P.flip = 0; P.bounce = false; P.glide = false; P.dropping = false;
   if (P.dive){ const art = !!P.dive.art; P.dive = null; P.plant = MV.dive.rec; P.vx = 0; P.landT = 0.2; drop -= MV.dive.soak; ev(P, 'slam', { art }); }
   else {
     P.landT = 0.12;

@@ -58,6 +58,8 @@ the Sexton becomes the Ossuary's elite with something else to give. To settle wh
 
 ## Phase 1: fix what is broken
 
+*Done (build 43).* One thing moved to phase 2: Ordric washed out by the flame beside him (the flames become water, with their own light).
+
 **Moving:**
 - He got stuck on a bump by Corwen. Fix that spot, then **add a stuck-finder**: the real motor walks and jumps from
   every floor tile in every region, and any place he cannot leave fails the build.

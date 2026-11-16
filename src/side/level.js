@@ -371,6 +371,27 @@ export const REGION_DATA = REGIONS;
 export const CLIMB_TOP = REGIONS.reduce((t, R, n) => R.deep ? t : n, 0);   // a region's own look, creatures and music, where its file has them (themeDef, deco, enemies, ai, songs)
 const QUIET = new Set(REGIONS.flatMap(r => r.quiet || []));   // a boss's stage stays flat (its blows run along it)
 
+// where the wear (organic) left a place he could wedge into and never leave, filled: found by the stuck-finder
+// (tests/helpers/stuck.mjs; tests/side-stuck.test.mjs fails on any new one). Whole tiles, x0 y0 x1 y1, by region
+const FILL = {
+  1: [[64, 109, 64, 112]],     // the Cloister's cells: a notch beside the narrow shaft
+  2: [[107, 150, 107, 153]],   // the Spires' teeth: a tooth of rock under an overhang
+};
+// what clings: a spitter to a wall, a lamprey to a roof (or, with none near, a wall). Each is put against the nearest
+// one, so none hangs in the air (a playtest found one): at its height, a wall within twelve tiles to either side; else
+// the nearest row up to six above or below that has one within four. enemies.js then sets the drawing against it
+export const CLINGS = { spitter: 'wall', lamprey: 'ceiling' };
+function clingers(tiles, W, H, marks){
+  const rock = (i, j) => i < 0 || j < 0 || i >= W || j >= H || tiles[j * W + i] === ROCK || tiles[j * W + i] === CRACKED;
+  const wallNear = (x, y, far) => { for (let k = 1; k <= far; k++) for (const s of [-1, 1]){ const at = x + s * (k - 1); if (rock(x + s * k, y + 1) && !rock(at, y + 1) && !rock(at, y) && !rock(at, y + 2)) return at; } return null; };   // open air where it goes
+  const roofNear = (x, y) => { for (let k = 1; k <= 17; k++) if (rock(x, y + k)) return y + k - 2; return null; };
+  for (const m of marks){
+    const kind = CLINGS[m.type]; if (!kind || rock(m.x, m.y)) continue;
+    if (kind === 'ceiling' && roofNear(m.x, m.y) !== null) continue;
+    const at = wallNear(m.x, m.y, 12); if (at !== null){ m.x = at; continue; }
+    for (let d = 1; d <= 6; d++){ let done = false; for (const dy of [d, -d]){ const w = wallNear(m.x, m.y + dy, 4); if (w !== null && !rock(w, m.y + dy)){ m.x = w; m.y += dy; done = true; break; } } if (done) break; }
+  }
+}
 function build(n){
   // a seam (seams.js) goes under the region's first room: the region is moved up by its rows, its rooms beneath
   const R = REGIONS[n], SEAM = SEAMS[n], LAYOUT = SEAM ? [...SEAM.layout, ...R.layout.map(l => [l[0], l[1] + SEAM.rows, ...l.slice(2)])] : R.layout;
@@ -396,16 +417,27 @@ function build(n){
   stations(tiles, W, H, marks, rooms, STATIONS[n]);
   const raw = tiles.slice();
   organic(tiles, W, H, marks, rooms, R.seed, R.wear);
+  for (const [x0, y0, x1, y1] of FILL[n] || []) for (let j = y0; j <= y1; j++) for (let i = x0; i <= x1; i++) tiles[j * W + i] = ROCK;   // the pockets the wear left
+  clingers(tiles, W, H, marks);
   // where a gargoyle sits: a stone corbel out of the nearest wall at its height, or, with no wall near, a plinth up from
   // the floor under it. Worked out once, here, so the painter draws the stone (paint.js) and the creature sits on it
   // (enemies.js); the stone stays when the creature is gone. perch: { x, y (where its feet are), side (-1 the wall to
   // its left, 1 to its right, 0 a plinth), wall, base }
   { const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i];
+    // never by one of the people (a playtest found a plinth through Ordric), and a plinth only on rock, never a plank
+    const people = marks.filter(k => k.type === 'npc'), clear = (x, y) => people.every(k => Math.abs(k.x - x) >= 8 || Math.abs(k.y - y) >= 12);
+    const corbel = (x, py, far) => { for (let k = 1; k <= far; k++) for (const s of [-1, 1]){ const i = x + s * k; if (at(i, py) === ROCK && at(i, py + 1) === ROCK && at(i - s, py) !== ROCK && at(i - s, py + 1) !== ROCK && at(i - s, py + 2) !== ROCK && clear(i - s * 2, py)) return { s, i }; } return null; };
     for (const m of marks) if (m.type === 'gargoyle'){
-      const py = m.y + 2; let best = null;
-      for (let k = 1; k <= 9 && !best; k++) for (const s of [-1, 1]){ const i = m.x + s * k; if (at(i, py) === ROCK && at(i, py + 1) === ROCK && at(i - s, py) !== ROCK && at(i - s, py + 1) !== ROCK && at(i - s, py + 2) !== ROCK){ best = { s, i }; break; } }
-      if (best) m.perch = { x: best.i - best.s * 2, y: py + 1, side: best.s, wall: best.i };
-      else { let j = m.y; while (j > 0 && at(m.x, j - 1) !== ROCK && at(m.x, j - 1) !== LEDGE) j--; m.perch = { x: m.x, y: Math.max(j + 4, Math.min(m.y + 2, j + 10)), side: 0, base: j }; }
+      const py = m.y + 2; let best = null, row = py;
+      // a corbel out of a wall: at its height, then a little above or below, then further across the room
+      for (const [dy, far] of [[0, 9], [1, 9], [-1, 9], [2, 9], [-2, 9], [3, 12], [-3, 12], [4, 14], [-4, 14], [6, 16], [-6, 16]]){ best = corbel(m.x, py + dy, far); if (best){ row = py + dy; break; } }
+      if (best){ m.perch = { x: best.i - best.s * 2, y: row + 1, side: best.s, wall: best.i }; continue; }
+      // else a plinth up from rock below, where the people are not, as near as can be
+      for (const dx of [0, 2, -2, 4, -4, 6, -6, 8, -8, 10, -10, 12, -12]){
+        const x = m.x + dx; let j = m.y; while (j > 0 && at(x, j - 1) !== ROCK && at(x, j - 1) !== LEDGE) j--;
+        if (at(x, j - 1) !== ROCK || at(x - 1, j - 1) !== ROCK || at(x + 1, j - 1) !== ROCK || !clear(x, j)) continue;   // its foot on rock, three wide
+        m.perch = { x, y: Math.max(j + 4, Math.min(m.y + 2, j + 8)), side: 0, base: j }; break;
+      }
     } }
   // what the motor asks about every step: the flowers' tiles, and the rising air (in world units)
   const pads = new Map(), updrafts = [];

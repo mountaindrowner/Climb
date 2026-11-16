@@ -60,6 +60,7 @@ for (const d of ['left', 'right']){
 PROGS.push((t, I) => { I.hold('down', true); if (t < 0.01) I.tap('jump'); });                                   // drop through a ledge
 PROGS.push((t, I) => { if (t < 0.01 || Math.abs(t - 0.3) < 0.008) I.tap('jump'); I.hold('jump', t < 0.8); });  // straight up through a ledge
 
+export { run, PROGS, DASH, LONG };   // for the stuck-finder (tests/helpers/stuck.mjs)
 const CACHE = new Map();
 export function graph(N, gifts = []){
   const key = N + ':' + [...gifts].sort().join(',');

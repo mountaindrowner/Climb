@@ -13,7 +13,7 @@
 //                  wraith    drifts at you through anything, rears, and rushes: cut it as it recovers (ai wraith)
 // Each is drawn with its PixelLab strips once they exist (tools/pixellab.py), a glowing stand-in before.
 import { T, ROCK, LEDGE, LEVEL, tileAt, REGION_DATA } from './level.js';
-import { hurt, isRollInv } from './motor.js';
+import { hurt, isRollInv, shove } from './motor.js';
 import { makeSprite } from './render.js';
 const THREE = window.THREE;
 const ground = (x, y) => {   // the floor under (x, y): the top of the first rock or ledge tile at or below y
@@ -84,13 +84,20 @@ function cling(e, meta){
   if (d.cling === 'wall'){ const w = wallAt(); if (!w) return;
     e.fixFace = -w.s; e.face = e.fixFace; e.x = e.home.x = w.x - w.s * ((A.cx - B.l) * P - P); }
   if (d.cling === 'ceiling'){
-    let ceil = null; for (let k = 0; k < 14; k++){ const ty = Math.floor(my / T) + k; if (solidAt(mx, (ty + 0.5) * T)){ ceil = ty * T; break; } }
+    let ceil = null; for (let k = 0; k < 18; k++){ const ty = Math.floor(my / T) + k; if (solidAt(mx, (ty + 0.5) * T)){ ceil = ty * T; break; } }
     if (ceil !== null){ const drawY = ceil - (A.foot - B.t) * P + P; e.y = e.home.y = drawY + d.h * 0.7; return; }
     const w = wallAt(); if (!w) return;   // turned a quarter, its tail to the wall
     e.rot = w.s < 0 ? -Math.PI / 2 : Math.PI / 2; e.fixFace = 1; e.face = 1; e.x = e.home.x = w.x - w.s * ((A.foot - B.t) * P * 0.5 - P);
   }
 }
 const LOB_G = 15;
+// can it see him: a straight line from its middle to his chest with no rock across it (a playtest saw creatures shoot
+// through walls). A lob arcs, so for a thrower the line is taken from a little above it
+function sees(e, P, lift = 0){
+  const x0 = e.x, y0 = e.y + (e.d.fly ? 0 : e.d.h * 0.6) + lift, x1 = P.x, y1 = P.y + 1.3, n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 0.25);
+  for (let k = 1; k < n; k++){ const u = k / n; if (tileAt(Math.floor((x0 + (x1 - x0) * u) / T), Math.floor((y0 + (y1 - y0) * u) / T)) === ROCK) return false; }
+  return true;
+}
 function shoot(E, e, P, lob){
   const col = e.d.orb || 0x9dff70, x0 = e.x + e.face * e.d.w * 0.6, y0 = e.d.fly ? e.y + (e.d.mouthY || 0) : e.y + e.d.h * 0.9;
   let vx, vy;
@@ -139,7 +146,7 @@ export function stepEnemies(E, P, dt, fx, events){
       else if (e.st === 'recover'){ if (e.tm >= e.d.recover) go('chase'); }
       else if (e.st === 'stunned'){ if (e.tm >= (e.stun || e.d.stun)) go('chase'); }
       // a body: standing, he cannot walk through it (a roll can)
-      if (P.roll <= 0 && Math.abs(P.x - e.x) < 0.55 && P.y < e.y + 0.7 && P.y > e.y - 0.5){ const side = Math.sign(P.x - e.x) || -e.face; P.x = e.x + side * 0.55; if (Math.sign(P.vx) === -side) P.vx = 0; }
+      if (P.roll <= 0 && Math.abs(P.x - e.x) < 0.55 && P.y < e.y + 0.7 && P.y > e.y - 0.5){ const side = Math.sign(P.x - e.x) || -e.face; if (!shove(P, e.x + side * 0.55)) e.x = P.x - side * 0.55; if (Math.sign(P.vx) === -side) P.vx = 0; }   // never into the rock: against a wall, it is the creature that gives
       anim(e, e.st === 'windup' || e.st === 'lunge' ? 'attack' : 'walk', e.st === 'windup' ? e.tm / e.d.windup * 0.5 : e.st === 'lunge' ? 0.5 + e.tm / e.d.lunge * 0.5 : e.st === 'chase' ? e.tm * 1.6 : 0);
     }
     else if (ai === 'flitter'){
@@ -170,7 +177,7 @@ export function stepEnemies(E, P, dt, fx, events){
     else if (ai === 'spitter'){
       e.face = e.fixFace || Math.sign(dx) || e.face; e.cd = Math.max(0, (e.cd || 0) - dt);
       if (e.d.hover){ e.x = e.home.x + Math.sin(e.age * 1.1) * 0.5; e.y = e.home.y + Math.sin(e.age * 2) * 0.25; }
-      if (e.st === 'idle' && dist < e.d.range && e.cd <= 0){ go('charge'); e.shots = 0; events.push({ type: 'tell', e }); }
+      if (e.st === 'idle' && dist < e.d.range && e.cd <= 0 && sees(e, P)){ go('charge'); e.shots = 0; events.push({ type: 'tell', e }); }
       if (e.st === 'charge' && e.tm >= e.d.charge){
         shoot(E, e, P, !!e.d.lob); events.push({ type: 'spit', e });
         if (++e.shots < (e.d.burst || 1)){ e.tm = e.d.charge - 0.3; } else { go('idle'); e.cd = e.d.cooldown; }
@@ -188,7 +195,7 @@ export function stepEnemies(E, P, dt, fx, events){
         e.moving = false;
         if (want && !solidAt(nx + e.face * want * e.d.w, e.y + 0.3) && ground(nx, e.y + 0.3) > e.y - 0.6){ e.x = nx; e.moving = true; }
         if (Math.abs(dx) < 1.7 && Math.abs(dy) < 1.4){ go('swat'); events.push({ type: 'tell', e }); }
-        else if (Math.abs(dx) < e.d.range && Math.abs(dy) < 6 && e.cd <= 0){ go('windup'); events.push({ type: 'tell', e }); }
+        else if (Math.abs(dx) < e.d.range && Math.abs(dy) < 6 && e.cd <= 0 && sees(e, P, 1.5)){ go('windup'); events.push({ type: 'tell', e }); }
         if (Math.abs(dx) > e.d.wake * 1.6) go('idle');
       }
       else if (e.st === 'windup'){ e.face = Math.sign(dx) || e.face; if (e.tm >= e.d.windup){ shoot(E, e, P, true); events.push({ type: 'spit', e }); go('recover'); e.cd = e.d.cooldown; } }
@@ -199,7 +206,7 @@ export function stepEnemies(E, P, dt, fx, events){
       }
       else if (e.st === 'recover'){ if (e.tm >= e.d.recover) go('stalk'); }
       else if (e.st === 'stunned'){ if (e.tm >= (e.stun || e.d.stun)) go('stalk'); }
-      if (P.roll <= 0 && Math.abs(P.x - e.x) < 0.6 && P.y < e.y + 1.2 && P.y > e.y - 0.5){ const side = Math.sign(P.x - e.x) || -e.face; P.x = e.x + side * 0.6; if (Math.sign(P.vx) === -side) P.vx = 0; }
+      if (P.roll <= 0 && Math.abs(P.x - e.x) < 0.6 && P.y < e.y + 1.2 && P.y > e.y - 0.5){ const side = Math.sign(P.x - e.x) || -e.face; if (!shove(P, e.x + side * 0.6)) e.x = P.x - side * 0.6; if (Math.sign(P.vx) === -side) P.vx = 0; }
       anim(e, e.st === 'windup' || e.st === 'swat' ? 'attack' : 'walk', e.st === 'windup' ? e.tm / e.d.windup * 0.7 : e.st === 'swat' ? 0.3 + e.tm / 0.6 * 0.69 : e.st === 'recover' ? 0.99 : e.moving ? e.age * 1.3 : 0, 0, 0.03);
       if (e.st === 'recover' && e.sprite) anim(e, 'attack', 0.99);
     }
@@ -248,6 +255,7 @@ export function stepEnemies(E, P, dt, fx, events){
         hit: (x0, y0, x1, y1, word, fromX) => P.x + 0.34 > x0 && P.x - 0.34 < x1 && P.y + P.h > y0 && P.y < y1 && !isRollInv(P) && hurt(P, 1, fromX == null ? (x0 + x1) / 2 : fromX, word || e.d.word || 'Struck') });
     }
     // what it threw, in flight: a glob or a bolt goes straight, a chunk of ice falls in its arc
+    // a shot flies until it meets rock or a plank (or is far out of sight)
     if (e.orb){
       const O = e.orb; O.t += dt; O.vy -= O.g * dt; O.x += O.vx * dt; O.y += O.vy * dt; O.m.position.set(O.x, O.y, 0.1);
       if (Math.random() < 0.6) fx.burst({ x: O.x, y: O.y }, 1, O.col);
@@ -256,7 +264,7 @@ export function stepEnemies(E, P, dt, fx, events){
         if (P.blocking && P.face === -Math.sign(O.vx)){ const parry = performance.now() / 1000 - (P.blockAt || -9) < 0.18; events.push({ type: parry ? 'parry' : 'block', at: { x: O.x, y: O.y } }); if (parry && !O.g){ killEnemy(e, events); } }
         else if (!isRollInv(P)) hurt(P, 1, O.x, e.d.word || 'Spat on');
         E.scene.remove(O.m); e.orb = null;
-      } else if (O.t > (O.g ? 3 : 1.6) || tile === ROCK || (O.g && O.vy < 0 && tile === LEDGE)){ fx.burst({ x: O.x, y: O.y }, O.g ? 12 : 6, O.col); E.scene.remove(O.m); e.orb = null; }
+      } else if (O.t > 6 || tile === ROCK || tile === LEDGE && (O.g ? O.vy < 0 : true) || Math.abs(O.x - P.x) > 30 || Math.abs(O.y - P.y) > 20){ fx.burst({ x: O.x, y: O.y }, O.g ? 12 : 6, O.col); E.scene.remove(O.m); e.orb = null; }
     }
     if (!e.sprite) e.stand.position.set(e.x, e.y + e.d.h / 2, 0.03);
     if (e.sprite) e.sprite.mat.emissive.setHex(e.flash > 0 ? 0xffffff : (e.st === 'windup' || e.st === 'charge' || e.st === 'rise' || e.st === 'swat' || e.warn) && Math.sin(e.tm * 40) > 0 ? 0x601010 : (e.d.glow || 0));

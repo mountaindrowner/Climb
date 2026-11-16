@@ -92,7 +92,7 @@ export function makeItems(scene, R, n){
     else if (mk.type === 'npc'){
       const who = mk.who, P0 = PEOPLE[who]; if (!P0) continue; const P = P0.late && n >= P0.late.from ? { ...P0, art: P0.late.art } : P0;
       // the station beside them, toward the middle of the room
-      const ST = STATION[who], room = LEVEL.rooms.find(r => x >= r.x0 && x < r.x1 && y >= r.y0 && y < r.y1), side = room && x > (room.x0 + room.x1) / 2 ? -1 : 1, sx = x + side * (ST.at / 16 + 0.7);
+      const ST = STATION[who], room = LEVEL.rooms.find(r => x >= r.x0 && x < r.x1 && y >= r.y0 && y < r.y1), side = room && x > (room.x0 + room.x1) / 2 ? -1 : 1, sx = x + side * (ST.at / 16 + 1.3);   // far enough that its light is beside them, not on their faces
       const sc = cnv(ST.w, ST.h); ST.draw(sc.getContext('2d')); const sm = flat(texOf(sc), ST.w, ST.h); sm.position.set(Math.round(sx * PPU) / PPU, y, 0.015);
       let fm = null; if (ST.fire){ fm = new THREE.Mesh(new THREE.PlaneGeometry(6 / PPU, 9 / PPU), new THREE.MeshBasicMaterial({ map: fireTex(), transparent: true, alphaTest: 0.5 })); fm.position.set(Math.round((sx - ST.w / 2 / PPU + (ST.fire[0] + 0.5) / PPU) * PPU) / PPU, y + (ST.h - ST.fire[1]) / PPU + 4.5 / PPU, 0.02); scene.add(fm); }
       const lx = sx - ST.w / 2 / PPU + ST.glow[0] / PPU, ly = y + (ST.h - ST.glow[1]) / PPU, halo = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 3.4), new THREE.MeshBasicMaterial({ map: glowTex(), color: ST.col, transparent: true, opacity: 0.32, depthWrite: false, blending: THREE.AdditiveBlending })); halo.position.set(lx, ly, 0.01); scene.add(halo);
@@ -125,8 +125,8 @@ export function makeItems(scene, R, n){
     for (const N of people){
       // the station's light, kept up while it is near (the fire flickers; the lamp and the candle are steadier)
       const S = N.station, near = Math.abs(S.lx - P.x) < 14 && Math.abs(S.ly - P.y) < 9, fl = S.fm ? 1 + Math.sin(t * 13 + N.ph) * 0.12 + Math.sin(t * 7.1) * 0.08 : 1 + Math.sin(t * 2.3 + N.ph) * 0.04;
-      if (near) R.glint(S.lx, S.ly, S.col, 0.85 * fl, S.fm ? 6 : 5.5); S.halo.material.opacity = 0.3 * fl; if (S.fm) S.fm.material.map.offset.x = Math.floor(t * 10 + N.ph) % 4 / 4;
-      N.face = Math.sign(P.x - N.x) || N.face; if (N.sprite) N.sprite.show(N.meta.anims.idle ? 'idle' : 'stand', t / 1.6 + N.ph, N.x, N.y - 2 / 16, N.face, 0.03); }
+      if (near) R.glint(S.lx, S.ly + 0.4, S.col, 0.45 * fl, S.fm ? 5 : 4.5); S.halo.material.opacity = 0.3 * fl; if (S.fm) S.fm.material.map.offset.x = Math.floor(t * 10 + N.ph) % 4 / 4;
+      N.face = Math.sign(P.x - N.x) || N.face; if (N.sprite) N.sprite.show(N.meta.anims.idle ? 'idle' : 'stand', t / 1.6 + N.ph, N.x, N.y - 2 / 16, N.face, 0.04); }   // in front of creatures (0.03), behind him (0.05): a creature passes behind them
     const reach = has('lodestone') ? 5 : 2.2, hx = P.x, hy = P.y + 1.1;
     for (const s of shards){
       if (!s.on) continue; s.t += dt;

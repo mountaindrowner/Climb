@@ -4,9 +4,14 @@
 // generated score (side/music.js) plays instead.
 import { ac, musicBus, MANIFEST } from './sfx.js';
 export function makeScore(){
-  const bufs = new Map(), loading = new Set(); let cur = null, want = '', duck = null;
+  const bufs = new Map(), loading = new Set(), since = new Map(), failed = new Map(); let cur = null, want = '', duck = null;
+  const now = () => performance.now() / 1000;
   const S = { now: '' };
   S.has = key => !!MANIFEST.music[key];
+  // the watchdog: a piece that failed to come, or has been coming for more than ten seconds, is not to be waited for.
+  // The game plays its own made score meanwhile (main.js score), and a failed piece is asked for again after twenty
+  S.ready = key => { const f = failed.get(key); if (f && now() - f < 20) return false; if (f) failed.delete(key); const t = since.get(key); return !(loading.has(key) && t && now() - t > 10); };
+  const fail = key => { loading.delete(key); since.delete(key); failed.set(key, now()); };
   // a piece fetched ahead (before the sound may start, or while something else plays): kept as it came, decoded when asked for
   const raw = new Map();
   S.prefetch = key => { if (!S.has(key) || raw.has(key) || bufs.has(key)) return Promise.resolve(); const p = fetch(MANIFEST.base + MANIFEST.music[key].f).then(r => r.ok ? r.arrayBuffer() : null).catch(() => null); raw.set(key, p); return p; };
@@ -22,12 +27,12 @@ export function makeScore(){
   S.play = (key, hard = false) => {
     key = key && S.has(key) ? key : ''; want = key; if (key === S.now) return;
     if (!key || bufs.has(key)){ start(key, hard); return; }
-    if (loading.has(key)) return; loading.add(key); const A = ac(); if (!A){ loading.delete(key); return; }
-    (raw.get(key) || fetch(MANIFEST.base + MANIFEST.music[key].f).then(r => r.arrayBuffer())).then(b => { raw.delete(key); return A.decodeAudioData(b); }).then(buf => { bufs.set(key, buf); loading.delete(key); if (want === key) start(key); }).catch(() => { loading.delete(key); delete MANIFEST.music[key]; });
+    if (loading.has(key) || !S.ready(key)) return; loading.add(key); since.set(key, now()); const A = ac(); if (!A){ loading.delete(key); return; }
+    (raw.get(key) || fetch(MANIFEST.base + MANIFEST.music[key].f).then(r => r.arrayBuffer())).then(b => { raw.delete(key); return A.decodeAudioData(b); }).then(buf => { bufs.set(key, buf); loading.delete(key); since.delete(key); if (want === key) start(key); }).catch(() => fail(key));
   };
   // fetched and decoded ahead, so that when it is played it starts at once (a keeper's music, while its hall shuts)
-  S.load = key => { if (!S.has(key) || bufs.has(key) || loading.has(key)) return; const A = ac(); if (!A) return; loading.add(key);
-    (raw.get(key) || fetch(MANIFEST.base + MANIFEST.music[key].f).then(r => r.arrayBuffer())).then(b => { raw.delete(key); return A.decodeAudioData(b); }).then(buf => { bufs.set(key, buf); loading.delete(key); if (want === key && S.now !== key) start(key, true); }).catch(() => loading.delete(key)); };
+  S.load = key => { if (!S.has(key) || bufs.has(key) || loading.has(key) || !S.ready(key)) return; const A = ac(); if (!A) return; loading.add(key); since.set(key, now());
+    (raw.get(key) || fetch(MANIFEST.base + MANIFEST.music[key].f).then(r => r.arrayBuffer())).then(b => { raw.delete(key); return A.decodeAudioData(b); }).then(buf => { bufs.set(key, buf); loading.delete(key); since.delete(key); if (want === key && S.now !== key) start(key, true); }).catch(() => fail(key)); };
   // the piece run fast (a fall, run back) or at its own speed again
   S.warp = rate => { const A = ac(); if (cur && A) cur.s.playbackRate.setTargetAtTime(rate, A.currentTime, 0.12); };
   S.duck = v => { const A = ac(); if (duck && A) duck.gain.setTargetAtTime(v, A.currentTime, 0.15); };

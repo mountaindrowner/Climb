@@ -15,9 +15,10 @@ export function makeScarf(scene, cols = { edge: 0x181425, body: 0xe43b44, shade:
   { const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d'), gr = g.createRadialGradient(16, 16, 0, 16, 16, 16); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 32, 32); tipGlow.material.map = new THREE.CanvasTexture(c); }
   tipGlow.position.z = 0.05; scene.add(tipGlow);
   // the knots: each relic he wears is tied into the cloth, a small gold knot along it, near his neck (state.js, KNOTS).
-  // Drawn well clear of the cloth (and of him): the low picture's depth cannot tell a hair's difference
-  const KN = []; for (let k = 0; k < 6; k++){ const m = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.15), new THREE.MeshBasicMaterial({ color: 0xfee761 })); const o = new THREE.Mesh(new THREE.PlaneGeometry(0.27, 0.27), new THREE.MeshBasicMaterial({ color: cols.edge }));
-    m.position.z = 0.075; o.position.z = 0.065; m.visible = o.visible = false; scene.add(o); scene.add(m); KN.push([m, o]); }
+  // Drawn over the cloth and under him: with the see-through things, after the cloth, before him (a hair nearer than the
+  // cloth and further than him, and not depth-tested, since the low picture's depth cannot tell a hair's difference)
+  const KN = []; for (let k = 0; k < 6; k++){ const m = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.15), new THREE.MeshBasicMaterial({ color: 0xfee761, transparent: true, depthTest: false, depthWrite: false })); const o = new THREE.Mesh(new THREE.PlaneGeometry(0.27, 0.27), new THREE.MeshBasicMaterial({ color: cols.edge, transparent: true, depthTest: false, depthWrite: false }));
+    m.position.z = 0.047; o.position.z = 0.046; m.visible = o.visible = false; scene.add(o); scene.add(m); KN.push([m, o]); }
   const S = { pts, len: N, set: false, t: 0 };
   // put it all at one place (a start, a wake)
   S.reset = (x, y) => { for (const p of pts){ p.x = p.px = x; p.y = p.py = y; } S.set = true; };
