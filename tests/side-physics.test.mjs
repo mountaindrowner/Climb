@@ -6,13 +6,14 @@
 //   - with every gift: every room is reached
 //   - a room behind a gate (a wing) is shut without that gift, every other gift in hand
 //   - and both ways, nowhere he can get to is a place he cannot get back out of toward where the region leads
-//   - a keeper retried is not a long walk: the nearest flame is within RUNBACK seconds of its stage (or the way on)
+//   - a fall raises him at the region's raising water, near where he comes in; from it, its keeper (or the way on) is a
+//     real walk back but not a punishing one: within RUNBACK seconds at a run (phase 2: one raising pool a region)
 // (A keeper's own gift is never needed to reach it: the first test plays each region without it.) tools/gifts-report.mjs
 // writes what each gift opens from the same graphs, to docs/gifts-report.md
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { graph, arrival, GIFTS, giftName, reached, goalOf, nearGoal, runback, LEVELS, loadLevel } from './helpers/reach.mjs';
-const RUNBACK = 40;   // seconds at a run from the nearest flame to where the region leads (a keeper's retry), at most
+const RUNBACK = 60;   // seconds at a run from the raising water to where the region leads (a keeper's retry), at most
 
 const nearSeen = (seen, W, mx, my, r = 4) => { for (let a = -r; a <= r; a++) for (let b = -2; b <= r; b++) if (seen.has((my + b) * W + mx + a)) return true; return false; };
 const said = gifts => gifts.length ? gifts.map(giftName).join(', ') : 'no gift';
@@ -21,14 +22,14 @@ for (let N = 0; N < LEVELS.length; N++){
   const NAME = LEVELS[N].name, ARR = arrival(N), ALL = GIFTS;
   const gates = [...new Set(loadLevel(N).rooms.filter(r => r.gate).map(r => r.gate))];
 
-  test(`${NAME}, played with the real motor and what he has when he comes (${said(ARR)}): every open room, the shrine, the stage and the way out`, () => {
+  test(`${NAME}, played with the real motor and what he has when he comes (${said(ARR)}): every open room, the raising water, the stage and the way out`, () => {
     const { seen, W, marks, rooms } = graph(N, ARR);
     for (const r of rooms){
       if (r.gate && !ARR.includes(r.gate)) assert.ok(!reached(seen, r, W), `room ${r.name} is reached before its gate (${giftName(r.gate)})`);
       else assert.ok(reached(seen, r, W), `room ${r.name} is not reached with ${said(ARR)}`);
     }
     const deep = !marks.some(k => k.type === 'exit');   // a section of the Deep: its passage back, not a way on
-    for (const t of ['shrine', 'boss', deep ? 'pass' : 'exit']){ const m = marks.find(k => k.type === t); if (m || t !== 'boss') assert.ok(m && (nearSeen(seen, W, m.x, m.y) || nearSeen(seen, W, m.x + 2, m.y + 1)), `${t} is not reached with ${said(ARR)}`); }
+    for (const t of ['water', 'boss', deep ? 'pass' : 'exit']){ const m = t === 'water' ? (q => q && { ...q, x: q.x + Math.floor((q.w || 1) / 2) })(marks.find(k => k.type === 'pool' && !k.plain)) : marks.find(k => k.type === t); if (m || t !== 'boss') assert.ok(m && (nearSeen(seen, W, m.x, m.y) || nearSeen(seen, W, m.x + 2, m.y + 1)), `${t} is not reached with ${said(ARR)}`); }
   });
   if (ALL.length > ARR.length) test(`${NAME}, played with the real motor and every gift: every room`, () => {
     const { seen, W, rooms } = graph(N, ALL);
@@ -38,10 +39,14 @@ for (let N = 0; N < LEVELS.length; N++){
     const { seen, W, rooms } = graph(N, ALL.filter(x => x !== g));
     for (const r of rooms.filter(r => r.gate === g)) assert.ok(!reached(seen, r, W), `room ${r.name} is reached without ${giftName(g)}`);
   });
-  test(`${NAME}, played with the real motor: a flame within ${RUNBACK} s of where the region leads`, () => {
-    const G = graph(N, ARR), near = nearGoal(goalOf(G.marks)), flames = G.marks.filter(m => m.type === 'shrine');
-    const best = Math.min(...flames.map(m => { const r = runback(G, m, near); return r ? r.secs : 1e9; }));
-    assert.ok(best <= RUNBACK, `the nearest flame is ${best >= 1e9 ? 'not connected' : best.toFixed(0) + ' s'} from where the region leads`);
+  test(`${NAME}, played with the real motor: its raising water near where he comes in, and where the region leads within ${RUNBACK} s of it`, () => {
+    const G = graph(N, ARR), near = nearGoal(goalOf(G.marks)), pools = G.marks.filter(m => m.type === 'pool' && !m.plain), sp = G.marks.find(m => m.type === 'spawn');
+    assert.equal(pools.length, 1, 'one raising pool');
+    const P = pools[0], at = { x: P.x + Math.floor((P.w || 8) / 2), y: P.y };
+    const d = Math.round(Math.hypot(at.x - sp.x, at.y - sp.y));   // a room or less, as the crow flies
+    assert.ok(d <= 45, `the raising pool is ${d} tiles from where he comes in`);
+    const r = runback(G, at, near);
+    assert.ok(r && r.secs <= RUNBACK, `where the region leads is ${r ? r.secs.toFixed(0) + ' s' : 'not connected'} from the raising water`);
   });
   for (const gifts of ALL.length > ARR.length ? [ARR, ALL] : [ARR]) test(`${NAME}, played with the real motor (${said(gifts)}): from anywhere he gets to, he can still get to where the region leads`, () => {
     const { seen, edges, W, marks, rooms } = graph(N, gifts), back = new Map();

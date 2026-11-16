@@ -21,7 +21,7 @@ in it. This file is so that whoever builds a room knows what happened there.
 | The seams | **First pass (build 30)** | All five, three screens each (a foot in the region below's look, two screens up into the region's own), where the plan below is six to ten: the Crypt Stair (founders' tombs, the house's light coming down), the Bell Road (a shrine at the turn), the Last Hut (a flame kept, bunks), the Breach (the wall's courses either side), the Long Stair. More rooms, and their own creatures, later |
 | The wings | **The Ossuary (build 31)**; the other ten not yet | The first wing, by hand, 8 screens: the door at the well's foot (cracked stone, the Warden's weight), the long aisle, the sorting, the niches, the Sexton's yard, the count. Worn in the Cloister's look. The Tallymen and the grave-lights are the house's acolytes and house-lamps for now; the Sexton has his own drawing (build 32: a hooded gravedigger, a head and more taller than him, his spade brought down like digging), two hearts a blow. The relic is the Sexton's Stylus. The deadhouse stair lets out over the Warden's hall, not the grotto: a drop, one way. His own tally on the wall is not drawn yet |
 
-**Travel between flames** is a later ability, found or earned, not there from the start.
+**Travel through the water** (down into one raising pool, up out of another) is a later ability, found or earned, not there from the start. Since phase 2 (build 44) every rest point is water: one raising pool a region, near where he comes in, and leaks elsewhere (`docs/roadmap.md`, decision 0.1). Where this file says a flame is kept in a place, read a leak, unless it is the flame of the story (the summit's cradle, the light at the Source).
 
 **Direction:** a Metroidvania, not a roguelike (`docs/side.md`). The world grows by sections the gifts open, and is gone
 back through.
@@ -102,7 +102,7 @@ to be built toward; it is not a lesson.
 | The self it builds | The Firmament | The Fallen: it thinks it is him |
 
 **The answer is never that he beats it.** Every section's answer is something given: the water gives him back, rising air
-carries him, a flame was kept for him, someone swept a step before him, a light is already burning at the very bottom.
+carries him, water gathered for him and a lamp was kept over it, someone swept a step before him, a light is already burning at the very bottom.
 He does his part, which is to keep going. The rest is done for him. A section is finished when that has been shown, once,
 quietly, and not before.
 

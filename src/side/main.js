@@ -30,7 +30,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 43';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 44';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -55,6 +55,8 @@ const HEROES = { masked: 'mask_tall_c', a: 'px_knight', b: 'px_hood', c: 'px_mas
 const loadHero = name => fetch(`assets/side/${name}/sprite.json?b=${encodeURIComponent(BUILD)}`).catch(() => null).then(r => r && r.ok ? r : fetch(`assets/side/${name}/sprite.json`)).then(r => r.ok ? r.json() : Promise.reject()).then(meta => { hero.meta = meta; hero.name = name; hero.sprite = makeSprite(R.scene, `assets/side/${name}`, meta); });
 const HERO_P = loadHero(HERO).catch(() => loadHero('hero_a')).catch(() => loadHero('hero')).catch(() => {});
 // what a region has in it: made by setup, again each time he comes into one
+let RAISE = null, DISS = null; const TOUCHED = new Set();   // the region's raising water; a fall coming apart; the waters touched since he came in
+const DISS_T = { dark: 1.25, raise: 1.85, end: 2.7 };   // a fall: the drops; the dark from `dark`; raised at `raise`; the dark gone by `end`
 let fx, E, BOSS, SHRINES, MAP, SCF, SWINGFX, PROPS, ITEMS, ENT = { lead: false, reset(){}, step(){}, start(){}, open(){} };   // ENT: the keeper's entrance (entrance.js)
 const TALK = makeTalk();
 let NOTE = null, SCREEN = '', DIRTY = 0, NAMED = true;
@@ -81,7 +83,13 @@ function setup(){
   fx = spawnFx(R.scene); E = spawnEnemies(R.scene, R); SCF = makeScarf(R.scene); FLIGHT = null; BOSS = (KEEPERS[LEVEL.theme] || (() => null))(R.scene, R);   // each region's keeper
   ENT = makeEntrance(R.scene, R, { fx: () => fx, sfx, shake: v => { FEEL_FX.shake = Math.max(FEEL_FX.shake, v); }, flash: v => { FLASH = Math.max(FLASH, Math.min(0.42, v)); }, buzz: (a, b, ms) => buzz(a, b, ms), slow: v => { SLOW = Math.max(SLOW, v); } });
   // the shrine: it fills the flask and the hearts, and is where he wakes after a death
-  SHRINES = LEVEL.marks.filter(m => m.type === 'shrine').map(m => { const x = (m.x + 0.5) * T, y = m.y * T; return { x, y, room: roomAt(x, y + 0.5) }; });
+  // where the water is: the region's raising pool (a pool that is not plain: a fall raises him there) and the leaks (they
+  // mend him and fill the flask, nothing more). Both are where he chooses his knots. `half`: how near counts as at it
+  SHRINES = [
+    ...LEVEL.marks.filter(m => m.type === 'pool' && !m.plain).map(m => { const w = (m.w || 8) * T, x = m.x * T + w / 2, y = m.y * T; return { x, y, half: w / 2, raise: true, room: roomAt(x, y + 0.5) }; }),
+    ...LEVEL.marks.filter(m => m.type === 'shrine').map(m => { const x = (m.x + 0.5) * T, y = m.y * T; return { x, y, half: 1.1, raise: false, room: roomAt(x, y + 0.5) }; }),
+  ];
+  RAISE = SHRINES.find(S => S.raise) || null; TOUCHED.clear();
   CHECK = null; WON = false; DEATH = 0; TRAIL.length = 0;
   if (!BOSS) for (const x of R.exits) x.set(true);   // nothing guards the way on
   // the map: the region drawn a pixel a tile, each room shown once he has been in it
@@ -132,7 +140,7 @@ function begin(){   // from the start: the fall, then he gets up at the bottom
   // only when there is something to undo, so the press does not wait on the painting
   const fresh = !G.began && LEVEL.index === 0 && !Object.keys(G.broke || {}).length;
   menuHide(); wipe(); if (!fresh){ resetLevels(); enter(0); } { const s = spawnPoint(); P = born(s.x, s.y); }   // everything as it was at the first: the rock unbroken, the chests shut
-  STORY.start('intro', {}, () => { WAKE = 1.7; banner(LEVEL.name, SUB[0], 4); G.began = true; store(); });
+  STORY.start('intro', {}, () => { WAKE = 1.7; const s = spawnPoint(); splash(s.x, s.y); banner(LEVEL.name, SUB[0], 4); G.began = true; store(); });   // the fall ends in the water: he comes up out of it
 }
 // ---- the keepers' entrances, to watch (the title's 'The keepers'): each in full, as the first time it is met, then
 // back to the list. Nothing touches him; the save is put back as it was when he is done watching
@@ -199,7 +207,7 @@ const PORTRAIT = {}, portrait = art => { if (!art) return null; if (PORTRAIT[art
 // what is marked on the map: the flames, the keeper, the three's stations he has found, what is still to be found (with
 // the compass or a chart), and him
 function mapDots(){
-  const dots = SHRINES.filter(S => MAP.seen.has(S.room)).map(S => ({ x: S.x, y: S.y + 0.5, c: '#fee761' }));
+  const dots = SHRINES.filter(S => MAP.seen.has(S.room)).map(S => ({ x: S.x, y: S.y + 0.5, c: '#0099db', r: S.raise ? 1 : 0 }));   // the water: the raising pool larger
   if (BOSS && MAP.seen.has(BOSS.room)) dots.push({ x: BOSS.cx, y: BOSS.stageY + 1, c: BOSS.st === 'dead' ? '#5a6988' : '#e43b44', r: 1 });
   for (const N of ITEMS.people) if (MAP.seen.has(roomAt(N.x, N.y + 0.5))) dots.push({ x: N.x, y: N.y + 0.5, c: { lamplighter: '#feae34', wren: '#63c74d', scribe: '#2ce8f5' }[N.who] });   // the stations he has found
   if (has('starcompass') || G.charts.includes(LEVEL.index)) for (const it of ITEMS.left().all) dots.push({ x: it.x, y: it.y + 0.5, c: '#f6757a', find: true });   // what is still to be found
@@ -275,7 +283,7 @@ function knotMenu(){
     b.addEventListener('pointerenter', () => { if (MSEL !== i){ MSEL = i; menuMark(); } });   // what it does shows under the mouse too
     if (on){ b.style.color = '#fee761'; b.style.borderColor = '#fee761'; } grid.appendChild(b); });
   rows.push(grid);
-  const leave = () => { SCREEN = ''; PAUSE = false; KSEL = null; KNOTMSG = ''; menuHide(); }; rows.push(menuButton('Leave the flame', leave, true));
+  const leave = () => { SCREEN = ''; PAUSE = false; KSEL = null; KNOTMSG = ''; menuHide(); }; rows.push(menuButton('Leave the water', leave, true));
   menuShow(rows, false, leave); MENU.style.top = '30%'; MSEL = Math.min(keep, menuItems().length - 1); menuMark();
 }
 function drawKnots(W){
@@ -283,7 +291,7 @@ function drawKnots(W){
   const id = KSEL && KSEL[MSEL], r = id && RELICS[id];
   if (r){ HUD.text(r.name.toUpperCase(), W / 2, 100, has(id) ? '#fee761' : '#c0cbdc', 1, 'center'); let y = 111; for (const ln of wrapText(r.line, W - 48)){ HUD.text(ln, W / 2, y, '#fff2d0', 1, 'center'); y += 10; }
     HUD.fine(has(id) ? 'TIED. PICK IT TO UNTIE IT.' : 'CARRIED. PICK IT TO TIE IT.', W / 2, y + 2, '#8b9bb4', 'center'); }
-  else HUD.fine('THE FLAME WILL KEEP HIM WHILE HE CHOOSES.', W / 2, 104, '#8b9bb4', 'center');
+  else HUD.fine('THE WATER WILL KEEP HIM WHILE HE CHOOSES.', W / 2, 104, '#8b9bb4', 'center');
   if (KNOTMSG) HUD.fine(KNOTMSG.toUpperCase(), W / 2, 140, '#f6757a', 'center');
 }
 // a pause: Esc or P (or the II button): the world stops; go on, or back to the title
@@ -336,7 +344,8 @@ function press(){ if (TALK.on) TALK.press(); else if (NOTE && NOTE.t > 0.7){ NOT
 addEventListener('pointerdown', () => { if (TALK.on || NOTE) press(); else if (STORY.active()) STORY.press(); });
 // ---- the score (music.js): which piece, by where he is; it starts with the first key or touch (a browser's rule)
 let MUSIC = null, HEARD = false, MUTED = (() => { try { return localStorage.getItem('climb-side-mute') === '1'; } catch (e){ return false; } })();
-const hear = () => { HEARD = true; ac(); }; addEventListener('pointerdown', hear); addEventListener('keydown', hear);
+// the title says to press for sound until there has been a press; a phone lets sound start on a tap's end
+const hear = () => { HEARD = true; ac(); }; STORY.quiet = () => !HEARD; for (const ev of ['pointerdown', 'keydown', 'click', 'touchend']) addEventListener(ev, hear);
 addEventListener('keydown', e => { if (e.code === 'KeyN'){ MUTED = !MUTED; try { localStorage.setItem('climb-side-mute', MUTED ? '1' : '0'); } catch (err){} banner('', MUTED ? 'music off' : 'music on', 1.6); } });
 // a region with no music of its own has another's (musicOf: the Workings, the Roots')
 const alias = theme => { const R = REGION_DATA.find(q => q.theme === theme); return (R && R.musicOf) || theme; };
@@ -473,7 +482,7 @@ function frame(ts){
     if (IN.pressed.has('jump') || IN.pressed.has('attack')){ IN.pressed.clear(); press(); }
     if (NOTE) NOTE.t += dt; drawHud(dt); endFrame(); requestAnimationFrame(frame); return; }
   if (PAUSE){ drawHud(0); endFrame(); requestAnimationFrame(frame); return; }
-  if (STORY.active() && !GO.st){ hudBegin(); STORY.draw(dt); endFrame(); requestAnimationFrame(frame); return; }   // a story screen is up: the world waits
+  if (STORY.active() && !GO.st){ hudBegin(); STORY.draw(dt); endFrame(); requestAnimationFrame(frame); return; }   // a story screen is up: the world waits (on the title, until a press: a browser lets no sound play before one)
   if (WAKE > 0) WAKE -= dt;
   if (!NAMED && R.look() === LEVEL.theme && !GO.st && !ENT.st){ NAMED = true; banner(LEVEL.name, SUB[LEVEL.index] || '', 4.5); sfx.gust(); }   // out of the way in: this is the new place
   // an open way on breathes the next region out: its air drifts from the arch
@@ -490,10 +499,10 @@ function frame(ts){
   if (VIEW.on) viewStep(dt);
   if (ENT.lead && !ENT.first && (IN.pressed.has('jump') || IN.pressed.has('attack'))){ IN.pressed.delete('jump'); IN.pressed.delete('attack'); ENT.skip(); }   // seen it before: a press goes straight to the keeper
   USE = P.hp > 0 && P.grounded && !FLIGHT && !GO.st && WAKE <= 0 && !(BOSS && BOSS.active() && BOSS.st !== 'dead') ? ITEMS.near(P) : null;
-  if (!USE && P.hp > 0 && P.grounded && !FLIGHT && !GO.st && WAKE <= 0 && G.relics.length){ const S = SHRINES.find(S => Math.abs(P.x - S.x) < 1.1 && Math.abs(P.y - S.y) < 1.5); if (S) USE = { type: 'flame', x: S.x, y: S.y }; }   // at a flame: the knots
+  if (!USE && P.hp > 0 && P.grounded && !FLIGHT && !GO.st && WAKE <= 0 && G.relics.length){ const S = SHRINES.find(S => Math.abs(P.x - S.x) < S.half && Math.abs(P.y - S.y) < 1.5); if (S) USE = { type: 'flame', x: S.x, y: S.y }; }   // at a flame: the knots
   if (USE && IN.pressed.has('down')){ IN.pressed.delete('down'); if (USE.type === 'npc') talkTo(USE); else if (USE.type === 'flame') knotMenu(); else ITEMS.open(USE, evs); }
   const h = 1 / 120;
-  while (acc >= h){ const x0 = P.x; if (DEATH <= 0 && !FLIGHT && !GO.st && WAKE <= 0 && !ENT.lead) stepPlayer(P, h); else if (ENT.lead){ P.vx = 0; if (ENT.face) P.face = ENT.face; if (ENT.brace && !P.blocking){ P.blocking = true; P.blockAt = performance.now() / 1000; } } P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
+  while (acc >= h){ const x0 = P.x; if (DEATH <= 0 && !FLIGHT && !DISS && !GO.st && WAKE <= 0 && !ENT.lead) stepPlayer(P, h); else if (ENT.lead){ P.vx = 0; if (ENT.face) P.face = ENT.face; if (ENT.brace && !P.blocking){ P.blocking = true; P.blockAt = performance.now() / 1000; } } P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
   endFrame();
   if (P.hp > 0 && !FLIGHT && !GO.st && (TRAILT -= dt) <= 0){ TRAILT = 0.05; const [an, fr] = heroPose(P, time); TRAIL.push({ x: P.x, y: P.y, face: P.face, an, fr });
     if (TRAIL.length > 2400) TRAIL.splice(0, 1200, ...TRAIL.slice(0, 1200).filter((_, i) => i % 2)); }   // a long way: the far end of it kept more thinly
@@ -514,8 +523,19 @@ function frame(ts){
   // a fall. He is gone in a burst; then everything he did since he last rose runs back, fast (FLIGHT: his own path, the
   // other way), to the water at the bottom of the world, which gives him back (raise): he gets up at the last flame he
   // reached. What he killed is there again. What he found, lit and learned is kept
-  if (P.hp <= 0 && DEATH <= 0 && !FLIGHT){ DEATH = 0.7; P.vx = 0; fx.burst({ x: P.x, y: P.y + 0.9 }, 36, 0xff5060); fx.burst({ x: P.x, y: P.y + 1.5 }, 14, 0xffffff); FEEL_FX.hitstop = 0.22; R.glint(P.x, P.y + 1, 0xff6050, 1, 5, 0.4); sfx.hurt(); sfx.death(); buzz(1, 1, 450); }
-  if (DEATH > 0){ DEATH -= dt; if (DEATH <= 0){ const n = TRAIL.length; G.falls = (G.falls || 0) + 1; FLIGHT = { t: 0, dur: Math.max(1.2, Math.min(2.8, 1.0 + n * 0.0015)), n, x: P.x, y: P.y + 1.3, face: P.face, g: 0 }; sfx.rewind(); SCORE.warp(2.4); } }
+  // a fall (decision 0.2): he comes apart into water; the drops fall, and where they meet the ground they sink into it;
+  // the picture goes dark, and he is raised out of the region's raising water (raise). What he killed is there again;
+  // what he found, lit and learned is kept. (The old rewind, his path run back, is kept in reserve: FLIGHT)
+  if (P.hp <= 0 && DEATH <= 0 && !FLIGHT && !DISS){ DEATH = 0.7; P.vx = 0; G.falls = (G.falls || 0) + 1; DISS = { t: 0, raised: false, drops: dissolve() }; fx.burst({ x: P.x, y: P.y + 1.2 }, 18, 0xdff4ff); FEEL_FX.hitstop = 0.22; R.glint(P.x, P.y + 1, 0x9fe8ff, 1, 5, 0.5); sfx.hurt(); sfx.death(); buzz(1, 1, 450); }
+  if (DEATH > 0) DEATH -= dt;
+  if (DISS){
+    const D = DISS; D.t += dt;
+    for (const d of D.drops){ if (d.sunk){ d.sunk += dt; d.m.scale.y = Math.max(0.05, 1 - d.sunk * 2); d.m.position.y -= dt * 0.25; d.m.material.opacity = Math.max(0, 1 - d.sunk * 1.6); continue; }
+      d.vy -= 16 * dt; d.x += d.vx * dt; d.y += d.vy * dt; d.m.position.set(d.x, d.y, 0.06);
+      if (d.vy < 0 && (solidAt(d.x, d.y - 0.03) || (d.y < d.floor + 0.02))){ d.y = Math.max(d.y, d.floor); d.sunk = 0.001; d.m.position.y = d.y; if (Math.random() < 0.15) sfx.step(); } }   // into the ground
+    if (D.t >= DISS_T.raise && !D.raised){ D.raised = true; for (const d of D.drops){ R.scene.remove(d.m); d.m.geometry.dispose(); d.m.material.dispose(); } D.drops = []; raise(); }
+    if (D.t >= DISS_T.end) DISS = null;
+  }
   if (FLIGHT){
     const F = FLIGHT; F.t += dt; const u = Math.min(1, F.t / F.dur), e = u * u * (0.4 + 0.6 * u);   // slowly at first, then faster than can be followed
     if (F.n > 1){ const k = (1 - e) * (F.n - 1), i = Math.floor(k), a = TRAIL[i], b = TRAIL[Math.min(F.n - 1, i + 1)], f = k - i; F.s = a; P.x = a.x + (b.x - a.x) * f; P.y = a.y + (b.y - a.y) * f; P.face = a.face; }
@@ -524,10 +544,13 @@ function frame(ts){
     if (Math.random() < 0.6) fx.burst({ x: P.x, y: P.y + 1.2 }, 1, 0xcfe6ff);
     if (u >= 1){ FLIGHT = null; SCORE.warp(1); raise(); }
   }
-  for (const S of SHRINES) if (Math.abs(P.x - S.x) < 1.1 && Math.abs(P.y - S.y) < 1.5 && P.hp > 0 && (CHECK !== S || P.flask < P.flaskMax || P.hp < P.maxHp)){
-    const first = CHECK !== S; CHECK = S; P.flask = P.flaskMax; P.hp = P.maxHp; if (first) sfx.shrine(); else sfx.drink(); store(); fx.ring({ x: S.x, y: S.y + 1 }, 0xffd27a); R.glint(S.x, S.y + 1, 0xffd27a, 1, 7, 0.8);
-    if (first) banner('A flame is kept here', 'when he falls, he will be raised beside it');
+  // at the water: mended, the flask filled. The first time at each, what it is: the raising pool gives him back after a
+  // fall; a leak only mends
+  for (const S of SHRINES) if (Math.abs(P.x - S.x) < S.half && Math.abs(P.y - S.y) < 1.5 && P.hp > 0 && !DISS && (!TOUCHED.has(S) || P.flask < P.flaskMax || P.hp < P.maxHp)){
+    const first = !TOUCHED.has(S); TOUCHED.add(S); P.flask = P.flaskMax; P.hp = P.maxHp; if (first) sfx.shrine(); else sfx.drink(); store(); fx.ring({ x: P.x, y: S.y + 0.6 }, 0x9fe8ff); R.glint(P.x, S.y + 1, 0x9fe8ff, 0.8, 6, 0.8);
+    if (first) (BANNER ? f => LATER.push({ t: 4, f }) : f => f())(() => banner(S.raise ? 'The water gathers here' : 'Water seeps through the rock here', S.raise ? 'when he falls, it gives him back here' : 'it mends him, and fills the flask', 4));   // after the place's own name, if that is up
   }
+
   if ((!BOSS || BOSS.st === 'dead') && !WON && R.exits.some(x => Math.abs(P.x - x.x) < 1 && Math.abs(P.y - x.y) < 1.5)){
     WON = true; sfx.gold();
     if (LEVEL.index < CLIMB_TOP) go(LEVEL.index + 1); else { G.done = true; store(); STORY.start('ending', {}, title); }   // the beacon: the end of the climb
@@ -559,7 +582,7 @@ function frame(ts){
   FEEL_FX.kick *= Math.exp(-dt * 14);   // a blow nudges the view the way it goes
   R.setCamera(cx + (Math.random() - 0.5) * sk + FEEL_FX.kick, cy + (Math.random() - 0.5) * sk, CAM.zoom);
   // the warrior (not while he is dead and the scarf is on its way)
-  const gone = P.hp <= 0 && DEATH < 0.45 && !FLIGHT; if (hero.sprite) hero.sprite.g.visible = !gone;
+  const gone = (P.hp <= 0 && DEATH < 0.6 && !FLIGHT) || (DISS && !DISS.raised); if (hero.sprite) hero.sprite.g.visible = !gone;   // come apart, he is gone
   if (hero.sprite){
     const pose = heroPose(P, time), RW = FLIGHT && FLIGHT.s, anim = RW ? RW.an : pose[0], frac = RW ? RW.fr : pose[1], anchor = RW ? null : pose[2];   // running back: the drawing he had there
     let rot = 0;
@@ -592,7 +615,7 @@ function frame(ts){
   { const M = P.mantle, low = P.roll > 0 ? 0.8 : P.crouch ? 1.15 : P.dive ? 1.5 : WAKE > 0.5 ? 0.9 : 1.92;
     const ax = FLIGHT ? FLIGHT.x : M && M.wall != null ? M.wall - M.d * 0.25 : P.x - P.face * 0.14, ay = FLIGHT ? FLIGHT.y : M ? Math.min(M.y1 + 1.8, P.y + 1.9) : P.y + low - SINK, fc = FLIGHT ? FLIGHT.face : M ? M.d : P.face;
     const links = hp => SCARF.base + Math.min(5, Math.max(0, hp)) * SCARF.perHeart + Math.max(0, hp - 5) * SCARF.more, want = links(FLIGHT ? 1 : P.hp), lk = R.look(), out = (roomAt(P.x, P.y) || {}).open !== false, wind = (lk === 'spires' || lk === 'tempest') && out ? (lk === 'tempest' ? -7 : -5) : lk === 'spires' || lk === 'tempest' || lk === 'firmament' ? -1.2 : lk === 'gardens' && out ? -2 : -0.6;
-    SCF.step(dt, ax, ay, fc, want, wind, solidAt, P.glide ? 15 : 0); SCF.draw(!(P.hp <= 0 && DEATH > 0.45 && !FLIGHT) || true, EMBER.n / EMBER.cap, G.worn.length); }
+    SCF.step(dt, ax, ay, fc, want, wind, solidAt, P.glide ? 15 : 0); SCF.draw(!(DISS && !DISS.raised && DISS.t > 0.15), EMBER.n / EMBER.cap, G.worn.length); }
   // embers go to him; ten make a heart
   stepFx(fx, dt, P.hp > 0 ? { x: P.x, y: P.y + 1.3 } : null, () => {
     EMBER.n = Math.min(EMBER.cap, EMBER.n + 1); sfx.step();
@@ -652,14 +675,27 @@ function talkTo(N){
   if (N.who === 'scribe'){ const L = ITEMS.left(), pl = (c, w) => `${c} ${w}${c === 1 ? '' : 's'}`; lines.push(L.threads + L.chests === 0 ? 'My page for this place is full. There is nothing here you have not found.' : `Not yet entered as found, here: ${pl(L.threads, 'red strand')}, ${pl(L.chests, 'chest')}${L.relic ? ', and something old behind cracked stone' : ''}.`); }
   G.met[k] = n + 1; store(); release(); sfx.ui(); TALK.start(N.who, lines, N.who === 'lamplighter' ? shop : null, N.art);
 }
-// the water gives him back: its screen, then he gets up at the last flame he reached (or where the region begins), whole.
-// The creatures are there again
-const POOL_LINES = ['The water gives him back.', 'Again.', 'He is raised. It is not his doing.', 'What falls here does not stay fallen.', 'The light has not let go of the thread.', 'Up. He is expected.', 'It costs him nothing. That is the hard part.'];
-function raise(){
-  const s = CHECK || spawnPoint(), keep = EMBER.n, n = G.falls || 1;
-  P = born(s.x, s.y); refill(); if (BOSS) BOSS.reset(); ENT.reset(); EMBER.n = keep; SCF.reset(s.x, s.y + 1.8); TRAIL.length = 0; CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0; FX2.ghosts.forEach(G2 => { G2.life = 0; }); store();
-  STORY.start('pool', { line: POOL_LINES[(n - 1) % POOL_LINES.length], count: n > 1 ? `RAISED ${n} TIMES` : '' }, () => { WAKE = 1.1; fx.ring({ x: s.x, y: s.y + 1 }, 0xcfe6ff); R.glint(s.x, s.y + 1, 0xcfe6ff, 1.2, 7, 0.9); sfx.shrine(); });
+// his body as drops of water: pixels of his drawing's colours (the pale of the water, the red of the thread), each
+// thrown a little out and let fall; `floor` is the ground under him, where they sink
+function dissolve(){
+  const out = [], cols = [0xdff4ff, 0x9fe8ff, 0x2ce8f5, 0x0099db, 0xffffff, 0xe43b44], floor = P.y;
+  for (let k = 0; k < 110; k++){ const m = new THREE.Mesh(new THREE.PlaneGeometry((k % 3 ? 1 : 2) / 16, (k % 4 ? 2 : 3) / 16), new THREE.MeshBasicMaterial({ color: cols[k % 11 === 0 ? 5 : k % 5], transparent: true }));
+    const x = P.x + (Math.random() - 0.5) * 0.7, y = P.y + 0.1 + Math.random() * 2.2; m.position.set(x, y, 0.06); R.scene.add(m);
+    out.push({ m, x, y, vx: (Math.random() - 0.5) * 1.6 + (x - P.x) * 1.5, vy: Math.random() * 1.6, floor, sunk: 0 }); }
+  return out;
 }
+// the water gives him back: out of the region's raising water, whole, and one word over it (decision 0.2). The creatures
+// are there again
+const POOL_LINES = ['The water gives him back.', 'Again.', 'It is not his doing.', 'What falls here does not stay fallen.', 'The light has not let go of the thread.', 'Up. He is expected.', 'It costs him nothing. That is the hard part.'];
+let RISEN = null;   // the word over him as he comes up: { t, line, n }
+function raise(){
+  const s = RAISE ? { x: RAISE.x, y: RAISE.y } : spawnPoint(), keep = EMBER.n, n = G.falls || 1;
+  P = born(s.x, s.y); refill(); if (BOSS) BOSS.reset(); ENT.reset(); EMBER.n = keep; SCF.reset(s.x, s.y + 1.8); TRAIL.length = 0; CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0; FX2.ghosts.forEach(G2 => { G2.life = 0; }); store();
+  WAKE = 1.1; RISEN = { t: 0, line: POOL_LINES[(n - 1) % POOL_LINES.length], n }; if (RAISE) TOUCHED.add(RAISE);   // raised in it: it needs no telling
+  splash(s.x, s.y); sfx.shrine();
+}
+// he comes up out of the water: rings on it, drops thrown up, the light
+function splash(x, y){ fx.ring({ x, y: y + 0.6 }, 0xcfe6ff); fx.burst({ x, y: y + 0.8 }, 22, 0xdff4ff); fx.burst({ x, y: y + 0.4 }, 10, 0x2ce8f5); R.glint(x, y + 1, 0xcfe6ff, 1.2, 7, 0.9); sfx.splash && sfx.splash(); }
 // the creatures of the region, made again (what a creature made for itself in the scene goes with it)
 function refill(){
   for (const e of E.list) for (const v of Object.values(e)){ if (!v || typeof v !== 'object') continue; if (v.isObject3D) R.scene.remove(v); else if (v.g && v.g.isObject3D) R.scene.remove(v.g); else if (v.m && v.m.isObject3D) R.scene.remove(v.m); }
@@ -732,7 +768,7 @@ function onEvent(e){
       if (k === 0){ const m = maxHearts(); if (m > P.maxHp){ P.maxHp = m; P.hp = m; } banner('The thread lengthens', 'three strands: a heart more', 4); } else banner('A red strand', `${k} of ${THREADS_A_HEART} toward a heart`, 3.4);
       store(); break; }
     case 'relic': { const r = RELICS[e.id]; if (!r || owns(e.id)) break; G.relics.push(e.id); const tied = wear(e.id, true); learn(); store(); sfx.relic();   // tied into the scarf, if a knot is free
-      const knot = tied ? 'He ties it into his scarf.' : 'Every knot in his scarf is tied. At a flame, he can choose what he wears.';
+      const knot = tied ? 'He ties it into his scarf.' : 'Every knot in his scarf is tied. At the water, he can choose what he wears.';
       LATER.push({ t: 0.7, f: () => { NOTE = { title: r.name, lines: r.lore ? [r.line, r.lore, knot] : [r.line, knot], t: 0, relic: true }; release(); } }); break; }
     case 'flask': if (P.flask > 0 && P.hp < P.maxHp){ P.flask--; P.hp = Math.min(P.maxHp, P.hp + TUNE.player.flaskHeal); sfx.drink(); fx.ring({ x: P.x, y: P.y + 0.8 }, 0x5ce1c6); }
       else if (P.hp < P.maxHp && EMBER.n >= EMBER.mend){ EMBER.n -= EMBER.mend; P.hp++; sfx.drink(); fx.ring({ x: P.x, y: P.y + 1.2 }, 0xff8060); R.glint(P.x, P.y + 1.2, 0xff8060, 0.9, 5, 0.5); fx.ember({ x: P.x, y: P.y + 1.2 }, 0); }   // the flask is dry: a measure of embers mends a heart
@@ -769,6 +805,11 @@ function drawHud(dt){
   HUD.hint(HINT[DEVICE.kind === 'keys' ? 'keys' : DEVICE.kind === 'touch' ? 'touch' : 'pad'], PAUSE ? 1 : Math.max(0, Math.min(0.8, (16 - PLAYED) * 0.5)) * (rising || TALK.on || NOTE ? 0 : 1));
   HUD.label(BUILD);
   if (FLIGHT){ const u = FLIGHT.t / FLIGHT.dur; HUD.dark(0.16 + u * 0.3, '#cfe6ff'); HUD.g.globalAlpha = 0.35; for (let k = 0; k < 14; k++){ const y = (k * 37 + Math.floor(time * 60) * 13) % 180, x = (k * 71 + Math.floor(time * 60) * 29) % W; HUD.px('#ffffff', x, y, 18 + (k * 13) % 50, 1); } HUD.g.globalAlpha = 1; if (u > 0.82) HUD.dark((u - 0.82) / 0.18, '#ffffff'); }
+  // a fall: the dark comes down after the drops have sunk, and lifts off him rising out of the water; the word over him
+  if (DISS){ const t = DISS.t, k = t < DISS_T.dark ? 0 : t < DISS_T.raise ? (t - DISS_T.dark) / (DISS_T.raise - DISS_T.dark) : 1 - (t - DISS_T.raise) / (DISS_T.end - DISS_T.raise); if (k > 0) HUD.dark(Math.min(1, k), '#0b0810'); }
+  if (RISEN){ RISEN.t += dt; const t = RISEN.t, a = Math.max(0, Math.min(1, (t - 0.5) / 0.6, (3.4 - t) / 0.8));
+    if (a > 0){ HUD.g.globalAlpha = a; HUD.text('RAISED', W / 2, 52, '#cfe6ff', 2, 'center'); HUD.rule(Math.round(W / 2), 72, 46, '#9fe8ff'); HUD.text(RISEN.line, W / 2, 80, '#fff2d0', 1, 'center'); if (RISEN.n > 1) HUD.fine(`${RISEN.n} TIMES`, W / 2, 92, '#8b9bb4', 'center'); HUD.g.globalAlpha = 1; }
+    if (t > 3.4) RISEN = null; }
   if (FLASH > 0 && OPT.flash) HUD.dark(FLASH * 1.4, '#ffffff');
   // over what he can use: the key for it
   if (USE && !PAUSE && !TALK.on && !NOTE){ v.set(USE.x, USE.y + (USE.type === 'npc' ? 2.6 : 1.5), 0).project(R.camera); HUD.prompt(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180), (DEVICE.kind === 'keys' ? 'S  ' : DEVICE.kind === 'touch' ? 'DRAG DOWN  ' : 'DOWN  ') + (USE.type === 'npc' ? 'TALK' : USE.type === 'flame' ? 'KNOTS' : 'OPEN'), time); }
@@ -787,7 +828,7 @@ function drawHud(dt){
     if (G.falls) HUD.fine(`FALLEN ${G.falls} TIME${G.falls === 1 ? '' : 'S'}. RAISED ${G.falls} TIME${G.falls === 1 ? '' : 'S'}.`, W / 2, 61, '#8b9bb4', 'center');
     if (can.length) HUD.text(can.join('  ·  '), W / 2, 51, '#2ce8f5', 1, 'center');
     const worn = G.worn.filter(id => RELICS[id]), spare = G.relics.length - worn.length;   // what is tied in his scarf; what he only carries (what each does: the knots, at a flame)
-    if (G.relics.length){ let ky = 71; HUD.fine(`${worn.length} OF ${knots()} KNOTS TIED${spare ? `  ·  ${spare} MORE CARRIED: CHOOSE AT A FLAME` : ''}`, W / 2, ky, '#8b9bb4', 'center');
+    if (G.relics.length){ let ky = 71; HUD.fine(`${worn.length} OF ${knots()} KNOTS TIED${spare ? `  ·  ${spare} MORE CARRIED: CHOOSE AT THE WATER` : ''}`, W / 2, ky, '#8b9bb4', 'center');
       for (const ln of wrapText(worn.map(id => RELICS[id].name.toUpperCase()).join('  ·  '), W - 60)){ ky += 8; HUD.fine(ln, W / 2, ky, '#fee761', 'center'); } }
     HUD.hint(HINT[DEVICE.kind === 'keys' ? 'keys' : DEVICE.kind === 'touch' ? 'touch' : 'pad'], 1); }
   if (GO.st) HUD.dark(GO.st === 'out' ? Math.min(1, GO.t / 0.6) : GO.st === 'in' ? Math.max(0, 1 - GO.t / 0.7) : 1);   // going up: dark between regions

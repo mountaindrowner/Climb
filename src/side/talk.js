@@ -16,7 +16,7 @@ export const PEOPLE = { lamplighter: { name: 'ORDRIC OF THE VIGIL', art: 'px_mot
 // They are the mountain's own folk, not people: Ordric an old moth, Mirel a hermit crab, Corwen a rook (docs/cast.md). The
 // only human shapes on the mountain are he and the Fallen, and what is left of the peoples who tried to carry the light.
 // Their keys are what the level's markers call them (lamplighter, wren, scribe); their names are above. See docs/story.md:
-//   Ordric keeps the flames because he was asked to and no one has told him to stop: faithful, and past understanding why.
+//   Ordric keeps the lamps by the water because he was asked to and no one has told him to stop: faithful, and past understanding why.
 //   Mirel climbs to arrive deserving it. She carries a great borrowed shell and counts her falls so they can be held
 //         against her; the water keeps giving her back anyway, and somewhere above the storm she puts the shell down.
 //   Corwen records the mountain exactly and cannot account for it.
@@ -28,7 +28,7 @@ const HOB = []; HOB[6] = ['Mind the lamps. I carried every drop of their oil dow
 export const SCRIPT = {   // at most three lines a meeting, each short and new; the theme is never said (docs/writing.md)
   hob: HOB,
   lamplighter: [
-    ['You came up out of the water. They all do, the ones it gives back.', 'That red thread was tied on you. It burns when you are hurt. A flame mends it.', 'Bring me shards of the old lamps. I can do a little. The rest was never mine.'],
+    ['You came up out of the water. They all do, the ones it gives back.', 'That red thread was tied on you. It burns when you are hurt. The water mends it.', 'Bring me shards of the old lamps. I can do a little. The rest was never mine.'],
     ['They rang the hours for the flame. When it went dark, they rang louder.', 'Come down hard on cracked stone now, and it gives.', 'Shards, if you have them.'],
     ['The pass is above us, and what coils on it.', 'You will fall here. Everyone does. The water does not seem to mind.', 'Shards, if you have them.'],
     ['Open the thread in the rising air, and let it take you up.', 'I never could. I always wanted to do the carrying.', 'Shards, if you have them.'],

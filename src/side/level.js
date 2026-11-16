@@ -486,6 +486,14 @@ function stations(tiles, W, H, marks, rooms, S){
     }
     if (best){ m.x = best[0]; m.y = best[1]; m.station = name; break; }
   } }
+  // a torch where one of them stands is moved aside, or taken away: its flame is drawn over everything (one was on
+  // Ordric's face)
+  for (const m of marks) if (m.type === 'npc'){
+    for (const k of marks) if (k.type === 'torch' && Math.abs(k.x - m.x) < 4 && k.y - m.y >= -1 && k.y - m.y < 8){
+      const side = k.x >= m.x ? 1 : -1, to = [m.x + side * 5, m.x - side * 5, m.x + side * 6, m.x - side * 6].find(x => at(x, k.y) === EMPTY && at(x, k.y + 1) === EMPTY);
+      if (to !== undefined) k.x = to; else k.type = 'gone';
+    }
+  }
 }
 // the region in play. One object, refilled when he goes up a region, so everything that reads it reads the new one
 export const LEVEL = {};

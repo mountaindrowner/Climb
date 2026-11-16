@@ -79,6 +79,92 @@ function apseTex(){
   for (let x = 0; x < W; x++){ const p = g.getImageData(x, base - 1, 1, 1).data; if (p[3] && r() < 0.5) px(g, r() < 0.5 ? PAL.moss1 : PAL.moss0, x, base - 1 - Math.floor(r() * 2), 1, 2); }
   return texOf(c);
 }
+// ---- what stands behind each region's raising water (the Roots' is the apse, above). Each is drawn in the palette,
+// standing on the floor behind the water, and says where the water comes from: `src` are the points it falls from
+// ({ x from the middle, y up from the floor, in pixels; kind: a thread, a stream, drips }); `still`: none falls, it is
+// a mirror. 96 wide, 100 high unless said
+const BACK = {
+  // the Crypt Stair: a pointed niche in the founders' dressed stone, a carved shell over it the water runs out of
+  arch(g, W, H){
+    const cx = W / 2, base = H - 1, R = 30, spring = 46;
+    const inN = (x, y) => y >= spring ? Math.abs(x - cx) < 22 : (Math.hypot(x - (cx - 8), y - spring) < R && Math.hypot(x - (cx + 8), y - spring) < R);
+    const inA = (x, y) => y >= spring ? Math.abs(x - cx) < 30 : (Math.hypot(x - (cx - 8), y - spring) < R + 8 && Math.hypot(x - (cx + 8), y - spring) < R + 8);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++){
+      if (inN(x, y)){ const l = Math.max(0, 1 - (base - y) / 60), b = B4[(y & 3) * 4 + (x & 3)] / 16; px(g, l > 0.75 && b < (l - 0.75) * 3 ? PAL.cyan : l > 0.35 && b < (l - 0.35) * 1.6 ? PAL.blue : l > 0.1 && b < l ? PAL.navy : PAL.ink, x, y); continue; }
+      if (inA(x, y)){ const edge = !inA(x - 1, y) || !inA(x + 1, y) || !inA(x, y - 1) || inN(x - 1, y) || inN(x + 1, y) || inN(x, y - 1); px(g, edge ? PAL.ink : ((x >> 3) + (y >> 3)) % 2 ? PAL.mid : PAL.dark, x, y); if (!edge && (y % 8 === 0 || x % 8 === 0)) px(g, PAL.deep, x, y); }
+    }
+    // the shell at its crown, ribbed, the water's lip at its foot
+    for (let k = -6; k <= 6; k++){ const h = 7 - Math.abs(k) * 0.6; px(g, PAL.ink, cx + k, 24 - h, 1, h + 2); px(g, k % 2 ? PAL.pale : PAL.light, cx + k, 25 - h, 1, h); }
+    px(g, PAL.ink, cx - 2, 26, 4, 2); px(g, PAL.cyan, cx - 1, 26, 2, 1);
+    return [{ x: 0, y: H - 27, kind: 'thread' }];
+  },
+  // the Spires: a hollow in the ice under the gate, its roof hung with icicles, meltwater dripping from their tips
+  ice(g, W, H){
+    const cx = W / 2, base = H - 1, top = 30;
+    for (let y = top; y < H; y++) for (let x = 0; x < W; x++){
+      const half = 44 - Math.max(0, (y - top) < 10 ? (10 - (y - top)) * 2.2 : 0) + Math.sin(y * 0.5) * 2;
+      const d = Math.abs(x - cx); if (d > half) continue;
+      const inner = d < half - 6 && y > top + 6, b = B4[(y & 3) * 4 + (x & 3)] / 16, l = Math.max(0, 1 - (base - y) / 50);
+      px(g, !inner ? (d > half - 2 || y < top + 2 ? PAL.ink : (x + y) % 5 ? PAL.pale : PAL.white) : l > 0.5 && b < (l - 0.5) * 2 ? PAL.cyan : b < 0.3 ? PAL.navy : PAL.deep, x, y);
+    }
+    const tips = [];
+    for (let k = 0; k < 9; k++){ const x = Math.round(cx - 30 + k * 7.5), L = 6 + ((k * 7) % 11); for (let y = 0; y < L; y++){ const w = Math.max(1, Math.round(3 - y * 3 / L)); px(g, PAL.ink, x - w, top + 6 + y, w * 2 + 1, 1); px(g, y < L - 2 ? PAL.pale : PAL.white, x - w + 1, top + 6 + y, Math.max(1, w * 2 - 1), 1); } if (k % 3 === 1) tips.push({ x: x - cx, y: H - (top + 6 + L), kind: 'drip' }); }
+    return tips;
+  },
+  // the Last Hut's path: the climbers' iron pipe down the rock, catching the rain off the scree, its mouth over the water
+  pipe(g, W, H){
+    const cx = W / 2;
+    // the rock face behind, rough
+    for (let y = 20; y < H; y++) for (let x = 6; x < W - 6; x++){ const e = 6 + Math.abs(Math.sin(y * 0.3)) * 4; if (x < e || x > W - e) continue; px(g, ((x * 7 + y * 3) % 11) < 2 ? PAL.mid : ((x >> 2) + (y >> 3)) % 3 ? PAL.dark : PAL.deep, x, y); }
+    // the pipe: down from the top left, a bend, along, and down to its mouth, riveted, rusted
+    const seg = (x, y, w, h) => { px(g, PAL.ink, x - 1, y - 1, w + 2, h + 2); px(g, PAL.rust, x, y, w, h); px(g, PAL.fire0, x, y + (h > w ? 0 : h - 1), w > h ? w : 1, w > h ? 1 : h); };
+    seg(16, 0, 5, 40); seg(16, 36, cx - 14, 5); seg(cx - 1, 36, 5, 22);
+    for (const [x, y] of [[18, 8], [18, 24], [30, 38], [cx + 1, 50]]) px(g, PAL.bone, x, y);
+    px(g, PAL.ink, cx - 3, 58, 9, 3); px(g, PAL.rust, cx - 2, 58, 7, 2);   // its lip
+    return [{ x: 1.5, y: H - 60, kind: 'stream' }];
+  },
+  // the Breach: the garden's spring, out of a carved spout in the broken wall, the vines down over it
+  spout(g, W, H){
+    const cx = W / 2;
+    for (let y = 26; y < H; y++) for (let x = 10; x < W - 10; x++){ const top = 26 + Math.abs(Math.sin(x * 0.21)) * 10; if (y < top) continue; const edge = y < top + 1 || x < 11 || x > W - 12; px(g, edge ? PAL.ink : (y % 9 === 0 || (x + (Math.floor(y / 9) % 2) * 6) % 12 === 0) ? PAL.deep : (x + y) % 7 ? PAL.mid : PAL.light, x, y); }
+    // the spout: a carved lip out of the wall, a leaf over it
+    px(g, PAL.ink, cx - 6, 48, 12, 7); px(g, PAL.pale, cx - 5, 49, 10, 2); px(g, PAL.light, cx - 5, 51, 10, 3); px(g, PAL.ink, cx - 2, 54, 4, 2);
+    for (let k = 0; k < 7; k++){ px(g, PAL.moss1, cx - 3 + k, 44 - Math.abs(k - 3), 1, 3); } px(g, PAL.moss2, cx, 41, 1, 2);
+    // the vines down the stone
+    for (const [x0, L] of [[16, 50], [24, 34], [70, 44], [80, 56]]) for (let y = 30; y < 30 + L; y++){ const x = x0 + Math.round(Math.sin(y * 0.25 + x0) * 2); px(g, y % 5 ? PAL.moss1 : PAL.moss2, x, y); if (y % 7 === 0) px(g, PAL.moss2, x + 1, y, 2, 1); }
+    return [{ x: 0, y: H - 56, kind: 'stream' }];
+  },
+  // the Long Stair's foot: a brass ring stood on end over still water, stars in it; nothing falls, the water is a mirror
+  ring(g, W, H){
+    const cx = W / 2, cy = 46, R = 34;
+    for (let k = 0; k < 360; k++){ const a = k / 180 * Math.PI; for (const [r, c] of [[R + 2, PAL.ink], [R + 1, PAL.fire2], [R, PAL.fire3], [R - 1, PAL.wood2], [R - 2, PAL.ink]]) px(g, c, cx + Math.cos(a) * r, cy + Math.sin(a) * r); }
+    for (let k = 0; k < 12; k++){ const a = k / 6 * Math.PI; px(g, PAL.ink, cx + Math.cos(a) * (R + 4) - 1, cy + Math.sin(a) * (R + 4) - 1, 3, 3); px(g, PAL.fire3, cx + Math.cos(a) * (R + 4), cy + Math.sin(a) * (R + 4)); }   // its marks, the hours
+    let s = 5; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    for (let k = 0; k < 18; k++){ const a = r() * Math.PI * 2, d = r() * (R - 6); px(g, r() < 0.3 ? PAL.white : PAL.pale, cx + Math.cos(a) * d, cy + Math.sin(a) * d); }
+    // its foot: a brass stand into the floor
+    px(g, PAL.ink, cx - 4, cy + R, 8, H - cy - R); px(g, PAL.fire2, cx - 3, cy + R, 6, H - cy - R); px(g, PAL.fire3, cx - 3, cy + R, 1, H - cy - R);
+    return [];
+  },
+  // the Workings: the hewers' trough under a wooden pipe on its frame, the water that came down the shafts
+  trough(g, W, H){
+    const cx = W / 2;
+    const beam = (x, y, w, h) => { px(g, PAL.ink, x - 1, y - 1, w + 2, h + 2); px(g, PAL.wood1, x, y, w, h); px(g, PAL.wood2, x, y, w > h ? w : 1, w > h ? 1 : h); };
+    beam(12, 30, 5, H - 30); beam(W - 17, 30, 5, H - 30); beam(8, 28, W - 16, 5);   // the frame
+    beam(20, 40, cx - 18, 4); px(g, PAL.ink, cx + 1, 40, 3, 7); px(g, PAL.wood0, cx + 2, 41, 1, 5);   // the pipe along it, and its spout down
+    for (const x of [24, 40, W - 30]) { px(g, PAL.ink, x, 33, 1, 7); }   // its lashings
+    return [{ x: 2.5, y: H - 47, kind: 'stream' }];
+  },
+};
+function backTex(look){ const W = 96, H = 100, c = cnv(W, H), g = c.getContext('2d'), src = BACK[look](g, W, H); return { tex: texOf(c), w: W, h: H, src }; }
+// Ordric's lamp over the raising water: an iron hook on a post at its edge, the lantern hung out over it
+function hookTex(){
+  const c = cnv(26, 60), g = c.getContext('2d');
+  px(g, PAL.ink, 21, 6, 4, 54); px(g, PAL.dark, 22, 7, 2, 53); px(g, PAL.mid, 22, 7, 1, 53);   // the post
+  px(g, PAL.ink, 4, 4, 21, 3); px(g, PAL.dark, 5, 5, 19, 1);                                    // the arm out over the water
+  px(g, PAL.ink, 7, 7, 1, 5);                                                                    // the chain
+  px(g, PAL.ink, 3, 12, 9, 10); px(g, PAL.fire2, 4, 13, 7, 8); px(g, PAL.fire3, 5, 14, 5, 5); px(g, PAL.white, 6, 15, 2, 2); px(g, PAL.ink, 7, 12, 1, 10);   // the lantern
+  px(g, PAL.ink, 18, 57, 10, 3); return texOf(c);
+}
 // a falling thread of water: bright dashes on a faint line, repeating, run downward
 function fallTex(){ const c = cnv(1, 32), g = c.getContext('2d'); for (let y = 0; y < 32; y++) px(g, y % 8 < 3 ? PAL.white : y % 8 < 5 ? PAL.pale : PAL.cyan, 0, y); const t = texOf(c); t.wrapT = THREE.RepeatWrapping; return t; }
 // a soft round glow
@@ -123,27 +209,44 @@ export function makeProps(scene, R){
     m.position.set((x0 + w / 2) * T, (y0 + h / 2) * T, 0.01); scene.add(m);
     cracks.push({ id: `${i},${j}`, tiles, m, x: m.position.x, y: m.position.y, w: w * T, h: h * T, gone: false });
   }
-  // ---- the pool: the sacred water at the bottom of the world, in its cistern. A basin cut into the floor, the water deep
-  // and lit from below; behind it an apse older than anything above, its arch carved and its stones worn; threads of
-  // water falling into it out of the dark (the water runs under the whole mountain, and comes back here); a glow on it
-  const pools = [];
+  // ---- the raising water: each region's pool, where the water gives him back (the Roots' is the first, the sacred pool in
+  // its cistern, under the apse). The water is a basin in the floor, deep and lit from below, and he stands in it; behind
+  // it, its region's back (BACK: the apse, a niche, ice, a pipe, a spout, a ring, a trough), the water falling into it
+  // from where that says, a shaft of light, motes rising; Ordric's lamp on its hook over it. A `plain` pool is only
+  // water (the cistern's), nothing holy about it
+  const pools = [], hookT = hookTex();
   for (const mk of LEVEL.marks) if (mk.type === 'pool'){
     const w = (mk.w || 8) * T, x = mk.x * T + w / 2, y = mk.y * T, wpx = Math.round(w * PPU), deep = 10, wt = waterTex(wpx, deep);
     const water = new THREE.Mesh(new THREE.PlaneGeometry(w, deep / PPU), basic(wt, { opacity: 0.8 })); water.position.set(x, y + T + 2 / PPU - deep / 2 / PPU, 0.07); scene.add(water);   // before him: he stands in it
-    if (mk.plain){ pools.push({ x, y, w, water, wt, plain: true, falls: [], motes: [] }); continue; }   // only water: the cistern's, which nothing is holy about
-    const apse = new THREE.Mesh(new THREE.PlaneGeometry(apseW / PPU, apseH / PPU), basic(apseTex(), { opacity: 1 })); apse.position.set(x, y + T + apseH / 2 / PPU - 2 / PPU, -0.4); scene.add(apse);
-    const glow = new THREE.Mesh(new THREE.PlaneGeometry(w * 1.5, 3), basic(glowTexOf(), { blending: THREE.AdditiveBlending, opacity: 0.2, color: 0x9fe8ff })); glow.position.set(x, y + T + 0.3, 0.06); scene.add(glow);
+    if (mk.plain){ pools.push({ x, y, w, water, wt, plain: true, falls: [], motes: [] }); continue; }
+    const look = mk.look || 'apse', floor = y + T;
+    let src;
+    if (look === 'apse'){ const apse = new THREE.Mesh(new THREE.PlaneGeometry(apseW / PPU, apseH / PPU), basic(apseTex(), { opacity: 1 })); apse.position.set(x, floor + apseH / 2 / PPU - 2 / PPU, -0.4); scene.add(apse); src = [-0.32, 0.12, 0.38].map(f => ({ x: f * w * PPU, y: 144, kind: 'thread' })); }
+    else { const B = backTex(look), m = new THREE.Mesh(new THREE.PlaneGeometry(B.w / PPU, B.h / PPU), basic(B.tex, { opacity: 1 })); m.position.set(x, floor + B.h / 2 / PPU - 2 / PPU, -0.4); scene.add(m); src = B.src; }
+    const glow = new THREE.Mesh(new THREE.PlaneGeometry(w * 1.5, 3), basic(glowTexOf(), { blending: THREE.AdditiveBlending, opacity: 0.2, color: 0x9fe8ff })); glow.position.set(x, floor + 0.3, 0.06); scene.add(glow);
     const shaft = new THREE.Mesh(new THREE.PlaneGeometry(64 / PPU, 160 / PPU), basic(shaftTex(), { blending: THREE.AdditiveBlending, opacity: 0.3 })); shaft.position.set(x, y + 80 / PPU, 0.012); scene.add(shaft);
-    // the falling threads: from the dark over the apse into the water, each with its rings where it lands
-    const falls = [-0.32, 0.12, 0.38].map((f, k) => { const fx = x + f * w, top = y + 9, len = top - (y + T);
-      const m = new THREE.Mesh(new THREE.PlaneGeometry(1 / PPU, len), basic(fallTex(), { blending: THREE.AdditiveBlending, opacity: 0.55 })); m.position.set(fx, y + T + len / 2, 0.065); m.material.map.repeat.set(1, len * PPU / 32); scene.add(m);
-      return { m, x: fx, ph: k * 1.7, spl: [] }; });
-    const motes = []; for (let k = 0; k < 22; k++){ const m = new THREE.Mesh(new THREE.PlaneGeometry(1 / PPU, 1 / PPU), basic(null, { color: 0xdff4ff, blending: THREE.AdditiveBlending })); m.position.set(x + (rnd() - 0.5) * w, y + rnd() * 7, 0.6); scene.add(m); motes.push({ m, x: m.position.x, v: 0.25 + rnd() * 0.5, ph: rnd() * 9 }); }
-    pools.push({ x, y, w, water, wt, shaft, glow, falls, motes });
+    // the water falling in, each with its rings where it lands: a thread (a fine line), a stream (wider), drips (a broken line)
+    const falls = src.map((S, k) => { const fx = x + S.x / PPU, top = floor + S.y / PPU, len = Math.max(0.2, top - floor), wd = S.kind === 'stream' ? 2 : 1;
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(wd / PPU, len), basic(fallTex(), { blending: THREE.AdditiveBlending, opacity: S.kind === 'drip' ? 0.3 : 0.55 })); m.position.set(fx, floor + len / 2, 0.065); m.material.map.repeat.set(1, len * PPU / (S.kind === 'drip' ? 64 : 32)); scene.add(m);
+      return { m, x: fx, ph: k * 1.7, spl: [], drip: S.kind === 'drip' }; });
+    const motes = []; for (let k = 0; k < 22; k++){ const m = new THREE.Mesh(new THREE.PlaneGeometry(1 / PPU, 1 / PPU), basic(null, { color: look === 'ring' ? 0xfff2d0 : 0xdff4ff, blending: THREE.AdditiveBlending })); m.position.set(x + (rnd() - 0.5) * w, y + rnd() * 7, 0.6); scene.add(m); motes.push({ m, x: m.position.x, v: 0.25 + rnd() * 0.5, ph: rnd() * 6 }); }
+    // Ordric's lamp: on its hook at the water's right edge, the lantern out over it (not over the Roots' first pool, which
+    // was there before him)
+    let lamp = null; if (look !== 'apse'){ lamp = new THREE.Mesh(new THREE.PlaneGeometry(26 / PPU, 60 / PPU), basic(hookT, { opacity: 1 })); lamp.position.set(x + w / 2 - 4 / PPU, floor + 30 / PPU - 1 / PPU, 0.02); scene.add(lamp); }
+    pools.push({ x, y, w, water, wt, shaft, glow, falls, motes, lamp, look, lx: x + w / 2 - 10 / PPU, ly: floor + 43 / PPU });
+  }
+  // ---- the leaks: water seeping out of a crack in the rock into a stone bowl on the floor (the bowl is painted, paint.js);
+  // the drip, its rings, a little cold light. They mend him and fill the flask; they do not raise him (main.js)
+  const leaks = [];
+  for (const mk of LEVEL.marks) if (mk.type === 'shrine'){
+    const x = (mk.x + 0.5) * T, floor = mk.y * T + 5 / PPU, len = 2.2;
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(1 / PPU, len), basic(fallTex(), { blending: THREE.AdditiveBlending, opacity: 0.4 })); m.position.set(x, floor + len / 2, 0.065); m.material.map.repeat.set(1, len * PPU / 48); scene.add(m);
+    const glow = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.6), basic(glowTexOf(), { blending: THREE.AdditiveBlending, opacity: 0.22, color: 0x9fe8ff })); glow.position.set(x, floor + 0.2, 0.06); scene.add(glow);
+    leaks.push({ x, y: floor, m, glow, ph: rnd() * 6, spl: [] });
   }
   const shatter = (C, quiet) => { if (C.gone) return; C.gone = true; for (const [a, b] of C.tiles) LEVEL.tiles[b * W + a] = EMPTY; scene.remove(C.m); C.m.geometry.dispose(); C.m.material.map.dispose(); C.m.material.dispose(); };
   return {
-    cracks, glass, blooms, pools,
+    cracks, glass, blooms, pools, leaks,
     step(dt, t){
       for (const W of pools){ W.wt.offset.x = Math.floor(t * 5) / (W.w * PPU); if (W.plain) continue; W.shaft.material.opacity = 0.26 + Math.sin(t * 0.9) * 0.05; W.glow.material.opacity = 0.17 + Math.sin(t * 1.3) * 0.04; R.glint(W.x, W.y + 1.6, 0xbfe8ff, 0.7, 7);
         for (const F of W.falls){ F.m.material.map.offset.y = -((t * 3 + F.ph) % 1); F.m.material.opacity = 0.45 + Math.sin(t * 2 + F.ph) * 0.12;
@@ -151,6 +254,12 @@ export function makeProps(scene, R){
           for (const S of F.spl){ S.t += dt; S.m.scale.set(0.15 + S.t * 1.6, 1, 1); S.m.material.opacity = Math.max(0, 0.8 - S.t * 1.6); }
           while (F.spl.length && F.spl[0].t > 0.5){ const S = F.spl.shift(); scene.remove(S.m); S.m.geometry.dispose(); S.m.material.dispose(); } }
         for (const M of W.motes){ M.m.position.y += M.v * dt; M.m.position.x = M.x + Math.sin(t * 0.8 + M.ph) * 0.25; if (M.m.position.y > W.y + 8){ M.m.position.y = W.y + 0.5; M.x = W.x + (rnd() - 0.5) * W.w; } M.m.material.opacity = 0.4 + 0.4 * Math.sin(t * 2 + M.ph); } }
+      for (const W of pools) if (W.lamp) R.glint(W.lx, W.ly, 0xffb060, 0.3, 3.2);   // Ordric's lamp over the water, small and warm
+      for (const L of leaks){
+        L.m.material.map.offset.y = -((t * 2.2 + L.ph) % 1); L.glow.material.opacity = 0.18 + Math.sin(t * 1.7 + L.ph) * 0.05; R.glint(L.x, L.y + 0.6, 0x9fe8ff, 0.45, 4.2);
+        if (rnd() < dt * 2.5){ const ring = new THREE.Mesh(new THREE.PlaneGeometry(1, 1 / PPU), basic(null, { color: 0xdff4ff, blending: THREE.AdditiveBlending, opacity: 0.8 })); ring.position.set(L.x, L.y + 1 / PPU, 0.075); scene.add(ring); L.spl.push({ m: ring, t: 0 }); }
+        for (const S of L.spl){ S.t += dt; S.m.scale.set(0.1 + S.t * 0.9, 1, 1); S.m.material.opacity = Math.max(0, 0.8 - S.t * 1.8); }
+        while (L.spl.length && L.spl[0].t > 0.45){ const S = L.spl.shift(); scene.remove(S.m); S.m.geometry.dispose(); S.m.material.dispose(); } }
       const left = PHASE.period - (PHASE.t % PHASE.period);   // until the beat turns
       for (const G of glass){ const on = glassOn(G.k), going = on && left < 0.5 && !PHASE.all;
         G.m.material.opacity = on ? (going && Math.floor(t * 16) % 2 ? 0.45 : 1) : 0.13; G.gl.material.opacity = on ? 0.16 + Math.sin(t * 3 + G.x) * 0.04 : 0.02; G.turned = G.was !== null && G.was !== on; G.was = on; }

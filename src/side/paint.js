@@ -370,9 +370,12 @@ export function paintRegion(n, own = true){
         stone(Math.round(cx - 1.5 * CELL), base - 5, 3 * CELL, 5);   // its foot
       }
     }
+    // a leak: a stone bowl on the floor, the water in it, and above it the wet crack it seeps from (the drip is props.js)
     if (m.type === 'shrine'){ const b = Y(m.y);
-      px(g, PAL.ink, cx - 8, b - 6, 17, 6); px(g, PAL.dark, cx - 7, b - 5, 15, 5); px(g, PAL.light, cx - 7, b - 5, 15, 1);
-      for (let k = 0; k < 12; k++){ const half = Math.round(Math.sin(Math.PI * k / 12) * 3); px(g, PAL.ink, cx - half - 1, b - 6 - k, half * 2 + 3); px(g, k > 7 ? PAL.fire3 : PAL.fire2, cx - half, b - 6 - k, half * 2 + 1); } }
+      px(g, PAL.ink, cx - 8, b - 6, 17, 6); px(g, PAL.dark, cx - 7, b - 5, 15, 5); px(g, PAL.mid, cx - 7, b - 5, 15, 1); px(g, PAL.ink, cx - 6, b - 1, 13, 1);   // the bowl
+      px(g, PAL.cyan, cx - 6, b - 5, 13, 1); px(g, PAL.blue, cx - 5, b - 4, 11, 1); px(g, PAL.white, cx - 3, b - 5, 2, 1);                               // its water
+      const top = b - 36; px(g, PAL.ink, cx - 2, top - 3, 5, 6); px(g, PAL.teal, cx - 1, top - 2, 3, 4); px(g, PAL.cyan, cx, top, 1, 2);                 // the crack, wet
+      for (let k = 0; k < 9; k++) px(g, k % 3 ? PAL.teal : PAL.moss0, cx - 3 + (k % 3) * 3, top + 3 + Math.floor(k / 3), 1, 1); }                        // the stain under it
   }
   return { n, back: back.cnv, bh: back.bh, play, normals: play.normals || null, glows };
 }

@@ -254,6 +254,7 @@ export function makeStory(hud, heroBase){
     say('THE CLIMB', 0.115, 0.08, Math.min(1, S.t / 1.2), '#fff2d0', 12);
     say('what fell is called back up', 0.262, 0.032, ease((S.t - 0.8) / 1.2) * 0.85, '#cfe6ff', 13);
     // while the opening is still coming in: a thin bar where the buttons will be
+    if (S.quiet && S.quiet() && Math.floor(S.t * 2) % 2 === 0) say('press any key, or tap, for sound', 0.95, 0.024, 0.75, '#8b9bb4');   // a browser lets no sound play before a press
     const pr = S.opts.progress && S.opts.progress(); if (pr != null){ px(PAL.ink, 12, 101, 102, 4); px('#3a4466', 13, 102, 100, 2); px(PAL.fire3, 13, 102, Math.max(1, Math.round(100 * pr)), 2); }
   }
   function intro(dt){

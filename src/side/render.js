@@ -223,10 +223,10 @@ export function makeRenderer(canvas){
         const ft = flameTexs[burning.length % flameTexs.length], core = new THREE.Mesh(new THREE.PlaneGeometry(8 / PPU, 12 / PPU), new THREE.MeshBasicMaterial({ map: ft, transparent: true, alphaTest: 0.5 })); core.position.set(x, y + 0.86, 0.9); scene.add(core); burning.push(core);   // the flame itself, drawn, four frames
         lights.push({ x, y: y + 0.8, color: 0xff9a40, power: 1.5, range: 7, ph: rnd() * 9, torch: true });
       }
-      if (m.type === 'shrine'){
-        const gl = new THREE.Mesh(new THREE.PlaneGeometry(3, 3), new THREE.MeshBasicMaterial({ map: torchGlow, transparent: true, depthWrite: false, color: 0xffd27a, blending: THREE.AdditiveBlending, opacity: 0.6 }));
-        gl.position.set(x, y + 0.7, 1); scene.add(gl); flames.push({ m: gl, ph: rnd() * 9, slow: true });
-        lights.push({ x, y: y + 1, color: 0xffc860, power: 1.8, range: 7, ph: rnd() * 9 });
+      if (m.type === 'shrine'){   // a leak: cold and soft (it was a flame, whose light washed out whoever stood by it)
+        const gl = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 2.2), new THREE.MeshBasicMaterial({ map: torchGlow, transparent: true, depthWrite: false, color: 0x9fe8ff, blending: THREE.AdditiveBlending, opacity: 0.3 }));
+        gl.position.set(x, y + 0.5, 1); scene.add(gl); flames.push({ m: gl, ph: rnd() * 9, slow: true });
+        lights.push({ x, y: y + 0.8, color: 0x9fe8ff, power: 0.55, range: 4.5, ph: rnd() * 9 });
       }
     }
     canvasPlanes(scene, PT.play, 0, Hh, 0, true, PT.normals);

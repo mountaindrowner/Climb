@@ -17,7 +17,7 @@ const titled = (fn, title) => { const f = () => { const r = fn(); r.title = titl
 // down it; it is dark at the foot and lit at the head, where the house's light comes down to meet him
 function cryptfoot(){
   const r = room(); walls(r); door(r, 'top', 30, 35);
-  rect(r, 8, 1, 22, 1, EMPTY); mark(r, 'pool', 8, 1, { w: 15, plain: true });   // the water, run down the stair and pooled
+  rect(r, 8, 1, 22, 1, EMPTY); mark(r, 'pool', 8, 1, { w: 15, look: 'arch' });   // the water, run down the stair and pooled under the founders' niche: the Cloister's raising water
   stairs(r, 24, 2, 3, 1, 2);                                                   // the first worn steps
   shaftUp(r, 30, 35, 6, 18);                                                  // up to the stair's mouth
   mark(r, 'spawn', 4, 2); mark(r, 'crystal', 14, 2); mark(r, 'urn', 26, 4); mark(r, 'flitter', 18, 14);
@@ -38,6 +38,7 @@ function founders(){
 function gate(){
   const r = room(); walls(r); door(r, 'top', 30, 35);
   rect(r, 14, 2, 17, 6); rect(r, 14, 16, 17, 20);                 // the gate's two posts, and its lintel over
+  rect(r, 20, 1, 27, 1, EMPTY); mark(r, 'pool', 20, 1, { w: 8, look: 'ice' });   // meltwater under the gate: the Spires' raising water
   ledge(r, 22, 28, 7); shaftUp(r, 30, 35, 10, 18);
   mark(r, 'spawn', 5, 2); mark(r, 'torch', 12, 8); mark(r, 'torch', 19, 8); mark(r, 'urn', 8, 2); mark(r, 'urn', 34, 2);
   return r;
@@ -47,7 +48,7 @@ function road(){
   // the road: a worn stair up from the gate, then switchbacks up the face, a landing at each turn
   stairs(r, 24, 2, 6, -1, 2);
   for (const [x0, x1, y] of [[4, 12, 8], [14, 20, 12], [20, 32, 16], [10, 18, 20], [20, 26, 24], [24, 28, 28]]){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); }
-  mark(r, 'shrine', 25, 17);                                     // the shrine at the turn: a flame kept for him
+  mark(r, 'shrine', 25, 17);                                     // the turn: water seeps through the road here (a leak)
   shaftUp(r, 29, 35, 31, 43);
   mark(r, 'harpy', 20, 34); mark(r, 'urn', 6, 9); mark(r, 'chest', 30, 17, { holds: 'shards' });
   mark(r, 'torch', 6, 26); mark(r, 'torch', 36, 36);
@@ -59,14 +60,15 @@ function path(){
   const r = room(); walls(r); door(r, 'top', 30, 35);
   rect(r, 20, 2, 39, 3); rect(r, 26, 4, 39, 5);                    // the path climbing the scree
   shaftUp(r, 30, 35, 10, 18);
-  mark(r, 'spawn', 5, 2); mark(r, 'yeti', 23, 4); mark(r, 'urn', 24, 4); mark(r, 'crystal', 10, 2);
+  rect(r, 8, 1, 15, 1, EMPTY); mark(r, 'pool', 8, 1, { w: 8, look: 'pipe' });   // rain off the scree, caught by the climbers' pipe: the Tempest's raising water
+  mark(r, 'spawn', 5, 2); mark(r, 'yeti', 33, 6); mark(r, 'urn', 24, 4); mark(r, 'crystal', 18, 2);   // the yeti up the scree, not by the water
   return r;
 }
 function hut(){
   const r = room(1, 2); walls(r); door(r, 'bottom', 30, 35); ledge(r, 30, 35, 1);
   rect(r, 2, 2, 39, 3); rect(r, 30, 2, 35, 3, EMPTY); rect(r, 30, 3, 35, 3, LEDGE);   // the hut's floor, over the cellar he came up through
   ledge(r, 4, 10, 8); ledge(r, 4, 10, 12);                        // the bunks
-  mark(r, 'shrine', 18, 4);                                       // the fire, kept
+  mark(r, 'shrine', 18, 4);                                       // the hut's roof lets the water through, into a bowl (a leak)
   for (const [x0, x1, y] of [[22, 28, 9], [12, 18, 14], [22, 28, 19], [12, 18, 24]]){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); }   // the ladder up the loft, to the door
   ledge(r, 20, 28, 28); shaftUp(r, 29, 35, 31, 43);
   mark(r, 'torch', 14, 9); mark(r, 'torch', 34, 12); mark(r, 'torch', 30, 32);
@@ -79,7 +81,8 @@ function wallfoot(){
   const r = room(); walls(r); door(r, 'top', 30, 35);
   rect(r, 18, 2, 23, 4); rect(r, 26, 2, 29, 7);                    // the fallen wall's stones
   shaftUp(r, 30, 35, 10, 18);
-  mark(r, 'spawn', 5, 2); mark(r, 'squall', 12, 2); mark(r, 'urn', 20, 5); mark(r, 'crystal', 34, 2);
+  rect(r, 7, 1, 14, 1, EMPTY); mark(r, 'pool', 7, 1, { w: 8, look: 'spout' });   // the garden's own spring, out of the broken wall: the Gardens' raising water
+  mark(r, 'spawn', 5, 2); mark(r, 'squall', 31, 2); mark(r, 'urn', 20, 5); mark(r, 'crystal', 34, 2);
   return r;
 }
 function breach(){
@@ -99,6 +102,7 @@ function stairfoot(){
   const r = room(); walls(r); door(r, 'top', 8, 13);
   stairs(r, 16, 2, 9, 1, 2); rect(r, 34, 2, 37, 10);              // the first flight, to the wall
   shaftUp(r, 8, 13, 6, 18);                                       // and up from its foot to the next
+  rect(r, 6, 1, 13, 1, EMPTY); mark(r, 'pool', 6, 1, { w: 8, look: 'ring' });   // a still pool at the stair's foot, the stars in it: the Firmament's raising water
   mark(r, 'spawn', 5, 2); mark(r, 'urn', 36, 11); mark(r, 'crystal', 34, 11);
   return r;
 }

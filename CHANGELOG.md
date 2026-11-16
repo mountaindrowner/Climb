@@ -2,7 +2,17 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Phase 1: what was broken, fixed (latest).** From the two playtests (`docs/roadmap.md`, phase 1).
+**Phase 2: the water (latest).** Every rest point is water now (`docs/roadmap.md`, decisions 0.1 and 0.2).
+- **One raising pool a region,** near where he comes in, each of its own place: the Roots' sacred pool under its arch; the Crypt Stair's water under the founders' pointed niche, run from a carved shell; meltwater under the Bell Road's gate, dripping from icicles; the Last Hut path's rain, caught by the climbers' iron pipe; the Breach's spring out of the broken garden wall, under the vines; a still pool at the Long Stair's foot under a brass ring, the stars in it; the Workings' trough under the hewers' pipe. Ordric's lamp hangs on its hook over each.
+- **A fall raises him there,** so a keeper is a real walk back (18 to 35 s at a run from the water to the stage, before the creatures). The tests now check every region has its raising water near where he comes in and its keeper within 60 s of it.
+- **The other flames are leaks:** water seeping from a crack in the rock into a stone bowl, a soft cold light. They mend him and fill the flask; they do not raise him. The knots can be chosen at either.
+- **What a fall is:** no rewind. He comes apart into drops of water; they fall and sink into the ground; the picture goes dark; he comes up out of the raising water, and the word RAISED stands over him with a line under it ("The water gives him back."), and how many times.
+- **The intro** ends with him coming up out of the water, a splash and its light. The title says to press a key, or tap, for sound until there has been one (a browser lets no sound play before), and a phone's tap now starts the sound too.
+- Words: "at a flame" is "at the water" (the knots, the pause, a relic's card); Ordric's "a flame mends it" is "the water mends it"; Ordric keeps the lamps (the Annals); the map's key says WATER, the raising pool a larger dot. The story's own flame (the summit, the ending) stays fire.
+- **Ordric's face:** a wall torch stood where he does, and a torch's flame is drawn over everything, so it sat on his face (the playtest's "lantern on his face"). A torch where one of the people stands is now moved a few tiles aside, or taken away. The leaks' light is also a quarter of the old flames', and cold.
+- Fixed while building it: a comment written into the middle of a line had switched off the sound's start (caught before it went out).
+
+**Phase 1: what was broken, fixed.** From the two playtests (`docs/roadmap.md`, phase 1).
 - **Stuck by Corwen's desk:** a crawler could shove him into the rock block beside it, and once inside rock he could not stand, jump or walk. Now a creature's shove stops at rock (against a wall, the creature gives way), and if he is ever inside rock, for any reason, he is put out to the nearest open place at once. A new **stuck-finder** plays every place in every region he could stand with the real movement and every input, and fails the build if any is a place he could not leave; it found two more (a notch in the Cloister's cells, a tooth of rock in the Spires), now filled.
 - **Planks:** he catches a plank anywhere along it when his hands pass it from below, not only at its end. And after dropping through a plank (down and jump), or while holding down, he no longer catches the next ledge on the way down.
 - **The knots** are drawn over the scarf and behind him, not through him.

@@ -33,7 +33,8 @@ function cage(){
 function tally(){
   const r = room(); walls(r); door(r, 'left', 2, 7); door(r, 'right', 2, 7);
   ledge(r, 8, 14, 7); ledge(r, 26, 32, 9);                         // the tally-men's benches
-  mark(r, 'shrine', 20, 2); mark(r, 'torch', 12, 9); mark(r, 'torch', 28, 11);
+  rect(r, 17, 1, 23, 1, EMPTY); mark(r, 'pool', 17, 1, { w: 7, look: 'trough' });   // the Deep's raising water: the hewers' trough, the water that came down the pipes
+  mark(r, 'torch', 12, 9); mark(r, 'torch', 28, 11);
   mark(r, 'urn', 5, 2); mark(r, 'urn', 34, 2); mark(r, 'chest', 29, 10, { holds: 'thread' });
   return r;
 }

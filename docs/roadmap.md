@@ -87,6 +87,8 @@ the Sexton becomes the Ossuary's elite with something else to give. To settle wh
 
 ## Phase 2: the water, and what a fall is
 
+*Done (build 44).*
+
 - **Every flame becomes a pool of the blue water.** One shared look, a rim in each region's stone (rock pool, font,
   basin, meltwater, cistern, fountain, mirror pool, trough). Ordric's lamp hangs over each.
 - **One raising pool per region,** near its start, each its own shape. A fall raises him there (decision 0.1), so a keeper
