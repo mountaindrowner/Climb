@@ -2,10 +2,11 @@
 // recording of it (assets/audio, made with PixelLab and packed by tools/audio-pack.py; manifest.json lists them) that is
 // played, a little different in pitch each time; if not, a sound synthesised here stands in, so nothing is ever silent
 // for want of a file, and a new recording dropped in the folder is used without a change to the game.
-// Three volumes: the master (settings), and under it the effects and the music (MIX), each its own bus.
+// Four volumes: the master (settings), and under it the effects, the music and the voices (MIX), each its own bus.
 import { SET } from '../core/settings.js';
-let AC = null, OUT = null, SFX = null, MUS = null;   // OUT: the master; SFX, MUS: the buses under it
-export const MIX = { sfx: 1, music: 0.7 };
+import { utter } from './voice.js';
+let AC = null, OUT = null, SFX = null, MUS = null, VOX = null;   // OUT: the master; SFX, MUS, VOX (the voices): the buses under it
+export const MIX = { sfx: 1, music: 0.7, voice: 0.8 };
 export const MANIFEST = { sfx: {}, music: {}, base: 'assets/audio/' };
 const BANK = {}, LAST = {};
 // The recordings are fetched in the order they are wanted, a few at a time, so they never crowd out the pictures the
@@ -31,14 +32,16 @@ export function warm(){
 function loadBank(){ warm(); for (const name in RAW) decode(name); }
 export function ac(){
   if (!AC){ try { AC = new (window.AudioContext || window.webkitAudioContext)(); OUT = AC.createGain(); OUT.gain.value = SET.volume; OUT.connect(AC.destination);
-    SFX = AC.createGain(); SFX.gain.value = MIX.sfx; SFX.connect(OUT); MUS = AC.createGain(); MUS.gain.value = MIX.music; MUS.connect(OUT); } catch (e) {} }
+    SFX = AC.createGain(); SFX.gain.value = MIX.sfx; SFX.connect(OUT); MUS = AC.createGain(); MUS.gain.value = MIX.music; MUS.connect(OUT); VOX = AC.createGain(); VOX.gain.value = MIX.voice * MIX.voice; VOX.connect(OUT); } catch (e) {} }
   if (AC && AC.state === 'suspended') AC.resume();
   if (AC) loadBank();
   return AC;
 }
 export const musicBus = () => MUS;
 export const loaded = () => Object.keys(BANK).length;   // how many recordings are in (a check)
-export function setMix(k, v){ MIX[k] = v; const b = k === 'sfx' ? SFX : MUS; if (b && AC) b.gain.setTargetAtTime(v, AC.currentTime, 0.05); }
+export function setMix(k, v){ MIX[k] = v; const b = k === 'sfx' ? SFX : k === 'voice' ? VOX : MUS; if (b && AC) b.gain.setTargetAtTime(k === 'voice' ? v * v : v, AC.currentTime, 0.05); }   // the voices' loudness follows the square of the setting, so its steps sound even
+// the voices: one syllable of a speaker's mumble (voice.js), on their own bus
+export function say(V, syl){ if (AC && VOX && AC.state === 'running') utter(AC, VOX, V, syl); }
 // a recording, if there is one: false if not (the caller falls back). vol, rate; jitter: how far its pitch may stray
 function sample(name, vol = 1, rate = 1, jitter = 0.05, gap = 0.04){
   const buf = BANK[name]; if (!buf || !AC) return false;

@@ -5,7 +5,8 @@
 import { TUNE } from '../config/tuning.js';
 import { IN, bindInput, endFrame, pollPads, release, rumble } from '../core/input.js';
 import { SET, saveSettings } from '../core/settings.js';
-import { sfx, ac, musicBus, ambience, setMix, MIX, warm, manifestReady } from '../audio/sfx.js';
+import { sfx, ac, musicBus, ambience, setMix, MIX, warm, manifestReady, say } from '../audio/sfx.js';
+import { voiceOf } from '../audio/voice.js';
 import { makeScore } from '../audio/score.js';
 import '../ui/feel.js';
 import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP } from './level.js';
@@ -29,7 +30,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 41';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 42';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -38,7 +39,7 @@ loadSave();
 // the phone mode: by the device (a touch screen no wider than a small tablet), or as the options say
 const phoneNow = () => OPT.phone === 'auto' ? (typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches && Math.max(screen.width, screen.height) <= 1400) : !!OPT.phone;
 LOW.on = phoneNow();
-setMix('music', OPT.music); setMix('sfx', OPT.sfx); if (OPT.rumble === false) SET.rumble = false;
+setMix('music', OPT.music); setMix('sfx', OPT.sfx); setMix('voice', OPT.voice); if (OPT.rumble === false) SET.rumble = false;
 const DEV = /[?&]level=/.test(location.search);   // straight into a region by its address: he has what the keepers below it teach
 // he is made with what he has earned: hearts (threads, keepers, the difficulty), and the flask's draughts
 const armed = id => id === 'blade' || (G.arms || []).includes(id);
@@ -175,16 +176,20 @@ function title(){
 // the options: each button steps its setting on
 function options(back){
   const cyc = (label, key, vals, names, then) => { const b = menuButton('', () => { OPT[key] = vals[(vals.indexOf(OPT[key]) + 1) % vals.length]; storeOpt(); if (then) then(); show(); }, true); const show = () => { b.textContent = `${label}: ${names[Math.max(0, vals.indexOf(OPT[key]))]}`; }; show(); b.style.minWidth = '240px'; return b; };
-  menuShow([menuLabel('OPTIONS'),
+  // in two columns, so the list fits a short screen (a phone held sideways)
+  const grid = rows => { const d = document.createElement('div'); d.style.cssText = 'display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px;max-width:min(94vw,560px)'; for (const r of rows){ r.style.minWidth = '0'; r.style.whiteSpace = 'normal'; d.appendChild(r); } return d; };
+  menuShow([menuLabel('OPTIONS'), grid([
     cyc('Music', 'music', [0, 0.35, 0.7, 1], ['off', 'low', 'mid', 'full'], () => setMix('music', OPT.music)),
     cyc('Sound', 'sfx', [0, 0.4, 0.7, 1], ['off', 'low', 'mid', 'full'], () => { setMix('sfx', OPT.sfx); sfx.shard(); }),
+    cyc('Voices', 'voice', [0, 0.4, 0.8, 1], ['off', 'low', 'mid', 'full'], () => { setMix('voice', OPT.voice); say(voiceOf('lamplighter'), { v: 'a', p: 1, g: 1 }); }),
+    cyc('Text', 'text', ['slow', 'normal', 'fast', 'now'], ['slow', 'normal', 'fast', 'at once']),
     cyc('Score', 'synth', [false, true], ['recorded', 'made as it plays']),
     cyc('Shake', 'shake', [0, 0.5, 1], ['off', 'soft', 'full']),
     cyc('Flashes', 'flash', [0, 1], ['off', 'on']),
     cyc('Difficulty', 'diff', [0, 1, 2], DIFF.map((d, i) => d + [' (two hearts more)', '', ' (two hearts fewer)'][i]), () => { P.maxHp = maxHearts(); P.hp = Math.min(P.hp, P.maxHp); }),
     cyc('Phone mode', 'phone', ['auto', true, false], [phoneNow() && OPT.phone === 'auto' ? 'auto (on)' : 'auto', 'on', 'off'], () => { LOW.on = phoneNow(); banner('', 'phone mode ' + (LOW.on ? 'on' : 'off') + ': from the next region', 2.4); }),
-    cyc('Rumble', 'rumble', [true, false], ['on', 'off'], () => { SET.rumble = OPT.rumble; saveSettings(); if (OPT.rumble) rumble(0.5, 0.5, 160); }),
-    menuButton('Back', back, true)], false, back);
+    cyc('Rumble', 'rumble', [true, false], ['on', 'off'], () => { SET.rumble = OPT.rumble; saveSettings(); if (OPT.rumble) rumble(0.5, 0.5, 160); })]),
+    menuButton('Back', back, true)], false, back); MENU.style.top = '34%';
 }
 // ---- Corwen's Annals: a page for each region (its keeper and its creatures) and one for the three who climb. Drawn on
 // the HUD (drawAnnals); the buttons under it turn the pages; so do left and right (and the shoulder buttons)

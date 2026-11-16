@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Drawn back a little (latest).** The view shows about 15% more of the world (15.5 units tall, was 13.5), on every screen. A keeper's hall shorter than the view is now kept in the middle of it, rather than its floor at the bottom edge. On a phone, the flask and embers buttons were squeezed into each other (the flask's text ran out of its frame): each is now as wide as its words, with a gap between.
+**The folk have voices (latest).** Ordric, Mirel, Corwen and Hob now speak as their words type out: a mumble of vowel sounds made as it plays (no recordings), one for each syllable, rising at a question, falling through a sentence, pausing at commas and full stops, each in a voice of their own: Ordric papery and slow, Mirel held in under her shell (and opened out once she has put it down), Corwen clipped and dry, Hob low and muttering (`docs/voices.md`). The words now type with a rhythm, waiting at punctuation. Two new options: **Voices** (its own volume) and **Text** (slow, normal, fast, or at once, which shows each line whole with no voice). The options are now in two columns, so they fit a phone held sideways (they ran off the bottom).
+
+**Drawn back a little.** The view shows about 15% more of the world (15.5 units tall, was 13.5), on every screen. A keeper's hall shorter than the view is now kept in the middle of it, rather than its floor at the bottom edge. On a phone, the flask and embers buttons were squeezed into each other (the flask's text ran out of its frame): each is now as wide as its words, with a gap between.
 
 **A second weapon: the Sexton's spade.** Step three of the Ember plan. When the Sexton falls in the Ossuary, he leaves his spade, and the new swap key (R, or LB; a touch button once he has it) changes between it and the blade.
 - *The spade:* one great overhead swing, slow to lift, far-reaching, three times a cut's harm, and it breaks cracked stone wherever it lands. It has no combo and no rising or dashing cut, and he cannot guard with it.

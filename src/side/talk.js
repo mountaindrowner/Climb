@@ -1,9 +1,15 @@
 // The people on the mountain, and what they say. Three of them go up it as he does: Ordric of the Vigil, who keeps the
 // flames and does what he can for shards; Mirel the Penitent, a pilgrim; and Corwen the Annalist, who records it. Each has something to say in each
 // region (SCRIPT[who][region], a list of lines; said once in full, then its last line again).
-//   makeTalk(hud) -> { on, start(who, lines, after), press(), draw(H, dt) }: a box at the foot of the picture, the words
-//   typed out; a press finishes the line, the next press goes on.
-import { sfx } from '../audio/sfx.js';
+//   makeTalk(hud) -> { on, start(who, lines, after), press(), draw(H, dt) }: a box at the top of the picture, the words
+//   typed out; a press finishes the line, the next press goes on. Each character waits by what it is (a comma longer,
+//   a full stop longer still: voice.js pauseAfter), at the speaker's own rate, and each letter that starts a syllable
+//   is spoken in the speaker's voice (voice.js), so a line cut short by a press simply stops.
+import { say } from '../audio/sfx.js';
+import { planLine, pauseAfter, voiceOf, BASE } from '../audio/voice.js';
+import { OPT } from './state.js';
+// the text speed (Options): how long each wait is, or the whole line at once (and then no voice)
+export const TEXT_SPEED = { slow: 1.6, normal: 1, fast: 0.5, now: 0 };
 import { text, width, fine } from './pixelfont.js';
 export const PEOPLE = { lamplighter: { name: 'ORDRIC OF THE VIGIL', art: 'px_moth', col: '#feae34' }, wren: { name: 'MIREL THE PENITENT', art: 'px_hermit', col: '#63c74d', late: { from: 4, art: 'px_hermit_free' } }, scribe: { name: 'CORWEN THE ANNALIST', art: 'px_rook', col: '#2ce8f5' }, hob: { name: 'HOB OF THE GUILD', art: 'px_mole', col: '#feae34' } };
 // `late`: from that region up, another drawing (Mirel has put her shell down by the Gardens).
@@ -54,11 +60,16 @@ export function makeTalk(){
       const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight; const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(im, 0, 0); const d = g.getImageData(0, 0, c.width, c.height).data;
       let x0 = c.width, x1 = 0, y0 = c.height, y1 = 0; for (let y = 0; y < c.height; y++) for (let x = 0; x < c.width; x++) if (d[(y * c.width + x) * 4 + 3] > 40){ x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
       const at = FACES[art || P.art], s = at ? (at[2] || 16) : y1 - y0 > 50 ? 32 : 16; faces[who] = at ? { im: c, x: at[0], y: at[1], s } : { im: c, x: Math.max(0, Math.min(c.width - s, Math.round((x0 + x1) / 2 - s / 2))), y: Math.max(0, y0 - 1), s }; }; im.src = `assets/side/${art || P.art}/stand.png`; return null; };
-  S.start = (who, lines, after = null, art = null) => { S.on = true; S.who = who; S.art = art; S.lines = lines.slice(); S.i = 0; S.n = 0; S.after = after; S.held = 0; face(who, art); };
-  S.press = () => { if (!S.on || S.held < 0.15) return; const L = S.lines[S.i] || ''; if (S.n < L.length){ S.n = L.length; return; } S.i++; S.n = 0; S.held = 0; if (S.i >= S.lines.length){ S.on = false; const a = S.after; S.after = null; if (a) a(); } };
+  // whose voice: Mirel's opens out once she has put the shell down (her late drawing)
+  const voiceKey = (who, art) => who === 'wren' && art && PEOPLE.wren.late && art === PEOPLE.wren.late.art ? 'wren_free' : who;
+  const line = () => { const L = S.lines[S.i] || ''; if (S.planned !== L){ S.planned = L; S.plan = planLine(L); } S.due = 0; };
+  S.start = (who, lines, after = null, art = null) => { S.on = true; S.who = who; S.art = art; S.voice = voiceOf(voiceKey(who, art)); S.lines = lines.slice(); S.i = 0; S.n = 0; S.after = after; S.held = 0; face(who, art); line(); };
+  S.press = () => { if (!S.on || S.held < 0.15) return; const L = S.lines[S.i] || ''; if (S.n < L.length){ S.n = L.length; return; } S.i++; S.n = 0; S.held = 0; line(); if (S.i >= S.lines.length){ S.on = false; const a = S.after; S.after = null; if (a) a(); } };
   S.draw = (H, dt, t) => {
     if (!S.on) return; S.held += dt; const g = H.g, W = H.W, C = H.C, P = PEOPLE[S.who] || { name: S.who.toUpperCase(), col: C.cream }, L = S.lines[S.i] || '';
-    const n0 = Math.floor(S.n); S.n = Math.min(L.length, S.n + dt * 42); if (Math.floor(S.n) > n0 && Math.floor(S.n) % 3 === 0 && L[Math.floor(S.n) - 1] !== ' ') sfx.talk();
+    const mul = TEXT_SPEED[OPT.text] ?? 1;
+    if (!mul) S.n = L.length;
+    else { S.due -= dt; let k = 0; while (S.due <= 0 && S.n < L.length){ const i = S.n++, syl = S.plan.get(i); if (syl && k++ < 2) say(S.voice, syl); S.due += pauseAfter(L, i) * BASE / (S.voice.rate || 1) * mul; } }   // (a slow frame says at most two at once)
     const bw = Math.min(300, W - 16), x = Math.round((W - bw) / 2), y = 8, bh = 46;   // at the top: he and whoever speaks stand at the foot of the picture
     H.px(C.ink, x - 1, y - 1, bw + 2, bh + 2); H.px('#262b44', x, y, bw, bh); H.px(C.ink, x + 1, y + 1, bw - 2, bh - 2); H.px(P.col, x + 1, y + 1, bw - 2, 1);
     const f = face(S.who, S.art); H.px('#262b44', x + 4, y + 5, 36, 36); H.px(C.ink, x + 5, y + 6, 34, 34);
