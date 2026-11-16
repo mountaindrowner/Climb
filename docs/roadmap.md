@@ -32,23 +32,29 @@ A phase is done when all of these hold:
 What I cannot judge: feel, sound, and how hard something is for a person. Each phase's playtest list is aimed at
 exactly those.
 
-## Phase 0: decisions (one conversation, before any building)
+## Phase 0: decisions (settled 2026-11-16)
 
-Each comes with my recommendation, so you can mostly say yes or no.
+The guide for everything below: **Hollow Knight and Dead Cells first, then Castlevania**: hard but fair, a few tries
+per keeper, and **everything explained** to the player, plainly, the first time it matters.
 
-| # | Question | My recommendation |
+| # | Question | Decided |
 |---|---|---|
-| 0.1 | The rest points | **Pools of the blue water, as agreed.** Ordric hangs a lamp over each. He is raised out of the last pool he touched |
-| 0.2 | What a fall looks like, now the rewind is going | **He comes apart into water.** The screen goes to the pool's moment ("raised N times"), and he rises from the last pool. No rewind. Keep rewinding in reserve as a possible later power |
-| 0.3 | What breaks cracked stone | **Not the blade any more.** The Warden's weight (the plunge) breaks it, and so does the spade on every blow. One clear rule: the blade cuts, the heavy things break |
-| 0.4 | The spade | **A real second weapon:** a slow three-blow combo of its own, its own plunge, and it digs (breaks stone and turns up buried things). Every later weapon gets its own combo and one thing only it does |
-| 0.5 | What a keeper leaves | **Something you can hold:** the Warden leaves its core, the Toll its clapper, and so on. It goes into a new **"what he carries" screen** and gives the power. Getting it is a short staged moment, then a room right after where he must use the new power |
-| 0.6 | The three people | **Fewer meetings, each in a memorable spot, harder to find,** and they stay where they were met so you can go back. Each says who they are in one line the first time. Ordric's help becomes a real shop screen. Mirel and Corwen each give something too (Corwen: his map marks; Mirel: one thing at the end of her story) |
-| 0.7 | Between regions | **One continuous climb.** The passages between regions become the loading: the next region is made while he climbs the passage, and he walks straight into it, with no fade or card. The cards stay for the start and the very end |
-| 0.8 | Bigger map | **The world plan already triples the mountain**: 11 wings, longer passages, the Deep. Each region also gains 3 to 6 rooms when its wings are built |
-| 0.9 | Voices | **Keep the made-on-the-spot mumble voices.** Real recorded voices (ElevenLabs) would need an account, a key and a few dollars, and clash with "short and plain". Revisit only if the mumble still feels thin after tuning |
-| 0.10 | The art budget | PixelLab has **$3.43** left. Phases 1 to 9 need about $1. The new creatures, wing elites and the Deep need roughly **$10 to $20** more (estimate). **Either add credit before phase 10, or draw more creatures in code**, as the keepers are drawn |
-| 0.11 | Difficulty | **Climber** (the middle setting) should feel like Hollow Knight's early game: each keeper takes a few tries. Story gets two more hearts, Summit two fewer, as now |
+| 0.1 | Rest points | **One raising pool per region, near its start**, each its own shape (not a copy of the first pool). He is raised there after a fall, so a keeper means a real walk back. **Small leaks** of the same water elsewhere heal and refill the flask but do not raise him. Ordric's lamp hangs over the raising pools |
+| 0.2 | A fall | **He comes apart into water;** the drops sink into the ground, the screen fades, and he rises out of the region's raising pool, with one word over it. You suggested "perseverance". The story says it is not his strength that brings him up, so I suggest **RAISED** (the game already counts "raised N times"). Your call; it is one word to change |
+| 0.3 | What breaks stone | **Only the heavy weapon** (the spade, or whatever it becomes). Not the blade, not the plunge |
+| 0.4 | The spade | **A complete weapon:** a full moveset with its own pros and cons. A slower combo; its slam sends a shockwave forward along the ground (a little range); strong on the ground, weak in the air; it breaks stone. Every later weapon is equally complete and different |
+| 0.5 | What a keeper leaves | **Something coalesces from it as it dies,** floats, falls to him, and he takes it in (his own animation for receiving it). Then a page opens in the middle of the screen: what it is and what it does. Each power has a thing that makes it real (the Toll's air dash could be boots, for example) |
+| 0.6 | The people | **Fewer meetings, spread through the whole mountain, harder to find.** Each has **a small place of their own**, a new space built for them, not a corner of an existing room. Not all met in the first region |
+| 0.7 | Between regions | **One continuous climb.** The passages between regions do the loading (the old lift trick): climbing a passage lets the region below go and makes the one above. The doors are kept for travel through the water later |
+| 0.8 | Bigger map | **Bigger, and not rectangles.** Some spaces vast and cavernous, some winding, some taking a path no one expects. The lore of each place decides its shape |
+| 0.9 | Voices | **Keep the mumble voices,** and give each person a sharper character. Try giving words a hint of their consonants, so speech has a semblance of the words |
+| 0.10 | Art budget | **Spend what there is, keeping $0.20 back.** Anything that has to wait goes on the standing list (`docs/pixellab-wishlist.md`) for when the generations refill |
+| 0.11 | Difficulty | **Like Hollow Knight:** a few tries per keeper at Climber |
+
+**One question left, before phase 5:** if only the spade breaks stone, he must have it before the Ossuary's cracked
+wall, but the Sexton and his spade are inside the Ossuary. The Warden's gift today ("the Warden's weight") is exactly
+that his plunge breaks stone. The natural answer is that **what coalesces from the Warden is the heavy weapon**, and
+the Sexton becomes the Ossuary's elite with something else to give. To settle when phase 5 begins.
 
 ## Phase 1: fix what is broken
 
@@ -81,10 +87,13 @@ Each comes with my recommendation, so you can mostly say yes or no.
 
 - **Every flame becomes a pool of the blue water.** One shared look, a rim in each region's stone (rock pool, font,
   basin, meltwater, cistern, fountain, mirror pool, trough). Ordric's lamp hangs over each.
-- Touching one: hearts and flask filled. Down: the knots. A fall raises him there.
+- **One raising pool per region,** near its start, each its own shape. A fall raises him there (decision 0.1), so a keeper
+  is a real walk back; the runback check becomes "how far, and is it fair" rather than "is it short".
+- **Small leaks** of the water elsewhere: hearts and flask filled, but he is not raised there.
+- Down at either: the knots.
 - **The intro:** his fall ends in the water, with a splash and the light; then he wakes. The intro gets quiet music.
-- **A fall:** no rewind. He comes apart into water, then the pool's moment, then he rises out of the last pool he
-  touched.
+- **A fall:** no rewind. He comes apart into water, the drops sink into the ground, the screen fades, and he rises out
+  of the region's raising pool, with one word over it (decision 0.2).
 - **Every word that says "flame"** for a rest point says water. The story's flame (the summit, the ending) stays fire.
   Torches stay as light.
 - Update `docs/story.md` and `docs/world.md`: "a flame kept for him" becomes "water gathered for him", which is still
@@ -206,7 +215,10 @@ $0.30 to $0.60 with PixelLab.
 - Firmament: brass.
 
 **The people:**
-- placed by decision 0.6, spread out and harder to find;
+- placed by decision 0.6: spread through the whole mountain, harder to find, each in **a small place of their own**
+  built for them;
+- **Hob redrawn** (he is drawn at an angle, not side on): on the PixelLab list;
+- **their voices sharpened:** each a clearer character, and a hint of the words' consonants;
 - each with a first-meeting line saying who they are;
 - Ordric's shop as a real shop screen, with pictures and prices.
 
@@ -243,7 +255,8 @@ $0.30 to $0.60 with PixelLab.
 
 ## Phases 10 to 14: the wings
 
-Built two regions at a time. Each wing gets its sheet first: its rooms, what each room is for, its gate and shortcut,
+Built two regions at a time. **Spaces, not rectangles** (decision 0.8): each wing has at least one vast space, one
+winding way, and one path no one expects, each shaped by what the place was. Each wing gets its sheet first: its rooms, what each room is for, its gate and shortcut,
 its creatures, its elite, its one moment, its relic, and a weapon (the Ember plan's step 4) where one fits. Each
 region also gains one or two knowledge gates, puzzles solved by understanding the place rather than by a gift
 (Metroidvania idea 5), and rough rock drawn everywhere ahead of the grip (idea 7).
