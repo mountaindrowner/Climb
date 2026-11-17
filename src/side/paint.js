@@ -143,6 +143,9 @@ export const THEMES = {
 };
 // a region's file can bring its own look (themeDef) and its own decoration (deco: (px, PAL) => { name(g, x, y, r, glow){} })
 for (const R of REGION_DATA){ if (R.themeDef) THEMES[R.theme] = R.themeDef; if (R.deco) Object.assign(DECO, R.deco(px, PAL)); }
+// what each region's platforms are made of (phase 8): the same thing to stand on, in the place's own make
+const MAKE = { roots: 'timber', cloister: 'stone', spires: 'ice', tempest: 'iron', gardens: 'vine', firmament: 'brass' };
+for (const [k, v] of Object.entries(THEMES)) v.make = v.make || MAKE[k] || 'timber';
 export const pickOf = (list, p) => { let tot = 0; for (const [, w] of list) tot += w; let a = p * tot; for (const [n, w] of list){ if ((a -= w) < 0) return n; } return list[list.length - 1][0]; };
 export const SEAMS = {
   rough: (x, y) => { const row = Math.floor(y / 6); if (y % 6 === 0) return true; const off = (row * 37) % 11, bx = x + off; const len = 8 + ((Math.floor(bx / 9) * 7 + row * 3) % 5); return bx % len === 0; },
@@ -222,12 +225,29 @@ export function paintPlay(glows, TM){
       if (paintAt(i, j) !== LEDGE){ i++; continue; }
       let e = i; while (paintAt(e + 1, j) === LEDGE) e++;
       const x0 = i * CELL, x1 = (e + 1) * CELL, y0 = Y(j + 1);
-      const PK = TM.plank.map(k => PAL[k]);
-      px(g, PAL.ink, x0 - 1, y0 - 1, x1 - x0 + 2, 5); px(g, PK[0], x0, y0, x1 - x0, 3); px(g, PK[1], x0, y0, x1 - x0, 1); px(g, PK[2], x0, y0 + 2, x1 - x0, 1);
-      for (let x = x0 + 4 + Math.floor(r() * 4); x < x1 - 2; x += 6 + Math.floor(r() * 5)) px(g, PK[2], x, y0 + 1, 1, 1);
-      for (const [x, dir] of [[x0, -1], [x1 - 1, 1]]){
-        if (paintAt(dir < 0 ? i - 1 : e + 1, j) === ROCK) for (let k = 0; k < 4; k++) px(g, PAL.wood0, x - dir * k, y0 + 3 + k);
-        else if (r() < 0.5) px(g, PAL.wood2, x - dir, y0 + 3, 1, 3 + Math.floor(r() * 5));
+      const PK = TM.plank.map(k => PAL[k]), w = x1 - x0, mk = TM.make, wall = dir => paintAt(dir < 0 ? i - 1 : e + 1, j) === ROCK;
+      if (mk === 'stone'){   // the Cloister: a cut slab, jointed, on a stone corbel at each end
+        px(g, PAL.ink, x0 - 1, y0 - 1, w + 2, 6); px(g, PAL.light, x0, y0, w, 4); px(g, PAL.pale, x0, y0, w, 1); px(g, PAL.mid, x0, y0 + 3, w, 1);
+        for (let x = x0 + 7; x < x1 - 2; x += 8) px(g, PAL.dark, x, y0 + 1, 1, 3);
+        for (const [x, dir] of [[x0, -1], [x1 - 1, 1]]) for (let k = 0; k < 3; k++){ px(g, PAL.ink, x - dir * k - (dir < 0 ? 0 : 3 - k) - 1 + (dir < 0 ? 0 : 0), y0 + 4 + k, 5 - k, 1); px(g, PAL.mid, dir < 0 ? x : x - (3 - k) + 1, y0 + 4 + k, 3 - k, 1); }
+      } else if (mk === 'iron'){   // the Tempest: riveted iron grating, a brace under each end
+        px(g, PAL.ink, x0 - 1, y0 - 1, w + 2, 5); px(g, PAL.dark, x0, y0, w, 3); px(g, PAL.light, x0, y0, w, 1);
+        for (let x = x0 + 1; x < x1 - 1; x += 2) px(g, PAL.ink, x, y0 + 1, 1, 1); for (let x = x0 + 3; x < x1 - 1; x += 8) px(g, PAL.pale, x, y0, 1, 1);
+        for (const [x, dir] of [[x0, -1], [x1 - 1, 1]]) for (let k = 0; k < 4; k++) px(g, PAL.mid, x - dir * k, y0 + 3 + k, 1, 1);
+      } else if (mk === 'brass'){   // the Firmament: a brass rail, graduated like an instrument, a finial at each end
+        px(g, PAL.ink, x0 - 1, y0 - 1, w + 2, 5); px(g, PK[0], x0, y0, w, 3); px(g, PK[3] || PK[1], x0, y0, w, 1); px(g, PK[2], x0, y0 + 2, w, 1);
+        for (let x = x0 + 2; x < x1 - 1; x += 4) px(g, PK[2], x, y0 + 1, 1, (x - x0 - 2) % 16 === 0 ? 2 : 1);
+        for (const x of [x0, x1 - 2]){ px(g, PAL.ink, x - 1, y0 + 3, 4, 3); px(g, PK[1], x, y0 + 3, 2, 2); }
+      } else {   // timber: the Roots' (roots hanging from it), the Spires' (rimed, icicles), the Gardens' (bound with vine)
+        px(g, PAL.ink, x0 - 1, y0 - 1, w + 2, 5); px(g, PK[0], x0, y0, w, 3); px(g, PK[1], x0, y0, w, 1); px(g, PK[2], x0, y0 + 2, w, 1);
+        for (let x = x0 + 4 + Math.floor(r() * 4); x < x1 - 2; x += 6 + Math.floor(r() * 5)) px(g, PK[2], x, y0 + 1, 1, 1);
+        for (const [x, dir] of [[x0, -1], [x1 - 1, 1]]){
+          if (wall(dir)) for (let k = 0; k < 4; k++) px(g, PAL.wood0, x - dir * k, y0 + 3 + k);
+          else if (r() < 0.5) px(g, PAL.wood2, x - dir, y0 + 3, 1, 3 + Math.floor(r() * 5));
+        }
+        if (mk === 'ice'){ px(g, PAL.white, x0, y0, w, 1); for (let x = x0 + 2 + Math.floor(r() * 3); x < x1 - 1; x += 3 + Math.floor(r() * 4)){ const h = 2 + Math.floor(r() * 4); px(g, PAL.cyan, x, y0 + 3, 1, h); px(g, PAL.white, x, y0 + 3, 1, 1); } }
+        else if (mk === 'vine'){ for (let x = x0 + 3 + Math.floor(r() * 3); x < x1 - 2; x += 6 + Math.floor(r() * 4)){ px(g, PAL.moss1, x, y0 - 1, 2, 5); px(g, PAL.moss2, x, y0 - 1, 1, 1); if (r() < 0.6) px(g, PAL.moss1, x + 1, y0 + 4, 1, 2 + Math.floor(r() * 4)); if (r() < 0.3) px(g, PAL.rose || PAL.moss2, x, y0 + 5, 1, 1); } }
+        else if (mk === 'timber' && TM === THEMES.roots){ for (let x = x0 + 3 + Math.floor(r() * 4); x < x1 - 2; x += 7 + Math.floor(r() * 6)){ const h = 2 + Math.floor(r() * 5); px(g, PAL.wood0, x, y0 + 3, 1, h); if (r() < 0.5) px(g, PAL.wood0, x + 1, y0 + 3 + h - 1, 1, 2); } }
       }
       i = e + 1;
     }
@@ -354,7 +374,10 @@ export function paintRegion(n, own = true){
     blend(play, alt, LEVEL.rooms.filter(r => r.look === l).map(r => [r.tx0 * CELL, (LEVEL.H - r.ty1) * CELL, r.tx1 * CELL, (LEVEL.H - r.ty0) * CELL]), 52, play.normals && alt.normals ? [play.normals, alt.normals] : null); }
   for (const m of LEVEL.marks){
     const x = (m.x + 0.5) * T, y = m.y * T, cx = Math.round(x * PPU);
-    if (m.type === 'torch') DECO.torch(g, cx, Y(m.y) - 2);
+    if (m.type === 'torch'){ DECO.torch(g, cx, Y(m.y) - 2);
+      // mounted (level.js): an iron bracket to the wall beside it, or a stand down to the floor under it
+      if (m.mount === 'wall'){ const d = m.side; px(g, PAL.ink, d < 0 ? cx - 5 : cx + 1, Y(m.y) - 5, 5, 3); px(g, PAL.mid, d < 0 ? cx - 4 : cx + 1, Y(m.y) - 4, 4, 1); px(g, PAL.ink, cx + d * 4 - 1, Y(m.y) - 7, 3, 7); px(g, PAL.dark, cx + d * 4, Y(m.y) - 6, 1, 5); }
+      else if (m.mount === 'stand'){ const yb = Y(m.base), yt = Y(m.y) - 2; px(g, PAL.ink, cx - 1, yt, 3, yb - yt); px(g, PAL.dark, cx, yt, 1, yb - yt); px(g, PAL.ink, cx - 3, yb - 2, 7, 2); px(g, PAL.mid, cx - 2, yb - 2, 5, 1); } }
     if (m.type === 'crystal') DECO[(THEMES[lookAt(x, y + 0.2)] || TM).gem](g, cx, Y(m.y), rr, glow);
     if (m.type === 'bell') DECO.bell(g, cx, Y(m.y));
     if (m.perch){   // a gargoyle's perch: a carved corbel out of the wall, or a plinth from the floor

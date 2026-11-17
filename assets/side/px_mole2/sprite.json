@@ -1,0 +1,26 @@
+{
+ "name": "px_mole2",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 48,
+   "h": 48,
+   "foot": 47,
+   "cx": 25.5,
+   "footLast": 47,
+   "cxLast": 25.5,
+   "n": 1
+  },
+  "idle": {
+   "frames": 9,
+   "w": 68,
+   "h": 68,
+   "foot": 57,
+   "cx": 35.5,
+   "footLast": 57,
+   "cxLast": 34.5,
+   "n": 1
+  }
+ }
+}

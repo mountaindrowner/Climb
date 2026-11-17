@@ -12,7 +12,7 @@ import { INTRO } from './teach.js';
 // the text speed (Options): how long each wait is, or the whole line at once (and then no voice)
 export const TEXT_SPEED = { slow: 1.6, normal: 1, fast: 0.5, now: 0 };
 import { text, width, fine } from './pixelfont.js';
-export const PEOPLE = { lamplighter: { name: 'ORDRIC OF THE VIGIL', art: 'px_moth', col: '#feae34' }, wren: { name: 'MIREL THE PENITENT', art: 'px_hermit', col: '#63c74d', late: { from: 4, art: 'px_hermit_free' } }, scribe: { name: 'CORWEN THE ANNALIST', art: 'px_rook', col: '#2ce8f5' }, hob: { name: 'HOB OF THE GUILD', art: 'px_mole', col: '#feae34' } };
+export const PEOPLE = { lamplighter: { name: 'ORDRIC OF THE VIGIL', art: 'px_moth', col: '#feae34' }, wren: { name: 'MIREL THE PENITENT', art: 'px_hermit', col: '#63c74d', late: { from: 4, art: 'px_hermit_free' } }, scribe: { name: 'CORWEN THE ANNALIST', art: 'px_rook', col: '#2ce8f5' }, hob: { name: 'HOB OF THE GUILD', art: 'px_mole2', col: '#feae34' } };
 // `late`: from that region up, another drawing (Mirel has put her shell down by the Gardens).
 // They are the mountain's own folk, not people: Ordric an old moth, Mirel a hermit crab, Corwen a rook (docs/cast.md). The
 // only human shapes on the mountain are he and the Fallen, and what is left of the peoples who tried to carry the light.
@@ -23,7 +23,7 @@ export const PEOPLE = { lamplighter: { name: 'ORDRIC OF THE VIGIL', art: 'px_mot
 //   Corwen records the mountain exactly and cannot account for it.
 // where each one's face is in their standing drawing (its top-left, and how many pixels square: 32 is shown 1:1): the box shows the head, not the
 // middle of the figure (Mirel's middle is her shell)
-const FACES = { px_mole: [14, 8, 32], px_moth: [18, 7, 32], px_hermit: [22, 10, 32], px_hermit_free: [22, 10, 32], px_rook: [20, 8, 32] };
+const FACES = { px_mole: [14, 8, 32], px_mole2: [12, 0, 32], px_moth: [18, 7, 32], px_hermit: [22, 10, 32], px_hermit_free: [22, 10, 32], px_rook: [20, 8, 32] };
 // Hob is met only in the Deep, so his lines are by region index from the Workings (6) down
 const HOB = []; HOB[6] = ['Mind the lamps. I carried every drop of their oil down myself.', 'The vein runs thin up here. Lower down it comes good. It always comes good lower down.', 'You will find me further on. I am always a little further on.'];
 export const SCRIPT = {   // at most three lines a meeting, each short and new; the theme is never said (docs/writing.md)

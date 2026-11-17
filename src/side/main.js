@@ -9,7 +9,7 @@ import { sfx, ac, musicBus, ambience, setMix, MIX, warm, manifestReady, say, bea
 import { voiceOf } from '../audio/voice.js';
 import { makeScore } from '../audio/score.js';
 import '../ui/feel.js';
-import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE } from './level.js';
+import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE, MEETINGS } from './level.js';
 import { makeTeach, keyName, fill, INTRO, CARDS, drawIcon } from './teach.js';
 import { makeProps } from './props.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt } from './motor.js';
@@ -31,7 +31,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 51';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 52';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -263,18 +263,30 @@ function drawAnnals(W){
 }
 // the Lamplighter's wares, for shards
 const WARES = () => [
-  { name: 'A deeper flask of the water', cost: [120, 260][G.flasks], buy(){ G.flasks++; P.flaskMax = maxFlask(); P.flask = P.flaskMax; } },
-  { name: G.edge ? 'Temper the blade again: every cut' : 'Temper the blade: finishing cuts', cost: [180, 380][G.edge], buy(){ G.edge++; } },
-  { name: 'A red strand he has kept', cost: G.boughtThread ? undefined : 150, buy(){ G.boughtThread = true; onEvent({ type: 'thread', at: { x: P.x, y: P.y + 1.2 } }); } },
-  { name: 'Tie another knot in the scarf', cost: knots() < KNOTS.most ? KNOTS.cost[G.knots || 0] : undefined, buy(){ G.knots = (G.knots || 0) + 1; } },
-  { name: 'A chart of ' + LEVEL.name, cost: G.charts.includes(LEVEL.index) ? undefined : 40, buy(){ G.charts.push(LEVEL.index); for (const r of LEVEL.rooms) MAP.seen.add(r); } },
+  { icon: 'flask', name: 'A deeper flask', does: 'The flask holds one draught more of the water.', own: `HE HAS ${maxFlask()} DRAUGHTS`, cost: [120, 260][G.flasks], buy(){ G.flasks++; P.flaskMax = maxFlask(); P.flask = P.flaskMax; } },
+  { icon: 'blade', name: G.edge ? 'Temper the blade again' : 'Temper the blade', does: G.edge ? 'Every cut of the blade hits harder (+1).' : 'The last cut of each string hits harder (+1).', own: G.edge ? 'TEMPERED ONCE' : 'NOT YET TEMPERED', cost: [180, 380][G.edge], buy(){ G.edge++; } },
+  { icon: 'heart', name: 'A red strand', does: 'One strand toward a heart. Three strands make a heart.', own: `${G.threads % THREADS_A_HEART} OF ${THREADS_A_HEART} STRANDS`, cost: G.boughtThread ? undefined : 150, buy(){ G.boughtThread = true; onEvent({ type: 'thread', at: { x: P.x, y: P.y + 1.2 } }); } },
+  { icon: 'knot', name: 'Another knot', does: 'One more relic can be tied into his scarf.', own: `${knots()} OF ${KNOTS.most} KNOTS`, cost: knots() < KNOTS.most ? KNOTS.cost[G.knots || 0] : undefined, buy(){ G.knots = (G.knots || 0) + 1; } },
+  { icon: 'map', name: 'A chart of ' + LEVEL.name, does: 'Every room of this region on the map, and what is still to be found.', own: '', cost: G.charts.includes(LEVEL.index) ? undefined : 40, buy(){ G.charts.push(LEVEL.index); for (const r of LEVEL.rooms) MAP.seen.add(r); } },
 ];
+let SHOP = [];
 function shop(){
-  SCREEN = 'shop'; PAUSE = true; release();
-  const rows = [menuLabel(`WHAT ORDRIC CAN DO  ·  ${G.shards} SHARDS`)];
-  for (const w of WARES()){ if (w.cost === undefined) continue; const can = G.shards >= w.cost, b = menuButton(`${w.name}  ·  ${w.cost}`, () => { if (G.shards < w.cost){ sfx.block(); return; } G.shards -= w.cost; w.buy(); sfx.buy(); store(); shop(); }, true); b.style.minWidth = '300px'; if (!can) b.style.opacity = '0.5'; rows.push(b); }
-  if (rows.length === 1) rows.push(menuLabel('He can do no more. The rest was never his to do.'));
-  const leave = () => { SCREEN = ''; PAUSE = false; menuHide(); }; rows.push(menuButton('Leave', leave, true)); menuShow(rows, false, leave);
+  SCREEN = 'shop'; PAUSE = true; release(); const keep = MSEL;
+  SHOP = WARES().filter(w => w.cost !== undefined);
+  const rows = [], grid = document.createElement('div'); grid.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:min(94vw,620px)';
+  SHOP.forEach((w, i) => { const can = G.shards >= w.cost, b = menuButton(`${w.name} · ${w.cost}`, () => { MSEL = i; if (G.shards < w.cost){ sfx.block(); menuMark(); return; } G.shards -= w.cost; w.buy(); sfx.buy(); store(); shop(); }, true);
+    b.style.fontSize = '11px'; b.style.padding = '3px 7px'; if (!can) b.style.opacity = '0.5'; b.addEventListener('pointerenter', () => { if (MSEL !== i){ MSEL = i; menuMark(); } }); grid.appendChild(b); });
+  if (SHOP.length) rows.push(grid);
+  const leave = () => { SCREEN = ''; PAUSE = false; menuHide(); }; rows.push(menuButton('Leave', leave, true)); menuShow(rows, false, leave); MENU.style.top = 'auto'; MENU.style.bottom = '1.5%'; MSEL = Math.min(keep, Math.max(0, menuItems().length - 1)); menuMark();
+}
+// the shop's page: what he has to spend; the thing picked, as a card (its picture, what it does, its price, what he has of it)
+function drawShop(W){
+  HUD.dark(0.92, '#181425'); HUD.text('WHAT ORDRIC CAN DO', W / 2, 4, '#feae34', 1, 'center'); HUD.fine(`HE HAS ${G.shards} SHARDS`, W / 2, 13, '#c0cbdc', 'center');
+  const w = SHOP[MSEL];
+  if (!SHOP.length){ HUD.text('He can do no more.', W / 2, 70, '#fff2d0', 1, 'center'); HUD.fine('THE REST WAS NEVER HIS TO DO.', W / 2, 82, '#8b9bb4', 'center'); return; }
+  if (!w) return; const can = G.shards >= w.cost;
+  drawCard({ icon: w.icon, head: can ? `${w.cost} SHARDS` : `${w.cost} SHARDS · HE HAS ${G.shards}`, title: w.name, does: w.does, foot: w.own }, W, false, 22);
+  if (!can) HUD.fine('NOT ENOUGH SHARDS YET', W / 2, 140, '#f6757a', 'center');
 }
 // the knots: at a flame, he chooses which relics he wears. Each is a knot in his scarf; he can carry more than he can
 // wear. The one picked is tied or untied; with every knot tied, one must be untied first
@@ -771,6 +783,11 @@ function breakRock(x, y, r, dig = false){
 // the Lamplighter trades when he has spoken
 function talkTo(N){
   const k = LEVEL.index + ':' + N.who, n = G.met[k] || 0, S0 = (SCRIPT[N.who] || [])[LEVEL.index] || ['...'], lines = n === 0 ? S0.slice() : [S0[S0.length - 1]];
+  // a story beat he walked past (phase 8): the first time they speak here, they say what he missed of the last one
+  if (n === 0 && (MEETINGS[LEVEL.index] || {})[N.who] === 'story') for (let q = LEVEL.index - 1; q >= 0; q--) if ((MEETINGS[q] || {})[N.who] === 'story'){
+    const was = (SCRIPT[N.who] || [])[q]; if (!G.met[q + ':' + N.who] && was && was[0] !== INTRO[N.who]){ lines.unshift(was[0]); G.met[q + ':' + N.who] = 1; } break; }
+  // in a place of their own, a small reward: Corwen gives his chart of the region
+  if (N.extra && N.who === 'scribe' && !G.charts.includes(LEVEL.index)){ G.charts.push(LEVEL.index); for (const r of LEVEL.rooms) MAP.seen.add(r); lines.push('Take my chart of this place. I have drawn it twice.'); }
   if (INTRO[N.who] && !Object.keys(G.met).some(m => m.endsWith(':' + N.who)) && !lines.includes(INTRO[N.who])) lines.unshift(INTRO[N.who]);   // the first meeting anywhere: who they are (teach.js)
   if (N.who === 'scribe'){ const L = ITEMS.left(), pl = (c, w) => `${c} ${w}${c === 1 ? '' : 's'}`; lines.push(L.threads + L.chests === 0 ? 'My page for this place is full. There is nothing here you have not found.' : `Not yet entered as found, here: ${pl(L.threads, 'red strand')}, ${pl(L.chests, 'chest')}${L.relic ? ', and something old behind cracked stone' : ''}.`); }
   G.met[k] = n + 1; store(); release(); sfx.ui(); TALK.start(N.who, lines, N.who === 'lamplighter' ? shop : null, N.art);
@@ -919,7 +936,7 @@ function drawHud(dt){
     const dots = mapDots();
     HUD.map(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, room, T, dots, Math.max(0, Math.min(1, P.y / (LEVEL.H * T))), SPANS, LEVEL.index, time, P);
   }
-  if (BANNER && !TALK.on && !NOTE && SCREEN !== 'annals'){ BANNER.t -= dt; HUD.banner(BANNER.a, BANNER.b, Math.max(0, Math.min(1, BANNER.t, (BANNER.life - BANNER.t) * 3))); if (BANNER.t <= 0) BANNER = null; }
+  if (BANNER && !TALK.on && !NOTE && !(PAUSE && SCREEN && SCREEN !== 'pause')){ BANNER.t -= dt; HUD.banner(BANNER.a, BANNER.b, Math.max(0, Math.min(1, BANNER.t, (BANNER.life - BANNER.t) * 3))); if (BANNER.t <= 0) BANNER = null; }
   { const L = TEACHER.shown(); if (L && !PAUSE && !TALK.on && !NOTE && !rising){ v.set(P.x, P.y, 0).project(R.camera); const sx = Math.round((v.x + 1) / 2 * W), sy = Math.round((1 - v.y) / 2 * 180);
     HUD.lesson(L.show.map(([a, word]) => [kname(a), word]), sx, sy > 150 ? sy - 52 : sy + 6, L.a, time); } }   // under him (over him, if he is low on the screen)
   HUD.label(BUILD);
@@ -936,7 +953,7 @@ function drawHud(dt){
   if (NOTE) drawCard(NOTE, W, true);
   if (PAUSE && SCREEN === 'annals') drawAnnals(W);
   else if (PAUSE && SCREEN === 'map') drawMap();
-  else if (PAUSE && SCREEN === 'shop') HUD.dark(0.55);
+  else if (PAUSE && SCREEN === 'shop') drawShop(W);
   else if (PAUSE && SCREEN === 'knots') drawKnots(W);
   else if (PAUSE && SCREEN === 'carry') drawCarry(W);
   else if (PAUSE){ HUD.dark(0.66); HUD.text('PAUSED', W / 2, 14, '#fff2d0', 2, 'center'); HUD.rule(Math.round(W / 2), 34, 60, '#ead4aa');

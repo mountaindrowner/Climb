@@ -41,11 +41,11 @@ test("Corwen's Annals: every creature entered, each under the region it lives in
     assert.equal(ANNALS[N].keeper.theme, theme);
   }
 });
-test('the three who climb each have a station in a room of their own, never the first', () => {
+test('the three who climb each have a station, in a room each (where they are and why: tests/side-people.test.mjs)', () => {
   for (let N = 0; N < LEVELS.length; N++){
     if (!loadLevel(N).marks.some(m => m.type === 'exit')) continue;   // the Deep: Hob alone, at his lamp
-    const { marks, rooms } = loadLevel(N), sp = marks.find(m => m.type === 'spawn'), first = rooms.find(r => sp.x >= r.tx0 && sp.x < r.tx1 && sp.y >= r.ty0 && sp.y < r.ty1);
+    const { marks, rooms } = loadLevel(N);
     const where = marks.filter(m => m.type === 'npc').map(m => { assert.ok(m.station, `${m.who} in ${LEVELS[N].name} has no station`); return rooms.find(r => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1); });
-    assert.equal(new Set(where).size, 3, `${LEVELS[N].name}: two of them share a room`); assert.ok(!where.includes(first), `${LEVELS[N].name}: one of them is in the first room`);
+    assert.equal(new Set(where).size, 3, `${LEVELS[N].name}: two of them share a room`);
   }
 });

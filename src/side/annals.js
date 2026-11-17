@@ -44,6 +44,6 @@ export const ANNALS = [
 export const PEOPLE_PAGE = [
   { who: 'lamplighter', name: 'Ordric of the Vigil', art: 'px_moth', line: 'An old moth who keeps the lamps, and does not fly at them.' },
   { who: 'wren', name: 'Mirel the Penitent', art: 'px_hermit', line: 'She climbs to arrive deserving it, under a shell not her own.' },
-  { who: 'hob', name: 'Hob of the guild', art: 'px_mole', line: 'A mole who dug for the guild, and is digging still. Always a little further down.' },
+  { who: 'hob', name: 'Hob of the guild', art: 'px_mole2', line: 'A mole who dug for the guild, and is digging still. Always a little further down.' },
   { who: 'scribe', name: 'Corwen the Annalist', art: 'px_rook', line: 'A rook who writes the mountain down, and cannot account for it.' },
 ];

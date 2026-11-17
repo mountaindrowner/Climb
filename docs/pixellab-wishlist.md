@@ -29,7 +29,7 @@ Balance on 2026-11-16: **$3.43**, generations 0 (the monthly generations refill 
 
 | What | Why | Est. |
 |---|---|---|
-| **Hob redrawn side on** (he is drawn at an angle) | Playtest | $0.10 to $0.20 (a new character and its idle) |
+| ~~**Hob redrawn side on**~~ made, build 52 (`px_mole2`) | Playtest | $0.10 to $0.20 (a new character and its idle) |
 
 ## Creatures (phase 6)
 

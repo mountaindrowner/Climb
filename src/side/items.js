@@ -96,7 +96,7 @@ export function makeItems(scene, R, n){
       const sc = cnv(ST.w, ST.h); ST.draw(sc.getContext('2d')); const sm = flat(texOf(sc), ST.w, ST.h); sm.position.set(Math.round(sx * PPU) / PPU, y, 0.015);
       let fm = null; if (ST.fire){ fm = new THREE.Mesh(new THREE.PlaneGeometry(6 / PPU, 9 / PPU), new THREE.MeshBasicMaterial({ map: fireTex(), transparent: true, alphaTest: 0.5 })); fm.position.set(Math.round((sx - ST.w / 2 / PPU + (ST.fire[0] + 0.5) / PPU) * PPU) / PPU, y + (ST.h - ST.fire[1]) / PPU + 4.5 / PPU, 0.02); scene.add(fm); }
       const lx = sx - ST.w / 2 / PPU + ST.glow[0] / PPU, ly = y + (ST.h - ST.glow[1]) / PPU, halo = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 3.4), new THREE.MeshBasicMaterial({ map: glowTex(), color: ST.col, transparent: true, opacity: 0.32, depthWrite: false, blending: THREE.AdditiveBlending })); halo.position.set(lx, ly, 0.01); scene.add(halo);
-      const N = { type: 'npc', who, art: P.art, station: { name: ST.name, x: sx, y, lx, ly, col: ST.col, fm, halo, room: mk.station }, x, y, face: -1, sprite: null, meta: null, stand: null, ph: rnd() * 6 };
+      const N = { type: 'npc', who, extra: !!mk.extra, art: P.art, station: { name: ST.name, x: sx, y, lx, ly, col: ST.col, fm, halo, room: mk.station }, x, y, face: -1, sprite: null, meta: null, stand: null, ph: rnd() * 6 };
       N.stand = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 1.9), new THREE.MeshBasicMaterial({ color: 0x262b44 })); N.stand.position.set(x, y + 0.95, 0.02); scene.add(N.stand);
       fetch(`assets/side/${P.art}/sprite.json`).then(r => r.ok ? r.json() : null).then(meta => { if (meta){ N.meta = meta; N.sprite = makeSprite(scene, `assets/side/${P.art}`, meta); N.stand.visible = false; } }).catch(() => {});
       people.push(N);

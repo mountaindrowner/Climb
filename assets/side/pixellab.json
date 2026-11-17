@@ -1041,5 +1041,16 @@
     "group": "c15a9433-3efc-4f94-90f5-d2004c9b95eb"
    }
   }
+ },
+ "px_mole2": {
+  "id": "35e1482a-4bb9-4411-b121-208ede05840f",
+  "description": "an old blind mole miner, drawn in strict side profile facing right like a figure on a coin: one eye, the long pink snout pointing to the right, the body turned fully sideways, dark grey velvet fur, huge broad digging claws, a battered leather miner's cap with a small brass lamp on it, a pick slung on his back, an anthropomorphic creature standing upright on two legs like a person, tall and lean with long thin legs, worn and weathered, grim and dignified, not cute, not chibi, not three-quarter view, not facing the viewer, simple stylized chunky pixel art with few colors and bold shapes, flat side view, 2D platformer character",
+  "anims": {
+   "idle": {
+    "action": "standing still in side profile facing right, breathing, wiping the little lamp on his cap with a claw",
+    "frames": 8,
+    "group": "464aa63e-b540-4b8e-9ba7-cefa0f586e91"
+   }
+  }
  }
 }

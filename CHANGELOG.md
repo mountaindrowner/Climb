@@ -2,7 +2,18 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Phase 7: the keepers (latest).** (`docs/phase7-sheet.md`.)
+**Phase 8a: the people, and the look (latest).** (`docs/phase8-sheet.md`.) The rule: they are there when he needs them.
+- **Every meeting has a kind** (`level.js` `MEETINGS`): **story** (on the main path, where he must pass), **service** (Ordric and his shop, beside every region's raising water), or an **extra** (a place of their own, to be looked for). Tests play it: a story meeting adds almost nothing to the way from a region's start to its keeper; Ordric is within four seconds of the water; an extra can be reached with the gifts he has there.
+- **Ordric is beside the raising water in every region,** where he is raised and rests. He was in a room far up each region.
+- **Corwen is on the path** in the Cloister (the nave) and the Firmament (the orrery); he was in side rooms there.
+- **A story beat he walked past is not lost:** the first time Mirel or Corwen speaks in a later region, they say what he missed of the last.
+- **Corwen's nooks** (the Spires, the Tempest, the Gardens): a small room of his own built onto the side of the passage up, behind a gap he crouches through, a torch over it. He gives his chart of the region there. The map shows a nook only once he has been in it.
+- **Ordric's shop is a page:** each thing with its picture, its price, what it does in one plain line, and what he already has of it; what he cannot afford is shown dim.
+- **Hob redrawn** side on (he was drawn at an angle).
+- **Platforms in each region's own make:** the Roots' timber with roots hanging; the Cloister's cut stone on corbels; the Spires' rimed with icicles; the Tempest's riveted iron grating; the Gardens' wood bound with vine; the Firmament's graduated brass.
+- **Every torch is mounted:** in an iron bracket on the wall beside it, or on a stand up from the floor. A test fails any that hangs in the air. (The placement tests were checking only the last region loaded; they check each now.)
+
+**Phase 7: the keepers.** (`docs/phase7-sheet.md`.)
 - **Each keeper throws something of its own place,** warned by a red mark where it will be and the keeper's sound, with a harder form from half health (`src/side/throws.js`):
   - the Warden: a block of the wall is shoved out and bowls along the stage (two, one from each end): jump it, or break it with the spade;
   - the Toll: hymn-books flutter down from the lofts: stand between them, or cut one; from half health every slam throws bell shards out low: be where no mark is, or block;

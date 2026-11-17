@@ -231,6 +231,16 @@ check of those blows; second phases were not made faster (they already are, by e
 
 ## Phase 8: the look of the world, and the people
 
+*8a done (build 52), by `docs/phase8-sheet.md` and the rule you set: **they are there when he needs them.** Every
+meeting is story (on the path), service (Ordric, beside every raising water) or an extra (a place of their own), in
+`level.js` `MEETINGS`, with tests (`tests/side-people.test.mjs`). Built: Ordric at the water in all six regions; Corwen
+moved onto the path in the Cloister and the Firmament; three nooks for Corwen (the Spires, the Tempest, the Gardens),
+each a small room of its own behind a crawl, with a free chart; a line for a story beat he walked past; the shop as a
+page with pictures; Hob redrawn side on; platforms in each region's make; every torch on a bracket or a stand, tested.
+Differs from the sheet: the Roots' and the Spires' grids had no room for a nook, so Corwen in the Roots and Mirel in the
+Spires stay on the path (Mirel's camp is not built); the nooks hold a desk, not yet shelves; Ordric's lamp-stores are
+not dressed. **8b (voices, Corwen's map) is still to do.***
+
 **Every torch with a reason to be there:**
 - on a wall in a bracket, on a stand, or on a pillar;
 - a check fails any torch hanging in the air.
