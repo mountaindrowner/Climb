@@ -2,7 +2,15 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Phase 8a: the people, and the look (latest).** (`docs/phase8-sheet.md`.) The rule: they are there when he needs them.
+**The people, placed by hand (latest).** After a playtest note that Ordric "right in the beginning looks sloppy": where each stands had been left to a rule (the nearest flat floor), which put Ordric on or beside where he comes in.
+- **Each stands on a spot chosen for them** (`level.js` `STATIONS`, a room and a tile), not wherever a floor was found.
+- **Ordric is across the raising water from where he comes in,** never on the way in itself: by the stair's foot in the Cloister (the pool is narrower for it), under the shaft up in the Spires, on the scree's first step in the Tempest, on the fallen stones in the Gardens, at the top of the first flight in the Firmament. **In the Roots he is at the end of the corridor,** after the first crawler and before the climb, so the first room is the waking alone.
+- **His lamp-store stands behind him,** the same everywhere, so it is known at a glance: two shelves of lamps, some lit, oil jars, a crate.
+- **No creature in a raising-water room:** the Tempest's yeti and the Gardens' squall, which stood by the water, are gone.
+- **Mirel** is at the near end of the bridge (the Roots), at the foot of the bell stair, and by the leak in the eyrie. **Corwen** is on the nave's floor, not on a plank (two acolytes moved off from him), and in the orrery away from the eye that watches it.
+- **Corwen's three nooks are found three ways:** at the road's foot in the Spires; off the top of the hut's loft in the Tempest; on a ledge halfway up the broken wall in the Gardens.
+
+**Phase 8a: the people, and the look.** (`docs/phase8-sheet.md`.) The rule: they are there when he needs them.
 - **Every meeting has a kind** (`level.js` `MEETINGS`): **story** (on the main path, where he must pass), **service** (Ordric and his shop, beside every region's raising water), or an **extra** (a place of their own, to be looked for). Tests play it: a story meeting adds almost nothing to the way from a region's start to its keeper; Ordric is within four seconds of the water; an extra can be reached with the gifts he has there.
 - **Ordric is beside the raising water in every region,** where he is raised and rests. He was in a room far up each region.
 - **Corwen is on the path** in the Cloister (the nave) and the Firmament (the orrery); he was in side rooms there.

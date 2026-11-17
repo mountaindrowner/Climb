@@ -31,7 +31,7 @@ function corridor(){
   rect(r, 16, 0, 21, 1, EMPTY); rect(r, 16, 0, 21, 0, SPIKES);   // a pit with spikes: jump it
   ledge(r, 30, 36, 6); ledge(r, 25, 30, 10); ledge(r, 32, 37, 14); ledge(r, 26, 31, 18); ledge(r, 30, 36, 21);   // the last, in the doorway: up into the shaft
   mark(r, 'crawler', 10, 2); mark(r, 'torch', 12, 8); mark(r, 'torch', 26, 6); mark(r, 'crystal', 37, 15);
-  mark(r, 'urn', 6, 2); mark(r, 'urn', 26, 2); mark(r, 'chest', 33, 15, { holds: 'shards' });
+  mark(r, 'urn', 6, 2); mark(r, 'urn', 28, 2); mark(r, 'chest', 33, 15, { holds: 'shards' });   // (Ordric stands at 25: STATIONS)
   return r;
 }
 function shaft(){
@@ -174,9 +174,9 @@ function nave(){
   for (const x of [18, 50]){ rect(r, x, 0, x + 5, 1, EMPTY); rect(r, x, 0, x + 5, 0, SPIKES); }   // two pits
   ledge(r, 8, 15, 6); ledge(r, 26, 34, 6); ledge(r, 36, 44, 10); ledge(r, 56, 64, 6); ledge(r, 66, 73, 10);   // the galleries
   rect(r, 38, 2, 41, 3);                                          // a plinth mid-hall
-  mark(r, 'acolyte', 30, 2); mark(r, 'acolyte', 62, 2); mark(r, 'wisp', 40, 11); mark(r, 'gargoyle', 22, 13); mark(r, 'gargoyle', 58, 14); mark(r, 'acolyte', 70, 2);
+  mark(r, 'acolyte', 21, 2); mark(r, 'acolyte', 66, 2); mark(r, 'wisp', 40, 11); mark(r, 'gargoyle', 22, 13); mark(r, 'gargoyle', 58, 14); mark(r, 'acolyte', 70, 2);
   mark(r, 'torch', 5, 8); mark(r, 'torch', 28, 12); mark(r, 'torch', 46, 6); mark(r, 'torch', 60, 12); mark(r, 'torch', 75, 8); mark(r, 'crystal', 11, 7); mark(r, 'crystal', 70, 11); mark(r, 'crystal', 34, 2);
-  mark(r, 'urn', 6, 2); mark(r, 'urn', 46, 2); mark(r, 'urn', 76, 2); mark(r, 'chest', 38, 11, { holds: 'shards' });
+  mark(r, 'urn', 6, 2); mark(r, 'urn', 49, 2); mark(r, 'urn', 76, 2); mark(r, 'chest', 38, 11, { holds: 'shards' });
   return r;
 }
 // three screens tall: ledges up past a door to the library, to a door onto the cloister walk; the bell's rope hangs above
@@ -341,7 +341,7 @@ function eyrie(){
   rect(r, 2, 2, 8, 4);
   mark(r, 'shrine', 56, 4); mark(r, 'yeti', 14, 2); mark(r, 'wraith', 22, 14);
   mark(r, 'torch', 5, 9); mark(r, 'torch', 30, 5); mark(r, 'torch', 46, 9); mark(r, 'torch', 66, 9); mark(r, 'torch', 75, 9); mark(r, 'crystal', 4, 5); mark(r, 'crystal', 70, 2); mark(r, 'crystal', 44, 2);
-  mark(r, 'chest', 7, 5, { holds: 'shards' }); mark(r, 'urn', 47, 2); mark(r, 'urn', 68, 2);
+  mark(r, 'chest', 7, 5, { holds: 'shards' }); mark(r, 'urn', 49, 2); mark(r, 'urn', 68, 2);
   return r;
 }
 // the summit: a crown of rock under the open sky, where the Rime Wyrm keeps the peak. The beacon is lit when it falls
@@ -417,7 +417,7 @@ function build(n){
   const spawn = marks.find(m => m.type === 'spawn'), first = spawn && rooms.find(r => spawn.x >= r.tx0 && spawn.x < r.tx1 && spawn.y >= r.ty0 && spawn.y < r.ty1);
   if (n > 0 && first && R.vestibule !== false) first.look = REGIONS[n - 1].theme;
   for (const r of rooms) if (R.looks && R.looks[r.name]) r.look = R.looks[r.name];
-  nooks(tiles, W, H, marks, rooms, STATIONS[n], MEETINGS[n]);
+  nooks(tiles, W, H, marks, rooms, STATIONS[n], MEETINGS[n], n);
   stations(tiles, W, H, marks, rooms, STATIONS[n]);
   const raw = tiles.slice();
   organic(tiles, W, H, marks, rooms, R.seed, R.wear);
@@ -469,13 +469,19 @@ function build(n){
 }
 // ---- where the three who climb are found in each region: a room each, never the first, spread through it. Each stands
 // at a station of their own (items.js draws it and lights it): Ordric at a flame, Mirel at a fire, Corwen at a desk
+// A place is a room's name, a list of rooms (the first with a spot that fits), or { room, x, y }: that tile of the room,
+// chosen by hand (phase 8: where each stands is staged, not wherever a flat floor was found):
+//   Ordric   across the raising water from where he comes in, never on the way in itself; in the Roots at the end of the
+//            corridor, after the first crawler and before the climb, so the first room is his waking alone
+//   Mirel    where her line is about: the near end of the bridge; the foot of the bell stair; by the leak in the eyrie
+//   Corwen   on rock in the middle of the nave, not on a plank; in the orrery away from the eye that watches it
 export const STATIONS = [
-  { lamplighter: 'grotto', wren: 'bridge', scribe: ['tunnel', 'chamber', 'shaft', 'ascent'] },
-  { lamplighter: 'cloister', wren: 'belfry', scribe: 'nave' },
-  { lamplighter: 'hollow', wren: ['nest', 'eyrie', 'icecave'], scribe: 'saddle' },
-  { lamplighter: ['watch', 'masthead'], wren: 'gantry', scribe: ['anchorage', 'stacks', 'buttress', 'corbel', 'cap', 'bluff'] },
-  { lamplighter: 'orangery', wren: 'cascade', scribe: 'terraces' },
-  { lamplighter: 'vigil', wren: 'transit', scribe: ['orrery', 'meridian', 'archive'] },
+  { lamplighter: { room: 'corridor', x: 25, y: 2 }, wren: { room: 'bridge', x: 6, y: 14 }, scribe: { room: 'chamber', x: 7, y: 2 } },
+  { lamplighter: { room: 'cryptfoot', x: 21, y: 2 }, wren: { room: 'belfry', x: 19, y: 2 }, scribe: { room: 'nave', x: 45, y: 2 } },
+  { lamplighter: { room: 'gate', x: 32, y: 2 }, wren: { room: 'eyrie', x: 44, y: 2 }, scribe: 'saddle' },
+  { lamplighter: { room: 'path', x: 22, y: 4 }, wren: { room: 'gantry', x: 6, y: 2 }, scribe: ['anchorage', 'stacks', 'buttress', 'corbel', 'cap', 'bluff'] },
+  { lamplighter: { room: 'wallfoot', x: 21, y: 5 }, wren: { room: 'cascade', x: 9, y: 25 }, scribe: 'terraces' },
+  { lamplighter: { room: 'stairfoot', x: 35, y: 11 }, wren: { room: 'transit', x: 63, y: 2 }, scribe: { room: 'orrery', x: 4, y: 3 } },
   { hob: 'bunk' },   // the Workings: Hob alone
 ];
 // ---- what each meeting is for (phase 8, docs/phase8-sheet.md): they are there when he needs them.
@@ -497,25 +503,28 @@ export const MEETINGS = [
 // the room's side wall, at a floor he can stand on (he crouches through), a torch over it. Looked for along the side
 // walls of the rooms given, then of any room: not the keeper's, not a wing's. It is a room of its own for the painter
 // and the map ('nook'), which shows it only once he has been in
-const NOOK = { w: 16, h: 10, title: { scribe: 'Corwen\'s nook', wren: 'Mirel\'s camp', lamplighter: 'Ordric\'s store' } };
-function nooks(tiles, W, H, marks, rooms, S, M){
-  if (!S || !M) return;
+const NOOK = { w: 16, h: 10, row: { 2: 2, 3: 27, 4: 17 },   // row: by region, the height (in its room) each is wanted at, so no two are found the same way: the Spires' at the road's foot, the Tempest's off the top of the hut's loft, the Gardens' halfway up the broken wall
+  title: { scribe: 'Corwen\'s nook', wren: 'Mirel\'s camp', lamplighter: 'Ordric\'s store' } };
+function nooks(tiles, W, H, marks, rooms, S, M, n){
+  if (!S || !M || (typeof process !== 'undefined' && process.env && process.env.NO_NOOKS)) return;   // NO_NOOKS: a tool's look at the region without them
   const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i], set = (i, j, v) => { tiles[j * W + i] = v; };
   const inRoom = (q, x, y) => x >= q.tx0 && x < q.tx1 && y >= q.ty0 && y < q.ty1, roomAt = (x, y) => rooms.find(q => inRoom(q, x, y)), boss = marks.find(k => k.type === 'boss');
   for (const m of marks){
     if (m.type !== 'npc' || M[m.who] !== 'extra') continue;
-    const order = [].concat(S[m.who] || []).map(n => rooms.find(q => q.name === n)).filter(Boolean).concat(rooms).filter(r => !r.gate && r.name !== 'nook' && !(boss && inRoom(r, boss.x, boss.y)));
-    let done = false;
-    for (const r of order){ if (done) break;
-      for (const d of [1, -1]){ if (done) break;
+    const order = [].concat(S[m.who] || []).map(n => rooms.find(q => q.name === (n.room || n))).filter(Boolean).concat(rooms).filter(r => !r.gate && r.name !== 'nook' && !(boss && inRoom(r, boss.x, boss.y)));
+    const want = NOOK.row[n], sol = v => v === ROCK || v === LEDGE; let pick = null, pd = 1e9;
+    order.forEach((r, k) => { for (const d of [1, -1]){
         const wall = d > 0 ? r.tx1 - 2 : r.tx0 + 1, i = wall - d, out = d > 0 ? r.tx1 : r.tx0 - NOOK.w;   // the wall's inner column; where he stands; the block's left edge
         if (out < 1 || out + NOOK.w > W - 1) continue;
-        for (let j = r.ty0 + 2; j < r.ty1 - 7 && !done; j++){
-          if (at(i, j) !== EMPTY || at(i, j - 1) !== ROCK || at(i - d, j) !== EMPTY || at(i - d, j - 1) !== ROCK) continue;   // a floor to stand on by the wall, two wide
+        for (let j = r.ty0 + 2; j < r.ty1 - 7; j++){
+          if (at(i, j) !== EMPTY || !sol(at(i, j - 1)) || at(i - d, j) !== EMPTY || !sol(at(i - d, j - 1))) continue;   // a floor to stand on by the wall (rock, or a plank), two wide
           let ok = true; for (let b = 0; b < 5 && ok; b++) if (at(i, j + b) !== EMPTY || at(i - d, j + b) !== EMPTY) ok = false;   // and room to stand
           for (let b = -1; b <= 4 && ok; b++) if (at(wall, j + b) !== ROCK || at(wall + d, j + b) !== ROCK) ok = false;                // the wall whole there
           for (let a = 0; a < NOOK.w && ok; a++) for (let b = -3; b < NOOK.h - 3 && ok; b++){ const y = j + b; if (y < 1 || y >= H - 1 || roomAt(out + a, y)) ok = false; }   // nothing of the region's there
-          if (!ok || marks.some(k => k !== m && k.type !== 'crystal' && k.type !== 'torch' && Math.abs(k.x - i) < 5 && Math.abs(k.y - j) < 5)) continue;
+          if (!ok || marks.some(q => q !== m && q.type !== 'crystal' && q.type !== 'torch' && q.type !== 'keep' && Math.abs(q.x - i) < 5 && Math.abs(q.y - j) < 5)) continue;
+          const score = want == null ? k * 1000 + j : Math.abs(j - r.ty0 - want) * 1000 + k; if (score < pd){ pd = score; pick = { r, d, wall, i, out, j }; }
+        } } });
+    if (pick){ const { r, d, wall, i, out, j } = pick; {
           for (let a = 0; a < NOOK.w; a++) for (let b = -3; b < NOOK.h - 3; b++) set(out + a, j + b, ROCK);                     // the stone it is cut in
           for (let a = 0; a <= 3; a++) for (let b = 0; b < 3; b++) set(wall + d * a, j + b, EMPTY);                             // the gap, through the wall
           for (let a = 4; a <= 13; a++) for (let b = 0; b < 5; b++) set(wall + d * a, j + b, EMPTY);                            // the nook
@@ -523,8 +532,7 @@ function nooks(tiles, W, H, marks, rooms, S, M){
           rooms.push({ name: 'nook', title: NOOK.title[m.who] || '', gate: '', open: false, nook: m.who, look: r.look, x0: out * T, y0: (j - 3) * T, x1: (out + NOOK.w) * T, y1: (j - 3 + NOOK.h) * T, tx0: out, ty0: j - 3, tx1: out + NOOK.w, ty1: j - 3 + NOOK.h });
           for (let a = 4; a <= 13; a += 2) marks.push({ type: 'keep', x: wall + d * a, y: j + 1 }); marks.push({ type: 'keep', x: wall + d, y: j + 1 });
           marks.push({ type: 'torch', x: i, y: j + 5, nook: true });
-          done = true;
-        } } }
+    } }
   }
 }
 // each is moved to the best place in its room: a flat floor seven tiles wide with six of air over it, clear of the other
@@ -538,7 +546,10 @@ function stations(tiles, W, H, marks, rooms, S){
     // Ordric is beside the region's raising water, in its room (phase 8: his shop is always close); if nothing fits
     // there, his old rooms
     const pool = m.who === 'lamplighter' && marks.find(k => k.type === 'pool' && !k.plain), poolRoom = pool && rooms.find(q => pool.x >= q.tx0 && pool.x < q.tx1 && pool.y >= q.ty0 && pool.y < q.ty1);
-    for (const name of (poolRoom ? [poolRoom.name] : []).concat(S[m.who])){   // a room, or rooms in the order wanted: the first with a place that fits
+    // a tile chosen by hand: there, if he can stand there (a floor under it, and his height of air); else as below
+    const hand = [].concat(S[m.who]).find(q => q && q.room), hr = hand && rooms.find(q => q.name === hand.room);
+    if (hr){ const i = hr.tx0 + hand.x, j = hr.ty0 + hand.y; if (solid(at(i, j - 1)) && [0, 1, 2, 3, 4].every(d => at(i, j + d) === EMPTY)){ m.x = i; m.y = j; m.station = hr.name; m.placed = true; continue; } }
+    for (const name of (poolRoom ? [poolRoom.name] : []).concat([].concat(S[m.who]).map(q => q.room || q))){   // a room, or rooms in the order wanted: the first with a place that fits
     const r = rooms.find(q => q.name === name); if (!r) continue;
     const byPool = pool && r === poolRoom, flame = !byPool && m.who === 'lamplighter' && marks.find(k => k.type === 'shrine' && k.x >= r.tx0 && k.x < r.tx1 && k.y >= r.ty0 && k.y < r.ty1);
     const want = byPool ? [[pool.x + (pool.w || 8) + 5, pool.y + 1], [pool.x - 6, pool.y + 1]] : flame ? [[flame.x + 5, flame.y], [flame.x - 5, flame.y]] : [[(r.tx0 + r.tx1) / 2, r.ty0 + 2]];

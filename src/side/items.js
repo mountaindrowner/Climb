@@ -94,6 +94,15 @@ export function makeItems(scene, R, n){
       // the station beside them, toward the middle of the room
       const ST = STATION[who], room = LEVEL.rooms.find(r => x >= r.x0 && x < r.x1 && y >= r.y0 && y < r.y1), side = room && x > (room.x0 + room.x1) / 2 ? -1 : 1, sx = x + side * (ST.at / 16 + 1.3);   // far enough that its light is beside them, not on their faces
       const sc = cnv(ST.w, ST.h); ST.draw(sc.getContext('2d')); const sm = flat(texOf(sc), ST.w, ST.h); sm.position.set(Math.round(sx * PPU) / PPU, y, 0.015);
+      // Ordric's lamp-store, behind him (phase 8): the same in every region, so it is known at a glance. Two shelves of
+      // lamps on iron brackets (some lit, some waiting), oil jars and a crate under them, a coil of wick on a peg
+      if (who === 'lamplighter'){ const W2 = 56, H2 = 40, bc = cnv(W2, H2), bg = bc.getContext('2d');
+        for (const sy of [10, 22]){ px(bg, PAL.ink, 2, sy, W2 - 4, 3); px(bg, PAL.wood1, 3, sy, W2 - 6, 2); px(bg, PAL.wood3, 3, sy, W2 - 6, 1); for (const bx of [6, W2 - 9]){ px(bg, PAL.ink, bx, sy + 3, 3, 4); px(bg, PAL.dark, bx + 1, sy + 3, 1, 3); } }
+        [[8, 10, 1], [18, 10, 0], [28, 10, 1], [40, 10, 0], [13, 22, 0], [24, 22, 1], [35, 22, 1], [45, 22, 0]].forEach(([lx, sy, lit]) => { px(bg, PAL.ink, lx, sy - 8, 6, 8); px(bg, PAL.ink, lx + 2, sy - 10, 2, 2); px(bg, lit ? PAL.fire2 : PAL.dark, lx + 1, sy - 7, 4, 6); if (lit){ px(bg, PAL.fire3, lx + 2, sy - 6, 2, 3); px(bg, PAL.white, lx + 2, sy - 5, 1, 1); } else px(bg, PAL.mid, lx + 1, sy - 7, 1, 6); });
+        for (const [jx, jh] of [[5, 9], [13, 7]]){ px(bg, PAL.ink, jx, H2 - jh - 1, 7, jh + 1); px(bg, PAL.rust, jx + 1, H2 - jh, 5, jh); px(bg, PAL.fire2, jx + 1, H2 - jh, 5, 1); px(bg, PAL.ink, jx + 2, H2 - jh - 3, 3, 2); }
+        px(bg, PAL.ink, 36, H2 - 11, 16, 11); px(bg, PAL.wood1, 37, H2 - 10, 14, 10); px(bg, PAL.wood3, 37, H2 - 10, 14, 1); px(bg, PAL.wood0, 37, H2 - 5, 14, 1); px(bg, PAL.wood0, 43, H2 - 10, 1, 10);
+        px(bg, PAL.ink, 50, 3, 3, 6); px(bg, PAL.bone, 51, 4, 1, 4);
+        const bm = flat(texOf(bc), W2, H2); bm.position.set(Math.round((x - side * 0.9) * PPU) / PPU, y, 0.011); }
       let fm = null; if (ST.fire){ fm = new THREE.Mesh(new THREE.PlaneGeometry(6 / PPU, 9 / PPU), new THREE.MeshBasicMaterial({ map: fireTex(), transparent: true, alphaTest: 0.5 })); fm.position.set(Math.round((sx - ST.w / 2 / PPU + (ST.fire[0] + 0.5) / PPU) * PPU) / PPU, y + (ST.h - ST.fire[1]) / PPU + 4.5 / PPU, 0.02); scene.add(fm); }
       const lx = sx - ST.w / 2 / PPU + ST.glow[0] / PPU, ly = y + (ST.h - ST.glow[1]) / PPU, halo = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 3.4), new THREE.MeshBasicMaterial({ map: glowTex(), color: ST.col, transparent: true, opacity: 0.32, depthWrite: false, blending: THREE.AdditiveBlending })); halo.position.set(lx, ly, 0.01); scene.add(halo);
       const N = { type: 'npc', who, extra: !!mk.extra, art: P.art, station: { name: ST.name, x: sx, y, lx, ly, col: ST.col, fm, halo, room: mk.station }, x, y, face: -1, sprite: null, meta: null, stand: null, ph: rnd() * 6 };

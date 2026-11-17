@@ -45,6 +45,15 @@ three kinds, and each kind has its own rule:
   gifts he arrives with; Ordric is within a few seconds of the raising water; no story or service meeting is behind
   cracked stone, a crawl or a drop.
 
+### Where each stands (build 53, after a playtest)
+
+Placed by hand (`level.js` `STATIONS`), since a rule alone put Ordric on the way in:
+- **Ordric:** across the raising water from where he comes in, his lamp-store behind him; in the Roots at the end of the
+  corridor (after the first crawler, before the climb), so the first room is the waking alone. No creature shares a
+  raising-water room.
+- **Mirel:** where her line is about (the near end of the bridge; the foot of the bell stair; by the leak in the eyrie).
+- **Corwen:** on rock, clear of creatures; his nooks each at a different height of the passage up.
+
 ### Their own places (the extras)
 
 Small rooms cut beside existing ones, each person's sharing a look so they are known at a glance. Each holds a few more

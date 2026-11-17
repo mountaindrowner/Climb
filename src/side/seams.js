@@ -17,7 +17,7 @@ const titled = (fn, title) => { const f = () => { const r = fn(); r.title = titl
 // down it; it is dark at the foot and lit at the head, where the house's light comes down to meet him
 function cryptfoot(){
   const r = room(); walls(r); door(r, 'top', 30, 35);
-  rect(r, 8, 1, 22, 1, EMPTY); mark(r, 'pool', 8, 1, { w: 15, look: 'arch' });   // the water, run down the stair and pooled under the founders' niche: the Cloister's raising water
+  rect(r, 8, 1, 18, 1, EMPTY); mark(r, 'pool', 8, 1, { w: 11, look: 'arch' });   // (narrower since phase 8: Ordric stands between it and the stair)   // the water, run down the stair and pooled under the founders' niche: the Cloister's raising water
   stairs(r, 24, 2, 3, 1, 2);                                                   // the first worn steps
   shaftUp(r, 30, 35, 6, 18);                                                  // up to the stair's mouth
   mark(r, 'spawn', 4, 2); mark(r, 'crystal', 14, 2); mark(r, 'urn', 26, 4); mark(r, 'wisp', 18, 14);
@@ -40,7 +40,7 @@ function gate(){
   rect(r, 14, 2, 17, 6); rect(r, 14, 16, 17, 20);                 // the gate's two posts, and its lintel over
   rect(r, 20, 1, 27, 1, EMPTY); mark(r, 'pool', 20, 1, { w: 8, look: 'ice' });   // meltwater under the gate: the Spires' raising water
   ledge(r, 22, 28, 7); shaftUp(r, 30, 35, 10, 18);
-  mark(r, 'spawn', 5, 2); mark(r, 'torch', 12, 8); mark(r, 'torch', 19, 8); mark(r, 'urn', 8, 2); mark(r, 'urn', 34, 2);
+  mark(r, 'spawn', 5, 2); mark(r, 'torch', 12, 8); mark(r, 'torch', 19, 8); mark(r, 'urn', 8, 2); mark(r, 'urn', 37, 2);
   return r;
 }
 function road(){
@@ -61,7 +61,7 @@ function path(){
   rect(r, 20, 2, 39, 3); rect(r, 26, 4, 39, 5);                    // the path climbing the scree
   shaftUp(r, 30, 35, 10, 18);
   rect(r, 8, 1, 15, 1, EMPTY); mark(r, 'pool', 8, 1, { w: 8, look: 'pipe' });   // rain off the scree, caught by the climbers' pipe: the Tempest's raising water
-  mark(r, 'spawn', 5, 2); mark(r, 'yeti', 33, 6); mark(r, 'urn', 24, 4); mark(r, 'crystal', 18, 2);   // the yeti up the scree, not by the water
+  mark(r, 'spawn', 5, 2); mark(r, 'urn', 25, 4); mark(r, 'crystal', 18, 2);   // no creature in the water's room: Ordric keeps his lamps on the scree's first step
   return r;
 }
 function hut(){
@@ -71,6 +71,7 @@ function hut(){
   mark(r, 'shrine', 18, 4);                                       // the hut's roof lets the water through, into a bowl (a leak)
   for (const [x0, x1, y] of [[22, 28, 9], [12, 18, 14], [22, 28, 19], [12, 18, 24]]){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); }   // the ladder up the loft, to the door
   ledge(r, 20, 28, 28); shaftUp(r, 29, 35, 31, 43);
+  ledge(r, 32, 37, 26); mark(r, 'keep', 35, 28);                  // a ledge off the top of the loft, at the wall: Corwen's nook is through it (level.js nooks)
   mark(r, 'torch', 14, 9); mark(r, 'torch', 34, 12); mark(r, 'torch', 30, 32);
   mark(r, 'urn', 6, 13); mark(r, 'urn', 26, 4); mark(r, 'chest', 6, 9, { holds: 'shards' });
   return r;
@@ -82,7 +83,7 @@ function wallfoot(){
   rect(r, 18, 2, 23, 4); rect(r, 26, 2, 29, 7);                    // the fallen wall's stones
   shaftUp(r, 30, 35, 10, 18);
   rect(r, 7, 1, 14, 1, EMPTY); mark(r, 'pool', 7, 1, { w: 8, look: 'spout' });   // the garden's own spring, out of the broken wall: the Gardens' raising water
-  mark(r, 'spawn', 5, 2); mark(r, 'squall', 31, 2); mark(r, 'urn', 20, 5); mark(r, 'crystal', 34, 2);
+  mark(r, 'spawn', 5, 2); mark(r, 'urn', 18, 5); mark(r, 'crystal', 34, 2);   // no creature in the water's room: Ordric is on the fallen stones
   return r;
 }
 function breach(){
@@ -92,6 +93,7 @@ function breach(){
   rect(r, 10, 2, 16, 5); rect(r, 17, 2, 21, 9); rect(r, 22, 2, 25, 4);
   for (const [x0, x1, y] of [[18, 24, 14], [24, 30, 19], [16, 22, 23], [22, 28, 27]]){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); }
   shaftUp(r, 28, 35, 31, 43);
+  ledge(r, 32, 37, 16); mark(r, 'keep', 35, 18);                  // a ledge out from the broken courses, at the wall: Corwen's nook is through it (level.js nooks)
   mark(r, 'lasher', 13, 6); mark(r, 'puff', 20, 30); mark(r, 'nimbus', 26, 36);
   mark(r, 'torch', 12, 12); mark(r, 'torch', 28, 26); mark(r, 'urn', 23, 5); mark(r, 'chest', 17, 24, { holds: 'shards' });
   return r;
