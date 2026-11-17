@@ -5,8 +5,9 @@ their voices, and Corwen's map.
 
 ## What is there now
 
-- **All three people stand in every region:** 18 meetings on the climb, most beside the path, and Hob in the Workings.
-  Decision 0.6 asks for fewer, spread out, harder to find, each in a small place of their own.
+- **All three people stand in every region:** 18 meetings on the climb, and Hob in the Workings. Nothing says which
+  meetings the story needs, which the player needs, and which are extras; some stand off the path where they can be
+  missed.
 - **Platforms** are the same plank in every region.
 - **Torches** are moved off the people (phase 1), but nothing checks that each is mounted on something.
 - **Ordric's shop** is a list of buttons.
@@ -14,36 +15,48 @@ their voices, and Corwen's map.
 
 ## 8a. The people
 
-### Where they are (10 meetings, down from 18)
+**The rule (your direction): they are there when he needs them.** Nobody the story or the player needs is rare, hidden
+or behind something. Hidden places are extras on top, never the only way to meet someone. So every meeting is one of
+three kinds, and each kind has its own rule:
 
-| Region | Who | Why here |
+| Kind | What it is for | The rule |
 |---|---|---|
-| The Roots | **Ordric** | He tells him what the thread and the water are; the first shop |
-| The Cloister | **Corwen**, **Mirel** | The library is Corwen's; Mirel counts her falls on the bell stair |
-| The Spires | **Ordric** | A shop before the Wyrm |
-| The Tempest | **Mirel** | She cannot carry the shell through the storm |
-| The Gardens | **Ordric**, **Mirel** | A shop; she has put the shell down |
-| The Firmament | **all three** | The end: each has a last thing to say |
-| The Workings | Hob | As now |
+| **Story** | A beat the story needs: who they are, what has changed for them | **On the main path, where he must pass.** It cannot be missed. If he walks by without talking, the next meeting carries the missed beat in a line, so the story never has a hole |
+| **Service** | Something the player needs: Ordric's shop; Corwen's count of what is left to find | **Always close.** Ordric is beside every region's raising water, where he is raised and rests. Corwen's count is on the map itself once he has been met |
+| **Their own place** | An extra: more of who they are, and a small reward | **Off the path, to be looked for.** Missing it costs nothing the story or the climb needs |
 
-Not all are met in the first region: only Ordric. Mirel's arc keeps its order (the count; the shell she cannot carry;
-the shell put down; "this is as far as I go"). Corwen is met late and rarely, which suits him. The lines of the
-meetings that go are not lost: the best of each is moved into the meeting before or after it.
+### Every meeting, classified
 
-### A place of their own, off the path
+| Region | Ordric | Mirel | Corwen |
+|---|---|---|---|
+| The Roots | **Story + service:** by the water he wakes in. What the thread and the water are; the first shop | **Story:** on the path up. "You fell past me." Break the urns | His own place (a writing-nook): met early by those who look |
+| The Cloister | Service, by the water | **Story:** on the bell stair. Forty falls; why is his thread red | **Story:** in the library, on the path. Who he is; from here the map is his |
+| The Spires | Service, by the water | Her own place (a camp on a ledge) | His own place |
+| The Tempest | Service, by the water | **Story:** on the path. She cannot carry the shell through the storm | His own place |
+| The Gardens | Service, by the water | **Story:** on the path. She has put the shell down | His own place |
+| The Firmament | **Story + service:** his last lamp | **Story:** "This is as far as I go" | **Story:** the star that is missing |
+| The Workings | Hob, as now | | |
 
-Each meeting is in a small room cut for it beside an existing room, reached by something that has to be looked for.
-Each person's places share a look, so they are known at a glance:
+- **Ordric:** in every region, always at the raising water. Never looked for.
+- **Mirel:** her whole arc is on the path, in order. One extra camp for those who look.
+- **Corwen:** two story meetings on the path (the Cloister, the Firmament); the rest are his nooks. His service does not
+  depend on finding a nook: once met in the Cloister, the map shows what is left to find in every region.
+- **Checks:** every story meeting is on the shortest way from the region's start to its keeper, reachable with the
+  gifts he arrives with; Ordric is within a few seconds of the raising water; no story or service meeting is behind
+  cracked stone, a crawl or a drop.
 
-| Who | Their place | How it is found |
-|---|---|---|
-| **Ordric** | **A lamp-store:** shelves of lamps, some lit, oil jars, a bench, a hook with his lamp | a lit lamp hangs outside over a low gap to crawl through, or a plank to drop through |
-| **Corwen** | **A writing-nook:** a desk, shelves of books to the roof, loose pages, one candle | a high ledge with a book left on it; the nook is above |
-| **Mirel** | **A camp on a ledge:** her shell set down, a small fire, a bedroll, tally marks scratched on the wall | off the climb's edge: a drop the careful player sees, or behind a fall of water or vines |
+### Their own places (the extras)
 
-- The map marks a place only once he has been in it.
-- Ordric's is the easiest to find (he is needed); Mirel's the hardest.
-- A test checks each can be reached with the gifts he has there, and that none is on the main path.
+Small rooms cut beside existing ones, each person's sharing a look so they are known at a glance. Each holds a few more
+lines about who they are, and a small reward.
+
+| Who | The place | How it is found | What is there |
+|---|---|---|---|
+| **Corwen** (4) | **A writing-nook:** a desk, shelves of books to the roof, loose pages, one candle | a high ledge with a book left on it; the nook is above | a chart of the region, free |
+| **Mirel** (1) | **A camp on a ledge:** her shell set down, a small fire, a bedroll, tally marks on the wall | off the climb's edge, where a careful player sees a drop | a red strand she has kept for him |
+| **Ordric** | His stores are his service places: **a lamp-store** beside each raising water, open to the room: shelves of lamps, oil jars, a bench | not hidden | the shop |
+
+The map marks one of their own places only once he has been in it.
 
 ### Ordric's shop, as a shop
 
