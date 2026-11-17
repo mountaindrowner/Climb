@@ -30,7 +30,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 45';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 46';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -526,7 +526,7 @@ function frame(ts){
   // a fall (decision 0.2): he comes apart into water; the drops fall, and where they meet the ground they sink into it;
   // the picture goes dark, and he is raised out of the region's raising water (raise). What he killed is there again;
   // what he found, lit and learned is kept. (The old rewind, his path run back, is kept in reserve: FLIGHT)
-  if (P.hp <= 0 && DEATH <= 0 && !FLIGHT && !DISS){ DEATH = 0.7; P.vx = 0; G.falls = (G.falls || 0) + 1; DISS = { t: 0, raised: false, drops: dissolve() }; fx.burst({ x: P.x, y: P.y + 1.2 }, 18, 0xdff4ff); FEEL_FX.hitstop = 0.22; R.glint(P.x, P.y + 1, 0x9fe8ff, 1, 5, 0.5); sfx.hurt(); sfx.death(); buzz(1, 1, 450); }
+  if (P.hp <= 0 && DEATH <= 0 && !FLIGHT && !DISS){ DEATH = 0.7; P.vx = 0; G.falls = (G.falls || 0) + 1; DISS = { t: 0, raised: false, drops: dissolve() }; BANNER = null; fx.burst({ x: P.x, y: P.y + 1.2 }, 18, 0xdff4ff); FEEL_FX.hitstop = 0.22; R.glint(P.x, P.y + 1, 0x9fe8ff, 1, 5, 0.5); sfx.hurt(); sfx.death(); buzz(1, 1, 450); }
   if (DEATH > 0) DEATH -= dt;
   if (DISS){
     const D = DISS; D.t += dt;
@@ -808,7 +808,7 @@ function drawHud(dt){
   // a fall: the dark comes down after the drops have sunk, and lifts off him rising out of the water; the word over him
   if (DISS){ const t = DISS.t, k = t < DISS_T.dark ? 0 : t < DISS_T.raise ? (t - DISS_T.dark) / (DISS_T.raise - DISS_T.dark) : 1 - (t - DISS_T.raise) / (DISS_T.end - DISS_T.raise); if (k > 0) HUD.dark(Math.min(1, k), '#0b0810'); }
   if (RISEN){ RISEN.t += dt; const t = RISEN.t, a = Math.max(0, Math.min(1, (t - 0.5) / 0.6, (3.4 - t) / 0.8));
-    if (a > 0){ HUD.g.globalAlpha = a; HUD.text('RAISED', W / 2, 52, '#cfe6ff', 2, 'center'); HUD.rule(Math.round(W / 2), 72, 46, '#9fe8ff'); HUD.text(RISEN.line, W / 2, 80, '#fff2d0', 1, 'center'); if (RISEN.n > 1) HUD.fine(`${RISEN.n} TIMES`, W / 2, 92, '#8b9bb4', 'center'); HUD.g.globalAlpha = 1; }
+    if (a > 0){ HUD.g.globalAlpha = a; HUD.text('PERSEVERE', W / 2, 52, '#cfe6ff', 2, 'center'); HUD.rule(Math.round(W / 2), 72, 46, '#9fe8ff'); HUD.text(RISEN.line, W / 2, 80, '#fff2d0', 1, 'center'); if (RISEN.n > 1) HUD.fine(`${RISEN.n} TIMES`, W / 2, 92, '#8b9bb4', 'center'); HUD.g.globalAlpha = 1; }
     if (t > 3.4) RISEN = null; }
   if (FLASH > 0 && OPT.flash) HUD.dark(FLASH * 1.4, '#ffffff');
   // over what he can use: the key for it

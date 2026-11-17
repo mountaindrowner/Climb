@@ -59,7 +59,7 @@ never quote scripture, never preach. If a line would work on a church poster, cu
 | **The red thread** (the scarf) | His life, a length for each heart. Tied on him, not his own. It burns down when he is hurt and mends at the water. Strands of it are caught in high places; three make a heart. Others who climb have a grey one. |
 | **The raising water** (a pool in each region, near where he comes in) | The same water, gathered: a font, meltwater, a pipe's rain, a spring, a still mirror, a trough. A fall raises him out of it. Ordric hangs a lamp over each. |
 | **A leak** (where the water seeps through the rock elsewhere) | It mends him and fills the flask. It does not raise him. |
-| **A fall** (a death) | He comes apart into water; the drops sink into the ground; the dark; and he is raised out of the region's raising water, the word RAISED over him (the game counts how many times). The creatures are there again. What he found, lit and learned is kept. |
+| **A fall** (a death) | He comes apart into water; the drops sink into the ground; the dark; and he is raised out of the region's raising water, the word PERSEVERE over him (the game counts how many times he was raised). The creatures are there again. What he found, lit and learned is kept. |
 | **The flame above** (the beacon) | What he was given to keep. Dark, he thinks. |
 | **The scar** (a pale line down the mountain on the title) | The way he fell. In the ending the light comes down it. |
 | **The shard** (the sliver hanging beside the summit) | It broke from the top the night he fell and has not come down. Unexplained, and it should stay so. |
