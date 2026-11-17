@@ -62,9 +62,10 @@ test(`${NAME}: every room, the raising water, the boss's stage and the way out c
   const seen = reach(), inRoom = (seen, r) => { for (let j = r.ty0; j < r.ty1; j++) for (let i = r.tx0; i < r.tx1; i++) if (seen[j * W + i]) return true; return false; };
   // a room behind a gate (a wing) is shut until he has what opens it, and open after
   for (const r of rooms) if (r.gate) assert.ok(!inRoom(seen, r), `room ${r.name} is open before its gate (${r.gate})`); else assert.ok(inRoom(seen, r), `room ${r.name} is cut off`);
-  if (GATED){ BROKE = true; const after = reach(); BROKE = false; for (const r of rooms) assert.ok(inRoom(after, r), `room ${r.name} is cut off, even with its gate open`); }
+  let seenOut = seen;   // the Roots' way up is walled with cracked stone: it is reached with the spade the Warden leaves (phase 5)
+  if (GATED){ BROKE = true; const after = reach(); BROKE = false; for (const r of rooms) assert.ok(inRoom(after, r), `room ${r.name} is cut off, even with its gate open`); seenOut = after; }
   const deep = !marks.some(k => k.type === 'exit');   // a section of the Deep: no way on, its passages instead
-  for (const t of ['water', 'boss', deep ? 'pass' : 'exit']){ const m = t === 'water' ? (q => q && { ...q, x: q.x + Math.floor((q.w || 1) / 2) })(marks.find(k => k.type === 'pool' && !k.plain)) : marks.find(k => k.type === t); if (m || t !== 'boss') assert.ok(m && near(seen, m.x, m.y), `${t} cannot be reached`); }
+  for (const t of ['water', 'boss', deep ? 'pass' : 'exit']){ const m = t === 'water' ? (q => q && { ...q, x: q.x + Math.floor((q.w || 1) / 2) })(marks.find(k => k.type === 'pool' && !k.plain)) : marks.find(k => k.type === t); if (m || t !== 'boss') assert.ok(m && near(t === 'exit' ? seenOut : seen, m.x, m.y), `${t} cannot be reached`); }
   for (const m of marks.filter(k => k.type === 'pass')) assert.ok(near(seen, m.x + 1, m.y + 1) || near(seen, m.x + 2, m.y), `a passage at ${m.x},${m.y} cannot be reached`);
 });
 test(`${NAME}: the organic pass leaves every marker in open air`, () => {

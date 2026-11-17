@@ -18,7 +18,7 @@ export const BODY = { hw: 0.34, stand: 2.4, crouch: 1.4, roll: 1.25 };
 export const SCALE = { jump: 1.48, run: 1.38, grav: 1.22 };
 const MANTLE = 2.6, STEP = T + 0.02;
 // what he has learned on the way up (the game sets these from what he has beaten; a keeper teaches one as it falls):
-//   breaker  the Warden's weight: his plunge and his finishing cut break cracked rock
+//   breaker  the Warden's gift, the spade: only it breaks cracked rock (main.js breakRock)
 //   dash     the Toll's step: a roll begun in the air flies level and fast for a moment, once each time he leaves the ground
 //   glide    the Wyrm's wind: jump again when the jumps are spent, and hold: the scarf spreads and he falls slowly; held in
 //            rising air, it lifts him
@@ -329,10 +329,14 @@ export const BLADE = { name: 'Curved blade', reach: 1.9, combo: [
 ], rise: { dmg: 2, wind: 0.28, active: 0.09, rec: 0.33, lunge: 0.4, anim: 'atk_rise_px', hit: 9 / 13 },
   // out of a roll: he is driven forward (dash, units a second) through the wind-up and the cut, then skids out of it
   dash: { dmg: 2, wind: 0.15, active: 0.08, rec: 0.28, lunge: 0, dash: 11, anim: 'atk_dash_px', hit: 7 / 13, hitEnd: 8 / 13 } };
-// the Sexton's spade: one great swing, slow to lift and far-reaching, that lands hard and breaks cracked stone every
-// time; no combo, no rising or dashing cut, and he cannot guard with it (main.js gives it him when the Sexton falls)
-export const SPADE = { name: 'Sexton\'s spade', reach: 2.6, guard: false, digs: true, combo: [
-  { dmg: 3, wind: 0.4, active: 0.1, rec: 0.42, lunge: 0.5, anim: 'atk_spade', hit: 6 / 12 },
+// the Warden's spade (decision 0.4): a whole weapon, slow and heavy. Three blows: a level sweep, a rising heave, and the
+// great overhead blow, which sends a wave forward along the ground (`wave`, main.js). It reaches further than the blade
+// and every blow breaks cracked stone (`digs`); so does its plunge. He cannot guard with it, it has no rising or
+// dashing cut, and in the air its swings land weakly (main.js). The Warden leaves it (main.js, the gift)
+export const SPADE = { name: 'Warden\'s spade', reach: 2.6, guard: false, digs: true, combo: [
+  { dmg: 2, wind: 0.3, active: 0.1, rec: 0.36, lunge: 0.5, anim: 'atk_spade1', hit: 8 / 12 },
+  { dmg: 2, wind: 0.32, active: 0.1, rec: 0.38, lunge: 0.6, anim: 'atk_spade2', hit: 8 / 12 },
+  { dmg: 4, wind: 0.42, active: 0.1, rec: 0.46, lunge: 0.5, anim: 'atk_spade', hit: 6 / 12, wave: true },
 ] };
 export const weaponOf = P => P.weapon === 'blade' ? BLADE : P.weapon === 'spade' ? SPADE : WEAPONS[P.weapon];
 export const swingOf = (P, A) => A.special ? weaponOf(P)[A.special] : weaponOf(P).combo[A.i];

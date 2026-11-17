@@ -153,7 +153,10 @@ function arena(){
   ledge(r, 9, 17, 15); ledge(r, 62, 70, 15);                      // high ground at either end, out of the sweep
   door(r, 'right', 33, 38); rect(r, 64, 32, 77, 32);              // the deadhouse stair from the Ossuary comes out on a shelf too high to climb back to
   mark(r, 'boss', 40, 9); mark(r, 'exit', 6, 9);
-  mark(r, 'torch', 8, 13); mark(r, 'torch', 30, 12); mark(r, 'torch', 50, 12); mark(r, 'torch', 72, 13); mark(r, 'crystal', 20, 9); mark(r, 'crystal', 60, 9);
+  // the way up is in a niche at the stage's end, walled with cracked stone: the first thing the spade the Warden leaves
+  // is used on (a gift is used at once, docs/phase3-sheet.md 6). Rock over the wall, so there is no way round it
+  rect(r, 2, 14, 9, 43); rect(r, 8, 9, 9, 13, CRACKED); mark(r, 'keep', 4, 10); mark(r, 'keep', 6, 10);
+  mark(r, 'torch', 13, 13); mark(r, 'torch', 30, 12); mark(r, 'torch', 50, 12); mark(r, 'torch', 72, 13); mark(r, 'crystal', 20, 9); mark(r, 'crystal', 60, 9);
   return r;
 }
 // ---- the second region: the Cloister, a ruined monastery cut into the mountain over the Warden's cavern. Halls,

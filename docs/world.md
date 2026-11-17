@@ -668,7 +668,7 @@ adding anything, the gifts he has are deepened (`docs/writing.md`, "What he lear
 | Learned | Where | What it does | What it opens |
 |---|---|---|---|
 | The lamp | Ordric gives it, at the Roots' first flame after the Warden | A small light he carries; it lights the guild's lamps, which then stay lit | The Deep below the Workings |
-| The Warden's weight | The Warden | Breaks stone (as now) | The Ossuary, the Bell-Foundry, the Vein's seal |
+| The Warden's spade (was: the Warden's weight) | The Warden | The heavy weapon: only it breaks stone (build 49) | The Ossuary, the Bell-Foundry, the Vein's seal |
 | The Toll's step | The Toll | Dash in the air (as now) | The Scriptorium, the Glacier Galleries, the Keepers' Houses |
 | The Wyrm's wind | The Rime Wyrm | Glide (as now); and under the water the thread carries him as rising air does | The Cairns, the Eye, the Flooded Levels, the Great Shaft |
 | The Auger's grip | The Auger | Cling to rough rock and climb it (never ice, brass or glass) | The Shard; the climb out of the Hollow; high ledges throughout |

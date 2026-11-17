@@ -31,7 +31,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 48';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 49';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -43,6 +43,7 @@ LOW.on = phoneNow();
 setMix('music', OPT.music); setMix('sfx', OPT.sfx); setMix('voice', OPT.voice); if (OPT.rumble === false) SET.rumble = false;
 const DEV = /[?&]level=/.test(location.search);   // straight into a region by its address: he has what the keepers below it teach
 // he is made with what he has earned: hearts (threads, keepers, the difficulty), and the flask's draughts
+let GIFTING = false;   // a keeper's gift is on its way to him: it is his when he takes it (giftStep)
 const armed = id => id === 'blade' || (G.arms || []).includes(id);
 // the touch button for blade and spade: there once he has the spade
 function swapButton(){ const b = document.getElementById('swapbtn'); if (b) b.style.display = armed('spade') ? '' : 'none'; }
@@ -76,7 +77,8 @@ const SUB = LEVELS.map(l => l.sub), CARD = LEVELS.map(l => l.card);   // under a
 // what he can do, from what he has beaten and what he carries
 function learn(){
   const b = n => !!G.beat[n] || G.top > n || (DEV && LEVEL.index > n);
-  CAN.breaker = b(0); CAN.dash = b(1); CAN.glide = b(2); SIDE.feather = has('featherfall'); EMBER.mend = has('seedheart') ? 7 : 10;
+  CAN.breaker = b(0); CAN.dash = b(1); CAN.glide = b(2);
+  if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the spade (a save from before has it now) SIDE.feather = has('featherfall'); EMBER.mend = has('seedheart') ? 7 : 10;
 }
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
 function setup(){
@@ -113,7 +115,7 @@ function enter(n, at){
   ENTERED.push({ n, build: Math.round(t1 - t0), load: Math.round(t2 - t1), setup: Math.round(t3 - t2) });   // what going into a region costs (a check: window.__side.entered)
   const am = at && LEVEL.marks.find(m => m.type === 'arrive' && m.name === at), s = am ? { x: (am.x + 0.5) * T, y: am.y * T } : spawnPoint(), old = P; P = born(s.x, s.y); PASS.cool = 1.2; P.hp = Math.max(1, Math.min(P.maxHp, old.hp)); P.flask = Math.min(P.flaskMax, old.flask);
   CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0;
-  BANNER = null; NAMED = !(roomAt(s.x, s.y + 0.5) || {}).look; if (NAMED) banner(LEVEL.name, SUB[LEVEL.index] || '', 4); marks(); G.level = LEVEL.index; if (!LEVEL.deep) G.top = Math.max(G.top, G.level); G.began = true; store();
+  giftEnd(); BANNER = null; NAMED = !(roomAt(s.x, s.y + 0.5) || {}).look; if (NAMED) banner(LEVEL.name, SUB[LEVEL.index] || '', 4); marks(); G.level = LEVEL.index; if (!LEVEL.deep) G.top = Math.max(G.top, G.level); G.began = true; store();
 }
 // going up: the picture goes dark, the next region is made, it comes back
 const GO = { to: -1, t: 0, st: '', from: -1, at: null };
@@ -431,7 +433,9 @@ function heroPose(P, t){
   const A = hero.meta ? hero.meta.anims : {}, has = n => !!A[n], pick = k => MOVES[k].find(has);
   const held = n => P.weapon === 'spade' && has('spade_' + n) ? 'spade_' + n : n;   // with the spade in hand, its own drawing where there is one
   if (WAKE > 0 && has('getup')) return ['getup', Math.min(0.999, Math.max(0, 1 - WAKE / 1.4))];   // where he fell: up off the ground
-  if (P.art){ const name = { cleave: 'atk_dash_px', gust: 'atk_rise_px', slam: 'plunge_land' }[P.art.k]; if (has(name)) return [name, Math.min(0.999, P.art.t / P.art.dur)]; }   // an ember art
+  if (RECEIVE > 0 && has('receive')) return ['receive', Math.min(0.999, 1 - RECEIVE / RECEIVE_T)];   // taking a keeper's gift
+  if (P.art){ if (P.art.k === 'slam' && P.weapon === 'spade' && has('atk_spade')) return ['atk_spade', (6 + Math.min(5.99, P.art.t / P.art.dur * 6)) / 12];   // the slam, with the spade: its great blow
+    const name = { cleave: 'atk_dash_px', gust: 'atk_rise_px', slam: 'plunge_land' }[P.art.k]; if (has(name)) return [name, Math.min(0.999, P.art.t / P.art.dur)]; }   // an ember art
   if (P.mantle && pick('climb')){
     const name = pick('climb'), C = CLIMB[name] || A[name].climb, M = P.mantle;   // climb_own carries its table (tools/compose-climb.py)
     if (C && M.wall != null){
@@ -447,6 +451,8 @@ function heroPose(P, t){
   if (P.flip > 0 && !P.grounded && pick('flip')) return [pick('flip'), Math.min(0.999, 0.08 + 0.92 * (1 - P.flip / MV.flip))];   // the double jump's somersault, drawn
   // the plunge: the blade turned point-down (two frames), then the dive held, the cape streaming; drawn by his boots, so
   // the blade reaches below his feet
+  if (P.dive && P.weapon === 'spade' && has('spade_plunge')){ const n = A.spade_plunge.frames; return ['spade_plunge', ((Math.floor((P.dive.t || 0) * 12) % n) + 0.5) / n]; }
+  if (P.grounded && PLUNGE_T > 0 && P.weapon === 'spade' && has('atk_spade') && !(Math.abs(P.vx) > 1.5 && P.plant <= 0)) return ['atk_spade', (6 + Math.min(5.99, (1 - PLUNGE_T / PLUNGE_LAND) * 6)) / 12];   // its landing: the spade driven in
   if (P.dive && has('plunge_fall')){ const t = P.dive.t || 0, f = t < 0.12 ? Math.floor(t / 0.12 * 2) : 2 + Math.floor((t - 0.12) * 12) % 6; return ['plunge_fall', (f + 0.5) / 8, { foot: 46 }]; }
   if (P.dive && has('plunge')) return ['plunge', 0.6];
   // its landing: the blade driven in, a deep crouch, up again (its last eight frames); cut short if he moves off
@@ -502,6 +508,7 @@ function frame(ts){
   for (const x of R.exits) if (x.on && Math.random() < dt * 16){ const a = Math.random() * Math.PI * 2; fx.burst({ x: x.x + Math.cos(a) * 0.6, y: x.y + 1.3 + Math.sin(a) * 0.9 }, 1, x.cols[Math.random() < 0.5 ? 0 : 1]); }
   for (let i = LATER.length - 1; i >= 0; i--) if ((LATER[i].t -= dt) <= 0){ const L = LATER[i]; LATER.splice(i, 1); L.f(); }
   if (!NOTE && CARDQ.length){ NOTE = CARDQ.shift(); release(); }   // the next card, in its turn
+  giftStep(dt); if (RECEIVE > 0) RECEIVE -= dt;
   // a hint, if he is struggling (teach.js); not while something else has the screen
   TEACHER.step(dt, { P, held: IN.held, solidAt, onPlank, busy: !!(WAKE > 0 || DISS || FLIGHT || GO.st || ENT.st || DEATH > 0 || (BOSS && BOSS.st === 'rise')),
     foes: TEACHER.known('cut') ? null : E.list.filter(e => e.alive) });
@@ -519,7 +526,7 @@ function frame(ts){
   if (!USE && P.hp > 0 && P.grounded && !FLIGHT && !GO.st && WAKE <= 0 && G.relics.length){ const S = SHRINES.find(S => Math.abs(P.x - S.x) < S.half && Math.abs(P.y - S.y) < 1.5); if (S) USE = { type: 'flame', x: S.x, y: S.y }; }   // at a flame: the knots
   if (USE && IN.pressed.has('down')){ IN.pressed.delete('down'); if (USE.type === 'npc') talkTo(USE); else if (USE.type === 'flame') knotMenu(); else ITEMS.open(USE, evs); }
   const h = 1 / 120;
-  while (acc >= h){ const x0 = P.x; if (DEATH <= 0 && !FLIGHT && !DISS && !GO.st && WAKE <= 0 && !ENT.lead) stepPlayer(P, h); else if (ENT.lead){ P.vx = 0; if (ENT.face) P.face = ENT.face; if (ENT.brace && !P.blocking){ P.blocking = true; P.blockAt = performance.now() / 1000; } } P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
+  while (acc >= h){ const x0 = P.x; if (DEATH <= 0 && !FLIGHT && !DISS && !GO.st && WAKE <= 0 && RECEIVE <= 0 && !ENT.lead) stepPlayer(P, h); else if (ENT.lead){ P.vx = 0; if (ENT.face) P.face = ENT.face; if (ENT.brace && !P.blocking){ P.blocking = true; P.blockAt = performance.now() / 1000; } } P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
   endFrame();
   if (P.hp > 0 && !FLIGHT && !GO.st && (TRAILT -= dt) <= 0){ TRAILT = 0.05; const [an, fr] = heroPose(P, time); TRAIL.push({ x: P.x, y: P.y, face: P.face, an, fr });
     if (TRAIL.length > 2400) TRAIL.splice(0, 1200, ...TRAIL.slice(0, 1200).filter((_, i) => i % 2)); }   // a long way: the far end of it kept more thinly
@@ -668,9 +675,9 @@ function drawCard(c, W, modal, top = 8){
 // ---- what he carries (from the pause): his gifts, weapons and relics, each a button; the one picked shows its card
 let CARRY = [];
 const carryCards = () => [
-  ...TEACH.filter(t => t.can && CAN[t.can]).map(t => ({ head: 'A GIFT', title: t.name, icon: t.icon, does: t.does, how: t.how })),
-  { head: 'IN HIS HAND' + (P.weapon !== 'spade' ? '' : ' NOW: THE SPADE'), title: 'The blade', icon: 'blade', does: 'Quick cuts, three to a string; it can block.', how: ['{attack}: cut. {block}: block.'] },
-  ...(armed('spade') ? [{ head: 'A WEAPON', title: 'The Sexton\'s Spade', icon: 'spade', does: 'One great swing: slow, long, and it breaks cracked stone where it lands. He cannot block with it.', how: ['{swap}: blade or spade.'] }] : []),
+  ...TEACH.filter(t => t.can && t.can !== 'breaker' && CAN[t.can]).map(t => ({ head: 'A GIFT', title: t.name, icon: t.icon, does: t.does, how: t.how })),
+  { head: 'A WEAPON' + (P.weapon !== 'spade' ? ' · IN HIS HAND' : ''), title: 'The blade', icon: 'blade', does: 'Quick cuts, three to a string. It can block. It cannot break stone.', how: ['{attack}: cut. {block}: block.'] },
+  ...(armed('spade') ? [{ head: 'A WEAPON' + (P.weapon === 'spade' ? ' · IN HIS HAND' : ''), title: TEACH[0].name, icon: 'spade', does: TEACH[0].does, how: TEACH[0].how }] : []),
   ...G.relics.filter(id => RELICS[id]).map(id => ({ head: has(id) ? 'A RELIC · TIED' : 'A RELIC · CARRIED, NOT TIED', title: RELICS[id].name, icon: id, does: RELICS[id].line, lore: RELICS[id].lore })),
 ].map(c => ({ ...c, how: (c.how || []).map(keyed) }));
 function carryScreen(){
@@ -684,6 +691,37 @@ function drawCarry(W){
   const spare = G.relics.length - G.worn.length;
   HUD.fine(`${P.maxHp} HEARTS · ${G.threads % THREADS_A_HEART} OF ${THREADS_A_HEART} STRANDS TOWARD ANOTHER · FLASK ${P.flaskMax} · ${G.worn.length} OF ${knots()} KNOTS TIED${spare > 0 ? ` · ${spare} MORE CARRIED` : ''}`, W / 2, 13, '#8b9bb4', 'center');
   const c = CARRY[MSEL]; if (c) drawCard(c, W, false, 22);
+}
+// ---- a keeper's gift (decision 0.5): the thing gathers out of the fallen keeper, light drawn in to it; it hangs a
+// moment, then comes down to him; he reaches up and takes it to his chest (his `receive` drawing; he is held while he
+// does); then its card. GIFT: { t, st: gather | hang | come | take, x, y, m (its picture), teach }
+let GIFT = null, RECEIVE = 0; const RECEIVE_T = 1.3;
+function giftStart(t){
+  const c = document.createElement('canvas'); c.width = c.height = 16; const g = c.getContext('2d'); drawIcon((col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); }, t.icon, 0, 0, 1);
+  const tex = new THREE.CanvasTexture(c); tex.magFilter = tex.minFilter = THREE.NearestFilter; tex.generateMipmaps = false;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0, depthTest: false, depthWrite: false }));
+  const x = BOSS ? BOSS.cx : P.x, y = (BOSS ? BOSS.stageY : P.y) + 3.2; m.position.set(x, y, 0.07); m.renderOrder = 50; R.scene.add(m);
+  GIFT = { t: 0, st: 'gather', x, y, y0: y, m, teach: t }; sfx.relic && sfx.relic();
+}
+// he has left before it reached him (a way on, the title): it is his all the same, and its card comes
+function giftEnd(){ if (GIFTING){ GIFTING = false; learn(); } RECEIVE = 0; if (!GIFT) return; const t = GIFT.teach; R.scene.remove(GIFT.m); GIFT.m.material.map.dispose(); GIFT.m.material.dispose(); GIFT.m.geometry.dispose(); GIFT = null;
+  if (t.can === 'breaker'){ P.weapon = G.wield = 'spade'; } store(); card({ head: 'HE HAS BEEN GIVEN', title: t.name, icon: t.icon, does: t.does, how: t.how }); if (t.can) firstCard('embers'); }
+function giftStep(dt){
+  const Gf = GIFT; if (!Gf) return; Gf.t += dt; const at = { x: Gf.x, y: Gf.y };
+  if (Gf.st === 'gather'){ const u = Math.min(1, Gf.t / 1.5); Gf.m.material.opacity = u; Gf.m.scale.setScalar(0.4 + 0.9 * u);
+    if (Math.random() < dt * 40){ const a = Math.random() * Math.PI * 2, r = 3.2 * (1 - u) + 0.5; fx.burst({ x: Gf.x + Math.cos(a) * r, y: Gf.y + Math.sin(a) * r }, 1, Math.random() < 0.5 ? 0xfee761 : 0xfff2d0); }
+    if (u >= 1){ Gf.st = 'hang'; Gf.t = 0; fx.ring(at, 0xfee761); R.glint(Gf.x, Gf.y, 0xfee761, 1.2, 6, 0.5); sfx.chest(); } }
+  else if (Gf.st === 'hang'){ Gf.y = Gf.y0 + Math.sin(Gf.t * 4) * 0.12; Gf.m.scale.setScalar(1.3); if (Gf.t > 0.9){ Gf.st = 'come'; Gf.t = 0; } }
+  else if (Gf.st === 'come'){ const tx = P.x, ty = P.y + 3.1, dx = tx - Gf.x, dy = ty - Gf.y, d = Math.hypot(dx, dy), sp = Math.min(d, (5 + Gf.t * 9) * dt);
+    if (d > 0.001){ Gf.x += dx / d * sp; Gf.y += dy / d * sp; } if (Math.random() < dt * 24) fx.burst(at, 1, 0xfee761);
+    if (d < 0.25 && P.grounded && P.hp > 0 && !P.atk && P.roll <= 0){ Gf.st = 'take'; Gf.t = 0; RECEIVE = RECEIVE_T; P.vx = 0; release(); sfx.thread(); } }
+  else if (Gf.st === 'take'){ const u = Math.min(1, Gf.t / RECEIVE_T);   // into his hands over his head, then down to his chest, and in
+    Gf.x = P.x + P.face * 0.1; Gf.y = P.y + (u < 0.35 ? 3.1 - u / 0.35 * 0.45 : 2.65 - (u - 0.35) / 0.65 * 1.0); Gf.m.scale.setScalar(1.3 - 0.5 * u); Gf.m.material.opacity = u < 0.7 ? 1 : Math.max(0, 1 - (u - 0.7) / 0.3);
+    if (u >= 1){ const t = Gf.teach; R.scene.remove(Gf.m); Gf.m.material.map.dispose(); Gf.m.material.dispose(); Gf.m.geometry.dispose(); GIFT = null;
+      fx.ring({ x: P.x, y: P.y + 1.5 }, 0xfee761); fx.burst({ x: P.x, y: P.y + 1.5 }, 24, 0xfee761); R.glint(P.x, P.y + 1.5, 0xfee761, 1.3, 7, 0.6); sfx.ability();
+      GIFTING = false; learn(); if (t.can === 'breaker'){ P.weapon = G.wield = 'spade'; store(); }   // the spade: in his hand, for the wall in front of him
+      card({ head: 'HE HAS BEEN GIVEN', title: t.name, icon: t.icon, does: t.does, how: t.how }); if (t.can) firstCard('embers'); } }
+  if (GIFT){ Gf.m.position.x = Gf.x; Gf.m.position.y = Gf.y; if (Math.floor(Gf.t * 10) !== Math.floor((Gf.t - dt) * 10)) R.glint(Gf.x, Gf.y, 0xfee761, 0.5, 3, 0.15); }
 }
 const onPlank = P => { const j = Math.floor((P.y - 0.02) / T); for (const x of [P.x - BODY.hw + 0.01, P.x + BODY.hw - 0.01]) if (tileAt(Math.floor(x / T), j) === LEDGE) return true; return false; };
 // ---- the ember arts. Which: down = the slam (the Warden's weight), in the air = the gust (the Wyrm's wind), else the
@@ -703,7 +741,7 @@ function art(e){
     fx.ring({ x: P.x, y: P.y + 1 }, 0xc0f4ff); fx.burst({ x: P.x, y: P.y + 1 }, 24, 0xc0cbdc); R.shock(P.x, P.y + 1, false); }
 }
 // the slam's blow, run out along the floor both ways: it strikes what it reaches, breaks cracked stone, stops at a wall
-function waves(x, y){ for (const dir of [-1, 1]) WAVES.push({ x: x + dir * 0.6, y, dir, t: 0, seen: new Set(), boss: false }); }
+function waves(x, y, dirs = [-1, 1], life = 0.8){ const dig = P.weapon === 'spade'; for (const dir of dirs) WAVES.push({ x: x + dir * 0.6, y, dir, t: 0, life, dig, seen: new Set(), boss: false }); }
 function stepArts(dt){
   const out = [];
   if (P.art && P.art.k === 'cleave'){ const a = P.art;   // all that he rushes through
@@ -712,17 +750,18 @@ function stepArts(dt){
     fx.streak({ x: P.x, y: P.y }, a.dir); if (Math.random() < 0.6) fx.burst({ x: P.x, y: P.y + 1.2 }, 2, 0xfee761); }
   if (P.art && P.art.k === 'gust'){ fx.burst({ x: P.x + Math.cos(P.art.t * 30) * 1.2, y: P.y + 1 + Math.sin(P.art.t * 30) * 0.6 }, 2, 0xc0f4ff); }
   for (let i = WAVES.length - 1; i >= 0; i--){ const w = WAVES[i]; w.t += dt; w.x += w.dir * 14 * dt;
-    if (w.t > 0.8 || solidAt(w.x + w.dir * 0.3, w.y + 0.4) || !solidAt(w.x, w.y - 0.3)){ breakRock(w.x + w.dir * 0.4, w.y + 0.2, 0.9); fx.dust({ x: w.x, y: w.y }, 8, 2.5); WAVES.splice(i, 1); continue; }   // a wall (cracked stone breaks), or the floor ends
+    if (w.t > w.life || solidAt(w.x + w.dir * 0.3, w.y + 0.4) || !solidAt(w.x, w.y - 0.3)){ breakRock(w.x + w.dir * 0.4, w.y + 0.2, 0.9, w.dig); fx.dust({ x: w.x, y: w.y }, 8, 2.5); WAVES.splice(i, 1); continue; }   // a wall (cracked stone breaks), or the floor ends
     hitBox(E, w.x - 0.7, w.x + 0.7, w.y - 0.3, w.y + 1.8, 2, out, w.seen, w.x - w.dir);
     if (BOSS && !w.boss && BOSS.slam({ x: w.x, y: w.y, face: w.dir }, 0.7, 1, out)) w.boss = true;
-    breakRock(w.x, w.y + 0.2, 0.9);
+    breakRock(w.x, w.y + 0.2, 0.9, w.dig);
     fx.kick({ x: w.x, y: w.y }, w.dir, 3, 3); R.glint(w.x, w.y + 0.4, 0xffd27a, 0.5, 3); }
   for (const o of out){ o.art = true; onEvent(o); }
 }
-function breakRock(x, y, r){
-  if (r < 0){ if (!CAN.breaker && PROPS.nearCrack(x, y, 1.3) && !HINTED.crack){ HINTED.crack = 1; banner('', 'cracked stone: something heavier would break it', 3); } return; }
+function breakRock(x, y, r, dig = false){
+  if (!PROPS.nearCrack(x, y, Math.max(r, 1.3))) return;
+  // only the spade breaks stone (decision 0.3): the blade rings off it, and he is told what it wants
+  if (!dig){ if (!HINTED.crack){ HINTED.crack = 1; sfx.block(); banner('', armed('spade') ? 'cracked stone: the spade breaks it' : 'cracked stone: something heavier would break it', 3); } return; }
   if (!PROPS.nearCrack(x, y, r)) return;
-  if (!CAN.breaker){ if (!HINTED.crack){ HINTED.crack = 1; banner('', 'cracked stone: something heavier would break it', 3); } return; }
   for (const C of PROPS.breakAt(x, y, r)){
     sfx.break(); fx.dust({ x: C.x, y: C.y - C.h / 2 }, 30, 5); fx.burst({ x: C.x, y: C.y }, 26, 0xc0cbdc); R.shock(C.x, C.y, true); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.4);
     (G.broke[LEVEL.index] = G.broke[LEVEL.index] || []).push(C.id); store();
@@ -772,9 +811,9 @@ function onEvent(e){
     case 'doubleJump': sfx.jump(); fx.ring(at, 0x9ff0ff); FX2.flipped = true; break;
     case 'land': sfx.step(); fx.puff(at, e.hard ? 20 : 8, e.hard ? 3.2 : 2); if (e.hard) FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.12); if (e.hard || (e.drop || 0) > 0.8 || FX2.flipped){ landT = LAND_T; } FX2.flipped = false; break;
     case 'slam': { if (e.art) waves(P.x, P.y); PLUNGE_T = PLUNGE_LAND; landT = 0; sfx.slam(); fx.puff(at, 24, 3.6); R.shock(P.x, P.y + 0.3, true); fx.ring(at, 0xffd27a);
-      buzz(0.55, 0.45, 150); const storm = has('stormglass'), rad = MV.dive.radius * (storm ? 1.5 : 1), dmg = MV.dive.dmg + (storm ? 1 : 0) + (G.edge ? 1 : 0), out = [];
+      buzz(0.55, 0.45, 150); const storm = has('stormglass'), spade = P.weapon === 'spade', rad = MV.dive.radius * (storm ? 1.5 : 1) * (spade ? 0.8 : 1), dmg = MV.dive.dmg + (storm ? 1 : 0) + (G.edge && !spade ? 1 : 0), out = [];   // the spade's plunge: narrower, and it breaks what is under him
       if (storm){ sfx.thunder(); R.glint(P.x, P.y + 1, 0xcfe6ff, 1.4, 8, 0.25); FLASH = Math.max(FLASH, 0.1); for (let k = 0; k < 14; k++) fx.burst({ x: P.x + (Math.random() - 0.5) * 0.5, y: P.y + k * 0.7 }, 3, 0xcfe6ff); }
-      slamEnemies(E, P, rad, dmg, out); if (BOSS) BOSS.slam(P, rad, dmg, out); ITEMS.slam(P, rad, out); breakRock(P.x, P.y + 0.2, 1.5); for (const o of out) onEvent(o); break; }
+      slamEnemies(E, P, rad, dmg, out); if (BOSS) BOSS.slam(P, rad, dmg, out); ITEMS.slam(P, rad, out); breakRock(P.x, P.y + 0.2, 1.5, spade); for (const o of out) onEvent(o); break; }
     case 'roll': sfx.whoosh(); fx.kick(at, -P.rollDir, 10, 2.6); break;
     case 'dashCut': sfx.dash(); fx.kick(at, -P.face, 14, 3.4); FX2.ghostT = 0; break;
     case 'dive': sfx.whoosh(); break;
@@ -790,16 +829,17 @@ function onEvent(e){
       FEEL_FX.shake = Math.max(FEEL_FX.shake, big ? 0.14 : 0.07); FEEL_FX.kick = P.face * (big ? 0.22 : 0.12);
       // the dash cut strikes all along where he dashed
       const from = e.sw.dash && P.dashFrom != null ? { ...P, x: P.dashFrom } : P, reach = weaponOf(P).reach + (e.sw.dash && P.dashFrom != null ? Math.abs(P.x - P.dashFrom) : 0);
-      const dmg = e.sw.dmg + (big && has('whetstone') ? 1 : 0) + (G.edge >= 2 || (G.edge && big) ? 1 : 0), out = [];   // the whetstone, and the tempering
+      const digs = !!weaponOf(P).digs, dmg = digs ? (P.grounded ? e.sw.dmg : Math.max(1, e.sw.dmg - 2)) + (big && has('whetstone') ? 1 : 0) : e.sw.dmg + (big && has('whetstone') ? 1 : 0) + (G.edge >= 2 || (G.edge && big) ? 1 : 0), out = [];   // the whetstone; the blade's tempering; the spade weak in the air
       strikeEnemies(E, from, reach, dmg, out); if (BOSS) BOSS.strike(from, reach, dmg, out); ITEMS.strike(from, reach, out);
-      if (weaponOf(P).digs) breakRock(P.x + P.face * 1.8, P.y + 0.6, 1.5); else breakRock(P.x + P.face * 1.2, P.y + 1.2, big ? 1.3 : -1); for (const o of out) onEvent(o); break; }   // the spade digs where it lands
+      breakRock(P.x + P.face * (digs ? 1.8 : 1.2), P.y + (digs ? 0.6 : 1.2), digs ? 1.5 : 1.3, digs);   // the spade digs where it lands; the blade rings off
+      if (e.sw.wave && P.grounded){ waves(P.x + P.face * 1.6, P.y, [P.face], 0.38); sfx.slam(); R.shock(P.x + P.face * 1.8, P.y + 0.3, true); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.3); }   // its last blow runs on along the ground, a little way
+      for (const o of out) onEvent(o); break; }
     case 'hit': if (!e.art) EMBER.n = Math.min(EMBER.cap, EMBER.n + 1);   // a landed blow gives an ember (not an art's)
       buzz(e.heavy ? 0.35 : 0.15, e.heavy ? 0.5 : 0.3, e.heavy ? 90 : 50); sfx.hit(); fx.burst(e.at, e.heavy ? 18 : 12, 0xffe0a8); R.glint(e.at.x, e.at.y, 0xffe0a8, e.heavy ? 0.9 : 0.6, 3.5, 0.16); FEEL_FX.hitstop = e.heavy ? 0.09 : 0.05; FEEL_FX.shake = Math.max(FEEL_FX.shake, e.heavy ? 0.18 : 0.1); break;
     case 'swap': {   // blade and spade, if he has the spade
       const to = P.weapon === 'spade' ? 'blade' : 'spade'; if (!armed(to)){ if (!HINTED.swap){ HINTED.swap = 1; banner('', 'he has only the blade', 2.2); } break; }
-      P.weapon = G.wield = to; store(); sfx.whoosh(); fx.ring({ x: P.x, y: P.y + 1.1 }, to === 'spade' ? 0xc0cbdc : 0xffd27a); banner('', to === 'spade' ? 'the sexton\'s spade' : 'the blade', 1.4); break; }
-    case 'kill': if (e.e && e.e.type === 'sexton' && !armed('spade')){ (G.arms = G.arms || []).push('spade'); store(); swapButton();   // the Sexton's spade: his, now
-        LATER.push({ t: 1.1, f: () => card({ head: 'HE TAKES IT UP', title: 'The Sexton\'s Spade', icon: 'spade', does: 'One great swing: slow, long, and it breaks cracked stone where it lands. He cannot block with it.', how: ['{swap}: blade or spade.'] }) }); }
+      P.weapon = G.wield = to; store(); sfx.whoosh(); fx.ring({ x: P.x, y: P.y + 1.1 }, to === 'spade' ? 0xc0cbdc : 0xffd27a); banner('', to === 'spade' ? 'the spade' : 'the blade', 1.4); break; }
+    case 'kill':
       if (e.e){ (G.slain = G.slain || {})[e.e.type] = (G.slain[e.e.type] || 0) + 1; (G.seen = G.seen || {})[e.e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; } sfx.kill(); ITEMS.spill(e.at.x, e.at.y, 1 + Math.min(5, e.e ? e.e.d.hp : 1)); fx.burst(e.at, 26, 0xff70d0); fx.ring(e.at, 0xffc0ff); FEEL_FX.hitstop = 0.1; fx.ember(e.at, 2 + Math.min(5, e.e ? e.e.d.hp : 2) + (has('stylus') ? 2 : 0)); R.glint(e.at.x, e.at.y, 0xff9040, 1, 5, 0.35); break;
     // his guard turns a blow: it is seen to bounce off. A block: sparks off the blade, a flash, he gives a step, the
     // creature is thrown back. A parry (raised as it landed): a bright ring and a white flash, a held beat, the creature
@@ -825,8 +865,8 @@ function onEvent(e){
     case 'bossDead': { ENT.open(); for (const x of R.exits) x.set(true); sfx.door(); banner(BOSS.name + ' falls', BOSS.fell); ITEMS.spill(BOSS.cx, BOSS.stageY + 2, 60);
       // what it leaves him, the first time
       const n = LEVEL.index, t = TEACH[n];
-      if (!G.beat[n]){ G.beat[n] = true; if (t && t.heart){ G.hearts += t.heart; P.maxHp = maxHearts(); P.hp = P.maxHp; } if (t && t.flask){ G.flasks += t.flask; P.flaskMax = maxFlask(); P.flask = P.flaskMax; } learn(); store();
-        if (t && t.name) LATER.push({ t: 3.4, f: () => { card({ head: 'HE HAS BEEN GIVEN', title: t.name, icon: t.icon, does: t.does, how: t.how }); sfx.ability(); if (t.can) firstCard('embers'); } }); }
+      if (!G.beat[n]){ G.beat[n] = true; GIFTING = !!(t && t.name); if (t && t.heart){ G.hearts += t.heart; P.maxHp = maxHearts(); P.hp = P.maxHp; } if (t && t.flask){ G.flasks += t.flask; P.flaskMax = maxFlask(); P.flask = P.flaskMax; } learn(); store();
+        if (t && t.name){ LATER.push({ t: 2.4, f: () => giftStart(t) }); } }   // what it leaves gathers out of it, and comes to him (decision 0.5)
       break; }
     case 'shard': G.shards += e.v; sfx.shard(); PURSE = 2.5; DIRTY = DIRTY > 0 ? DIRTY : 2; break;
     case 'urn': sfx.urn(); fx.dust(e.at, 10, 3); fx.burst(e.at, 6, 0xd77643); break;
@@ -890,7 +930,7 @@ function drawHud(dt){
   else if (PAUSE && SCREEN === 'carry') drawCarry(W);
   else if (PAUSE){ HUD.dark(0.66); HUD.text('PAUSED', W / 2, 14, '#fff2d0', 2, 'center'); HUD.rule(Math.round(W / 2), 34, 60, '#ead4aa');
     // what he carries
-    const can = [CAN.breaker && 'THE WARDEN\'S WEIGHT', CAN.dash && 'THE TOLL\'S STEP', CAN.glide && 'THE WYRM\'S WIND'].filter(Boolean), found = Object.values(G.got).flat();
+    const can = [CAN.breaker && 'THE WARDEN\'S SPADE', CAN.dash && 'THE TOLL\'S STEP', CAN.glide && 'THE WYRM\'S WIND'].filter(Boolean), found = Object.values(G.got).flat();
     HUD.text(`SHARDS ${G.shards}   ·   STRANDS ${G.threads}   ·   RELICS ${G.relics.length} OF ${Object.keys(RELICS).length}`, W / 2, 41, '#c0cbdc', 1, 'center');
     if (G.falls) HUD.fine(`FALLEN ${G.falls} TIME${G.falls === 1 ? '' : 'S'}. RAISED ${G.falls} TIME${G.falls === 1 ? '' : 'S'}.`, W / 2, 61, '#8b9bb4', 'center');
     if (can.length) HUD.text(can.join('  ·  '), W / 2, 51, '#2ce8f5', 1, 'center');
@@ -902,7 +942,7 @@ function drawHud(dt){
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { knotMenu, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { knotMenu, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

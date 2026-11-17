@@ -164,6 +164,13 @@ colour and shape. Art cost: seven strips with light maps (the balance showed no 
 
 ## Phase 5: weapons and gifts
 
+*Done (build 49). Decided with it: **the Warden leaves the spade** (the heavy weapon), so it is in his hands before the
+Ossuary's wall; the Sexton no longer gives it. What was built: only the spade breaks stone; the spade is a whole weapon
+(three slow blows, the last with a wave along the ground; its own plunge, which breaks floors; weak in the air; no
+guard); a keeper's gift gathers out of it, comes to him, and he takes it (his `receive` drawing), then its card; the
+Roots' way up is walled with cracked stone, so the spade is used at once. Not done here: graves that give things up
+when dug (with the Ossuary's own pass, phase 10), and a thing of its own for each later gift beyond its picture.*
+
 - **The blade:**
   - stops breaking stone;
   - keeps its three cuts, the rising cut, the dash cut, the guard and parry;

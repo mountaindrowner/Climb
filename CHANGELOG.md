@@ -2,7 +2,15 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Phase 4: his animation and feel (latest).** Seven new drawings of him (PixelLab, with light maps).
+**Phase 5: weapons and gifts (latest).** Four new drawings of him (the spade's sweep and rising heave, its plunge, and taking a gift).
+- **The Warden leaves the spade.** What the Warden gave (its "weight") is now a thing: the heavy weapon. The Sexton no longer gives it, so it is in his hands before the Ossuary's wall. A save that had the Warden's gift has the spade.
+- **Only the spade breaks stone.** The blade's finishing cut and plunge no longer do; the blade rings off cracked stone and he is told what it wants ("the spade breaks it", or "something heavier" before he has one).
+- **The spade is a whole weapon:** three slow blows (a level sweep, a rising heave, the great overhead blow), the last sending a wave a little way along the ground; its own plunge, narrower than the blade's, which breaks the floor under him; its swings weak in the air; further reach; no block. The ember slam breaks stone only with the spade in hand.
+- **A keeper's gift is seen to be given:** light draws in over where the keeper fell and the thing forms; it hangs, then comes down to him; he reaches up, takes it and draws it to his chest (he is held while he does); then its card. If he leaves first, it is his all the same.
+- **Used at once:** the Roots' way up is now in a niche walled with cracked stone, at the end of the Warden's stage. The spade is put in his hand as he takes it.
+- The pause's "What he carries" lists the blade and the spade as weapons, and which is in hand.
+
+**Phase 4: his animation and feel.** Seven new drawings of him (PixelLab, with light maps).
 - **In the air:** the spring off the ground, then at the top of the jump his knees come up, the blade held low, and as he drops the coat and scarf lift and stream over him (by how fast he is rising or falling; it flutters as he falls). He no longer looks to be standing in the air.
 - **Crouched:** he goes down into a low crouch, and moving crouched is a low shuffle (low enough for the Roots' tunnel). Before, crouching had no drawing.
 - **The spade in hand:** with the spade he runs with it over his shoulder, jumps and falls holding it trailing, and crouches holding it level. (A roll, a climb, a landing and being hurt still show the blade: on the list.)

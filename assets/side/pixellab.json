@@ -680,6 +680,26 @@
     "action": "a duck walk, squatting all the way down, holding a long grave-digger's iron spade instead of a sword: knees fully bent, hips almost on his heels, his chest bent forward over his knees and his head as low as his knees, the spade's long handle held low and level in front of him in both hands, shuffling forward in small steps without ever rising, the red scarf dragging behind",
     "frames": 8,
     "group": "79de4281-7a4b-4ba3-88c5-5b69136618d6"
+   },
+   "atk_spade1": {
+    "action": "a heavy sideways sweep with a long grave-digger's iron spade instead of a sword: he plants his feet wide, twists his whole body back with both hands on the long wooden handle, the wide flat iron blade drawn far back behind his hip, then turns his hips and shoulders and sweeps the spade level across in front of him at waist height in one great flat arc, ending twisted the other way with the spade out to the far side, knees bent, the red scarf whipping round",
+    "frames": 12,
+    "group": "8a9db205-c2a9-4d0f-924d-34488368bfbf"
+   },
+   "atk_spade2": {
+    "action": "a heavy rising swing with a long grave-digger's iron spade instead of a sword: he crouches low with the spade's wide flat iron blade down near the ground behind him, both hands on the long wooden handle, then drives up with his legs and heaves the spade forward and upward in a great rising arc in front of him, ending stretched tall with the spade's blade high above his head in front, the red scarf flying",
+    "frames": 12,
+    "group": "34032916-d261-45b7-b4e8-b9fb67f6a8f0"
+   },
+   "spade_plunge": {
+    "action": "falling straight down through the air driving a long grave-digger's iron spade point-down beneath him instead of a sword: both hands gripping the top of the long wooden handle above his chest, the wide flat iron blade pointing straight down below his feet, his legs tucked up behind, his body upright, the long coat and red scarf streaming straight up above him",
+    "frames": 8,
+    "group": "210a8474-f8d0-4850-a874-14c6f31c3da9"
+   },
+   "receive": {
+    "action": "receiving a gift from above: he stands and looks up, raises both open hands high above his head to catch something small falling to him, closes his hands round it and draws it slowly down to his chest, his head bowing over it, the red scarf lifting gently, then stands still holding it to his chest",
+    "frames": 12,
+    "group": "bd638baa-bbec-412b-9cc9-13de5246c4b9"
    }
   }
  },
