@@ -13,11 +13,11 @@ Balance on 2026-11-16: **$3.43**, generations 0 (the monthly generations refill 
 
 | What | Why | Est. |
 |---|---|---|
-| Jump peak and fall (arms up, coat lifting) | Playtest: at the top of a jump he looks like he is standing | $0.03 |
-| Crouch, and a crouching walk | Playtest: crouching has the behaviour but no drawing | $0.06 |
+| ~~Jump peak and fall (arms up, coat lifting)~~ made, build 48 (`air`) | Playtest: at the top of a jump he looks like he is standing | $0.03 |
+| ~~Crouch, and a crouching walk~~ made, build 48 (`crouch`, `crouch_walk`) | Playtest: crouching has the behaviour but no drawing | $0.06 |
 | Receiving a keeper's gift (it falls to him; he takes it in) | Decision 0.5 | $0.03 |
 | Coming apart into water (or drawn in code from his last frame) | Decision 0.2 | $0.03 or none |
-| Each weapon through jump, fall, block (or the weapon on his back) | The spade showed the sword in those | $0.10 to $0.20 |
+| Each weapon through jump, fall, block (or the weapon on his back): ~~the spade's run, air and crouch~~ made, build 48; still the sword in a roll, a climb, a landing, hurt | The spade showed the sword in those | $0.10 to $0.20 |
 
 ## Weapons (phase 5)
 

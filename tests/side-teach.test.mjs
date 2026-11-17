@@ -45,7 +45,8 @@ test('a hint is given at most three times', () => {
 
 test('blocking once brings the parry hint at the next wind-up; with the spade, neither', () => {
   const { T } = fresh(); const P = P0();
-  T.event({ type: 'block' }, { P }); T.event({ type: 'tell' }, { P }); assert.equal(T.shown().id, 'parry');
+  T.event({ type: 'block' }, { P }); assert.ok(!T.known('block'), 'a creature turning his blow is not his block');
+  T.event({ type: 'block', mine: true }, { P }); T.event({ type: 'tell' }, { P }); assert.equal(T.shown().id, 'parry');
   const b = fresh(); const Q = { ...P0(), weapon: 'spade' }; b.T.event({ type: 'hurt', msg: 'Bitten' }, { P: Q }); assert.equal(b.T.shown(), null);
 });
 

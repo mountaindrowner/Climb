@@ -147,6 +147,10 @@ $0.30 to $0.60 with PixelLab.
 
 ## Phase 4: his animation and feel
 
+*Done (build 48): an air pose (the top of a jump and the fall), a crouch and a crouching walk, the spade's own run,
+air and crouch; the high landing checked; a block or parry is seen to bounce the blow off; each relic's knot its own
+colour and shape. Art cost: seven strips with light maps (the balance showed no charge).*
+
 - A **peak-of-the-jump and falling pose**.
 - A **crouch, and a crouching walk**.
 - His **landing from a high fall**, checked.

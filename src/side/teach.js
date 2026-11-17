@@ -90,7 +90,7 @@ export function makeTeach(G, OPT, store){
       case 'roll': if (S.cur && S.cur.id === 'crouch') T.done('crouch'); break;
       case 'dropThrough': T.done('drop'); break;
       case 'hurt': if (e.msg === 'Spikes') T.want('jump'); else if (!(P && P.weapon === 'spade')) T.want('block'); break;
-      case 'block': T.done('block'); S.guardSeen = true; break;
+      case 'block': if (e.mine){ T.done('block'); S.guardSeen = true; } break;   // his guard (not a creature turning his blow)
       case 'parry': T.done('block'); T.done('parry'); break;
       case 'tell': if (S.guardSeen && !T.known('parry') && !(P && P.weapon === 'spade')) T.want('parry'); break;
     }

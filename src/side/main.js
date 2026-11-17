@@ -31,7 +31,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 47';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 48';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -393,7 +393,7 @@ const GATE = (() => {
   let mus = 0, heroOk = 0;
   const music = manifestReady().then(() => Promise.all(['title', 'roots'].map(k => SCORE.prefetch(k)))).then(() => { mus = 1; });
   // his drawings for the first minute: the rest are asked for once the opening is in
-  const FIRST = ['stand', 'idle', 'run', 'jump', 'fall', 'getup', 'land_px', 'roll2_px', 'block', 'atk_slam_px', 'atk_spin_px', 'atk_rise_px', 'atk_dash_px', 'hurt', 'climb_own'];
+  const FIRST = ['stand', 'idle', 'run', 'jump', 'air', 'crouch', 'crouch_walk', 'fall', 'getup', 'land_px', 'roll2_px', 'block', 'atk_slam_px', 'atk_spin_px', 'atk_rise_px', 'atk_dash_px', 'hurt', 'climb_own'];
   const heroIn = HERO_P.then(() => { if (hero.sprite) hero.sprite.warm(FIRST); }).then(() => new Promise(res => { const chk = () => (!hero.sprite || hero.sprite.in()) ? res() : setTimeout(chk, 80); chk(); })).then(() => { heroOk = 1; });
   // the textures all in, and nothing new asked for in a moment
   const quiet = () => new Promise(res => { const chk = () => (got >= tot && performance.now() - last > 350) ? res() : setTimeout(chk, 80); chk(); });
@@ -424,11 +424,12 @@ const CLIMB = {
     depth: { 0: 43, 1: 41, 2: 39, 3: 34, 4: 27, 5: 22, 6: 16, 7: 9, 8: 2, 9: 0, 10: 0, 11: 0 } },
   climb_px: { first: 3, corner: { 3: [31, 7], 4: [31, 7], 5: [31, 8], 6: [30, 11], 7: [30, 14], 8: [33, 25], 9: [31, 31], 10: [27, 35], 11: [12, 43], 12: [14, 38] },
   depth: { 3: 41, 4: 42, 5: 42, 6: 41, 7: 37, 8: 24, 9: 19, 10: 14, 11: 0, 12: 0 } } };
-let landT = 0;
+let landT = 0, CROUCH_T = 0;   // CROUCH_T: how long he has been crouched (the crouch's drawing goes down into it)
 const PLUNGE_LAND = 0.5; let PLUNGE_T = 0;   // how long the plunge's landing plays
 // which of his animations, and how far into it (and, for a climb, to place it by where it ends)
 function heroPose(P, t){
   const A = hero.meta ? hero.meta.anims : {}, has = n => !!A[n], pick = k => MOVES[k].find(has);
+  const held = n => P.weapon === 'spade' && has('spade_' + n) ? 'spade_' + n : n;   // with the spade in hand, its own drawing where there is one
   if (WAKE > 0 && has('getup')) return ['getup', Math.min(0.999, Math.max(0, 1 - WAKE / 1.4))];   // where he fell: up off the ground
   if (P.art){ const name = { cleave: 'atk_dash_px', gust: 'atk_rise_px', slam: 'plunge_land' }[P.art.k]; if (has(name)) return [name, Math.min(0.999, P.art.t / P.art.dur)]; }   // an ember art
   if (P.mantle && pick('climb')){
@@ -463,12 +464,19 @@ function heroPose(P, t){
   // breathing, for as long as he blocks
   if (P.blocking && has('block')){ const bt = performance.now() / 1000 - (P.blockAt || 0), UP = 0.12, n = A.block.frames, f = bt < UP ? Math.floor(bt / UP * 5) : 5 + Math.floor((bt - UP) * 4) % (n - 5); return ['block', (Math.min(n - 1, f) + 0.5) / n]; }
   if (!P.grounded && !P.mantle){
+    // in the air: the spring off the ground (the blade's), then knees up at the top and the coat lifting as he drops,
+    // by how fast he is rising or falling; held at the end, the last two frames fluttering
+    const air = held('air');
+    if (P.vy > 0 && P.jumpT < 0.3 && has('jump') && air === 'air') return ['jump', Math.min(0.999, P.jumpT / 0.45)];
+    if (has(air)){ const n = A[air].frames, u = Math.max(0, Math.min(1, (4 - P.vy) / 14)); let f = Math.round(u * (n - 2)); if (u >= 1) f = n - 2 + (Math.floor(t * 8) % 2); return [air, (f + 0.5) / n]; }
     if (P.vy > 0 && has('jump')) return ['jump', Math.min(0.999, P.jumpT / 0.45)];
     if (has('fall')) return ['fall', t * 2];
     if (has('jump')) return ['jump', 0.8];
   }
   if (P.grounded && landT > 0 && pick('land') && !(Math.abs(P.vx) > 1.5 && landT < LAND_T - 0.08)) return [pick('land'), Math.min(0.999, 0.2 + 0.8 * (1 - landT / LAND_T))];   // from the moment his feet meet the floor
-  if (P.grounded && Math.abs(P.vx) > 0.3){ const run = has('sprint') ? 'sprint' : 'run'; if (has(run)) return [run, (P.dist || 0) / 2.6]; }
+  // crouched: down into it (its first frames, then held); moving, the low shuffle, by how far he has gone
+  if (P.grounded && P.crouch){ if (Math.abs(P.vx) > 0.3 && has(held('crouch_walk'))) return [held('crouch_walk'), (P.dist || 0) / 1.6]; if (has(held('crouch'))) return [held('crouch'), Math.min(0.999, CROUCH_T / 0.16)]; }
+  if (P.grounded && Math.abs(P.vx) > 0.3){ const run = held(has('sprint') ? 'sprint' : 'run'); if (has(run)) return [run, (P.dist || 0) / 2.6]; }
   if (P.weapon === 'spade' && has('spade_idle')) return ['spade_idle', t / 1.6];   // leaning on the spade
   if (has('idle')) return ['idle', t / 1.4];
   return ['stand', 0];
@@ -614,7 +622,7 @@ function frame(ts){
     }
   }
   for (let i = FX2.ghosts.length - 1; i >= 0; i--){ const G = FX2.ghosts[i]; G.life -= dt; G.m.material.opacity = Math.max(0, G.life / 0.22) * 0.8; if (G.life <= 0){ R.scene.remove(G.m); G.m.material.map.dispose(); G.m.material.dispose(); FX2.ghosts.splice(i, 1); } }
-  landT = Math.max(0, landT - dt); PLUNGE_T = Math.max(0, PLUNGE_T - dt);
+  landT = Math.max(0, landT - dt); PLUNGE_T = Math.max(0, PLUNGE_T - dt); CROUCH_T = P.crouch && P.grounded ? CROUCH_T + dt : 0;
   // dust at his feet as he runs, now and then
   if (P.grounded && Math.abs(P.vx) > 4 && !P.atk){ FX2.runDust += Math.abs(P.vx) * dt; if (FX2.runDust > 1.3){ FX2.runDust = 0; fx.kick({ x: P.x, y: P.y }, -Math.sign(P.vx), 3, 1.4); } }
   if (hero.sprite){
@@ -624,7 +632,7 @@ function frame(ts){
   { const M = P.mantle, low = P.roll > 0 ? 0.8 : P.crouch ? 1.15 : P.dive ? 1.5 : WAKE > 0.5 ? 0.9 : 1.92;
     const ax = FLIGHT ? FLIGHT.x : M && M.wall != null ? M.wall - M.d * 0.25 : P.x - P.face * 0.14, ay = FLIGHT ? FLIGHT.y : M ? Math.min(M.y1 + 1.8, P.y + 1.9) : P.y + low - SINK, fc = FLIGHT ? FLIGHT.face : M ? M.d : P.face;
     const links = hp => SCARF.base + Math.min(5, Math.max(0, hp)) * SCARF.perHeart + Math.max(0, hp - 5) * SCARF.more, want = links(FLIGHT ? 1 : P.hp), lk = R.look(), out = (roomAt(P.x, P.y) || {}).open !== false, wind = (lk === 'spires' || lk === 'tempest') && out ? (lk === 'tempest' ? -7 : -5) : lk === 'spires' || lk === 'tempest' || lk === 'firmament' ? -1.2 : lk === 'gardens' && out ? -2 : -0.6;
-    SCF.step(dt, ax, ay, fc, want, wind, solidAt, P.glide ? 15 : 0); SCF.draw(!(DISS && !DISS.raised && DISS.t > 0.15), EMBER.n / EMBER.cap, G.worn.length); }
+    SCF.step(dt, ax, ay, fc, want, wind, solidAt, P.glide ? 15 : 0); SCF.draw(!(DISS && !DISS.raised && DISS.t > 0.15), EMBER.n / EMBER.cap, G.worn); }
   // embers go to him; ten make a heart
   stepFx(fx, dt, P.hp > 0 ? { x: P.x, y: P.y + 1.3 } : null, () => {
     EMBER.n = Math.min(EMBER.cap, EMBER.n + 1); sfx.step();
@@ -793,8 +801,13 @@ function onEvent(e){
     case 'kill': if (e.e && e.e.type === 'sexton' && !armed('spade')){ (G.arms = G.arms || []).push('spade'); store(); swapButton();   // the Sexton's spade: his, now
         LATER.push({ t: 1.1, f: () => card({ head: 'HE TAKES IT UP', title: 'The Sexton\'s Spade', icon: 'spade', does: 'One great swing: slow, long, and it breaks cracked stone where it lands. He cannot block with it.', how: ['{swap}: blade or spade.'] }) }); }
       if (e.e){ (G.slain = G.slain || {})[e.e.type] = (G.slain[e.e.type] || 0) + 1; (G.seen = G.seen || {})[e.e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; } sfx.kill(); ITEMS.spill(e.at.x, e.at.y, 1 + Math.min(5, e.e ? e.e.d.hp : 1)); fx.burst(e.at, 26, 0xff70d0); fx.ring(e.at, 0xffc0ff); FEEL_FX.hitstop = 0.1; fx.ember(e.at, 2 + Math.min(5, e.e ? e.e.d.hp : 2) + (has('stylus') ? 2 : 0)); R.glint(e.at.x, e.at.y, 0xff9040, 1, 5, 0.35); break;
-    case 'parry': buzz(0.3, 0.7, 110); sfx.parry(); fx.ring(e.at, 0x9fd0ff); FEEL_FX.hitstop = 0.12; break;
-    case 'block': sfx.block(); fx.burst(e.at, 8, 0xc9d2e0); break;
+    // his guard turns a blow: it is seen to bounce off. A block: sparks off the blade, a flash, he gives a step, the
+    // creature is thrown back. A parry (raised as it landed): a bright ring and a white flash, a held beat, the creature
+    // thrown further and staggered, sparks both ways (enemies.js, stunned)
+    case 'parry': buzz(0.3, 0.7, 110); sfx.parry(); fx.ring(e.at, 0x9fd0ff); FEEL_FX.hitstop = 0.12;
+      if (e.mine){ fx.ring(e.at, 0xffffff); fx.burst(e.at, 22, 0xfff2d0); fx.burst(e.at, 10, 0x9fd0ff); R.glint(e.at.x, e.at.y, 0xffffff, 1.4, 5, 0.3); FLASH = Math.max(FLASH, 0.06); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.16); FEEL_FX.kick = -P.face * 0.18; } break;
+    case 'block': sfx.block(); fx.burst(e.at, 8, 0xc9d2e0);
+      if (e.mine){ fx.burst(e.at, 12, 0xfee761); R.glint(e.at.x, e.at.y, 0xfff2d0, 0.8, 3.5, 0.18); FEEL_FX.hitstop = Math.max(FEEL_FX.hitstop, 0.05); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.08); if (P.grounded && !e.shot) P.vx = -P.face * 3; } break;
     case 'spit': sfx.spit(); break;
     case 'tell': e.e.tellT = 0.6; break;
     case 'step': sfx.step(); break;

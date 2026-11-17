@@ -645,6 +645,41 @@
     "action": "standing at rest, breathing slowly, holding a long grave-digger's iron spade instead of a sword: both hands rest on top of the long wooden handle, the wide flat iron blade planted in the ground beside his feet, the red scarf stirring",
     "frames": 8,
     "group": "91c34c62-883e-43c3-a12a-22395bbf80b4"
+   },
+   "air": {
+    "action": "in mid-air at the top of a jump and then falling: his knees drawn up and bent, his free arm thrown out to the side for balance, the curved blade held low and back in the other hand, his body leaning slightly forward, the long coat and red scarf lifting and streaming upward above his shoulders as he begins to drop",
+    "frames": 8,
+    "group": "ca60dcc8-72ad-4410-bd40-72d4d7fa7591"
+   },
+   "crouch_walk": {
+    "action": "sneaking forward in a deep low crouch: knees bent deep, hips low, back bent forward and head down, taking small careful steps forward one foot after the other, staying half his height the whole time, the curved blade held low in front, the red scarf trailing along behind him",
+    "frames": 8,
+    "group": "77962033-c64c-4fd4-84de-6351a9dffbf9"
+   },
+   "crouch": {
+    "action": "crouching low and holding still: he bends his knees deep and sinks his hips down until he is half his height, his back bent forward, his head low, one hand resting near the ground, the curved blade held low and level in front, the red scarf settling on the ground behind him, breathing slowly",
+    "frames": 8,
+    "group": "cefbd2e7-71f2-4d81-91c3-b92fea295c1e"
+   },
+   "crouch_walk2": {
+    "action": "a duck walk, squatting all the way down: knees fully bent, hips almost on his heels, his chest bent forward over his knees and his head as low as his knees, as low as he can go, shuffling forward in small steps without ever rising, the curved blade held low in front, the red scarf dragging on the ground behind him",
+    "frames": 8,
+    "group": "9ba171cc-878e-47b9-8d24-45053ce65142"
+   },
+   "spade_run": {
+    "action": "running fast, carrying a long grave-digger's iron spade instead of a sword: the long wooden handle held in both hands slanted across his body, the wide flat iron blade up behind his shoulder, his legs taking long running strides, leaning forward, the red scarf streaming behind",
+    "frames": 8,
+    "group": "b9c99f38-7fe4-4784-a2af-514484a3b719"
+   },
+   "spade_air": {
+    "action": "in mid-air at the top of a jump and then falling, holding a long grave-digger's iron spade instead of a sword: his knees drawn up and bent, the spade's long wooden handle gripped in one hand and held out low behind him, the wide flat iron blade trailing, his free arm thrown out for balance, the long coat and red scarf lifting and streaming upward above his shoulders",
+    "frames": 8,
+    "group": "078193f1-5365-4e7f-ba6c-63060585d4d5"
+   },
+   "spade_crouch": {
+    "action": "a duck walk, squatting all the way down, holding a long grave-digger's iron spade instead of a sword: knees fully bent, hips almost on his heels, his chest bent forward over his knees and his head as low as his knees, the spade's long handle held low and level in front of him in both hands, shuffling forward in small steps without ever rising, the red scarf dragging behind",
+    "frames": 8,
+    "group": "79de4281-7a4b-4ba3-88c5-5b69136618d6"
    }
   }
  },

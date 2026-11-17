@@ -5,6 +5,18 @@
 const THREE = window.THREE;
 const N = 30, SEG = 0.15;
 // cols: its edge, body and shade (his is red; another's can be its own)
+// the knots' looks, by relic: a colour, and a shape (five by five: k ink, c its colour, h a glint, . the cloth showing)
+const SHAPES = {
+  round: ['.kkk.', 'kchck', 'kccck', 'kccck', '.kkk.'], ring: ['.kkk.', 'kchck', 'kc.ck', 'kccck', '.kkk.'],
+  diamond: ['..k..', '.khk.', 'kccck', '.kck.', '..k..'], square: ['kkkkk', 'khcck', 'kccck', 'kccck', 'kkkkk'],
+  star: ['k.k.k', '.khk.', 'kccck', '.kck.', 'k.k.k'], bar: ['.kkk.', '.khk.', '.kck.', '.kck.', '.kkk.'],
+};
+export const KNOT_LOOK = {
+  whetstone: { col: '#c0cbdc', shape: 'square' }, lodestone: { col: '#0099db', shape: 'round' }, featherfall: { col: '#ead4aa', shape: 'ring' },
+  stormglass: { col: '#2ce8f5', shape: 'diamond' }, seedheart: { col: '#63c74d', shape: 'round' }, tally: { col: '#d77643', shape: 'bar' },
+  stylus: { col: '#f6757a', shape: 'diamond' }, starcompass: { col: '#fee761', shape: 'star' }, _: { col: '#fee761', shape: 'round' },
+};
+
 export function makeScarf(scene, cols = { edge: 0x181425, body: 0xe43b44, shade: 0xa22633, glow: 0xffa040 }){
   const pts = []; for (let i = 0; i < N; i++) pts.push({ x: 0, y: 0, px: 0, py: 0 });
   const strip = (color, z) => { const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 2 * 3), 3));
@@ -17,7 +29,12 @@ export function makeScarf(scene, cols = { edge: 0x181425, body: 0xe43b44, shade:
   // the knots: each relic he wears is tied into the cloth, a small gold knot along it, near his neck (state.js, KNOTS).
   // Drawn over the cloth and under him: with the see-through things, after the cloth, before him (a hair nearer than the
   // cloth and further than him, and not depth-tested, since the low picture's depth cannot tell a hair's difference)
-  const KN = []; for (let k = 0; k < 6; k++){ const m = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.15), new THREE.MeshBasicMaterial({ color: 0xfee761, transparent: true, depthTest: false, depthWrite: false })); const o = new THREE.Mesh(new THREE.PlaneGeometry(0.27, 0.27), new THREE.MeshBasicMaterial({ color: cols.edge, transparent: true, depthTest: false, depthWrite: false }));
+  // each relic's knot has its own colour and shape (KNOT_LOOK): a five-pixel picture, inked round, so each can be told
+  // from the others on the cloth. `m` is that picture; `o` (the old plain knot's outline) is kept but no longer shown
+  const knotTex = {}, knotMap = id => { if (knotTex[id]) return knotTex[id]; const L = KNOT_LOOK[id] || KNOT_LOOK._, c = document.createElement('canvas'); c.width = c.height = 5; const g = c.getContext('2d');
+    SHAPES[L.shape].forEach((row, y) => { for (let x = 0; x < 5; x++){ const ch = row[x]; if (ch === '.') continue; g.fillStyle = ch === 'k' ? '#181425' : ch === 'h' ? '#ffffff' : L.col; g.fillRect(x, y, 1, 1); } });
+    const t = new THREE.CanvasTexture(c); t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false; return knotTex[id] = t; };
+  const KN = []; for (let k = 0; k < 6; k++){ const m = new THREE.Mesh(new THREE.PlaneGeometry(5 / 16, 5 / 16), new THREE.MeshBasicMaterial({ color: 0xfee761, transparent: true, depthTest: false, depthWrite: false })); const o = new THREE.Mesh(new THREE.PlaneGeometry(0.27, 0.27), new THREE.MeshBasicMaterial({ color: cols.edge, transparent: true, depthTest: false, depthWrite: false }));
     m.position.z = 0.047; o.position.z = 0.046; m.visible = o.visible = false; scene.add(o); scene.add(m); KN.push([m, o]); }
   const S = { pts, len: N, set: false, t: 0 };
   // put it all at one place (a start, a wake)
@@ -74,7 +91,9 @@ export function makeScarf(scene, cols = { edge: 0x181425, body: 0xe43b44, shade:
       }
       mesh.geometry.attributes.position.needsUpdate = true;
     }
-    KN.forEach(([m, o], k) => { const at = 4 + k * 3, on = visible && k < knots && at < last; m.visible = o.visible = on; if (on){ const p = pts[at]; m.position.x = o.position.x = p.x; m.position.y = o.position.y = p.y; } });
+    const ids = Array.isArray(knots) ? knots : Array.from({ length: knots }, () => '_');   // the relics tied (their ids), or a count
+    KN.forEach(([m, o], k) => { const at = 4 + k * 3, on = visible && k < ids.length && at < last; m.visible = on; o.visible = false;
+      if (on){ const p = pts[at], map = knotMap(ids[k]); if (m.material.map !== map){ m.material.map = map; m.material.color.setHex(0xffffff); m.material.needsUpdate = true; } m.position.x = p.x; m.position.y = p.y; } });
     const tip = pts[last]; tipGlow.visible = visible && glow > 0.02; tipGlow.position.x = tip.x; tipGlow.position.y = tip.y; tipGlow.material.opacity = glow * (0.5 + 0.2 * Math.sin(S.t * 8));
   };
   S.tip = () => pts[Math.min(N - 1, Math.max(1, Math.ceil(S.len) - 1))];

@@ -138,13 +138,15 @@ export function stepEnemies(E, P, dt, fx, events){
         const nx = e.x + e.face * e.d.lungeDist / e.d.lunge * dt; if (!solidAt(nx + e.face * e.d.w, e.y + 0.3)) e.x = nx;
         if (!e.hit && Math.abs(P.x - e.x) < (e.d.hitR || 0.75) && P.y < e.y + 1.2 && P.y > e.y - 0.6){
           e.hit = true;
-          if (P.blocking && P.face === -e.face){ const parry = performance.now() / 1000 - (P.blockAt || -9) < 0.18; go('stunned'); e.stun = parry ? 1.4 : 0.7; e.x -= e.face * 0.5; events.push({ type: parry ? 'parry' : 'block', at: { x: P.x, y: P.y + 1 } }); }
+          if (P.blocking && P.face === -e.face){ const parry = performance.now() / 1000 - (P.blockAt || -9) < 0.18; go('stunned'); e.stun = parry ? 1.4 : 0.7; e.x -= e.face * 0.25; e.vx = -e.face * (parry ? 7 : 4); e.flash = parry ? 0.2 : 0.08; events.push({ type: parry ? 'parry' : 'block', at: { x: P.x + P.face * 0.5, y: P.y + 1.2 }, mine: true, e }); }
           else hurt(P, e.d.dmg || 1, e.x, e.d.word || 'Bitten');
         }
         if (e.tm >= e.d.lunge && e.st === 'lunge') go('recover');
       }
       else if (e.st === 'recover'){ if (e.tm >= e.d.recover) go('chase'); }
-      else if (e.st === 'stunned'){ if (e.tm >= (e.stun || e.d.stun)) go('chase'); }
+      else if (e.st === 'stunned'){   // thrown back by his guard: it slides, slowing (not into a wall or off an edge)
+        if (e.vx){ const nx = e.x + e.vx * dt; if (!solidAt(nx + Math.sign(e.vx) * e.d.w, e.y + 0.3) && ground(nx, e.y + 0.3) > e.y - 0.6) e.x = nx; else e.vx = 0; e.vx *= Math.max(0, 1 - dt * 7); if (Math.abs(e.vx) < 0.3) e.vx = 0; }
+        if (e.tm >= (e.stun || e.d.stun)){ e.vx = 0; go('chase'); } }
       // a body: standing, he cannot walk through it (a roll can)
       if (P.roll <= 0 && Math.abs(P.x - e.x) < 0.55 && P.y < e.y + 0.7 && P.y > e.y - 0.5){ const side = Math.sign(P.x - e.x) || -e.face; if (!shove(P, e.x + side * 0.55)) e.x = P.x - side * 0.55; if (Math.sign(P.vx) === -side) P.vx = 0; }   // never into the rock: against a wall, it is the creature that gives
       anim(e, e.st === 'windup' || e.st === 'lunge' ? 'attack' : 'walk', e.st === 'windup' ? e.tm / e.d.windup * 0.5 : e.st === 'lunge' ? 0.5 + e.tm / e.d.lunge * 0.5 : e.st === 'chase' ? e.tm * 1.6 : 0);
@@ -201,7 +203,7 @@ export function stepEnemies(E, P, dt, fx, events){
       else if (e.st === 'windup'){ e.face = Math.sign(dx) || e.face; if (e.tm >= e.d.windup){ shoot(E, e, P, true); events.push({ type: 'spit', e }); go('recover'); e.cd = e.d.cooldown; } }
       else if (e.st === 'swat'){
         if (e.tm >= 0.42 && !e.hit){ e.hit = true; if (Math.abs(P.x - e.x) < 1.7 && (P.x - e.x) * e.face > -0.3 && P.y < e.y + 1.6 && P.y > e.y - 0.8 && !isRollInv(P)){
-          if (P.blocking && P.face === -e.face) events.push({ type: 'block', at: { x: P.x, y: P.y + 1 } }); else hurt(P, 1, e.x, 'Swatted'); } }
+          if (P.blocking && P.face === -e.face){ e.flash = 0.08; events.push({ type: 'block', at: { x: P.x + P.face * 0.5, y: P.y + 1.2 }, mine: true, e }); } else hurt(P, 1, e.x, 'Swatted'); } }
         if (e.tm >= 0.6){ go('recover'); e.hit = false; }
       }
       else if (e.st === 'recover'){ if (e.tm >= e.d.recover) go('stalk'); }
@@ -223,7 +225,7 @@ export function stepEnemies(E, P, dt, fx, events){
       else if (e.st === 'windup'){ e.x -= e.face * dt * 0.8; if (e.tm >= e.d.windup){ go('rush'); e.hit = false; const L = Math.hypot(dx, dy + 1.2) || 1; e.rx = dx / L; e.ry = (dy + 1.2) / L; e.face = Math.sign(dx) || e.face; } }
       else if (e.st === 'rush'){
         e.x += e.rx * e.d.rushSpeed * dt; e.y += e.ry * e.d.rushSpeed * dt;
-        if (!e.hit && Math.abs(P.x - e.x) < 0.6 && Math.abs(P.y + 1.2 - e.y) < 1.1 && !isRollInv(P)){ e.hit = true; if (P.blocking && P.face === -e.face) events.push({ type: 'block', at: { x: P.x, y: P.y + 1 } }); else hurt(P, 1, e.x, e.d.word); }
+        if (!e.hit && Math.abs(P.x - e.x) < 0.6 && Math.abs(P.y + 1.2 - e.y) < 1.1 && !isRollInv(P)){ e.hit = true; if (P.blocking && P.face === -e.face){ e.flash = 0.08; events.push({ type: 'block', at: { x: P.x + P.face * 0.5, y: P.y + 1.2 }, mine: true, e }); } else hurt(P, 1, e.x, e.d.word); }
         if (e.tm >= e.d.rush) go('spent');
       }
       else if (e.st === 'spent'){ e.y += Math.sin(e.age * 6) * dt * 0.2; if (e.tm >= e.d.recover) go('drift'); }
@@ -261,7 +263,7 @@ export function stepEnemies(E, P, dt, fx, events){
       if (Math.random() < 0.6) fx.burst({ x: O.x, y: O.y }, 1, O.col);
       const tile = tileAt(Math.floor(O.x / T), Math.floor(O.y / T));
       if (Math.abs(O.x - P.x) < 0.45 && O.y > P.y && O.y < P.y + P.h){
-        if (P.blocking && P.face === -Math.sign(O.vx)){ const parry = performance.now() / 1000 - (P.blockAt || -9) < 0.18; events.push({ type: parry ? 'parry' : 'block', at: { x: O.x, y: O.y } }); if (parry && !O.g){ killEnemy(e, events); } }
+        if (P.blocking && P.face === -Math.sign(O.vx)){ const parry = performance.now() / 1000 - (P.blockAt || -9) < 0.18; events.push({ type: parry ? 'parry' : 'block', at: { x: O.x, y: O.y }, mine: true, shot: true }); if (parry && !O.g){ killEnemy(e, events); } }
         else if (!isRollInv(P)) hurt(P, 1, O.x, e.d.word || 'Spat on');
         E.scene.remove(O.m); e.orb = null;
       } else if (O.t > 6 || tile === ROCK || tile === LEDGE && (O.g ? O.vy < 0 : true) || Math.abs(O.x - P.x) > 30 || Math.abs(O.y - P.y) > 20){ fx.burst({ x: O.x, y: O.y }, O.g ? 12 : 6, O.col); E.scene.remove(O.m); e.orb = null; }

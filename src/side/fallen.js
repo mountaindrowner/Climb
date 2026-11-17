@@ -128,7 +128,7 @@ export function makeFallen(scene, R){
     const toward = sgn(B.x - P.x);
     if (!noBlock && P.blocking && P.face === toward){
       const parry = performance.now() / 1000 - (P.blockAt || -9) < 0.18;
-      events.push({ type: parry ? 'parry' : 'block', at: { x: P.x + P.face * 0.55, y: P.y + 1.35 } });
+      events.push({ type: parry ? 'parry' : 'block', at: { x: P.x + P.face * 0.55, y: P.y + 1.35 }, mine: true });
       if (parry){ B.cut = null; B.vx = -B.face * 3.5; B.mash = 0; go('stagger'); return 'parry'; }
       P.vx = -toward * (heavy ? 7 : 4); return 'block';
     }

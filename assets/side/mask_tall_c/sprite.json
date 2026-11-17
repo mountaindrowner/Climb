@@ -495,6 +495,76 @@
    "footLast": 52,
    "cxLast": 35.0,
    "n": 1
+  },
+  "air": {
+   "frames": 7,
+   "w": 64,
+   "h": 64,
+   "foot": 52,
+   "cx": 35.0,
+   "footLast": 52,
+   "cxLast": 35.0,
+   "n": 1
+  },
+  "crouch": {
+   "frames": 3,
+   "w": 64,
+   "h": 64,
+   "foot": 52,
+   "cx": 35.0,
+   "footLast": 52,
+   "cxLast": 35.0,
+   "n": 1
+  },
+  "crouch_walk": {
+   "frames": 6,
+   "w": 64,
+   "h": 64,
+   "foot": 52,
+   "cx": 35.0,
+   "footLast": 52,
+   "cxLast": 35.0,
+   "n": 1
+  },
+  "spade_run": {
+   "frames": 7,
+   "w": 64,
+   "h": 64,
+   "foot": 52,
+   "cx": 35.0,
+   "footLast": 52,
+   "cxLast": 35.0,
+   "n": 1
+  },
+  "spade_air": {
+   "frames": 8,
+   "w": 64,
+   "h": 64,
+   "foot": 52,
+   "cx": 35.0,
+   "footLast": 52,
+   "cxLast": 35.0,
+   "n": 1
+  },
+  "spade_crouch": {
+   "frames": 3,
+   "w": 64,
+   "h": 64,
+   "foot": 52,
+   "cx": 35.0,
+   "footLast": 52,
+   "cxLast": 35.0,
+   "n": 1
+  },
+  "spade_crouch_walk": {
+   "frames": 6,
+   "w": 64,
+   "h": 64,
+   "foot": 52,
+   "cx": 35.0,
+   "footLast": 52,
+   "cxLast": 35.0,
+   "n": 1
   }
  }
 }

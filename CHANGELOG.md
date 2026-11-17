@@ -2,7 +2,16 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Phase 3: teaching, and words (latest).** From research on how good games teach (`docs/phase3-sheet.md`, with its sources).
+**Phase 4: his animation and feel (latest).** Seven new drawings of him (PixelLab, with light maps).
+- **In the air:** the spring off the ground, then at the top of the jump his knees come up, the blade held low, and as he drops the coat and scarf lift and stream over him (by how fast he is rising or falling; it flutters as he falls). He no longer looks to be standing in the air.
+- **Crouched:** he goes down into a low crouch, and moving crouched is a low shuffle (low enough for the Roots' tunnel). Before, crouching had no drawing.
+- **The spade in hand:** with the spade he runs with it over his shoulder, jumps and falls holding it trailing, and crouches holding it level. (A roll, a climb, a landing and being hurt still show the blade: on the list.)
+- **A landing from a high fall** checked: the deep crouch, the dust.
+- **A block is seen to land:** sparks off the blade, a flash, a held beat, he gives a step, and the creature is thrown back (it slides, rather than jumping half a step). **A parry** (the block raised just as it lands): a white ring and flash, sparks both ways, the creature thrown further and staggered longer.
+- **The knots** in his scarf: each relic its own colour and shape (the Whetstone a grey square, the Stormglass a cyan diamond, the Seed a green bead, the Compass a gold star, the Climber's Knot a pale ring, and so on), so what he wears can be read on him.
+- Fixed: a creature turning his blow aside counted, for the hints, as his own block.
+
+**Phase 3: teaching, and words.** From research on how good games teach (`docs/phase3-sheet.md`, with its sources).
 - **No wall of controls at the start.** The opening teaches by its rooms, and a hint comes up under him only when he struggles: still for four seconds (MOVE); pushing into a step, or onto the spikes (JUMP); twice short of a ledge just out of reach (JUMP AGAIN IN THE AIR); a creature close and no swing yet (CUT); bitten and never blocked (BLOCK); once he has blocked, at the next wind-up (BLOCK JUST AS IT LANDS: IT REELS); walking into a gap too low to stand in (CROUCH · ROLL); standing on a plank holding down (DOWN + JUMP: DROP THROUGH). Each shows the real key for his device, goes the moment he does it, and is given at most three times, ever. The full list of controls stays on the pause screen. Options: Hints on or off.
 - **Cards.** Every relic, keeper's gift and weapon gets a card: its picture (drawn from the palette), its name, what it does in one plain line, how (with his keys), and whose it was, small. Cards wait their turn rather than one hiding another. The first relic brings a card on the knots; the first gift, one on the embers; the map, the first few times, says what its marks are.
 - **Plain words:** the Whetstone "The last cut of each string hits harder (+1)", the Lodestone "from twice as far", the Seed "Mending a heart costs 7 embers instead of 10", the Tally "Urns give 50% more shards", the Stylus "Each creature he kills gives 2 more embers", the Stormglass "+1 harm". The gifts say what they do, then how, with the keys.
