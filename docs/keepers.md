@@ -80,3 +80,28 @@ A keeper can tell the entrance when its name comes (`B.revealAt`, for a rise tha
 
 **The Warden's arms** are armoured now (`tools/armor_arms.py`): its stone arms half again as thick, iron plates curved round them, rivets, teal runes in the plates, a gauntlet on each fist. **Its sweep** is tethered: the fist comes away from the arm, sweeps the stage on a crackling beam of green lightning, rests (strike it then), and flies back along the beam to lock on again; the arm stays up at the shoulder.
 
+## What each keeper throws (phase 7)
+
+One attack each from its own place, laid over the keeper's own blows (`src/side/throws.js`): every `every` seconds of
+the fight when the keeper is doing nothing else. Each is warned by a red mark where it will be and the keeper's sound.
+`tools/keeper-check.mjs` plays each in the real game, both phases, with the keeper's own blows held off: standing still
+must cost a heart; the way out must cost none. Run it before any build that touches a keeper
+(`PW_FROM=<a folder with playwright>/ node tools/keeper-check.mjs`). The last run (build 51):
+
+| Keeper | The attack | From half health | The way out checked | Warning | Still: hearts lost (phase 1, 2) | Way out: hearts lost |
+|---|---|---|---|---|---|---|
+| The Warden | a block bowls along the stage | two, one from each end | jump it (the spade also breaks it) | 0.75 s | 1, 1 | 0, 0 |
+| The Toll | hymn-books flutter down | six; bell shards from every slam | stand between the books (a cut destroys one) | 0.7 s | 1, 1 | 0, 0 |
+| The Rime Wyrm | three shards of ice in a spread | five, then four between | block (or stand between two, or roll) | 0.6 s | 1, 1 | 0, 0 |
+| The Thunderhead | ball lightning rolls after him | two | cut it (or jump it) | 0.8 s | 1, 2 | 0, 0 |
+| Mother Thorn | seeds that root into thorns | three; the thorns stand longer | walk off the marks (or cut the seeds) | the seed's flight and 1.3 s lying | 3, 3 | 0, 0 |
+| The Fallen | a ring of embers with gaps | two rings | jump the level ones | 0.8 s | 1, 1 | 0, 0 |
+
+Not yet checked by the tool: the keepers' own blows (slams, sweeps, bolts), and the Toll's bell shards.
+
+## How hard (phase 7)
+
+The keepers grow with him: health 28, 32, 38, 40, 44, 44 up the mountain. From the Wyrm on, each keeper's heaviest blow
+costs two hearts (the Wyrm's plunge, a rod's strike, Mother Thorn's arm coming down, the Fallen's dash and plunge);
+everything else is one. These are a first setting, to be tuned from playtests.
+

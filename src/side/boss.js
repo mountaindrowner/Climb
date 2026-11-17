@@ -19,7 +19,7 @@ import { hurt, isRollInv } from './motor.js';
 import { lit } from './render.js';
 const THREE = window.THREE;
 export const WARDEN = {
-  name: 'The Warden', hp: 24, phase2: 0.5,
+  name: 'The Warden', hp: 28, phase2: 0.5,
   bodyF: 0.5, bodyY: 3.6, sunk: -14,                      // its body: parallax (how far back), its chest's middle over the stage, how far below the stage it waits
   fistR: 1.4, armW: 3,                                   // the arms in armour (tools/armor_arms.py): 48 pixels across
   slam: { raise: [0.75, 0.6], hold: [0.42, 0.32], drop: 0.11, rest: [1.5, 1.1], lift: 0.55, reach: 1.8, high: 7.5 },

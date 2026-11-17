@@ -2,7 +2,19 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Phase 6: creatures (latest).** (`docs/phase6-sheet.md`.)
+**Phase 7: the keepers (latest).** (`docs/phase7-sheet.md`.)
+- **Each keeper throws something of its own place,** warned by a red mark where it will be and the keeper's sound, with a harder form from half health (`src/side/throws.js`):
+  - the Warden: a block of the wall is shoved out and bowls along the stage (two, one from each end): jump it, or break it with the spade;
+  - the Toll: hymn-books flutter down from the lofts: stand between them, or cut one; from half health every slam throws bell shards out low: be where no mark is, or block;
+  - the Rime Wyrm: it spits three shards of ice in a spread (five, then four between): stand between two, block, or roll;
+  - the Thunderhead: ball lightning comes down a rod and rolls after him (two): cut it, jump it, or outrun it;
+  - Mother Thorn: seeds that root: cut a seed where it lies, or a patch of thorns stands there a while;
+  - the Fallen: the dark lamp's embers go out from it in a ring with gaps (two rings): jump the low ones; no block turns them.
+- **The keepers grow with him:** health 28, 32, 38, 40, 44, 44 up the mountain (was 24 to 32), and from the Wyrm on each keeper's heaviest blow costs two hearts (the Wyrm's plunge, a rod's strike, Mother Thorn's arm, the Fallen's dash and plunge). The spade keeps its full blows against them.
+- **What each leaves is a thing:** the Toll's Step is the ringers' boots; the Wyrm's Wind a wyrm's scale tied into his scarf.
+- **A check that plays them** (`tools/keeper-check.mjs`): each thrown attack, in both phases, in the real game: standing still must cost a heart, the way out must not. Its table is in `docs/keepers.md`.
+
+**Phase 6: creatures.** (`docs/phase6-sheet.md`.)
 - **They live there now.** Every walking creature (crawlers, acolytes, the Sexton, yetis, squalls, thornbacks, sentinels) walks a beat round its post when it is not fighting, turning at walls and edges. It **notices him by sight**: in its range, no rock between, in front of it or close behind. It starts (a yellow mark over it, its own sound), then hunts. It hunts no further than 18 tiles from its post, **gives up** after three seconds without sight of him, and walks home. Struck from behind, it knows. Bats and gargoyles need to see him too, and are tethered to their roost.
 - **The worm, redone.** It hunts him under its stretch of floor as a ripple of broken ground (seen and heard), comes up **where he will be**, cracks the ground there for half a second first, stands snapping where it can be cut, goes under, and hunts again. It cannot follow onto a plank or into the air.
 - **The Roots' green spitter:** it swells and brightens as it charges, a line of light lies where the shot will go for the last 0.3 s, and it bursts in its own colour when it dies (as do the lampreys, barnacles and toads).

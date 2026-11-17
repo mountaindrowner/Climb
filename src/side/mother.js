@@ -20,7 +20,7 @@ import { tex, glow, additive } from './boss.js';
 import { lit as litMat, makeSprite } from './render.js';
 const THREE = window.THREE;
 export const MOTHER = {
-  name: 'Mother Thorn', hp: 32, phase2: 0.5,
+  name: 'Mother Thorn', hp: 44, phase2: 0.5,
   tall: 4.8, low: 0.5,                                 // her head over the stage: grown, and asleep
   thorns: { n: 3, gap: 0.55, warn: 0.6, up: 0.5, half: 0.6, tall: 2.0 },
   rows: { step: 2.3, lag: 1.0, wave: 0.045 },
@@ -221,7 +221,7 @@ export function makeMother(scene, R){
         else if (B.n === 0){
           a.tip.x += (B.tx - a.tip.x) * Math.min(1, dt * 12); a.tip.y -= W.slam.drop * dt; armTo[B.arm] = { x: a.tip.x, y: a.tip.y, rate: 0 }; warnA = 1; warnX = B.tx; warnW = W.slam.reach * 2.2;
           if (a.tip.y <= stageY + 0.75){ a.tip.y = stageY + 0.75; B.n = 1; B.mt = 0; events.push({ type: 'bossSlam', at: { x: a.tip.x, y: stageY } });
-            if (Math.abs(P.x - a.tip.x) < W.slam.reach && P.y < stageY + 2.4 && P.y > stageY - 1 && !isRollInv(P)) hurt(P, 1, a.tip.x, 'Crushed'); }
+            if (Math.abs(P.x - a.tip.x) < W.slam.reach && P.y < stageY + 2.4 && P.y > stageY - 1 && !isRollInv(P)) hurt(P, 2, a.tip.x, 'Crushed'); }
         }
         else { armTo[B.arm] = { x: a.tip.x, y: stageY + 0.75, rate: 0 };
           if (B.mt > W.slam.rest){ if (B.phase === 2 && !B.again){ go('slam'); B.again = true; B.arm = 1 - B.arm; events.push({ type: 'bossTell' }); } else { go('idle'); B.cd = ph(W.cd); } } }

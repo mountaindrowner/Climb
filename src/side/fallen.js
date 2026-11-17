@@ -22,7 +22,7 @@ import { sfx } from '../audio/sfx.js';
 const THREE = window.THREE;
 // [phase one, phase two] where there are two
 export const FALLEN = {
-  name: 'The Fallen', hp: 30, phase2: 0.5, art: 'assets/side/mask_tall_c',
+  name: 'The Fallen', hp: 44, phase2: 0.5, art: 'assets/side/mask_tall_c',
   run: 6.4, pace: 3.0, keep: 3.0,
   cut: [ { anim: 'atk_slam_v3', hit: 7 / 11, wind: [0.46, 0.36], active: 0.1, rec: [0.34, 0.27], reach: 2.0, lunge: 0.8 },
     { anim: 'atk_slam_px', hit: 9 / 13, wind: [0.4, 0.31], active: 0.1, rec: [0.36, 0.28], reach: 2.0, lunge: 0.9 },
@@ -123,7 +123,7 @@ export function makeFallen(scene, R){
   const ghost = () => { if (!spr) return; const m = spr.ghost(0x58c8ff); if (m) B.ghosts.push({ m, life: 0.26 }); };
 
   // ---- its blade against him: he can roll through it, block it, or turn it (a block raised just as it lands)
-  function touch(P, events, word, heavy, noBlock){
+  function touch(P, events, word, heavy, noBlock, two){
     if (P.hp <= 0 || isRollInv(P)) return 'miss';
     const toward = sgn(B.x - P.x);
     if (!noBlock && P.blocking && P.face === toward){
@@ -132,7 +132,7 @@ export function makeFallen(scene, R){
       if (parry){ B.cut = null; B.vx = -B.face * 3.5; B.mash = 0; go('stagger'); return 'parry'; }
       P.vx = -toward * (heavy ? 7 : 4); return 'block';
     }
-    return hurt(P, 1, B.x, word) ? 'hurt' : 'miss';
+    return hurt(P, two ? 2 : 1, B.x, word) ? 'hurt' : 'miss';   // two: its plunge and its dash, his heaviest blows turned on him
   }
   const startCut = (P, i, def) => { B.cut = { i, def: def || D.cut[i], ph: 'wind' }; B.face = sgn(P.x - B.x); B.vx = 0; go('cut'); };
   const startRoll = (P, away) => { B.rollDir = sgn(P.x - B.x) * (away && Math.abs(P.x - B.x) > 1.5 ? -1 : 1); if ((B.rollDir > 0 && B.x > xMax - 3) || (B.rollDir < 0 && B.x < xMin + 3)) B.rollDir = sgn(P.x - B.x); B.face = B.rollDir; B.cut = null; go('roll'); sfx.roll(); };
@@ -215,7 +215,7 @@ export function makeFallen(scene, R){
       else if (M === 'dash'){
         B.vx = B.face * D.dash.speed; pose = [D.dash.anim, D.dash.hit + (1 - D.dash.hit) * 0.35 * Math.min(1, B.mt / D.dash.time)]; low = 1.5; cold = 1;
         if ((B.gT -= dt) <= 0){ B.gT = 0.03; ghost(); } fx.streak({ x: B.x, y: B.y }, B.face); fx.kick({ x: B.x, y: B.y }, -B.face, 2, 3);
-        if (!B.hit && Math.abs(P.x - B.x) < 1.0 && P.y < B.y + 2.2 && P.y + P.h > B.y){ B.hit = true; touch(P, events, 'Run through', true); }
+        if (!B.hit && Math.abs(P.x - B.x) < 1.0 && P.y < B.y + 2.2 && P.y + P.h > B.y){ B.hit = true; touch(P, events, 'Run through', true, false, true); }
         if (B.mode === 'dash' && (B.mt >= D.dash.time || B.x <= xMin + 0.01 || B.x >= xMax - 0.01)) go('dashRec');
       }
       else if (M === 'dashRec'){ const rec = ph(D.dash.rec); B.vx *= Math.exp(-dt * 9); pose = [D.dash.anim, D.dash.hit + (1 - D.dash.hit) * (0.35 + 0.65 * Math.min(1, B.mt / rec))]; if (B.mt >= rec){ go('stalk'); B.cd = ph(D.cd); } }
@@ -237,7 +237,7 @@ export function makeFallen(scene, R){
         if ((B.gT -= dt) <= 0){ B.gT = 0.04; ghost(); }
         if (B.y <= stageY){
           B.y = stageY; events.push({ type: 'bossSlam', at: { x: B.x, y: stageY } }); R.shock(B.x, stageY + 0.3, true);
-          if (Math.abs(P.x - B.x) < D.leap.reach && P.y < stageY + 2.5 && P.y > stageY - 1) touch(P, events, 'Run through', true, true);
+          if (Math.abs(P.x - B.x) < D.leap.reach && P.y < stageY + 2.5 && P.y > stageY - 1) touch(P, events, 'Run through', true, true, true);
           for (const dir of [-1, 1]){ const m = new THREE.Mesh(waveGeo, additive(coldTex, COLD, 0.9)); m.position.z = 0.4; scene.add(m); B.waves.push({ x: B.x, dir, go: 0, hit: false, m }); }
           go('land');
         }

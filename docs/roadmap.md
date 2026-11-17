@@ -209,6 +209,11 @@ code); the Firmament's two wraiths and two squalls became motes and sentinels so
 
 ## Phase 7: the keepers
 
+*Done (build 51), as `docs/phase7-sheet.md` sets out: a thrown attack for each keeper, the keepers' health and heaviest
+blows growing up the mountain (your decision), the gifts named as things, and a tool that plays each thrown attack
+(`docs/keepers.md` has its table). Not done: the audit of the keepers' own blows against the one warning rule, and the
+check of those blows; second phases were not made faster (they already are, by each keeper's own numbers).*
+
 - **Harder and fairer, each keeper:**
   - a second phase with a new attack;
   - clear warnings;

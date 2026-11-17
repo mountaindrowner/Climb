@@ -43,13 +43,25 @@ One rule for all six, so a warning always reads the same:
 - **When:** the keeper's own sound as the warning starts, and a flash on the last tenth of a second.
 - **Nothing lands without both.** I go through every attack of every keeper and bring it to this.
 
-## 3. Hard, and fair
+## 3. Hard, and fair (decided: the keepers grow with him)
 
-- **A few tries at Climber.** Second phases come a little faster (waits between attacks about 15% shorter), since the
-  first phase is where the player learns.
-- **The spade against keepers:** its blows do 2, 2 and 3 to a keeper (4 to everything else), so the keepers last as
-  long as they were built to. Its reach and its wave still make it the better weapon for some of them.
-- **Story and Summit** stay two hearts more and two fewer.
+He gathers hearts and harder blows as he climbs (threads, the spade, the tempered blade, relics), so each keeper has a
+little more health than the last, and the later ones hit a little harder. Not much: the fight should get longer by a
+few blows, not turn into a wall.
+
+| Keeper | Health (was) | Its heaviest blow |
+|---|---|---|
+| The Warden | 28 (24) | 1 heart |
+| The Toll | 32 (26) | 1 |
+| The Rime Wyrm | 38 (30) | 2 (its plunge) |
+| The Thunderhead | 40 (30) | 2 (a rod's strike) |
+| Mother Thorn | 44 (32) | 2 (an arm's slam) |
+| The Fallen | 44 (30) | 2 (its plunge and its dash) |
+
+- Everything else a keeper does stays 1 heart.
+- The spade keeps its full blows against keepers (2, 2 and 4).
+- Second phases come a little faster (waits between attacks about 15% shorter).
+- Story and Summit stay two hearts more and two fewer.
 
 ## 4. A check that plays every attack
 

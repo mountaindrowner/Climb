@@ -21,7 +21,7 @@ import { lit as litMat } from './render.js';
 import { G } from './state.js';
 const THREE = window.THREE;
 export const TOLL = {
-  name: 'The Toll', hp: 26, phase2: 0.5,
+  name: 'The Toll', hp: 32, phase2: 0.5,
   H: 5.4, R: 2.5,                                   // the bell: crown to rim, and the round of its body for what it hits
   idle: 4.6, low: 0.9, high: 6.5,                   // its rim over the stage: at rest, swinging, and before a slam
   swing: { raise: 1.0, arc: 0.95, half: [1.5, 1.2], passes: [2, 3], settle: 0.9 },

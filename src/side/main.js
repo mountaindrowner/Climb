@@ -31,7 +31,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 50';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 51';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -862,7 +862,7 @@ function onEvent(e){
     case 'burst': sfx.break(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.2); fx.dust(e.at, 22, 4.5); fx.burst({ x: e.at.x, y: e.at.y + 0.4 }, 14, 0xd0a070); R.shock(e.at.x, e.at.y + 0.3, true); break;
     case 'step': sfx.step(); break;
     case 'mantle': sfx.whoosh(); break;
-    case 'hurt': { buzz(0.7, 0.5, 200); sfx.hurt(); fx.burst({ x: P.x, y: P.y + 1.3 }, 10, 0xff6060); const a = SCF.tip(); fx.burst({ x: a.x, y: a.y }, 12, 0xff7030); fx.burst({ x: a.x, y: a.y }, 6, 0xfee761); FLASH = Math.max(FLASH, 0.12); break; }   // the end of the scarf burns off
+    case 'hurt': { window.__side.lastHurt = e.msg; buzz(0.7, 0.5, 200); sfx.hurt(); fx.burst({ x: P.x, y: P.y + 1.3 }, 10, 0xff6060); const a = SCF.tip(); fx.burst({ x: a.x, y: a.y }, 12, 0xff7030); fx.burst({ x: a.x, y: a.y }, 6, 0xfee761); FLASH = Math.max(FLASH, 0.12); break; }   // the end of the scarf burns off
     case 'skid': fx.kick(at, Math.sign(P.vx) || P.face, 6, 2.2); break;
     case 'bossWake': { const first = !(G.keepers && G.keepers[LEVEL.theme]); (G.keepers = G.keepers || {})[LEVEL.theme] = 1; store(); BOSS.shown = false; BANNER = null; ENT.start(BOSS, first, P, { theme: LEVEL.theme, epithet: EPITHET[LEVEL.index] || '' }); SCORE.load(LEVEL.index === CLIMB_TOP ? 'boss_final' : 'boss'); break; }   // the hall shuts, then it comes (entrance.js); its name comes up with the bars (drawHud)
     case 'bossToll': sfx.parry(); sfx.rumble(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.2); break;

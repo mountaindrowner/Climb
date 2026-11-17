@@ -62,8 +62,8 @@ export const RELICS = {   // name: whose it was; line: what it does; lore: whose
 // what each keeper leaves him, by region: `does`, plainly; `how`, with the keys ({action}, teach.js fill); `icon`, its picture
 export const TEACH = [
   { can: 'breaker', icon: 'spade', name: 'The Warden\'s Spade', does: 'A heavy weapon. Only it breaks cracked stone. He cannot block with it.', how: ['{swap}: blade or spade.', 'Three slow blows; the last sends a wave along the ground.', 'In the air, {down} + {attack}: its plunge breaks the floor under him.', 'With a measure of embers, {down} + {art}: a blow runs along the floor both ways.'] },
-  { can: 'dash',    icon: 'dash',    name: 'The Toll\'s Step',     does: 'A roll in the air flies him level and fast, once a jump.', how: ['{roll}, in the air.', 'With a measure of embers, {art}: he rushes through what is before him.'] },
-  { can: 'glide',   icon: 'glide',   name: 'The Wyrm\'s Wind',     does: 'He can glide, and rising air lifts him.', how: ['{jump} again when his jumps are spent, and hold it.', 'With a measure of embers, {art} in the air: a wind throws what is round him.'] },
+  { can: 'dash',    icon: 'dash',    name: 'The Toll\'s Step',     does: 'The ringers\' boots. A roll in the air flies him level and fast, once a jump.', how: ['{roll}, in the air.', 'With a measure of embers, {art}: he rushes through what is before him.'] },
+  { can: 'glide',   icon: 'glide',   name: 'The Wyrm\'s Wind',     does: 'A wyrm\'s scale, tied into his scarf. He can glide, and rising air lifts him.', how: ['{jump} again when his jumps are spent, and hold it.', 'With a measure of embers, {art} in the air: a wind throws what is round him.'] },
   { heart: 1,       icon: 'heart',   name: 'The Thunderhead\'s Heart', does: 'One heart more.', how: [] },
   { flask: 1,       icon: 'flask',   name: 'Mother Thorn\'s Dew',    does: 'The flask holds one draught more.', how: [] },
   { name: '', how: [] },

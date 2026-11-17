@@ -16,7 +16,7 @@ import { tex, glow, additive } from './boss.js';
 import { lit as litMat } from './render.js';
 const THREE = window.THREE;
 export const THUNDERHEAD = {
-  name: 'The Thunderhead', hp: 30, phase2: 0.5,
+  name: 'The Thunderhead', hp: 40, phase2: 0.5,
   rods: [-10, 0, 10], rodTip: 4.5,                    // where the rods stand from the stage's middle; how high their tips are
   cloudY: 8.3, maskY: 7.7, follow: 3.4,              // over the stage; how fast the mask comes after him
   bolt: { warn: [0.78, 0.6], life: 0.14, half: 0.55 },
@@ -257,7 +257,7 @@ export function makeThunderhead(scene, R){
             r.st = 'live'; r.t = 0; r.live = ph(TH.charge.live); r.ring = 0.6; B.flash = 0.25;
             zap(r.x + (Math.random() - 0.5) * 1.5, cloudAt(r.x) + 0.6, r.x, stageY + TH.rodTip, 0.26, 1.9, 0xfff6c0); zap(r.x - 0.5, cloudAt(r.x), r.x, stageY + TH.rodTip - 0.5, 0.18, 1.1);
             fx.burst({ x: r.x, y: stageY + TH.rodTip }, 24, 0xfff6c0); fx.ring({ x: r.x, y: stageY + 0.4 }, 0xfee761); events.push({ type: 'bossToll', at: { x: r.x, y: stageY } });
-            if (Math.abs(P.x - r.x) < TH.charge.near && P.y < stageY + 3 && P.y > stageY - 1 && !isRollInv(P)) hurt(P, 1, r.x, 'Struck by lightning');
+            if (Math.abs(P.x - r.x) < TH.charge.near && P.y < stageY + 3 && P.y > stageY - 1 && !isRollInv(P)) hurt(P, 2, r.x, 'Struck by lightning');
           }
         }
       }

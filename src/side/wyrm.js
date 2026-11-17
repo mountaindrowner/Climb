@@ -41,7 +41,7 @@ function track(K, t){
   return a.map((v, k) => (2 * u3 - 3 * u2 + 1) * v + (u3 - 2 * u2 + u) * h * ma[k] + (3 * u2 - 2 * u3) * b[k] + (u3 - u2) * h * mb[k]);
 }
 export const WYRM = {
-  name: 'The Rime Wyrm', hp: 30, phase2: 0.5,
+  name: 'The Rime Wyrm', hp: 38, phase2: 0.5,
   rings: ['l', 'l', 'l', 'l', 'l', 'l', 'l', 'm', 'm', 'm', 'm', 'm', 's', 's', 's', 's'], gap: { l: 1.1, m: 0.9, s: 0.7 },   // close enough to overlap: one body, not beads
   headR: 1.15,
   cruise: 9, turn: 5,                                  // how fast it flies, how sharply it comes round
@@ -222,7 +222,7 @@ export function makeWyrm(scene, R){
         H.a = -Math.PI / 2 + (B.tx - H.x) * 0.05; H.x += (B.tx - H.x) * Math.min(1, dt * 6); H.vx = 0; H.vy = -W.plunge.dive; H.y += H.vy * dt; open = 1; warnA = 1; warnX = B.tx;
         if (H.y <= stageY + 1.0){
           H.y = stageY + 1.0; events.push({ type: 'bossSlam', at: { x: H.x, y: stageY } }); fx.burst({ x: H.x, y: stageY + 0.5 }, 30, 0xc8f4ff);
-          if (Math.abs(P.x - H.x) < W.plunge.reach && P.y < stageY + 2.6 && P.y > stageY - 1 && !isRollInv(P)) hurt(P, 1, H.x, 'Run through');
+          if (Math.abs(P.x - H.x) < W.plunge.reach && P.y < stageY + 2.6 && P.y > stageY - 1 && !isRollInv(P)) hurt(P, 2, H.x, 'Run through');
           if (B.phase === 2) for (const dir of [-1, 1]) for (let k = 1; k <= W.spikes.n; k++){ const x = H.x + dir * (0.8 + k * W.spikes.step); if (x > xMin - 2 && x < xMax + 2) spike(x, k * W.spikes.lag); }
           go('stuck');
         }
