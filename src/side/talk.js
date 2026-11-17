@@ -8,6 +8,7 @@
 import { say } from '../audio/sfx.js';
 import { planLine, pauseAfter, voiceOf, BASE } from '../audio/voice.js';
 import { OPT } from './state.js';
+import { INTRO } from './teach.js';
 // the text speed (Options): how long each wait is, or the whole line at once (and then no voice)
 export const TEXT_SPEED = { slow: 1.6, normal: 1, fast: 0.5, now: 0 };
 import { text, width, fine } from './pixelfont.js';
@@ -28,7 +29,7 @@ const HOB = []; HOB[6] = ['Mind the lamps. I carried every drop of their oil dow
 export const SCRIPT = {   // at most three lines a meeting, each short and new; the theme is never said (docs/writing.md)
   hob: HOB,
   lamplighter: [
-    ['You came up out of the water. They all do, the ones it gives back.', 'That red thread was tied on you. It burns when you are hurt. The water mends it.', 'Bring me shards of the old lamps. I can do a little. The rest was never mine.'],
+    ['You came up out of the water. They all do, the ones it gives back.', 'That red thread was tied on you. It burns when you are hurt. The water mends it.', INTRO.lamplighter],   // who he is (teach.js): said the first time he is met, wherever that is
     ['They rang the hours for the flame. When it went dark, they rang louder.', 'Come down hard on cracked stone now, and it gives.', 'Shards, if you have them.'],
     ['The pass is above us, and what coils on it.', 'You will fall here. Everyone does. The water does not seem to mind.', 'Shards, if you have them.'],
     ['Open the thread in the rising air, and let it take you up.', 'I never could. I always wanted to do the carrying.', 'Shards, if you have them.'],
@@ -36,7 +37,7 @@ export const SCRIPT = {   // at most three lines a meeting, each short and new; 
     ['My last flame. The one above, I have never flown at. It was never mine.', 'What waits by it has your walk. It holds a lamp, and will not set it down.', 'Go up. You are expected.'],
   ],
   wren: [
-    ['You fell past me. I counted it as one of mine, out of habit.', 'I am Mirel. I mean to reach the flame deserving it. You see what I carry.', 'Break the urns. Those before us hid what they could not carry up.'],
+    ['You fell past me. I counted it as one of mine, out of habit.', INTRO.wren, 'I mean to reach the flame deserving it. You see what I carry.', 'Break the urns. Those before us hid what they could not carry up.'],
     ['Forty falls. I keep the count, so it can be held against me at the top.', 'Threads are caught in the high places. Red, like yours. Mine is grey.', 'I do not know why you were given red.'],
     ['My hands have stopped working. I will not rest. Resting is how the count goes up.', 'There is a crack in the rock with a draught through it. Something was walled in.'],
     ['I cannot carry it through the storm. I have tried.', 'Each time the water gives me back, and the shell is waiting on the bank.', 'It keeps giving me back. I have not earned one of those.'],
@@ -44,7 +45,7 @@ export const SCRIPT = {   // at most three lines a meeting, each short and new; 
     ['This is as far as I go, for now. I can see it from here.', 'What is up there is yours to face.', 'Go on. I will be along. There is no hurry any more.'],
   ],
   scribe: [
-    ['Another from the water. I write the mountain down. Someone must; no one looks up now.', 'These are the Roots. Everything above stands on what is down here, and forgets it.'],
+    [INTRO.scribe, 'Someone must; no one looks up now.', 'These are the Roots. Everything above stands on what is down here, and forgets it.'],
     ['The house kept the flame\'s hours. Every mark on these walls is a night rung.', 'The last mark is a night with no bell.'],
     ['The Spires are the mountain\'s own bones. Nothing was built here. Things only cling.'],
     ['The Tempest is new. My oldest pages have clear sky on them.'],

@@ -107,6 +107,11 @@ the Sexton becomes the Ossuary's elite with something else to give. To settle wh
 
 ## Phase 3: teaching, and words
 
+*Done (build 47), as `docs/phase3-sheet.md` sets out: the opening rooms teach in place, with hints only when he
+struggles (`src/side/teach.js`); cards for every relic, gift and weapon, and once each for the knots, the embers and
+the map; the relics' lines in plain words with numbers; keys drawn as keys; the ember meter hidden until it is needed;
+the weapon in hand under his life; "What he carries" from the pause; the people say who they are; Hints on or off.*
+
 **The opening as a tutorial.** Before the Roots' first climb, a few rooms after he wakes, each teaching one thing with
 almost no words, in this order: move, jump, double jump, crouch and drop, attack, block, roll, the pool. Then the climb
 starts.

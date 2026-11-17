@@ -2,7 +2,16 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The word on a fall is PERSEVERE (latest).** When he comes up out of the raising water after a fall, the word over him is now PERSEVERE (it was RAISED). The count under it, and the end's "raised N times", stay.
+**Phase 3: teaching, and words (latest).** From research on how good games teach (`docs/phase3-sheet.md`, with its sources).
+- **No wall of controls at the start.** The opening teaches by its rooms, and a hint comes up under him only when he struggles: still for four seconds (MOVE); pushing into a step, or onto the spikes (JUMP); twice short of a ledge just out of reach (JUMP AGAIN IN THE AIR); a creature close and no swing yet (CUT); bitten and never blocked (BLOCK); once he has blocked, at the next wind-up (BLOCK JUST AS IT LANDS: IT REELS); walking into a gap too low to stand in (CROUCH · ROLL); standing on a plank holding down (DOWN + JUMP: DROP THROUGH). Each shows the real key for his device, goes the moment he does it, and is given at most three times, ever. The full list of controls stays on the pause screen. Options: Hints on or off.
+- **Cards.** Every relic, keeper's gift and weapon gets a card: its picture (drawn from the palette), its name, what it does in one plain line, how (with his keys), and whose it was, small. Cards wait their turn rather than one hiding another. The first relic brings a card on the knots; the first gift, one on the embers; the map, the first few times, says what its marks are.
+- **Plain words:** the Whetstone "The last cut of each string hits harder (+1)", the Lodestone "from twice as far", the Seed "Mending a heart costs 7 embers instead of 10", the Tally "Urns give 50% more shards", the Stylus "Each creature he kills gives 2 more embers", the Stormglass "+1 harm". The gifts say what they do, then how, with the keys.
+- **Keys drawn as keys** over what he can use: [S] TALK, [S] OPEN, [S] TIE KNOTS.
+- **The screen:** the ember meter (and a phone's embers button) appears with the first thing to spend embers on; the weapon in his hand is shown under his life, with the swap key once he has two.
+- **What he carries:** a page from the pause: hearts, strands, flask and knots, and a button for each gift, weapon and relic that shows its card.
+- **The people say who they are** the first time each is met, wherever: Ordric keeps the lamps by the water and trades for shards; Corwen writes the mountain down and knows what is still to be found; Mirel climbs, and counts.
+
+**The word on a fall is PERSEVERE.** When he comes up out of the raising water after a fall, the word over him is now PERSEVERE (it was RAISED). The count under it, and the end's "raised N times", stay.
 
 **The water's edges softened.** The raising pools met the room on hard lines. Now each end of the water has a worn stone lip, the water's lit edge curling against it, so it sits in a basin; the broad stone pieces behind (the founders' niche, the garden wall, the Roots' apse) let go into the room in the painting's own dither instead of stopping on a line; the garden wall's ends are broken course by course; the Spires' ice is a rim of ice and icicles with the room's wall showing through, not a dark block; the Tempest's pipe stands on the room's own rock, without a panel. The pieces drawn in lines (the brass ring, the pipe, the trough's frame, the icicles) are left sharp.
 

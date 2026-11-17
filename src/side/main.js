@@ -9,7 +9,8 @@ import { sfx, ac, musicBus, ambience, setMix, MIX, warm, manifestReady, say } fr
 import { voiceOf } from '../audio/voice.js';
 import { makeScore } from '../audio/score.js';
 import '../ui/feel.js';
-import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP } from './level.js';
+import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE } from './level.js';
+import { makeTeach, keyName, fill, INTRO, CARDS, drawIcon } from './teach.js';
 import { makeProps } from './props.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt } from './motor.js';
 import { width as textWidth } from './pixelfont.js';
@@ -30,7 +31,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 46';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 47';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -45,6 +46,8 @@ const DEV = /[?&]level=/.test(location.search);   // straight into a region by i
 const armed = id => id === 'blade' || (G.arms || []).includes(id);
 // the touch button for blade and spade: there once he has the spade
 function swapButton(){ const b = document.getElementById('swapbtn'); if (b) b.style.display = armed('spade') ? '' : 'none'; }
+// the embers button, on a phone: only once he has something to spend them on
+let ARTBTN = null; function artButton(){ ARTBTN = ARTBTN || document.querySelector('.btn.art'); const want = embersKnown() ? '' : 'none'; if (ARTBTN && ARTBTN.style.display !== want) ARTBTN.style.display = want; }
 const born = (x, y) => { const p = newPlayer(x, y); p.weapon = armed(G.wield) ? G.wield : 'blade'; p.maxHp = maxHearts(); p.hp = p.maxHp; p.flaskMax = maxFlask(); p.flask = p.flaskMax; return p; };
 let P = born(sp.x, sp.y);
 const hero = { sprite: null, meta: null };
@@ -191,6 +194,7 @@ function options(back){
     cyc('Sound', 'sfx', [0, 0.4, 0.7, 1], ['off', 'low', 'mid', 'full'], () => { setMix('sfx', OPT.sfx); sfx.shard(); }),
     cyc('Voices', 'voice', [0, 0.4, 0.8, 1], ['off', 'low', 'mid', 'full'], () => { setMix('voice', OPT.voice); say(voiceOf('lamplighter'), { v: 'a', p: 1, g: 1 }); }),
     cyc('Text', 'text', ['slow', 'normal', 'fast', 'now'], ['slow', 'normal', 'fast', 'at once']),
+    cyc('Hints', 'hints', [true, false], ['on', 'off']),
     cyc('Score', 'synth', [false, true], ['recorded', 'made as it plays']),
     cyc('Shake', 'shake', [0, 0.5, 1], ['off', 'soft', 'full']),
     cyc('Flashes', 'flash', [0, 1], ['off', 'on']),
@@ -216,10 +220,11 @@ function mapDots(){
 }
 // the whole map, from the pause (or M, or Select)
 function mapScreen(){
-  SCREEN = 'map'; PAUSE = true; release();
+  SCREEN = 'map'; PAUSE = true; release(); const T2 = (G.taught = G.taught || {}); T2.mapN = (T2.mapN || 0) + 1; store();
   menuShow([menuButton('Back', () => pause(true), true)], false, () => pause(true)); MENU.style.top = 'auto'; MENU.style.bottom = '1.5%'; MSEL = 0; menuMark();
 }
-function drawMap(){ HUD.fullmap(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, roomAt(P.x, P.y), T, mapDots(), time, LEVEL.name); }
+function drawMap(){ HUD.fullmap(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, roomAt(P.x, P.y), T, mapDots(), time, LEVEL.name);
+  if (((G.taught || {}).mapN || 0) <= 3 && OPT.hints !== false){ HUD.fine(CARDS.map.does.toUpperCase(), HUD.W / 2, 156, '#c0cbdc', 'center'); HUD.fine(CARDS.map.how[0].toUpperCase(), HUD.W / 2, 163, '#c0cbdc', 'center'); } }   // what the marks are, the first few times
 function annals(page){
   SCREEN = 'annals'; PAUSE = true; PAGE = Math.max(0, Math.min(ANNALS.length, page)); release();
   const turn = d => () => { PAGE = (PAGE + d + ANNALS.length + 1) % (ANNALS.length + 1); sfx.ui(); };
@@ -300,7 +305,7 @@ const PBTN = menuButton('II', () => pause(!PAUSE), true); PBTN.style.cssText += 
 function pause(on){
   if (STORY.active() || GO.st || TALK.on || NOTE) return; if (SCREEN === 'shop' || SCREEN === 'knots'){ SCREEN = ''; PAUSE = false; menuHide(); return; }
   PAUSE = on; SCREEN = on ? 'pause' : ''; if (!on){ menuHide(); return; } release();
-  menuShow([menuButton('Go on', () => pause(false)), menuButton('The Map', mapScreen, true), menuButton('The Annals', () => annals(LEVEL.index), true), menuButton('Options', () => options(() => pause(true)), true), menuButton('To the title', () => { PAUSE = false; SCREEN = ''; title(); }, true)], false, () => pause(false));
+  menuShow([menuButton('Go on', () => pause(false)), menuButton('The Map', mapScreen, true), menuButton('What he carries', carryScreen, true), menuButton('The Annals', () => annals(LEVEL.index), true), menuButton('Options', () => options(() => pause(true)), true), menuButton('To the title', () => { PAUSE = false; SCREEN = ''; title(); }, true)], false, () => pause(false));
 }
 addEventListener('keydown', e => {
   if (TALK.on || NOTE){ if (['Enter', 'Space', 'KeyE', 'KeyS', 'ArrowDown', 'KeyJ'].includes(e.code)) press(); return; }
@@ -476,7 +481,7 @@ function frame(ts){
   const now = ts / 1000; let dt = last ? Math.min(0.05, now - last) : 1 / 60; last = now;
   if (CAPTURE.on){ if (CAPTURE.left <= 0){ requestAnimationFrame(frame); return; } CAPTURE.left--; dt = CAPTURE.dt; }
   pollPads(); padUI(); score();
-  PBTN.style.display = STORY.active() || DEVICE.kind !== 'touch' ? 'none' : 'block';
+  PBTN.style.display = STORY.active() || DEVICE.kind !== 'touch' ? 'none' : 'block'; artButton();
   if (DIRTY > 0 && (DIRTY -= dt) <= 0) store();
   if (TALK.on || NOTE){   // someone is speaking, or a card is up: the world waits
     if (IN.pressed.has('jump') || IN.pressed.has('attack')){ IN.pressed.clear(); press(); }
@@ -488,6 +493,10 @@ function frame(ts){
   // an open way on breathes the next region out: its air drifts from the arch
   for (const x of R.exits) if (x.on && Math.random() < dt * 16){ const a = Math.random() * Math.PI * 2; fx.burst({ x: x.x + Math.cos(a) * 0.6, y: x.y + 1.3 + Math.sin(a) * 0.9 }, 1, x.cols[Math.random() < 0.5 ? 0 : 1]); }
   for (let i = LATER.length - 1; i >= 0; i--) if ((LATER[i].t -= dt) <= 0){ const L = LATER[i]; LATER.splice(i, 1); L.f(); }
+  if (!NOTE && CARDQ.length){ NOTE = CARDQ.shift(); release(); }   // the next card, in its turn
+  // a hint, if he is struggling (teach.js); not while something else has the screen
+  TEACHER.step(dt, { P, held: IN.held, solidAt, onPlank, busy: !!(WAKE > 0 || DISS || FLIGHT || GO.st || ENT.st || DEATH > 0 || (BOSS && BOSS.st === 'rise')),
+    foes: TEACHER.known('cut') ? null : E.list.filter(e => e.alive) });
   // hit-stop: a hit freezes the world a few frames (the effects keep running)
   let sdt = dt; if (FEEL_FX.hitstop > 0){ FEEL_FX.hitstop -= dt; sdt = dt * 0.06; }
   if (SLOW > 0){ SLOW -= dt; sdt *= 0.3; }   // a boss's last moment, drawn out
@@ -626,6 +635,49 @@ function frame(ts){
 }
 // cracked rock within r of a blow: it breaks if he has the Warden's weight; if not, he is told once what it wants
 const HINTED = {}, LATER = []; let PURSE = 0, USE = null, TRAILT = 0;
+// ---- teaching (teach.js): hints when he struggles, and cards. A card is a page in the middle: a picture, a name, what
+// it does (plainly, large), how (with his keys), and whose it was (small); they wait their turn (CARDQ)
+const TEACHER = makeTeach(G, OPT, store), kname = a => keyName(a, DEVICE.kind, SET), keyed = str => fill(str, kname).replace(/^./, c => c.toUpperCase());
+const CARDQ = [], card = c => { CARDQ.push({ t: 0, ...c, how: (c.how || []).map(keyed) }); };
+// once each: a system's card, the first time it matters
+const firstCard = id => { const T2 = (G.taught = G.taught || {}); if (T2['card_' + id]) return; T2['card_' + id] = 1; store(); card(CARDS[id]); };
+// the embers are shown, and talked of, once he has something to spend them on
+const embersKnown = () => CAN.breaker || CAN.dash || CAN.glide || has('seedheart');
+// a card: the picture in a frame, what kind of thing it is, its name; what it does, large; how, with his keys; whose it
+// was, small and quiet; a last word (the knot). `modal`: over the game, darkened, waiting for a press; else on a page
+function drawCard(c, W, modal, top = 8){
+  if (modal) HUD.dark(0.7);
+  const cx = Math.round(W / 2); let y = top;
+  if (c.icon){ HUD.px('#181425', cx - 19, y, 38, 38); HUD.px('#ead4aa', cx - 18, y + 1, 36, 36); HUD.px('#262b44', cx - 17, y + 2, 34, 34); drawIcon(HUD.px, c.icon, cx - 16, y + 3, 2); y += 42; }
+  if (c.head){ HUD.fine(c.head, cx, y, '#8b9bb4', 'center'); y += 8; }
+  const big = textWidth(c.title.toUpperCase(), 2) <= W - 24 ? 2 : 1; HUD.text(c.title.toUpperCase(), cx, y, '#fee761', big, 'center'); y += 7 * big + 5; HUD.rule(cx, y, 60, '#ead4aa'); y += 6;
+  for (const ln of wrapText(c.does, W - 40)){ HUD.text(ln, cx, y, '#fff2d0', 1, 'center'); y += 10; }
+  for (const h of c.how || []){ y += 2; for (const ln of wrapText(h, W - 48)){ HUD.text(ln, cx, y, '#2ce8f5', 1, 'center'); y += 10; } }
+  if (c.lore){ y += 3; for (const ln of wrapText(c.lore.toUpperCase(), W - 30)){ HUD.fine(ln, cx, y, '#8b9bb4', 'center'); y += 7; } }
+  if (c.foot){ y += 3; HUD.fine(c.foot.toUpperCase(), cx, y, '#c0cbdc', 'center'); y += 8; }
+  if (modal && c.t > 0.7 && Math.floor(time * 2) % 2) HUD.text('PRESS TO GO ON', cx, Math.min(170, Math.max(150, y + 6)), '#8b9bb4', 1, 'center');
+}
+// ---- what he carries (from the pause): his gifts, weapons and relics, each a button; the one picked shows its card
+let CARRY = [];
+const carryCards = () => [
+  ...TEACH.filter(t => t.can && CAN[t.can]).map(t => ({ head: 'A GIFT', title: t.name, icon: t.icon, does: t.does, how: t.how })),
+  { head: 'IN HIS HAND' + (P.weapon !== 'spade' ? '' : ' NOW: THE SPADE'), title: 'The blade', icon: 'blade', does: 'Quick cuts, three to a string; it can block.', how: ['{attack}: cut. {block}: block.'] },
+  ...(armed('spade') ? [{ head: 'A WEAPON', title: 'The Sexton\'s Spade', icon: 'spade', does: 'One great swing: slow, long, and it breaks cracked stone where it lands. He cannot block with it.', how: ['{swap}: blade or spade.'] }] : []),
+  ...G.relics.filter(id => RELICS[id]).map(id => ({ head: has(id) ? 'A RELIC · TIED' : 'A RELIC · CARRIED, NOT TIED', title: RELICS[id].name, icon: id, does: RELICS[id].line, lore: RELICS[id].lore })),
+].map(c => ({ ...c, how: (c.how || []).map(keyed) }));
+function carryScreen(){
+  SCREEN = 'carry'; PAUSE = true; release(); const keep = MSEL; CARRY = carryCards();
+  const grid = document.createElement('div'); grid.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:min(94vw,600px)';
+  CARRY.forEach((c, i) => { const b = menuButton(c.title, () => { MSEL = i; menuMark(); sfx.ui(); }, true); b.style.fontSize = '11px'; b.style.padding = '3px 7px'; b.addEventListener('pointerenter', () => { if (MSEL !== i){ MSEL = i; menuMark(); } }); grid.appendChild(b); });
+  menuShow([grid, menuButton('Back', () => pause(true), true)], false, () => pause(true)); MENU.style.top = 'auto'; MENU.style.bottom = '1.5%'; MSEL = Math.min(keep, CARRY.length - 1); menuMark();
+}
+function drawCarry(W){
+  HUD.dark(0.92, '#181425'); HUD.text('WHAT HE CARRIES', W / 2, 4, '#fff2d0', 1, 'center');
+  const spare = G.relics.length - G.worn.length;
+  HUD.fine(`${P.maxHp} HEARTS · ${G.threads % THREADS_A_HEART} OF ${THREADS_A_HEART} STRANDS TOWARD ANOTHER · FLASK ${P.flaskMax} · ${G.worn.length} OF ${knots()} KNOTS TIED${spare > 0 ? ` · ${spare} MORE CARRIED` : ''}`, W / 2, 13, '#8b9bb4', 'center');
+  const c = CARRY[MSEL]; if (c) drawCard(c, W, false, 22);
+}
+const onPlank = P => { const j = Math.floor((P.y - 0.02) / T); for (const x of [P.x - BODY.hw + 0.01, P.x + BODY.hw - 0.01]) if (tileAt(Math.floor(x / T), j) === LEDGE) return true; return false; };
 // ---- the ember arts. Which: down = the slam (the Warden's weight), in the air = the gust (the Wyrm's wind), else the
 // cleave (the Toll's step); each needs its gift and a measure of embers. Their blows are hitBox's (enemies.js): once a
 // creature, and they give no embers back
@@ -672,6 +724,7 @@ function breakRock(x, y, r){
 // the Lamplighter trades when he has spoken
 function talkTo(N){
   const k = LEVEL.index + ':' + N.who, n = G.met[k] || 0, S0 = (SCRIPT[N.who] || [])[LEVEL.index] || ['...'], lines = n === 0 ? S0.slice() : [S0[S0.length - 1]];
+  if (INTRO[N.who] && !Object.keys(G.met).some(m => m.endsWith(':' + N.who)) && !lines.includes(INTRO[N.who])) lines.unshift(INTRO[N.who]);   // the first meeting anywhere: who they are (teach.js)
   if (N.who === 'scribe'){ const L = ITEMS.left(), pl = (c, w) => `${c} ${w}${c === 1 ? '' : 's'}`; lines.push(L.threads + L.chests === 0 ? 'My page for this place is full. There is nothing here you have not found.' : `Not yet entered as found, here: ${pl(L.threads, 'red strand')}, ${pl(L.chests, 'chest')}${L.relic ? ', and something old behind cracked stone' : ''}.`); }
   G.met[k] = n + 1; store(); release(); sfx.ui(); TALK.start(N.who, lines, N.who === 'lamplighter' ? shop : null, N.art);
 }
@@ -703,8 +756,9 @@ function refill(){
 }
 // what a region's tick is handed: the renderer, him, the effects, sound, a flash of the whole picture, a shake
 const TICK = { R, get P(){ return P; }, get fx(){ return fx; }, sfx, LEVEL, flash: v => { FLASH = Math.max(FLASH, v); }, shake: v => { FEEL_FX.shake = Math.max(FEEL_FX.shake, v); }, get room(){ return roomAt(P.x, P.y); } };
+const TCTX = { get P(){ return P; }, solidAt };
 function onEvent(e){
-  const at = { x: P.x, y: P.y };
+  const at = { x: P.x, y: P.y }; TEACHER.event(e, TCTX);
   switch (e.type){
     case 'jump': sfx.jump(); fx.puff(at, 8, 1.6); break;
     case 'doubleJump': sfx.jump(); fx.ring(at, 0x9ff0ff); FX2.flipped = true; break;
@@ -737,7 +791,7 @@ function onEvent(e){
       const to = P.weapon === 'spade' ? 'blade' : 'spade'; if (!armed(to)){ if (!HINTED.swap){ HINTED.swap = 1; banner('', 'he has only the blade', 2.2); } break; }
       P.weapon = G.wield = to; store(); sfx.whoosh(); fx.ring({ x: P.x, y: P.y + 1.1 }, to === 'spade' ? 0xc0cbdc : 0xffd27a); banner('', to === 'spade' ? 'the sexton\'s spade' : 'the blade', 1.4); break; }
     case 'kill': if (e.e && e.e.type === 'sexton' && !armed('spade')){ (G.arms = G.arms || []).push('spade'); store(); swapButton();   // the Sexton's spade: his, now
-        LATER.push({ t: 1.1, f: () => { NOTE = { title: 'The Sexton\'s Spade', lines: ['One great swing: slow to lift, far-reaching, and it breaks cracked stone where it lands. He cannot guard with it.', DEVICE.kind === 'touch' ? 'The swap button changes blade and spade.' : DEVICE.kind === 'keys' ? 'R changes blade and spade.' : 'LB changes blade and spade.'], t: 0, relic: true, head: 'HE TAKES IT UP' }; release(); } }); }
+        LATER.push({ t: 1.1, f: () => card({ head: 'HE TAKES IT UP', title: 'The Sexton\'s Spade', icon: 'spade', does: 'One great swing: slow, long, and it breaks cracked stone where it lands. He cannot block with it.', how: ['{swap}: blade or spade.'] }) }); }
       if (e.e){ (G.slain = G.slain || {})[e.e.type] = (G.slain[e.e.type] || 0) + 1; (G.seen = G.seen || {})[e.e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; } sfx.kill(); ITEMS.spill(e.at.x, e.at.y, 1 + Math.min(5, e.e ? e.e.d.hp : 1)); fx.burst(e.at, 26, 0xff70d0); fx.ring(e.at, 0xffc0ff); FEEL_FX.hitstop = 0.1; fx.ember(e.at, 2 + Math.min(5, e.e ? e.e.d.hp : 2) + (has('stylus') ? 2 : 0)); R.glint(e.at.x, e.at.y, 0xff9040, 1, 5, 0.35); break;
     case 'parry': buzz(0.3, 0.7, 110); sfx.parry(); fx.ring(e.at, 0x9fd0ff); FEEL_FX.hitstop = 0.12; break;
     case 'block': sfx.block(); fx.burst(e.at, 8, 0xc9d2e0); break;
@@ -759,7 +813,7 @@ function onEvent(e){
       // what it leaves him, the first time
       const n = LEVEL.index, t = TEACH[n];
       if (!G.beat[n]){ G.beat[n] = true; if (t && t.heart){ G.hearts += t.heart; P.maxHp = maxHearts(); P.hp = P.maxHp; } if (t && t.flask){ G.flasks += t.flask; P.flaskMax = maxFlask(); P.flask = P.flaskMax; } learn(); store();
-        if (t && t.name) LATER.push({ t: 3.4, f: () => { NOTE = { title: t.name, lines: t.lines, t: 0 }; sfx.ability(); release(); } }); }
+        if (t && t.name) LATER.push({ t: 3.4, f: () => { card({ head: 'HE HAS BEEN GIVEN', title: t.name, icon: t.icon, does: t.does, how: t.how }); sfx.ability(); if (t.can) firstCard('embers'); } }); }
       break; }
     case 'shard': G.shards += e.v; sfx.shard(); PURSE = 2.5; DIRTY = DIRTY > 0 ? DIRTY : 2; break;
     case 'urn': sfx.urn(); fx.dust(e.at, 10, 3); fx.burst(e.at, 6, 0xd77643); break;
@@ -768,11 +822,11 @@ function onEvent(e){
       if (k === 0){ const m = maxHearts(); if (m > P.maxHp){ P.maxHp = m; P.hp = m; } banner('The thread lengthens', 'three strands: a heart more', 4); } else banner('A red strand', `${k} of ${THREADS_A_HEART} toward a heart`, 3.4);
       store(); break; }
     case 'relic': { const r = RELICS[e.id]; if (!r || owns(e.id)) break; G.relics.push(e.id); const tied = wear(e.id, true); learn(); store(); sfx.relic();   // tied into the scarf, if a knot is free
-      const knot = tied ? 'He ties it into his scarf.' : 'Every knot in his scarf is tied. At the water, he can choose what he wears.';
-      LATER.push({ t: 0.7, f: () => { NOTE = { title: r.name, lines: r.lore ? [r.line, r.lore, knot] : [r.line, knot], t: 0, relic: true }; release(); } }); break; }
+      const knot = tied ? 'He ties it into his scarf.' : 'Every knot is tied. At the water, he chooses what he wears.';
+      LATER.push({ t: 0.7, f: () => { card({ head: 'A RELIC', title: r.name, icon: e.id, does: r.line, lore: r.lore, foot: knot }); firstCard('knots'); } }); break; }
     case 'flask': if (P.flask > 0 && P.hp < P.maxHp){ P.flask--; P.hp = Math.min(P.maxHp, P.hp + TUNE.player.flaskHeal); sfx.drink(); fx.ring({ x: P.x, y: P.y + 0.8 }, 0x5ce1c6); }
       else if (P.hp < P.maxHp && EMBER.n >= EMBER.mend){ EMBER.n -= EMBER.mend; P.hp++; sfx.drink(); fx.ring({ x: P.x, y: P.y + 1.2 }, 0xff8060); R.glint(P.x, P.y + 1.2, 0xff8060, 0.9, 5, 0.5); fx.ember({ x: P.x, y: P.y + 1.2 }, 0); }   // the flask is dry: a measure of embers mends a heart
-      else if (P.hp < P.maxHp && !HINTED.mend){ HINTED.mend = 1; banner('', 'a full measure of embers will mend a heart', 2.8); }
+      else if (P.hp < P.maxHp && !HINTED.mend && embersKnown()){ HINTED.mend = 1; banner('', 'a full measure of embers will mend a heart', 2.8); }
       break;
     case 'art': art(e); break;
   }
@@ -793,7 +847,7 @@ function drawHud(dt){
   HUD.title(ENT.title);
   if (BOSS && BOSS.st === 'fight' && !BOSS.shown && !ENT.title){ BOSS.shown = true; banner('', BOSS.hint, 3.5); }   // once it is up: how it is hurt
   if (!rising && !TALK.on && !FLIGHT){
-    HUD.status(P, EMBER.n, EMBER.cap, P.flaskMax, time, ARTS.cost); PURSE = Math.max(0, PURSE - dt); HUD.purse(P, P.flaskMax, G.shards, PURSE, G.threads % THREADS_A_HEART, THREADS_A_HEART);
+    HUD.status(P, EMBER.n, EMBER.cap, P.flaskMax, time, ARTS.cost, embersKnown()); HUD.weapon(P.weapon === 'spade' ? 'spade' : 'blade', armed('spade') ? kname('swap') : null, drawIcon); PURSE = Math.max(0, PURSE - dt); HUD.purse(P, P.flaskMax, G.shards, PURSE, G.threads % THREADS_A_HEART, THREADS_A_HEART);
     const room = roomAt(P.x, P.y); if (room) MAP.seen.add(room);
     const st = ITEMS.station(P), place = LEVEL.name + (room ? ' · ' + (room.title || room.name) : '') + (st ? ' · ' + st.station.name : '');   // beside one of the three: their station's name if (place !== PLACE.name){ PLACE.name = place; PLACE.t = 0; } PLACE.t += dt;
     HUD.place(place, PLACE.t < 3 ? 1 : Math.max(0.45, 1 - (PLACE.t - 3) * 0.5));
@@ -802,7 +856,8 @@ function drawHud(dt){
     HUD.map(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, room, T, dots, Math.max(0, Math.min(1, P.y / (LEVEL.H * T))), SPANS, LEVEL.index, time, P);
   }
   if (BANNER && !TALK.on && !NOTE && SCREEN !== 'annals'){ BANNER.t -= dt; HUD.banner(BANNER.a, BANNER.b, Math.max(0, Math.min(1, BANNER.t, (BANNER.life - BANNER.t) * 3))); if (BANNER.t <= 0) BANNER = null; }
-  HUD.hint(HINT[DEVICE.kind === 'keys' ? 'keys' : DEVICE.kind === 'touch' ? 'touch' : 'pad'], PAUSE ? 1 : Math.max(0, Math.min(0.8, (16 - PLAYED) * 0.5)) * (rising || TALK.on || NOTE ? 0 : 1));
+  { const L = TEACHER.shown(); if (L && !PAUSE && !TALK.on && !NOTE && !rising){ v.set(P.x, P.y, 0).project(R.camera); const sx = Math.round((v.x + 1) / 2 * W), sy = Math.round((1 - v.y) / 2 * 180);
+    HUD.lesson(L.show.map(([a, word]) => [kname(a), word]), sx, sy > 150 ? sy - 52 : sy + 6, L.a, time); } }   // under him (over him, if he is low on the screen)
   HUD.label(BUILD);
   if (FLIGHT){ const u = FLIGHT.t / FLIGHT.dur; HUD.dark(0.16 + u * 0.3, '#cfe6ff'); HUD.g.globalAlpha = 0.35; for (let k = 0; k < 14; k++){ const y = (k * 37 + Math.floor(time * 60) * 13) % 180, x = (k * 71 + Math.floor(time * 60) * 29) % W; HUD.px('#ffffff', x, y, 18 + (k * 13) % 50, 1); } HUD.g.globalAlpha = 1; if (u > 0.82) HUD.dark((u - 0.82) / 0.18, '#ffffff'); }
   // a fall: the dark comes down after the drops have sunk, and lifts off him rising out of the water; the word over him
@@ -812,15 +867,14 @@ function drawHud(dt){
     if (t > 3.4) RISEN = null; }
   if (FLASH > 0 && OPT.flash) HUD.dark(FLASH * 1.4, '#ffffff');
   // over what he can use: the key for it
-  if (USE && !PAUSE && !TALK.on && !NOTE){ v.set(USE.x, USE.y + (USE.type === 'npc' ? 2.6 : 1.5), 0).project(R.camera); HUD.prompt(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180), (DEVICE.kind === 'keys' ? 'S  ' : DEVICE.kind === 'touch' ? 'DRAG DOWN  ' : 'DOWN  ') + (USE.type === 'npc' ? 'TALK' : USE.type === 'flame' ? 'KNOTS' : 'OPEN'), time); }
+  if (USE && !PAUSE && !TALK.on && !NOTE){ v.set(USE.x, USE.y + (USE.type === 'npc' ? 2.6 : 1.5), 0).project(R.camera); HUD.prompt(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180), USE.type === 'npc' ? 'TALK' : USE.type === 'flame' ? 'TIE KNOTS' : 'OPEN', time, kname('down')); }
   TALK.draw(HUD, dt, time);
-  if (NOTE){ HUD.dark(0.62); HUD.text(NOTE.head || (NOTE.relic ? 'A RELIC' : 'HE HAS LEARNED'), W / 2, 44, '#c0cbdc', 1, 'center'); HUD.text(NOTE.title.toUpperCase(), W / 2, 56, '#fee761', 2, 'center'); HUD.rule(Math.round(W / 2), 78, 70, '#ead4aa');
-    // the lines, wrapped to the picture; a relic's second line (whose it was) is quieter
-    let ny = 88; NOTE.lines.forEach((l, i) => { const lore = NOTE.relic && i > 0; if (lore) ny += 3; wrapText(l, W - 48).forEach(ln => { HUD.text(ln, W / 2, ny, lore ? '#c0cbdc' : '#fff2d0', 1, 'center'); ny += lore ? 9 : 11; }); }); if (NOTE.t > 0.7 && Math.floor(time * 2) % 2) HUD.text('PRESS TO GO ON', W / 2, Math.max(132, ny + 10), '#8b9bb4', 1, 'center'); }
+  if (NOTE) drawCard(NOTE, W, true);
   if (PAUSE && SCREEN === 'annals') drawAnnals(W);
   else if (PAUSE && SCREEN === 'map') drawMap();
   else if (PAUSE && SCREEN === 'shop') HUD.dark(0.55);
   else if (PAUSE && SCREEN === 'knots') drawKnots(W);
+  else if (PAUSE && SCREEN === 'carry') drawCarry(W);
   else if (PAUSE){ HUD.dark(0.66); HUD.text('PAUSED', W / 2, 14, '#fff2d0', 2, 'center'); HUD.rule(Math.round(W / 2), 34, 60, '#ead4aa');
     // what he carries
     const can = [CAN.breaker && 'THE WARDEN\'S WEIGHT', CAN.dash && 'THE TOLL\'S STEP', CAN.glide && 'THE WYRM\'S WIND'].filter(Boolean), found = Object.values(G.got).flat();
@@ -835,7 +889,7 @@ function drawHud(dt){
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { knotMenu, get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { knotMenu, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

@@ -15,7 +15,7 @@ import { TUNE } from '../config/tuning.js';
 const KEY = 'climb-side', OKEY = 'climb-side-opts';
 const blank = () => ({ seamed: 1, level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], worn: [], knots: 0, arms: [], wield: 'blade', got: {}, broke: {}, met: {}, charts: [], began: false, falls: 0, seen: {}, slain: {}, keepers: {} });
 export const G = blank();
-export const OPT = { music: 0.7, sfx: 1, voice: 0.8, text: 'normal', shake: 1, flash: 1, diff: 1, synth: false, rumble: true, phone: 'auto' };   // phone: 'auto' (by the device), true, false   // diff: 0 story, 1 climber, 2 summit
+export const OPT = { music: 0.7, sfx: 1, voice: 0.8, text: 'normal', shake: 1, flash: 1, diff: 1, synth: false, rumble: true, phone: 'auto', hints: true };   // hints: the opening's help when he struggles (teach.js)   // phone: 'auto' (by the device), true, false   // diff: 0 story, 1 climber, 2 summit
 const read = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e){ return null; } };
 // the seams (build 30) moved the Cloister and the regions above it up three rooms (69 tiles): what a save had found and
 // broken there is by tile, so it is moved up with them, once
@@ -50,22 +50,22 @@ export const take = (n, id) => { (G.got[n] = G.got[n] || []).push(id); store(); 
 export const DIFF = ['Story', 'Climber', 'Summit'];
 // the relics: one hidden in each region
 export const RELICS = {   // name: whose it was; line: what it does; lore: whose it was, and what became of them (docs/writing.md, names 7)
-  whetstone:   { name: 'Well-keeper\'s Whetstone', line: 'The third cut bites deeper.',                    lore: 'Worn hollow by the Well\'s keepers, honing the hooks they drew water with.' },
-  lodestone:   { name: 'Bell-ringer\'s Lodestone', line: 'Shards and embers come to him from further off.', lore: 'Hung in the belfry, so the ringers knew where the summit was on a night with no light.' },
+  whetstone:   { name: 'Well-keeper\'s Whetstone', line: 'The last cut of each string hits harder (+1).', lore: 'Worn hollow by the Well\'s keepers, honing the hooks they drew water with.' },
+  lodestone:   { name: 'Bell-ringer\'s Lodestone', line: 'Shards and embers fly to him from twice as far.', lore: 'Hung in the belfry, so the ringers knew where the summit was on a night with no light.' },
   featherfall: { name: 'Climber\'s Knot',          line: 'No fall can hurt him.',                          lore: 'Tied by one who sat down to rest. The rope is gone; the knot held.' },
-  stormglass:  { name: 'Wright\'s Stormglass',     line: 'His plunge lands with lightning: wider, and harder.', lore: 'The Wrights\' first jar. It caught one bolt and kept it, which was the whole trouble.' },
-  seedheart:   { name: 'Gardener\'s Seed',         line: 'Seven embers mend a heart, where it took ten.',  lore: 'The gardeners kept back one seed from every sowing, in case. This was the last.' },
-  tally:       { name: 'Guild Tally',            line: 'Urns spill half again as many shards.',          lore: 'Every shift was chalked up and paid in shards. The last was never paid.' },
-  stylus:      { name: 'Sexton\'s Stylus',       line: 'Every creature he strikes down gives two embers more.', lore: 'It scratched a mark for every one of his falls. Under them, in another hand, the whole count is struck through.' },
+  stormglass:  { name: 'Wright\'s Stormglass',     line: 'His plunge strikes with lightning: wider, and +1 harm.', lore: 'The Wrights\' first jar. It caught one bolt and kept it, which was the whole trouble.' },
+  seedheart:   { name: 'Gardener\'s Seed',         line: 'Mending a heart costs 7 embers instead of 10.',  lore: 'The gardeners kept back one seed from every sowing, in case. This was the last.' },
+  tally:       { name: 'Guild Tally',            line: 'Urns give 50% more shards.',                     lore: 'Every shift was chalked up and paid in shards. The last was never paid.' },
+  stylus:      { name: 'Sexton\'s Stylus',       line: 'Each creature he kills gives 2 more embers.', lore: 'It scratched a mark for every one of his falls. Under them, in another hand, the whole count is struck through.' },
   starcompass: { name: 'Astronomer\'s Compass',    line: 'The map shows what is still to be found.',       lore: 'It does not point north. It points at the star that is missing.' },
 };
-// what each keeper leaves him, by region
+// what each keeper leaves him, by region: `does`, plainly; `how`, with the keys ({action}, teach.js fill); `icon`, its picture
 export const TEACH = [
-  { can: 'breaker', name: 'The Warden\'s Weight', lines: ['His plunge and his finishing cut now break cracked stone.', 'Plunge: down + cut, in the air.', 'With a measure of embers, down and the ember key: the blow runs along the floor.'] },
-  { can: 'dash',    name: 'The Toll\'s Step',     lines: ['A roll begun in the air now flies level and fast.', 'Once, each time he leaves the ground.', 'With a measure of embers, the ember key: he rushes through what is before him.'] },
-  { can: 'glide',   name: 'The Wyrm\'s Wind',     lines: ['The thread opens: jump again when the jumps are spent, and hold.', 'In rising air it carries him.', 'With a measure of embers, the ember key in the air: a wind throws what is round him.'] },
-  { heart: 1,       name: 'The Thunderhead\'s Heart',     lines: ['A heart more: the thread grows a length.'] },
-  { flask: 1,       name: 'Mother Thorn\'s Dew',    lines: ['The flask holds a draught more of the water.'] },
-  { name: '', lines: [] },
-  { name: '', lines: [] },   // the Workings: no keeper
+  { can: 'breaker', icon: 'breaker', name: 'The Warden\'s Weight', does: 'His plunge and his finishing cut break cracked stone.', how: ['Plunge: {down} + {attack}, in the air.', 'With a measure of embers, {down} + {art}: a blow runs along the floor.'] },
+  { can: 'dash',    icon: 'dash',    name: 'The Toll\'s Step',     does: 'A roll in the air flies him level and fast, once a jump.', how: ['{roll}, in the air.', 'With a measure of embers, {art}: he rushes through what is before him.'] },
+  { can: 'glide',   icon: 'glide',   name: 'The Wyrm\'s Wind',     does: 'He can glide, and rising air lifts him.', how: ['{jump} again when his jumps are spent, and hold it.', 'With a measure of embers, {art} in the air: a wind throws what is round him.'] },
+  { heart: 1,       icon: 'heart',   name: 'The Thunderhead\'s Heart', does: 'One heart more.', how: [] },
+  { flask: 1,       icon: 'flask',   name: 'Mother Thorn\'s Dew',    does: 'The flask holds one draught more.', how: [] },
+  { name: '', how: [] },
+  { name: '', how: [] },   // the Workings: no keeper
 ];
