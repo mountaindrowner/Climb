@@ -4,7 +4,7 @@
 // hole cut through the floor at `link` (tile columns of the first room, boarded over) lets him up into the region.
 // title: what the place line says there. By region index: 1 the Crypt Stair (into the Cloister), 2 the Bell Road (the
 // Spires), 3 the Last Hut (the Tempest), 4 the Breach (the Gardens), 5 the Long Stair (the Firmament).
-import { room, rect, walls, door, ledge, mark, stairs, EMPTY, LEDGE, SPIKES, CRACKED } from './rooms.js';
+import { room, rect, walls, door, ledge, mark, stairs, den, EMPTY, LEDGE, SPIKES, CRACKED } from './rooms.js';
 
 // the way up to a hole in the roof: ledges stacked in the hole's own columns, a jump apart (from beside it, the hole's
 // rock edge is in the way of a jump), from row y0 to just under the roof
@@ -17,10 +17,12 @@ const titled = (fn, title) => { const f = () => { const r = fn(); r.title = titl
 // down it; it is dark at the foot and lit at the head, where the house's light comes down to meet him
 function cryptfoot(){
   const r = room(); walls(r); door(r, 'top', 30, 35);
-  rect(r, 8, 1, 18, 1, EMPTY); mark(r, 'pool', 8, 1, { w: 11, look: 'arch' });   // (narrower since phase 8: Ordric stands between it and the stair)   // the water, run down the stair and pooled under the founders' niche: the Cloister's raising water
-  stairs(r, 24, 2, 3, 1, 2);                                                   // the first worn steps
+  rect(r, 8, 1, 16, 1, EMPTY); mark(r, 'pool', 8, 1, { w: 9, look: 'arch' });   // the water, run down the stair and pooled under the founders' niche: the Cloister's raising water
+  // Ordric's lamp-room, at the water's edge: the founders cut one by every water, so a lamp could be kept there. The
+  // way up to the stair goes over its roof (a plank over the water first)
+  den(r, 18, 27, 2, 6, { open: 'L', back: 2 }); ledge(r, 13, 16, 5);
   shaftUp(r, 30, 35, 6, 18);                                                  // up to the stair's mouth
-  mark(r, 'spawn', 4, 2); mark(r, 'crystal', 14, 2); mark(r, 'urn', 26, 4); mark(r, 'wisp', 18, 14);
+  mark(r, 'spawn', 4, 2); mark(r, 'crystal', 14, 2); mark(r, 'urn', 36, 2);   // no creature in the water's room
   return r;
 }
 function founders(){
@@ -39,7 +41,8 @@ function gate(){
   const r = room(); walls(r); door(r, 'top', 30, 35);
   rect(r, 14, 2, 17, 6); rect(r, 14, 16, 17, 20);                 // the gate's two posts, and its lintel over
   rect(r, 20, 1, 27, 1, EMPTY); mark(r, 'pool', 20, 1, { w: 8, look: 'ice' });   // meltwater under the gate: the Spires' raising water
-  ledge(r, 22, 28, 7); shaftUp(r, 30, 35, 10, 18);
+  // Ordric's lamp-room, cut into the gate's own rock beyond the meltwater; the way up is over its roof
+  ledge(r, 22, 27, 7); den(r, 28, 37, 2, 6, { open: 'L', back: 0 }); shaftUp(r, 30, 35, 14, 18);
   mark(r, 'spawn', 5, 2); mark(r, 'torch', 12, 8); mark(r, 'torch', 19, 8); mark(r, 'urn', 8, 2); mark(r, 'urn', 37, 2);
   return r;
 }
@@ -58,10 +61,11 @@ function road(){
 // ---- the Last Hut: the climbers' last shelter below the storm, a fire kept in it; everything in it says stay
 function path(){
   const r = room(); walls(r); door(r, 'top', 30, 35);
-  rect(r, 20, 2, 39, 3); rect(r, 26, 4, 39, 5);                    // the path climbing the scree
-  shaftUp(r, 30, 35, 10, 18);
+  rect(r, 20, 2, 39, 9);                                           // the scree, banked against the hut's foot
+  den(r, 20, 29, 2, 6, { open: 'L', back: 0 }); ledge(r, 16, 19, 5);   // Ordric's lamp-room, dug into the scree out of the rain; the path goes up over it
+  shaftUp(r, 30, 35, 14, 18);
   rect(r, 8, 1, 15, 1, EMPTY); mark(r, 'pool', 8, 1, { w: 8, look: 'pipe' });   // rain off the scree, caught by the climbers' pipe: the Tempest's raising water
-  mark(r, 'spawn', 5, 2); mark(r, 'urn', 25, 4); mark(r, 'crystal', 18, 2);   // no creature in the water's room: Ordric keeps his lamps on the scree's first step
+  mark(r, 'spawn', 5, 2); mark(r, 'crystal', 18, 2);   // no creature in the water's room: Ordric keeps his lamps on the scree's first step
   return r;
 }
 function hut(){
@@ -80,10 +84,11 @@ function hut(){
 // ---- the Breach: the garden wall, where the storm broke through the night it came; storm and garden both
 function wallfoot(){
   const r = room(); walls(r); door(r, 'top', 30, 35);
-  rect(r, 18, 2, 23, 4); rect(r, 26, 2, 29, 7);                    // the fallen wall's stones
+  rect(r, 18, 2, 29, 9);                                           // the fallen wall's stones, heaped
+  den(r, 18, 27, 2, 6, { open: 'L', back: 0 }); ledge(r, 14, 17, 5); ledge(r, 31, 35, 6);   // Ordric's lamp-room, in the old wall's own cellar under the stones; the way up is over them
   shaftUp(r, 30, 35, 10, 18);
   rect(r, 7, 1, 14, 1, EMPTY); mark(r, 'pool', 7, 1, { w: 8, look: 'spout' });   // the garden's own spring, out of the broken wall: the Gardens' raising water
-  mark(r, 'spawn', 5, 2); mark(r, 'urn', 18, 5); mark(r, 'crystal', 34, 2);   // no creature in the water's room: Ordric is on the fallen stones
+  mark(r, 'spawn', 5, 2); mark(r, 'urn', 36, 2); mark(r, 'crystal', 33, 2);   // no creature in the water's room: Ordric is on the fallen stones
   return r;
 }
 function breach(){
@@ -104,6 +109,7 @@ function stairfoot(){
   const r = room(); walls(r); door(r, 'top', 8, 13);
   stairs(r, 16, 2, 9, 1, 2); rect(r, 34, 2, 37, 10);              // the first flight, to the wall
   shaftUp(r, 8, 13, 6, 18);                                       // and up from its foot to the next
+  rect(r, 17, 2, 29, 9); den(r, 17, 26, 2, 6, { open: 'L', back: 0 }); rect(r, 16, 2, 16, 7, EMPTY);   // Ordric's last lamp-room, under the long stair: the stair's foot is its roof
   rect(r, 6, 1, 13, 1, EMPTY); mark(r, 'pool', 6, 1, { w: 8, look: 'ring' });   // a still pool at the stair's foot, the stars in it: the Firmament's raising water
   mark(r, 'spawn', 5, 2); mark(r, 'urn', 36, 11); mark(r, 'crystal', 34, 11);
   return r;

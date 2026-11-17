@@ -4,7 +4,7 @@
 // other: the Roots (caves), the Cloister (a ruined monastery), the Spires (ice, and the high pass), then, each in its own
 // file under regions/, the Tempest (the storm round the mountain), the Gardens (above the cloud) and the Firmament (the
 // summit, among the stars). One is in play at a time (LEVEL; loadLevel changes it).
-import { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, room, put, rect, walls, door, ledge, stairs, mark, open } from './rooms.js';
+import { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, room, put, rect, walls, door, ledge, stairs, mark, open, den } from './rooms.js';
 import tempest from './regions/tempest.js';
 import gardens from './regions/gardens.js';
 import firmament from './regions/firmament.js';
@@ -29,7 +29,10 @@ function start(){
 function corridor(){
   const r = room(); walls(r); door(r, 'left', 2, 7); door(r, 'top', 30, 36); door(r, 'right', 2, 7);
   rect(r, 16, 0, 21, 1, EMPTY); rect(r, 16, 0, 21, 0, SPIKES);   // a pit with spikes: jump it
-  ledge(r, 30, 36, 6); ledge(r, 25, 30, 10); ledge(r, 32, 37, 14); ledge(r, 26, 31, 18); ledge(r, 30, 36, 21);   // the last, in the doorway: up into the shaft
+  // Ordric's lamp-room: cut into the rock past the pit, where the well-keepers trimmed their lamps before the climb.
+  // The way on goes over its roof: a plank up from the pit's edge, the roof, then the planks up into the shaft
+  den(r, 24, 33, 2, 6, { open: 'L', back: 2 }); ledge(r, 19, 22, 5); ledge(r, 36, 37, 6);
+  ledge(r, 32, 37, 14); ledge(r, 26, 31, 18); ledge(r, 30, 36, 21);   // the last, in the doorway: up into the shaft
   mark(r, 'crawler', 10, 2); mark(r, 'torch', 12, 8); mark(r, 'torch', 26, 6); mark(r, 'crystal', 37, 15);
   mark(r, 'urn', 6, 2); mark(r, 'urn', 28, 2); mark(r, 'chest', 33, 15, { holds: 'shards' });   // (Ordric stands at 25: STATIONS)
   return r;
@@ -81,6 +84,7 @@ function chamber(){
   ledge(r, 3, 15, 1);                                             // over the hole up from the tunnel: jump up through it
   ledge(r, 12, 18, 5); ledge(r, 22, 28, 9); ledge(r, 10, 16, 13); ledge(r, 24, 32, 16); ledge(r, 26, 32, 20);
   rect(r, 18, 2, 20, 3);
+  rect(r, 29, 8, 37, 9); rect(r, 29, 15, 37, 16); for (const x of [30, 33, 36]) mark(r, 'keep', x, 11);   // Corwen's cell: a shelf of rock over the east door and a brow over that, off the second plank: he reads where he can see who comes up
   mark(r, 'flitter', 20, 12); mark(r, 'torch', 11, 15); mark(r, 'torch', 29, 18); mark(r, 'crystal', 30, 2); mark(r, 'crystal', 14, 14); mark(r, 'crawler', 30, 2);
   mark(r, 'npc', 24, 2, { who: 'scribe' }); mark(r, 'chest', 11, 14, { holds: 'shards' });
   return r;
@@ -130,6 +134,7 @@ function bridge(){
   rect(r, 10, 2, 29, 13, EMPTY); rect(r, 10, 2, 29, 2, SPIKES);   // a chasm with spikes at the bottom
   ledge(r, 13, 15, 12); ledge(r, 19, 21, 14); ledge(r, 25, 27, 12);
   rect(r, 15, 18, 17, 20); rect(r, 24, 19, 26, 20);
+  rect(r, 2, 19, 10, 20);                                         // the bridge's west gate, roofed: Mirel waits in it, over the chasm he fell down
   mark(r, 'flitter', 20, 17); mark(r, 'torch', 5, 17); mark(r, 'torch', 34, 17); mark(r, 'crystal', 20, 3); mark(r, 'crystal', 12, 3); mark(r, 'crystal', 28, 3);
   mark(r, 'urn', 4, 14); mark(r, 'urn', 36, 14);
   return r;
@@ -174,6 +179,7 @@ function nave(){
   for (const x of [18, 50]){ rect(r, x, 0, x + 5, 1, EMPTY); rect(r, x, 0, x + 5, 0, SPIKES); }   // two pits
   ledge(r, 8, 15, 6); ledge(r, 26, 34, 6); ledge(r, 36, 44, 10); ledge(r, 56, 64, 6); ledge(r, 66, 73, 10);   // the galleries
   rect(r, 38, 2, 41, 3);                                          // a plinth mid-hall
+  rect(r, 2, 6, 10, 7); rect(r, 2, 13, 11, 14); for (const x of [3, 6, 9]) mark(r, 'keep', x, 9);   // Corwen's carrel: a stone gallery over the west door, where the house's hours were written down
   mark(r, 'acolyte', 21, 2); mark(r, 'acolyte', 66, 2); mark(r, 'wisp', 40, 11); mark(r, 'gargoyle', 22, 13); mark(r, 'gargoyle', 58, 14); mark(r, 'acolyte', 70, 2);
   mark(r, 'torch', 5, 8); mark(r, 'torch', 28, 12); mark(r, 'torch', 46, 6); mark(r, 'torch', 60, 12); mark(r, 'torch', 75, 8); mark(r, 'crystal', 11, 7); mark(r, 'crystal', 70, 11); mark(r, 'crystal', 34, 2);
   mark(r, 'urn', 6, 2); mark(r, 'urn', 49, 2); mark(r, 'urn', 76, 2); mark(r, 'chest', 38, 11, { holds: 'shards' });
@@ -184,6 +190,7 @@ function belfry(){
   const r = room(1, 3); walls(r); door(r, 'left', 2, 7); door(r, 'left', 25, 30); door(r, 'left', 48, 53);
   [[24, 32, 5], [10, 18, 9], [22, 30, 13], [30, 37, 17], [16, 24, 21], [2, 10, 24], [14, 22, 28], [26, 34, 32], [30, 37, 36], [18, 26, 40], [8, 16, 44], [2, 10, 47], [16, 24, 51], [28, 36, 55]]
     .forEach(([a, b, y]) => ledge(r, a, b, y));
+  rect(r, 31, 7, 37, 8); for (const x of [32, 35]) mark(r, 'keep', x, 3);   // under the first turn of the bell stair, at the tower's foot: Mirel's place, as far from the door as the tower goes
   mark(r, 'gargoyle', 20, 16); mark(r, 'gargoyle', 12, 36); mark(r, 'wisp', 33, 37); mark(r, 'wisp', 6, 12); mark(r, 'bell', 20, 64);
   mark(r, 'torch', 34, 8); mark(r, 'torch', 5, 28); mark(r, 'torch', 34, 42); mark(r, 'torch', 5, 51); mark(r, 'crystal', 3, 2); mark(r, 'crystal', 34, 18); mark(r, 'crystal', 32, 56);
   mark(r, 'npc', 20, 22, { who: 'wren' }); mark(r, 'thread', 34, 56);
@@ -336,12 +343,14 @@ function span(){
 // under the summit: a long cave, the last shrine, and the way up through its roof
 function eyrie(){
   const r = room(2, 1); rect(r, 0, 0, r.w - 1, r.h - 1); rect(r, 2, 2, 77, 20, EMPTY); door(r, 'right', 2, 7); door(r, 'top', 36, 42);
-  rect(r, 50, 2, 62, 2); rect(r, 52, 3, 60, 3);                   // the shrine's step
+  // the leaking rock: water seeps through it (the leak is on its top, on the way across), and under it is a hollow
+  // out of the wind, Mirel's. A step up to it either side
+  rect(r, 50, 2, 62, 8); den(r, 50, 57, 2, 5, { open: 'L', back: 0 }); rect(r, 45, 2, 47, 4); rect(r, 63, 2, 65, 4);
   [[20, 26, 5], [28, 34, 9], [34, 40, 13], [36, 42, 17], [36, 42, 21]].forEach(([a, b, y]) => ledge(r, a, b, y));
   rect(r, 2, 2, 8, 4);
-  mark(r, 'shrine', 56, 4); mark(r, 'yeti', 14, 2); mark(r, 'wraith', 22, 14);
+  mark(r, 'shrine', 58, 9); mark(r, 'yeti', 14, 2); mark(r, 'wraith', 22, 14);
   mark(r, 'torch', 5, 9); mark(r, 'torch', 30, 5); mark(r, 'torch', 46, 9); mark(r, 'torch', 66, 9); mark(r, 'torch', 75, 9); mark(r, 'crystal', 4, 5); mark(r, 'crystal', 70, 2); mark(r, 'crystal', 44, 2);
-  mark(r, 'chest', 7, 5, { holds: 'shards' }); mark(r, 'urn', 49, 2); mark(r, 'urn', 68, 2);
+  mark(r, 'chest', 7, 5, { holds: 'shards' }); mark(r, 'urn', 70, 2); mark(r, 'urn', 74, 2);
   return r;
 }
 // the summit: a crown of rock under the open sky, where the Rime Wyrm keeps the peak. The beacon is lit when it falls
@@ -476,12 +485,12 @@ function build(n){
 //   Mirel    where her line is about: the near end of the bridge; the foot of the bell stair; by the leak in the eyrie
 //   Corwen   on rock in the middle of the nave, not on a plank; in the orrery away from the eye that watches it
 export const STATIONS = [
-  { lamplighter: { room: 'corridor', x: 25, y: 2 }, wren: { room: 'bridge', x: 6, y: 14 }, scribe: { room: 'chamber', x: 7, y: 2 } },
-  { lamplighter: { room: 'cryptfoot', x: 21, y: 2 }, wren: { room: 'belfry', x: 19, y: 2 }, scribe: { room: 'nave', x: 45, y: 2 } },
-  { lamplighter: { room: 'gate', x: 32, y: 2 }, wren: { room: 'eyrie', x: 44, y: 2 }, scribe: 'saddle' },
-  { lamplighter: { room: 'path', x: 22, y: 4 }, wren: { room: 'gantry', x: 6, y: 2 }, scribe: ['anchorage', 'stacks', 'buttress', 'corbel', 'cap', 'bluff'] },
-  { lamplighter: { room: 'wallfoot', x: 21, y: 5 }, wren: { room: 'cascade', x: 9, y: 25 }, scribe: 'terraces' },
-  { lamplighter: { room: 'stairfoot', x: 35, y: 11 }, wren: { room: 'transit', x: 63, y: 2 }, scribe: { room: 'orrery', x: 4, y: 3 } },
+  { lamplighter: { room: 'corridor', x: 28, y: 2 }, wren: { room: 'bridge', x: 6, y: 14 }, scribe: { room: 'chamber', x: 34, y: 10 } },
+  { lamplighter: { room: 'cryptfoot', x: 22, y: 2 }, wren: { room: 'belfry', x: 35, y: 2 }, scribe: { room: 'nave', x: 4, y: 8 } },
+  { lamplighter: { room: 'gate', x: 32, y: 2 }, wren: { room: 'eyrie', x: 55, y: 2 }, scribe: 'saddle' },
+  { lamplighter: { room: 'path', x: 24, y: 2 }, wren: { room: 'gantry', x: 6, y: 2 }, scribe: ['anchorage', 'stacks', 'buttress', 'corbel', 'cap', 'bluff'] },
+  { lamplighter: { room: 'wallfoot', x: 22, y: 2 }, wren: { room: 'cascade', x: 9, y: 25 }, scribe: 'terraces' },
+  { lamplighter: { room: 'stairfoot', x: 21, y: 2 }, wren: { room: 'transit', x: 63, y: 2 }, scribe: { room: 'orrery', x: 34, y: 8 } },
   { hob: 'bunk' },   // the Workings: Hob alone
 ];
 // ---- what each meeting is for (phase 8, docs/phase8-sheet.md): they are there when he needs them.

@@ -46,9 +46,9 @@ function orrery(){
   door(r, 'bottom', 28, 34); rect(r, 28, 2, 34, 2, EMPTY); ledge(r, 28, 34, 2); door(r, 'left', 3, 8);
   trench(r, 7, 24, 1);                                             // the shards under the orrery's arms
   ledge(r, 20, 23, 5, A); ledge(r, 14, 17, 7, B); ledge(r, 8, 11, 5, A);   // an arc over them
-  ledge(r, 32, 37, 7); ledge(r, 33, 37, 11); ledge(r, 34, 37, 15);  // the gallery
+  rect(r, 29, 6, 37, 7); rect(r, 29, 13, 37, 14); ledge(r, 24, 27, 11); ledge(r, 34, 37, 15); for (const x of [30, 33, 36]) mark(r, 'keep', x, 9);   // Corwen's cell, cut into the east wall where the orrery's arms pass: the gallery goes round it
   mark(r, 'chest', 36, 16, { holds: 'shards' });
-  mark(r, 'oculus', 27, 12);
+  mark(r, 'oculus', 6, 16);   // (out of sight of Corwen's cell)
   mark(r, 'torch', 36, 5); mark(r, 'torch', 4, 10); mark(r, 'crystal', 26, 3); mark(r, 'crystal', 4, 3);
   return r;
 }

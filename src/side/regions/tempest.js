@@ -79,8 +79,9 @@ function gantry(){
   const r = open();
   rect(r, 0, 0, 3, 1); rect(r, 0, 8, 2, 22);                      // the sill of the watch's door, the face above it
   ledge(r, 33, 39, 1); ledge(r, 23, 29, 1); ledge(r, 13, 19, 1); ledge(r, 5, 9, 1); ledge(r, 4, 4, 1);   // the bridge, broken
+  rect(r, 3, 0, 9, 1); rect(r, 3, 8, 9, 9); for (const x of [4, 7]) mark(r, 'keep', x, 3);   // a lip of the cliff and a brow of rock over it, at the storm's door: the last dry place, where Mirel has stopped
   mark(r, 'npc', 16, 2, { who: 'wren' });
-  mark(r, 'nimbus', 27, 8); mark(r, 'nimbus', 9, 9); mark(r, 'spark', 20, 13); mark(r, 'spark', 31, 7);
+  mark(r, 'nimbus', 27, 8); mark(r, 'nimbus', 14, 9); mark(r, 'spark', 20, 13); mark(r, 'spark', 31, 7);
   mark(r, 'torch', 2, 4); mark(r, 'torch', 18, 3);
   return r;
 }

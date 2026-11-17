@@ -27,6 +27,14 @@ export function stairs(r, x, y, n, dir, run = 2){
   for (let i = 0; i < n; i++) for (let k = 0; k < run; k++){ const cx = x + dir * (i * run + k); rect(r, cx, 0, cx, y + i, ROCK); }
 }
 export const mark = (r, type, x, y, extra) => r.marks.push({ type, x, y, ...extra });
+// a place dug into rock (phase 8: where the people are found): rock laid all round the hollow (x0..x1 wide, h high, its
+// floor at row y), a roof `roof` thick over it, `back` thick behind it, and its mouth open on one side ('L' or 'R'). It
+// is cut into whatever rock is there already, or stands as a mass of its own against a wall. The wear leaves it be
+export function den(r, x0, x1, y, h = 5, { open: mouth = 'L', back = 2, roof = 2 } = {}){
+  rect(r, mouth === 'L' ? x0 : x0 - back, y, mouth === 'R' ? x1 : x1 + back, y + h + roof - 1);
+  rect(r, x0, y, x1, y + h - 1, EMPTY);
+  for (let x = x0; x <= x1; x += 2) mark(r, 'keep', x, y + 1);
+}
 // a room with no walls of its own, under the sky (in a region whose fill is EMPTY)
 export const open = (cw, ch) => { const r = room(cw, ch); r.open = true; return r; };
 // a cave in a region of open air: rock all round, hollowed

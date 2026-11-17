@@ -2,7 +2,13 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The people, placed by hand (latest).** After a playtest note that Ordric "right in the beginning looks sloppy": where each stands had been left to a rule (the nearest flat floor), which put Ordric on or beside where he comes in.
+**The people's places, cut into the rock (latest).** After a playtest note: they should not be "sitting in the middle of a pre-built space"; each place should be dug into an edge, and be there for a reason. (`docs/phase8-sheet.md` has each place and why.)
+- **Ordric has a lamp-room cut into the rock at every raising water,** facing it, with his shelves of lamps inside: past the spike pit in the Roots' corridor; under the crypt stair; in the gate's rock in the Spires; dug into the scree in the Tempest; in the fallen wall's cellar in the Gardens; under the foot of the long stair in the Firmament. The way on goes over his roof (a plank up, then the roof), so he is passed every time.
+- **Mirel has a scrape, never a room:** the roofed gate at the bridge's near end; under the first turn of the bell stair; the hollow under the leaking rock in the Spires (the leak is now on top of that rock); a lip of cliff under a brow of rock at the storm's door. In the Gardens and the Firmament she is in the open, on purpose: she has put the shell down.
+- **Corwen has a cell, raised, looking down:** a shelf of rock over the chamber's east door in the Roots; a stone gallery over the nave's west door; a cell in the orrery's east wall.
+- Rooms changed to make them: the Roots' corridor, the Cloister's crypt stair (its first steps are the lamp-room's roof now) and nave, the bell tower's foot, the Spires' gate and eyrie, the Tempest's path and gantry, the Gardens' wall-foot, the Firmament's stair-foot and orrery. A creature that was in each way is moved or gone. All played by the tests: every room, strand and chest can still be reached, and nowhere traps him.
+
+**The people, placed by hand.** After a playtest note that Ordric "right in the beginning looks sloppy": where each stands had been left to a rule (the nearest flat floor), which put Ordric on or beside where he comes in.
 - **Each stands on a spot chosen for them** (`level.js` `STATIONS`, a room and a tile), not wherever a floor was found.
 - **Ordric is across the raising water from where he comes in,** never on the way in itself: by the stair's foot in the Cloister (the pool is narrower for it), under the shaft up in the Spires, on the scree's first step in the Tempest, on the fallen stones in the Gardens, at the top of the first flight in the Firmament. **In the Roots he is at the end of the corridor,** after the first crawler and before the climb, so the first room is the waking alone.
 - **His lamp-store stands behind him,** the same everywhere, so it is known at a glance: two shelves of lamps, some lit, oil jars, a crate.

@@ -45,14 +45,49 @@ three kinds, and each kind has its own rule:
   gifts he arrives with; Ordric is within a few seconds of the raising water; no story or service meeting is behind
   cracked stone, a crawl or a drop.
 
-### Where each stands (build 53, after a playtest)
+### Where each is found, and why (build 54)
 
-Placed by hand (`level.js` `STATIONS`), since a rule alone put Ordric on the way in:
-- **Ordric:** across the raising water from where he comes in, his lamp-store behind him; in the Roots at the end of the
-  corridor (after the first crawler, before the climb), so the first room is the waking alone. No creature shares a
-  raising-water room.
-- **Mirel:** where her line is about (the near end of the bridge; the foot of the bell stair; by the leak in the eyrie).
-- **Corwen:** on rock, clear of creatures; his nooks each at a different height of the passage up.
+Nobody stands in the open middle of a room. Each has a place **cut into rock at an edge**: under a shelf of rock,
+against a wall, in a hollow. Each of the three has one kind of place, and the kind says who they are.
+
+**Ordric: a lamp-room at every raising water.** He keeps the lamps by the water because he was asked to, and no one
+has told him to stop. So his place was made for a keeper before he came: a room cut into the rock beside each water,
+with shelves for lamps. It says the water was always meant to be tended, and that someone prepared a place for whoever
+would do it. It faces the water, because everyone the water gives back comes up in front of his door. The way on goes
+over his roof: he is passed every time, never sought.
+
+| Region | His lamp-room | Why there |
+|---|---|---|
+| The Roots | In the rock past the corridor's spike pit, before the climb | Where the well-keepers trimmed their lamps before going up. The first room is left to the waking alone |
+| The Cloister | At the water's edge under the crypt stair | The founders cut one by every water |
+| The Spires | In the gate's own rock, beyond the meltwater | The gate was the last kept place on the road |
+| The Tempest | Dug into the scree under the hut | Out of the rain, the only way a flame lasts there |
+| The Gardens | In the fallen wall's cellar, under its stones | The garden wall had a lamp-store; the wall fell, the store did not |
+| The Firmament | Under the foot of the long stair | His last lamp, at the bottom of the last stair: he has never gone up it |
+
+**Mirel: a scrape, always shallow, always on the way up.** She climbs to arrive deserving it and will not rest
+properly, so she never has a room: only a hollow just deep enough to sit in, facing the way on. As her story turns, her
+shelter goes: by the Gardens she has put the shell down and sits in the open, and at the top there is nothing over her
+at all.
+
+| Region | Her place | Why there |
+|---|---|---|
+| The Roots | The roofed gate at the near end of the bridge | Over the chasm he fell down: "You fell past me" |
+| The Cloister | Under the first turn of the bell stair, at the wall furthest from the door | A penitent's place: the corner of the tower, counting |
+| The Spires | The hollow under the leaking rock | "A crack in the rock with a draught through it." The leak is on top of the rock, on the way across |
+| The Tempest | A lip of the cliff under a brow of rock, at the storm's door | The last dry place. She cannot carry the shell further |
+| The Gardens | In the open, among the flowers | She has put it down. She needs no roof |
+| The Firmament | In the open, where she can see the top | "This is as far as I go" |
+
+**Corwen: a cell, raised, looking down.** He records the mountain exactly and takes no part in it. So he is always
+set apart and above: a reading cell cut into a wall over a doorway, where he can see who comes and write it down.
+
+| Region | His cell | Why there |
+|---|---|---|
+| The Roots | A shelf of rock over the chamber's east door, off the second plank | He watches who comes up out of the water |
+| The Cloister | A stone gallery over the nave's west door | Where the house's hours were written down |
+| The Spires, the Tempest, the Gardens | His nooks, behind a crawl (the extras) | Where he keeps what he has written, out of the weather |
+| The Firmament | A cell in the orrery's east wall, where its arms pass | He has charted every star from here but one |
 
 ### Their own places (the extras)
 

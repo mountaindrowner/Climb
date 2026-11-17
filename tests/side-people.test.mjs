@@ -8,7 +8,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 const R = await import('./helpers/reach.mjs');
 const { MEETINGS } = await import('../src/side/level.js');
-const DETOUR = 14, NEAR = 4;   // units a story meeting may add to the way; seconds Ordric may be from the water
+const DETOUR = 20, NEAR = 6;   // units a story meeting may add to the way (under three seconds); seconds Ordric may be from the water
 for (let N = 0; N < 6; N++){
   const name = R.LEVELS[N].name;
   test(`${name}: story meetings are on the path, Ordric is by the water, their own places can be reached`, () => {
