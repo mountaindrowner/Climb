@@ -72,7 +72,7 @@ function gnomon(){
   ledge(r, 26, 30, 17, B); ledge(r, 18, 22, 21, A); ledge(r, 28, 35, 24);            // and on, to the high door
   ledge(r, 9, 13, 24, B); ledge(r, 2, 6, 28);                                        // a way aside, to what was left on the top shelf
   mark(r, 'thread', 4, 29);
-  mark(r, 'wraith', 12, 6); mark(r, 'wraith', 8, 32); mark(r, 'oculus', 6, 19); mark(r, 'mote', 22, 28); mark(r, 'mote', 25, 30); mark(r, 'mote', 28, 28);
+  mark(r, 'mote', 12, 6); mark(r, 'mote', 8, 32); mark(r, 'oculus', 6, 19); mark(r, 'mote', 22, 28); mark(r, 'mote', 25, 30); mark(r, 'mote', 28, 28);
   mark(r, 'torch', 4, 5); mark(r, 'torch', 33, 16); mark(r, 'torch', 33, 27); mark(r, 'crystal', 30, 2); mark(r, 'crystal', 20, 14); mark(r, 'crystal', 4, 14); mark(r, 'urn', 26, 2);
   return r;
 }
@@ -104,7 +104,7 @@ function transit(){
   ledge(r, 47, 51, 14, A); ledge(r, 54, 58, 11, B);                // down from the pier
   ledge(r, 62, 66, 9); ledge(r, 68, 72, 5); ledge(r, 68, 72, 13); ledge(r, 62, 66, 17); ledge(r, 66, 72, 21);   // and up, to the aphelion
   mark(r, 'npc', 42, 17, { who: 'wren' });
-  mark(r, 'sentinel', 15, 2); mark(r, 'squall', 23, 2); mark(r, 'oculus', 56, 17);
+  mark(r, 'sentinel', 15, 2); mark(r, 'sentinel', 23, 2); mark(r, 'oculus', 56, 17);
   mark(r, 'urn', 8, 2); mark(r, 'crystal', 26, 2); mark(r, 'crystal', 38, 17); mark(r, 'crystal', 64, 2); mark(r, 'torch', 4, 7); mark(r, 'torch', 74, 8);
   return r;
 }
@@ -115,7 +115,7 @@ function aphelion(){
   mark(r, 'bloom', 21, 2);
   ledge(r, 17, 20, 13, A); ledge(r, 12, 15, 14, B);
   ledge(r, 30, 36, 10); mark(r, 'chest', 34, 11, { holds: 'shards' });
-  mark(r, 'sentinel', 4, 2); mark(r, 'squall', 35, 2);
+  mark(r, 'sentinel', 4, 2); mark(r, 'sentinel', 35, 2);
   mark(r, 'crystal', 24, 2); mark(r, 'crystal', 10, 15); mark(r, 'torch', 36, 5); mark(r, 'torch', 2, 8);
   return r;
 }

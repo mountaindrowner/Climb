@@ -20,7 +20,7 @@ function cryptfoot(){
   rect(r, 8, 1, 22, 1, EMPTY); mark(r, 'pool', 8, 1, { w: 15, look: 'arch' });   // the water, run down the stair and pooled under the founders' niche: the Cloister's raising water
   stairs(r, 24, 2, 3, 1, 2);                                                   // the first worn steps
   shaftUp(r, 30, 35, 6, 18);                                                  // up to the stair's mouth
-  mark(r, 'spawn', 4, 2); mark(r, 'crystal', 14, 2); mark(r, 'urn', 26, 4); mark(r, 'flitter', 18, 14);
+  mark(r, 'spawn', 4, 2); mark(r, 'crystal', 14, 2); mark(r, 'urn', 26, 4); mark(r, 'wisp', 18, 14);
   return r;
 }
 function founders(){
@@ -30,7 +30,7 @@ function founders(){
   for (const [x0, x1, y] of [[22, 28, 7], [12, 18, 12], [22, 28, 17], [12, 18, 22], [22, 28, 27]]){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); }
   shaftUp(r, 29, 35, 31, 43);
   mark(r, 'torch', 6, 30); mark(r, 'torch', 33, 34); mark(r, 'torch', 8, 40); mark(r, 'torch', 34, 43);   // the light comes down from the house
-  mark(r, 'urn', 25, 18); mark(r, 'urn', 14, 23); mark(r, 'chest', 25, 28, { holds: 'shards' }); mark(r, 'flitter', 20, 36);
+  mark(r, 'urn', 25, 18); mark(r, 'urn', 14, 23); mark(r, 'chest', 25, 28, { holds: 'shards' }); mark(r, 'wisp', 20, 36);
   return r;
 }
 

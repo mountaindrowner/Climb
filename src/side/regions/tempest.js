@@ -47,7 +47,7 @@ function rigging(){
   ledge(r, 34, 40, 6); ledge(r, 17, 21, 12);                      // what is left of a scaffold; a plank under the anchorage (a way down from it)
   air(r, 12, 2, 5, 26);                     // up to the anchorage
   air(r, 64, 2, 5, 24);                     // up the fin, to the stacks
-  mark(r, 'squall', 44, 2); mark(r, 'nimbus', 57, 7); mark(r, 'harpy', 32, 13); mark(r, 'spark', 38, 10);
+  mark(r, 'squall', 44, 2); mark(r, 'nimbus', 57, 7); mark(r, 'spark', 32, 13); mark(r, 'spark', 38, 10);
   mark(r, 'urn', 18, 2); mark(r, 'urn', 47, 2); mark(r, 'urn', 61, 2); mark(r, 'urn', 37, 7);
   mark(r, 'torch', 6, 3); mark(r, 'torch', 32, 3); mark(r, 'torch', 60, 3); mark(r, 'crystal', 20, 2); mark(r, 'crystal', 42, 2); mark(r, 'crystal', 69, 2);
   return r;
@@ -70,7 +70,7 @@ function stacks(){
   ledge(r, 21, 29, 21);                                           // higher: a plank against the fin, and air up to its top
   air(r, 15, 2, 5, 24);
   air(r, 23, 22, 5, 20);
-  mark(r, 'nimbus', 24, 6); mark(r, 'spark', 22, 11); mark(r, 'harpy', 20, 33);
+  mark(r, 'nimbus', 24, 6); mark(r, 'spark', 22, 11); mark(r, 'spark', 20, 33);
   mark(r, 'chest', 36, 41, { holds: 'shards' }); mark(r, 'urn', 33, 41);
   mark(r, 'torch', 28, 3); mark(r, 'torch', 11, 26); mark(r, 'torch', 31, 42); mark(r, 'crystal', 12, 25); mark(r, 'crystal', 38, 41);
   return r;
@@ -80,7 +80,7 @@ function gantry(){
   rect(r, 0, 0, 3, 1); rect(r, 0, 8, 2, 22);                      // the sill of the watch's door, the face above it
   ledge(r, 33, 39, 1); ledge(r, 23, 29, 1); ledge(r, 13, 19, 1); ledge(r, 5, 9, 1); ledge(r, 4, 4, 1);   // the bridge, broken
   mark(r, 'npc', 16, 2, { who: 'wren' });
-  mark(r, 'nimbus', 27, 8); mark(r, 'nimbus', 9, 9); mark(r, 'harpy', 20, 13); mark(r, 'spark', 31, 7);
+  mark(r, 'nimbus', 27, 8); mark(r, 'nimbus', 9, 9); mark(r, 'spark', 20, 13); mark(r, 'spark', 31, 7);
   mark(r, 'torch', 2, 4); mark(r, 'torch', 18, 3);
   return r;
 }
@@ -124,7 +124,7 @@ function crossing(){
   air(r, 50, 32, 5, 10);
   air(r, 70, 38, 5, 10);
   mark(r, 'thread', 75, 2);
-  mark(r, 'nimbus', 34, 30); mark(r, 'nimbus', 52, 38); mark(r, 'harpy', 26, 32); mark(r, 'harpy', 44, 40); mark(r, 'spark', 28, 26); mark(r, 'spark', 62, 40); mark(r, 'wraith', 64, 30);
+  mark(r, 'nimbus', 34, 30); mark(r, 'nimbus', 52, 38); mark(r, 'spark', 26, 32); mark(r, 'spark', 44, 40); mark(r, 'spark', 28, 26); mark(r, 'spark', 62, 40); mark(r, 'wraith', 64, 30);
   mark(r, 'squall', 26, 2); mark(r, 'squall', 52, 2); mark(r, 'spark', 44, 4);
   mark(r, 'chest', 60, 2, { holds: 'shards' }); mark(r, 'urn', 16, 2); mark(r, 'urn', 46, 2); mark(r, 'urn', 66, 2);
   mark(r, 'torch', 2, 17); mark(r, 'torch', 18, 3); mark(r, 'torch', 40, 3); mark(r, 'torch', 64, 3); mark(r, 'torch', 22, 29); mark(r, 'torch', 40, 37); mark(r, 'torch', 58, 41); mark(r, 'crystal', 10, 2); mark(r, 'crystal', 36, 2); mark(r, 'crystal', 56, 2);

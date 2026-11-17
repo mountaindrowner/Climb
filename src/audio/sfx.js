@@ -126,3 +126,26 @@ export const sfx = new Proxy(SYNTH, { get: (o, k) => (...a) => {
   if (!sample(name, vol, rate, jit, gap) && o[k]) o[k](...a);
 } });
 export function buzz(ms){ try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} }
+
+// ---- the creatures' own voices (docs/phase6-sheet.md 4), made here: each family a kind of sound, each creature its
+// pitch; three each: it notices him, it attacks, it dies. `vol` 0 to 1 (main.js: quieter with distance)
+const FAMILY = {   // creature: [family, pitch]
+  crawler: ['chitter', 1], burrower: ['chitter', 0.6], thornback: ['chitter', 0.75], lasher: ['rustle', 1], puff: ['rustle', 1.6],
+  flitter: ['wing', 1.3], gargoyle: ['wing', 0.7], harpy: ['wing', 1], spitter: ['wet', 1], lamprey: ['wet', 0.8], barnacle: ['wet', 0.65], toad: ['wet', 0.45],
+  acolyte: ['grunt', 1], sexton: ['grunt', 0.6], yeti: ['grunt', 0.75], wraith: ['moan', 1], wisp: ['moan', 1.6],
+  squall: ['crackle', 0.8], nimbus: ['crackle', 0.6], spark: ['crackle', 1.5], mote: ['chime', 1.4], oculus: ['chime', 1], sentinel: ['chime', 0.5],
+};
+const later = (ms, f) => setTimeout(f, ms);
+const VOICE = {
+  chitter: { notice: (p, v) => { for (let k = 0; k < 3; k++) later(k * 55, () => tone(520 * p + k * 60, 0.04, 'square', 0.05 * v, 200)); }, attack: (p, v) => { tone(300 * p, 0.14, 'sawtooth', 0.07 * v, 500); noise(0.08, 0.05 * v, 2400); }, death: (p, v) => { tone(600 * p, 0.25, 'square', 0.06 * v, -520 * p); noise(0.15, 0.06 * v, 1800); } },
+  wing: { notice: (p, v) => tone(1500 * p, 0.12, 'sawtooth', 0.045 * v, 700), attack: (p, v) => { tone(1900 * p, 0.18, 'sawtooth', 0.05 * v, -900); noise(0.1, 0.04 * v, 3000); }, death: (p, v) => { tone(1700 * p, 0.22, 'sawtooth', 0.05 * v, -1400 * p); } },
+  wet: { notice: (p, v) => { tone(160 * p, 0.12, 'sine', 0.12 * v, 90); noise(0.08, 0.04 * v, 500); }, attack: (p, v) => { tone(120 * p, 0.2, 'sine', 0.13 * v, 160); later(120, () => noise(0.06, 0.06 * v, 900)); }, death: (p, v) => { noise(0.22, 0.12 * v, 700); tone(200 * p, 0.2, 'sine', 0.1 * v, -150 * p); } },
+  grunt: { notice: (p, v) => tone(130 * p, 0.16, 'sawtooth', 0.09 * v, 30), attack: (p, v) => { tone(110 * p, 0.26, 'sawtooth', 0.11 * v, 60); noise(0.1, 0.03 * v, 600); }, death: (p, v) => tone(140 * p, 0.5, 'sawtooth', 0.1 * v, -90 * p) },
+  moan: { notice: (p, v) => tone(300 * p, 0.4, 'sine', 0.07 * v, 120), attack: (p, v) => tone(260 * p, 0.35, 'triangle', 0.08 * v, 500), death: (p, v) => tone(500 * p, 0.6, 'sine', 0.07 * v, -420 * p) },
+  crackle: { notice: (p, v) => { for (let k = 0; k < 4; k++) later(k * 35, () => noise(0.02, 0.07 * v, 5000 * p)); }, attack: (p, v) => { noise(0.14, 0.09 * v, 4200 * p); tone(90 * p, 0.12, 'square', 0.05 * v, 0); }, death: (p, v) => { noise(0.3, 0.09 * v, 3000 * p); tone(240 * p, 0.3, 'square', 0.04 * v, -200 * p); } },
+  rustle: { notice: (p, v) => noise(0.16, 0.06 * v, 2600 * p), attack: (p, v) => { noise(0.1, 0.08 * v, 3400 * p); tone(380 * p, 0.08, 'triangle', 0.05 * v, 300); }, death: (p, v) => { tone(500 * p, 0.07, 'sine', 0.12 * v, 500); noise(0.12, 0.07 * v, 1500); } },
+  chime: { notice: (p, v) => { tone(1320 * p, 0.3, 'sine', 0.05 * v, 0); later(70, () => tone(1760 * p, 0.3, 'sine', 0.04 * v, 0)); }, attack: (p, v) => tone(880 * p, 0.3, 'triangle', 0.07 * v, 660 * p), death: (p, v) => { for (let k = 0; k < 4; k++) later(k * 60, () => tone((1760 - k * 290) * p, 0.25, 'sine', 0.05 * v, 0)); } },
+};
+export function beast(type, what, vol = 1){ const F = FAMILY[type]; if (!F || vol <= 0.02) return; const V = VOICE[F[0]]; if (V && V[what]) V[what](F[1], Math.min(1, vol)); }
+export const BEASTS = FAMILY;
+

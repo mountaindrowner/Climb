@@ -2,7 +2,14 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Phase 5: weapons and gifts (latest).** Four new drawings of him (the spade's sweep and rising heave, its plunge, and taking a gift).
+**Phase 6: creatures (latest).** (`docs/phase6-sheet.md`.)
+- **They live there now.** Every walking creature (crawlers, acolytes, the Sexton, yetis, squalls, thornbacks, sentinels) walks a beat round its post when it is not fighting, turning at walls and edges. It **notices him by sight**: in its range, no rock between, in front of it or close behind. It starts (a yellow mark over it, its own sound), then hunts. It hunts no further than 18 tiles from its post, **gives up** after three seconds without sight of him, and walks home. Struck from behind, it knows. Bats and gargoyles need to see him too, and are tethered to their roost.
+- **The worm, redone.** It hunts him under its stretch of floor as a ripple of broken ground (seen and heard), comes up **where he will be**, cracks the ground there for half a second first, stands snapping where it can be cut, goes under, and hunts again. It cannot follow onto a plank or into the air.
+- **The Roots' green spitter:** it swells and brightens as it charges, a line of light lies where the shot will go for the last 0.3 s, and it bursts in its own colour when it dies (as do the lampreys, barnacles and toads).
+- **A voice for every creature,** made in code: one each for noticing him, attacking, and dying. Families share a kind of sound at different pitches (crawlers chitter, fliers screech, spitters gulp, the monks grunt, the storm's crackle, the Gardens' rustle, the Firmament's chime), quieter with distance.
+- **Each region its own creatures.** No creature is in more than two regions now, and no two regions have the same mix: the Cloister's stray crawler and worm are acolytes; the Spires have seven harpies, not twelve, and a yeti for their worm; the Tempest's harpies are sparks; the Gardens' harpies and gargoyles are puffs; the Firmament's wraiths and squalls are motes and sentinels. Tests check it.
+
+**Phase 5: weapons and gifts.** Four new drawings of him (the spade's sweep and rising heave, its plunge, and taking a gift).
 - **The Warden leaves the spade.** What the Warden gave (its "weight") is now a thing: the heavy weapon. The Sexton no longer gives it, so it is in his hands before the Ossuary's wall. A save that had the Warden's gift has the spade.
 - **Only the spade breaks stone.** The blade's finishing cut and plunge no longer do; the blade rings off cracked stone and he is told what it wants ("the spade breaks it", or "something heavier" before he has one).
 - **The spade is a whole weapon:** three slow blows (a level sweep, a rising heave, the great overhead blow), the last sending a wave a little way along the ground; its own plunge, narrower than the blade's, which breaks the floor under him; its swings weak in the air; further reach; no block. The ember slam breaks stone only with the spade in hand.

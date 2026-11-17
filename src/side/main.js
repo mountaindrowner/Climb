@@ -5,7 +5,7 @@
 import { TUNE } from '../config/tuning.js';
 import { IN, bindInput, endFrame, pollPads, release, rumble } from '../core/input.js';
 import { SET, saveSettings } from '../core/settings.js';
-import { sfx, ac, musicBus, ambience, setMix, MIX, warm, manifestReady, say } from '../audio/sfx.js';
+import { sfx, ac, musicBus, ambience, setMix, MIX, warm, manifestReady, say, beast } from '../audio/sfx.js';
 import { voiceOf } from '../audio/voice.js';
 import { makeScore } from '../audio/score.js';
 import '../ui/feel.js';
@@ -31,7 +31,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 49';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 50';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -804,6 +804,8 @@ function refill(){
 // what a region's tick is handed: the renderer, him, the effects, sound, a flash of the whole picture, a shake
 const TICK = { R, get P(){ return P; }, get fx(){ return fx; }, sfx, LEVEL, flash: v => { FLASH = Math.max(FLASH, v); }, shake: v => { FEEL_FX.shake = Math.max(FEEL_FX.shake, v); }, get room(){ return roomAt(P.x, P.y); } };
 const TCTX = { get P(){ return P; }, solidAt };
+// a creature's own voice, quieter the further off it is
+const cry = (c, what) => { if (!c) return; const d = Math.hypot(c.x - P.x, c.y - P.y); beast(c.type, what, Math.max(0, 1 - d / 22)); };
 function onEvent(e){
   const at = { x: P.x, y: P.y }; TEACHER.event(e, TCTX);
   switch (e.type){
@@ -840,7 +842,9 @@ function onEvent(e){
       const to = P.weapon === 'spade' ? 'blade' : 'spade'; if (!armed(to)){ if (!HINTED.swap){ HINTED.swap = 1; banner('', 'he has only the blade', 2.2); } break; }
       P.weapon = G.wield = to; store(); sfx.whoosh(); fx.ring({ x: P.x, y: P.y + 1.1 }, to === 'spade' ? 0xc0cbdc : 0xffd27a); banner('', to === 'spade' ? 'the spade' : 'the blade', 1.4); break; }
     case 'kill':
-      if (e.e){ (G.slain = G.slain || {})[e.e.type] = (G.slain[e.e.type] || 0) + 1; (G.seen = G.seen || {})[e.e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; } sfx.kill(); ITEMS.spill(e.at.x, e.at.y, 1 + Math.min(5, e.e ? e.e.d.hp : 1)); fx.burst(e.at, 26, 0xff70d0); fx.ring(e.at, 0xffc0ff); FEEL_FX.hitstop = 0.1; fx.ember(e.at, 2 + Math.min(5, e.e ? e.e.d.hp : 2) + (has('stylus') ? 2 : 0)); R.glint(e.at.x, e.at.y, 0xff9040, 1, 5, 0.35); break;
+      if (e.e){ (G.slain = G.slain || {})[e.e.type] = (G.slain[e.e.type] || 0) + 1; (G.seen = G.seen || {})[e.e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; } sfx.kill(); cry(e.e, 'death'); ITEMS.spill(e.at.x, e.at.y, 1 + Math.min(5, e.e ? e.e.d.hp : 1)); fx.burst(e.at, 26, 0xff70d0); fx.ring(e.at, 0xffc0ff);
+      if (e.e && e.e.d.ai === 'spitter'){ const col = e.e.d.orb || 0x9dff70; fx.burst(e.at, 30, col); fx.ring(e.at, col); for (let k = 0; k < 8; k++) fx.burst({ x: e.at.x + Math.cos(k * 0.785) * 0.7, y: e.at.y + Math.sin(k * 0.785) * 0.7 }, 3, col); R.glint(e.at.x, e.at.y, col, 1, 5, 0.3); }   // a spitter bursts, in its own colour
+      FEEL_FX.hitstop = 0.1; fx.ember(e.at, 2 + Math.min(5, e.e ? e.e.d.hp : 2) + (has('stylus') ? 2 : 0)); R.glint(e.at.x, e.at.y, 0xff9040, 1, 5, 0.35); break;
     // his guard turns a blow: it is seen to bounce off. A block: sparks off the blade, a flash, he gives a step, the
     // creature is thrown back. A parry (raised as it landed): a bright ring and a white flash, a held beat, the creature
     // thrown further and staggered, sparks both ways (enemies.js, stunned)
@@ -849,7 +853,13 @@ function onEvent(e){
     case 'block': sfx.block(); fx.burst(e.at, 8, 0xc9d2e0);
       if (e.mine){ fx.burst(e.at, 12, 0xfee761); R.glint(e.at.x, e.at.y, 0xfff2d0, 0.8, 3.5, 0.18); FEEL_FX.hitstop = Math.max(FEEL_FX.hitstop, 0.05); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.08); if (P.grounded && !e.shot) P.vx = -P.face * 3; } break;
     case 'spit': sfx.spit(); break;
-    case 'tell': e.e.tellT = 0.6; break;
+    case 'tell': e.e.tellT = 0.6; cry(e.e, 'attack'); break;
+    // a creature has seen him: a pale mark over it, and its own sound (enemies.js rest, docs/phase6-sheet.md)
+    case 'notice': e.e.noticeT = 0.5; cry(e.e, 'notice'); break;
+    // the worm: it is heard running under the floor; the ground cracks where it will come up; it bursts out
+    case 'ripple': if (Math.abs(e.at.x - P.x) < 12) sfx.creep && sfx.creep(); break;
+    case 'crack': sfx.crack(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.1); fx.dust(e.at, 10, 2.6); break;
+    case 'burst': sfx.break(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.2); fx.dust(e.at, 22, 4.5); fx.burst({ x: e.at.x, y: e.at.y + 0.4 }, 14, 0xd0a070); R.shock(e.at.x, e.at.y + 0.3, true); break;
     case 'step': sfx.step(); break;
     case 'mantle': sfx.whoosh(); break;
     case 'hurt': { buzz(0.7, 0.5, 200); sfx.hurt(); fx.burst({ x: P.x, y: P.y + 1.3 }, 10, 0xff6060); const a = SCF.tip(); fx.burst({ x: a.x, y: a.y }, 12, 0xff7030); fx.burst({ x: a.x, y: a.y }, 6, 0xfee761); FLASH = Math.max(FLASH, 0.12); break; }   // the end of the scarf burns off
@@ -893,7 +903,8 @@ const EPITHET = LEVELS.map(l => l.epithet);
 function drawHud(dt){
   HUD.begin(R.size().w); const W = HUD.W, v = new window.THREE.Vector3();
   // a red ! over a creature winding up
-  for (const e of E.list){ if (!e.alive || !(e.tellT > 0)) continue; e.tellT -= dt; v.set(e.x, e.y + e.d.h + 0.7, 0).project(R.camera); HUD.tell(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180)); }
+  for (const e of E.list){ if (e.alive && e.noticeT > 0 && !(e.tellT > 0)){ e.noticeT -= dt; v.set(e.x, e.y + e.d.h + 0.7, 0).project(R.camera); HUD.tell(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180), '#fee761'); }
+    if (!e.alive || !(e.tellT > 0)) continue; e.tellT -= dt; v.set(e.x, e.y + e.d.h + 0.7, 0).project(R.camera); HUD.tell(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180)); }
   const rising = !!(BOSS && BOSS.st === 'rise');
   HUD.dark((ENT.vig || 0) * 0.32, ENT.tint); HUD.vignette(ENT.vig || 0, ENT.vigCol); HUD.sweep(ENT.sweep);   // the hall darkens, the sky too, and closes in; something passes over
   HUD.cinema(rising && ENT.st !== 'seal', dt, '', '', 0);   // the bars; its name is the entrance's (HUD.title)

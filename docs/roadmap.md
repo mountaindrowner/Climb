@@ -189,6 +189,10 @@ when dug (with the Ossuary's own pass, phase 10), and a thing of its own for eac
 
 ## Phase 6: creatures
 
+*Done (build 50), as `docs/phase6-sheet.md` sets out, with these differences: the leash is 9 units (18 tiles), since 12
+tiles was shorter than their sight; no new art was needed (the worm's ripple and the spitter's warning are drawn in
+code); the Firmament's two wraiths and two squalls became motes and sentinels so no creature is in three regions.*
+
 - **Their own sound for every creature:** made in code, or about $0.50 with PixelLab sound.
 - **Behaviour, for every creature:**
   - they patrol, notice him (by sight, not through walls), chase within limits, give up and go home;

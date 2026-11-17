@@ -28,11 +28,11 @@ const DEF = {
   flitter:  { ai: 'flitter', hp: 1, w: 0.4, h: 0.5, color: 0xffb040, glow: 0x3a2a4a, wake: 7, circle: 1.2, dive: 0.55, commit: 0.3, leave: 0.8, art: 'flitter', fly: true },
   // the spitters, a family, harder as the mountain goes on. cling: what it holds to ('wall', 'ceiling', 'floor'): it is
   // set against the nearest of it, its drawing's rock against the rock. variants: drawings it is one of, by where it is
-  spitter:  { ai: 'spitter', hp: 2, w: 0.6, h: 0.8, color: 0x70ff70, range: 8, charge: 0.7, speed: 8, cooldown: 2.0, art: 'px_leech', fly: true, cling: 'wall' },
+  spitter:  { ai: 'spitter', aim: true, hp: 2, w: 0.6, h: 0.8, color: 0x70ff70, range: 8, charge: 0.7, speed: 8, cooldown: 2.0, art: 'px_leech', fly: true, cling: 'wall' },
   lamprey:  { ai: 'spitter', hp: 3, w: 0.5, h: 1.2, color: 0xf6757a, range: 9, charge: 0.65, speed: 10, cooldown: 1.8, burst: 2, orb: 0xd8ff80, art: 'px_lamprey', fly: true, cling: 'ceiling', mouthY: -0.44, word: 'Spat on' },
   barnacle: { ai: 'spitter', hp: 3, w: 0.8, h: 1.6, color: 0x5a6988, range: 7, charge: 0.6, speed: 9, cooldown: 1.6, variants: ['px_barn_a', 'px_barn_b', 'px_barn_c'], fly: false, cling: 'floor', word: 'Spat on' },
   toad:     { ai: 'spitter', hp: 5, w: 0.9, h: 2.0, color: 0xc0cbdc, range: 10, charge: 0.9, speed: 9, cooldown: 2.0, lob: true, orb: 0xb8f060, variants: ['px_toad_b'], fly: false, cling: 'floor', word: 'Spat on' },
-  burrower: { ai: 'burrower', hp: 2, w: 0.6, h: 1.1, color: 0xd0a070, wake: 6, plough: 6, rise: 0.3, up: 1.4, art: 'burrower', fly: false },
+  burrower: { ai: 'burrower', hp: 2, w: 0.6, h: 1.1, color: 0xd0a070, wake: 7, plough: 5.5, rise: 0.45, up: 1.2, art: 'burrower', fly: false },
   acolyte:  { ai: 'crawler', hp: 5, w: 0.6, h: 1.9, color: 0xa22633, wake: 8, reach: 2.1, chase: 2.0, windup: 0.62, lunge: 0.2, lungeDist: 1.5, recover: 0.8, stun: 0.5, hitR: 1.2, art: 'px_acolyte', fly: false, word: 'Struck' },
   // the Ossuary's elite (regions/ossuary.js): the house's sexton, a head taller than his men, slow to start and hard to
   // stop, two hearts a blow of his spade. Blocked, he staggers; turned at the right moment, he is open a long while.
@@ -109,21 +109,59 @@ function shoot(E, e, P, lob){
   if (e.orb) E.scene.remove(e.orb.m);
   e.orb = { x: x0, y: y0, vx, vy, g: lob ? LOB_G : 0, col, t: 0, m: new THREE.Mesh(E.orbGeo, E.orbMat(col)) }; if (lob) e.orb.m.scale.setScalar(1.5); E.scene.add(e.orb.m);
 }
+// ---- how every walker behaves when it is not fighting (docs/phase6-sheet.md 1), one rule set over their own ways of
+// fighting. WALK: for each way of fighting that walks, the state it hunts him in. At rest ('idle') it walks a beat round
+// its post; it notices him by sight (within its range, no rock between, in front of it or close behind), starts
+// ('notice', a third of a second, a mark and its sound), then hunts. It hunts no further than LEASH from its post; if it
+// has not seen him for GIVE_UP seconds, or is at its leash, it turns and walks home ('return').
+export const WALK = { crawler: 'chase', thrower: 'stalk', squall: 'march', thornback: 'trot', sentinel: 'march' };
+export const LEASH = 9, GIVE_UP = 3, BEAT = 3, NOTICE_T = 0.33;
+const RESTING = new Set(['idle', 'notice', 'return']);
+// its beat: from its post each way to a wall, an edge or BEAT units, whichever is first
+function beatOf(e){
+  const y = e.home.y, out = [e.home.x, e.home.x];
+  for (const dir of [-1, 1]){ let x = e.home.x; for (let k = 0; k < BEAT / 0.25; k++){ const nx = x + dir * 0.25; if (solidAt(nx + dir * e.d.w, y + 0.3) || solidAt(nx + dir * e.d.w, y + 1.1) || Math.abs(ground(nx + dir * e.d.w * 0.5, y + 0.3) - y) > 0.3) break; x = nx; } out[dir < 0 ? 0 : 1] = x; }
+  return out;
+}
+const pace = e => (e.d.chase || e.d.trot || 1.6) * 0.45;
+function notices(e, P, dx, dy){ return Math.abs(dx) < e.d.wake && Math.abs(dy) < 2.5 && (dx * e.face > 0 || Math.abs(dx) < 1.2) && sees(e, P); }
+// a step along its floor toward x (not into rock, not off the floor): true if it moved
+function walkTo(e, x, dt, sp){ const dir = Math.sign(x - e.x); if (!dir || Math.abs(x - e.x) < 0.05) return false; const nx = e.x + dir * Math.min(sp * dt, Math.abs(x - e.x)); e.face = dir;
+  if (solidAt(nx + dir * e.d.w, e.y + 0.3) || ground(nx, e.y + 0.3) < e.y - 0.6) return false; e.x = nx; const gy = ground(e.x, e.y + 0.3); if (gy > -Infinity) e.y = gy; return true; }
+function atRest(e, P, dt, dx, dy, go, events, anim){
+  if (!e.beat) e.beat = beatOf(e); let moving = false;
+  if (e.st === 'idle'){
+    if (e.x < e.beat[0] - 0.3 || e.x > e.beat[1] + 0.3){ go('return'); }   // left off its beat (it gave up somewhere else)
+    else if (e.beat[1] - e.beat[0] > 1){ e.pdir = e.pdir || (e.face || 1); e.pause = Math.max(0, (e.pause || 0) - dt);
+      if (e.pause <= 0){ const to = e.pdir > 0 ? e.beat[1] : e.beat[0]; moving = walkTo(e, to, dt, pace(e)); if (!moving){ e.pdir = -e.pdir; e.pause = 0.9; } } }
+    if (notices(e, P, dx, dy)){ go('notice'); e.face = Math.sign(dx) || e.face; events.push({ type: 'notice', e }); }
+  }
+  else if (e.st === 'notice'){ e.face = Math.sign(dx) || e.face; if (e.tm >= NOTICE_T){ go(WALK[e.d.ai]); e.unseen = 0; } }
+  else if (e.st === 'return'){ moving = walkTo(e, e.home.x, dt, pace(e) * 1.4); if (!moving){ go('idle'); e.pause = 0.6; } else if (e.tm > 1 && notices(e, P, dx, dy)){ go('notice'); events.push({ type: 'notice', e }); } }
+  e.moving = moving; anim(e, 'walk', moving ? e.age * 1.3 : 0, 0, e.d.ai === 'thrower' ? 0.03 : undefined);
+}
+// the worm's stretch of floor: as far each way from its post as the floor runs level and unbroken (10 units at most)
+function stretchOf(e){ const y = e.home.y, out = [e.home.x, e.home.x]; for (const dir of [-1, 1]){ let x = e.home.x; for (let k = 0; k < 40; k++){ const nx = x + dir * 0.25; if (solidAt(nx, y + 0.3) || tileAt(Math.floor(nx / T), Math.floor((y - 0.05) / T)) !== ROCK) break; x = nx; } out[dir < 0 ? 0 : 1] = x - dir * 0.4; } return out; }
 // how far from him (world units, either way) a creature at rest sleeps: well beyond the edge of the view
 export const SLEEP = { x: 24, y: 15 };
 export function stepEnemies(E, P, dt, fx, events){
   for (const e of E.list){
     e.flash = Math.max(0, e.flash - dt);
-    if (!e.alive){ e.dead += dt; e.y -= dt * (e.d.fly ? 6 : 0); if (e.orb){ E.scene.remove(e.orb.m); e.orb = null; } continue; }
+    if (!e.alive){ if (e.aim) e.aim.visible = false; if (e.hump) e.hump.visible = false; e.dead += dt; e.y -= dt * (e.d.fly ? 6 : 0); if (e.orb){ E.scene.remove(e.orb.m); e.orb = null; } continue; }
     // asleep: far out of sight and at rest, it does nothing and is not drawn until he comes near (a region three times
     // the size has three times the creatures; only those near him think). One in the middle of something finishes it
-    const far = Math.abs(P.x - e.x) > SLEEP.x || Math.abs(P.y - e.y) > SLEEP.y, rest = (e.st === 'idle' || e.st === 'patrol' || e.st === 'perch' || e.st === 'hide' || e.st === 'float' || e.st === 'circle' || e.st === 'drift' || !e.st) && !e.orb;
+    const far = Math.abs(P.x - e.x) > SLEEP.x || Math.abs(P.y - e.y) > SLEEP.y, rest = (e.st === 'idle' || e.st === 'return' || e.st === 'patrol' || e.st === 'perch' || e.st === 'hide' || e.st === 'float' || e.st === 'circle' || e.st === 'drift' || !e.st) && !e.orb;
     if (far && rest && e.age > 0.5){ if (!e.asleep){ e.asleep = true; if (e.sprite) e.sprite.g.visible = false; e.stand.visible = false; } continue; }
     if (e.asleep){ e.asleep = false; if (e.sprite) e.sprite.g.visible = true; else e.stand.visible = true; }
     e.tm += dt; e.age += dt;
     const ai = e.d.ai, dx = P.x - e.x, dy = P.y - e.y, dist = Math.hypot(dx, dy);
     const go = st => { e.st = st; e.tm = 0; };
-    if (ai === 'crawler'){
+    const hunts = !e.d.fly && WALK[ai];
+    if (hunts && e.st === hunts){   // hunting: it gives up when he is long out of sight, or it is at its leash
+      e.unseen = Math.abs(dx) < e.d.wake * 1.6 && sees(e, P) ? 0 : (e.unseen || 0) + dt;
+      if (e.unseen > GIVE_UP || Math.abs(e.x - e.home.x) > LEASH){ go('return'); e.unseen = 0; } }
+    if (hunts && RESTING.has(e.st)) atRest(e, P, dt, dx, dy, go, events, anim);
+    else if (ai === 'crawler'){
       const gy = ground(e.x, e.y + 0.3); if (gy > -Infinity) e.y = gy;
       if (e.st === 'idle' && Math.abs(dx) < e.d.wake && Math.abs(dy) < 2.5) go('chase');
       if (e.st === 'chase'){
@@ -153,10 +191,10 @@ export function stepEnemies(E, P, dt, fx, events){
     }
     else if (ai === 'flitter'){
       const W8 = e.meta && e.meta.anims.flap;   // one that perches and has its wingbeat drawn (the gargoyle): sits, launches, flies, comes home
-      if (e.st === 'idle'){ if (!e.d.perch){ e.x = e.home.x + Math.sin(e.tm * 1.3) * 0.6; e.y = e.home.y + Math.sin(e.tm * 2.1) * 0.3; } if (dist < e.d.wake){ if (e.d.perch && W8){ go('launch'); events.push({ type: 'tell', e }); } else go('circle'); e.left = e.d.dives || 1; } }
+      if (e.st === 'idle'){ if (!e.d.perch){ e.x = e.home.x + Math.sin(e.tm * 1.3) * 0.6; e.y = e.home.y + Math.sin(e.tm * 2.1) * 0.3; } if (dist < e.d.wake && sees(e, P)){ events.push({ type: 'notice', e }); if (e.d.perch && W8){ go('launch'); events.push({ type: 'tell', e }); } else go('circle'); e.left = e.d.dives || 1; } }
       else if (e.st === 'launch'){ e.y = e.home.y + Math.min(1, e.tm / 0.45) * 0.6; e.face = Math.sign(dx) || e.face; if (e.tm >= 0.45) go('circle'); }
       else if (e.st === 'home'){ const k = Math.min(1, dt * 2.5); e.x += (e.home.x - e.x) * k; e.y += (e.home.y + 0.4 - e.y) * k; e.face = Math.sign(e.home.x - e.x) || e.face;
-        if (Math.hypot(e.home.x - e.x, e.home.y + 0.4 - e.y) < 0.12) go('land'); else if (dist < e.d.wake * 0.8) go('circle'); }
+        if (Math.hypot(e.home.x - e.x, e.home.y + 0.4 - e.y) < 0.12) go('land'); else if (dist < e.d.wake * 0.8 && Math.hypot(e.home.x - e.x, e.home.y - e.y) < LEASH && sees(e, P)) go('circle'); }
       else if (e.st === 'land'){ e.x = e.home.x; e.y = e.home.y + (1 - Math.min(1, e.tm / 0.35)) * 0.4; if (e.tm >= 0.35){ e.face = e.d.perch && e.home.face ? e.home.face : e.face; go('idle'); } }   // a gargoyle sits like stone until then
       else if (e.st === 'circle'){
         const a = e.tm * 3.2, cx = P.x, cy = P.y + 2.4;
@@ -174,12 +212,20 @@ export function stepEnemies(E, P, dt, fx, events){
       if (W8){   // sitting as stone; the wings opening off the perch (and closing back onto it); the wingbeat; the swoop
         if (e.st === 'idle') anim(e, 'stand', 0); else if (e.st === 'launch') anim(e, 'launch', Math.min(0.999, e.tm / 0.45)); else if (e.st === 'land') anim(e, 'launch', Math.max(0, 0.999 - e.tm / 0.35)); else if (e.st === 'dive') anim(e, 'swoop', Math.min(0.999, e.tm / e.d.dive)); else anim(e, 'flap', e.age * 2.6);
         if (e.st === 'circle' && e.d.perch && dist > e.d.wake * 1.8) go('home');   // he has gone: back to its perch
-      } else anim(e, e.st === 'dive' ? 'dive' : 'fly', e.st === 'dive' ? e.tm / e.d.dive : e.st === 'idle' && e.d.perch ? 0 : e.tm * 2.5);
+      } else if (e.st === 'land' || e.st === 'home') anim(e, 'fly', e.age * 2.5); else anim(e, e.st === 'dive' ? 'dive' : 'fly', e.st === 'dive' ? e.tm / e.d.dive : e.st === 'idle' && e.d.perch ? 0 : e.tm * 2.5);
+      if (e.st === 'circle' && Math.hypot(e.x - e.home.x, e.y - e.home.y) > LEASH + 4) go('home');   // tethered to its roost
     }
     else if (ai === 'spitter'){
       e.face = e.fixFace || Math.sign(dx) || e.face; e.cd = Math.max(0, (e.cd || 0) - dt);
       if (e.d.hover){ e.x = e.home.x + Math.sin(e.age * 1.1) * 0.5; e.y = e.home.y + Math.sin(e.age * 2) * 0.25; }
-      if (e.st === 'idle' && dist < e.d.range && e.cd <= 0 && sees(e, P)){ go('charge'); e.shots = 0; events.push({ type: 'tell', e }); }
+      const inSight = dist < e.d.range && sees(e, P); e.unseen = inSight ? 0 : (e.unseen || 0) + dt; if (e.unseen > GIVE_UP) e.saw = false;
+      if (inSight && !e.saw){ e.saw = true; events.push({ type: 'notice', e }); e.cd = Math.max(e.cd, NOTICE_T); }   // it has seen him: a start before the first shot
+      if (e.st === 'idle' && inSight && e.cd <= 0){ go('charge'); e.shots = 0; events.push({ type: 'tell', e }); }
+      if (e.d.aim){   // the Roots' spitter (to the lampreys' standard): it swells and brightens as it charges, and for the last 0.3 s a line of light lies where the shot will go
+        const u = e.st === 'charge' ? Math.min(1, e.tm / e.d.charge) : 0; if (e.sprite) e.sprite.g.scale.setScalar(1 + 0.22 * u * u); e.warn = u > 0.35;
+        const show = e.st === 'charge' && e.tm > e.d.charge - 0.3;
+        if (show && !e.aim){ e.aim = new THREE.Mesh(new THREE.PlaneGeometry(1, 0.07), new THREE.MeshBasicMaterial({ color: e.d.orb || 0x9dff70, transparent: true, opacity: 0.55, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending })); E.scene.add(e.aim); }
+        if (e.aim){ e.aim.visible = show; if (show){ const x0 = e.x + e.face * e.d.w * 0.6, y0 = e.y + (e.d.mouthY || 0), tx = P.x, ty = P.y + 1.4, L = Math.min(e.d.range, Math.hypot(tx - x0, ty - y0)); e.aim.position.set((x0 + tx) / 2, (y0 + ty) / 2, 0.09); e.aim.rotation.z = Math.atan2(ty - y0, tx - x0); e.aim.scale.x = L; e.aim.material.opacity = 0.3 + 0.4 * Math.abs(Math.sin(e.tm * 30)); } } }
       if (e.st === 'charge' && e.tm >= e.d.charge){
         shoot(E, e, P, !!e.d.lob); events.push({ type: 'spit', e });
         if (++e.shots < (e.d.burst || 1)){ e.tm = e.d.charge - 0.3; } else { go('idle'); e.cd = e.d.cooldown; }
@@ -232,13 +278,26 @@ export function stepEnemies(E, P, dt, fx, events){
       anim(e, e.st === 'windup' || e.st === 'rush' ? 'dive' : 'fly', e.st === 'windup' ? e.tm / e.d.windup * 0.45 : e.st === 'rush' ? 0.45 + e.tm / e.d.rush * 0.54 : e.age * 1.4);
     }
     else if (ai === 'burrower'){
-      if (e.st === 'idle'){ if (Math.abs(dx) < e.d.wake && Math.abs(dy) < 2){ go('travel'); e.mx = e.x + Math.sign(dx) * 3.5; e.side = Math.sign(dx); } }
-      else if (e.st === 'travel'){ e.mx -= e.side * e.d.plough * dt; if ((e.mx - e.x) * e.side <= 0){ e.mx = e.x; go('rise'); events.push({ type: 'tell', e }); } if (Math.random() < 0.5) fx.dust({ x: e.mx, y: e.y }, 1, 1.6); }
-      else if (e.st === 'rise'){ if (e.tm >= e.d.rise){ go('up'); e.hit = false; } }
+      // the worm (docs/phase6-sheet.md 2): it hunts him under its stretch of floor as a ripple (a hump of broken ground,
+      // main.js hears it), comes up where he will be, cracks the ground there a moment first, stands snapping where it
+      // can be cut, goes under, and hunts again. No floor to be under, no worm: he is safe on a plank or in the air
+      if (!e.run) e.run = stretchOf(e); if (e.mx == null) e.mx = e.home.x;
+      const on = P.x > e.run[0] - 1 && P.x < e.run[1] + 1 && dy > -0.5 && dy < 4, clampX = x => Math.max(e.run[0], Math.min(e.run[1], x));
+      if (e.st === 'idle'){ e.mx += (e.home.x - e.mx) * Math.min(1, dt * 2); if (on && Math.abs(P.x - e.mx) < e.d.wake){ go('hunt'); e.lost = 0; events.push({ type: 'notice', e }); } }
+      else if (e.st === 'hunt'){
+        const tx = clampX(P.x + P.vx * 0.45), d = tx - e.mx, sp = e.d.plough * dt; e.mx += Math.abs(d) <= sp ? d : Math.sign(d) * sp;   // where he will be
+        e.lost = on ? 0 : e.lost + dt; if (e.lost > GIVE_UP) go('idle');
+        if (Math.random() < dt * 30) fx.dust({ x: e.mx + (Math.random() - 0.5) * 0.5, y: e.y }, 1, 1.4); if (Math.floor(e.tm * 5) !== Math.floor((e.tm - dt) * 5)) events.push({ type: 'ripple', e, at: { x: e.mx, y: e.y } });
+        if (e.tm > 0.5 && Math.abs(d) < 0.35 && Math.abs(dy) < 1.5 && P.x > e.run[0] && P.x < e.run[1]){ e.x = e.mx; go('rise'); events.push({ type: 'tell', e }); events.push({ type: 'crack', e, at: { x: e.x, y: e.y } }); } }
+      else if (e.st === 'rise'){ if (Math.random() < dt * 40) fx.dust({ x: e.x + (Math.random() - 0.5) * 0.9, y: e.y }, 2, 2.4); if (e.tm >= e.d.rise){ go('up'); e.hit = false; events.push({ type: 'burst', e, at: { x: e.x, y: e.y } }); } }
       else if (e.st === 'up'){
-        if (!e.hit && P.grounded && Math.abs(P.x - e.x) < 0.55 && Math.abs(P.y - e.y) < 0.4){ e.hit = true; hurt(P, 1, e.x, 'Snapped'); }
-        if (e.tm >= e.d.up){ go('idle'); }
-      }
+        if (!e.hit && e.tm < 0.5 && P.grounded && Math.abs(P.x - e.x) < 0.6 && Math.abs(P.y - e.y) < 0.4){ e.hit = true; hurt(P, 1, e.x, 'Snapped'); }
+        if (e.tm >= e.d.up){ go('under'); e.mx = e.x; } }
+      else if (e.st === 'under'){ if (e.tm >= 0.7) go(on ? 'hunt' : 'idle'); }
+      // the ripple: a low hump of broken ground that runs along the floor over it
+      if (!e.hump){ const c = document.createElement('canvas'); c.width = 16; c.height = 5; const g = c.getContext('2d'); g.fillStyle = '#181425'; g.fillRect(2, 1, 12, 4); g.fillRect(0, 3, 16, 2); g.fillStyle = '#5a6988'; g.fillRect(3, 2, 10, 3); g.fillRect(1, 4, 14, 1); g.fillStyle = '#8b9bb4'; g.fillRect(5, 2, 3, 1); g.fillRect(10, 3, 2, 1); g.fillStyle = '#181425'; g.fillRect(8, 2, 1, 2);
+        const t = new THREE.CanvasTexture(c); t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false; e.hump = new THREE.Mesh(new THREE.PlaneGeometry(1, 5 / 16), new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false })); E.scene.add(e.hump); }
+      e.hump.visible = e.st === 'hunt' || e.st === 'rise'; e.hump.position.set(e.st === 'rise' ? e.x : e.mx, e.y + 2.5 / 16 + (e.st === 'hunt' ? Math.abs(Math.sin(e.tm * 14)) * 0.04 : 0), 0.045); e.hump.scale.x = e.st === 'rise' ? 1.2 + e.tm / e.d.rise * 0.6 : 1;
       e.face = Math.sign(dx) || e.face;
       const show = e.st === 'rise' || e.st === 'up';
       if (e.sprite) e.sprite.g.visible = show;
@@ -281,7 +340,7 @@ export function strikeEnemies(E, P, reach, dmg, events){
     const ahead = (e.x - P.x) * P.face, top = e.y + e.d.h, bottom = e.d.fly ? e.y - e.d.h / 2 : e.y;
     if (ahead < -0.4 || ahead > reach + e.d.w || top < P.y - 0.2 || bottom > P.y + 2.7) continue;
     if (e.d.guard && e.d.guard(e, P)){ events.push({ type: 'block', at: { x: e.x - P.face * e.d.w, y: e.y + e.d.h * 0.6 } }); any = true; continue; }   // it turns the blow
-    any = true; e.hp -= dmg; e.flash = 0.12; if (e.d.onHit) e.d.onHit(e, dmg, P);
+    any = true; e.hp -= dmg; e.flash = 0.12; if (WALK[e.d.ai] && RESTING.has(e.st)){ e.st = WALK[e.d.ai]; e.tm = 0; e.unseen = 0; } if (e.d.onHit) e.d.onHit(e, dmg, P);
     if ((e.d.ai === 'crawler' && (e.st === 'windup' || e.st === 'chase')) || (e.d.ai === 'thrower' && e.st !== 'stunned')){ e.st = 'stunned'; e.tm = 0; e.stun = e.d.ai === 'thrower' ? 0.4 : 0.5; }
     if (e.d.ai === 'wraith' && e.st !== 'rush'){ e.st = 'spent'; e.tm = Math.max(0, e.d.recover - 0.5); }
     if (e.d.perch && e.st === 'idle'){ e.st = 'circle'; e.tm = 0; e.left = 1; }
@@ -298,7 +357,7 @@ export function hitBox(E, x0, x1, y0, y1, dmg, events, seen, fromX, lift = 0){
     if (!e.alive || seen.has(e) || (e.d.ai === 'burrower' && !(e.st === 'rise' || e.st === 'up'))) continue;
     const top = e.y + e.d.h, bottom = e.d.fly ? e.y - e.d.h / 2 : e.y;
     if (e.x + e.d.w < x0 || e.x - e.d.w > x1 || top < y0 || bottom > y1) continue;
-    seen.add(e); e.hp -= dmg; e.flash = 0.15; e.x += Math.sign(e.x - fromX || 1) * 0.8; if (lift && e.d.fly) e.y += lift; if (e.d.onHit) e.d.onHit(e, dmg, { x: fromX, y: y0, face: Math.sign(e.x - fromX) || 1 }, true);
+    seen.add(e); e.hp -= dmg; e.flash = 0.15; if (WALK[e.d.ai] && RESTING.has(e.st)){ e.st = WALK[e.d.ai]; e.tm = 0; e.unseen = 0; } e.x += Math.sign(e.x - fromX || 1) * 0.8; if (lift && e.d.fly) e.y += lift; if (e.d.onHit) e.d.onHit(e, dmg, { x: fromX, y: y0, face: Math.sign(e.x - fromX) || 1 }, true);
     if (e.d.ai === 'crawler' || e.d.ai === 'thrower'){ e.st = 'stunned'; e.tm = 0; e.stun = 0.9; }
     events.push({ type: 'hit', e, at: { x: e.x, y: e.y + e.d.h / 2 }, heavy: true, art: true });
     if (e.hp <= 0) killEnemy(e, events);

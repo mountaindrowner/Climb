@@ -54,7 +54,7 @@ function arbor(){
   slab(r); rect(r, 26, 0, 32, 1, EMPTY); ledge(r, 26, 32, 1);     // the walk, the way up through it
   rect(r, 36, 0, 39, 22);                                          // the cliff
   ledge(r, 31, 35, 8); mark(r, 'chest', 33, 9, { holds: 'shards' });
-  mark(r, 'lasher', 15, 2); mark(r, 'gargoyle', 22, 12); mark(r, 'toad', 29, 2);
+  mark(r, 'lasher', 15, 2); mark(r, 'puff', 22, 12); mark(r, 'toad', 29, 2);
   mark(r, 'crystal', 34, 2); mark(r, 'crystal', 7, 2); mark(r, 'urn', 11, 2); mark(r, 'torch', 35, 5);
   return r;
 }
@@ -63,7 +63,7 @@ function brambles(){
   rect(r, 29, 0, 39, 1); rect(r, 0, 0, 10, 1); thorns(r, 11, 28);   // sound ground at either end, the bed between
   mark(r, 'bloom', 31, 2);                                         // at the bed's edge: it throws him the whole way over
   isle(r, 18, 21); mark(r, 'bloom', 19, 2);                        // and one in the middle of it, for a second throw
-  mark(r, 'puff', 22, 10); mark(r, 'puff', 12, 12); mark(r, 'harpy', 26, 16);
+  mark(r, 'puff', 22, 10); mark(r, 'puff', 12, 12); mark(r, 'puff', 26, 16);
   mark(r, 'crystal', 37, 2); mark(r, 'crystal', 2, 2);
   return r;
 }
@@ -76,7 +76,7 @@ function wellspring(){
   ledge(r, 8, 13, 30); ledge(r, 19, 25, 34);                       // and on up, to nothing, it seems
   rect(r, 26, 33, 37, 43); rect(r, 29, 35, 37, 40, EMPTY); rect(r, 26, 35, 28, 40, CRACKED);   // a niche walled up at the top
   mark(r, 'thread', 33, 35);
-  mark(r, 'puff', 30, 9); mark(r, 'puff', 11, 22); mark(r, 'gargoyle', 30, 16);
+  mark(r, 'puff', 30, 9); mark(r, 'puff', 11, 22); mark(r, 'puff', 30, 16);
   mark(r, 'torch', 4, 8); mark(r, 'torch', 35, 10); mark(r, 'torch', 22, 38); mark(r, 'torch', 6, 40);
   mark(r, 'crystal', 3, 2); mark(r, 'crystal', 36, 2); mark(r, 'crystal', 35, 25); mark(r, 'urn', 30, 25);
   return r;
@@ -100,7 +100,7 @@ function cascade(){
   mark(r, 'npc', 29, 14, { who: 'wren' }); mark(r, 'bloom', 35, 14);
   ledge(r, 30, 36, 21); ledge(r, 19, 25, 23); rect(r, 0, 23, 14, 24);   // caught, over it; across; the walk above, toward the canopy
   ledge(r, 30, 35, 30); mark(r, 'chest', 33, 31, { holds: 'shards' });   // straight up off the high bloom
-  mark(r, 'lasher', 14, 2); mark(r, 'thornback', 33, 2); mark(r, 'toad', 25, 2); mark(r, 'harpy', 20, 30); mark(r, 'harpy', 8, 36); mark(r, 'puff', 22, 27);
+  mark(r, 'lasher', 14, 2); mark(r, 'thornback', 33, 2); mark(r, 'toad', 25, 2); mark(r, 'puff', 20, 30); mark(r, 'puff', 8, 36); mark(r, 'puff', 22, 27);
   mark(r, 'crystal', 2, 2); mark(r, 'crystal', 32, 14); mark(r, 'crystal', 4, 25); mark(r, 'crystal', 12, 25); mark(r, 'urn', 8, 25);
   return r;
 }
@@ -110,7 +110,7 @@ function canopy(){
   rect(r, 14, 2, 17, 15);                                          // the garden wall: only the bloom clears it
   mark(r, 'bloom', 23, 2);
   ledge(r, 32, 37, 12); mark(r, 'chest', 35, 13, { holds: 'shards' });
-  mark(r, 'lasher', 19, 2); mark(r, 'thornback', 6, 2); mark(r, 'puff', 25, 11); mark(r, 'puff', 9, 9); mark(r, 'harpy', 30, 17);
+  mark(r, 'lasher', 19, 2); mark(r, 'thornback', 6, 2); mark(r, 'puff', 25, 11); mark(r, 'puff', 9, 9); mark(r, 'puff', 30, 17);
   mark(r, 'crystal', 38, 2); mark(r, 'crystal', 27, 2); mark(r, 'crystal', 2, 2); mark(r, 'crystal', 15, 16); mark(r, 'urn', 10, 2);
   return r;
 }

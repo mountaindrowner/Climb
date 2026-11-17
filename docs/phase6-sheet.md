@@ -1,6 +1,6 @@
 # Phase 6: creatures (the sheet)
 
-For approval before building (`docs/roadmap.md`, the finish line). The guide: Hollow Knight and Dead Cells first, then
+Built in build 50 (what differs is noted in `docs/roadmap.md`, phase 6). Written for approval before building (`docs/roadmap.md`, the finish line). The guide: Hollow Knight and Dead Cells first, then
 Castlevania. Hard but fair; every creature can be read before it hurts him.
 
 ## What is there now
