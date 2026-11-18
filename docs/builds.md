@@ -50,7 +50,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 64 | 18 Nov 2026 | `COMMIT64` | The Glacier Galleries (phase 11, second half) | adds | yes (now) |
+| 64 | 18 Nov 2026 | `5472b28` | The Glacier Galleries (phase 11, second half) | adds | yes (now) |
 | 63 | 18 Nov 2026 | `a88ef9a` | The version note on the title, the opening and the pause screen | nothing | was, until 64 |
 | 62 | 18 Nov 2026 | `b72435a` | The Pilgrims' Cairns (phase 11, first half) | **moved** (the Spires) | was, until 63 |
 | 61 | 18 Nov 2026 | `7c2606f` | The Bell-Foundry and the Cracked Bell (phase 10, second half) | adds | no |
