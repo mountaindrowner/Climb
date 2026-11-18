@@ -31,7 +31,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 54';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 55';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -212,11 +212,28 @@ let PAGE = 0;
 const PORTRAIT = {}, portrait = art => { if (!art) return null; if (PORTRAIT[art]) return PORTRAIT[art]; const im = new Image(); im.src = art.includes('/') ? `assets/side/${art}.png` : `assets/side/${art}/stand.png`; return PORTRAIT[art] = im; };
 // what is marked on the map: the flames, the keeper, the three's stations he has found, what is still to be found (with
 // the compass or a chart), and him
+// ---- Corwen's map (phase 8). Until he has been met the map is only where he has been. After, it is Corwen's: it marks
+// the ways he could not take and what would open them, how often he has fallen in the region, and whether the region's
+// page is full (sealed: every room seen, every strand, chest and relic found)
+const corwenMet = () => Object.keys(G.met || {}).some(k => k.endsWith(':scribe'));
+let WAYT = 0;
+// cracked stone he comes close to and cannot break: remembered (a way he could not take)
+function noteWays(dt){
+  if ((WAYT -= dt) > 0) return; WAYT = 0.4; sealPage(); if (CAN.breaker) return;
+  const B = (G.blocked = G.blocked || {}), mine = (B[LEVEL.index] = B[LEVEL.index] || []);
+  for (const C of PROPS.cracks) if (!C.gone && !mine.includes(C.id) && Math.abs(C.x - P.x) < C.w / 2 + 4 && Math.abs(C.y - (P.y + 1.2)) < C.h / 2 + 2.5){ mine.push(C.id); DIRTY = DIRTY > 0 ? DIRTY : 2; }
+}
+// is the region's page full; if it has just become so, it is sealed (once) and he is told
+function pageFull(){ const L = ITEMS.left(); return L.threads + L.chests === 0 && !L.relic && LEVEL.rooms.every(r => MAP.seen.has(r)); }
+function sealPage(){ const n = LEVEL.index; if ((G.sealed = G.sealed || {})[n] || !corwenMet() || !pageFull()) return; G.sealed[n] = 1; store(); sfx.relic(); banner('Corwen seals the page', `nothing in ${LEVEL.name} is left unfound`, 4.5); }
 function mapDots(){
   const dots = SHRINES.filter(S => MAP.seen.has(S.room)).map(S => ({ x: S.x, y: S.y + 0.5, c: '#0099db', r: S.raise ? 1 : 0 }));   // the water: the raising pool larger
   if (BOSS && MAP.seen.has(BOSS.room)) dots.push({ x: BOSS.cx, y: BOSS.stageY + 1, c: BOSS.st === 'dead' ? '#5a6988' : '#e43b44', r: 1 });
   for (const N of ITEMS.people) if (MAP.seen.has(roomAt(N.x, N.y + 0.5))) dots.push({ x: N.x, y: N.y + 0.5, c: { lamplighter: '#feae34', wren: '#63c74d', scribe: '#2ce8f5' }[N.who] });   // the stations he has found
   if (has('starcompass') || G.charts.includes(LEVEL.index)) for (const it of ITEMS.left().all) dots.push({ x: it.x, y: it.y + 0.5, c: '#f6757a', find: true });   // what is still to be found
+  // Corwen's map (once he has been met): the ways he could not take, where he came to them. Grey while he lacks what
+  // opens them; gold and beating once he has it, until he has been through
+  if (corwenMet()) for (const C of PROPS.cracks){ if (C.gone || !(G.blocked[LEVEL.index] || []).includes(C.id)) continue; dots.push({ x: C.x, y: C.y, c: CAN.breaker ? '#fee761' : '#8b9bb4', r: 1, blink: CAN.breaker, way: CAN.breaker ? 'open' : 'shut' }); }
   dots.push({ x: P.x, y: P.y + 0.8, c: '#ffffff', blink: true });
   return dots;
 }
@@ -225,8 +242,15 @@ function mapScreen(){
   SCREEN = 'map'; PAUSE = true; release(); const T2 = (G.taught = G.taught || {}); T2.mapN = (T2.mapN || 0) + 1; store();
   menuShow([menuButton('Back', () => pause(true), true)], false, () => pause(true)); MENU.style.top = 'auto'; MENU.style.bottom = '1.5%'; MSEL = 0; menuMark();
 }
-function drawMap(){ HUD.fullmap(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, roomAt(P.x, P.y), T, mapDots(), time, LEVEL.name);
-  if (((G.taught || {}).mapN || 0) <= 3 && OPT.hints !== false){ HUD.fine(CARDS.map.does.toUpperCase(), HUD.W / 2, 156, '#c0cbdc', 'center'); HUD.fine(CARDS.map.how[0].toUpperCase(), HUD.W / 2, 163, '#c0cbdc', 'center'); } }   // what the marks are, the first few times
+function drawMap(){ const met = corwenMet(), dots = mapDots();
+  HUD.fullmap(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, roomAt(P.x, P.y), T, dots, time, met ? "Corwen's map · " + LEVEL.name : LEVEL.name);
+  if (met){ const n = LEVEL.index, falls = (G.fallsBy || {})[n] || 0, shut = dots.filter(d => d.way === 'shut').length, open = dots.filter(d => d.way === 'open').length, parts = [];
+    parts.push(falls ? `FALLEN HERE ${falls} TIME${falls === 1 ? '' : 'S'}` : 'NOT YET FALLEN HERE');
+    if (shut) parts.push(`${shut} WAY${shut === 1 ? '' : 'S'} SHUT: CRACKED STONE, FOR SOMETHING HEAVIER`); if (open) parts.push(`${open} WAY${open === 1 ? '' : 'S'} THE SPADE NOW OPENS`);
+    HUD.fine(parts.join('  ·  '), HUD.W / 2, 156, '#c0cbdc', 'center');
+    if ((G.sealed || {})[n]){ HUD.seal(HUD.W - 43, 36); HUD.fine('THE PAGE', HUD.W - 43, 48, '#fee761', 'center'); HUD.fine('IS SEALED', HUD.W - 43, 55, '#fee761', 'center'); HUD.fine('NOTHING HERE', HUD.W - 43, 66, '#c0cbdc', 'center'); HUD.fine('IS LEFT UNFOUND', HUD.W - 43, 73, '#c0cbdc', 'center'); }
+    return; }
+  if (((G.taught || {}).mapN || 0) <= 3 && OPT.hints !== false){ let y = 50; for (const para of [CARDS.map.does, ...CARDS.map.how[0].split(/(?<=\.)\s+/)]){ let line = ''; for (const w of para.toUpperCase().split(' ')){ if (line && (line + ' ' + w).length > 17){ HUD.fine(line, HUD.W - 43, y, '#c0cbdc', 'center'); y += 7; line = w; } else line = line ? line + ' ' + w : w; } HUD.fine(line, HUD.W - 43, y, '#c0cbdc', 'center'); y += 12; } } }   // what the marks are, the first few times
 function annals(page){
   SCREEN = 'annals'; PAUSE = true; PAGE = Math.max(0, Math.min(ANNALS.length, page)); release();
   const turn = d => () => { PAGE = (PAGE + d + ANNALS.length + 1) % (ANNALS.length + 1); sfx.ui(); };
@@ -520,6 +544,7 @@ function frame(ts){
   for (const x of R.exits) if (x.on && Math.random() < dt * 16){ const a = Math.random() * Math.PI * 2; fx.burst({ x: x.x + Math.cos(a) * 0.6, y: x.y + 1.3 + Math.sin(a) * 0.9 }, 1, x.cols[Math.random() < 0.5 ? 0 : 1]); }
   for (let i = LATER.length - 1; i >= 0; i--) if ((LATER[i].t -= dt) <= 0){ const L = LATER[i]; LATER.splice(i, 1); L.f(); }
   if (!NOTE && CARDQ.length){ NOTE = CARDQ.shift(); release(); }   // the next card, in its turn
+  noteWays(dt);
   giftStep(dt); if (RECEIVE > 0) RECEIVE -= dt;
   // a hint, if he is struggling (teach.js); not while something else has the screen
   TEACHER.step(dt, { P, held: IN.held, solidAt, onPlank, busy: !!(WAKE > 0 || DISS || FLIGHT || GO.st || ENT.st || DEATH > 0 || (BOSS && BOSS.st === 'rise')),
@@ -562,7 +587,7 @@ function frame(ts){
   // a fall (decision 0.2): he comes apart into water; the drops fall, and where they meet the ground they sink into it;
   // the picture goes dark, and he is raised out of the region's raising water (raise). What he killed is there again;
   // what he found, lit and learned is kept. (The old rewind, his path run back, is kept in reserve: FLIGHT)
-  if (P.hp <= 0 && DEATH <= 0 && !FLIGHT && !DISS){ DEATH = 0.7; P.vx = 0; G.falls = (G.falls || 0) + 1; DISS = { t: 0, raised: false, drops: dissolve() }; BANNER = null; fx.burst({ x: P.x, y: P.y + 1.2 }, 18, 0xdff4ff); FEEL_FX.hitstop = 0.22; R.glint(P.x, P.y + 1, 0x9fe8ff, 1, 5, 0.5); sfx.hurt(); sfx.death(); buzz(1, 1, 450); }
+  if (P.hp <= 0 && DEATH <= 0 && !FLIGHT && !DISS){ DEATH = 0.7; P.vx = 0; G.falls = (G.falls || 0) + 1; (G.fallsBy = G.fallsBy || {})[LEVEL.index] = (G.fallsBy[LEVEL.index] || 0) + 1; DISS = { t: 0, raised: false, drops: dissolve() }; BANNER = null; fx.burst({ x: P.x, y: P.y + 1.2 }, 18, 0xdff4ff); FEEL_FX.hitstop = 0.22; R.glint(P.x, P.y + 1, 0x9fe8ff, 1, 5, 0.5); sfx.hurt(); sfx.death(); buzz(1, 1, 450); }
   if (DEATH > 0) DEATH -= dt;
   if (DISS){
     const D = DISS; D.t += dt;

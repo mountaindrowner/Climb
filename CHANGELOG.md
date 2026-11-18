@@ -2,7 +2,14 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The people's places, cut into the rock (latest).** After a playtest note: they should not be "sitting in the middle of a pre-built space"; each place should be dug into an edge, and be there for a reason. (`docs/phase8-sheet.md` has each place and why.)
+**Voices, and Corwen's map (latest; phase 8b, build 55).**
+- **Each of the four speaks in their own way.** Ordric is the slowest, with long held vowels and soft starts. Mirel is the quickest, each sound clipped, every phrase rising at its end; once she has put the shell down she slows and the rise goes. Corwen is even and nearly flat, with a longer wait at each comma. Hob is a low mutter.
+- **A hint of the words.** Each syllable starts in the shape of its consonant: a hiss for s and f, a pop for p, b, t and d, a hum for m and n, a roll for r and l. Not speech; the shape of speech. (`docs/voices.md`.)
+- **Once Corwen has been met, the map is his** ("Corwen's map"). Cracked stone he came to without the spade is marked SHUT; when the Warden leaves the spade the mark turns gold, beats, and reads OPEN NOW until he breaks through. His falls in each region are counted on its page. A page is sealed, with a banner once and a seal from then on, when every room is seen and no strand, chest or relic is left.
+- Fixed: the map's first-time hint ran under the BACK button; it sits beside the map now.
+- Not built: marks for gaps (the boots) and heights (the scale). Nothing in the six regions needs them yet.
+
+**The people's places, cut into the rock.** After a playtest note: they should not be "sitting in the middle of a pre-built space"; each place should be dug into an edge, and be there for a reason. (`docs/phase8-sheet.md` has each place and why.)
 - **Ordric has a lamp-room cut into the rock at every raising water,** facing it, with his shelves of lamps inside: past the spike pit in the Roots' corridor; under the crypt stair; in the gate's rock in the Spires; dug into the scree in the Tempest; in the fallen wall's cellar in the Gardens; under the foot of the long stair in the Firmament. The way on goes over his roof (a plank up, then the roof), so he is passed every time.
 - **Mirel has a scrape, never a room:** the roofed gate at the bridge's near end; under the first turn of the bell stair; the hollow under the leaking rock in the Spires (the leak is now on top of that rock); a lip of cliff under a brow of rock at the storm's door. In the Gardens and the Firmament she is in the open, on purpose: she has put the shell down.
 - **Corwen has a cell, raised, looking down:** a shelf of rock over the chamber's east door in the Roots; a stone gallery over the nave's west door; a cell in the orrery's east wall.

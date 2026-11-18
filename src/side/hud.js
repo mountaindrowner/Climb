@@ -106,6 +106,7 @@ export function makeHud(hud){
     for (const d of dots) if (!d.blink || Math.floor(t * 3) % 2 === 0){ const r = d.blink ? 1 : 1; px(C.ink, mx + Math.round(d.x / T * k) - r - 1, my + Math.round((LH - d.y / T) * k) - r - 1, r * 2 + 3, r * 2 + 3); px(d.c, mx + Math.round(d.x / T * k) - r, my + Math.round((LH - d.y / T) * k) - r, r * 2 + 1, r * 2 + 1); }
     // the key
     const KEY = [['#ffffff', 'HIM'], ['#0099db', 'WATER'], ['#feae34', 'ORDRIC'], ['#63c74d', 'MIREL'], ['#2ce8f5', 'CORWEN'], ['#e43b44', 'KEEPER']];
+    if (dots.some(d => d.way === 'shut')) KEY.push(['#8b9bb4', 'SHUT']); if (dots.some(d => d.way === 'open')) KEY.push(['#fee761', 'OPEN NOW']);
     if (dots.some(d => d.find)) KEY.push(['#f6757a', 'UNFOUND']);
     let kx = Math.round(H.W / 2 - KEY.reduce((a, [, s]) => a + width(s) + 12, 0) / 2);
     for (const [c, s] of KEY){ px(C.ink, kx - 1, 147, 5, 5); px(c, kx, 148, 3, 3); text(g, s, kx + 6, 146, C.pale, 1, 'left'); kx += width(s) + 12; }
@@ -147,6 +148,9 @@ export function makeHud(hud){
     g.globalAlpha = a * Math.min(1, Math.max(0, (t - 0.5) / 0.5)); text(g, T.epithet, cx, y + 7 * sc + 12, C.pale, 1, 'center');
     g.globalAlpha = 1;
   };
+  // Corwen's seal on a full page: red wax, pressed, a star in it
+  H.seal = (cx, cy) => { for (let y = -8; y <= 8; y++) for (let x = -8; x <= 8; x++){ const d = Math.hypot(x, y) + ((x * 7 + y * 13) % 3 === 0 ? 0.6 : 0); if (d < 8.3) px(d > 7 ? C.ink : d > 5.6 ? C.red0 : C.red1, cx + x, cy + y); }
+    for (const [x, y, w, h] of [[-1, -5, 3, 11], [-5, -1, 11, 3], [-3, -3, 7, 7]]) px(C.red0, cx + x, cy + y, w, h); px(C.fire3, cx - 1, cy - 4, 3, 9); px(C.fire3, cx - 4, cy - 1, 9, 3); px(C.cream, cx, cy, 1, 1); };
   H.dark = (alpha, col = C.ink) => { if (alpha <= 0) return; g.globalAlpha = Math.min(1, alpha); px(col, 0, 0, H.W, 180); g.globalAlpha = 1; };
   H.label = (str) => { g.globalAlpha = 0.35; fine(g, str, H.W - 3, 180 - 7, C.light, 'right'); g.globalAlpha = 1; };
   return H;

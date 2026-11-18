@@ -239,7 +239,15 @@ each a small room of its own behind a crawl, with a free chart; a line for a sto
 page with pictures; Hob redrawn side on; platforms in each region's make; every torch on a bracket or a stand, tested.
 Differs from the sheet: the Roots' and the Spires' grids had no room for a nook, so Corwen in the Roots and Mirel in the
 Spires stay on the path (Mirel's camp is not built); the nooks hold a desk, not yet shelves; Ordric's lamp-stores are
-not dressed. **8b (voices, Corwen's map) is still to do.***
+not dressed.*
+
+*8b done (build 55). **Voices:** each speaks in their own way (Ordric slow with long vowels; Mirel quick, clipped,
+every phrase rising; Corwen even, with a wait at each comma; Hob a mutter), and each syllable starts in the shape of
+its consonant: a hiss, a pop, a hum or a roll (`docs/voices.md`). **Corwen's map:** once he has been met the map is
+his: cracked stone he came to without the spade is marked SHUT, and turns gold and OPEN NOW when the spade is his; his
+falls are counted on each region's page; a page is sealed when nothing on it is left to find. Differs from the sheet:
+only cracked stone is marked, since no gap or height in the six regions yet needs the boots or the scale (that comes
+with phase 9).*
 
 **Every torch with a reason to be there:**
 - on a wall in a bracket, on a stand, or on a pillar;

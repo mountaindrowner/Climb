@@ -33,16 +33,23 @@ line early simply stops it. **At once** shows the whole line straight away, with
    low-pass for the top, and an envelope that swells over 30 ms, holds and lets go. About 130 ms long; each overlaps
    the next a little, so the syllables run together. The pitch sags 3% over the sound, wobbles with age, jitters
    with rasp, and every syllable is nudged at random by up to 2.5%.
+5. **A hint of the words (build 55).** The letters just before a syllable's vowel shape how it starts (`onsetOf`):
+   **s, f, sh, h, z, c** a hiss (a short burst of high noise, the voice coming in softly after it); **p, b, t, d, k,
+   g** a pop (a click of noise and a hard, fast start); **m, n** a hum (a low closed sound first, then the vowel
+   opening); **r, l, w, y** a roll (the second formant glides up into the vowel). A vowel with nothing before it
+   starts plainly. It is not speech: only the shape of speech. A voice's `artic` (0 to 1) sets how strongly.
+6. **Each their own way of talking.** `hold` stretches or clips every sound; `rise` lifts the end of every phrase, not
+   only questions; `comma` lengthens the wait at a comma.
 
 ## The folk's voices
 
 | Who | Voice | Why |
 |---|---|---|
-| Ordric of the Vigil (`lamplighter`) | 152 Hz, slow, breathy, part whisper, a slow wobble, soft at the top | An old moth: papery, patient, faithful past understanding why |
-| Mirel the Penitent (`wren`) | 206 Hz, a woman's tube, mouth half shut, flat and even | Under a borrowed shell, keeping her count: held in |
-| Mirel, the shell put down (`wren_free`, from the Gardens) | A little higher, the mouth open, a wider tune, a little lilt | The same woman, opened out |
-| Corwen the Annalist (`scribe`) | 124 Hz, quick and clipped, flat, a rook's gravel, through the nose | He writes the mountain down exactly |
-| Hob of the Guild (`hob`) | 98 Hz, a big low tube, a mutter, a little gravel, dark | A mole in the Deep, unhurried |
+| Ordric of the Vigil (`lamplighter`) | 138 Hz, the slowest, long held vowels, breathy, part whisper, a slow wobble, soft starts | An old moth: papery, patient, warm, faithful past understanding why |
+| Mirel the Penitent (`wren`) | 212 Hz, a woman's tube, mouth half shut, the quickest, each sound clipped short, every phrase rising at its end | Under a borrowed shell, keeping her count: breathless, never sure she has done enough |
+| Mirel, the shell put down (`wren_free`, from the Gardens) | The same pitch, slower, the mouth open, sounds held, a wide tune, no rise | The same woman, at rest |
+| Corwen the Annalist (`scribe`) | 122 Hz, even and nearly flat, a rook's gravel, through the nose, the sharpest consonants, a longer wait at every comma | He writes the mountain down exactly, clause by clause |
+| Hob of the Guild (`hob`) | 92 Hz, a big low tube, mouth half shut, heavy gravel, dark, consonants nearly swallowed | A mole in the Deep: a mutter |
 
 Anyone not in the table gets a fixed voice from a hash of their name (a grown man or woman), so a new speaker never
 sounds like a default and always sounds the same.
@@ -51,7 +58,8 @@ sounds like a default and always sounds the same.
 
 Add a line to `VOICES` in `src/audio/voice.js`, keyed by the name the level's marker uses. Fields: `f0` (Hz),
 `tract` (1 a grown man, ~1.15 a woman, ~1.3 a child), `breath`, `rasp`, `nasal`, `whisper` (0-1), `wobble` and
-`wobbleHz`, `rate`, `range` (how far the tune moves), `lilt`, `bright`, `closed` (a mouth half shut), `wave`, `vol`.
+`wobbleHz`, `rate`, `range` (how far the tune moves), `lilt`, `bright`, `closed` (a mouth half shut), `wave`, `vol`, and the
+four above: `artic`, `hold`, `rise`, `comma`.
 `tests/voice.test.mjs` checks the planner against the method's own examples.
 
 ## What it costs

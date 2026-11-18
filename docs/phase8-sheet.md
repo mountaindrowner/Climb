@@ -140,6 +140,20 @@ Once Corwen has been met, the map becomes his:
 
 Before Corwen is met, the map is as it is now.
 
+### As built (build 55)
+
+- **Voices:** as above (`docs/voices.md` has each voice and the four consonant shapes).
+- **Met** means any one talk with Corwen, anywhere: his cell in the Roots, the Cloister's gallery, a nook.
+- **Ways he could not take:** only **cracked stone** is marked, because it is the only kind of shut way the mountain
+  has so far. He has to have come within a few tiles of it without the spade. Grey and marked SHUT until the Warden
+  leaves the spade; then gold, beating, marked OPEN NOW, until he breaks through. Gaps for the boots and heights for
+  the scale are not marked: nothing in the six regions is yet built to need them. They come with the one continuous
+  mountain (phase 9), where gifts gate the ways between regions.
+- **His falls** are counted per region from this build on (falls before it are in the total only).
+- **A sealed page:** when every room has been seen and no strand, chest or relic is left, a banner says so once, and
+  the page carries a seal from then on.
+- Also fixed: the map's first-time hint ran under the BACK button; it now sits beside the map.
+
 ## Cost
 
 - **Art:** Hob's redraw, about $0.10 to $0.20 (the balance is $3.37). Everything else is drawn in code.

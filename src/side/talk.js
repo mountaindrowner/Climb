@@ -70,7 +70,7 @@ export function makeTalk(){
     if (!S.on) return; S.held += dt; const g = H.g, W = H.W, C = H.C, P = PEOPLE[S.who] || { name: S.who.toUpperCase(), col: C.cream }, L = S.lines[S.i] || '';
     const mul = TEXT_SPEED[OPT.text] ?? 1;
     if (!mul) S.n = L.length;
-    else { S.due -= dt; let k = 0; while (S.due <= 0 && S.n < L.length){ const i = S.n++, syl = S.plan.get(i); if (syl && k++ < 2) say(S.voice, syl); S.due += pauseAfter(L, i) * BASE / (S.voice.rate || 1) * mul; } }   // (a slow frame says at most two at once)
+    else { S.due -= dt; let k = 0; while (S.due <= 0 && S.n < L.length){ const i = S.n++, syl = S.plan.get(i); if (syl && k++ < 2) say(S.voice, syl); S.due += pauseAfter(L, i, S.voice) * BASE / (S.voice.rate || 1) * mul; } }   // (a slow frame says at most two at once)
     const bw = Math.min(300, W - 16), x = Math.round((W - bw) / 2), y = 8, bh = 46;   // at the top: he and whoever speaks stand at the foot of the picture
     H.px(C.ink, x - 1, y - 1, bw + 2, bh + 2); H.px('#262b44', x, y, bw, bh); H.px(C.ink, x + 1, y + 1, bw - 2, bh - 2); H.px(P.col, x + 1, y + 1, bw - 2, 1);
     const f = face(S.who, S.art); H.px('#262b44', x + 4, y + 5, 36, 36); H.px(C.ink, x + 5, y + 6, 34, 34);
