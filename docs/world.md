@@ -348,7 +348,7 @@ rubrication* (a red room; the elite) · *the lectern* (the blank book; a relic) 
 chute to the undercroft).
 
 ### The Bell-Foundry
-*Cloister, east · 9 screens · the Warden's weight*
+*Cloister, east · 11 screens with the slype · the Warden's spade · built (build 61, `docs/phase10-sheet.md`)*
 
 **History.** Where the house cast its bells, in a pit cut into the mountain. They cast the Toll here. When the dark came
 they cast more and larger, and rang them harder, until one cracked: a sister bell to the Toll. They left it in the pit

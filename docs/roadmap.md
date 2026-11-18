@@ -313,8 +313,13 @@ the Roots' quick way is not shorter than the old ladder; no nooks in the Roots; 
 *Phase 10, first half, done (build 60): **the Scriptorium**, by `docs/phase10-sheet.md`. Nine screens west of the
 Cloister's stair, behind a sheet of vellum that only the Toll's step tears. The copying hall (desks in tiers, climbed
 across), the furnace, the red room and the Corrector, the lectern with its blank book and a relic (the Copyist's Blank
-Leaf), a chute back to the door. Copyists, blots and the Corrector are new drawings (about $0.30). Still to do in phase
-10: the Bell-Foundry and the Cracked Bell; the refectory and the slype; a knowledge gate.*
+Leaf), a chute back to the door. Copyists, blots and the Corrector are new drawings (about $0.30).*
+
+*Phase 10, second half, done (build 61): **the Bell-Foundry**, by the same sheet. Eleven screens east of the bell tower,
+behind cracked stone the spade breaks. Its rule is the Cloister's knowledge gate: iron rings when it is touched, and
+while it rings the tongues swing, the slag wakes and the shutters come down; silence ends it. The Cracked Bell hangs in
+the pit and never strikes first; when it falls the wing is still, and the bell-rope is the way back (the Founder's Felt
+at its foot). The slype is built as the wing's first room. Still to do in phase 10: the refectory.*
 
 Built two regions at a time. **Spaces, not rectangles** (decision 0.8): each wing has at least one vast space, one
 winding way, and one path no one expects, each shaped by what the place was. Each wing gets its sheet first: its rooms, what each room is for, its gate and shortcut,

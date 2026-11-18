@@ -50,4 +50,4 @@ wing's sheet is written. Roughly $10 to $20 in all, so these wait for the genera
 | What | Why | Est. |
 |---|---|---|
 | ~~The copyist, the blot, the Corrector~~ made, build 60 (`px_copyist`, `px_blot`, `px_corrector`) | The Scriptorium | $0.30 spent |
-| The Bell-Foundry's slag-crawler, clapper, and the Cracked Bell (drawn in pieces, in code) | Phase 10, second half | $0.20 |
+| The Bell-Foundry's slag (drawn, build 61: $0.05); its tongues and the Cracked Bell are drawn in code, the Bell from the Toll's pieces | Phase 10, second half | done |

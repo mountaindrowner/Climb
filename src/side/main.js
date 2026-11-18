@@ -31,7 +31,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 60';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 61';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -86,6 +86,7 @@ function learn(){
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
 // `walked`: he has walked in from the next region (cross): he and his scarf are as they were
 function setup(walked = false){
+  RULE.ring = 0; RULE.still = !!(G.still && G.still[LEVEL.index]);   // the Bell-Foundry: nothing rings as he comes in; its Cracked Bell, once fallen, stays fallen
   RULE.fallen = !!(G.beat[LEVEL.index] || G.top > LEVEL.index || !KEEPERS[LEVEL.theme]);   // has this region's keeper fallen: what it held is let go (level.js RULE)
   SWINGFX = makeSwingFx(R.scene); PROPS = makeProps(R.scene, R);
   PROPS.toll = (shut, doors) => { const d = Math.min(...doors.map(B => Math.hypot(B.x - P.x, B.y - P.y))); if (d < 26){ sfx.bell(); if (d < 12) FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.08); } };   // the bell the doors turn on, heard when he is near one
@@ -146,6 +147,8 @@ function ruleStep(dt){
 // book says what it is the first time he stands at it; the Blank Leaf is whole again at any water
 function wingStep(dt){
   if (!PROPS || !P || GO.st) return;
+  // the Bell-Foundry's ringing dies away: in silence the shutters go up (the tongues and the slag see RULE.ring for themselves)
+  if (RULE.ring > 0 && !PAUSE){ RULE.ring = Math.max(0, RULE.ring - dt); if (RULE.ring === 0){ PROPS.show(); if (PROPS.shutters.some(B => Math.hypot(B.x - P.x, B.y - P.y) < 26)) sfx.creak(); } }
   if (P.dashT > 0) for (const S of PROPS.tear(P)){ sfx.swing(true); fx.burst({ x: S.x, y: S.y }, 28, 0xead4aa); fx.dust({ x: S.x, y: S.y0 }, 12, 3); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.2); (G.broke[LEVEL.index] = G.broke[LEVEL.index] || []).push(S.id); store(); }
   if (!G.lectern && P.grounded) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'lectern' && Math.abs((m.x + 0.5) * T - P.x) < 1.6 && Math.abs(m.y * T - P.y) < 2){ G.lectern = 1; store(); banner('The book they copy', 'it is open at its first page. The page is blank.', 5.5); }
 }
@@ -357,7 +360,8 @@ function drawAnnals(W){
   if (people){ PEOPLE_PAGE.forEach((p, i) => { const met = Object.keys(G.met).filter(k => k.endsWith(':' + p.who)).length; entry(x, 44 + i * 30, p.art, p.name, p.line, met > 0, met ? `MET IN ${met} REGION${met === 1 ? '' : 'S'}` : '', '#fee761'); }); return; }
   const K = A.keeper, met = (G.keepers || {})[K.theme] || G.beat[PAGE];
   entry(x, 41, K.art, K.name, K.line, !!met, G.beat[PAGE] ? 'IT HAS FALLEN' : met ? 'IT STILL STANDS' : '', '#e43b44');
-  A.creatures.forEach((c, i) => { const seen = (G.seen || {})[c.type], n = (G.slain || {})[c.type] || 0; entry(x, 67 + i * 24, c.art, c.name, c.line, !!seen, n ? `SLAIN ${n}` : 'MET, NOT YET SLAIN', '#fee761'); });
+  const step = A.creatures.length > 7 ? 22 : 24;   // a long page: its entries a little closer
+  A.creatures.forEach((c, i) => { const seen = (G.seen || {})[c.type], n = (G.slain || {})[c.type] || 0; entry(x, 67 + i * step, c.art, c.name, c.line, !!seen, n ? `SLAIN ${n}` : 'MET, NOT YET SLAIN', '#fee761'); });
 }
 // the Lamplighter's wares, for shards
 const WARES = () => [
@@ -893,6 +897,7 @@ function talkTo(N){
   if (INTRO[N.who] && !Object.keys(G.met).some(m => m.endsWith(':' + N.who)) && !lines.includes(INTRO[N.who])) lines.unshift(INTRO[N.who]);   // the first meeting anywhere: who they are (teach.js)
   if (N.who === 'scribe'){ const L = ITEMS.left(), pl = (c, w) => `${c} ${w}${c === 1 ? '' : 's'}`; lines.push(L.threads + L.chests === 0 ? 'My page for this place is full. There is nothing here you have not found.' : `Not yet entered as found, here: ${pl(L.threads, 'red strand')}, ${pl(L.chests, 'chest')}${L.relic ? ', and something old, behind a way still shut' : ''}.`);
     if (G.lectern && !G.lecternSaid){ G.lecternSaid = 1; lines.push('You found the book they copy. No one has dared its first page. Nor have I.'); } }
+  if (N.who === 'wren' && G.still && G.still[1] && !G.stillSaid){ G.stillSaid = 1; lines.push('The cracked one has stopped. I kept my count by it. Now I must keep it myself.'); }
   G.met[k] = n + 1; store(); release(); sfx.ui(); TALK.start(N.who, lines, N.who === 'lamplighter' ? shop : null, N.art);
 }
 // his body as drops of water: pixels of his drawing's colours (the pale of the water, the red of the thread), each
@@ -925,6 +930,10 @@ function refill(){
 const TICK = { R, get P(){ return P; }, get fx(){ return fx; }, sfx, LEVEL, flash: v => { FLASH = Math.max(FLASH, v); }, shake: v => { FEEL_FX.shake = Math.max(FEEL_FX.shake, v); }, get room(){ return roomAt(P.x, P.y); } };
 const TCTX = { get P(){ return P; }, solidAt };
 // a creature's own voice, quieter the further off it is
+// the Bell-Foundry: how long iron rings (a touch, a blow on the Bell); the Founder's Felt (how far a parry's ring stills, how long)
+const RING = [3.6, 4.6], FELT = { r: 7, t: 1.1 };
+// a wing's keeper has no hall of its own: its name and strength show once it has been struck, while he is near it
+const miniHud = () => { if (!E || !P) return null; const e = E.list.find(q => q.type === 'crackedbell' && q.alive && q.woke); return e && Math.hypot(e.x - P.x, e.y - P.y) < 34 ? { name: 'The Cracked Bell', frac: Math.max(0, e.hp / e.d.hp), phase: e.two ? 2 : 1 } : null; };
 const cry = (c, what) => { if (!c) return; const d = Math.hypot(c.x - P.x, c.y - P.y); beast(c.type, what, Math.max(0, 1 - d / 22)); };
 function onEvent(e){
   const at = { x: P.x, y: P.y }; TEACHER.event(e, TCTX);
@@ -961,7 +970,14 @@ function onEvent(e){
     case 'swap': {   // blade and spade, if he has the spade
       const to = P.weapon === 'spade' ? 'blade' : 'spade'; if (!armed(to)){ if (!HINTED.swap){ HINTED.swap = 1; banner('', 'he has only the blade', 2.2); } break; }
       P.weapon = G.wield = to; store(); sfx.whoosh(); fx.ring({ x: P.x, y: P.y + 1.1 }, to === 'spade' ? 0xc0cbdc : 0xffd27a); banner('', to === 'spade' ? 'the spade' : 'the blade', 1.4); break; }
+    // iron has been touched in the Bell-Foundry (regions/foundry.js): it rings, a while; the shutters come down
+    case 'ring': { if (RULE.still) break; const was = RULE.ring > 0, d = Math.hypot(e.at.x - P.x, e.at.y - P.y); RULE.ring = Math.max(RULE.ring, RING[e.big ? 1 : 0]);
+      sfx.crackbell(!!e.big); if (e.big) sfx.clang(); fx.ring(e.at, 0xfeae34); if (e.big) fx.ring(e.at, 0xffffff); R.shock(e.at.x, e.at.y, !!e.big); R.glint(e.at.x, e.at.y, 0xfeae34, e.big ? 1.2 : 0.7, e.big ? 9 : 5, 0.3); FEEL_FX.shake = Math.max(FEEL_FX.shake, e.big ? 0.3 : d < 10 ? 0.12 : 0.05);
+      if (!was){ PROPS.show(); let near = false; for (const B of PROPS.shutters) if (Math.hypot(B.x - P.x, B.y - P.y) < 26){ near = true; fx.dust({ x: B.x, y: B.y0 }, 8, 2); } if (near) sfx.door(); } break; }
     case 'kill':
+      // the Cracked Bell falls: the wing is still, for good. Nothing in it rings again; the shutters stay up; the grates lift
+      if (e.e && e.e.type === 'crackedbell'){ RULE.still = true; RULE.ring = 0; (G.still = G.still || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.crackbell(true); sfx.slam(); sfx.door(); FEEL_FX.shake = 0.7; SLOW = Math.max(SLOW, 0.9); FLASH = Math.max(FLASH, 0.3);
+        const fy = e.e.floor != null ? e.e.floor : e.at.y; fx.dust({ x: e.e.x, y: fy }, 40, 6); R.shock(e.e.x, fy + 1, true); ITEMS.spill(e.e.x, fy + 1.5, 30); for (const B of PROPS.grates) fx.dust({ x: B.x, y: B.y }, 14, 3); banner('The Cracked Bell is still', 'so is everything that answered it', 5.5); }
       if (e.e){ (G.slain = G.slain || {})[e.e.type] = (G.slain[e.e.type] || 0) + 1; (G.seen = G.seen || {})[e.e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; } sfx.kill(); cry(e.e, 'death'); ITEMS.spill(e.at.x, e.at.y, 1 + Math.min(5, e.e ? e.e.d.hp : 1)); fx.burst(e.at, 26, 0xff70d0); fx.ring(e.at, 0xffc0ff);
       if (e.e && e.e.d.ai === 'spitter'){ const col = e.e.d.orb || 0x9dff70; fx.burst(e.at, 30, col); fx.ring(e.at, col); for (let k = 0; k < 8; k++) fx.burst({ x: e.at.x + Math.cos(k * 0.785) * 0.7, y: e.at.y + Math.sin(k * 0.785) * 0.7 }, 3, col); R.glint(e.at.x, e.at.y, col, 1, 5, 0.3); }   // a spitter bursts, in its own colour
       FEEL_FX.hitstop = 0.1; fx.ember(e.at, 2 + Math.min(5, e.e ? e.e.d.hp : 2) + (has('stylus') ? 2 : 0)); R.glint(e.at.x, e.at.y, 0xff9040, 1, 5, 0.35); break;
@@ -969,6 +985,7 @@ function onEvent(e){
     // creature is thrown back. A parry (raised as it landed): a bright ring and a white flash, a held beat, the creature
     // thrown further and staggered, sparks both ways (enemies.js, stunned)
     case 'parry': buzz(0.3, 0.7, 110); sfx.parry(); fx.ring(e.at, 0x9fd0ff); FEEL_FX.hitstop = 0.12;
+      if (e.mine && has('felt')){ for (const q of E.list) if (q.alive && Math.hypot(q.x - P.x, q.y - P.y) < FELT.r) q.stilled = FELT.t; fx.ring({ x: P.x, y: P.y + 1.2 }, 0xc0cbdc); sfx.bell(); }   // the Founder's Felt: a parry rings, and what is near is stilled for a breath
       if (e.mine){ fx.ring(e.at, 0xffffff); fx.burst(e.at, 22, 0xfff2d0); fx.burst(e.at, 10, 0x9fd0ff); R.glint(e.at.x, e.at.y, 0xffffff, 1.4, 5, 0.3); FLASH = Math.max(FLASH, 0.06); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.16); FEEL_FX.kick = -P.face * 0.18; } break;
     case 'block': sfx.block(); fx.burst(e.at, 8, 0xc9d2e0);
       if (e.mine){ fx.burst(e.at, 12, 0xfee761); R.glint(e.at.x, e.at.y, 0xfff2d0, 0.8, 3.5, 0.18); FEEL_FX.hitstop = Math.max(FEEL_FX.hitstop, 0.05); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.08); if (P.grounded && !e.shot) P.vx = -P.face * 3; } break;
@@ -1037,7 +1054,7 @@ function drawHud(dt){
     const room = roomAt(P.x, P.y); if (room && !MAP.seen.has(room)){ MAP.seen.add(room); const k = LEVEL.rooms.indexOf(room), list = ((G.rooms = G.rooms || {})[LEVEL.index] = G.rooms[LEVEL.index] || []); if (k >= 0 && !list.includes(k)){ list.push(k); DIRTY = DIRTY > 0 ? DIRTY : 2; } }
     const st = ITEMS.station(P), place = (room && room.sill ? '' : LEVEL.name + (room ? ' · ' : '')) + (room ? room.title || room.name : '') + (st ? ' · ' + st.station.name : '');   // beside one of the three: their station's name if (place !== PLACE.name){ PLACE.name = place; PLACE.t = 0; } PLACE.t += dt;
     HUD.place(place, PLACE.t < 3 ? 1 : Math.max(0.45, 1 - (PLACE.t - 3) * 0.5));
-    HUD.boss(BOSS && BOSS.hud(), dt);
+    HUD.boss((BOSS && BOSS.hud()) || miniHud(), dt);
     const dots = mapDots();
     HUD.map(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, room, T, dots, heightHere(), SPANS, LEVEL.index, time, P);
   }
@@ -1075,7 +1092,7 @@ function drawHud(dt){
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { knotMenu, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { knotMenu, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, RULE, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

@@ -108,6 +108,7 @@ const SYNTH = {
   // a heavy swing: the air torn (a bright noise sweep), a low thump under it, more of both for a finisher
   swing(big){ noise(big ? 0.22 : 0.16, big ? 0.16 : 0.12, big ? 1900 : 2400); tone(big ? 95 : 140, big ? 0.2 : 0.12, 'sine', big ? 0.32 : 0.2, big ? -45 : -70); tone(big ? 520 : 760, 0.06, 'triangle', 0.04, -400); },
   dash(){ noise(0.24, 0.12, 2800); tone(260, 0.18, 'sawtooth', 0.035, -180); },
+  crackbell(big){ tone(big ? 196 : 392, big ? 0.9 : 0.5, 'triangle', 0.1, -8); tone(big ? 277 : 554, 0.5, 'square', 0.025, -14); noise(0.1, 0.04, 3000); },
   snap(){ noise(0.08, 0.1, 3200); tone(300, 0.08, 'square', 0.05, -150); },
 };
 // which recording a name asks for, and how: a name, or [name, vol, rate, jitter], or a function of the call's arguments.
@@ -118,6 +119,7 @@ const USE = {
   parry: ['parry', 0.8], block: ['block', 0.7], hurt: ['hurt', 0.8], gold: ['shard', 0.5, 1, 0.1], shard: ['shard', 0.45, 1, 0.12, 0.05], ember: ['ember', 0.4, 1, 0.15, 0.05],
   crack: ['crack', 0.7], slam: ['slam', 0.9], roar: ['roar', 1], spit: ['spit', 0.6], drink: ['drink', 0.7], creak: ['creak', 0.6], rumble: ['rumble', 0.7],
   whoosh: ['roll', 0.45, 1.1, 0.1], roll: ['roll', 0.55], dash: ['dash', 0.7], snap: ['thorn', 0.7], bossDie: ['boss_die', 1], talk: ['talk', 0.35, 1, 0.12, 0.03], ui: ['ui', 0.5],
+  crackbell: big => ['bell', big ? 0.9 : 0.5, big ? 0.71 : 1.42, 0.04],   // the Bell-Foundry's iron: the house's bell, off its note
   thunder: ['thunder', 0.9, 1, 0.1, 0.3], glass: ['glass', 0.3, 1, 0.03, 0.5], gust: ['gust', 0.5, 1, 0.08, 0.8], zap: ['zap', 0.6, 1, 0.1], bell: ['bell', 0.9, 1, 0.01],
 };
 // any name can be called: the recording if it is loaded, else the synthesised sound, else nothing
@@ -132,7 +134,7 @@ export function buzz(ms){ try { navigator.vibrate && navigator.vibrate(ms); } ca
 const FAMILY = {   // creature: [family, pitch]
   crawler: ['chitter', 1], burrower: ['chitter', 0.6], thornback: ['chitter', 0.75], lasher: ['rustle', 1], puff: ['rustle', 1.6],
   flitter: ['wing', 1.3], gargoyle: ['wing', 0.7], harpy: ['wing', 1], spitter: ['wet', 1], lamprey: ['wet', 0.8], barnacle: ['wet', 0.65], toad: ['wet', 0.45],
-  acolyte: ['grunt', 1], sexton: ['grunt', 0.6], copyist: ['grunt', 1.5], corrector: ['grunt', 0.45], blot: ['wet', 1.3], yeti: ['grunt', 0.75], wraith: ['moan', 1], wisp: ['moan', 1.6],
+  acolyte: ['grunt', 1], sexton: ['grunt', 0.6], copyist: ['grunt', 1.5], corrector: ['grunt', 0.45], blot: ['wet', 1.3], slag: ['chitter', 0.5], crackedbell: ['chime', 0.3], clapper: ['chime', 0.8], yeti: ['grunt', 0.75], wraith: ['moan', 1], wisp: ['moan', 1.6],
   squall: ['crackle', 0.8], nimbus: ['crackle', 0.6], spark: ['crackle', 1.5], mote: ['chime', 1.4], oculus: ['chime', 1], sentinel: ['chime', 0.5],
 };
 const later = (ms, f) => setTimeout(f, ms);

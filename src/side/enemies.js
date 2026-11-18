@@ -14,7 +14,7 @@
 // Each is drawn with its PixelLab strips once they exist (tools/pixellab.py), a glowing stand-in before.
 import { T, ROCK, LEDGE, LEVEL, tileAt, REGION_DATA, RULE } from './level.js';
 import { hurt, isRollInv, shove } from './motor.js';
-import { makeSprite } from './render.js';
+import { makeSprite, lit as litMat } from './render.js';
 const THREE = window.THREE;
 const ground = (x, y) => {   // the floor under (x, y): the top of the first rock or ledge tile at or below y
   const i = Math.floor(x / T);
@@ -58,7 +58,7 @@ export function spawnEnemies(scene, R){
   for (const m of LEVEL.marks){
     const d = DEF[m.type]; if (!d) continue;
     const x = d.perch && m.perch ? (m.perch.x + 0.5) * T : (m.x + 0.5) * T, y = d.perch && m.perch ? m.perch.y * T + d.h * 0.7 : d.fly ? m.y * T + 1.6 : m.y * T;   // a percher sits on its perch (level.js)
-    const e = { type: m.type, d, x, y, home: { x, y }, vx: 0, vy: 0, face: d.perch && m.perch && m.perch.side ? -m.perch.side : -1, hp: d.hp, st: 'idle', tm: 0, age: Math.random() * 6, flash: 0, dead: 0, alive: true, orb: null, dirn: m.dir || 1 };
+    const e = { type: m.type, d, x, y, home: { x, y }, vx: 0, vy: 0, face: d.perch && m.perch && m.perch.side ? -m.perch.side : -1, hp: d.hp, st: 'idle', tm: 0, age: Math.random() * 6, flash: 0, dead: 0, alive: true, orb: null, dirn: m.dir || 1, mk: m };
     // a stand-in until the art loads: a glowing shape
     e.stand = new THREE.Mesh(new THREE.PlaneGeometry(d.w * 2, d.h), new THREE.MeshBasicMaterial({ color: d.color }));
     scene.add(e.stand);
@@ -67,6 +67,8 @@ export function spawnEnemies(scene, R){
       fetch(`assets/side/${n}/sprite.json`).then(r => r.ok ? r.json() : null).then(meta => { if (meta && Object.keys(meta.anims).length > 1){ const sp = makeSprite(scene, `assets/side/${n}`, meta).warm(); sp.g.visible = false; e.meta = meta; if (d.cling) cling(e, meta);
         // its drawing replaces the stand-in only once every strip of it is in: it never blinks out while they come
         let tries = 0; const swap = () => { if (sp.in() || ++tries > 400){ e.sprite = sp; sp.g.visible = e.alive; e.stand.visible = false; if (d.tint) sp.g.traverse(o => { if (o.material && o.material.color) o.material.color.setHex(d.tint); }); } else setTimeout(swap, 60); }; swap(); } else tryArt(names.slice(1)); }).catch(() => tryArt(names.slice(1))); };
+    // one that draws itself (`own`: a region's ai makes its picture) has no drawing to fetch, and no stand-in
+    if (d.own){ e.stand.visible = false; if (d.spawn) d.spawn(e, { scene, lit: litMat, RULE, T }); } else
     tryArt(d.variants ? [d.variants[(m.x * 7 + m.y * 3) % d.variants.length]] : ART[m.type] || [d.art]);
     if (d.cling === 'floor'){ const gy = ground(x, y + 0.3); if (gy > -Infinity){ e.y = e.home.y = gy; } }
     if (e.d.perch) e.home.face = e.face;
@@ -157,8 +159,9 @@ export function stepEnemies(E, P, dt, fx, events){
     // asleep: far out of sight and at rest, it does nothing and is not drawn until he comes near (a region three times
     // the size has three times the creatures; only those near him think). One in the middle of something finishes it
     const far = Math.abs(P.x - e.x) > SLEEP.x || Math.abs(P.y - e.y) > SLEEP.y, rest = (e.st === 'idle' || e.st === 'return' || e.st === 'patrol' || e.st === 'perch' || e.st === 'hide' || e.st === 'float' || e.st === 'circle' || e.st === 'drift' || !e.st) && !e.orb;
-    if (far && rest && e.age > 0.5){ if (!e.asleep){ e.asleep = true; if (e.sprite) e.sprite.g.visible = false; e.stand.visible = false; } continue; }
-    if (e.asleep){ e.asleep = false; if (e.sprite) e.sprite.g.visible = true; else e.stand.visible = true; }
+    if (far && rest && e.age > 0.5 && !(e.d.own && RULE.ring > 0)){ if (!e.asleep){ e.asleep = true; if (e.sprite) e.sprite.g.visible = false; e.stand.visible = false; } continue; }
+    if (e.asleep){ e.asleep = false; if (e.sprite) e.sprite.g.visible = true; else if (!e.d.own) e.stand.visible = true; }
+    if (e.stilled > 0 && !e.d.own){ e.stilled -= dt; continue; }   // stilled for a breath (the Founder's Felt: a parry rang)
     e.tm += dt; e.age += dt;
     const ai = e.d.ai, dx = P.x - e.x, dy = P.y - e.y, dist = Math.hypot(dx, dy);
     const go = st => { e.st = st; e.tm = 0; };
@@ -328,7 +331,7 @@ export function stepEnemies(E, P, dt, fx, events){
       // anim(e, name, frac, dy, z), shoot(E, e, P, lob), hurt(P, n, fromX, word), isRollInv(P), ground(x, y), solidAt(x, y),
       // kill(e, events), tileAt, T; hit(x0, y0, x1, y1, word, fromX): hurts him if his body is in that box and he is not
       // rolling through (true if it did)
-      CUSTOM[ai](e, P, dt, { go, dx, dy, dist, events, fx, E, anim, shoot, hurt, isRollInv, ground, solidAt, kill: killEnemy, tileAt, T,
+      CUSTOM[ai](e, P, dt, { go, dx, dy, dist, events, fx, E, anim, shoot, hurt, isRollInv, ground, solidAt, kill: killEnemy, tileAt, T, RULE, lit: litMat,
         hit: (x0, y0, x1, y1, word, fromX) => P.x + 0.34 > x0 && P.x - 0.34 < x1 && P.y + P.h > y0 && P.y < y1 && !isRollInv(P) && hurt(P, 1, fromX == null ? (x0 + x1) / 2 : fromX, word || e.d.word || 'Struck') });
     }
     // what it threw, in flight: a glob or a bolt goes straight, a chunk of ice falls in its arc
@@ -343,11 +346,11 @@ export function stepEnemies(E, P, dt, fx, events){
         E.scene.remove(O.m); e.orb = null;
       } else if (O.t > 6 || tile === ROCK || tile === LEDGE && (O.g ? O.vy < 0 : true) || Math.abs(O.x - P.x) > 30 || Math.abs(O.y - P.y) > 20){ fx.burst({ x: O.x, y: O.y }, O.g ? 12 : 6, O.col); E.scene.remove(O.m); e.orb = null; }
     }
-    if (!e.sprite) e.stand.position.set(e.x, e.y + e.d.h / 2, 0.03);
-    if (e.sprite) e.sprite.mat.emissive.setHex(e.flash > 0 ? 0xffffff : (e.st === 'windup' || e.st === 'charge' || e.st === 'rise' || e.st === 'swat' || e.warn) && Math.sin(e.tm * 40) > 0 ? 0x601010 : (e.d.glow || 0));
+    if (!e.sprite && !e.d.own) e.stand.position.set(e.x, e.y + e.d.h / 2, 0.03);
+    if (e.sprite) e.sprite.mat.emissive.setHex(e.flash > 0 ? 0xffffff : (e.st === 'windup' || e.st === 'charge' || e.st === 'rise' || e.st === 'swat' || e.warn) && Math.sin(e.tm * 40) > 0 ? 0x601010 : (e.glow != null ? e.glow : e.d.glow || 0));
   }
 }
-function killEnemy(e, events){ e.alive = false; e.dead = 0; events.push({ type: 'kill', e, at: { x: e.x, y: e.y + e.d.h / 2 } }); if (e.sprite) e.sprite.g.visible = false; e.stand.visible = false; }
+function killEnemy(e, events){ e.alive = false; e.dead = 0; if (e.d.onKill) e.d.onKill(e); events.push({ type: 'kill', e, at: { x: e.x, y: e.y + e.d.h / 2 } }); if (e.sprite) e.sprite.g.visible = false; e.stand.visible = false; }
 // a sword cut: everything in front of the blade, within its reach and his height
 export function strikeEnemies(E, P, reach, dmg, events){
   let any = false;

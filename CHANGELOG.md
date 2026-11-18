@@ -2,7 +2,16 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Scriptorium (latest; phase 10, build 60): the Cloister's west wing.** `docs/phase10-sheet.md` has all of it.
+**The Bell-Foundry (latest; phase 10, build 61): the Cloister's east wing.** `docs/phase10-sheet.md` has all of it.
+- **Eleven screens behind cracked stone in the bell tower's east wall,** at the first turn of the stair. The spade breaks it.
+- **Its rule: iron rings, and what hears it wakes.** A tongue (a bell's clapper on its chain) rings when his blade or his body touches it. While anything rings the tongues swing and hurt, the slag wakes and comes for him, and the iron shutters in the doorways come down. In silence everything is as it was: the whole wing can be walked without a fight, by going under what hangs.
+- **Six rooms:** the slype (the rule, shown), the casting floor (two great molds, and a hole he can drop down), the molds (gone through bent double), the slag runs, the pit, the bell-rope.
+- **The Cracked Bell,** the wing's keeper: the Toll's sister, hung in the pit. It never strikes first. Every blow rings it and sets it swinging; from half its strength it tolls again by itself. When it falls the wing is still for good, the grates lift, and the bell-rope is the way back up.
+- **A relic, the Founder's Felt:** a parry rings, and everything near him is stilled for a breath.
+- Mirel has a line about it. The slag is a new drawing; the tongues and the Bell are drawn in code, the Bell from the Toll's own pieces.
+- New in the engine: shutters and grates; a region with wings on both sides; creatures that draw themselves; a wing keeper's name and strength shown once it has been struck.
+
+**The Scriptorium (phase 10, build 60): the Cloister's west wing.** `docs/phase10-sheet.md` has all of it.
 - **A door off the stair's landing** into the stacks of spoils, which anyone may walk into. **The way on is a sheet of vellum:** the Toll's step tears it (a dash in the air), and nothing else does.
 - **The copying hall,** two screens by two: desks in tiers over a floor of ink, climbed across, through three ways in two pillars of shelves. **The furnace** (red; a chest only its rising heat reaches). **The red room** and its elite. **The lectern:** the book they copy is open at its first page, and the page is blank. A chute in its floor drops him back at the first door.
 - **Copyists** fling ink at what is in front of them and do not look up from behind. **Blots** lie as spills, stand up, and throw themselves down where he stands. **The Corrector** slashes for two hearts and strikes a red line through the whole room: crouch under it, or be over it. All three are new drawings.

@@ -17,7 +17,10 @@ export const EMPTY = 0, ROCK = 1, LEDGE = 2, SPIKES = 3, CRACKED = 4, GLASS_A = 
 //   9 a given plank: rock while the keeper stands, a plank after (the boards over a quick way's mouth)
 //  10 a live deck: an iron gantry by the storm's rods. A ledge; while the keeper stands, to land on it is to be shocked
 //  11 vellum: a sheet stretched over a way. Rock, until he goes through it in the Toll's step (a dash in the air tears it)
-export const HOLD = 7, DOOR = 8, GIVEN = 9, LIVE = 10, VELLUM = 11;
+// what a wing's own keeper holds (phase 10, the Bell-Foundry; level.js RULE.ring, RULE.still):
+//  12 a shutter: iron, up in its doorway. Nothing in silence; rock while iron rings; nothing for good once the wing is still
+//  13 a grate: rock until the wing's keeper is still, nothing after
+export const HOLD = 7, DOOR = 8, GIVEN = 9, LIVE = 10, VELLUM = 11, SHUTTER = 12, STILLED = 13;
 // a room spans cw x ch screens (most are one)
 export function room(cw = 1, ch = 1){ const r = { w: ROOM.w * cw, h: ROOM.h * ch, tiles: [], marks: [] }; for (let y = 0; y < r.h; y++) r.tiles.push(new Array(r.w).fill(EMPTY)); return r; }
 export const put = (r, x, y, v) => { if (x >= 0 && y >= 0 && x < r.w && y < r.h) r.tiles[y][x] = v; };

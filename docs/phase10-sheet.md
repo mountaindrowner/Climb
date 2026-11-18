@@ -88,6 +88,109 @@ Sexton). **Cost: about $0.30; the balance is about $3.00.**
   the running game (its aim is covered by an automated check). The red light of the furnace on a phone.
 - **The copyist is drawn from behind,** bent over his desk: the second drawing came out that way and was kept.
 
+# The Bell-Foundry (the second half of phase 10)
+
+*Cloister, east · 10 screens and the slype · behind the Warden's spade*
+
+Built in build 61, on your word to go on to the next wing when the Scriptorium was done.
+
+**What it was.** Where the house cast its bells, in a pit cut into the mountain. They cast the Toll here. When the dark
+came they cast more and larger and rang them harder, until one cracked: a sister to the Toll. They left it hanging in
+the pit and went on casting.
+
+**The question at its door, and the answer before he leaves:** *why is it still ringing?* No one is ringing it. It rings
+when it is struck, and he is the only one here who strikes anything.
+
+## Its rule: iron rings, and what hears it wakes
+
+One cause, three things that follow, and one end. The Scriptorium was about what is in front of someone; this is about
+noise.
+
+- **Iron rings when it is touched**: by his blade, or by his body walking into it. A ring lasts about four seconds from
+  the last touch.
+- **While anything rings:** the hanging tongues swing (and a swinging tongue hurts); the slag wakes and comes for him;
+  the iron shutters in the doorways come down.
+- **In silence:** the tongues hang still and do no harm, the slag is cold and asleep, every shutter is up.
+- So the whole wing can be walked without a fight, by going under what hangs and round what sleeps. Every blow struck in
+  anger at something asleep or at iron makes it worse. Standing still ends it.
+
+This is the wing's knowledge gate (Metroidvania idea 5): nothing says it; the first room shows it.
+
+## How it is entered, and left
+
+- **Cracked stone in the belfry's east wall**, at the first turn of the bell stair. The spade breaks it. He has the
+  spade when he first comes to the Cloister, so this wing is open on his first way up; the Scriptorium is the one he
+  comes back for.
+- **The way back is the bell-rope:** a shaft of rungs from the pit up to a grate in the slype's floor. The grates are
+  down until the Cracked Bell is still.
+
+## The rooms
+
+| Room | Screens | What it is | What he does there |
+|---|---|---|---|
+| **The slype** | 1 | The covered passage the bells were carried out by: a stair down, eastward | **Is shown the rule.** One tongue hangs in the way at the height of his head, one lump of slag lies beyond it, one shutter stands open beyond that. Walk into the tongue and all three answer. Crouch under it and nothing does |
+| **The casting floor** (wide) | 2 | Two great bell molds, the hoist over the hole the bells went down by, the cold furnace | Climbs over the molds, under the tongues hung over them. Looks down the hole: the chain goes down into the dark. **He can drop down it** (the path no one expects: onto the Bell) |
+| **The molds** (winding) | 1 | Three molds on their sides, hollow, a tongue hanging in each | Goes through them bent double, under each tongue. The hole in the floor at the end has a shutter for a lid |
+| **The slag runs** | 2, one over the other | The channels the slag ran down, still hot in the dips | Down the runs, over the slag, past tongues hung over the jumps |
+| **The pit** (vast) | 4 (two by two) | The pit. **The Cracked Bell**, hanging in the middle of it, silent | The mini-keeper |
+| **The bell-rope** | 1 | The ringers' way up; the relic at its foot | Up the rungs to the slype, once the grates are up |
+
+## Who is in it
+
+| Who | What it does | How it is read, and answered |
+|---|---|---|
+| **Tongue** (the clapper of a broken bell, hung by its chain; 11) | Still: touch it and it rings. Ringing: it swings, and hurts | It cannot be broken. Go under it; do not cut it |
+| **Slag** (8) | Cold: a lump, asleep; a cut glances off. Woken by a ring: it glows, and comes fast along the floor; it burns to touch | It only wakes to a ring. Cut it while it glows (two cuts), or get above it and wait: it goes cold where it stands |
+| **The Cracked Bell** (the mini-keeper) | **It never strikes first.** Every blow it takes, it rings: it swings through the pit on its chain, everything in the pit wakes, the shutters come down. From half its strength the crack opens, and while it swings widely it tolls again by itself | Strike it, then stand off: get through the swing (roll through it, or be up on a gallery away from the tongues) and deal with what woke. Or keep striking, and have everything awake at once. Twenty cuts |
+
+When the Cracked Bell falls the wing is **still**, for good: the tongues no longer ring, the slag does not wake, the
+shutters stay up, the grates lift. (A small copy of what a keeper's fall does to its region, phase 9.)
+
+## The relic: the Founder's Felt
+
+*A parry rings: everything near him is stilled for a breath.* The felt the founders wrapped a tongue in when a bell was
+to be struck and not heard.
+
+## What is said
+
+- When it falls: **"The Cracked Bell is still. So is everything that answered it."**
+- Mirel, under the stair below the door, the next time she is spoken to: **"The cracked one has stopped. I kept my count by it. Now I must keep it myself."**
+- The Annals: the Slag, "What was skimmed off the bells. It wakes when iron rings." The Cracked Bell, "The Toll's sister. Rung until it broke. It rings only when it is struck." (The tongues are ironwork, not creatures: they are not entered.)
+
+## Its look
+
+Black iron and soot-dark brick, orange from the slag; sparks. Painted by hand into the rooms: bell molds, the cold
+furnace, crucibles on chains, ingots, a rack of tongues, the hoist.
+
+## Art
+
+One new drawing (the slag, crawling). The tongues and the Cracked Bell are drawn in code, the Bell from the Toll's own
+pieces, cracked. **Cost: $0.05; the balance is $2.97.**
+
+## As built (build 61), and what was checked
+
+- **247 automated checks pass**, nine of them the wing's own: its screens and gates; the shutter and the grate; the
+  bell-rope shut before the Bell falls and open after; a tongue rung by a standing man and passed under bent double; a
+  tongue rung by his blade, unbroken, and striking as it swings; the slag asleep, woken, burning, cold again; the Bell
+  never striking first; its second half tolling by itself and then stopping; the relic.
+- **Played through by the test browser:**
+  - the tower's wall broken with the spade, and walked through into the slype;
+  - the first tongue walked into: it rings, the shutters come down, the slag wakes and comes; four seconds of silence
+    and all three are as they were;
+  - the same tongue passed under bent double, and a mold's crown crossed bent double: nothing rings;
+  - the drop down the hoist hole: he lands in the pit beside the Bell, a heart the worse, and it rings;
+  - the Bell struck, swinging, and its fall: the words, the grates up, the way through to the bell-rope;
+  - coming back in afterwards: it lies where it fell.
+- **Changed while building:** each slag that burns him is spent for a second (three at once took three hearts in a
+  second and a half). A blow sends the Bell the way it is already going, so blows build its swing; from half its
+  strength any blow sets it swinging widely.
+- **The wear banked the pit's gallery up against the grate** and closed the door behind it; it is kept clear now.
+- **Not checked:** nothing here was played by hand. The sounds were not heard (the ring is the house's bell played off
+  its note). The climb up the rungs was not walked in the browser (the automated player does it). The relic was not
+  tried in a real fight: only that a parry stills what is near. The Annals page for the Cloister now has eight
+  creatures, set a little closer; it was not looked at.
+- **The Bell-Foundry is eleven screens, not nine:** the slype is counted in it, and the slag runs are two screens.
+
 ## Left for later
 
 - The Bell-Foundry, and the Cracked Bell (the next sheet).

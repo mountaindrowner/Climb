@@ -15,6 +15,8 @@ export const ANNALS = [
       { type: 'copyist', name: 'Copyist', art: 'px_copyist', line: 'He copies the first page. One blot, and he begins it again.' },
       { type: 'blot', name: 'Blot', art: 'px_blot', line: 'Ink that was spilled, and thrown out, and came back.' },
       { type: 'corrector', name: 'The Corrector', art: 'px_corrector', line: 'He strikes out what is wrong. He has not found a page that is not.' },
+      { type: 'slag', name: 'Slag', art: 'px_slag', line: 'What was skimmed off the bells. It wakes when iron rings.' },
+      { type: 'crackedbell', name: 'The Cracked Bell', art: 'toll/bell', line: 'The Toll\'s sister. Rung until it broke. It rings only when it is struck.' },
       { type: 'acolyte', name: 'Acolyte', art: 'px_acolyte', line: 'It still keeps the hours. It no longer knows for whom.' },
       { type: 'gargoyle', name: 'Gargoyle', art: 'px_gargoyle', line: 'Set on the eaves to watch the flame. It watches him.' },
       { type: 'wisp', name: 'House-lamp', art: 'px_wisp', line: 'A lamp of the house, burning on with no hand to carry it.' } ] },

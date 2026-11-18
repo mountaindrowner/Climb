@@ -9,20 +9,20 @@ what docs/metroidvania.md sets out to change. Runbacks are the shortest way from
 
 | Region | He comes with | Places | What each later gift opens | Waters | Raising water to where it leads |
 |---|---|---|---|---|---|
-| The Roots | nothing yet | 976 | The Warden's Weight +573; The Toll's Step +2; The Wyrm's Wind +0 | 3 | 22 s |
-| The Cloister | The Warden's Weight | 992 | The Toll's Step +0; The Wyrm's Wind +0 | 3 | 18 s |
-| The Spires | The Warden's Weight, The Toll's Step | 1113 | The Wyrm's Wind +0 | 4 | 32 s |
-| The Tempest | The Warden's Weight, The Toll's Step, The Wyrm's Wind | 985 | (all his) | 4 | 32 s |
-| The Gardens | The Warden's Weight, The Toll's Step, The Wyrm's Wind | 853 | (all his) | 3 | 31 s |
-| The Firmament | The Warden's Weight, The Toll's Step, The Wyrm's Wind | 1238 | (all his) | 3 | 35 s |
-| The Workings | nothing yet | 759 | The Warden's Weight +0; The Toll's Step +0; The Wyrm's Wind +0 | 1 | 2 s |
+| The Roots | nothing yet | 980 | The Warden's Spade +668; The Toll's Step +4; The Wyrm's Wind +0 | 3 | 22 s |
+| The Cloister | The Warden's Spade | 1827 | The Toll's Step +481; The Wyrm's Wind +0 | 3 | 19 s |
+| The Spires | The Warden's Spade, The Toll's Step | 1484 | The Wyrm's Wind +0 | 4 | 31 s |
+| The Tempest | The Warden's Spade, The Toll's Step, The Wyrm's Wind | 1387 | (all his) | 4 | 31 s |
+| The Gardens | The Warden's Spade, The Toll's Step, The Wyrm's Wind | 1163 | (all his) | 3 | 31 s |
+| The Firmament | The Warden's Spade, The Toll's Step, The Wyrm's Wind | 1608 | (all his) | 3 | 35 s |
+| The Workings | nothing yet | 759 | The Warden's Spade +0; The Toll's Step +0; The Wyrm's Wind +0 | 1 | 2 s |
 
 ## The Roots
 
-He comes with nothing yet: **976 places**.
+He comes with nothing yet: **980 places**.
 
-- **The Warden's Weight** opens **573** more places: The Ossuary: aisle 182, The Ossuary: niches 115, The Ossuary: count 87, The Ossuary: yard 76, The Ossuary: sorting 68, arena 17, shaft 15, gallery 7, oldshaft 4, well 2. Rooms opened: aisle, sorting, niches, yard, count.
-- **The Toll's Step** opens **2** more places: arena 2.
+- **The Warden's Spade** opens **668** more places: The Ossuary: aisle 182, The Ossuary: niches 115, The Ossuary: count 87, The Crypt Stair: sill 85, The Ossuary: yard 76, The Ossuary: sorting 68, arena 27, shaft 15, gallery 7, oldshaft 4, well 2. Rooms opened: aisle, sorting, niches, yard, count, sill.
+- **The Toll's Step** opens **4** more places: The Ossuary: niches 4.
 - **The Wyrm's Wind** opens **0** more places.
 
 Runbacks to the keeper:
@@ -33,58 +33,58 @@ Runbacks to the keeper:
 
 ## The Cloister
 
-He comes with The Warden's Weight: **992 places**.
+He comes with The Warden's Spade: **1827 places**.
 
-- **The Toll's Step** opens **0** more places.
+- **The Toll's Step** opens **481** more places: The Scriptorium: hall 317, The Scriptorium: rubrication 78, The Scriptorium: furnace 47, The Scriptorium: lectern 37, The Scriptorium: stacks 2. Rooms opened: hall, furnace, rubrication, lectern.
 - **The Wyrm's Wind** opens **0** more places.
 
 Runbacks to the keeper:
 - from where he comes in: 19 s
-- from the raising water in The Crypt Stair: cryptfoot: 18 s
+- from the raising water in The Crypt Stair: cryptfoot: 19 s
 - from the leak in library: 7 s
 - from the leak in cloister: 4 s
 
 ## The Spires
 
-He comes with The Warden's Weight, The Toll's Step: **1113 places**.
+He comes with The Warden's Spade, The Toll's Step: **1484 places**.
 
 - **The Wyrm's Wind** opens **0** more places.
 
 Runbacks to the keeper:
 - from where he comes in: 32 s
-- from the raising water in The Bell Road: gate: 32 s
-- from the leak in The Bell Road: road: 29 s
+- from the raising water in The Bell Road: gate: 31 s
+- from the leak in The Bell Road: road: 28 s
 - from the leak in hollow: 15 s
 - from the leak in eyrie: 2 s
 
 ## The Tempest
 
-He comes with The Warden's Weight, The Toll's Step, The Wyrm's Wind: **985 places**.
+He comes with The Warden's Spade, The Toll's Step, The Wyrm's Wind: **1387 places**.
 
 - Every gift is already his here.
 
 Runbacks to the keeper:
 - from where he comes in: 32 s
-- from the raising water in The Last Hut: path: 32 s
+- from the raising water in The Last Hut: path: 31 s
 - from the leak in The Last Hut: hut: 29 s
 - from the leak in watch: 14 s
 - from the leak in masthead: 3 s
 
 ## The Gardens
 
-He comes with The Warden's Weight, The Toll's Step, The Wyrm's Wind: **853 places**.
+He comes with The Warden's Spade, The Toll's Step, The Wyrm's Wind: **1163 places**.
 
 - Every gift is already his here.
 
 Runbacks to the keeper:
-- from where he comes in: 32 s
+- from where he comes in: 31 s
 - from the raising water in The Breach: wallfoot: 31 s
 - from the leak in orangery: 12 s
 - from the leak in sundial: 3 s
 
 ## The Firmament
 
-He comes with The Warden's Weight, The Toll's Step, The Wyrm's Wind: **1238 places**.
+He comes with The Warden's Spade, The Toll's Step, The Wyrm's Wind: **1608 places**.
 
 - Every gift is already his here.
 
@@ -98,7 +98,7 @@ Runbacks to the keeper:
 
 He comes with nothing yet: **759 places**.
 
-- **The Warden's Weight** opens **0** more places.
+- **The Warden's Spade** opens **0** more places.
 - **The Toll's Step** opens **0** more places.
 - **The Wyrm's Wind** opens **0** more places.
 

@@ -75,6 +75,7 @@ export const RELICS = {   // name: whose it was; line: what it does; lore: whose
   tally:       { name: 'Guild Tally',            line: 'Urns give 50% more shards.',                     lore: 'Every shift was chalked up and paid in shards. The last was never paid.' },
   stylus:      { name: 'Sexton\'s Stylus',       line: 'Each creature he kills gives 2 more embers.', lore: 'It scratched a mark for every one of his falls. Under them, in another hand, the whole count is struck through.' },
   blankleaf:   { name: 'Copyist\'s Blank Leaf',   line: 'After he rests at water, the first blow that lands does no harm.', lore: 'The one page in the house that was never spoiled. Nothing was ever written on it.' },
+  felt:        { name: 'Founder\'s Felt',        line: 'A parry rings: everything near him is stilled for a breath.', lore: 'The founders wrapped a tongue in it when a bell was to be struck and not heard.' },
   starcompass: { name: 'Astronomer\'s Compass',    line: 'The map shows what is still to be found.',       lore: 'It does not point north. It points at the star that is missing.' },
 };
 // what each keeper leaves him, by region: `does`, plainly; `how`, with the keys ({action}, teach.js fill); `icon`, its picture

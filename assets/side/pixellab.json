@@ -1105,5 +1105,16 @@
     "group": "ea13d99d-2504-4efb-8e69-73dcbf766376"
    }
   }
+ },
+ "px_slag": {
+  "id": "e3c7628c-837d-4435-960f-32c6aeb3e70f",
+  "description": "a low squat creature made of a lump of molten slag, black crusted iron rock with glowing orange cracks all over it, four short stubby legs, a wide glowing orange mouth, no eyes, low to the ground like a toad, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "crawl": {
+    "action": "scuttling forward quickly on its short legs, low to the ground",
+    "frames": 8,
+    "group": "fca98613-0be1-420f-b7ad-06c3ddcaf2ce"
+   }
+  }
  }
 }
