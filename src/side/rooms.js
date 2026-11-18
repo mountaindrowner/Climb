@@ -20,7 +20,9 @@ export const EMPTY = 0, ROCK = 1, LEDGE = 2, SPIKES = 3, CRACKED = 4, GLASS_A = 
 // what a wing's own keeper holds (phase 10, the Bell-Foundry; level.js RULE.ring, RULE.still):
 //  12 a shutter: iron, up in its doorway. Nothing in silence; rock while iron rings; nothing for good once the wing is still
 //  13 a grate: rock until the wing's keeper is still, nothing after
-export const HOLD = 7, DOOR = 8, GIVEN = 9, LIVE = 10, VELLUM = 11, SHUTTER = 12, STILLED = 13;
+//  14 a stone of the way (phase 11, the Pilgrims' Cairns; level.js RULE.turned): a ledge, until he turns round on it. Then
+//     every one of them is gone from under him, until he stands on the ground again
+export const HOLD = 7, DOOR = 8, GIVEN = 9, LIVE = 10, VELLUM = 11, SHUTTER = 12, STILLED = 13, FACED = 14;
 // a room spans cw x ch screens (most are one)
 export function room(cw = 1, ch = 1){ const r = { w: ROOM.w * cw, h: ROOM.h * ch, tiles: [], marks: [] }; for (let y = 0; y < r.h; y++) r.tiles.push(new Array(r.w).fill(EMPTY)); return r; }
 export const put = (r, x, y, v) => { if (x >= 0 && y >= 0 && x < r.w && y < r.h) r.tiles[y][x] = v; };

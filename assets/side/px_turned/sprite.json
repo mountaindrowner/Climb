@@ -1,0 +1,36 @@
+{
+ "name": "px_turned",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 64,
+   "h": 64,
+   "foot": 63,
+   "cx": 28.5,
+   "footLast": 63,
+   "cxLast": 28.5,
+   "n": 1
+  },
+  "attack": {
+   "frames": 9,
+   "w": 88,
+   "h": 88,
+   "foot": 75,
+   "cx": 40.5,
+   "footLast": 75,
+   "cxLast": 37.5,
+   "n": 1
+  },
+  "sweep": {
+   "frames": 9,
+   "w": 88,
+   "h": 88,
+   "foot": 75,
+   "cx": 40.5,
+   "footLast": 75,
+   "cxLast": 44.5,
+   "n": 1
+  }
+ }
+}

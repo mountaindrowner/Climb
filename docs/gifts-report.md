@@ -11,7 +11,7 @@ what docs/metroidvania.md sets out to change. Runbacks are the shortest way from
 |---|---|---|---|---|---|
 | The Roots | nothing yet | 980 | The Warden's Spade +668; The Toll's Step +4; The Wyrm's Wind +0 | 3 | 22 s |
 | The Cloister | The Warden's Spade | 1827 | The Toll's Step +481; The Wyrm's Wind +0 | 3 | 19 s |
-| The Spires | The Warden's Spade, The Toll's Step | 1484 | The Wyrm's Wind +0 | 4 | 31 s |
+| The Spires | The Warden's Spade, The Toll's Step | 1567 | The Wyrm's Wind +417 | 4 | 31 s |
 | The Tempest | The Warden's Spade, The Toll's Step, The Wyrm's Wind | 1387 | (all his) | 4 | 31 s |
 | The Gardens | The Warden's Spade, The Toll's Step, The Wyrm's Wind | 1163 | (all his) | 3 | 31 s |
 | The Firmament | The Warden's Spade, The Toll's Step, The Wyrm's Wind | 1608 | (all his) | 3 | 35 s |
@@ -46,15 +46,15 @@ Runbacks to the keeper:
 
 ## The Spires
 
-He comes with The Warden's Spade, The Toll's Step: **1484 places**.
+He comes with The Warden's Spade, The Toll's Step: **1567 places**.
 
-- **The Wyrm's Wind** opens **0** more places.
+- **The Wyrm's Wind** opens **417** more places: The Pilgrims' Cairns: reasons 169, The Pilgrims' Cairns: turned 99, The Pilgrims' Cairns: field 92, The Pilgrims' Cairns: hiscairn 38, The Pilgrims' Cairns: windgap 14, between rooms 5. Rooms opened: field, reasons, turned, hiscairn.
 
 Runbacks to the keeper:
 - from where he comes in: 32 s
 - from the raising water in The Bell Road: gate: 31 s
 - from the leak in The Bell Road: road: 28 s
-- from the leak in hollow: 15 s
+- from the leak in hollow: 14 s
 - from the leak in eyrie: 2 s
 
 ## The Tempest

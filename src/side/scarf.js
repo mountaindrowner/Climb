@@ -14,7 +14,7 @@ const SHAPES = {
 export const KNOT_LOOK = {
   whetstone: { col: '#c0cbdc', shape: 'square' }, lodestone: { col: '#0099db', shape: 'round' }, featherfall: { col: '#ead4aa', shape: 'ring' },
   stormglass: { col: '#2ce8f5', shape: 'diamond' }, seedheart: { col: '#63c74d', shape: 'round' }, tally: { col: '#d77643', shape: 'bar' },
-  stylus: { col: '#f6757a', shape: 'diamond' }, blankleaf: { col: '#ead4aa', shape: 'diamond' }, felt: { col: '#8b9bb4', shape: 'round' }, starcompass: { col: '#fee761', shape: 'star' }, _: { col: '#fee761', shape: 'round' },
+  stylus: { col: '#f6757a', shape: 'diamond' }, blankleaf: { col: '#ead4aa', shape: 'diamond' }, felt: { col: '#8b9bb4', shape: 'round' }, turnstone: { col: '#c0cbdc', shape: 'round' }, starcompass: { col: '#fee761', shape: 'star' }, _: { col: '#fee761', shape: 'round' },
 };
 
 export function makeScarf(scene0, cols = { edge: 0x181425, body: 0xe43b44, shade: 0xa22633, glow: 0xffa040 }){

@@ -2,7 +2,17 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Bell-Foundry (latest; phase 10, build 61): the Cloister's east wing.** `docs/phase10-sheet.md` has all of it.
+**The Pilgrims' Cairns (latest; phase 11, build 62): the Spires' west wing.** `docs/phase11-sheet.md` has all of it.
+- **Nine screens west of the mountain's caves,** out of the eyrie's wall and across a gap only the Wyrm's wind crosses (a glide in rising air, up onto the far cliff).
+- **Its rules are about which way he faces.** A cairn is only stones while he looks at it; with his back to it, it comes apart and comes after him. The stones of the way (a line of flat stones over a drop) hold only while he does not turn round. On the ground, face what follows; on the way, do not turn.
+- **Six rooms:** the wind gap, the cairn-field (two screens under the sky), the reasons (the way), the Turned's slope, his cairn, the scree run (the way out, into Ordric's hollow; always open).
+- **The Turned,** the wing's elite: a climber who turned back, standing on the slope facing downhill. He throws back whatever comes up at him and sends stones down the slope, and never turns round: a roll or a leap gets behind him, where he does nothing.
+- **His own cairn,** from before he fell, with NOT YET on it. He can knock it down. **A relic, the Pilgrim's Stone:** after a blow, nothing can hurt him for a breath longer.
+- The stones have their reasons scratched on them, said as he stands by each.
+- New in the engine: a tile that is there only while he keeps facing the way he stepped onto it; rising air that is a wing's gate; a second save move for a region shifted east.
+- **The roadmap has a new last phase (21): a miniboss in every level,** each made from its place, with first proposals.
+
+**The Bell-Foundry (phase 10, build 61): the Cloister's east wing.** `docs/phase10-sheet.md` has all of it.
 - **Eleven screens behind cracked stone in the bell tower's east wall,** at the first turn of the stair. The spade breaks it.
 - **Its rule: iron rings, and what hears it wakes.** A tongue (a bell's clapper on its chain) rings when his blade or his body touches it. While anything rings the tongues swing and hurt, the slag wakes and comes for him, and the iron shutters in the doorways come down. In silence everything is as it was: the whole wing can be walked without a fight, by going under what hangs.
 - **Six rooms:** the slype (the rule, shown), the casting floor (two great molds, and a hole he can drop down), the molds (gone through bent double), the slag runs, the pit, the bell-rope.

@@ -1116,5 +1116,21 @@
     "group": "fca98613-0be1-420f-b7ad-06c3ddcaf2ce"
    }
   }
+ },
+ "px_turned": {
+  "id": "bdda842a-fcde-4971-8648-645d1cc0ec72",
+  "description": "a tall gaunt mountain climber frozen grey with frost, heavy fur-lined coat with the hood up hiding the face, a big pack on the back, crampons, holding a long wooden pilgrim staff upright in one hand, the other hand raised palm out as if to say stop, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "attack": {
+    "action": "stepping forward and shoving hard with the open palm, a heavy push, then drawing the arm back",
+    "frames": 8,
+    "group": "ac138c96-a45f-42fe-8057-0a9ade72451a"
+   },
+   "sweep": {
+    "action": "lifting the long staff high and slamming its foot down on the ground in front, then lifting it back upright",
+    "frames": 8,
+    "group": "dce19c3d-0a8b-4bc1-8a81-0153edefb3bb"
+   }
+  }
  }
 }

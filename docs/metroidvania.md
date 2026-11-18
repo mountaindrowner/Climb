@@ -92,7 +92,8 @@ the shape of the place, and the answer is usually **to stop doing something**. S
 - **The Bell-Foundry (the alarm that will not stop):** the cracked bell rings when he comes near, and every door shuts
   while it rings. He learns to stand and guard until it stops. *Built (build 61) as the whole wing's rule: iron rings
   when it is touched, and while it rings the shutters are down; the answer is to touch nothing, and to wait.*
-- **The Pilgrims' Cairns (turning back):** a path that is only there when he walks *toward* the dark, not away.
+- **The Pilgrims' Cairns (turning back):** a path that is only there when he walks *toward* the dark, not away. *Built
+  (build 62) as a way of stones that is only there while he does not turn round.*
 - **The Eye of the Storm (the calm that is worse):** it is safe while he moves; the way on is out into the wall of the
   storm, where the wind carries him.
 

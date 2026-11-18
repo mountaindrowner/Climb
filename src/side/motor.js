@@ -8,7 +8,7 @@ import { TUNE } from '../config/tuning.js';
 import { WEAPONS } from '../config/weapons.js';
 import { IN, consume, pending } from '../core/input.js';
 import { FEEL } from '../config/feel.js';
-import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt, gustAt, liveAt, RULE } from './level.js';
+import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt, gustAt, liveAt, RULE, facedAt } from './level.js';
 const MV = TUNE.move;
 // the side view's warrior is drawn tall and lean (gothic action proportions, ~40 pixels): his body is taller than the
 // climb's, and his jumps and run scale with him so they keep the same feel against his height
@@ -56,6 +56,8 @@ function support(P, x, y){
   for (let i = tx(x - BODY.hw + 1e-3); i <= tx(x + BODY.hw - 1e-3); i++){ const t = tileAt(i, j); if (t === ROCK || (t === LEDGE && P.drop <= 0) || t === SPIKES) return t; }
   return null;
 }
+// is he standing on the stones of the way, and on nothing else (a foot on rock or a plank is the ground)
+const wayUnder = (P) => { const j = ty(P.y - 0.02); let way = false; for (let i = tx(P.x - BODY.hw + 1e-3); i <= tx(P.x + BODY.hw - 1e-3); i++){ if (facedAt(i, j)) way = true; else { const t = tileAt(i, j); if (t === ROCK || t === LEDGE) return false; } } return way; };
 const liveUnder = (P) => { const j = ty(P.y - 0.02); for (let i = tx(P.x - BODY.hw + 1e-3); i <= tx(P.x + BODY.hw - 1e-3); i++) if (liveAt(i, j)) return true; return false; };
 const spikesUnder = (P) => { const j = ty(P.y - 0.02); for (let i = tx(P.x - BODY.hw + 1e-3); i <= tx(P.x + BODY.hw - 1e-3); i++) if (tileAt(i, j) === SPIKES) return true; return false; };
 
@@ -94,7 +96,7 @@ function heightAbove(P){
 export function hurt(P, n, fromX, msg){
   if (P.inv > 0 || isRollInv(P) || SIDE.watching || (P.art && P.art.safe && !(P.art.k === 'gust' && P.art.t > ARTS.gust.safe))) return false;   // watching (main.js: the keepers' entrances) nothing touches him
   const spared = SIDE.leaf; if (spared) SIDE.leaf = false; else P.hp -= n;
-  P.inv = TUNE.player.invuln || 1; P.hurtT = MV.hurtStun; P.atk = null; P.dive = null;
+  P.inv = (TUNE.player.invuln || 1) * (SIDE.stone ? 1.6 : 1); P.hurtT = MV.hurtStun; P.atk = null; P.dive = null;
   const away = fromX == null ? -P.face : Math.sign(P.x - fromX) || -P.face;
   P.vx = away * MV.knock; P.vy = MV.knockUp; P.grounded = false;
   ev(P, spared ? 'spared' : 'hurt', { n, msg });
@@ -114,6 +116,9 @@ export function stepPlayer(P, dt){
   P.airT = P.grounded || P.mantle ? 0 : P.airT + dt;
   if (P.grounded || P.mantle){ P.airJumps = FEEL.doubleJump ? 1 : 0; P.airDash = 1; P.glide = false; }
   P.dashT = Math.max(0, P.dashT - dt); RULE.tearing = P.dashT > 0;   // in the Toll's step, vellum does not stop him
+  // the stones of the way (the Pilgrims' Cairns): the way he faced when he stepped onto them is the way he must keep
+  // facing. If he turns round on them they are gone, all of them, until he stands on the ground again
+  if (P.grounded){ if (wayUnder(P)){ if (P.wayFace == null) P.wayFace = P.face; else if (P.face !== P.wayFace) RULE.turned = true; } else { P.wayFace = null; RULE.turned = false; } }
   const stunned = P.hurtT > 0;
   if (!P.mantle) unstick(P);
 
@@ -346,7 +351,8 @@ export const SPADE = { name: 'Warden\'s spade', reach: 2.6, guard: false, digs: 
 ] };
 export const weaponOf = P => P.weapon === 'blade' ? BLADE : P.weapon === 'spade' ? SPADE : WEAPONS[P.weapon];
 export const swingOf = (P, A) => A.special ? weaponOf(P)[A.special] : weaponOf(P).combo[A.i];
-export const SIDE = { fallSafe: 9, feather: false, watching: false, leaf: false };   // leaf: the Copyist's Blank Leaf is unspent: the next blow that lands does no harm
+export const SIDE = { fallSafe: 9, feather: false, watching: false, leaf: false, stone: false };   // stone: the Pilgrim's Stone is worn: after a blow nothing can hurt him for longer
+//   // leaf: the Copyist's Blank Leaf is unspent: the next blow that lands does no harm
 // the ember arts (main.js spends the embers and says which): each a keeper's gift turned to a blow.
 //   slam   the Warden's weight: down on the ground (from the air, a plunge first); the blow runs along the floor both ways
 //   cleave the Toll's step: a level rush forward through everything in the way, untouchable while it lasts

@@ -1,7 +1,7 @@
 // What stands in the world and changes: star-glass ledges that keep time, blooms that throw him, rising air, and cracked
 // rock that breaks. The painted layers leave these out (render.js, paintAt); they are drawn here, small meshes over them.
 //   makeProps(scene, R) -> { step(dt, t, P), bounce(mark), breakAt(x, y, r) -> [{ id, x, y }], breakId(id), cracks }
-import { T, LEVEL, CRACKED, GLASS_A, GLASS_B, EMPTY, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, RULE, rawAt, glassOn, gustOn, PHASE } from './level.js';
+import { T, LEVEL, CRACKED, GLASS_A, GLASS_B, EMPTY, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, RULE, rawAt, glassOn, gustOn, PHASE } from './level.js';
 import { PPU, PAL, lit, themeNow } from './render.js';
 const THREE = window.THREE;
 const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
@@ -277,6 +277,11 @@ export function makeProps(scene, R){
       sheets.push({ id: `${i},${j}`, tiles, m, x: m.position.x, y: m.position.y, x0: x0 * T, x1: (x1 + 1) * T, y0: y0 * T, y1: (y1 + 1) * T, gone: false }); } }
   const rip = S => { if (S.gone) return; S.gone = true; for (const [a, b] of S.tiles) LEVEL.tiles[b * W + a] = EMPTY; scene.remove(S.m); S.m.geometry.dispose(); S.m.material.map.dispose(); S.m.material.dispose(); };
   // ---- what the keeper holds: each patch of holds (and given planks) one block, each door one; shown while they hold
+  // ---- the stones of the way (the Pilgrims' Cairns): each run of them a line of flat stones; gone when he turns round
+  const ways = [];
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++){ if (rawAt(i, j) !== FACED || (i > 0 && rawAt(i - 1, j) === FACED)) continue; let n = 1; while (rawAt(i + n, j) === FACED) n++;
+    const c = cnv(n * 8, 6), g = c.getContext('2d'), r = rng(i * 37 + j * 13 + 1); for (let x = 0; x < n * 8;){ const w = 5 + Math.floor(r() * 5), ww = Math.min(w, n * 8 - x); px(g, PAL.ink, x, 0, ww, 6); px(g, PAL.mid, x + 1, 1, Math.max(1, ww - 2), 4); px(g, PAL.light, x + 1, 1, Math.max(1, ww - 2), 1); px(g, PAL.pale, x + 1, 1, Math.max(1, Math.min(3, ww - 2)), 1); px(g, PAL.dark, x + 1, 4, Math.max(1, ww - 2), 1); x += ww + (r() < 0.4 ? 1 : 0); }
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(n * T, 6 / PPU), basic(texOf(c), { opacity: 1 })); m.position.set((i + n / 2) * T, (j + 1) * T - 3 / PPU, 0.012); scene.add(m); ways.push({ m, x: m.position.x, y: m.position.y, w: n * T }); }
   const held = [], doors = [], shutters = [], grates = [];
   { const seen2 = new Uint8Array(W * H), kind = t => t === HOLD || t === GIVEN ? 1 : t === DOOR ? 2 : t === SHUTTER ? 3 : t === STILLED ? 4 : 0;
     for (let j = 0; j < H; j++) for (let i = 0; i < W; i++){
@@ -294,7 +299,7 @@ export function makeProps(scene, R){
       else held.push(B);
     } }
   const showHeld = () => { for (const B of held){ B.m.visible = !RULE.fallen; if (B.plank) B.plank.visible = RULE.fallen; } for (const B of doors){ const shut = RULE.shut && !RULE.fallen; B.m.visible = shut; B.stub.visible = !shut; }
-    for (const B of shutters){ const shut = RULE.ring > 0 && !RULE.still; B.m.visible = shut; if (B.stub) B.stub.visible = !shut; } for (const B of grates) B.m.visible = !RULE.still; };
+    for (const B of shutters){ const shut = RULE.ring > 0 && !RULE.still; B.m.visible = shut; if (B.stub) B.stub.visible = !shut; } for (const B of grates) B.m.visible = !RULE.still; for (const B of ways) B.m.visible = !RULE.turned; };
   RULE.shut = false; showHeld(); let bellT = 1.2;
   // ---- the storm's gantries (live decks): each run an iron grating; while the storm rules it spits
   const decks = [];
@@ -392,7 +397,7 @@ export function makeProps(scene, R){
     bounce(mk){ const B = blooms.find(b => b.mk === mk); if (B) B.t = 0; },
     // everything cracked within r of (x, y) breaks; returns what broke
     breakAt(x, y, r){ const out = []; for (const C of cracks){ if (C.gone) continue; const dx = Math.max(Math.abs(x - C.x) - C.w / 2, 0), dy = Math.max(Math.abs(y - C.y) - C.h / 2, 0); if (Math.hypot(dx, dy) <= r){ shatter(C); out.push(C); } } return out; },
-    held, doors, decks, rods, sheets, shutters, grates, show: showHeld,   // show: the rule has changed (a ring begun or ended, the wing gone still): what is shut is drawn shut
+    held, doors, decks, rods, sheets, shutters, grates, ways, show: showHeld,   // show: the rule has changed (a ring begun or ended, the wing gone still): what is shut is drawn shut
     // the sheets of vellum his body is in or against (he is in the Toll's step): torn. Returns them
     tear(P){ const out = []; for (const S of sheets) if (!S.gone && P.x + 0.6 > S.x0 && P.x - 0.6 < S.x1 && P.y + 2.4 > S.y0 && P.y < S.y1){ rip(S); out.push(S); } return out; },
     // the keeper has fallen (main.js has set RULE.fallen): what it held is let go. Returns the blocks, for their dust

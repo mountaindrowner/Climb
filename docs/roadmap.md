@@ -321,6 +321,11 @@ while it rings the tongues swing, the slag wakes and the shutters come down; sil
 the pit and never strikes first; when it falls the wing is still, and the bell-rope is the way back (the Founder's Felt
 at its foot). The slype is built as the wing's first room. Still to do in phase 10: the refectory.*
 
+*Phase 11, first half, done (build 62): **the Pilgrims' Cairns**, by `docs/phase11-sheet.md`. Nine screens west of the
+Spires' caves, across a gap only the Wyrm's wind crosses. Cairns that are only stones while he looks at them; a way of
+flat stones that holds only while he does not turn round; the Turned, who can be got behind; his own cairn; the
+Pilgrim's Stone; the scree run out into Ordric's hollow. Still to do in phase 11: the Glacier Galleries.*
+
 Built two regions at a time. **Spaces, not rectangles** (decision 0.8): each wing has at least one vast space, one
 winding way, and one path no one expects, each shaped by what the place was. Each wing gets its sheet first: its rooms, what each room is for, its gate and shortcut,
 its creatures, its elite, its one moment, its relic, and a weapon (the Ember plan's step 4) where one fits. Each
@@ -387,6 +392,40 @@ decision 0.10 matters.
 - the itch.io page (text, screenshots, a short clip);
 - the zip inspected, as before.
 
+## Phase 21: a miniboss in every level
+
+*Added 2026-11-18, on your word: "interesting minibosses to every level, each unique and contextually designed".*
+
+Every level gets one fight of its own in the middle of it, between its creatures and its keeper: one figure, with a name,
+made out of what that place was and what it is the shape of. None reuses another's way of fighting. These are apart from
+the wings' own (the Sexton, the Corrector, the Cracked Bell, and those still to come in phases 11 to 13), which stay.
+
+**What makes one of these, and not a big creature:**
+- **It could only be here.** It is someone or something the place's history left behind, doing what it did.
+- **One idea of its own** to read and answer, shown before it is used.
+- **It changes something when it falls:** a way opens, or the room is different after.
+- **Its own room,** on the level's main way or just off it, and its line in the Annals.
+
+**The proposals** (each gets its sheet first; these are starting points, to be changed on your word):
+
+| Level | Miniboss | Where | What it is | Its one idea |
+|---|---|---|---|---|
+| The Roots | **The Hauler** | The well | The last of the Well's keepers, still yoked to two full buckets he cannot put down | The buckets swing wide on the yoke and carry him round after them: strike him as their weight drags him past. (The Roots hold him down; this one is held down by what he carries) |
+| The Cloister | **The Precentor** | The nave | The monk who led the hours, with four acolytes who do nothing unless he gives the beat | He raises his staff and they strike as one, on the beat. Reach him through them; when he falls they stand where they are |
+| The Spires | **The Rope-team** | The ropeway | Three stopped climbers, still roped together, who never untied | They move as one line and pull each other back from the edge. Put one over it and the rope takes the others |
+| The Tempest | **The Weathercock** | The masthead | The works' great iron vane, which turns to point at whatever moves | Where it points, the bolt comes. Keep it pointing somewhere else; strike it while it turns |
+| The Gardens | **The Topiary** | The sundial | A hedge clipped into the shape of a hound, which has kept its shape by clipping everything else | It is only as large as it has grown: cut it back and it is small and quick, leave it and it fills the room |
+| The Firmament | **The Orrery** | Under the dome | The astronomers' model of the heavens, still turning, one arm empty where the star was | Fought inside its turning rings: the safe place is the empty arm's shadow, and it moves |
+| The Deep (each of its levels) | With phases 15 to 17 | | One for each level of the Deep, on its own sheet when that level is built | |
+
+**Order within the phase:** one level at a time, from the bottom, each published before the next is begun.
+
+*Art cost:* about $0.10 to $0.15 each where a drawing is wanted; the Weathercock and the Orrery are drawn in code.
+**About $0.60.**
+
+**If these are to be in the release,** the release step at the end of phase 20 waits until this phase is done. The rest
+of phase 20 (the phone, the polish passes) does not depend on it.
+
 ## The order, and why
 
 1. Phases **0 to 2** settle the rules of the world: moving, falling, resting.
@@ -395,6 +434,8 @@ decision 0.10 matters.
 4. Phases **10 to 18** are the content. Because they come last, every new room, creature and keeper is built once, on
    the final rules.
 5. Phases **19 and 20** finish and ship it.
+6. Phase **21** adds a miniboss to every level. It is last because each one is cut into a level that is otherwise
+   finished, and is fought with everything he has by then.
 
 Content waits on the rules because otherwise each rule change would mean revisiting every room built before it. That
 is the rework this order avoids.

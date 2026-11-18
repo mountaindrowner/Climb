@@ -31,7 +31,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 61';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 62';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -81,11 +81,13 @@ const SUB = LEVELS.map(l => l.sub), CARD = LEVELS.map(l => l.card);   // under a
 function learn(){
   const b = n => !!G.beat[n] || G.top > n || (DEV && LEVEL.index > n);
   CAN.breaker = b(0); CAN.dash = b(1); CAN.glide = b(2);
-  if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the spade (a save from before has it now) SIDE.feather = has('featherfall'); EMBER.mend = has('seedheart') ? 7 : 10;
+  if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the spade (a save from before has it now) SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); EMBER.mend = has('seedheart') ? 7 : 10;
 }
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
+const WAY = { was: false, said: new Map() };   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
 // `walked`: he has walked in from the next region (cross): he and his scarf are as they were
 function setup(walked = false){
+  RULE.turned = false; RULE.down = !!G.cairnDown; WAY.was = false; WAY.said = new Map();   // the Pilgrims' Cairns: the way is whole as he comes in; his own cairn, once down, stays down
   RULE.ring = 0; RULE.still = !!(G.still && G.still[LEVEL.index]);   // the Bell-Foundry: nothing rings as he comes in; its Cracked Bell, once fallen, stays fallen
   RULE.fallen = !!(G.beat[LEVEL.index] || G.top > LEVEL.index || !KEEPERS[LEVEL.theme]);   // has this region's keeper fallen: what it held is let go (level.js RULE)
   SWINGFX = makeSwingFx(R.scene); PROPS = makeProps(R.scene, R);
@@ -147,6 +149,12 @@ function ruleStep(dt){
 // book says what it is the first time he stands at it; the Blank Leaf is whole again at any water
 function wingStep(dt){
   if (!PROPS || !P || GO.st) return;
+  // the Pilgrims' Cairns: he has turned round on the stones of the way, and they are gone (motor.js); or they are back
+  if (RULE.turned !== WAY.was){ WAY.was = RULE.turned; PROPS.show(); if (RULE.turned){ sfx.crack(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.12); for (const B of PROPS.ways) if (Math.hypot(B.x - P.x, B.y - P.y) < 14) fx.dust({ x: B.x, y: B.y }, 8, 2.5); if (!G.turnedOnce){ G.turnedOnce = 1; store(); banner('', 'he turned round, and the way was gone', 3); } } }
+  // its stones' words, as he stands by one; and his own cairn, the first time he comes to it
+  if (LEVEL.theme === 'spires' && P.grounded){ const now = performance.now() / 1000;
+    for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'reason' && Math.abs((m.x + 0.5) * T - P.x) < 1.3 && Math.abs(m.y * T - P.y) < 1.5 && now - (WAY.said.get(m) || -99) > 14 && !(BANNER && BANNER.t > 0)){ WAY.said.set(m, now); banner('', 'scratched on the stone: ' + m.says, 2.6); }
+    if (!G.cairnSeen) for (const e of E.list) if (e.type === 'hiscairn' && e.alive && Math.abs(e.x - P.x) < 3.2 && Math.abs(e.y - P.y) < 2){ G.cairnSeen = 1; store(); banner('His own cairn', 'his name is on the top stone, from before he fell. Under it: NOT YET.', 6.5); } }
   // the Bell-Foundry's ringing dies away: in silence the shutters go up (the tongues and the slag see RULE.ring for themselves)
   if (RULE.ring > 0 && !PAUSE){ RULE.ring = Math.max(0, RULE.ring - dt); if (RULE.ring === 0){ PROPS.show(); if (PROPS.shutters.some(B => Math.hypot(B.x - P.x, B.y - P.y) < 26)) sfx.creak(); } }
   if (P.dashT > 0) for (const S of PROPS.tear(P)){ sfx.swing(true); fx.burst({ x: S.x, y: S.y }, 28, 0xead4aa); fx.dust({ x: S.x, y: S.y0 }, 12, 3); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.2); (G.broke[LEVEL.index] = G.broke[LEVEL.index] || []).push(S.id); store(); }
@@ -975,6 +983,8 @@ function onEvent(e){
       sfx.crackbell(!!e.big); if (e.big) sfx.clang(); fx.ring(e.at, 0xfeae34); if (e.big) fx.ring(e.at, 0xffffff); R.shock(e.at.x, e.at.y, !!e.big); R.glint(e.at.x, e.at.y, 0xfeae34, e.big ? 1.2 : 0.7, e.big ? 9 : 5, 0.3); FEEL_FX.shake = Math.max(FEEL_FX.shake, e.big ? 0.3 : d < 10 ? 0.12 : 0.05);
       if (!was){ PROPS.show(); let near = false; for (const B of PROPS.shutters) if (Math.hypot(B.x - P.x, B.y - P.y) < 26){ near = true; fx.dust({ x: B.x, y: B.y0 }, 8, 2); } if (near) sfx.door(); } break; }
     case 'kill':
+      // a thing that is not a creature (his own cairn): it is knocked down, and that is all
+      if (e.e && e.e.d.prop){ sfx.crack(); sfx.break(); fx.dust(e.at, 26, 4); fx.burst(e.at, 14, 0xc0cbdc); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.3); if (e.e.type === 'hiscairn'){ G.cairnDown = 1; RULE.down = true; store(); banner('It is down', 'the stone with his name on it lies with the others', 5); } break; }
       // the Cracked Bell falls: the wing is still, for good. Nothing in it rings again; the shutters stay up; the grates lift
       if (e.e && e.e.type === 'crackedbell'){ RULE.still = true; RULE.ring = 0; (G.still = G.still || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.crackbell(true); sfx.slam(); sfx.door(); FEEL_FX.shake = 0.7; SLOW = Math.max(SLOW, 0.9); FLASH = Math.max(FLASH, 0.3);
         const fy = e.e.floor != null ? e.e.floor : e.at.y; fx.dust({ x: e.e.x, y: fy }, 40, 6); R.shock(e.e.x, fy + 1, true); ITEMS.spill(e.e.x, fy + 1.5, 30); for (const B of PROPS.grates) fx.dust({ x: B.x, y: B.y }, 14, 3); banner('The Cracked Bell is still', 'so is everything that answered it', 5.5); }

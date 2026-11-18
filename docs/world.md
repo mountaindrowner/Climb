@@ -404,7 +404,7 @@ Corwen on the saddle.
 teeth · eyrie · span · crown · *the cairn-field* (new: the way to the Cairns).
 
 ### The Pilgrims' Cairns
-*Spires, west · 9 screens · the Wyrm's wind*
+*Spires, west · 9 screens · the Wyrm's wind · built (build 62, `docs/phase11-sheet.md`)*
 
 **History.** Where pilgrims who turned back built a cairn before they went down, each stone a reason.
 
