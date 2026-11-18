@@ -156,7 +156,12 @@ const BACK = {
   },
 };
 const SLAB = new Set(['arch', 'spout']);   // the pieces that are a broad slab of stone: their edges let go into the room. The rest are drawn in lines (a ring, a pipe, a frame, icicles), which the fade would only break
-function backTex(look){ const W = 96, H = 100, c = cnv(W, H), g = c.getContext('2d'), src = BACK[look](g, W, H); if (SLAB.has(look)) feather(c, 7, 3); return { tex: texOf(c), w: W, h: H, src }; }
+// made once for each look and kept: the picture is the same wherever it stands, and making it was the whole second
+// that going into the Cloister or the Gardens cost (reading a canvas back from the graphics card)
+const BACKS = new Map();
+function backTex(look){ if (BACKS.has(look)) return BACKS.get(look);
+  const W = 96, H = 100, c = cnv(W, H), g = c.getContext('2d', { willReadFrequently: SLAB.has(look) }), src = BACK[look](g, W, H); if (SLAB.has(look)) feather(c, 7, 3);
+  const B = { tex: texOf(c), w: W, h: H, src }; BACKS.set(look, B); return B; }
 // a piece's edges let go into the room in the dither the painting uses, rather than stopping on a line: each pixel within
 // `r` of the piece's outside (or the canvas's sides and top) is kept by the ordered dither, more surely the further in.
 // The bottom `keep` rows stand on the floor and are left whole
