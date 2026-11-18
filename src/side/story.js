@@ -352,8 +352,10 @@ export function makeStory(hud, heroBase){
     S.t += dt; words.length = 0; g.globalAlpha = 1;
     ({ title, intro, card, ending, pool: poolScreen })[S.kind](dt);
     if (!S.kind) return;
+    // where the game is (S.note: main.js's lines), small in the top right of the title and the opening
+    if (S.note && (S.kind === 'title' || S.kind === 'intro')) S.note.forEach((s, k) => words.push({ text: s, y: (8 + k * 8) / CH, size: 0.02, alpha: S.kind === 'title' ? 0.9 : 0.45, col: k ? '#8b9bb4' : '#c0cbdc', x: CW - 4, align: 'right', small: true }));
     // its words, in the game's lettering, on the small picture: a size of 0.1 and over is the title's, 0.06 a name's
-    for (const s of words){ g.globalAlpha = Math.max(0, Math.min(1, s.alpha)); text(g, s.text, s.x == null ? CW / 2 : s.x, Math.round(s.y * CH) - 4, s.col, s.size >= 0.1 ? 4 : s.size >= 0.06 ? 3 : 1, s.x == null ? 'center' : 'left'); } g.globalAlpha = 1;
+    for (const s of words){ g.globalAlpha = Math.max(0, Math.min(1, s.alpha)); text(g, s.text, s.x == null ? CW / 2 : s.x, Math.round(s.y * CH) - 4, s.col, s.size >= 0.1 ? 4 : s.size >= 0.06 ? 3 : 1, s.align || (s.x == null ? 'center' : 'left'), '#181425', !!s.small); } g.globalAlpha = 1;
     const w = hud.clientWidth, h = hud.clientHeight, k = Math.max(w / CW, h / CH), dw = CW * k, dh = CH * k;
     hx.save(); hx.imageSmoothingEnabled = false; hx.shadowColor = 'transparent'; hx.fillStyle = PAL.ink; hx.fillRect(0, 0, w, h); hx.drawImage(cv, (w - dw) / 2, (h - dh) / 2, dw, dh);
     hx.restore();

@@ -31,7 +31,11 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 62';   // shown in the corner, so a stale copy is easy to spot
+// Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
+// is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
+// number alone) in the corner in play, so a stale copy is easy to spot
+const VERSION = { build: 63, date: '18 NOV 2026', phase: 11, phases: 21, last: "THE PILGRIMS' CAIRNS" };
+const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -206,7 +210,7 @@ const PASS = { cool: 0 };
 // the regions' buttons
 const marks = () => {};
 // ---- the story's screens (story.js) and the title's buttons
-const STORY = makeStory(hud, `assets/side/${HERO}`);
+const STORY = makeStory(hud, `assets/side/${HERO}`); STORY.note = VERSION_LINES;   // where the game is, in the top right of the title and the opening
 const MENU = document.createElement('div');
 MENU.style.cssText = 'position:absolute;left:0;right:0;top:56%;display:none;flex-direction:column;align-items:center;gap:10px;z-index:7;font:600 18px "Pixelify Sans",monospace;text-transform:uppercase;letter-spacing:1px';
 (document.getElementById('stage') || document.body).appendChild(MENU);
@@ -1088,7 +1092,7 @@ function drawHud(dt){
   else if (PAUSE && SCREEN === 'shop') drawShop(W);
   else if (PAUSE && SCREEN === 'knots') drawKnots(W);
   else if (PAUSE && SCREEN === 'carry') drawCarry(W);
-  else if (PAUSE){ HUD.dark(0.66); HUD.text('PAUSED', W / 2, 14, '#fff2d0', 2, 'center'); HUD.rule(Math.round(W / 2), 34, 60, '#ead4aa');
+  else if (PAUSE){ HUD.dark(0.66); HUD.version(VERSION_LINES, 0.85, W / 2, 'center', 1); HUD.text('PAUSED', W / 2, 14, '#fff2d0', 2, 'center'); HUD.rule(Math.round(W / 2), 34, 60, '#ead4aa');
     // what he carries
     const can = [CAN.breaker && 'THE WARDEN\'S SPADE', CAN.dash && 'THE TOLL\'S STEP', CAN.glide && 'THE WYRM\'S WIND'].filter(Boolean), found = Object.values(G.got).flat();
     HUD.text(`SHARDS ${G.shards}   ·   STRANDS ${G.threads}   ·   RELICS ${G.relics.length} OF ${Object.keys(RELICS).length}`, W / 2, 41, '#c0cbdc', 1, 'center');
@@ -1102,7 +1106,7 @@ function drawHud(dt){
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { knotMenu, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, RULE, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { knotMenu, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, RULE, VERSION, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Pilgrims' Cairns (latest; phase 11, build 62): the Spires' west wing.** `docs/phase11-sheet.md` has all of it.
+**Where the game is, shown in the game (latest; build 63).** The build's number and day, which phase of the plan it is in, and the last thing built, in two small lines: top right of the title and of the opening, and over the pause screen. Set in one place (`VERSION` in `src/side/main.js`) with every build. Builds now go to the game's itch.io page (`tools/push-itch.sh`).
+
+**The Pilgrims' Cairns (phase 11, build 62): the Spires' west wing.** `docs/phase11-sheet.md` has all of it.
 - **Nine screens west of the mountain's caves,** out of the eyrie's wall and across a gap only the Wyrm's wind crosses (a glide in rising air, up onto the far cliff).
 - **Its rules are about which way he faces.** A cairn is only stones while he looks at it; with his back to it, it comes apart and comes after him. The stones of the way (a line of flat stones over a drop) hold only while he does not turn round. On the ground, face what follows; on the way, do not turn.
 - **Six rooms:** the wind gap, the cairn-field (two screens under the sky), the reasons (the way), the Turned's slope, his cairn, the scree run (the way out, into Ordric's hollow; always open).

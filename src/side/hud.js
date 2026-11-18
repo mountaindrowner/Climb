@@ -152,6 +152,8 @@ export function makeHud(hud){
   H.seal = (cx, cy) => { for (let y = -8; y <= 8; y++) for (let x = -8; x <= 8; x++){ const d = Math.hypot(x, y) + ((x * 7 + y * 13) % 3 === 0 ? 0.6 : 0); if (d < 8.3) px(d > 7 ? C.ink : d > 5.6 ? C.red0 : C.red1, cx + x, cy + y); }
     for (const [x, y, w, h] of [[-1, -5, 3, 11], [-5, -1, 11, 3], [-3, -3, 7, 7]]) px(C.red0, cx + x, cy + y, w, h); px(C.fire3, cx - 1, cy - 4, 3, 9); px(C.fire3, cx - 4, cy - 1, 9, 3); px(C.cream, cx, cy, 1, 1); };
   H.dark = (alpha, col = C.ink) => { if (alpha <= 0) return; g.globalAlpha = Math.min(1, alpha); px(col, 0, 0, H.W, 180); g.globalAlpha = 1; };
+  // where the game is: two small lines (over the pause screen; the title and the opening draw their own, story.js)
+  H.version = (lines, alpha = 0.8, x = H.W - 4, align = 'right', y = 4) => { g.globalAlpha = alpha; lines.forEach((s, k) => fine(g, s, x, y + k * 7, k ? C.light : C.pale, align)); g.globalAlpha = 1; };
   H.label = (str) => { g.globalAlpha = 0.35; fine(g, str, H.W - 3, 180 - 7, C.light, 'right'); g.globalAlpha = 1; };
   return H;
 }
