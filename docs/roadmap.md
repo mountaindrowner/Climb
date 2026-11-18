@@ -26,7 +26,10 @@ A phase is done when all of these hold:
 - **A screenshot of every changed room and screen,** at desktop size and phone size, looked at by me before you see it.
 - **A short playtest list for you** (and your brother): the five or six things to try, what should happen, and
   what to look for.
-- **Published,** and the itch.io zip rebuilt and inspected.
+- **Published:** its entry written in the build log (`docs/builds.md`: what changed, what it did to a save, what was
+  checked, its commit), the zip opened in a browser (`tools/check-build.mjs`), and pushed to the itch.io page
+  (`tools/push-itch.sh`, which refuses a build without those). An earlier build can be put back with
+  `tools/restore-build.sh`.
 - **The docs updated,** so the next phase starts from what is true.
 
 What I cannot judge: feel, sound, and how hard something is for a person. Each phase's playtest list is aimed at
