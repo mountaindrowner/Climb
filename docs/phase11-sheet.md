@@ -107,7 +107,108 @@ One new drawing with two animations (the Turned: his shove, his staff). The cair
 - The plan's knowledge gate here was "a path that is only there when he walks toward the dark". Built as: a way that is
   only there while he does not turn round.
 
+# The Glacier Galleries (the second half of phase 11)
+
+*Spires, east · 10 screens · behind the Toll's step*
+
+Built in build 64.
+
+**What it was.** Caves in the glacier where climbers sheltered from the wind and sat down to rest. The ice took them
+slowly. The Stopped are from here.
+
+**The question at its door, and the answer before he leaves:** *why did they not get up?* Nothing here hurts him until
+he lights a fire. It was warm enough to sit, and never warm enough to wake.
+
+## Its rule: warmth opens, and it wakes
+
+The Cairns were about which way he faces. This is about what he chooses to light.
+
+- **A cold brazier is lit by a blow,** for good.
+- **Its fire melts the ice nearest it in its room:** the way that ice closed, the chest that was kept in it, and
+  whoever sat down in it. The ice is clear: he can see what is in it before he strikes.
+- **A sitter in the ice is only a shape.** When his fire is lit he shakes it off and is one of the Stopped.
+- So every fire is a choice, and most of them are not needed. Three are: two in the shelter and gallery that melt the
+  way on. The rest give a chest and wake someone, or free more of the Seated.
+- A swing no longer turns round by itself to strike a brazier behind him (or a bell's tongue, in the Foundry).
+
+## How it is entered, and left
+
+- **Through the horn,** off the last ledge up it: a pane of thin ice in its outer face. The Toll's step breaks it.
+- **The way out is the meltwater:** out through the tower, down a shaft inside its foot, and out of the foot's west
+  face over the saddle. From below the shaft is not climbed.
+
+## The rooms
+
+| Room | Screens | What it is | What he does there |
+|---|---|---|---|
+| **The shelter** | 1 | Where they came in out of the wind: two cold braziers | **Is shown the rule.** The first fire melts a chest out of the ice, and a sitter with it. The second melts the way on |
+| **The sitters** (the gallery) | 2 | Climbers in blocks of ice along it, and what they carried | Three fires: a sitter and a chest of shards; a sitter and a red strand; a sitter, and the way down |
+| **The deep ice** (vast) | 4 (two by two) | Three floors of ice, one under another, a pane of thin ice across each; the loose ones adrift | Down through it by the Toll's step. One fire, not needed: a strand, and a sitter |
+| **The Seated** | 2 | A giant of a climber against the far wall, wholly in the ice; three braziers; a relic in the ice behind him | The elite, if he chooses. The way out is at the near end: he can walk past |
+| **The meltwater** | 1 | Where the ice lets go | The way out |
+
+## Who is in it
+
+| Who | What it does | How it is read, and answered |
+|---|---|---|
+| **Brazier** (10) | Cold until struck. Not a creature | Look at what its ice holds first |
+| **Sitter** (6) | In the ice: nothing, and a blow does nothing. Its fire lit: it shakes for most of a second, then drifts, rears and rushes as the Stopped do | Do not stand beside the ice when the fire takes. Three cuts, as it recovers |
+| **The Stopped** (3, loose in the deep ice) | As in the Spires | As in the Spires |
+| **The Seated** (the elite) | **No fire lit: he is in the ice, and the blade rings off it.** One fire: an arm is free, **a long low sweep** along the floor (two hearts, and it throws him). Two: **he calls ice down from the roof** where the floor is marked. Three: **he gets up and comes** | The sweep: 0.7 s of his arm drawn back; be over it. The falling ice: 0.8 s of mark; move. **The more of him is free, the more a blow counts: half, whole, half as much again.** Thirty cuts' worth |
+
+The relic is in the ice behind him and answers to the fire nearest him. To take it without killing him is to light one
+fire and reach under his arm.
+
+## The relic: the Climber's Flint
+
+*A blow that lands gives two embers, not one.* It lit the shelter's fire every night of the climb. On the last night no
+one struck it.
+
+## What is said
+
+- The first time a fire is lit: "the fire takes; the ice near it lets go".
+- When the Seated falls: **"The Seated lies down: what the ice kept, the fire let go."**
+- Mirel, in the nest, once a fire has been lit: **"I sat down in the galleries once, to rest. I got up. I do not know
+  yet which was harder."**
+- The Annals: the Seated, "He sat down to rest. The ice took him slowly. A fire brings him back, and not kindly."
+
+## Its look
+
+The glacier's inside: blue, dim, the back wall closed (the Spires' sky does not show through). Blocks and panes of
+clear ice, drawn over what is in them. Painted in: bedrolls, packs, meltwater on the floor.
+
+## Art
+
+One new drawing with one animation (the Seated: his sweep). The braziers, their fire and the ice are drawn in code; the
+sitters are the Stopped's own drawing. **Cost: $0.06; the balance is $2.85.**
+
+## As built (build 64), and what was checked
+
+- **266 automated checks pass**, seven of them the wing's own: its screens and gate; the ice answering to its own fire
+  and no other; the way on shut with no fire lit, and the way out not a way in; the brazier; the sitter; the Seated at
+  no, one, two and three fires and what a blow takes at each; the relic.
+- **Played through by the test browser:** the first fire lit (two patches of ice gone, the sitter waking and turning
+  into one of the Stopped); the second fire and the walk through the melted door; a fire in the gallery; the Seated
+  ignoring blows in the ice, sweeping with one fire, calling ice down with two, getting up with three; a blow taking
+  0.5, then 1; his fall; the fires still burning on coming back.
+- **Found and fixed while building:**
+  - a swing turned round by itself to strike a brazier behind him, and lit it. It no longer turns to things that are not
+    creatures;
+  - the wear banked the floor up against each pane of ice and left no way through; kept clear now;
+  - he could drop from the Last Hut's sill onto the gallery's roof and be stranded; that is rock now;
+  - each blow shoved the Seated back toward the wall; seated, he no longer shifts.
+- **Not checked:** nothing here was played by hand. The Toll's step through a pane was done only by the automated
+  player. The way out (the shaft in the tower's foot) likewise. The sounds. Taking the relic from under his arm.
+- **Ten screens, not twelve:** the plan's twelve would have needed a room with nothing in it.
+
+## Differs from the world plan
+
+- **Mirel does not sit here.** She says that she did, in the nest. A second place for her in one region is not built.
+- **The Seated does not start half-freed.** He starts wholly in the ice, and how much of him is freed is the player's
+  doing.
+- The plan had no rule for the wing; the fires are new.
+
 ## Left for later
 
-- The Glacier Galleries, and the Seated (the next sheet).
 - The Cloister's refectory (left from phase 10).
+- Phase 12: the Tempest's wings.

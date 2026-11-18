@@ -34,7 +34,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 63, date: '18 NOV 2026', phase: 11, phases: 21, last: "THE PILGRIMS' CAIRNS" };
+const VERSION = { build: 64, date: '18 NOV 2026', phase: 11, phases: 21, last: 'THE GLACIER GALLERIES' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -91,6 +91,7 @@ let WAKE = 0;   // at the very start he lies where he fell, and gets up
 const WAY = { was: false, said: new Map() };   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
 // `walked`: he has walked in from the next region (cross): he and his scarf are as they were
 function setup(walked = false){
+  RULE.litAll = false; RULE.lit = new Set((G.lit && G.lit[LEVEL.index]) || []);   // the Glacier Galleries: the fires he has lit here burn on
   RULE.turned = false; RULE.down = !!G.cairnDown; WAY.was = false; WAY.said = new Map();   // the Pilgrims' Cairns: the way is whole as he comes in; his own cairn, once down, stays down
   RULE.ring = 0; RULE.still = !!(G.still && G.still[LEVEL.index]);   // the Bell-Foundry: nothing rings as he comes in; its Cracked Bell, once fallen, stays fallen
   RULE.fallen = !!(G.beat[LEVEL.index] || G.top > LEVEL.index || !KEEPERS[LEVEL.theme]);   // has this region's keeper fallen: what it held is let go (level.js RULE)
@@ -503,10 +504,11 @@ function hudBegin(){ const w = hud.clientWidth, h = hud.clientHeight, dpr = devi
 const banner = (a, b, t = 3.2) => { BANNER = { a, b, t, life: t }; };
 const FEEL_FX = { hitstop: 0, shake: 0, kick: 0 };
 const FX2 = { ghosts: [], ghostT: 0, runDust: 0 };   // the dash's afterimages; the run's dust
-// the aim assist: with nothing in reach ahead and a creature in reach behind, a swing turns to it
+// the aim assist: with nothing in reach ahead and a creature in reach behind, a swing turns to it. Not to a thing that is
+// no creature (a brazier, a cairn, a bell's tongue): a swing never turns round to light a fire or ring iron he did not mean to
 HOOKS.aim = P => {
   const reach = BLADE.reach + MV.aim; let ahead = false, behind = false;
-  for (const e of E.list){ if (!e.alive || e.d.harmless || Math.abs(e.y - P.y) > 2.2) continue; const d = (e.x - P.x) * P.face; if (d > -0.3 && d < reach) ahead = true; else if (d <= -0.3 && d > -reach) behind = true; }
+  for (const e of E.list){ if (!e.alive || e.d.harmless || e.d.prop || e.d.noAim || Math.abs(e.y - P.y) > 2.2) continue; const d = (e.x - P.x) * P.face; if (d > -0.3 && d < reach) ahead = true; else if (d <= -0.3 && d > -reach) behind = true; }
   return !ahead && behind ? -P.face : 0;
 };
 const CAM = { x: sp.x, y: sp.y + 2, lead: 0, zoom: 1 };
@@ -909,6 +911,7 @@ function talkTo(N){
   if (INTRO[N.who] && !Object.keys(G.met).some(m => m.endsWith(':' + N.who)) && !lines.includes(INTRO[N.who])) lines.unshift(INTRO[N.who]);   // the first meeting anywhere: who they are (teach.js)
   if (N.who === 'scribe'){ const L = ITEMS.left(), pl = (c, w) => `${c} ${w}${c === 1 ? '' : 's'}`; lines.push(L.threads + L.chests === 0 ? 'My page for this place is full. There is nothing here you have not found.' : `Not yet entered as found, here: ${pl(L.threads, 'red strand')}, ${pl(L.chests, 'chest')}${L.relic ? ', and something old, behind a way still shut' : ''}.`);
     if (G.lectern && !G.lecternSaid){ G.lecternSaid = 1; lines.push('You found the book they copy. No one has dared its first page. Nor have I.'); } }
+  if (N.who === 'wren' && LEVEL.index === 2 && G.lit && (G.lit[2] || []).length && !G.satSaid){ G.satSaid = 1; lines.push('I sat down in the galleries once, to rest. I got up. I do not know yet which was harder.'); }
   if (N.who === 'wren' && G.still && G.still[1] && !G.stillSaid){ G.stillSaid = 1; lines.push('The cracked one has stopped. I kept my count by it. Now I must keep it myself.'); }
   G.met[k] = n + 1; store(); release(); sfx.ui(); TALK.start(N.who, lines, N.who === 'lamplighter' ? shop : null, N.art);
 }
@@ -977,7 +980,7 @@ function onEvent(e){
       breakRock(P.x + P.face * (digs ? 1.8 : 1.2), P.y + (digs ? 0.6 : 1.2), digs ? 1.5 : 1.3, digs);   // the spade digs where it lands; the blade rings off
       if (e.sw.wave && P.grounded){ waves(P.x + P.face * 1.6, P.y, [P.face], 0.38); sfx.slam(); R.shock(P.x + P.face * 1.8, P.y + 0.3, true); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.3); }   // its last blow runs on along the ground, a little way
       for (const o of out) onEvent(o); break; }
-    case 'hit': if (!e.art) EMBER.n = Math.min(EMBER.cap, EMBER.n + 1);   // a landed blow gives an ember (not an art's)
+    case 'hit': if (!e.art) EMBER.n = Math.min(EMBER.cap, EMBER.n + (has('flint') ? 2 : 1));   // a landed blow gives an ember (not an art's)
       buzz(e.heavy ? 0.35 : 0.15, e.heavy ? 0.5 : 0.3, e.heavy ? 90 : 50); sfx.hit(); fx.burst(e.at, e.heavy ? 18 : 12, 0xffe0a8); R.glint(e.at.x, e.at.y, 0xffe0a8, e.heavy ? 0.9 : 0.6, 3.5, 0.16); FEEL_FX.hitstop = e.heavy ? 0.09 : 0.05; FEEL_FX.shake = Math.max(FEEL_FX.shake, e.heavy ? 0.18 : 0.1); break;
     case 'swap': {   // blade and spade, if he has the spade
       const to = P.weapon === 'spade' ? 'blade' : 'spade'; if (!armed(to)){ if (!HINTED.swap){ HINTED.swap = 1; banner('', 'he has only the blade', 2.2); } break; }
@@ -986,7 +989,14 @@ function onEvent(e){
     case 'ring': { if (RULE.still) break; const was = RULE.ring > 0, d = Math.hypot(e.at.x - P.x, e.at.y - P.y); RULE.ring = Math.max(RULE.ring, RING[e.big ? 1 : 0]);
       sfx.crackbell(!!e.big); if (e.big) sfx.clang(); fx.ring(e.at, 0xfeae34); if (e.big) fx.ring(e.at, 0xffffff); R.shock(e.at.x, e.at.y, !!e.big); R.glint(e.at.x, e.at.y, 0xfeae34, e.big ? 1.2 : 0.7, e.big ? 9 : 5, 0.3); FEEL_FX.shake = Math.max(FEEL_FX.shake, e.big ? 0.3 : d < 10 ? 0.12 : 0.05);
       if (!was){ PROPS.show(); let near = false; for (const B of PROPS.shutters) if (Math.hypot(B.x - P.x, B.y - P.y) < 26){ near = true; fx.dust({ x: B.x, y: B.y0 }, 8, 2); } if (near) sfx.door(); } break; }
+    // a cold brazier struck (regions/glacier.js): it is lit, for good, and the ice that answers to it melts: the way it
+    // closed, what was kept in it, whoever sat in it
+    case 'thaw': { if (RULE.lit.has(e.key)) break; RULE.lit.add(e.key); ((G.lit = G.lit || {})[LEVEL.index] = G.lit[LEVEL.index] || []).push(e.key); store(); PROPS.show();
+      sfx.ember && sfx.ember(); sfx.glass(); fx.burst(e.at, 20, 0xfeae34); fx.ring(e.at, 0xfeae34); R.glint(e.at.x, e.at.y, 0xfeae34, 1.2, 8, 0.6); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.12);
+      for (const B of PROPS.ices) if (B.fire === e.key){ fx.dust({ x: B.x, y: B.y }, 18, 3.5); fx.burst({ x: B.x, y: B.y }, 14, 0xcfeaff); }
+      if (!G.thawSaid){ G.thawSaid = 1; store(); banner('', 'the fire takes; the ice near it lets go', 3); } break; }
     case 'kill':
+      if (e.e && e.e.type === 'seated'){ G.seatedDown = 1; store(); banner('The Seated lies down', 'what the ice kept, the fire let go', 5); }
       // a thing that is not a creature (his own cairn): it is knocked down, and that is all
       if (e.e && e.e.d.prop){ sfx.crack(); sfx.break(); fx.dust(e.at, 26, 4); fx.burst(e.at, 14, 0xc0cbdc); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.3); if (e.e.type === 'hiscairn'){ G.cairnDown = 1; RULE.down = true; store(); banner('It is down', 'the stone with his name on it lies with the others', 5); } break; }
       // the Cracked Bell falls: the wing is still, for good. Nothing in it rings again; the shutters stay up; the grates lift

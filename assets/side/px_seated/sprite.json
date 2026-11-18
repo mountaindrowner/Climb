@@ -1,0 +1,26 @@
+{
+ "name": "px_seated",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 64,
+   "h": 64,
+   "foot": 60,
+   "cx": 30.0,
+   "footLast": 60,
+   "cxLast": 30.0,
+   "n": 1
+  },
+  "attack": {
+   "frames": 9,
+   "w": 84,
+   "h": 84,
+   "foot": 70,
+   "cx": 40.0,
+   "footLast": 70,
+   "cxLast": 41.0,
+   "n": 1
+  }
+ }
+}

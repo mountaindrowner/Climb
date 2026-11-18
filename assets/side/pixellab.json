@@ -1132,5 +1132,16 @@
     "group": "dce19c3d-0a8b-4bc1-8a81-0153edefb3bb"
    }
   }
+ },
+ "px_seated": {
+  "id": "36071cc6-7d25-4321-b080-873c487fad61",
+  "description": "a huge old mountain climber sitting slumped on the ground with his back straight and legs out in front, rimed white and pale blue with frost and icicles hanging from his arms and hood, heavy fur coat, hood up, face hidden, one long arm resting on his knee, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "attack": {
+    "action": "still sitting, swinging one long heavy arm in a wide low sweep along the ground in front of him and drawing it back",
+    "frames": 8,
+    "group": "4e8ca7a2-74d1-4c56-b07e-0e30ccbf747e"
+   }
+  }
  }
 }

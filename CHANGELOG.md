@@ -2,7 +2,16 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Where the game is, shown in the game (latest; build 63).** The build's number and day, which phase of the plan it is in, and the last thing built, in two small lines: top right of the title and of the opening, and over the pause screen. Set in one place (`VERSION` in `src/side/main.js`) with every build. Builds now go to the game's itch.io page (`tools/push-itch.sh`).
+**The Glacier Galleries (latest; phase 11, build 64): the Spires' east wing.** `docs/phase11-sheet.md` has all of it.
+- **Ten screens east of the horn,** behind a pane of thin ice that the Toll's step breaks.
+- **Its rule: warmth opens, and it wakes.** A cold brazier is lit by a blow, for good. Its fire melts the ice nearest it: the way that ice closed, the chest kept in it, and whoever sat down in it. The ice is clear, so he can see what a fire will free before he lights it. Most fires are not needed.
+- **Five rooms:** the shelter (the rule, shown), the sitters' gallery, the deep ice (three floors, a pane across each), the Seated's hall, the meltwater (the way out, down inside the tower's foot).
+- **The Seated,** the wing's elite: a giant of a climber wholly in the ice. Each of three fires frees more of him (a sweep; ice called down from the roof; he gets up) and makes each blow count for more. He can be left where he is.
+- **A relic, the Climber's Flint:** a blow that lands gives two embers.
+- Mirel has a line about the galleries. A swing no longer turns round by itself to strike a brazier or a bell's tongue.
+- New in the engine: ice that answers to the nearest brazier in its room; a pane of ice (the vellum's rule, in the Spires).
+
+**Where the game is, shown in the game (build 63).** The build's number and day, which phase of the plan it is in, and the last thing built, in two small lines: top right of the title and of the opening, and over the pause screen. Set in one place (`VERSION` in `src/side/main.js`) with every build. Builds now go to the game's itch.io page (`tools/push-itch.sh`).
 
 **The Pilgrims' Cairns (phase 11, build 62): the Spires' west wing.** `docs/phase11-sheet.md` has all of it.
 - **Nine screens west of the mountain's caves,** out of the eyrie's wall and across a gap only the Wyrm's wind crosses (a glide in rising air, up onto the far cliff).

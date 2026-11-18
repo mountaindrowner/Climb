@@ -331,7 +331,7 @@ export function stepEnemies(E, P, dt, fx, events){
       // anim(e, name, frac, dy, z), shoot(E, e, P, lob), hurt(P, n, fromX, word), isRollInv(P), ground(x, y), solidAt(x, y),
       // kill(e, events), tileAt, T; hit(x0, y0, x1, y1, word, fromX): hurts him if his body is in that box and he is not
       // rolling through (true if it did)
-      CUSTOM[ai](e, P, dt, { go, dx, dy, dist, events, fx, E, anim, shoot, hurt, isRollInv, ground, solidAt, kill: killEnemy, tileAt, T, RULE, lit: litMat,
+      CUSTOM[ai](e, P, dt, { go, dx, dy, dist, events, fx, E, anim, shoot, hurt, isRollInv, ground, solidAt, kill: killEnemy, tileAt, T, RULE, lit: litMat, rooms: LEVEL.rooms, marks: LEVEL.marks,
         hit: (x0, y0, x1, y1, word, fromX) => P.x + 0.34 > x0 && P.x - 0.34 < x1 && P.y + P.h > y0 && P.y < y1 && !isRollInv(P) && hurt(P, 1, fromX == null ? (x0 + x1) / 2 : fromX, word || e.d.word || 'Struck') });
     }
     // what it threw, in flight: a glob or a bolt goes straight, a chunk of ice falls in its arc

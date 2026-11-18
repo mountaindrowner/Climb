@@ -166,7 +166,7 @@ export const BELL = { H: 3.4, R: 1.3, rim: 1.1, w0: 1.7, damp: [0.3, 1.1], max: 
 export const enemies = {
   // a tongue: the clapper of a broken bell, hung by its chain. Still, it rings if it is touched (his blade, or his body
   // walking into it). While anything rings it swings, and hurts. It cannot be broken
-  clapper: { ai: 'clapper', own: true, hp: 99, w: 0.3, h: TONGUE, color: 0x3a4466, fly: true, word: 'Struck by iron',
+  clapper: { ai: 'clapper', own: true, noAim: true, hp: 99, w: 0.3, h: TONGUE, color: 0x3a4466, fly: true, word: 'Struck by iron',
     guard(e){ e.rung = true; return true; }, onHit(e){ e.hp = e.d.hp; e.rung = true; } },
   // slag: a lump of it, cold and asleep; a cut glances off. A ring wakes it: it glows, and comes fast along the floor,
   // and burns to touch. In silence it goes cold where it stands

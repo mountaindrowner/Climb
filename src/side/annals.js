@@ -25,6 +25,7 @@ export const ANNALS = [
       { type: 'yeti', name: 'Rimeback', art: 'px_yeti', line: 'Patient as the ice. It throws it at whatever climbs.' },
       { type: 'cairn', name: 'Cairn', art: 'px_cairn', line: 'A reason to turn back, in stones. It follows whoever will not look at it.' },
       { type: 'turned', name: 'The Turned', art: 'px_turned', line: 'He turned back, and stayed. He lets no one up past him.' },
+      { type: 'seated', name: 'The Seated', art: 'px_seated', line: 'He sat down to rest. The ice took him slowly. A fire brings him back, and not kindly.' },
       { type: 'harpy', name: 'High Hawk', art: 'px_harpy', line: 'A hawk of the high air. It strikes twice and is gone.' },
       { type: 'wraith', name: 'The Stopped', art: 'px_wraith', line: 'A climber who sat down to rest. The cold kept the rest.' } ] },
   { region: 'The Tempest', keeper: { theme: 'tempest', art: 'thunderhead/mask', name: 'The Thunderhead', line: 'It came when the flame went dark. It is all the sky has left.' },

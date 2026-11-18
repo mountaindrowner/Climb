@@ -37,7 +37,7 @@ export const WING_MOVED = { 1: [120, 0, 1], 2: [120, 0, 2] };
 function winged(S){
   const have = S.winged || 0; if (have >= 2) return; S.winged = 2;
   for (const n of Object.keys(WING_MOVED)){ const [dx, dy, since] = WING_MOVED[n]; if (have >= since) continue; const mv = id => { const m = /^([a-z]?)(-?\d+),(-?\d+)$/.exec(id); return m ? m[1] + (+m[2] + dx) + ',' + (+m[3] + dy) : id; };
-    for (const k of ['got', 'broke', 'blocked']) if (S[k] && S[k][n]) S[k][n] = S[k][n].map(mv); }
+    for (const k of ['got', 'broke', 'blocked', 'lit']) if (S[k] && S[k][n]) S[k][n] = S[k][n].map(mv); }
 }
 function joined(S){
   if (S.joined) return; S.joined = 1;
@@ -78,6 +78,7 @@ export const RELICS = {   // name: whose it was; line: what it does; lore: whose
   stylus:      { name: 'Sexton\'s Stylus',       line: 'Each creature he kills gives 2 more embers.', lore: 'It scratched a mark for every one of his falls. Under them, in another hand, the whole count is struck through.' },
   blankleaf:   { name: 'Copyist\'s Blank Leaf',   line: 'After he rests at water, the first blow that lands does no harm.', lore: 'The one page in the house that was never spoiled. Nothing was ever written on it.' },
   felt:        { name: 'Founder\'s Felt',        line: 'A parry rings: everything near him is stilled for a breath.', lore: 'The founders wrapped a tongue in it when a bell was to be struck and not heard.' },
+  flint:       { name: 'Climber\'s Flint',        line: 'A blow that lands gives two embers, not one.', lore: 'It lit the shelter\'s fire every night of the climb. On the last night no one struck it.' },
   turnstone:   { name: 'Pilgrim\'s Stone',        line: 'After a blow, nothing can hurt him for a breath longer.', lore: 'The top stone of a cairn. He carried it up once, and set it down. NOT YET is scratched on it.' },
   starcompass: { name: 'Astronomer\'s Compass',    line: 'The map shows what is still to be found.',       lore: 'It does not point north. It points at the star that is missing.' },
 };

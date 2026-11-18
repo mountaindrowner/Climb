@@ -72,7 +72,7 @@ export function graph(N, gifts = []){
   const L = loadLevel(N); W = L.W;
   const has = new Set(gifts);
   M.CAN.breaker = has.has('breaker'); M.CAN.dash = has.has('dash'); M.CAN.glide = has.has('glide');
-  RULE.fallen = has.has('fallen'); RULE.shut = false; RULE.ring = 0; RULE.still = has.has('still') || has.has('fallen'); RULE.turned = false;   // 'still': the Bell-Foundry's Cracked Bell has fallen (its grates are up)
+  RULE.fallen = has.has('fallen'); RULE.shut = false; RULE.ring = 0; RULE.still = has.has('still') || has.has('fallen'); RULE.turned = false; RULE.litAll = !has.has('unlit'); RULE.lit = new Set();   // the tests' player lights every fire he comes to ('unlit': none of them burn)   // 'still': the Bell-Foundry's Cracked Bell has fallen (its grates are up)
   if (has.has('breaker')) LEVEL.tiles = LEVEL.tiles.map(t => t === 4 ? 0 : t);
   if (has.has('dash')) LEVEL.tiles = LEVEL.tiles.map(t => t === 11 ? 0 : t);   // vellum torn (the Toll's step goes through it)   // the cracked stone broken (a copy: the next load is whole again)
   const base = { W: L.W, H: L.H, marks: L.marks, rooms: L.rooms };

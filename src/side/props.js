@@ -1,7 +1,7 @@
 // What stands in the world and changes: star-glass ledges that keep time, blooms that throw him, rising air, and cracked
 // rock that breaks. The painted layers leave these out (render.js, paintAt); they are drawn here, small meshes over them.
 //   makeProps(scene, R) -> { step(dt, t, P), bounce(mark), breakAt(x, y, r) -> [{ id, x, y }], breakId(id), cracks }
-import { T, LEVEL, CRACKED, GLASS_A, GLASS_B, EMPTY, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, RULE, rawAt, glassOn, gustOn, PHASE } from './level.js';
+import { T, LEVEL, CRACKED, GLASS_A, GLASS_B, EMPTY, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, RULE, rawAt, glassOn, gustOn, PHASE } from './level.js';
 import { PPU, PAL, lit, themeNow } from './render.js';
 const THREE = window.THREE;
 const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
@@ -273,6 +273,7 @@ export function makeProps(scene, R){
       px(g, PAL.bone, 0, 0, c.width, c.height); for (let y = 0; y < c.height; y++) for (let x = 0; x < c.width; x++) if (B4[(y & 3) * 4 + (x & 3)] < 2) px(g, PAL.wood3, x, y);
       for (let y = 5; y < c.height - 3; y += 4){ const a = 1 + Math.floor(r() * 2), b = c.width - 1 - Math.floor(r() * 3); px(g, PAL.tan, a, y, Math.max(1, b - a), 1); }   // the lines ruled on it, nothing written
       px(g, PAL.wood0, 0, 0, c.width, 1); px(g, PAL.wood0, 0, c.height - 1, c.width, 1); for (let y = 2; y < c.height; y += 6){ px(g, PAL.wood0, 0, y, 1, 2); px(g, PAL.wood0, c.width - 1, y, 1, 2); }   // laced to its frame
+      if (LEVEL.theme === 'spires'){ px(g, '#bfeaff', 0, 0, c.width, c.height); for (let k = 0; k < c.width * c.height / 9; k++) px(g, r() < 0.5 ? '#ffffff' : '#7cc4ea', Math.floor(r() * c.width), Math.floor(r() * c.height), 1, 1 + Math.floor(r() * 3)); px(g, '#ffffff', 0, 0, 1, c.height); px(g, '#4a90c8', c.width - 1, 0, 1, c.height); let cx = c.width >> 1; for (let y = 0; y < c.height; y++){ cx += [0, 1, -1, 0, 1, 0, -1, -1][y & 7]; px(g, '#4a90c8', Math.max(0, Math.min(c.width - 1, cx)), y, 1, 1); } }   // in the Spires a sheet is a pane of thin ice (the Glacier Galleries): the Toll's step goes through it the same
       const m = new THREE.Mesh(new THREE.PlaneGeometry(Math.max(1, w) * T, h * T), basic(texOf(c), { opacity: 0.96 })); m.position.set((x0 + w / 2) * T, (y0 + h / 2) * T, 0.013); scene.add(m);
       sheets.push({ id: `${i},${j}`, tiles, m, x: m.position.x, y: m.position.y, x0: x0 * T, x1: (x1 + 1) * T, y0: y0 * T, y1: (y1 + 1) * T, gone: false }); } }
   const rip = S => { if (S.gone) return; S.gone = true; for (const [a, b] of S.tiles) LEVEL.tiles[b * W + a] = EMPTY; scene.remove(S.m); S.m.geometry.dispose(); S.m.material.map.dispose(); S.m.material.dispose(); };
@@ -282,6 +283,18 @@ export function makeProps(scene, R){
   for (let j = 0; j < H; j++) for (let i = 0; i < W; i++){ if (rawAt(i, j) !== FACED || (i > 0 && rawAt(i - 1, j) === FACED)) continue; let n = 1; while (rawAt(i + n, j) === FACED) n++;
     const c = cnv(n * 8, 6), g = c.getContext('2d'), r = rng(i * 37 + j * 13 + 1); for (let x = 0; x < n * 8;){ const w = 5 + Math.floor(r() * 5), ww = Math.min(w, n * 8 - x); px(g, PAL.ink, x, 0, ww, 6); px(g, PAL.mid, x + 1, 1, Math.max(1, ww - 2), 4); px(g, PAL.light, x + 1, 1, Math.max(1, ww - 2), 1); px(g, PAL.pale, x + 1, 1, Math.max(1, Math.min(3, ww - 2)), 1); px(g, PAL.dark, x + 1, 4, Math.max(1, ww - 2), 1); x += ww + (r() < 0.4 ? 1 : 0); }
     const m = new THREE.Mesh(new THREE.PlaneGeometry(n * T, 6 / PPU), basic(texOf(c), { opacity: 1 })); m.position.set((i + n / 2) * T, (j + 1) * T - 3 / PPU, 0.012); scene.add(m); ways.push({ m, x: m.position.x, y: m.position.y, w: n * T }); }
+  // ---- ice a fire melts (the Glacier Galleries): each patch of it that answers to one brazier a block of clear ice, what
+  // is in it seen through it; gone when its fire is lit
+  const ices = [];
+  { const seenI = new Uint8Array(W * H), fireOf = k => LEVEL.meltOf.get(k);
+    for (let j = 0; j < H; j++) for (let i = 0; i < W; i++){ if (rawAt(i, j) !== MELT || seenI[j * W + i]) continue; const fire = fireOf(j * W + i), st = [[i, j]]; seenI[j * W + i] = 1; let x0 = i, x1 = i, y0 = j, y1 = j; const cells = [];
+      while (st.length){ const [a, b] = st.pop(); cells.push([a, b]); x0 = Math.min(x0, a); x1 = Math.max(x1, a); y0 = Math.min(y0, b); y1 = Math.max(y1, b);
+        for (const [da, db] of [[1, 0], [-1, 0], [0, 1], [0, -1]]){ const na = a + da, nb = b + db; if (na >= 0 && nb >= 0 && na < W && nb < H && !seenI[nb * W + na] && rawAt(na, nb) === MELT && fireOf(nb * W + na) === fire){ seenI[nb * W + na] = 1; st.push([na, nb]); } } }
+      const w = x1 - x0 + 1, h = y1 - y0 + 1, c = cnv(w * 8, h * 8), g = c.getContext('2d'), r = rng(i * 41 + j * 7 + 2); g.clearRect(0, 0, c.width, c.height);
+      for (const [a, b] of cells){ const X = (a - x0) * 8, Y = (y1 - b) * 8; px(g, '#8fd4f0', X, Y, 8, 8); for (let q = 0; q < 5; q++) px(g, r() < 0.5 ? '#c8f0ff' : '#5aa8d8', X + Math.floor(r() * 8), Y + Math.floor(r() * 8), 1 + Math.floor(r() * 3), 1); }
+      for (const [a, b] of cells){ const X = (a - x0) * 8, Y = (y1 - b) * 8, has = (da, db) => cells.some(([p, q]) => p === a + da && q === b + db); if (!has(0, 1)) px(g, '#ffffff', X, Y, 8, 1); if (!has(-1, 0)) px(g, '#e0f8ff', X, Y, 1, 8); if (!has(1, 0)) px(g, '#3a78b0', X + 7, Y, 1, 8); if (!has(0, -1)) px(g, '#3a78b0', X, Y + 7, 8, 1); }
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(w * T, h * T), basic(texOf(c), { opacity: 0.62 })); m.position.set((x0 + w / 2) * T, (y0 + h / 2) * T, 0.046); scene.add(m);
+      ices.push({ m, fire, x: m.position.x, y: m.position.y, w: w * T, h: h * T }); } }
   const held = [], doors = [], shutters = [], grates = [];
   { const seen2 = new Uint8Array(W * H), kind = t => t === HOLD || t === GIVEN ? 1 : t === DOOR ? 2 : t === SHUTTER ? 3 : t === STILLED ? 4 : 0;
     for (let j = 0; j < H; j++) for (let i = 0; i < W; i++){
@@ -299,7 +312,7 @@ export function makeProps(scene, R){
       else held.push(B);
     } }
   const showHeld = () => { for (const B of held){ B.m.visible = !RULE.fallen; if (B.plank) B.plank.visible = RULE.fallen; } for (const B of doors){ const shut = RULE.shut && !RULE.fallen; B.m.visible = shut; B.stub.visible = !shut; }
-    for (const B of shutters){ const shut = RULE.ring > 0 && !RULE.still; B.m.visible = shut; if (B.stub) B.stub.visible = !shut; } for (const B of grates) B.m.visible = !RULE.still; for (const B of ways) B.m.visible = !RULE.turned; };
+    for (const B of shutters){ const shut = RULE.ring > 0 && !RULE.still; B.m.visible = shut; if (B.stub) B.stub.visible = !shut; } for (const B of grates) B.m.visible = !RULE.still; for (const B of ways) B.m.visible = !RULE.turned; for (const B of ices) B.m.visible = !(RULE.litAll || RULE.lit.has(B.fire)); };
   RULE.shut = false; showHeld(); let bellT = 1.2;
   // ---- the storm's gantries (live decks): each run an iron grating; while the storm rules it spits
   const decks = [];
@@ -397,7 +410,7 @@ export function makeProps(scene, R){
     bounce(mk){ const B = blooms.find(b => b.mk === mk); if (B) B.t = 0; },
     // everything cracked within r of (x, y) breaks; returns what broke
     breakAt(x, y, r){ const out = []; for (const C of cracks){ if (C.gone) continue; const dx = Math.max(Math.abs(x - C.x) - C.w / 2, 0), dy = Math.max(Math.abs(y - C.y) - C.h / 2, 0); if (Math.hypot(dx, dy) <= r){ shatter(C); out.push(C); } } return out; },
-    held, doors, decks, rods, sheets, shutters, grates, ways, show: showHeld,   // show: the rule has changed (a ring begun or ended, the wing gone still): what is shut is drawn shut
+    held, doors, decks, rods, sheets, shutters, grates, ways, ices, show: showHeld,   // show: the rule has changed (a ring begun or ended, the wing gone still): what is shut is drawn shut
     // the sheets of vellum his body is in or against (he is in the Toll's step): torn. Returns them
     tear(P){ const out = []; for (const S of sheets) if (!S.gone && P.x + 0.6 > S.x0 && P.x - 0.6 < S.x1 && P.y + 2.4 > S.y0 && P.y < S.y1){ rip(S); out.push(S); } return out; },
     // the keeper has fallen (main.js has set RULE.fallen): what it held is let go. Returns the blocks, for their dust

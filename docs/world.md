@@ -423,7 +423,7 @@ can knock it down.
 scree run* (a shortcut down to the mouth).
 
 ### The Glacier Galleries
-*Spires, east · 12 screens · the Toll's step*
+*Spires, east · 10 screens · the Toll's step · built (build 64, `docs/phase11-sheet.md`)*
 
 **History.** Caves in the glacier where climbers sheltered from the wind and sat down to rest. The ice took them slowly.
 The Stopped are from here.

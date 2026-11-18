@@ -50,7 +50,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 63 | 18 Nov 2026 | `a88ef9a` | The version note on the title, the opening and the pause screen | nothing | yes (now) |
+| 64 | 18 Nov 2026 | `COMMIT64` | The Glacier Galleries (phase 11, second half) | adds | yes (now) |
+| 63 | 18 Nov 2026 | `a88ef9a` | The version note on the title, the opening and the pause screen | nothing | was, until 64 |
 | 62 | 18 Nov 2026 | `b72435a` | The Pilgrims' Cairns (phase 11, first half) | **moved** (the Spires) | was, until 63 |
 | 61 | 18 Nov 2026 | `7c2606f` | The Bell-Foundry and the Cracked Bell (phase 10, second half) | adds | no |
 | 60 | 18 Nov 2026 | `936da31` | The Scriptorium (phase 10, first half) | **moved** (the Cloister) | no |
@@ -74,6 +75,28 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 64: the Glacier Galleries
+
+- **For the player:** the Spires' east wing, ten screens. Cold braziers lit by a blow; each fire melts the ice nearest
+  it (ways, chests, and whoever sat in it); the Seated, freed a fire at a time; the Climber's Flint. All of it in
+  `docs/phase11-sheet.md`.
+- **Also changes play elsewhere:** a swing no longer turns round by itself toward a thing that is not a creature (a
+  brazier, his own cairn, a bell's tongue in the Foundry). In the Foundry this means a tongue behind him is no longer
+  rung by a swing he aimed the other way.
+- **Underneath:** new `src/side/regions/glacier.js`; a new tile (ice a fire melts) in `rooms.js`, `level.js`,
+  `props.js`; a pane of ice is the vellum tile drawn as ice in the Spires (`props.js`); the fires, the Seated's fall,
+  the relic and Mirel's line in `main.js`; the aim assist (`main.js`); the Spires is three columns wider on the east;
+  rooms cut into the horn, the spire's tower and the saddle's tower foot.
+- **Save:** adds the fires lit (`lit`, by place), the Seated's fall, two lines said, the relic. Nothing moved (the wing
+  is to the east).
+- **Checked:** 266 automated checks, seven of them the wing's; a play-through in the test browser (the fires, a
+  sitter, the Seated at one, two and three fires, his fall, coming back); the zip opened, the title and every region.
+- **Not checked:** not played by hand; the Toll's step through a pane and the way out, only by the automated player;
+  the sounds.
+- **Mistake caught before it went out:** a comment put in the middle of a line cut the rest of the line off, and the
+  game would not have started. The syntax check found it at once.
+- **Cost:** one drawing (the Seated), $0.06.
 
 ### Build 63: the version note
 
