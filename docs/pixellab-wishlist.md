@@ -44,3 +44,10 @@ Each wing: about 2 to 4 new creatures and 1 elite; the Deep: its creatures and e
 wing's sheet is written. Roughly $10 to $20 in all, so these wait for the generations to refill.
 
 - **A grey-threaded pilgrim** (walk, stand, sit) and **the Sweeper** (seen from behind, sweeping, walking away): the passages use the acolyte's drawing, tinted, until then (phase 9).
+
+## The wings (phases 10 to 14)
+
+| What | Why | Est. |
+|---|---|---|
+| ~~The copyist, the blot, the Corrector~~ made, build 60 (`px_copyist`, `px_blot`, `px_corrector`) | The Scriptorium | $0.30 spent |
+| The Bell-Foundry's slag-crawler, clapper, and the Cracked Bell (drawn in pieces, in code) | Phase 10, second half | $0.20 |

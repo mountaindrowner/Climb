@@ -124,6 +124,7 @@ export const ICONS = {
   stormglass: ['.....kkkkkk', '.....kWWWWk', '....kkkkkkkk', '...kpCCCCCCpk', '...kCnnYnnnCk', '...kCnYYnnnCk', '...kCnnYYnnCk', '...kCnnnYnnCk', '...kCnnYnnnCk', '...kpCCCCCCpk', '....kkkkkkkk'],
   seedheart: ['.......gg', '......gGgg', '.......G', '......kkk', '.....kuuuk', '....kuyuuuk', '....kuuuuWk', '....kuuuWWk', '.....kWWWk', '......kkk'],
   tally: ['', '.kkkkkkkkkkkkk', '.kWWWWWWWWWWWk', '.kWcWcWcWcWWWk', '.kWcWcWcWcWWWk', '.kWcWcWcWcWWWk', '.kuuuuuuuuuuuk', '.kkkkkkkkkkkkk'],
+  blankleaf: ['', '...kkkkkkkk', '..kppppppppk', '..kppppppppk', '..kpllllllpk', '..kppppppppk', '..kpllllllpk', '..kppppppppk', '..kpllllllpk', '..kppppppppk', '..kppppppkk', '...kkkkkkk'],
   stylus: ['............kk', '...........kpk', '..........kplk', '.........kplk', '........kplk', '.......kplk', '......kplk', '.....kyyk', '....kyyk', '...klk', '..kk'],
   starcompass: ['.....kkkkkk', '...kkyyyyyykk', '..kyykkkkkkyyk', '..kykdnnYndkyk', '.kykdnnYwYnnkyk', '.kyknnYwwwYnkyk', '.kykdnnYwYnnkyk', '..kykdnnYndkyk', '..kyykkkkkkyyk', '...kkyyyyyykk', '.....kkkkkk'],
   breaker: ['......kkkk', '......kYYk', '......kYYk', '......kYYk', '....kkkYYkkk', '....kYYYYYYk', '.....kYYYYk', '......kYYk', '.......kk', '..k.k......k.k', '.kmmkmmmmmmkmmk', '.kmkmmmkmmmmkmk', '.kkkkkkkkkkkkkk'],

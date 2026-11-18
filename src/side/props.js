@@ -1,7 +1,7 @@
 // What stands in the world and changes: star-glass ledges that keep time, blooms that throw him, rising air, and cracked
 // rock that breaks. The painted layers leave these out (render.js, paintAt); they are drawn here, small meshes over them.
 //   makeProps(scene, R) -> { step(dt, t, P), bounce(mark), breakAt(x, y, r) -> [{ id, x, y }], breakId(id), cracks }
-import { T, LEVEL, CRACKED, GLASS_A, GLASS_B, EMPTY, HOLD, DOOR, GIVEN, LIVE, RULE, rawAt, glassOn, gustOn, PHASE } from './level.js';
+import { T, LEVEL, CRACKED, GLASS_A, GLASS_B, EMPTY, HOLD, DOOR, GIVEN, LIVE, VELLUM, RULE, rawAt, glassOn, gustOn, PHASE } from './level.js';
 import { PPU, PAL, lit, themeNow } from './render.js';
 const THREE = window.THREE;
 const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
@@ -259,6 +259,20 @@ export function makeProps(scene, R){
     m.position.set((x0 + w / 2) * T, (y0 + h / 2) * T, 0.01); scene.add(m);
     cracks.push({ id: `${i},${j}`, tiles, m, x: m.position.x, y: m.position.y, w: w * T, h: h * T, gone: false });
   }
+  // ---- vellum: a sheet stretched over a way (the Scriptorium). Each patch one sheet; torn by the Toll's step (tear)
+  const sheets = [];
+  { const seenV = new Uint8Array(W * H);
+    for (let j = 0; j < H; j++) for (let i = 0; i < W; i++){ if (rawAt(i, j) !== VELLUM || seenV[j * W + i]) continue;
+      const tiles = [], st = [[i, j]]; seenV[j * W + i] = 1; let x0 = i, x1 = i, y0 = j, y1 = j;
+      while (st.length){ const [a, b] = st.pop(); tiles.push([a, b]); x0 = Math.min(x0, a); x1 = Math.max(x1, a); y0 = Math.min(y0, b); y1 = Math.max(y1, b);
+        for (const [da, db] of [[1, 0], [-1, 0], [0, 1], [0, -1]]){ const na = a + da, nb = b + db; if (na >= 0 && nb >= 0 && na < W && nb < H && !seenV[nb * W + na] && rawAt(na, nb) === VELLUM){ seenV[nb * W + na] = 1; st.push([na, nb]); } } }
+      const w = x1 - x0 + 1, h = y1 - y0 + 1, c = cnv(Math.max(8, w * 8), h * 8), g = c.getContext('2d'), r = rng(i * 53 + j * 11 + 3);
+      px(g, PAL.bone, 0, 0, c.width, c.height); for (let y = 0; y < c.height; y++) for (let x = 0; x < c.width; x++) if (B4[(y & 3) * 4 + (x & 3)] < 2) px(g, PAL.wood3, x, y);
+      for (let y = 5; y < c.height - 3; y += 4){ const a = 1 + Math.floor(r() * 2), b = c.width - 1 - Math.floor(r() * 3); px(g, PAL.tan, a, y, Math.max(1, b - a), 1); }   // the lines ruled on it, nothing written
+      px(g, PAL.wood0, 0, 0, c.width, 1); px(g, PAL.wood0, 0, c.height - 1, c.width, 1); for (let y = 2; y < c.height; y += 6){ px(g, PAL.wood0, 0, y, 1, 2); px(g, PAL.wood0, c.width - 1, y, 1, 2); }   // laced to its frame
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(Math.max(1, w) * T, h * T), basic(texOf(c), { opacity: 0.96 })); m.position.set((x0 + w / 2) * T, (y0 + h / 2) * T, 0.013); scene.add(m);
+      sheets.push({ id: `${i},${j}`, tiles, m, x: m.position.x, y: m.position.y, x0: x0 * T, x1: (x1 + 1) * T, y0: y0 * T, y1: (y1 + 1) * T, gone: false }); } }
+  const rip = S => { if (S.gone) return; S.gone = true; for (const [a, b] of S.tiles) LEVEL.tiles[b * W + a] = EMPTY; scene.remove(S.m); S.m.geometry.dispose(); S.m.material.map.dispose(); S.m.material.dispose(); };
   // ---- what the keeper holds: each patch of holds (and given planks) one block, each door one; shown while they hold
   const held = [], doors = [];
   { const seen2 = new Uint8Array(W * H), kind = t => t === HOLD || t === GIVEN ? 1 : t === DOOR ? 2 : 0;
@@ -372,11 +386,13 @@ export function makeProps(scene, R){
     bounce(mk){ const B = blooms.find(b => b.mk === mk); if (B) B.t = 0; },
     // everything cracked within r of (x, y) breaks; returns what broke
     breakAt(x, y, r){ const out = []; for (const C of cracks){ if (C.gone) continue; const dx = Math.max(Math.abs(x - C.x) - C.w / 2, 0), dy = Math.max(Math.abs(y - C.y) - C.h / 2, 0); if (Math.hypot(dx, dy) <= r){ shatter(C); out.push(C); } } return out; },
-    held, doors, decks, rods,
+    held, doors, decks, rods, sheets,
+    // the sheets of vellum his body is in or against (he is in the Toll's step): torn. Returns them
+    tear(P){ const out = []; for (const S of sheets) if (!S.gone && P.x + 0.6 > S.x0 && P.x - 0.6 < S.x1 && P.y + 2.4 > S.y0 && P.y < S.y1){ rip(S); out.push(S); } return out; },
     // the keeper has fallen (main.js has set RULE.fallen): what it held is let go. Returns the blocks, for their dust
     release(){ showHeld(); return held.concat(doors); },
     nearCrack(x, y, r){ return cracks.find(C => !C.gone && Math.hypot(Math.max(Math.abs(x - C.x) - C.w / 2, 0), Math.max(Math.abs(y - C.y) - C.h / 2, 0)) <= r) || null; },
-    breakId(id){ const C = cracks.find(c => c.id === id); if (C) shatter(C, true); },
+    breakId(id){ const C = cracks.find(c => c.id === id); if (C) shatter(C, true); const S = sheets.find(s => s.id === id); if (S) rip(S); },
   };
   return API;
 }

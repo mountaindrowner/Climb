@@ -1,0 +1,36 @@
+{
+ "name": "px_blot",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 40,
+   "h": 40,
+   "foot": 39,
+   "cx": 20.0,
+   "footLast": 39,
+   "cxLast": 20.0,
+   "n": 1
+  },
+  "attack": {
+   "frames": 9,
+   "w": 56,
+   "h": 56,
+   "foot": 47,
+   "cx": 28.0,
+   "footLast": 47,
+   "cxLast": 27.5,
+   "n": 1
+  },
+  "crawl": {
+   "frames": 9,
+   "w": 56,
+   "h": 56,
+   "foot": 47,
+   "cx": 28.0,
+   "footLast": 47,
+   "cxLast": 28.0,
+   "n": 1
+  }
+ }
+}

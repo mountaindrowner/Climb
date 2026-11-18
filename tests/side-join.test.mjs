@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import './helpers/browser.mjs';
 const { loadLevel, T } = await import('./helpers/reach.mjs');
 const LV = await import('../src/side/level.js');
-const { JOIN_MOVED } = await import('../src/side/state.js');
+const { JOIN_MOVED, WING_MOVED } = await import('../src/side/state.js');
 const { VIEW_H } = await import('../src/side/paint.js');
 const { SILL, JOINS, sill, ROCK, EMPTY, CRACKED, HOLD } = LV, L = []; for (let n = 0; n <= LV.CLIMB_TOP; n++) L.push({ ...loadLevel(n) });
 
@@ -33,6 +33,6 @@ for (const k of Object.keys(JOINS).map(Number)){
     else { assert.ok(up.seal.length >= 6, 'a seal'); for (const id of up.seal){ const [i, j] = id.split(',').map(Number); assert.equal(at(i, j), HOLD, `seal at ${id}`); } }
     const ex = lo.marks.find(m => m.type === 'exit'); assert.ok(ex && ex.join, 'no beacon: the way on is walked'); assert.equal(ex.x, up.x + (SILL.w >> 1));
   });
-  test(`${name}: the region above was moved as the save's move says`, () => assert.deepEqual(JOIN_MOVED[k], [hi.X0, hi.Y0]));
+  test(`${name}: the region above was moved as the save's move says`, () => assert.deepEqual([JOIN_MOVED[k][0] + ((WING_MOVED[k] || [0, 0])[0]), JOIN_MOVED[k][1] + ((WING_MOVED[k] || [0, 0])[1])], [hi.X0, hi.Y0]));
 }
 test('the summit keeps its beacon (the end of the climb)', () => { const ex = L[LV.CLIMB_TOP].marks.find(m => m.type === 'exit'); assert.ok(ex && !ex.join); });

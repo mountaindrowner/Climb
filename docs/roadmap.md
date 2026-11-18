@@ -310,6 +310,12 @@ the Roots' quick way is not shorter than the old ladder; no nooks in the Roots; 
 
 ## Phases 10 to 14: the wings
 
+*Phase 10, first half, done (build 60): **the Scriptorium**, by `docs/phase10-sheet.md`. Nine screens west of the
+Cloister's stair, behind a sheet of vellum that only the Toll's step tears. The copying hall (desks in tiers, climbed
+across), the furnace, the red room and the Corrector, the lectern with its blank book and a relic (the Copyist's Blank
+Leaf), a chute back to the door. Copyists, blots and the Corrector are new drawings (about $0.30). Still to do in phase
+10: the Bell-Foundry and the Cracked Bell; the refectory and the slype; a knowledge gate.*
+
 Built two regions at a time. **Spaces, not rectangles** (decision 0.8): each wing has at least one vast space, one
 winding way, and one path no one expects, each shaped by what the place was. Each wing gets its sheet first: its rooms, what each room is for, its gate and shortcut,
 its creatures, its elite, its one moment, its relic, and a weapon (the Ember plan's step 4) where one fits. Each

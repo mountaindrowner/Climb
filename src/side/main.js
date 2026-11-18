@@ -31,7 +31,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 59';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 60';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -141,6 +141,13 @@ function ruleStep(dt){
         if (Math.abs(P.x - Q.x) < 1.3 && P.y > Q.y - 0.6 && P.y < Q.y + 5 && !isRollInv(P) && P.hp > 0 && !DISS) hurt(P, 1, Q.x, 'Struck by lightning'); } }
     for (const O of PROPS.rods) if (O !== Q) O.warn = 0; }
   if (LEVEL.theme === 'gardens') for (const B of PROPS.held) if (B.look === 'thorn' && P.x + 0.5 > B.x0 && P.x - 0.5 < B.x1 && P.y + 2.5 > B.y0 && P.y - 0.15 < B.y1 && P.hp > 0 && !DISS && !isRollInv(P)){ hurt(P, 1, B.x, 'Thorns'); break; }
+}
+// ---- the wings' own things (phase 10): vellum tears when he goes through it in the Toll's step; the Scriptorium's
+// book says what it is the first time he stands at it; the Blank Leaf is whole again at any water
+function wingStep(dt){
+  if (!PROPS || !P || GO.st) return;
+  if (P.dashT > 0) for (const S of PROPS.tear(P)){ sfx.swing(true); fx.burst({ x: S.x, y: S.y }, 28, 0xead4aa); fx.dust({ x: S.x, y: S.y0 }, 12, 3); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.2); (G.broke[LEVEL.index] = G.broke[LEVEL.index] || []).push(S.id); store(); }
+  if (!G.lectern && P.grounded) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'lectern' && Math.abs((m.x + 0.5) * T - P.x) < 1.6 && Math.abs(m.y * T - P.y) < 2){ G.lectern = 1; store(); banner('The book they copy', 'it is open at its first page. The page is blank.', 5.5); }
 }
 // ---- walking from one region into the next (phase 9, docs/phase9-sheet.md): no dark, no card. Each join has a sill
 // (level.js): a tunnel through rock that is the same, to the tile and the pixel, in the region below and the region
@@ -281,8 +288,10 @@ const corwenMet = () => Object.keys(G.met || {}).some(k => k.endsWith(':scribe')
 let WAYT = 0;
 // cracked stone he comes close to and cannot break: remembered (a way he could not take)
 function noteWays(dt){
-  if ((WAYT -= dt) > 0) return; WAYT = 0.4; sealPage(); if (CAN.breaker) return;
+  if ((WAYT -= dt) > 0) return; WAYT = 0.4; sealPage();
   const B = (G.blocked = G.blocked || {}), mine = (B[LEVEL.index] = B[LEVEL.index] || []);
+  if (!CAN.dash) for (const S of PROPS.sheets) if (!S.gone && !mine.includes(S.id) && P.x > S.x0 - 5 && P.x < S.x1 + 5 && P.y + 1.2 > S.y0 - 2.5 && P.y + 1.2 < S.y1 + 2.5){ mine.push(S.id); DIRTY = DIRTY > 0 ? DIRTY : 2; }   // vellum, come to without the Toll's step
+  if (CAN.breaker) return;
   for (const C of PROPS.cracks) if (!C.gone && !mine.includes(C.id) && Math.abs(C.x - P.x) < C.w / 2 + 4 && Math.abs(C.y - (P.y + 1.2)) < C.h / 2 + 2.5){ mine.push(C.id); DIRTY = DIRTY > 0 ? DIRTY : 2; }
 }
 // is the region's page full; if it has just become so, it is sealed (once) and he is told
@@ -296,6 +305,7 @@ function mapDots(){
   // Corwen's map (once he has been met): the ways he could not take, where he came to them. Grey while he lacks what
   // opens them; gold and beating once he has it, until he has been through
   if (corwenMet()) for (const C of PROPS.cracks){ if (C.gone || !(G.blocked[LEVEL.index] || []).includes(C.id)) continue; dots.push({ x: C.x, y: C.y, c: CAN.breaker ? '#fee761' : '#8b9bb4', r: 1, blink: CAN.breaker, way: CAN.breaker ? 'open' : 'shut' }); }
+  if (corwenMet()) for (const S of PROPS.sheets){ if (S.gone || !(G.blocked[LEVEL.index] || []).includes(S.id)) continue; dots.push({ x: S.x, y: S.y, c: CAN.dash ? '#fee761' : '#8b9bb4', r: 1, blink: CAN.dash, way: CAN.dash ? 'open' : 'shut', by: 'step' }); }
   if (corwenMet() && RULE.fallen) for (const r of LEVEL.rooms) if (r.quick && MAP.seen.has(r)) dots.push({ x: (r.x0 + r.x1) / 2, y: (r.y0 + r.y1) / 2, c: '#fee761', r: 1, way: 'quick' });   // the quick way the keeper's fall left, once he has been through it
   dots.push({ x: P.x, y: P.y + 0.8, c: '#ffffff', blink: true });
   return dots;
@@ -309,7 +319,8 @@ function drawMap(){ const met = corwenMet(), dots = mapDots();
   HUD.fullmap(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, roomAt(P.x, P.y), T, dots, time, met ? "Corwen's map · " + LEVEL.name : LEVEL.name);
   if (met){ const n = LEVEL.index, falls = (G.fallsBy || {})[n] || 0, shut = dots.filter(d => d.way === 'shut').length, open = dots.filter(d => d.way === 'open').length, parts = [];
     parts.push(falls ? `FALLEN HERE ${falls} TIME${falls === 1 ? '' : 'S'}` : 'NOT YET FALLEN HERE');
-    if (shut) parts.push(`${shut} WAY${shut === 1 ? '' : 'S'} SHUT: CRACKED STONE, FOR SOMETHING HEAVIER`); if (open) parts.push(`${open} WAY${open === 1 ? '' : 'S'} THE SPADE NOW OPENS`);
+    const sv = dots.filter(d => d.way === 'shut' && d.by === 'step').length, ov = dots.filter(d => d.way === 'open' && d.by === 'step').length, sc = shut - sv, oc = open - ov, ways = (k, w) => `${k} WAY${k === 1 ? '' : 'S'} ${w}`;
+    if (sc) parts.push(ways(sc, 'SHUT: CRACKED STONE, FOR SOMETHING HEAVIER')); if (sv) parts.push(ways(sv, 'SHUT: VELLUM, FOR SOMETHING SWIFTER')); if (oc) parts.push(ways(oc, 'THE SPADE NOW OPENS')); if (ov) parts.push(ways(ov, 'THE TOLL\'S STEP NOW OPENS'));
     HUD.fine(parts.join('  ·  '), HUD.W / 2, 156, '#c0cbdc', 'center');
     if ((G.sealed || {})[n]){ HUD.seal(HUD.W - 43, 36); HUD.fine('THE PAGE', HUD.W - 43, 48, '#fee761', 'center'); HUD.fine('IS SEALED', HUD.W - 43, 55, '#fee761', 'center'); HUD.fine('NOTHING HERE', HUD.W - 43, 66, '#c0cbdc', 'center'); HUD.fine('IS LEFT UNFOUND', HUD.W - 43, 73, '#c0cbdc', 'center'); }
     return; }
@@ -601,7 +612,7 @@ function frame(ts){
     if (NOTE) NOTE.t += dt; drawHud(dt); endFrame(); requestAnimationFrame(frame); return; }
   if (PAUSE){ drawHud(0); endFrame(); requestAnimationFrame(frame); return; }
   if (STORY.active() && !GO.st){ hudBegin(); STORY.draw(dt); endFrame(); requestAnimationFrame(frame); return; }   // a story screen is up: the world waits (on the title, until a press: a browser lets no sound play before one)
-  ruleStep(dt);
+  ruleStep(dt); wingStep(dt);
   joinStep();   // first in the frame: if he has walked through a sill's middle, the region is changed before anything looks at it
   if (WAKE > 0) WAKE -= dt;
   if (!NAMED && R.look() === LEVEL.theme && !GO.st && !ENT.st){ NAMED = true; banner(LEVEL.name, SUB[LEVEL.index] || '', 4.5); sfx.gust(); }   // out of the way in: this is the new place
@@ -673,7 +684,7 @@ function frame(ts){
   // at the water: mended, the flask filled. The first time at each, what it is: the raising pool gives him back after a
   // fall; a leak only mends
   for (const S of SHRINES) if (Math.abs(P.x - S.x) < S.half && Math.abs(P.y - S.y) < 1.5 && P.hp > 0 && !DISS && (!TOUCHED.has(S) || P.flask < P.flaskMax || P.hp < P.maxHp)){
-    const first = !TOUCHED.has(S); TOUCHED.add(S); P.flask = P.flaskMax; P.hp = P.maxHp; if (first) sfx.shrine(); else sfx.drink(); store(); fx.ring({ x: P.x, y: S.y + 0.6 }, 0x9fe8ff); R.glint(P.x, S.y + 1, 0x9fe8ff, 0.8, 6, 0.8);
+    const first = !TOUCHED.has(S); TOUCHED.add(S); P.flask = P.flaskMax; P.hp = P.maxHp; SIDE.leaf = has('blankleaf'); if (first) sfx.shrine(); else sfx.drink(); store(); fx.ring({ x: P.x, y: S.y + 0.6 }, 0x9fe8ff); R.glint(P.x, S.y + 1, 0x9fe8ff, 0.8, 6, 0.8);
     if (first) (BANNER ? f => LATER.push({ t: 4, f }) : f => f())(() => banner(S.raise ? 'The water gathers here' : 'Water seeps through the rock here', S.raise ? 'when he falls, it gives him back here' : 'it mends him, and fills the flask', 4));   // after the place's own name, if that is up
   }
 
@@ -880,7 +891,8 @@ function talkTo(N){
   // in a place of their own, a small reward: Corwen gives his chart of the region
   if (N.extra && N.who === 'scribe' && !G.charts.includes(LEVEL.index)){ G.charts.push(LEVEL.index); for (const r of LEVEL.rooms) MAP.seen.add(r); lines.push('Take my chart of this place. I have drawn it twice.'); }
   if (INTRO[N.who] && !Object.keys(G.met).some(m => m.endsWith(':' + N.who)) && !lines.includes(INTRO[N.who])) lines.unshift(INTRO[N.who]);   // the first meeting anywhere: who they are (teach.js)
-  if (N.who === 'scribe'){ const L = ITEMS.left(), pl = (c, w) => `${c} ${w}${c === 1 ? '' : 's'}`; lines.push(L.threads + L.chests === 0 ? 'My page for this place is full. There is nothing here you have not found.' : `Not yet entered as found, here: ${pl(L.threads, 'red strand')}, ${pl(L.chests, 'chest')}${L.relic ? ', and something old behind cracked stone' : ''}.`); }
+  if (N.who === 'scribe'){ const L = ITEMS.left(), pl = (c, w) => `${c} ${w}${c === 1 ? '' : 's'}`; lines.push(L.threads + L.chests === 0 ? 'My page for this place is full. There is nothing here you have not found.' : `Not yet entered as found, here: ${pl(L.threads, 'red strand')}, ${pl(L.chests, 'chest')}${L.relic ? ', and something old, behind a way still shut' : ''}.`);
+    if (G.lectern && !G.lecternSaid){ G.lecternSaid = 1; lines.push('You found the book they copy. No one has dared its first page. Nor have I.'); } }
   G.met[k] = n + 1; store(); release(); sfx.ui(); TALK.start(N.who, lines, N.who === 'lamplighter' ? shop : null, N.art);
 }
 // his body as drops of water: pixels of his drawing's colours (the pale of the water, the red of the thread), each
@@ -898,7 +910,7 @@ const POOL_LINES = ['The water gives him back.', 'Again.', 'It is not his doing.
 let RISEN = null;   // the word over him as he comes up: { t, line, n }
 function raise(){
   const s = RAISE ? { x: RAISE.x, y: RAISE.y } : spawnPoint(), keep = EMBER.n, n = G.falls || 1;
-  P = born(s.x, s.y); refill(); if (BOSS) BOSS.reset(); ENT.reset(); EMBER.n = keep; SCF.reset(s.x, s.y + 1.8); TRAIL.length = 0; CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0; FX2.ghosts.forEach(G2 => { G2.life = 0; }); store();
+  P = born(s.x, s.y); refill(); if (BOSS) BOSS.reset(); ENT.reset(); EMBER.n = keep; SIDE.leaf = has('blankleaf'); SCF.reset(s.x, s.y + 1.8); TRAIL.length = 0; CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0; FX2.ghosts.forEach(G2 => { G2.life = 0; }); store();
   WAKE = 1.1; RISEN = { t: 0, line: POOL_LINES[(n - 1) % POOL_LINES.length], n }; if (RAISE) TOUCHED.add(RAISE);   // raised in it: it needs no telling
   splash(s.x, s.y); sfx.shrine();
 }
@@ -970,6 +982,7 @@ function onEvent(e){
     case 'burst': sfx.break(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.2); fx.dust(e.at, 22, 4.5); fx.burst({ x: e.at.x, y: e.at.y + 0.4 }, 14, 0xd0a070); R.shock(e.at.x, e.at.y + 0.3, true); break;
     case 'step': sfx.step(); break;
     case 'mantle': sfx.whoosh(); break;
+    case 'spared': { sfx.block(); fx.burst({ x: P.x, y: P.y + 1.4 }, 18, 0xead4aa); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.25); banner('', 'the blank leaf takes the blow', 2.2); break; }
     case 'hurt': { window.__side.lastHurt = e.msg; buzz(0.7, 0.5, 200); sfx.hurt(); fx.burst({ x: P.x, y: P.y + 1.3 }, 10, 0xff6060); const a = SCF.tip(); fx.burst({ x: a.x, y: a.y }, 12, 0xff7030); fx.burst({ x: a.x, y: a.y }, 6, 0xfee761); FLASH = Math.max(FLASH, 0.12); break; }   // the end of the scarf burns off
     case 'skid': fx.kick(at, Math.sign(P.vx) || P.face, 6, 2.2); break;
     case 'bossWake': { const first = !(G.keepers && G.keepers[LEVEL.theme]); (G.keepers = G.keepers || {})[LEVEL.theme] = 1; store(); BOSS.shown = false; BANNER = null; ENT.start(BOSS, first, P, { theme: LEVEL.theme, epithet: EPITHET[LEVEL.index] || '' }); SCORE.load(LEVEL.index === CLIMB_TOP ? 'boss_final' : 'boss'); break; }   // the hall shuts, then it comes (entrance.js); its name comes up with the bars (drawHud)

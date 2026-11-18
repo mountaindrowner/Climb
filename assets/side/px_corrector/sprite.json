@@ -1,0 +1,46 @@
+{
+ "name": "px_corrector",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 64,
+   "h": 64,
+   "foot": 63,
+   "cx": 31.5,
+   "footLast": 63,
+   "cxLast": 31.5,
+   "n": 1
+  },
+  "walk": {
+   "frames": 6,
+   "w": 96,
+   "h": 96,
+   "foot": 79,
+   "cx": 49.0,
+   "footLast": 79,
+   "cxLast": 49.0,
+   "n": 1
+  },
+  "attack": {
+   "frames": 9,
+   "w": 88,
+   "h": 88,
+   "foot": 75,
+   "cx": 43.5,
+   "footLast": 75,
+   "cxLast": 40.5,
+   "n": 1
+  },
+  "strike": {
+   "frames": 9,
+   "w": 88,
+   "h": 88,
+   "foot": 75,
+   "cx": 43.5,
+   "footLast": 75,
+   "cxLast": 46.5,
+   "n": 1
+  }
+ }
+}

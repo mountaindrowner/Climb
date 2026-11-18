@@ -1052,5 +1052,58 @@
     "group": "464aa63e-b540-4b8e-9ba7-cefa0f586e91"
    }
   }
+ },
+ "px_copyist": {
+  "id": "db64cd57-df6c-479a-8a74-ecb0db9749ac",
+  "description": "a hunched monk copyist sitting on a tall stool at a slanted wooden writing desk, grey ink-stained robe with the hood up hiding his face, a long white quill pen in his raised hand, an ink pot and a candle stub on the desk, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "write": {
+    "action": "scratching at the page with the quill, hunched over the desk, head nodding",
+    "frames": 8,
+    "group": "3ddde807-13e8-48f5-a511-c6fe96e11e02"
+   },
+   "fling": {
+    "action": "dipping the quill in the ink pot, drawing the arm far back, then whipping the quill forward to fling a spray of black ink, then settling back",
+    "frames": 8,
+    "group": "1b5e5385-7ce9-43e2-bf49-d402eea8b022"
+   }
+  }
+ },
+ "px_blot": {
+  "id": "38e66c1b-ceeb-4f61-b21b-4444ec0090da",
+  "description": "the shape of a hooded monk made entirely of dripping glossy black ink, no face but two small white eyes, ink running off its arms and hem, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "crawl": {
+    "action": "shambling forward, dripping, arms hanging",
+    "frames": 8,
+    "group": "7a8acd6f-1897-4a6c-a0a3-2d2acc1766d3"
+   },
+   "attack": {
+    "action": "rearing back, then diving forward and collapsing flat into a spreading puddle of black ink",
+    "frames": 8,
+    "group": "68d40c61-75cc-40fd-a991-2dacf6c3ceb0"
+   }
+  }
+ },
+ "px_corrector": {
+  "id": "f001863f-7265-47f0-9a7a-dd11ce97e058",
+  "description": "a very tall thin monk in a long narrow black robe with red trim, a smooth pale eyeless mask with one red line struck across it, holding a long curved scraping knife as long as a sword in one hand, a roll of parchment at his belt, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "walk": {
+    "action": "template:walking-6-frames",
+    "frames": 6,
+    "group": "7692fd34-f9fe-4df8-8227-3e6908f14490"
+   },
+   "attack": {
+    "action": "drawing the long knife far back, then one fast level slash forward at arm's length, then recovering upright",
+    "frames": 8,
+    "group": "cfe41cfe-e5e8-4654-851f-5b08716e4e92"
+   },
+   "strike": {
+    "action": "raising the knife slowly high overhead with both hands, holding it there, then scraping it down and across in one long stroke",
+    "frames": 8,
+    "group": "ea13d99d-2504-4efb-8e69-73dcbf766376"
+   }
+  }
  }
 }

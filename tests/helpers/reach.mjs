@@ -73,7 +73,8 @@ export function graph(N, gifts = []){
   const has = new Set(gifts);
   M.CAN.breaker = has.has('breaker'); M.CAN.dash = has.has('dash'); M.CAN.glide = has.has('glide');
   RULE.fallen = has.has('fallen'); RULE.shut = false;
-  if (has.has('breaker')) LEVEL.tiles = LEVEL.tiles.map(t => t === 4 ? 0 : t);   // the cracked stone broken (a copy: the next load is whole again)
+  if (has.has('breaker')) LEVEL.tiles = LEVEL.tiles.map(t => t === 4 ? 0 : t);
+  if (has.has('dash')) LEVEL.tiles = LEVEL.tiles.map(t => t === 11 ? 0 : t);   // vellum torn (the Toll's step goes through it)   // the cracked stone broken (a copy: the next load is whole again)
   const base = { W: L.W, H: L.H, marks: L.marks, rooms: L.rooms };
   if (CACHE.has(key)) return { ...base, ...CACHE.get(key) };
   const sp = L.marks.find(m => m.type === 'spawn'), start = sp.y * W + sp.x, pos = new Map([[start, [(sp.x + 0.5) * T, sp.y * T]]]);

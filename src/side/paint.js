@@ -164,7 +164,7 @@ export const THEMES = {
   },
 };
 // a region's file can bring its own look (themeDef) and its own decoration (deco: (px, PAL) => { name(g, x, y, r, glow){} })
-for (const R of REGION_DATA){ if (R.themeDef) THEMES[R.theme] = R.themeDef; if (R.deco) Object.assign(DECO, R.deco(px, PAL)); }
+for (const R of REGION_DATA){ if (R.themeDef) THEMES[R.theme] = R.themeDef; if (R.looksDef) Object.assign(THEMES, R.looksDef); if (R.deco) Object.assign(DECO, R.deco(px, PAL)); }
 // what each region's platforms are made of (phase 8): the same thing to stand on, in the place's own make
 const MAKE = { roots: 'timber', cloister: 'stone', spires: 'ice', tempest: 'iron', gardens: 'vine', firmament: 'brass' };
 for (const [k, v] of Object.entries(THEMES)) v.make = v.make || MAKE[k] || 'timber';

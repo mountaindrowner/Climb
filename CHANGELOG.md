@@ -2,7 +2,16 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Tempest and the Gardens held, and let go (latest; phase 9c, build 59). Phase 9 is done.**
+**The Scriptorium (latest; phase 10, build 60): the Cloister's west wing.** `docs/phase10-sheet.md` has all of it.
+- **A door off the stair's landing** into the stacks of spoils, which anyone may walk into. **The way on is a sheet of vellum:** the Toll's step tears it (a dash in the air), and nothing else does.
+- **The copying hall,** two screens by two: desks in tiers over a floor of ink, climbed across, through three ways in two pillars of shelves. **The furnace** (red; a chest only its rising heat reaches). **The red room** and its elite. **The lectern:** the book they copy is open at its first page, and the page is blank. A chute in its floor drops him back at the first door.
+- **Copyists** fling ink at what is in front of them and do not look up from behind. **Blots** lie as spills, stand up, and throw themselves down where he stands. **The Corrector** slashes for two hearts and strikes a red line through the whole room: crouch under it, or be over it. All three are new drawings.
+- **A relic, the Copyist's Blank Leaf:** after he rests at water, the first blow that lands does no harm.
+- The wing has two looks of its own (ink-dark brick with pages in the air; red brick with sparks). Corwen's map marks vellum he could not pass, and when the Toll's step opens it. Corwen has a line about the book.
+- New in the engine: wings set into a region after it is built (so nothing in the region moves or wears differently); a tile only the Toll's step opens; a region bringing extra looks.
+- A save from before keeps what it had found in the Cloister (its places moved three rooms east, once).
+
+**The Tempest and the Gardens held, and let go (phase 9c, build 59). Phase 9 is done.**
 - **The Tempest (the Thunderhead's storm):** three rods on the way up are struck in turn, each with a red mark and a glow first. When the storm breaks the rain stops. A shaft of iron gantries under the crossing is live until then (to land on one is to be shocked); after, it is the quick way (32 seconds from the water becomes 25).
 - **The Gardens (Mother Thorn's hold):** four ways straight up through the floors are choked with thorn that hurts to touch. When she falls they are open, boards over each mouth (31 seconds becomes 20).
 - **Corwen's map** marks a quick way once he has been through it.

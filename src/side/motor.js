@@ -8,7 +8,7 @@ import { TUNE } from '../config/tuning.js';
 import { WEAPONS } from '../config/weapons.js';
 import { IN, consume, pending } from '../core/input.js';
 import { FEEL } from '../config/feel.js';
-import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt, gustAt, liveAt } from './level.js';
+import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt, gustAt, liveAt, RULE } from './level.js';
 const MV = TUNE.move;
 // the side view's warrior is drawn tall and lean (gothic action proportions, ~40 pixels): his body is taller than the
 // climb's, and his jumps and run scale with him so they keep the same feel against his height
@@ -93,10 +93,11 @@ function heightAbove(P){
 
 export function hurt(P, n, fromX, msg){
   if (P.inv > 0 || isRollInv(P) || SIDE.watching || (P.art && P.art.safe && !(P.art.k === 'gust' && P.art.t > ARTS.gust.safe))) return false;   // watching (main.js: the keepers' entrances) nothing touches him
-  P.hp -= n; P.inv = TUNE.player.invuln || 1; P.hurtT = MV.hurtStun; P.atk = null; P.dive = null;
+  const spared = SIDE.leaf; if (spared) SIDE.leaf = false; else P.hp -= n;
+  P.inv = TUNE.player.invuln || 1; P.hurtT = MV.hurtStun; P.atk = null; P.dive = null;
   const away = fromX == null ? -P.face : Math.sign(P.x - fromX) || -P.face;
   P.vx = away * MV.knock; P.vy = MV.knockUp; P.grounded = false;
-  ev(P, 'hurt', { n, msg });
+  ev(P, spared ? 'spared' : 'hurt', { n, msg });
   return true;
 }
 export const isRollInv = P => P.roll > 0 && (MV.roll.time - P.roll) >= MV.roll.iframeFrom && (MV.roll.time - P.roll) <= MV.roll.iframeTo;
@@ -112,7 +113,7 @@ export function stepPlayer(P, dt){
   if (!FEEL.coyote) P.coyote = 0;
   P.airT = P.grounded || P.mantle ? 0 : P.airT + dt;
   if (P.grounded || P.mantle){ P.airJumps = FEEL.doubleJump ? 1 : 0; P.airDash = 1; P.glide = false; }
-  P.dashT = Math.max(0, P.dashT - dt);
+  P.dashT = Math.max(0, P.dashT - dt); RULE.tearing = P.dashT > 0;   // in the Toll's step, vellum does not stop him
   const stunned = P.hurtT > 0;
   if (!P.mantle) unstick(P);
 
@@ -345,7 +346,7 @@ export const SPADE = { name: 'Warden\'s spade', reach: 2.6, guard: false, digs: 
 ] };
 export const weaponOf = P => P.weapon === 'blade' ? BLADE : P.weapon === 'spade' ? SPADE : WEAPONS[P.weapon];
 export const swingOf = (P, A) => A.special ? weaponOf(P)[A.special] : weaponOf(P).combo[A.i];
-export const SIDE = { fallSafe: 9, feather: false, watching: false };
+export const SIDE = { fallSafe: 9, feather: false, watching: false, leaf: false };   // leaf: the Copyist's Blank Leaf is unspent: the next blow that lands does no harm
 // the ember arts (main.js spends the embers and says which): each a keeper's gift turned to a blow.
 //   slam   the Warden's weight: down on the ground (from the air, a plunge first); the blow runs along the floor both ways
 //   cleave the Toll's step: a level rush forward through everything in the way, untouchable while it lasts
