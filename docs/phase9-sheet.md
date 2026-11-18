@@ -129,6 +129,17 @@ The Firmament has no such change: the Fallen's fall is the ending.
 - **Not as the sheet has it.** The Roots has no nooks behind its low places. The Roots' quick way is no shorter than the old ladder he can already open with the spade (15 seconds either way): it is another way, not a faster one. The Cloister's acolytes do not walk on the bell's beat. The Spires' wind does not push sideways.
 - **How it is held:** three new kinds of tile (a hold, a door, a given plank), drawn apart from the painting, and one flag for whether the region's keeper has fallen. Tests climb each region with the keeper standing and again with it fallen.
 
+### As built (build 59): the Tempest, the Gardens, the map
+
+| Region | While its keeper stands | When it falls | The quick way |
+|---|---|---|---|
+| **The Tempest** | Rain. Three rods on the way up (at the rigging's door, the gantry's, the crossing's) are struck in turn: a red mark and a glow at the tip for 0.7 seconds, then the bolt. Within a step of the rod he is struck | The storm breaks: no rain, more light, the rods are dull iron | **A shaft of iron gantries** through the rock under the crossing, straight up from the stacks. While the storm rules the gantries are live: to land on one is to be shocked. After, 32 seconds from the water to the hall becomes 25 |
+| **The Gardens** | Four ways straight up through the garden's floors are choked with thorn. It hurts to touch and nothing he has cuts it | She lets go: the thorn is gone, boards lie over each mouth | **The four ways up:** 31 seconds from the water to the hall becomes 20 |
+
+- **Corwen's map** marks a quick way (gold, QUICK WAY in the key) once its keeper has fallen and he has been in it.
+- **Not as the sheet has it.** The far painting of the Tempest still shows its storm (there is no clear-sky painting). The thorn does not leave grey husks: it is gone. No sign is left at the Tempest's or the Gardens' quick ways (no swept water, no cut husks). The thorn chokes ways that were never open before, not passages on the old path: the Gardens' rooms were one chain, with nothing to close.
+- **The test player was wrong in one way, now fixed:** a place counted as stood on the moment he landed, so something that hurts whoever stands on it (a live gantry) could be crossed by jumping again on the same instant. A place now counts once he has stood there a frame unhurt, and the gantry shocks at the start of the step.
+
 ## 4. The given shortcuts
 
 - **One per region, from its raising water to its keeper's hall,** so a finished region is crossed in about a minute.

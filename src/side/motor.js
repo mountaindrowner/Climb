@@ -8,7 +8,7 @@ import { TUNE } from '../config/tuning.js';
 import { WEAPONS } from '../config/weapons.js';
 import { IN, consume, pending } from '../core/input.js';
 import { FEEL } from '../config/feel.js';
-import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt, gustAt } from './level.js';
+import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt, gustAt, liveAt } from './level.js';
 const MV = TUNE.move;
 // the side view's warrior is drawn tall and lean (gothic action proportions, ~40 pixels): his body is taller than the
 // climb's, and his jumps and run scale with him so they keep the same feel against his height
@@ -56,6 +56,7 @@ function support(P, x, y){
   for (let i = tx(x - BODY.hw + 1e-3); i <= tx(x + BODY.hw - 1e-3); i++){ const t = tileAt(i, j); if (t === ROCK || (t === LEDGE && P.drop <= 0) || t === SPIKES) return t; }
   return null;
 }
+const liveUnder = (P) => { const j = ty(P.y - 0.02); for (let i = tx(P.x - BODY.hw + 1e-3); i <= tx(P.x + BODY.hw - 1e-3); i++) if (liveAt(i, j)) return true; return false; };
 const spikesUnder = (P) => { const j = ty(P.y - 0.02); for (let i = tx(P.x - BODY.hw + 1e-3); i <= tx(P.x + BODY.hw - 1e-3); i++) if (tileAt(i, j) === SPIKES) return true; return false; };
 
 // the launch speed that rises exactly `height` (as the 3D motor finds it)
@@ -104,6 +105,7 @@ export function stepPlayer(P, dt){
   const H = IN.held;
   // ---- timers
   P.inv = Math.max(0, P.inv - dt); P.hurtT = Math.max(0, P.hurtT - dt); P.rollCd = Math.max(0, P.rollCd - dt);
+  if (P.grounded && !P.mantle && liveUnder(P)) hurt(P, 1, P.x - P.face, 'Shocked');   // a live gantry: before anything else this step (no jumping off it in the same instant)
   P.coyote = Math.max(0, P.coyote - dt); P.jumpBuf = Math.max(0, P.jumpBuf - dt); P.landT = Math.max(0, P.landT - dt); P.jumpT += dt;
   P.flip = Math.max(0, P.flip - dt); P.plant = Math.max(0, P.plant - dt); P.drop = Math.max(0, P.drop - dt);
   if (P.roll > 0){ P.roll = Math.max(0, P.roll - dt); if (P.roll === 0) P.rollCd = MV.roll.cooldown; }
@@ -244,6 +246,7 @@ export function stepPlayer(P, dt){
     if (!P.mantle) tryPlank(P);
   }
   if (P.grounded && spikesUnder(P)) hurt(P, 1, P.x - P.face, 'Spikes');
+  else if (P.grounded && liveUnder(P)) hurt(P, 1, P.x - P.face, 'Shocked');   // a gantry the storm still runs through
   // footfalls
   if (P.grounded && Math.abs(P.vx) > 0.4 && P.roll <= 0){ const b = Math.sin(P.runPhase); P.runPhase += Math.abs(P.vx) * dt * 2.6; if (Math.sign(Math.sin(P.runPhase)) !== Math.sign(b)) ev(P, 'step'); }
 }

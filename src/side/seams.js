@@ -283,6 +283,32 @@ export const RULES = {
     X.marks.push({ type: 'deco', kind: 'knot', x: sp.tx0 + 4, y: sp.ty0 + 25 }, { type: 'deco', kind: 'knot', x: te.tx0 + 22, y: te.ty0 + 28 }, { type: 'urn', x: sp.tx0 + 2, y: sp.ty0 + 25 }, { type: 'urn', x: te.tx0 + 8, y: te.ty0 + 25 });
     for (const r of [sp, te, span]) r.quick = true;
   },
+  // the Thunderhead's storm: rain, and three rods on the way up struck in turn (main.js ruleStep), each with a warning.
+  // Its quick way: a shaft of iron gantries through the rock under the crossing, straight up from the stacks. While the
+  // storm rules the gantries are live: to land on one is to be shocked. When it breaks they are dead iron
+  3: X => { const { EMPTY, LIVE, ROCK } = X.tile, rig = X.roomOf('rigging'), gan = X.roomOf('gantry'), cro = X.roomOf('crossing'), st = X.roomOf('stacks'); if (!rig || !gan || !cro || !st) return;
+    for (const [r, x, y] of [[rig, 4, 2], [gan, 4, 2], [cro, 4, 17]]){ let yy = r.ty0 + y; while (yy > r.ty0 && X.at(r.tx0 + x, yy - 1) === EMPTY) yy--; X.marks.push({ type: 'rod', x: r.tx0 + x, y: yy }); }
+    // the shaft: four wide, from the rock's underside up through the crossing's floor, where the floor has open air over
+    // it (he jumps the grating at its head) and nothing stands by
+    const top = cro.ty0 + 1, fixed = new Set(['urn', 'chest', 'crystal', 'torch', 'npc', 'shrine', 'rod', 'thread']), clear = x => { for (let a = -3; a <= 6; a++) for (let b = 1; b <= 13; b++) if (X.at(x + a, top + b) !== EMPTY) return false; return !X.marks.some(m => fixed.has(m.type) && m.x >= x - 1 && m.x <= x + 4 && Math.abs(m.y - top - 1) < 3); };
+    let sx = -1; for (let x = st.tx0 + 6; x <= st.tx0 + 30 && sx < 0; x++) if (clear(x) && [0, 1, 2, 3].every(d => X.at(x + d, top) === ROCK && X.at(x + d, top - 6) === ROCK)) sx = x;
+    if (sx < 0) return;
+    let bottom = top; while (bottom > st.ty1 && X.at(sx, bottom - 1) === ROCK) bottom--;
+    for (let y = bottom; y <= top; y++) for (let x = sx; x < sx + 4; x++) X.set(x, y, EMPTY);
+    for (let y = top; y >= bottom; y -= 4) for (let x = sx; x < sx + 4; x++) X.set(x, y, LIVE);
+    const live = (x0, x1, y) => { for (let x = x0; x <= x1; x++) if (X.at(x, y) === EMPTY) X.set(x, y, LIVE); };
+    live(sx - 1, sx + 4, bottom - 4); live(Math.min(sx + 2, st.tx0 + 24), Math.max(sx + 4, st.tx0 + 26), bottom - 8);   // and out under it: a gantry along to the corbel's rock
+    for (const r of [st, X.roomOf('corbel')].filter(Boolean)) r.quick = true;
+  },
+  // Mother Thorn's hold: four ways straight up through the garden's floors are choked with thorn. It hurts to touch
+  // and the blade does not cut it. When she falls it withers: the quick way, boards over each mouth
+  4: X => { const { EMPTY, ROCK, LEDGE, HOLD, GIVEN } = X.tile;
+    for (const [a, b, x] of [['wellspring', 'sundial', 10], ['arbor', 'cascade', 8], ['orangery', 'canopy', 6], ['brambles', 'orangery', 20]]){ const A = X.roomOf(a), B = X.roomOf(b); if (!A || !B) continue;
+      const x0 = B.tx0 + x; let lo = B.ty0 + 1; while (lo > A.ty0 && [0, 1, 2, 3].every(d => X.at(x0 + d, lo - 1) === ROCK)) lo--;   // the rock between them, down from the upper room's floor
+      for (let y = lo; y <= B.ty0 + 1; y++) for (let d = 0; d < 4; d++) X.set(x0 + d, y, y === B.ty0 + 1 ? GIVEN : HOLD);
+      for (let y = lo - 4, n = 0; y > A.ty0 + 3 && n < 5; y -= 4, n++){ if (![0, 1, 2, 3].every(d => X.at(x0 + d, y) === EMPTY && X.at(x0 + d, y + 1) === EMPTY)) break; for (let d = 0; d < 4; d++) X.set(x0 + d, y, LEDGE); }   // ledges under it, down into the room below
+      A.quick = true; }
+  },
 };
 export const SEAMS = {
   1: { rows: 3, link: [30, 35], layout: [[0, 0, titled(cryptfoot, 'THE CRYPT STAIR')], [0, 1, titled(founders, 'THE CRYPT STAIR'), 1, 2]] },

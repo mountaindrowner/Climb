@@ -28,15 +28,19 @@ let W = 0;
 function run(x, y, prog, frames = 150){
   I.release(); clock.t += 10;
   const P = M.newPlayer(x, y), hp0 = P.hp, out = new Map();
-  let t = 0, left = false;
+  // a place he comes to rest counts once he has stood there a frame unhurt (what hurts whoever stands on it, spikes or
+  // a live gantry, hurts on the frame after he lands)
+  let t = 0, left = false, pend = null, stop = false;
   for (let f = 0; f < frames; f++){
     prog(t, I, P);
     for (let s = 0; s < 2; s++){ M.stepPlayer(P, H120); clock.t += H120; t += H120; }
     I.endFrame(); P.events.length = 0;
     if (P.hp < hp0) return out;
+    if (pend){ if (!out.has(pend[0])) out.set(pend[0], pend[1]); pend = null; if (stop) break; }
     if (!P.grounded) left = true;
-    if (P.grounded && P.vy === 0){ const ci = Math.floor(P.x / T), cj = Math.round(P.y / T), k = cj * W + ci; if (!out.has(k)) out.set(k, [P.x, P.y]); if (left && f > 20) break; }
+    if (P.grounded && P.vy === 0 && !(P.roll > 0) && !(P.dashT > 0) && !P.mantle){ const ci = Math.floor(P.x / T), cj = Math.round(P.y / T), k = cj * W + ci; pend = [k, [P.x, P.y]]; if (left && f > 20) stop = true; }   // (mid-roll is not a rest: nothing touches him then)
   }
+  if (pend && !out.has(pend[0])) out.set(pend[0], pend[1]);
   I.release();
   return out;
 }

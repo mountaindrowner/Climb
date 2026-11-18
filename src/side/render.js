@@ -34,7 +34,7 @@ const THREE = window.THREE;
 // paintings, a lower frame rate on a hot phone, a layout for a phone held upright (docs/side.md)
 export const LOW = { on: false };
 // the mood of the moment (entrance.js): dark dims the region's ambient and its lights; flicker makes the lights stutter
-export const MOOD = { dark: 0, flicker: 0 };
+export const MOOD = { dark: 0, flicker: 0, calm: 0 };   // calm: the storm has broken (the Tempest, its keeper fallen): no rain, and more of the sky's light
 const PAINTED = new Map(), ASKED = new Map(), keep = () => LOW.on ? 1 : 3;
 let LOADS = 0, READY = false, WK = null, WK_OK = null;
 function worker(){
@@ -397,7 +397,7 @@ export function makeRenderer(canvas){
         const add = (TMx, w) => { if (!w) return; HC.setHex(TMx.hemi[0]); r0 += HC.r * w; g0 += HC.g * w; b0 += HC.b * w; HC.setHex(TMx.hemi[1]); r1 += HC.r * w; g1 += HC.g * w; b1 += HC.b * w; it += TMx.hemi[2] * w; const b = TMx.bloom || [0.7, 1.1]; th += b[0] * w; amt += b[1] * w; };
         add(TM, LOOKW['']); for (const l of ALT) add(THEMES[l], LOOKW[l]);
         hemi.color.setRGB(r0, g0, b0); hemi.groundColor.setRGB(r1, g1, b1); hemi.intensity = it * AMB_IN_MAT; bright.uniforms.th.value = th; comp.uniforms.amt.value = amt; }
-      for (const o of motes){ o.m.position.x += (o.vx + Math.sin(t * 0.7 + o.ph) * 0.05) * 0.016; o.m.position.y += o.vy * 0.016; if (o.m.position.y > cam.y + 7) o.m.position.y = cam.y - 7; else if (o.m.position.y < cam.y - 7) o.m.position.y = cam.y + 7; if (Math.abs(o.m.position.x - cam.x) > 12) o.m.position.x = cam.x + (rnd() - 0.5) * 22; o.m.material.opacity = (o.steady ? 0.9 : 0.5 + 0.5 * Math.sin(t * 2 + o.ph)) * wOf(o.look); }
+      for (const o of motes){ o.m.position.x += (o.vx + Math.sin(t * 0.7 + o.ph) * 0.05) * 0.016; o.m.position.y += o.vy * 0.016; if (o.m.position.y > cam.y + 7) o.m.position.y = cam.y - 7; else if (o.m.position.y < cam.y - 7) o.m.position.y = cam.y + 7; if (Math.abs(o.m.position.x - cam.x) > 12) o.m.position.x = cam.x + (rnd() - 0.5) * 22; o.m.material.opacity = (o.steady ? 0.9 : 0.5 + 0.5 * Math.sin(t * 2 + o.ph)) * wOf(o.look); if (MOOD.calm && !o.look) o.m.material.opacity *= 1 - MOOD.calm; }
       for (const f of flames){ const k = f.slow ? 0.06 : 0.12; f.m.scale.setScalar(1 + Math.sin(t * (f.slow ? 2 : 13) + f.ph) * k + (f.slow ? 0 : Math.sin(t * 7.3 + f.ph) * 0.06)); }
       const near = lights.filter(l => !l.off).map(l => ({ l, d: Math.hypot(l.x - cam.x, l.y - cam.y) })).sort((a, b) => a.d - b.d);
       pool.forEach((L, k) => { const n = near[k]; if (!n || n.d > 16){ L.intensity = 0; return; } L.position.set(n.l.x, n.l.y, LIGHT_Z); L.color.setHex(n.l.color); L.distance = n.l.range * 1.15; L.intensity = n.l.power * LIGHT_GAIN * (1 + Math.sin(t * 11 + n.l.ph) * 0.06); });
@@ -409,7 +409,7 @@ export function makeRenderer(canvas){
       // light: the region's ambient (dimmer inside, where it has an inside), then the nearest lights
       { const rm = hero && LEVEL.rooms.find(r => hero.x >= r.x0 && hero.x < r.x1 && hero.y >= r.y0 && hero.y < r.y1), inOf = TMx => TMx.ambIn && rm && !rm.open ? TMx.ambIn : TMx.amb, want = [0, 0, 0];
         for (let k = 0; k < 3; k++){ want[k] = inOf(TM)[k] * LOOKW['']; for (const l of ALT) want[k] += inOf(THEMES[l])[k] * LOOKW[l]; }
-        for (let k = 0; k < 3; k++) want[k] *= 1 - MOOD.dark * 0.6;
+        for (let k = 0; k < 3; k++) want[k] *= (1 - MOOD.dark * 0.6) * (1 + MOOD.calm * 0.22 * LOOKW['']);
         for (let k = 0; k < 3; k++) ambNow[k] += (want[k] - ambNow[k]) * 0.06; comp.uniforms.amb.value.set(ambNow[0], ambNow[1], ambNow[2]); comp.uniforms.res.value.set(size.w, size.h);
         const hw = size.w / 2 / PPU, hh = VIEW_H / 2, list = [];
         if (hero) list.push({ x: hero.x, y: hero.y + 1.3, color: 0xffe2c0, power: 0.42, range: 5.5, d: -1 });

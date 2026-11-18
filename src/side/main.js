@@ -12,14 +12,14 @@ import '../ui/feel.js';
 import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE, MEETINGS, SILL, prepare, RULE } from './level.js';
 import { makeTeach, keyName, fill, INTRO, CARDS, drawIcon } from './teach.js';
 import { makeProps } from './props.js';
-import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt } from './motor.js';
+import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt, hurt, isRollInv } from './motor.js';
 import { width as textWidth } from './pixelfont.js';
 const wrapText = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };
 import { G, OPT, loadSave, store, storeOpt, wipe, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, THREADS_A_HEART, DIFF } from './state.js';
 import { makeItems } from './items.js';
 import { makeTalk, SCRIPT } from './talk.js';
 import { ANNALS, PEOPLE_PAGE } from './annals.js';
-import { makeRenderer, makeSprite, VIEW_H, makeSwingFx, LOW } from './render.js';
+import { makeRenderer, makeSprite, VIEW_H, makeSwingFx, LOW, MOOD } from './render.js';
 import { spawnFx, stepFx } from './fx.js';
 import { spawnEnemies, stepEnemies, strikeEnemies, slamEnemies, hitBox } from './enemies.js';
 import { KEEPERS } from './keepers.js';
@@ -31,7 +31,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 58';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 59';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -123,6 +123,24 @@ function enter(n, at){
   const am = at && LEVEL.marks.find(m => m.type === 'arrive' && m.name === at), s = am ? { x: (am.x + 0.5) * T, y: am.y * T } : spawnPoint(), old = P; P = born(s.x, s.y); PASS.cool = 1.2; P.hp = Math.max(1, Math.min(P.maxHp, old.hp)); P.flask = Math.min(P.flaskMax, old.flask);
   CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0;
   giftEnd(); BANNER = null; NAMED = !(roomAt(s.x, s.y + 0.5) || {}).look; if (NAMED) banner(LEVEL.name, SUB[LEVEL.index] || '', 4); marks(); G.level = LEVEL.index; if (!LEVEL.deep) G.top = Math.max(G.top, G.level); G.began = true; store();
+}
+// ---- what the keeper holds in its region, where it needs the game's hand (phase 9, docs/phase9-sheet.md 3). Level.js
+// RULE and props.js do the rest. The Tempest: its rods are struck in turn, the nearest few, each with a warning (a red
+// mark where it will land, a glow at the rod's tip, 0.7 s) and then the bolt; within a step of the rod, he is struck.
+// When the storm breaks there is no rain and more light. The Gardens: a wall of thorn hurts to touch
+const RODS = { k: -1, t: 1.5, st: 'wait' };
+function ruleStep(dt){
+  MOOD.calm += ((LEVEL.theme === 'tempest' && RULE.fallen ? 1 : 0) - MOOD.calm) * Math.min(1, dt * 0.8);
+  if (RULE.fallen || PAUSE || !PROPS || GO.st || STORY.kind) return;
+  const rods = PROPS.rods.filter(Q => Math.hypot(Q.x - P.x, Q.y - P.y) < 30);
+  if (rods.length){ RODS.t -= dt; const Q = rods[Math.max(0, RODS.k) % rods.length];
+    if (RODS.st === 'wait' && RODS.t <= 0){ RODS.k = (RODS.k + 1) % rods.length; RODS.st = 'warn'; RODS.t = 0.7; if (Math.hypot(rods[RODS.k].x - P.x, rods[RODS.k].y - P.y) < 14) sfx.zap(); }
+    else if (RODS.st === 'warn'){ Q.warn = 1 - Math.max(0, RODS.t) / 0.7;
+      if (RODS.t <= 0){ Q.warn = 0; Q.boltT = 0.16; RODS.st = 'wait'; RODS.t = 0.75; const d = Math.hypot(Q.x - P.x, Q.y - P.y);
+        R.glint(Q.x, Q.y + 2, 0xffffff, 3, 9, 0.2); if (d < 22){ sfx.thunder(); FLASH = Math.max(FLASH, d < 9 ? 0.22 : 0.08); FEEL_FX.shake = Math.max(FEEL_FX.shake, d < 9 ? 0.3 : 0.1); fx.burst({ x: Q.x, y: Q.y + 0.2 }, 14, 0xdff4ff); }
+        if (Math.abs(P.x - Q.x) < 1.3 && P.y > Q.y - 0.6 && P.y < Q.y + 5 && !isRollInv(P) && P.hp > 0 && !DISS) hurt(P, 1, Q.x, 'Struck by lightning'); } }
+    for (const O of PROPS.rods) if (O !== Q) O.warn = 0; }
+  if (LEVEL.theme === 'gardens') for (const B of PROPS.held) if (B.look === 'thorn' && P.x + 0.5 > B.x0 && P.x - 0.5 < B.x1 && P.y + 2.5 > B.y0 && P.y - 0.15 < B.y1 && P.hp > 0 && !DISS && !isRollInv(P)){ hurt(P, 1, B.x, 'Thorns'); break; }
 }
 // ---- walking from one region into the next (phase 9, docs/phase9-sheet.md): no dark, no card. Each join has a sill
 // (level.js): a tunnel through rock that is the same, to the tile and the pixel, in the region below and the region
@@ -278,6 +296,7 @@ function mapDots(){
   // Corwen's map (once he has been met): the ways he could not take, where he came to them. Grey while he lacks what
   // opens them; gold and beating once he has it, until he has been through
   if (corwenMet()) for (const C of PROPS.cracks){ if (C.gone || !(G.blocked[LEVEL.index] || []).includes(C.id)) continue; dots.push({ x: C.x, y: C.y, c: CAN.breaker ? '#fee761' : '#8b9bb4', r: 1, blink: CAN.breaker, way: CAN.breaker ? 'open' : 'shut' }); }
+  if (corwenMet() && RULE.fallen) for (const r of LEVEL.rooms) if (r.quick && MAP.seen.has(r)) dots.push({ x: (r.x0 + r.x1) / 2, y: (r.y0 + r.y1) / 2, c: '#fee761', r: 1, way: 'quick' });   // the quick way the keeper's fall left, once he has been through it
   dots.push({ x: P.x, y: P.y + 0.8, c: '#ffffff', blink: true });
   return dots;
 }
@@ -582,6 +601,7 @@ function frame(ts){
     if (NOTE) NOTE.t += dt; drawHud(dt); endFrame(); requestAnimationFrame(frame); return; }
   if (PAUSE){ drawHud(0); endFrame(); requestAnimationFrame(frame); return; }
   if (STORY.active() && !GO.st){ hudBegin(); STORY.draw(dt); endFrame(); requestAnimationFrame(frame); return; }   // a story screen is up: the world waits (on the title, until a press: a browser lets no sound play before one)
+  ruleStep(dt);
   joinStep();   // first in the frame: if he has walked through a sill's middle, the region is changed before anything looks at it
   if (WAKE > 0) WAKE -= dt;
   if (!NAMED && R.look() === LEVEL.theme && !GO.st && !ENT.st){ NAMED = true; banner(LEVEL.name, SUB[LEVEL.index] || '', 4.5); sfx.gust(); }   // out of the way in: this is the new place

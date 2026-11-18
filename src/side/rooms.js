@@ -15,7 +15,8 @@ export const EMPTY = 0, ROCK = 1, LEDGE = 2, SPIKES = 3, CRACKED = 4, GLASS_A = 
 //     doorway, a wall of thorn, the stone over a quick way)
 //   8 a door on the bell's beat: shut and open by turns while the keeper stands, open after
 //   9 a given plank: rock while the keeper stands, a plank after (the boards over a quick way's mouth)
-export const HOLD = 7, DOOR = 8, GIVEN = 9;
+//  10 a live deck: an iron gantry by the storm's rods. A ledge; while the keeper stands, to land on it is to be shocked
+export const HOLD = 7, DOOR = 8, GIVEN = 9, LIVE = 10;
 // a room spans cw x ch screens (most are one)
 export function room(cw = 1, ch = 1){ const r = { w: ROOM.w * cw, h: ROOM.h * ch, tiles: [], marks: [] }; for (let y = 0; y < r.h; y++) r.tiles.push(new Array(r.w).fill(EMPTY)); return r; }
 export const put = (r, x, y, v) => { if (x >= 0 && y >= 0 && x < r.w && y < r.h) r.tiles[y][x] = v; };

@@ -106,7 +106,7 @@ export function makeHud(hud){
     for (const d of dots) if (!d.blink || Math.floor(t * 3) % 2 === 0){ const r = d.blink ? 1 : 1; px(C.ink, mx + Math.round(d.x / T * k) - r - 1, my + Math.round((LH - d.y / T) * k) - r - 1, r * 2 + 3, r * 2 + 3); px(d.c, mx + Math.round(d.x / T * k) - r, my + Math.round((LH - d.y / T) * k) - r, r * 2 + 1, r * 2 + 1); }
     // the key
     const KEY = [['#ffffff', 'HIM'], ['#0099db', 'WATER'], ['#feae34', 'ORDRIC'], ['#63c74d', 'MIREL'], ['#2ce8f5', 'CORWEN'], ['#e43b44', 'KEEPER']];
-    if (dots.some(d => d.way === 'shut')) KEY.push(['#8b9bb4', 'SHUT']); if (dots.some(d => d.way === 'open')) KEY.push(['#fee761', 'OPEN NOW']);
+    if (dots.some(d => d.way === 'shut')) KEY.push(['#8b9bb4', 'SHUT']); if (dots.some(d => d.way === 'open')) KEY.push(['#fee761', 'OPEN NOW']); else if (dots.some(d => d.way === 'quick')) KEY.push(['#fee761', 'QUICK WAY']);
     if (dots.some(d => d.find)) KEY.push(['#f6757a', 'UNFOUND']);
     let kx = Math.round(H.W / 2 - KEY.reduce((a, [, s]) => a + width(s) + 12, 0) / 2);
     for (const [c, s] of KEY){ px(C.ink, kx - 1, 147, 5, 5); px(c, kx, 148, 3, 3); text(g, s, kx + 6, 146, C.pale, 1, 'left'); kx += width(s) + 12; }

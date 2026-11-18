@@ -2,7 +2,14 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Each keeper holds its region, until it falls (latest; phase 9b, build 58): the Roots, the Cloister, the Spires.**
+**The Tempest and the Gardens held, and let go (latest; phase 9c, build 59). Phase 9 is done.**
+- **The Tempest (the Thunderhead's storm):** three rods on the way up are struck in turn, each with a red mark and a glow first. When the storm breaks the rain stops. A shaft of iron gantries under the crossing is live until then (to land on one is to be shocked); after, it is the quick way (32 seconds from the water becomes 25).
+- **The Gardens (Mother Thorn's hold):** four ways straight up through the floors are choked with thorn that hurts to touch. When she falls they are open, boards over each mouth (31 seconds becomes 20).
+- **Corwen's map** marks a quick way once he has been through it.
+- Fixed in the tests' player: a place counts as stood on only after a frame there unhurt.
+- Not as the sheet has it: the Tempest's far painting still shows the storm; no husks or signs at these two quick ways.
+
+**Each keeper holds its region, until it falls (phase 9b, build 58): the Roots, the Cloister, the Spires.**
 - **The Roots (the Warden's weight):** slabs of roof pressed into three doorways; he goes under them crouched. Gone when the Warden falls. A new shaft, the well's foot, joins the pithead to the well room once it has fallen: a rope, and Ordric's knot on it.
 - **The Cloister (the Toll's bells):** four doors turn on a bell's beat (the way into the nave and the tower's three); he waits for them, and none shuts on him. When the Toll falls they stand open and the acolytes stand still unless struck.
 - **The Spires (the Wyrm's wind):** on three open faces the wind bears down in beats. When the Wyrm falls it turns and lifts: with planks let into the arch, a quick way from the saddle straight up to the hall (31 seconds from the water becomes 19).

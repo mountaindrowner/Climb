@@ -280,11 +280,13 @@ with phase 9).*
 
 ## Phase 9: one continuous mountain
 
-*The sheet is `docs/phase9-sheet.md` (three decisions on it are open). **Built ahead of it, since decision 0.7 already
-settles it (build 56): the join.** He walks from each region into the next, and back down, with no dark and no card,
-through a sill that is the same in both regions; the frame where the region changes cannot be told from any other.
-Fallen keepers stay fallen. The passages have their new lower rooms, plain. Not built: what goes in those rooms, each
-keeper's rule and its ending, the quick ways (all waiting on the sheet).*
+*Done (builds 56 to 59), by `docs/phase9-sheet.md`, its three decisions taken as recommended. **The join (56):** he
+walks from each region into the next, and back down, with no dark and no card, through a sill that is the same in both;
+fallen keepers stay fallen. **The passages (57):** each has its lower stretch under the raising water, dressed as the
+sheet says. **Each keeper holds its region until it falls (58, 59):** slabs in the Roots' doorways, doors on the bell's
+beat in the Cloister, wind on the Spires' faces, struck rods in the Tempest, thorn in the Gardens; and each leaves a
+quick way from the water to its hall. Differs from the sheet: see its "As built" notes (the Bell Road is not in the open;
+the Roots' quick way is not shorter than the old ladder; no nooks in the Roots; signs at two quick ways not made).*
 
 - **No fades or cards between regions** (decision 0.7):
   - the next region is made while he climbs the passage;

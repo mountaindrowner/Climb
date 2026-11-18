@@ -4,14 +4,14 @@
 // other: the Roots (caves), the Cloister (a ruined monastery), the Spires (ice, and the high pass), then, each in its own
 // file under regions/, the Tempest (the storm round the mountain), the Gardens (above the cloud) and the Firmament (the
 // summit, among the stars). One is in play at a time (LEVEL; loadLevel changes it).
-import { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, room, put, rect, walls, door, ledge, stairs, mark, open, den } from './rooms.js';
+import { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, room, put, rect, walls, door, ledge, stairs, mark, open, den } from './rooms.js';
 import tempest from './regions/tempest.js';
 import gardens from './regions/gardens.js';
 import firmament from './regions/firmament.js';
 import workings from './regions/workings.js';
 import { SEAMS, LOWER, RULES } from './seams.js';
 import * as OSSUARY from './regions/ossuary.js';
-export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN };
+export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE };
 
 // ---- the first region: up from the bottom of the mountain
 function start(){
@@ -585,7 +585,7 @@ function build(n){
         if (j1 - j >= 3){ for (let y = j; y <= j1; y++) for (const d of [-1, 0]) set(bx + d, y, v); out.push({ x: bx, y: j, top: j1 }); } j = j1; }
       return out; };
     const addMarks = list => { mountTorches(tiles, W, H, list); marks.push(...list); };
-    RULES[n]({ set, at, W, H, X0, Y0, rooms, marks, roomOf, addRoom, lintel, doorway, addMarks, tile: { EMPTY, ROCK, LEDGE, HOLD, DOOR, GIVEN } });
+    RULES[n]({ set, at, W, H, X0, Y0, rooms, marks, roomOf, addRoom, lintel, doorway, addMarks, tile: { EMPTY, ROCK, LEDGE, HOLD, DOOR, GIVEN, LIVE } });
   }
   return finish({ ...C, W, H, tiles, raw, marks, rooms, joins, X0, Y0 });
 }
@@ -669,7 +669,7 @@ function nooks(tiles, W, H, marks, rooms, S, M, n){
 }
 // each is moved to the best place in its room: a flat floor seven tiles wide with six of air over it, clear of the other
 // markers. Ordric stands four tiles from the room's flame (on the side with room); the others as near the room's middle as fits
-const NOT_FOE = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust']);
+const NOT_FOE = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust', 'rod']);
 function stations(tiles, W, H, marks, rooms, S){
   if (!S) return;
   const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i], solid = t => t === ROCK || t === LEDGE;
@@ -836,7 +836,9 @@ export const glassOn = k => PHASE.all || ((PHASE.t / PHASE.period) % 2 < 1) === 
 // the tile as it is drawn into the level (cracked rock and star-glass as themselves)
 export const rawAt = (tx, ty) => tx < 0 || ty < 0 || tx >= LEVEL.W || ty >= LEVEL.H ? ROCK : LEVEL.tiles[ty * LEVEL.W + tx];
 // the tile as he meets it now: cracked rock is rock, star-glass a ledge while it is there
-export const tileAt = (tx, ty) => { if (tx < 0 || ty < 0 || tx >= LEVEL.W || ty >= LEVEL.H) return ROCK; const t = LEVEL.tiles[ty * LEVEL.W + tx]; return t < CRACKED ? t : t === CRACKED ? ROCK : t === HOLD ? (RULE.fallen ? EMPTY : ROCK) : t === GIVEN ? (RULE.fallen ? LEDGE : ROCK) : t === DOOR ? (RULE.shut && !RULE.fallen ? ROCK : EMPTY) : glassOn(t) ? LEDGE : EMPTY; };
+export const tileAt = (tx, ty) => { if (tx < 0 || ty < 0 || tx >= LEVEL.W || ty >= LEVEL.H) return ROCK; const t = LEVEL.tiles[ty * LEVEL.W + tx]; return t < CRACKED ? t : t === CRACKED ? ROCK : t === HOLD ? (RULE.fallen ? EMPTY : ROCK) : t === GIVEN ? (RULE.fallen ? LEDGE : ROCK) : t === DOOR ? (RULE.shut && !RULE.fallen ? ROCK : EMPTY) : t === LIVE ? LEDGE : glassOn(t) ? LEDGE : EMPTY; };
+// a live deck (the storm's gantries) while the keeper stands: to stand on it is to be shocked (motor.js)
+export const liveAt = (tx, ty) => !RULE.fallen && tx >= 0 && ty >= 0 && tx < LEVEL.W && ty < LEVEL.H && LEVEL.tiles[ty * LEVEL.W + tx] === LIVE;
 export const updraftAt = (x, y) => { for (const u of LEVEL.updrafts) if (x >= u.x0 && x < u.x1 && y >= u.y0 && y < u.y1) return u; if (RULE.fallen) for (const u of LEVEL.gusts || []) if (x >= u.x0 && x < u.x1 && y >= u.y0 && y < u.y1) return u; return null; };
 // the wind's beat while the Wyrm holds it: it blows a while, drops a while (in a test, always: the worst of it)
 export const gustOn = () => PHASE.all || (PHASE.t % 4.4) < 2.6;

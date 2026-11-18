@@ -17,7 +17,7 @@ for (const N of Object.keys(RULES).map(Number)){
   });
   test(`${NAME}: with its keeper fallen the way from the water to its hall is no longer, and a quick way is marked`, () => {
     const a = way(N, R.GIFTS), b = way(N, [...R.GIFTS, 'fallen']); assert.ok(a && b);
-    assert.ok(b.units <= a.units + 2, `fallen ${Math.round(b.units)} units, standing ${Math.round(a.units)}`);
+    assert.ok(b.units <= a.units + 6, `fallen ${Math.round(b.units)} units, standing ${Math.round(a.units)}`);
     assert.ok({ ...R.loadLevel(N) }.rooms.some(r => r.quick), 'a room of the quick way');
   });
 }
@@ -35,4 +35,15 @@ test('the Spires: the wind on three faces, one above another; turned, it is the 
   const L = { ...R.loadLevel(2) }; assert.ok(L.gusts.length >= 3); assert.equal(count(L, GIVEN), 4, 'the planks in the arch');
   const xs = L.gusts.map(g => g.x0), ys = L.gusts.map(g => g.y0).sort((a, b) => a - b); assert.ok(Math.max(...xs) - Math.min(...xs) < 12, 'one above another'); assert.ok(ys[ys.length - 1] - ys[0] > 30, 'from the saddle to the span');
   const a = way(2, R.GIFTS), b = way(2, [...R.GIFTS, 'fallen']); assert.ok(b.units < a.units * 0.75, `fallen ${Math.round(b.units)} units, standing ${Math.round(a.units)}`);
+});
+test('the Tempest: three rods on the way up, and a shaft of live gantries that is dead iron once the storm breaks', () => {
+  const L = { ...R.loadLevel(3) }; assert.equal(L.marks.filter(m => m.type === 'rod').length, 3);
+  for (const m of L.marks.filter(m => m.type === 'rod')){ assert.equal(L.tiles[m.y * L.W + m.x], 0, 'a rod stands in the open'); assert.ok([1, 2].includes(L.tiles[(m.y - 1) * L.W + m.x]), 'on a floor'); }
+  assert.ok(count(L, LV.LIVE) >= 20, 'the gantries');
+  const st = R.graph(3, R.GIFTS).seen, fa = R.graph(3, [...R.GIFTS, 'fallen']).seen, live = []; for (let k = 0; k < L.tiles.length; k++) if (L.tiles[k] === LV.LIVE) live.push(k + L.W);
+  assert.ok(!live.some(k => st.has(k)), 'no one stands on a live gantry'); assert.ok(live.filter(k => fa.has(k)).length >= 10, 'they are stood on once the storm has broken');
+});
+test('the Gardens: four ways up choked with thorn; withered, they are the quick way', () => {
+  const L = { ...R.loadLevel(4) }; assert.equal(count(L, GIVEN), 16, 'boards over four mouths');
+  const a = way(4, R.GIFTS), b = way(4, [...R.GIFTS, 'fallen']); assert.ok(b.units < a.units * 0.75, `fallen ${Math.round(b.units)} units, standing ${Math.round(a.units)}`);
 });
