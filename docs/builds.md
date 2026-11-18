@@ -94,6 +94,8 @@ gone over again.
   sitter, the Seated at one, two and three fires, his fall, coming back); the zip opened, the title and every region.
 - **Not checked:** not played by hand; the Toll's step through a pane and the way out, only by the automated player;
   the sounds.
+- **Known problems:** the Galleries' back wall lets the Spires' bright sky show through in patches; it should be dim
+  blue throughout.
 - **Mistake caught before it went out:** a comment put in the middle of a line cut the rest of the line off, and the
   game would not have started. The syntax check found it at once.
 - **Cost:** one drawing (the Seated), $0.06.
@@ -171,5 +173,6 @@ gone over again.
   browser.
 - **The sounds added since phase 9 are unheard.**
 - The pause menu's lower buttons overlap the controls' help at a small window (seen in build 63; older).
+- The Glacier Galleries' back wall shows the bright sky in patches (build 64).
 - The Toll's keeper check has one row that fails (standing still in its second half is not hurt). Older than phase 9;
   not looked into.
