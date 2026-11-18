@@ -80,6 +80,25 @@ the stones with words on them.
 One new drawing with two animations (the Turned: his shove, his staff). The cairns are drawn in code, stone by stone.
 **Cost: $0.07; the balance is $2.90.**
 
+## As built (build 62), and what was checked
+
+- **258 automated checks pass**, ten of them the wing's own: its screens and gate; the scree not being a way in; the
+  stones of the way under the real motor (turned round on, crossed without turning, a foot on the rock); a cairn looked
+  at and not; the Turned (in the way, behind him, walked away from, rolled through, his stones); his cairn and the relic.
+- **Played through by the test browser:** a cairn coming apart behind him and striking him, and stopping when he
+  turns; the long stretch of the way crossed with a cairn following; the Turned holding the slope against him and
+  throwing him back three times; two blows from behind taking four of his strength; his own cairn's words, and its fall.
+- **Changed while building:** the far cliff was raised and given a lip (he could leap to it with the Toll's step);
+  the Turned could be run straight through, so he now stands in the way of anything on its feet; the scree's bank was
+  raised (the drop onto it hurt) and its door moved up clear of Ordric's lamp; the way falls only when he stands on
+  its stones alone.
+- **Not checked:** nothing here was played by hand. The glide across the gap was flown only by the automated player,
+  not in the browser. The sounds were not heard. The first stone's lesson (turn round on it, drop one step) was not
+  watched happening. The relic was checked by its number, not in a fight.
+- **The published page is at its limit of files** (509 of 511). The old spitter's drawing, a fallback no longer
+  reached, was taken out of the page to make room; the game and the itch zip are unchanged by that. The next wing needs
+  the page's code packed into fewer files first.
+
 ## Differs from the world plan (`docs/world.md`)
 
 - **The scree comes out in Ordric's hollow,** not the mouth: the hollow is where the wing's foot is, and it has a flame.
