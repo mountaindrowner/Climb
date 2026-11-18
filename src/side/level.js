@@ -9,7 +9,7 @@ import tempest from './regions/tempest.js';
 import gardens from './regions/gardens.js';
 import firmament from './regions/firmament.js';
 import workings from './regions/workings.js';
-import { SEAMS } from './seams.js';
+import { SEAMS, LOWER } from './seams.js';
 import * as OSSUARY from './regions/ossuary.js';
 export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B };
 
@@ -404,7 +404,7 @@ function clingers(tiles, W, H, marks){
     for (let d = 1; d <= 6; d++){ let done = false; for (const dy of [d, -d]){ const w = wallNear(m.x, m.y + dy, 4); if (w !== null && !rock(w, m.y + dy)){ m.x = w; m.y += dy; done = true; break; } } if (done) break; }
   }
 }
-function build(n){
+function core(n){
   // a seam (seams.js) goes under the region's first room: the region is moved up by its rows, its rooms beneath
   const R = REGIONS[n], SEAM = SEAMS[n], LAYOUT = SEAM ? [...SEAM.layout, ...R.layout.map(l => [l[0], l[1] + SEAM.rows, ...l.slice(2)])] : R.layout;
   const cols = Math.max(R.cols || 0, ...LAYOUT.map(l => l[0] + (l[3] || 1))), rows = Math.max(...LAYOUT.map(l => l[1] + (l[4] || 1)));
@@ -455,10 +455,15 @@ function build(n){
   // every torch is mounted (phase 8): in a bracket on a wall beside it (mount 'wall', side: which way the wall is), or
   // on a stand up from the floor under it (mount 'stand', base: the floor's row). One with neither is moved to the
   // nearest wall at its height, or stood on the floor below; one with nothing near is taken away
+  mountTorches(tiles, W, H, marks);
+  return { index: n, name: R.name, theme: R.theme, sky: !!R.sky, deep: !!R.deep, W, H, tiles, marks, rooms, raw };
+}
+// every torch without a mount yet: put on a wall beside it or a stand under it (see core)
+function mountTorches(tiles, W, H, marks){
   { const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i], air = (i, j) => at(i, j) === EMPTY;
     const wallBy = (x, y) => at(x - 1, y) === ROCK ? -1 : at(x + 1, y) === ROCK ? 1 : 0;
     const floorUnder = (x, y, far) => { for (let k = 1; k <= far; k++){ const t = at(x, y - k); if (t === ROCK || t === LEDGE) return y - k + 1; } return null; };
-    for (const m of marks) if (m.type === 'torch'){
+    for (const m of marks) if (m.type === 'torch' && !m.mount){
       if (!air(m.x, m.y)){ const up = [1, 2, -1, 3].find(d => air(m.x, m.y + d)); if (up === undefined){ m.type = 'gone'; continue; } m.y += up; }
       let side = wallBy(m.x, m.y);
       if (!side){ const base = floorUnder(m.x, m.y, 5); if (base !== null){ m.mount = 'stand'; m.base = base; continue; }
@@ -468,13 +473,104 @@ function build(n){
       m.mount = 'wall'; m.side = side;
     }
     for (let k = marks.length - 1; k >= 0; k--) if (marks[k].type === 'gone') marks.splice(k, 1); }   // what was taken away is not there
-  // what the motor asks about every step: the flowers' tiles, and the rising air (in world units)
+}
+
+// ---- the joins (phase 9, docs/phase9-sheet.md): one continuous mountain. Between a keeper's hall and the passage on
+// is a sill: a tunnel through a mass of rock, the same tile for tile in the region below (beside its keeper's hall)
+// and in the region above (at the very bottom, under its passage). He walks through it; in its middle, where nothing
+// but the sill is in view, the region below is let go and the one above put in its place (main.js cross). So a sill is
+// wider and taller than the view, and all rock but its tunnel.
+//   dir   which way he walks, going up the mountain (1 right, -1 left): set by where there is room beside the hall
+//   a     the hall's floor, in rows over the hall's base (the stage; in the Roots, the niche behind the cracked wall)
+//   gap   tiles of open air between the hall and the sill, bridged with planks (where a room is under the hall's side)
+//   rows  rows of rooms added under the region above: the sill, and the passage's lower stretch (seams.js LOWER)
+export const SILL = { w: 80, h: 38, floor: 14, tall: 6 };
+export const JOINS = {
+  1: { dir: -1, a: 9, gap: 0, rows: 2, title: 'THE CRYPT STAIR' },
+  2: { dir: 1, a: 2, gap: 0, rows: 3, title: 'THE BELL ROAD' },
+  3: { dir: 1, a: 2, gap: 40, rows: 3, title: 'THE LAST HUT' },
+  4: { dir: -1, a: 2, gap: 0, rows: 2, title: 'THE BREACH' },
+  5: { dir: 1, a: 2, gap: 40, rows: 3, title: 'THE LONG STAIR' },
+};
+// a sill's tiles, rows from the bottom: rock, and the tunnel through it. From the hall's side its floor is the hall's
+// (row a), then a stair up to the middle's (SILL.floor), level from there to the far end
+export function sill(k){
+  const J = JOINS[k], t = []; for (let y = 0; y < SILL.h; y++) t.push(new Array(SILL.w).fill(ROCK));
+  for (let x = 0; x < SILL.w; x++){ const d = J.dir > 0 ? x : SILL.w - 1 - x, f = Math.min(SILL.floor, J.a + Math.max(0, (d - 2) >> 1));   // d: tiles in from the hall's side
+    for (let y = f; y < SILL.floor + SILL.tall; y++) t[y][x] = EMPTY; }   // one roof all along: over the stair it is a tall mouth, narrowing
+  return t;
+}
+// the region as built, set in its place: rows added under it for the join from below (the sill, and the passage's
+// lower stretch up to the raising water's room), and beside its keeper's hall the sill of the join above, the way out
+// of the hall sealed until the keeper falls. What core made is moved whole, never changed: its wear, its people's
+// places and what the tests measure stay as they were
+function build(n){
+  const C = core(n), R = REGIONS[n], below = JOINS[n], above = n < CLIMB_TOP ? JOINS[n + 1] : null;
+  if (!below && !above) return finish(C);
+  const hall = (() => { const b = C.marks.find(m => m.type === 'boss'); return b && C.rooms.find(r => b.x >= r.tx0 && b.x < r.tx1 && b.y >= r.ty0 && b.y < r.ty1); })();
+  // how far the region moves: up by the rows under it; right, if the sill above stands to the left of what there is
+  const Y0 = below ? below.rows * ROOM.h : 0;
+  let X0 = 0, W = C.W, H = C.H + Y0, sx = 0, sy = 0;
+  if (above && hall){
+    const s0 = above.dir > 0 ? hall.tx1 + above.gap : hall.tx0 - above.gap - SILL.w;   // where the sill starts, as core counts
+    if (s0 < 0) X0 = -s0;
+    sx = s0 + X0; sy = hall.ty0 + Y0; W = Math.max(C.W + X0, sx + SILL.w); H = Math.max(H, sy + SILL.h);
+  }
+  const fill = R.fill === undefined ? ROCK : R.fill, tiles = new Uint8Array(W * H).fill(fill), raw = new Uint8Array(W * H).fill(fill);
+  if (C.H + Y0 < H) for (let j = C.H + Y0; j < H; j++) for (let i = X0; i < X0 + C.W; i++){ tiles[j * W + i] = ROCK; raw[j * W + i] = ROCK; }   // over a region with a roof, the roof (as it was: past the top was rock)
+  for (let j = 0; j < C.H; j++) for (let i = 0; i < C.W; i++){ tiles[(j + Y0) * W + i + X0] = C.tiles[j * C.W + i]; raw[(j + Y0) * W + i + X0] = C.raw[j * C.W + i]; }
+  const marks = C.marks.map(m => ({ ...m, x: m.x + X0, y: m.y + Y0, ...(m.base != null ? { base: m.base + Y0 } : {}), ...(m.perch ? { perch: { ...m.perch, x: m.perch.x + X0, y: m.perch.y + Y0, ...(m.perch.wall != null ? { wall: m.perch.wall + X0 } : {}), ...(m.perch.base != null ? { base: m.perch.base + Y0 } : {}) } } : {}) }));
+  const rooms = C.rooms.map(r => ({ ...r, x0: r.x0 + X0 * T, x1: r.x1 + X0 * T, y0: r.y0 + Y0 * T, y1: r.y1 + Y0 * T, tx0: r.tx0 + X0, tx1: r.tx1 + X0, ty0: r.ty0 + Y0, ty1: r.ty1 + Y0 }));
+  const set = (i, j, v) => { if (i >= 0 && j >= 0 && i < W && j < H){ tiles[j * W + i] = v; raw[j * W + i] = v; } }, at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i];
+  const stamp = (k, x0, y0) => { const t = sill(k); for (let y = 0; y < SILL.h; y++) for (let x = 0; x < SILL.w; x++) set(x0 + x, y0 + y, t[y][x]); };
+  const roomRec = (name, title, x0, y0, w, h, more) => ({ name, title, gate: '', open: false, x0: x0 * T, y0: y0 * T, x1: (x0 + w) * T, y1: (y0 + h) * T, tx0: x0, ty0: y0, tx1: x0 + w, ty1: y0 + h, ...more });
+  const joins = {};
+  // ---- from below: the rows under the region are the mountain's rock; in them the passage's lower stretch (its rooms
+  // worn like any others), then the sill laid over, whole
+  if (below){
+    const LOW = LOWER[n], sub = new Uint8Array(W * Y0).fill(ROCK), subMarks = [], subRooms = [], look = REGIONS[n - 1].theme;
+    for (const [cx, cy, make] of LOW.layout){ const r = make(), ox = X0 + cx * ROOM.w, oy = cy * ROOM.h;
+      for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) if (oy + y < Y0) sub[(oy + y) * W + ox + x] = r.tiles[y][x];
+      for (const m of r.marks) subMarks.push({ ...m, x: ox + m.x, y: oy + m.y });
+      subRooms.push(roomRec(make.name, below.title, ox, oy, r.w, r.h, { look })); }
+    const subRaw = sub.slice(); organic(sub, W, Y0, subMarks, subRooms, R.seed + 77, R.wear);
+    for (let j = 0; j < Y0; j++) for (let i = 0; i < W; i++){ tiles[j * W + i] = sub[j * W + i]; raw[j * W + i] = subRaw[j * W + i]; }
+    mountTorches(tiles, W, H, subMarks); marks.push(...subMarks); rooms.push(...subRooms);
+    const bx = X0 + (below.dir > 0 ? 0 : ROOM.w); stamp(n, bx, 0);
+    rooms.push(roomRec('sill', below.title, bx, 0, SILL.w, SILL.h, { look, sill: n, ghost: true }));
+    // up into the raising water's room, through its floor at the near end (where he used to wake): a hole, boarded
+    for (let x = X0 + 2; x <= X0 + 5; x++){ set(x, Y0, EMPTY); set(x, Y0 + 1, LEDGE); }
+    joins.down = { k: n, x: bx, y: 0, dir: below.dir, to: n - 1 };
+  }
+  // ---- to above: the sill beside the keeper's hall, the way to it, and the way out of the hall
+  if (above && hall){
+    const hx0 = hall.tx0 + X0, hx1 = hall.tx1 + X0, ys = sy + above.a;
+    if (fill === EMPTY) for (let j = 0; j < sy; j++) for (let i = sx; i < sx + SILL.w; i++) if (i < X0 || i >= X0 + C.W) set(i, j, ROCK);   // under a sky the sill is the head of a cliff: rock under it, to the ground
+    stamp(n + 1, sx, sy);
+    rooms.push(roomRec('sill', above.title, sx, sy, SILL.w, SILL.h, { sill: n + 1, after: true }));   // after: reached only once the keeper has fallen (behind the niche's cracked wall, or the seal)
+    if (above.gap){ const g0 = above.dir > 0 ? hx1 : sx + SILL.w, g1 = g0 + above.gap - 1;   // an arch of rock across the open air, from the hall to the cliff (rock, not planks: nothing comes up through it from the room below, past the keeper)
+      for (let x = g0; x <= g1; x++) for (let y = ys; y < Math.min(H, sy + ROOM.h * 2); y++) set(x, y, EMPTY);   // open air over it (the wear had swelled the hall's wall outward)
+      for (let x = g0; x <= g1; x++){ set(x, ys - 1, ROCK); set(x, ys - 2, ROCK); const sag = Math.round(3 * Math.sin((x - g0 + 0.5) / above.gap * Math.PI)); for (let d = 0; d < 3 - sag; d++) set(x, ys - 3 - d, ROCK); }
+      rooms.push(roomRec('causeway', above.title, g0, sy, above.gap, ROOM.h, { open: true, after: true })); }
+    // the way out, through the hall's wall at the height of its floor: sealed with stone (drawn apart, props.js) that
+    // comes down when the keeper falls. In the Roots the niche's cracked wall is the seal: the spade he is left opens it
+    const seal = [], wall = [];
+    for (let d = 0; d < 6; d++){ const x = above.dir > 0 ? hx1 - 1 - d : hx0 + d; if (at(x, ys) !== ROCK && at(x, ys) !== CRACKED) break; wall.push(x); }
+    wall.forEach((x, d) => { for (let y = ys; y < ys + SILL.tall; y++){ const v = n > 0 && d < 2 ? CRACKED : EMPTY; set(x, y, v); if (v === CRACKED) seal.push(x + ',' + y); } });
+    if (fill === EMPTY) for (const x of wall) for (let y = ys + SILL.tall; y < Math.min(H, hall.ty1 + Y0); y++) set(x, y, ROCK);   // under a sky the hall's wall goes to its top on this side: nowhere to stand on it, nothing over it
+    for (const m of marks) if (m.type === 'exit'){ m.x = sx + (SILL.w >> 1); m.y = sy + SILL.floor; m.join = true; }   // no beacon: the way on is the middle of the sill, where the regions change
+    joins.up = { k: n + 1, x: sx, y: sy, dir: above.dir, to: n + 1, seal };
+  }
+  return finish({ ...C, W, H, tiles, raw, marks, rooms, joins, X0, Y0 });
+}
+// what the motor asks about every step: the flowers' tiles, and the rising air (in world units)
+function finish(L){
   const pads = new Map(), updrafts = [];
-  for (const m of marks){
-    if (m.type === 'bloom') for (let a = -1; a <= 1; a++) pads.set(m.y * W + m.x + a, m);
+  for (const m of L.marks){
+    if (m.type === 'bloom') for (let a = -1; a <= 1; a++) pads.set(m.y * L.W + m.x + a, m);
     if (m.type === 'updraft') updrafts.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 12)) * T });
   }
-  return { index: n, name: R.name, theme: R.theme, sky: !!R.sky, deep: !!R.deep, W, H, tiles, marks, rooms, raw, pads, updrafts, tiles0: tiles.slice() };
+  return { joins: {}, X0: 0, Y0: 0, ...L, pads, updrafts, tiles0: L.tiles.slice() };
 }
 // ---- where the three who climb are found in each region: a room each, never the first, spread through it. Each stands
 // at a station of their own (items.js draws it and lights it): Ordric at a flame, Mirel at a fire, Corwen at a desk
@@ -592,6 +688,7 @@ function stations(tiles, W, H, marks, rooms, S){
 export const LEVEL = {};
 const BUILT = [];
 export function resetLevels(){ BUILT.length = 0; }   // build them again when next wanted (a new game: the cracked rock whole again)
+export function prepare(n){ if (n >= 0 && n < REGIONS.length && !BUILT[n]) BUILT[n] = build(n); }   // a region made ahead (its rock: about a twentieth of a second), so that walking into it does not wait for that
 export function loadLevel(n){ n = Math.max(0, Math.min(REGIONS.length - 1, n | 0)); Object.assign(LEVEL, BUILT[n] || (BUILT[n] = build(n))); return LEVEL; }
 loadLevel(typeof location !== 'undefined' && location.search ? (parseInt(new URLSearchParams(location.search).get('level')) || 1) - 1 : 0);
 

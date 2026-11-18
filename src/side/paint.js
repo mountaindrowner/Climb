@@ -2,7 +2,7 @@
 // in the palette (render.js says how they look). Nothing here touches the page or three.js, so it runs the same in a
 // worker (paintworker.js, which paints a region before it is wanted) as on the page; render.js puts the result in the scene.
 // paintRegion(n) -> { back, bh, play, normals, glows: [{ x, y, kind }] } (canvases; glows in canvas pixels of the play layer)
-import { T, ROCK, LEDGE, SPIKES, EMPTY, LEVEL, rawAt, REGION_DATA } from './level.js';
+import { T, ROCK, LEDGE, SPIKES, EMPTY, LEVEL, rawAt, REGION_DATA, SILL, sill } from './level.js';
 import { loadLevel } from './level.js';
 // what the painted layers see: the level as drawn, with cracked rock and star-glass left out (they are drawn apart, since they change)
 export const paintAt = (i, j) => { const t = rawAt(i, j); return t > SPIKES ? EMPTY : t; };
@@ -358,6 +358,40 @@ export function blend(dst, src, rects, band, extra){
   }
 }
 
+// ---- a sill's painting (phase 9: the tunnel between two regions, level.js): painted on its own, as a region of
+// nothing but itself in the look of the region below, so it comes out the same to the pixel wherever it is laid: in
+// the region below, beside the keeper's hall, and in the region above, at its foot. He walks from one into the other
+// in the middle of it. Its tunnel has its own wall painted in (the back wall slides behind the rock as the view moves,
+// and would not sit the same in two regions). Made once for each join and kept
+const SILLS = new Map();
+function withLevel(L, fn){ const keep = { ...LEVEL }; for (const k of Object.keys(LEVEL)) delete LEVEL[k]; Object.assign(LEVEL, L); try { return fn(); } finally { for (const k of Object.keys(LEVEL)) delete LEVEL[k]; Object.assign(LEVEL, keep); } }
+export function sillPaint(k){
+  if (SILLS.has(k)) return SILLS.get(k);
+  const W = SILL.w, H = SILL.h, t = sill(k), tiles = new Uint8Array(W * H), TM = THEMES[REGION_DATA[k - 1].theme] || THEMES.roots;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) tiles[y * W + x] = t[y][x];
+  const mini = tl => ({ index: -1, name: '', theme: REGION_DATA[k - 1].theme, sky: false, deep: false, W, H, tiles: tl, raw: tl, marks: [], rooms: [{ name: 'sill', open: false, tx0: 0, ty0: 0, tx1: W, ty1: H, x0: 0, y0: 0, x1: W * T, y1: H * T }], pads: new Map(), updrafts: [], joins: {} });
+  const glows = [], play = withLevel(mini(tiles), () => paintPlay((x, y, kind) => glows.push({ x, y, kind, ph: ((x * 73 + y * 151) % 900) / 100, lit: (x * 31 + y * 17) % 2 === 0 }), TM));   // what glows in it, each with its own beat, so it glows the same in both regions
+  const wall = withLevel(mini(new Uint8Array(W * H)), () => paintBack(TM));   // the look's back wall, with nothing in front of it
+  const pw = W * CELL, ph = H * CELL, g = play.getContext('2d', { willReadFrequently: true }), d = g.getImageData(0, 0, pw, ph);
+  const wg = wall.cnv.getContext('2d', { willReadFrequently: true }), wx0 = Math.round(MARGIN_X * PPU), wy0 = Math.max(0, wall.bh - Math.round(MARGIN_Y * PPU) - ph), w = wg.getImageData(wx0, wy0, Math.min(pw, wall.bw - wx0), Math.min(ph, wall.bh - wy0));
+  const ng = play.normals ? play.normals.getContext('2d', { willReadFrequently: true }) : null, nd = ng ? ng.getImageData(0, 0, pw, ph) : null;
+  for (let y = 0; y < ph; y++) for (let x = 0; x < pw; x++){ const q = (y * pw + x) * 4; if (d.data[q + 3] > 127) continue;
+    const a = ((y % w.height) * w.width + (x % w.width)) * 4, op = w.data[a + 3] > 127;
+    d.data[q] = op ? w.data[a] * 0.8 : 24; d.data[q + 1] = op ? w.data[a + 1] * 0.8 : 20; d.data[q + 2] = op ? w.data[a + 2] * 0.8 : 37; d.data[q + 3] = 255;
+    if (nd){ nd.data[q] = 128; nd.data[q + 1] = 128; nd.data[q + 2] = 255; nd.data[q + 3] = 255; } }
+  g.putImageData(d, 0, 0); if (ng) ng.putImageData(nd, 0, 0);
+  const out = { play, normals: play.normals || null, glows }; SILLS.set(k, out); return out;
+}
+// one painting laid into another at (x0, y0), whole but for its edge, which is broken up the same way wherever it is laid
+export function layIn(dst, src, x0, y0, band, dstN, srcN){
+  const w = Math.min(src.width, dst.width - x0), h0 = Math.max(0, -y0), h = Math.min(src.height, dst.height - y0) - h0; if (w < 2 || h < 2) return;
+  const n = noise2(7), put = (D, S) => { const dg = D.getContext('2d', { willReadFrequently: true }), sg = S.getContext('2d', { willReadFrequently: true }), a = dg.getImageData(x0, y0 + h0, w, h), b = sg.getImageData(0, h0, w, h);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++){ const sy = y + h0, e = Math.min(x, sy, src.width - 1 - x, src.height - 1 - sy), k = e / band + (n(x / 26, sy / 26) - 0.5) * 1.1 - 0.15;
+      if (k < 1 && B4[(sy & 3) * 4 + (x & 3)] / 16 >= k) continue; const q = (y * w + x) * 4; a.data[q] = b.data[q]; a.data[q + 1] = b.data[q + 1]; a.data[q + 2] = b.data[q + 2]; a.data[q + 3] = b.data[q + 3]; }
+    dg.putImageData(a, x0, y0 + h0); };
+  put(dst, src); if (dstN && srcN) put(dstN, srcN);
+}
+
 // ---- a whole region's painting: the back wall and the play rock (with the looks of the region below and above where
 // rooms wear them), and what the marks draw into the rock (torches, crystals, the belfry's bell, the shrine). `own`:
 // build the region first (a worker has none of its own); else it is the region already loaded here
@@ -372,6 +406,10 @@ export function paintRegion(n, own = true){
   const play = paintPlay((x, y, kind) => { if (!pxLook(x, y)) glow(x, y, kind); }, TM), g = play.getContext('2d', { willReadFrequently: true }), Y = j => (LEVEL.H - j) * CELL, rr = rng(5);
   for (const l of ALT){ const alt = paintPlay((x, y, kind) => { if (pxLook(x, y) === l) glow(x, y, kind); }, THEMES[l]);
     blend(play, alt, LEVEL.rooms.filter(r => r.look === l).map(r => [r.tx0 * CELL, (LEVEL.H - r.ty1) * CELL, r.tx1 * CELL, (LEVEL.H - r.ty0) * CELL]), 52, play.normals && alt.normals ? [play.normals, alt.normals] : null); }
+  for (const r of LEVEL.rooms) if (r.sill){   // the sills, the same in both the regions they join: their painting, and what glows in it
+    const S = sillPaint(r.sill), x0 = r.tx0 * CELL, y0 = (LEVEL.H - r.ty0 - SILL.h) * CELL; layIn(play, S.play, x0, y0, 8, play.normals, S.normals);
+    for (let k = glows.length - 1; k >= 0; k--){ const q = glows[k]; if (q.x >= x0 && q.x < x0 + SILL.w * CELL && q.y >= y0 && q.y < y0 + SILL.h * CELL) glows.splice(k, 1); }
+    for (const q of S.glows) if (q.y + y0 >= 0) glows.push({ ...q, x: q.x + x0, y: q.y + y0 }); }
   for (const m of LEVEL.marks){
     const x = (m.x + 0.5) * T, y = m.y * T, cx = Math.round(x * PPU);
     if (m.type === 'torch'){ DECO.torch(g, cx, Y(m.y) - 2);

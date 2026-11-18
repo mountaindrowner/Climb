@@ -2,7 +2,18 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Voices, and Corwen's map (latest; phase 8b, build 55).**
+**One continuous mountain: the join (latest; phase 9a, build 56).**
+- **He walks from one region into the next.** No dark, no card. Beyond each keeper's hall is a tunnel through rock (a sill) that is the same, to the pixel, in the region below and the region above; one step past its middle the regions change round him. Measured on all five joins, both ways: the frame of the change differs from the one before by no more than any two frames of walking.
+- **The way out of a keeper's hall is a real opening,** sealed with stone until the keeper falls (in the Roots, the niche's cracked wall, as before). In the Spires and the Gardens it leads over an arch of rock to a cliff.
+- **He can walk back down** through every join. A keeper that has fallen stays fallen; its hall is empty.
+- **Each passage has new rooms under its raising water** (two or three screens), between the sill and the water. Plain for now.
+- **Going into the Cloister or the Gardens no longer stalls for a second** (a picture was read back from the graphics card every time; it is made once now). Mist and far skies are made once too.
+- The light on rock and on him follows the look of the room he is in. The rooms he has seen stay on the map when he leaves a region. The height on the mountain reads the same either side of a join.
+- A save from before keeps what it had found (its places are moved with the regions, once).
+- Phone mode, or a machine not ready in time: the old short dark, coming out at the same place.
+- Not done: timing on a real machine and a phone; the corner map changes abruptly at a join; what the sheet says goes in the passages' new rooms; the keepers' rules and the quick ways (`docs/phase9-sheet.md`).
+
+**Voices, and Corwen's map (phase 8b, build 55).**
 - **Each of the four speaks in their own way.** Ordric is the slowest, with long held vowels and soft starts. Mirel is the quickest, each sound clipped, every phrase rising at its end; once she has put the shell down she slows and the rise goes. Corwen is even and nearly flat, with a longer wait at each comma. Hob is a low mutter.
 - **A hint of the words.** Each syllable starts in the shape of its consonant: a hiss for s and f, a pop for p, b, t and d, a hum for m and n, a roll for r and l. Not speech; the shape of speech. (`docs/voices.md`.)
 - **Once Corwen has been met, the map is his** ("Corwen's map"). Cracked stone he came to without the spade is marked SHUT; when the Warden leaves the spade the mark turns gold, beats, and reads OPEN NOW until he breaks through. His falls in each region are counted on its page. A page is sealed, with a banner once and a seal from then on, when every room is seen and no strand, chest or relic is left.

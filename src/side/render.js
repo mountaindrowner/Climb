@@ -96,10 +96,16 @@ function onPalette(img, dim = 1, dither = 0){
   for (let i = 0; i < p.length; i += 4){ const key = (p[i] << 16) | (p[i + 1] << 8) | p[i + 2]; let q = cache.get(key); if (!q){ q = nearest(p[i] * dim, p[i + 1] * dim, p[i + 2] * dim); cache.set(key, q); } p[i] = q[0]; p[i + 1] = q[1]; p[i + 2] = q[2]; }
   g.putImageData(d, 0, 0); return c;
 }
+// a region's far painting, on the palette: made once for each and kept (so a region made while he walks into it has its
+// sky at once). { tex (when it is in), p (a promise of it) }
+const FARS = new Map();
+function farTex(TMx){ const key = TMx.far.img;
+  if (!FARS.has(key)){ const F = { tex: null, p: null }; FARS.set(key, F);
+    F.p = loadImg(`assets/side/bg/${key}.png`).then(img => { if (!img) return null; const t = TMx.far.raw ? canvasTex(img) : canvasTex(onPalette(img, TMx.far.dim, TMx.far.dither || 0)); t.kept = true; F.tex = t; return t; }); }
+  return FARS.get(key); }
 // a canvas onto the scene as planes no bigger than 1024 pixels, its top-left at (x, y)
 // the paintings' pieces waiting to go to the graphics card. Sent one at a time, between frames, before the region is
 // shown, so its first frame does not stop for all of them at once
-const UPLOAD = [];
 function canvasPlanes(scene, c, x, y, z, isLit, nrm){
   const group = new THREE.Group(), S = 1024;
   for (let oy = 0; oy < c.height; oy += S) for (let ox = 0; ox < c.width; ox += S){
@@ -109,9 +115,8 @@ function canvasPlanes(scene, c, x, y, z, isLit, nrm){
     const mat = isLit ? lit({ map: canvasTex(part), normalMap: np ? canvasTex(np) : null, transparent: true, alphaTest: 0.5 }) : new THREE.MeshBasicMaterial({ map: canvasTex(part), transparent: true, alphaTest: 0.5 });
     const m = new THREE.Mesh(new THREE.PlaneGeometry(w / PPU, h / PPU), mat);
     m.position.set((ox + w / 2) / PPU, -(oy + h / 2) / PPU, 0); group.add(m);
-    UPLOAD.push(mat.map); if (mat.normalMap) UPLOAD.push(mat.normalMap);   // sent to the graphics card a piece at a time (uploaded())
   }
-  group.position.set(x, y, z); scene.add(group); return group;
+  group.position.set(x, y, z); if (scene) scene.add(group); return group;
 }
 
 // ---- a torch's flame, four frames side by side; mist, to repeat; and what is close to the eye
@@ -125,7 +130,9 @@ function flameStrip(){
 function tileNoise(seed, cells){ const r = rng(seed), v = []; for (let k = 0; k < cells * cells; k++) v.push(r());
   const g = (i, j) => v[(((j % cells) + cells) % cells) * cells + (((i % cells) + cells) % cells)];
   return (x, y) => { const i = Math.floor(x), j = Math.floor(y), u = x - i, w = y - j, a = u * u * (3 - 2 * u), b = w * w * (3 - 2 * w); return (g(i, j) * (1 - a) + g(i + 1, j) * a) * (1 - b) + (g(i, j + 1) * (1 - a) + g(i + 1, j + 1) * a) * b; }; }
-function mistTex(M, seed, thin){
+const KEPT = new Map(), keptTex = (key, make) => { if (!KEPT.has(key)){ const t = make(); t.kept = true; KEPT.set(key, t); } return KEPT.get(key); };   // pictures that are the same every time: made once (the clearing of the scene leaves them be)
+function mistTex(M, seed, thin){ return keptTex('mist:' + JSON.stringify(M) + seed + thin, () => mistTex0(M, seed, thin)); }
+function mistTex0(M, seed, thin){
   const W = 256, H = 128, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'), n1 = tileNoise(seed, 8), n2 = tileNoise(seed + 5, 16);
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++){
     const v = n1(x / 32, y / 16) * 0.7 + n2(x / 16, y / 8) * 0.3, a = (v - (thin ? 0.66 : 0.56)) * 3.2;   // long low banks
@@ -134,7 +141,8 @@ function mistTex(M, seed, thin){
   const t = canvasTex(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t;
 }
 // dark shapes close to the eye: hanging from the top of the view and standing at its foot, never where he is
-function foreTex(kind){
+function foreTex(kind){ return keptTex('fore:' + JSON.stringify(kind), () => foreTex0(kind)); }
+function foreTex0(kind){
   const W = 512, H = TH, c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'), r = rng(kind.length * 97 + 3);
   const twice = draw => { draw(0); draw(-W); draw(W); };   // so it meets itself at the edge
   const spikeDown = (x, L, w, tip) => twice(o => { for (let k = 0; k < L; k++){ const half = Math.max(0, Math.round((1 - k / L) * w / 2)); px(g, PAL.ink, x + o - half, k, half * 2 + 1); if (half) px(g, PAL.deep, x + o - half, k); } if (tip) px(g, tip, x + o, L - 1, 1, 2); });
@@ -167,7 +175,7 @@ export function makeRenderer(canvas){
   canvas.style.imageRendering = 'pixelated';
   const scene = new THREE.Scene(); scene.background = new THREE.Color(PAL.ink);
   const camera = new THREE.OrthographicCamera(-10, 10, VIEW_H / 2, -VIEW_H / 2, -200, 200); camera.position.z = 100;
-  const hemi = new THREE.HemisphereLight(0xffffff, 0x9aa6d0, 0.95), heroLight = new THREE.PointLight(0xffd2a0, 0.5, 7, 2), rnd = rng(7);
+  const HC = new THREE.Color(), hemi = new THREE.HemisphereLight(0xffffff, 0x9aa6d0, 0.95), heroLight = new THREE.PointLight(0xffd2a0, 0.5, 7, 2), rnd = rng(7);
   const torchGlow = glowTex('rgba(255,170,60,1)'), crystalGlow = glowTex('rgba(80,240,255,1)');
   const layers = [], exits = [], lights = [], flames = [], motes = [], pool = [], burning = [], veils = [], glints = [], fars = [];
   let ALT = [];        // the other looks worn in this region
@@ -179,12 +187,39 @@ export function makeRenderer(canvas){
       const shut = t => t === ROCK || t === 4; if (shut(L.tiles[j * L.W + i]) || shut(L.tiles[bj * L.W + bi])) continue;
       const o = L.rooms.find(q => bi >= q.tx0 && bi < q.tx1 && bj >= q.ty0 && bj < q.ty1); if (!o || o.look !== rm.look) return true; }
     return false; };
+  let LEVEL_WAS = LEVEL.theme; const ORG = { x: 0, y: 0 };   // the look of the region last built; and how far the regions he has walked through have moved the world's numbers (the mist does not jump with them)
   const LOOKW = {};   // how far he is into a room that wears another region's look, by that look: 0 not at all, 1 deep in it
   const flameTexs = [flameStrip(), flameStrip(), flameStrip()], ambNow = [1, 1, 1];
   let ready = null, TM = THEMES.roots;
   // ---- the region: everything in the scene is made here, and made again when he goes up to the next (load)
-  function build(){
-  for (const o of [...scene.children]){ scene.remove(o); o.traverse(m => { if (m.geometry) m.geometry.dispose(); const mt = m.material; if (mt){ if (mt.map && mt.map !== torchGlow && mt.map !== crystalGlow) mt.map.dispose(); mt.dispose(); } }); }
+  // ---- a region's paintings as planes, their pictures already on the graphics card: made ahead for the region he is
+  // walking toward (stage), so that going into it is one short frame (phase 9: no dark between regions); and the ones
+  // he has just left are kept the same way, for walking back. Two kept at most, none in the phone mode
+  const STAGE = new Map(); let CUR = null;
+  const dropSet = S => { for (const G of [S.back, S.play]) if (G) G.traverse(m => { if (m.geometry) m.geometry.dispose(); const mt = m.material; if (mt){ if (mt.map) mt.map.dispose(); if (mt.normalMap) mt.normalMap.dispose(); mt.dispose(); } }); };
+  function stage(n, local = false){
+    let S = STAGE.get(n); if (S) return S.promise;
+    S = { n, done: false }; STAGE.set(n, S);
+    S.promise = (async () => {
+      const PT = await painted(n, local);
+      for (const key of [REGION_DATA[n].theme, n > 0 ? REGION_DATA[n - 1].theme : null]) if (key && THEMES[key]) farTex(THEMES[key]);   // the far paintings it will want, fetched
+      S.back = canvasPlanes(null, PT.back, 0, 0, -30, false); S.bh = PT.bh; S.glows = PT.glows;
+      S.play = canvasPlanes(null, PT.play, 0, PT.play.height / PPU, 0, true, PT.normals);
+      const texs = []; for (const G of [S.back, S.play]) G.traverse(m => { if (m.material){ texs.push(m.material.map); if (m.material.normalMap) texs.push(m.material.normalMap); } });
+      for (const t of texs){ try { renderer.initTexture(t); } catch (e){} await new Promise(r => setTimeout(r, 0)); }   // to the graphics card a piece at a time, between frames
+      S.done = true; return S;
+    })();
+    S.promise.catch(() => { if (STAGE.get(n) === S) STAGE.delete(n); });
+    return S.promise;
+  }
+  const SAVED = { motes: null };
+  function build(opts = {}){
+  // carry: he walks from one region into the next (main.js cross): what the eye would catch changing is carried over
+  SAVED.motes = null; if (opts.carry){ SAVED.motes = {}; for (const o of motes){ const key = o.look || LEVEL_WAS; (SAVED.motes[key] = SAVED.motes[key] || []).push({ x: o.m.position.x + opts.shift.x, y: o.m.position.y + opts.shift.y, vx: o.vx, vy: o.vy, steady: o.steady, ph: o.ph, color: o.m.material.color.getHex() }); } ORG.x -= opts.shift.x; ORG.y -= opts.shift.y; }
+  if (CUR){ scene.remove(CUR.back); scene.remove(CUR.play); if ((!LOW.on || CUR.n === LEVEL.index) && !STAGE.has(CUR.n)) STAGE.set(CUR.n, CUR); else dropSet(CUR); CUR = null; }   // set aside for walking back (or for this same region made again)
+  for (const [k, S] of STAGE){ if (STAGE.size <= 2) break; if (k !== LEVEL.index && S.done){ STAGE.delete(k); dropSet(S); } }
+  for (const o of [...scene.children]){ if (o.userData && o.userData.keep) continue; scene.remove(o); o.traverse(m => { if (m.geometry) m.geometry.dispose(); const mt = m.material; if (mt){ if (mt.map && mt.map !== torchGlow && mt.map !== crystalGlow && !mt.map.kept) mt.map.dispose(); mt.dispose(); } }); }
+  LEVEL_WAS = LEVEL.theme;
   layers.length = exits.length = lights.length = flames.length = motes.length = pool.length = burning.length = veils.length = glints.length = fars.length = 0; for (const k in LOOKW) delete LOOKW[k];
   TM = THEMES[LEVEL.theme] || THEMES.roots; TM_NOW = TM;
   hemi.color.setHex(TM.hemi[0]); hemi.groundColor.setHex(TM.hemi[1]); hemi.intensity = TM.hemi[2] * AMB_IN_MAT; scene.add(hemi); scene.add(heroLight);
@@ -194,27 +229,24 @@ export function makeRenderer(canvas){
   ALT = [...new Set(LEVEL.rooms.map(r => r.look).filter(l => l && THEMES[l] && THEMES[l] !== TM))];
   const lookAt = (wx, wy) => { const r = LEVEL.rooms.find(q => wx >= q.x0 && wx < q.x1 && wy >= q.y0 && wy < q.y1); return r && r.look && ALT.includes(r.look) ? r.look : null; };
   const FF = 0.04;
-  const farOf = (TMx, look, z) => { const far = new THREE.Mesh(new THREE.PlaneGeometry(400 / PPU, 224 / PPU), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: !!look, opacity: look ? 0 : 1, depthWrite: false })); far.position.z = z; scene.add(far);
-    loadImg(`assets/side/bg/${TMx.far.img}.png`).then(img => { if (img){ far.material.map = TMx.far.raw ? canvasTex(img) : canvasTex(onPalette(img, TMx.far.dim, TMx.far.dither || 0)); far.material.needsUpdate = true; } });
+  const farOf = (TMx, look, z) => { const F = farTex(TMx), far = new THREE.Mesh(new THREE.PlaneGeometry(400 / PPU, 224 / PPU), new THREE.MeshBasicMaterial({ color: 0xffffff, map: F.tex, transparent: !!look, opacity: look ? 0 : 1, depthWrite: false })); far.position.z = z; scene.add(far);
+    if (!F.tex) F.p.then(t => { if (t){ far.material.map = t; far.material.needsUpdate = true; } });
     layers.push({ obj: far, f: FF, ax: W / 2, ay: Hh / 2, far: true }); if (look) fars.push({ m: far, look }); };   // drawn at anchor + (camera - anchor) * (1 - f)
   farOf(TM, null, -60); ALT.forEach((l, k) => farOf(THEMES[l], l, -59.9 + k * 0.01));
-  { const sp = LEVEL.marks.find(m => m.type === 'spawn'), l0 = sp && lookAt((sp.x + 0.5) * T, sp.y * T + 0.5); for (const l of ALT) LOOKW[l] = l === l0 ? 1 : 0; LOOKW[''] = l0 ? 0 : 1; }   // the look he wakes in, before the first frame
+  { const sp = LEVEL.marks.find(m => m.type === 'spawn'), l0 = opts.at ? lookAt(opts.at.x, opts.at.y + 0.5) : sp && lookAt((sp.x + 0.5) * T, sp.y * T + 0.5); for (const l of ALT) LOOKW[l] = l === l0 ? 1 : 0; LOOKW[''] = l0 ? 0 : 1; }   // the look he wakes in (or walks in by), before the first frame
 
   // ---- the painted layers
-  const glowAt = (x, y, kind) => {   // canvas pixels of the play layer to a glow in the world
+  const glowAt = (x, y, kind, fixed) => {   // canvas pixels of the play layer to a glow in the world (fixed: a sill's, its beat and its light given, the same in both its regions)
     const wx = x / PPU, wy = (LEVEL.H * CELL - y) / PPU, warm = kind === 'lamp';
     const gl = new THREE.Mesh(new THREE.PlaneGeometry(warm ? 1.4 : 1.2, warm ? 1.4 : 1.2), new THREE.MeshBasicMaterial({ map: warm ? torchGlow : crystalGlow, transparent: true, depthWrite: false, color: warm ? 0xffb060 : 0x60e8ff, blending: THREE.AdditiveBlending, opacity: warm ? 0.7 : 0.4 }));
-    gl.position.set(wx, wy, 1); scene.add(gl); flames.push({ m: gl, ph: rnd() * 9, slow: !warm });
-    if (rnd() < 0.5) lights.push({ x: wx, y: wy, color: warm ? 0xff9a40 : 0x40e0ff, power: warm ? 1.0 : 0.7, range: 5, ph: rnd() * 9 });
+    const ph = fixed && fixed.ph != null ? fixed.ph : rnd() * 9, lit = fixed && fixed.ph != null ? fixed.lit : rnd() < 0.5;
+    gl.position.set(wx, wy, 1); scene.add(gl); flames.push({ m: gl, ph, slow: !warm });
+    if (lit) lights.push({ x: wx, y: wy, color: warm ? 0xff9a40 : 0x40e0ff, power: warm ? 1.0 : 0.7, range: 5, ph: fixed && fixed.ph != null ? fixed.ph : rnd() * 9 });
   };
-  const gen = ++LOADS; READY = false;
-  ready = (async () => {
-    // the paintings: made ahead in the worker where it can (painted() keeps them), else here; then put in the scene
-    const PT = await painted(LEVEL.index, true);
-    if (gen !== LOADS) return;   // he has gone on to another region while it was being painted
-    const backGroup = canvasPlanes(scene, PT.back, 0, 0, -30, false);
-    layers.push({ obj: backGroup, back: true, h: PT.bh / PPU });
-    for (const q of PT.glows) glowAt(q.x, q.y, q.kind);
+  const gen = ++LOADS;
+  const dress = S => {   // a region's paintings into the scene, and what its marks light
+    scene.add(S.back); layers.push({ obj: S.back, back: true, h: S.bh / PPU });
+    for (const q of S.glows) glowAt(q.x, q.y, q.kind, q);
     for (const m of LEVEL.marks){
       const x = (m.x + 0.5) * T, y = m.y * T;
       if (m.type === 'torch'){
@@ -229,18 +261,24 @@ export function makeRenderer(canvas){
         lights.push({ x, y: y + 0.8, color: 0x9fe8ff, power: 0.55, range: 4.5, ph: rnd() * 9 });
       }
     }
-    canvasPlanes(scene, PT.play, 0, Hh, 0, true, PT.normals);
-    await new Promise(done => { const next = () => { if (gen !== LOADS) return done(); const t = UPLOAD.shift(); if (!t) return done(); try { renderer.initTexture(t); } catch (e){} setTimeout(next, 0); }; next(); });
-    if (gen !== LOADS) return;
-    try { renderer.compile(scene, camera); } catch (e){}   // and its shaders made now, not on the first frame he can see
-    READY = true;
-    if (LEVEL.index < CLIMB_TOP) want(LEVEL.index + 1);   // and the region above, ahead of him
-    for (const m of LEVEL.marks) if (m.type === 'pass') want(m.to);   // and where his passages lead
-  })();
+    scene.add(S.play); CUR = S;
+  };
+  const ahead = () => { if (LEVEL.index < CLIMB_TOP) want(LEVEL.index + 1); for (const m of LEVEL.marks) if (m.type === 'pass') want(m.to); };   // the region above painted ahead of him, and where his passages lead
+  const S0 = STAGE.get(LEVEL.index);
+  if (S0 && S0.done){ STAGE.delete(LEVEL.index); dress(S0); READY = true; ready = Promise.resolve(); ahead(); }   // made ahead: in the scene at once, nothing to wait for
+  else { READY = false;
+    ready = (async () => {
+      // the paintings: made ahead in the worker where it can (painted() keeps them), else here; then put in the scene
+      const S = await stage(LEVEL.index, true);
+      if (gen !== LOADS) return;   // he has gone on to another region while it was being painted
+      STAGE.delete(LEVEL.index); dress(S);
+      try { renderer.compile(scene, camera); } catch (e){}   // and its shaders made now, not on the first frame he can see
+      READY = true; ahead();
+    })(); }
   // the way on: shut until the keeper falls. A tall arch, and in it a little of the next region's sky: where he is going
   // can be seen from here (the last region's is only light: the beacon)
   const NEXT = LEVEL.index < CLIMB_TOP ? REGION_DATA[LEVEL.index + 1] : null, NTM = NEXT && THEMES[NEXT.theme];   // the way on: the next of the climb (the summit's is only light)
-  for (const m of LEVEL.marks) if (m.type === 'exit'){
+  for (const m of LEVEL.marks) if (m.type === 'exit' && !m.join){   // the summit's beacon (a join's way on is walked: no arch)
     const x = (m.x + 0.5) * T, y = m.y * T, tint = NTM ? NTM.air.cols[1] : 0xffe0a0;
     const c = document.createElement('canvas'); c.width = 34; c.height = 46; const gg = c.getContext('2d'), tex = canvasTex(c);
     const frame = img => { gg.clearRect(0, 0, 34, 46);
@@ -256,7 +294,9 @@ export function makeRenderer(canvas){
     arch.visible = gl.visible = false; exits.push({ x, y, tint, cols: NTM ? NTM.air.cols : [0xffe0a0, 0xfee761], next: NEXT ? NEXT.theme : '', on: false, set(on){ this.on = on; arch.visible = gl.visible = on; light.off = !on; } });
   }
   // ---- the air: motes, a pixel each, drifting (the region's, and those of any other look worn in it: `look` says whose)
-  const airOf = (TMx, look) => { for (let k = 0; k < (LOW.on ? TMx.air.n >> 1 : TMx.air.n); k++){
+  const airOf = (TMx, look) => { const was = SAVED.motes && SAVED.motes[look || LEVEL.theme];
+    if (was){ for (const w of was){ const m = new THREE.Mesh(new THREE.PlaneGeometry(1 / PPU, 1 / PPU), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, color: w.color })); m.position.set(w.x, w.y, 2); scene.add(m); motes.push({ m, look, vx: w.vx, vy: w.vy, steady: w.steady, ph: w.ph }); } return; }   // the same motes, where they were: he has only walked on
+    for (let k = 0; k < (LOW.on ? TMx.air.n >> 1 : TMx.air.n); k++){
     const m = new THREE.Mesh(new THREE.PlaneGeometry(1 / PPU, 1 / PPU), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, color: rnd() < TMx.air.warm ? TMx.air.cols[0] : TMx.air.cols[1] }));
     m.position.set(rnd() * W, rnd() * Hh, 2); scene.add(m); motes.push({ m, look, vx: (rnd() - 0.5) * TMx.air.vx + (TMx.air.drift || 0), vy: TMx.air.vy[0] + rnd() * (TMx.air.vy[1] - TMx.air.vy[0]), steady: !!TMx.air.steady, ph: rnd() * 9 });
   } };
@@ -281,7 +321,7 @@ export function makeRenderer(canvas){
     if (TMx.fore){ const t = foreTex(TMx.fore), m = new THREE.Mesh(new THREE.PlaneGeometry(44, VIEW_H), new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false })); m.position.z = 6 + dz; scene.add(m); veils.push({ m, tex: t, f: 1.4, drift: 0, tw: 512, th: TH, w: 44 * PPU, h: TH, fore: true, look, a: 1 }); }
   };
   mistOf(TM, null, 0); ALT.forEach((l, k) => mistOf(THEMES[l], l, 0.01 * (k + 1)));
-  for (let k = 0; k < 3; k++) ambNow[k] = TM.amb[k];
+  if (!opts.carry) for (let k = 0; k < 3; k++) ambNow[k] = TM.amb[k];
   }
   build();
 
@@ -328,7 +368,7 @@ export function makeRenderer(canvas){
   addEventListener('resize', resize); resize();
   const cam = { x: 0, y: 0 }, snap = v => Math.round(v * PPU) / PPU;
   return {
-    scene, camera, exits, get ready(){ return ready; }, get isReady(){ return READY; }, look: () => { let best = LEVEL.theme, w = LOOKW[''] === undefined ? 1 : LOOKW['']; for (const l in LOOKW) if (l && LOOKW[l] > w){ w = LOOKW[l]; best = l; } return best; }, lookW: () => LOOKW, size: () => size, load(){ build(); bloom(); }, theme: () => LEVEL.theme,
+    scene, camera, exits, get ready(){ return ready; }, get isReady(){ return READY; }, look: () => { let best = LEVEL.theme, w = LOOKW[''] === undefined ? 1 : LOOKW['']; for (const l in LOOKW) if (l && LOOKW[l] > w){ w = LOOKW[l]; best = l; } return best; }, lookW: () => LOOKW, size: () => size, load(opts){ build(opts); bloom(); }, stage: n => { if (!LOW.on && n >= 0 && n < REGION_DATA.length && !(CUR && CUR.n === n)) stage(n).catch(() => {}); }, staged: n => !!((STAGE.get(n) || {}).done), theme: () => LEVEL.theme,
     // a light for a moment (a blow, a burst) or for this frame only (a boss's eyes, kept up by calling it each frame)
     glint(x, y, color, power = 1, range = 4, life = 0){ glints.push({ x, y, color, power, range, life, t: 0 }); },
     shock(x, y, big){ const S = shocks[shockK]; shockK = (shockK + 1) % shocks.length; Object.assign(S, { t: 0, x, y, big: !!big }); },
@@ -353,6 +393,10 @@ export function makeRenderer(canvas){
         if (rm && rm.look && ALT.includes(rm.look)){ const E = 99, d = Math.min(opensTo(rm, 'l') ? hero.x - rm.x0 : E, opensTo(rm, 'r') ? rm.x1 - hero.x : E, opensTo(rm, 'b') ? hero.y + 1 - rm.y0 : E, opensTo(rm, 't') ? rm.y1 - hero.y - 1 : E), u = Math.max(0, Math.min(1, d / 5)); LOOKW[rm.look] = u * u * (3 - 2 * u); }
         let own = 1; for (const l of ALT) own -= LOOKW[l]; LOOKW[''] = Math.max(0, own); for (const F of fars) F.m.material.opacity = LOOKW[F.look]; }
       const wOf = look => LOOKW[look || ''];
+      { let r0 = 0, g0 = 0, b0 = 0, r1 = 0, g1 = 0, b1 = 0, it = 0, th = 0, amt = 0;   // the sky's light on rock and on him, and how bright things shine: the look's he stands in
+        const add = (TMx, w) => { if (!w) return; HC.setHex(TMx.hemi[0]); r0 += HC.r * w; g0 += HC.g * w; b0 += HC.b * w; HC.setHex(TMx.hemi[1]); r1 += HC.r * w; g1 += HC.g * w; b1 += HC.b * w; it += TMx.hemi[2] * w; const b = TMx.bloom || [0.7, 1.1]; th += b[0] * w; amt += b[1] * w; };
+        add(TM, LOOKW['']); for (const l of ALT) add(THEMES[l], LOOKW[l]);
+        hemi.color.setRGB(r0, g0, b0); hemi.groundColor.setRGB(r1, g1, b1); hemi.intensity = it * AMB_IN_MAT; bright.uniforms.th.value = th; comp.uniforms.amt.value = amt; }
       for (const o of motes){ o.m.position.x += (o.vx + Math.sin(t * 0.7 + o.ph) * 0.05) * 0.016; o.m.position.y += o.vy * 0.016; if (o.m.position.y > cam.y + 7) o.m.position.y = cam.y - 7; else if (o.m.position.y < cam.y - 7) o.m.position.y = cam.y + 7; if (Math.abs(o.m.position.x - cam.x) > 12) o.m.position.x = cam.x + (rnd() - 0.5) * 22; o.m.material.opacity = (o.steady ? 0.9 : 0.5 + 0.5 * Math.sin(t * 2 + o.ph)) * wOf(o.look); }
       for (const f of flames){ const k = f.slow ? 0.06 : 0.12; f.m.scale.setScalar(1 + Math.sin(t * (f.slow ? 2 : 13) + f.ph) * k + (f.slow ? 0 : Math.sin(t * 7.3 + f.ph) * 0.06)); }
       const near = lights.filter(l => !l.off).map(l => ({ l, d: Math.hypot(l.x - cam.x, l.y - cam.y) })).sort((a, b) => a.d - b.d);
@@ -361,7 +405,7 @@ export function makeRenderer(canvas){
       // flames: four frames, each torch a little out of step with the next
       flameTexs.forEach((ft, k) => ft.offset.set(Math.floor(t * 9 + k * 1.3) % 4 / 4, 0));
       // mist and the near shapes slide at their own rates (and the mist drifts), a whole pixel at a time
-      for (const V of veils){ V.m.material.opacity = V.a * wOf(V.look); V.m.visible = V.m.material.opacity > 0.01; V.tex.repeat.set(V.w / V.tw, V.h / V.th); V.tex.offset.set(Math.round(cam.x * PPU * V.f + t * V.drift * PPU) / V.tw, V.fore ? 0 : Math.round(cam.y * PPU * V.f) / V.th); }
+      for (const V of veils){ V.m.material.opacity = V.a * wOf(V.look); V.m.visible = V.m.material.opacity > 0.01; V.tex.repeat.set(V.w / V.tw, V.h / V.th); V.tex.offset.set(Math.round((cam.x + ORG.x) * PPU * V.f + t * V.drift * PPU) / V.tw, V.fore ? 0 : Math.round((cam.y + ORG.y) * PPU * V.f) / V.th); }
       // light: the region's ambient (dimmer inside, where it has an inside), then the nearest lights
       { const rm = hero && LEVEL.rooms.find(r => hero.x >= r.x0 && hero.x < r.x1 && hero.y >= r.y0 && hero.y < r.y1), inOf = TMx => TMx.ambIn && rm && !rm.open ? TMx.ambIn : TMx.amb, want = [0, 0, 0];
         for (let k = 0; k < 3; k++){ want[k] = inOf(TM)[k] * LOOKW['']; for (const l of ALT) want[k] += inOf(THEMES[l])[k] * LOOKW[l]; }

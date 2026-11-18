@@ -125,6 +125,41 @@ function flights(){
   return r;
 }
 
+// ---- the lower stretch of each passage (phase 9): the rooms under the raising water's room, between the sill he
+// comes through from the keeper's hall below (level.js build) and the hole up through that room's floor. By the
+// region above: cells [column, row, builder] in the rows added under it. A sill is two rooms wide and a room and a
+// half tall, in the bottom row; where he walks right through it, the way goes up beside it and back over it
+// a way up from the sill's far end (its tunnel comes in through the wall at rows 14 to 19) to the room above
+function riseR(){   // the sill to its left: in by the left wall, out by the roof
+  const r = room(1, 2); walls(r); door(r, 'left', 14, 19); door(r, 'top', 30, 35);
+  rect(r, 2, 2, 37, 13); rect(r, 2, 2, 9, 13);                     // its floor, level with the tunnel's
+  for (const [x0, x1, y] of [[12, 18, 17], [22, 28, 21], [12, 18, 25], [22, 28, 29]]){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); }
+  rect(r, 29, 31, 37, 32); shaftUp(r, 30, 35, 37, 41);   // a shelf of rock under the hole in the roof, and the last ledges over it: a drop through them lands on the shelf, not the floor
+  mark(r, 'torch', 6, 18); mark(r, 'torch', 34, 26); mark(r, 'torch', 8, 36); mark(r, 'urn', 34, 14); mark(r, 'crystal', 20, 14);
+  return r;
+}
+function riseL(){   // the sill to its right: in by the right wall, out by the roof at the near end, under the water's room
+  const r = room(1, 2); walls(r); door(r, 'right', 14, 19); door(r, 'top', 2, 5);
+  rect(r, 2, 2, 37, 13);
+  for (const [x0, x1, y] of [[22, 28, 17], [12, 18, 21], [22, 28, 25], [12, 18, 29]]){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); }
+  rect(r, 2, 31, 9, 32); for (const y of [37, 41]) ledge(r, 2, 5, y); keepUp(r, 3, 4, 34, 44);   // a shelf of rock under the hole in the roof, and the last ledges over it: a drop through them lands on the shelf, not the floor
+  mark(r, 'torch', 33, 18); mark(r, 'torch', 6, 28); mark(r, 'torch', 30, 38); mark(r, 'urn', 6, 14); mark(r, 'crystal', 20, 14);
+  return r;
+}
+function over(){    // back over the sill, to under the water's room: in by the floor at the far end, out by the roof at the near
+  const r = room(3, 1); walls(r); door(r, 'bottom', 110, 115); ledge(r, 110, 115, 1); door(r, 'top', 2, 5);
+  rect(r, 40, 2, 78, 4); rect(r, 52, 5, 66, 6);                    // the ground rises over the sill's crown
+  rect(r, 2, 2, 8, 5); for (const y of [10, 14, 18]) ledge(r, 2, 5, y); keepUp(r, 3, 4, 7, 20);   // a step under the hole, so the drop from the water's room is not a long one
+  mark(r, 'torch', 100, 8); mark(r, 'torch', 72, 10); mark(r, 'torch', 44, 9); mark(r, 'torch', 16, 8); mark(r, 'urn', 90, 2); mark(r, 'urn', 30, 2); mark(r, 'crystal', 59, 7);
+  return r;
+}
+export const LOWER = {
+  1: { layout: [[0, 0, riseL]] },
+  2: { layout: [[2, 0, riseR], [0, 2, over]] },
+  3: { layout: [[2, 0, riseR], [0, 2, over]] },
+  4: { layout: [[0, 0, riseL]] },
+  5: { layout: [[2, 0, riseR], [0, 2, over]] },
+};
 export const SEAMS = {
   1: { rows: 3, link: [30, 35], layout: [[0, 0, titled(cryptfoot, 'THE CRYPT STAIR')], [0, 1, titled(founders, 'THE CRYPT STAIR'), 1, 2]] },
   2: { rows: 3, link: [30, 35], layout: [[0, 0, titled(gate, 'THE BELL ROAD')], [0, 1, titled(road, 'THE BELL ROAD'), 1, 2]] },

@@ -35,7 +35,51 @@ the passages between regions do the loading.**
   decision 2).
 - **A fall** still raises him at the raising water of the region he is in. The landing counts as the region above.
 
+### As built (build 56): the join
+
+- **The sill.** Beyond each keeper's hall is a tunnel through a mass of rock, two and a half screens wide. It is the
+  same, tile for tile and pixel for pixel, in the region below (beside the hall) and in the region above (at its very
+  foot). It is painted once, on its own, and laid into both. From its middle nothing else is in view.
+- **The change** happens one step past the sill's middle. He, his scarf, the view, the dust in the air, the mist and
+  the light are carried over. **Measured on all five joins, up and down: the frame where the region changes differs
+  from the frame before by no more than any two frames of walking do.** The height on the mountain reads the same on
+  both sides.
+- **What it costs:** 45 to 70 ms in the slow test browser (a real machine is several times faster). The region above
+  is made ahead: its rock while the screen is dark on the way into the region below, its paintings from the moment its
+  keeper falls.
+- **The way out of each hall:**
+
+| Hall | Way out | Then |
+|---|---|---|
+| The Warden's | The niche behind the cracked wall (the spade opens it, as before), now open at its back | West, up a short stair, into the sill |
+| The Toll's | Through the east wall at the floor, sealed with stone until the Toll falls | Straight into the sill |
+| The Wyrm's | Through the east wall, sealed | Over an arch of rock across the open air to a cliff, and into it |
+| The Thunderhead's | Through the west wall, sealed | Into the garden wall's own stone |
+| Mother Thorn's | Through the east wall, sealed | Over an arch of rock to a cliff, and into it |
+
+- **The seal** is stone drawn like cracked stone, but the spade does not break it. It comes down, with dust, when the
+  keeper falls. Tests hold that no gift gets past it.
+- **A keeper that has fallen stays fallen.** Walking back down, its hall is empty. (Before, going back into a region
+  from the menu raised its keeper again.)
+- **Walking down** works at every join. Creatures are raised again when a region is come into, as after a fall.
+- **The beacon and the mountain card are gone** from the five joins (decision 2 as recommended). The summit keeps its
+  beacon: it is the end.
+- **Also changed:** the light on rock and on him now follows the look of the room he stands in (it was always the
+  region's own, even in a room that wore the look of the region below); the rooms he has seen stay on the map when he
+  leaves a region; the corner map and the place line change at the join, since they show the region.
+- **Phone mode, or a machine too slow to have the next region ready:** the old way, through a short dark, coming out
+  at the same place in the sill.
+- **Not done:** the time is not yet measured on a real machine or a phone; the corner map changes abruptly at the
+  join; in the Spires and the Gardens the cliff the sill is in is plain rock, not yet dressed.
+
 ## 2. The passages, lengthened
+
+*Built so far (build 56): the room for it, with decision 1 as recommended. Each region above has two or three rows
+added under it: the sill, a way up beside it and (where he walks right through the sill) a way back over it to under
+the raising water's room, which he comes up into through its floor. These rooms are plain: ledges, torches, urns, no
+creatures, in the look of the region below. What the table below says goes in them (the tombs, the pilgrims, the
+cairns, the storm in the garden, the Sweeper) is not built: it waits for your word on this sheet. Screens now: the
+Crypt Stair 6, the Bell Road 9, the Last Hut 9, the Breach 6, the Long Stair 9.*
 
 **The new screens go below the raising water** (decision 1), between the keeper's hall and the water. So the walk back
 after a fall stays as long as it is now, and Ordric's lamp-rooms stay where they were cut. Each passage is walked

@@ -226,7 +226,9 @@ export function makeProps(scene, R){
     for (let k = 0; k < n; k++){ const len = 3 + Math.floor(rnd() * 7), m = new THREE.Mesh(new THREE.PlaneGeometry(1 / PPU, len / PPU), basic(null, { color: rnd() < 0.3 ? 0xffffff : 0xa8d8ff, blending: THREE.AdditiveBlending, opacity: 0.5 }));
       m.position.set(u.x0 + rnd() * (u.x1 - u.x0), u.y0 + rnd() * (u.y1 - u.y0), 0.6); scene.add(m); drafts.push({ m, u, v: 5 + rnd() * 6, ph: rnd() * 9, x: m.position.x }); }
   }
-  // ---- cracked rock: each patch of it is one block
+  // ---- cracked rock: each patch of it is one block. A seal (the way out of a keeper's hall, level.js build) is drawn the
+  // same and is not the spade's to break: it comes down when the keeper falls (unseal)
+  const SEAL = new Set((LEVEL.joins && LEVEL.joins.up && LEVEL.joins.up.seal) || []);
   const seen = new Uint8Array(W * H);
   for (let j = 0; j < H; j++) for (let i = 0; i < W; i++){
     if (rawAt(i, j) !== CRACKED || seen[j * W + i]) continue;
@@ -235,7 +237,7 @@ export function makeProps(scene, R){
       for (const [da, db] of [[1, 0], [-1, 0], [0, 1], [0, -1]]){ const na = a + da, nb = b + db; if (na >= 0 && nb >= 0 && na < W && nb < H && !seen[nb * W + na] && rawAt(na, nb) === CRACKED){ seen[nb * W + na] = 1; st.push([na, nb]); } } }
     const w = x1 - x0 + 1, h = y1 - y0 + 1, m = new THREE.Mesh(new THREE.PlaneGeometry(w * T, h * T), lit({ map: crackTex(w, h, i * 131 + j * 17 + 5), transparent: false }));
     m.position.set((x0 + w / 2) * T, (y0 + h / 2) * T, 0.01); scene.add(m);
-    cracks.push({ id: `${i},${j}`, tiles, m, x: m.position.x, y: m.position.y, w: w * T, h: h * T, gone: false });
+    cracks.push({ id: `${i},${j}`, tiles, m, x: m.position.x, y: m.position.y, w: w * T, h: h * T, gone: false, sealed: SEAL.has(`${i},${j}`) || tiles.some(([a, b]) => SEAL.has(a + ',' + b)) });
   }
   // ---- the raising water: each region's pool, where the water gives him back (the Roots' is the first, the sacred pool in
   // its cistern, under the apse). The water is a basin in the floor, deep and lit from below, and he stands in it; behind
@@ -299,8 +301,9 @@ export function makeProps(scene, R){
     },
     bounce(mk){ const B = blooms.find(b => b.mk === mk); if (B) B.t = 0; },
     // everything cracked within r of (x, y) breaks; returns what broke
-    breakAt(x, y, r){ const out = []; for (const C of cracks){ if (C.gone) continue; const dx = Math.max(Math.abs(x - C.x) - C.w / 2, 0), dy = Math.max(Math.abs(y - C.y) - C.h / 2, 0); if (Math.hypot(dx, dy) <= r){ shatter(C); out.push(C); } } return out; },
-    nearCrack(x, y, r){ return cracks.find(C => !C.gone && Math.hypot(Math.max(Math.abs(x - C.x) - C.w / 2, 0), Math.max(Math.abs(y - C.y) - C.h / 2, 0)) <= r) || null; },
+    breakAt(x, y, r){ const out = []; for (const C of cracks){ if (C.gone || C.sealed) continue; const dx = Math.max(Math.abs(x - C.x) - C.w / 2, 0), dy = Math.max(Math.abs(y - C.y) - C.h / 2, 0); if (Math.hypot(dx, dy) <= r){ shatter(C); out.push(C); } } return out; },
+    unseal(){ const out = cracks.filter(C => C.sealed && !C.gone); for (const C of out) shatter(C); return out; },
+    nearCrack(x, y, r){ return cracks.find(C => !C.gone && !C.sealed && Math.hypot(Math.max(Math.abs(x - C.x) - C.w / 2, 0), Math.max(Math.abs(y - C.y) - C.h / 2, 0)) <= r) || null; },
     breakId(id){ const C = cracks.find(c => c.id === id); if (C) shatter(C, true); },
   };
 }

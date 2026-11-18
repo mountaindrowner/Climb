@@ -9,7 +9,7 @@ for (let N = 0; N < LEVELS.length; N++){
 const { W, H, tiles, marks, rooms, pads, updrafts } = { ...loadLevel(N) }, NAME = LEVELS[N].name;
 const GOAL = marks.find(m => m.type === 'boss') || marks.find(m => m.type === 'exit') || marks.find(m => m.type === 'pass');   // where the region leads: its boss, its way out, or (in the Deep, off the climb) the passage back
 // BROKE: he has the Warden's weight and has broken the cracked stone (a gated room is played both ways)
-let BROKE = false; const GATED = rooms.some(r => r.gate);
+let BROKE = false; const GATED = rooms.some(r => r.gate || r.after);   // after: the way on past the keeper's hall, behind stone until the keeper falls (phase 9)
 const at = (i, j) => { if (i < 0 || j < 0 || i >= W || j >= H) return ROCK; const t = tiles[j * W + i]; return t === 4 ? (BROKE ? EMPTY : ROCK) : t === 5 || t === 6 ? LEDGE : t; };   // cracked rock is rock (until broken); star-glass, a ledge (he waits for it)
 const solid = (i, j) => at(i, j) === ROCK;
 const support = (i, j) => { const t = at(i, j); return t === ROCK || t === LEDGE; };
@@ -61,7 +61,7 @@ const near = (seen, mx, my, r = 3) => { for (let a = -r; a <= r; a++) for (let b
 test(`${NAME}: every room, the raising water, the boss's stage and the way out can be reached from the spawn`, () => {
   const seen = reach(), inRoom = (seen, r) => { for (let j = r.ty0; j < r.ty1; j++) for (let i = r.tx0; i < r.tx1; i++) if (seen[j * W + i]) return true; return false; };
   // a room behind a gate (a wing) is shut until he has what opens it, and open after
-  for (const r of rooms) if (r.gate) assert.ok(!inRoom(seen, r), `room ${r.name} is open before its gate (${r.gate})`); else assert.ok(inRoom(seen, r), `room ${r.name} is cut off`);
+  for (const r of rooms) if (r.gate || r.after) assert.ok(!inRoom(seen, r), `room ${r.name} is open before its gate (${r.gate || 'the keeper'})`); else assert.ok(inRoom(seen, r), `room ${r.name} is cut off`);
   let seenOut = seen;   // the Roots' way up is walled with cracked stone: it is reached with the spade the Warden leaves (phase 5)
   if (GATED){ BROKE = true; const after = reach(); BROKE = false; for (const r of rooms) assert.ok(inRoom(after, r), `room ${r.name} is cut off, even with its gate open`); seenOut = after; }
   const deep = !marks.some(k => k.type === 'exit');   // a section of the Deep: no way on, its passages instead
@@ -80,6 +80,7 @@ for (const broke of GATED ? [false, true] : [false]) test(`${NAME}: no traps${br
   while (q.length){ const k = q.pop(); for (const p of back.get(k) || []) if (!ok[p]){ ok[p] = 1; q.push(p); } }
   const stuck = []; for (let k = 0; k < W * H; k++) if (seen[k] && !ok[k]) stuck.push(k);
   const where = stuck.slice(0, 5).map(k => { const i = k % W, j = (k - i) / W, r = rooms.find(r => i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1); return `${r ? r.name : '?'} ${i},${j}`; });
-  assert.equal(stuck.length, 0, `${stuck.length} places he can get to but not out of, e.g. ${where.join('; ')}`);
+  const tally = {}; for (const k of stuck){ const i = k % W, j = (k - i) / W, r = rooms.find(r => i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1), n = r ? r.name : '?'; tally[n] = (tally[n] || 0) + 1; }
+  assert.equal(stuck.length, 0, `${stuck.length} places he can get to but not out of, e.g. ${where.join('; ')} (by room: ${JSON.stringify(tally)})`);
 });
 }

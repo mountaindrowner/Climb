@@ -17,7 +17,8 @@ export const KNOT_LOOK = {
   stylus: { col: '#f6757a', shape: 'diamond' }, starcompass: { col: '#fee761', shape: 'star' }, _: { col: '#fee761', shape: 'round' },
 };
 
-export function makeScarf(scene, cols = { edge: 0x181425, body: 0xe43b44, shade: 0xa22633, glow: 0xffa040 }){
+export function makeScarf(scene0, cols = { edge: 0x181425, body: 0xe43b44, shade: 0xa22633, glow: 0xffa040 }){
+  const scene = new THREE.Group(); scene0.add(scene);   // all its pieces in one group (S.g): kept whole when he walks from one region into the next
   const pts = []; for (let i = 0; i < N; i++) pts.push({ x: 0, y: 0, px: 0, py: 0 });
   const strip = (color, z) => { const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 2 * 3), 3));
     const idx = []; for (let i = 0; i < N - 1; i++){ const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); } geo.setIndex(idx);
@@ -36,7 +37,8 @@ export function makeScarf(scene, cols = { edge: 0x181425, body: 0xe43b44, shade:
     const t = new THREE.CanvasTexture(c); t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false; return knotTex[id] = t; };
   const KN = []; for (let k = 0; k < 6; k++){ const m = new THREE.Mesh(new THREE.PlaneGeometry(5 / 16, 5 / 16), new THREE.MeshBasicMaterial({ color: 0xfee761, transparent: true, depthTest: false, depthWrite: false })); const o = new THREE.Mesh(new THREE.PlaneGeometry(0.27, 0.27), new THREE.MeshBasicMaterial({ color: cols.edge, transparent: true, depthTest: false, depthWrite: false }));
     m.position.z = 0.047; o.position.z = 0.046; m.visible = o.visible = false; scene.add(o); scene.add(m); KN.push([m, o]); }
-  const S = { pts, len: N, set: false, t: 0 };
+  const S = { pts, len: N, set: false, t: 0, g: scene };
+  S.shift = (dx, dy) => { for (const p of pts){ p.x += dx; p.px += dx; p.y += dy; p.py += dy; } };   // the world's numbers changed under him (main.js cross): it hangs as it hung
   // put it all at one place (a start, a wake)
   S.reset = (x, y) => { for (const p of pts){ p.x = p.px = x; p.y = p.py = y; } S.set = true; };
   // ax, ay: his neck. want: how many links long it should be. wind: the air's push. solid(x, y): rock there?

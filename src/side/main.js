@@ -9,7 +9,7 @@ import { sfx, ac, musicBus, ambience, setMix, MIX, warm, manifestReady, say, bea
 import { voiceOf } from '../audio/voice.js';
 import { makeScore } from '../audio/score.js';
 import '../ui/feel.js';
-import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE, MEETINGS } from './level.js';
+import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE, MEETINGS, SILL, prepare } from './level.js';
 import { makeTeach, keyName, fill, INTRO, CARDS, drawIcon } from './teach.js';
 import { makeProps } from './props.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt } from './motor.js';
@@ -31,7 +31,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 55';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 56';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -73,6 +73,9 @@ const EMBER = { n: 0, cap: 30, mend: 10 };
 let FLIGHT = null, SLOW = 0, FLASH = 0, PAUSE = false, PLAYED = 0, PLACE = { name: '', t: 9 };
 let CHECK = null, BANNER = null, WON = false, DEATH = 0;
 const SPANS = REGION_DATA.map((R, n) => R.depth || REGION_SPAN[n]);   // each region's height on the mountain (the Deep's below the water: negative)
+// how high he is in this region, 0 to 1: from the middle of the sill he came in by to the middle of the one he leaves by
+// (the same place in two regions reads the same height: the mountain is one climb)
+const heightHere = () => { const J = LEVEL.joins || {}, y0 = J.down ? (J.down.y + SILL.floor) * T : 0, y1 = J.up ? (J.up.y + SILL.floor) * T : LEVEL.H * T; return Math.max(0, Math.min(1, (P.y - y0) / (y1 - y0))); };
 const SUB = LEVELS.map(l => l.sub), CARD = LEVELS.map(l => l.card);   // under a region's name; and what the card says, coming up into it
 // what he can do, from what he has beaten and what he carries
 function learn(){
@@ -81,11 +84,13 @@ function learn(){
   if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the spade (a save from before has it now) SIDE.feather = has('featherfall'); EMBER.mend = has('seedheart') ? 7 : 10;
 }
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
-function setup(){
+// `walked`: he has walked in from the next region (cross): he and his scarf are as they were
+function setup(walked = false){
   SWINGFX = makeSwingFx(R.scene); PROPS = makeProps(R.scene, R);
   for (const id of G.broke[LEVEL.index] || []) PROPS.breakId(id);   // the rock he broke here before stays broken
   ITEMS = makeItems(R.scene, R, LEVEL.index); learn(); swapButton();
-  fx = spawnFx(R.scene); E = spawnEnemies(R.scene, R); SCF = makeScarf(R.scene); FLIGHT = null; BOSS = (KEEPERS[LEVEL.theme] || (() => null))(R.scene, R);   // each region's keeper
+  fx = spawnFx(R.scene); E = spawnEnemies(R.scene, R); if (!walked || !SCF) SCF = makeScarf(R.scene); FLIGHT = null;
+  BOSS = G.beat[LEVEL.index] || G.top > LEVEL.index ? null : (KEEPERS[LEVEL.theme] || (() => null))(R.scene, R);   // each region's keeper; one that has fallen stays fallen (he can walk back down through its hall)
   ENT = makeEntrance(R.scene, R, { fx: () => fx, sfx, shake: v => { FEEL_FX.shake = Math.max(FEEL_FX.shake, v); }, flash: v => { FLASH = Math.max(FLASH, Math.min(0.42, v)); }, buzz: (a, b, ms) => buzz(a, b, ms), slow: v => { SLOW = Math.max(SLOW, v); } });
   // the shrine: it fills the flask and the hearts, and is where he wakes after a death
   // where the water is: the region's raising pool (a pool that is not plain: a fall raises him there) and the leaks (they
@@ -97,11 +102,12 @@ function setup(){
   RAISE = SHRINES.find(S => S.raise) || null; TOUCHED.clear();
   CHECK = null; WON = false; DEATH = 0; TRAIL.length = 0;
   if (!BOSS) for (const x of R.exits) x.set(true);   // nothing guards the way on
+  if (!BOSS) PROPS.unseal();   // no keeper stands: the way out of its hall is open
   // the map: the region drawn a pixel a tile, each room shown once he has been in it
   const c = document.createElement('canvas'); c.width = LEVEL.W; c.height = LEVEL.H; const g = c.getContext('2d'), img = g.createImageData(LEVEL.W, LEVEL.H);
   const COL = { 0: [46, 92, 128], 2: [196, 150, 92], 3: [255, 92, 132], 5: [120, 220, 240], 6: [120, 220, 240] };
   for (let j = 0; j < LEVEL.H; j++) for (let i = 0; i < LEVEL.W; i++){ const k = COL[LEVEL.tiles[j * LEVEL.W + i]]; if (k) img.data.set([...k, 255], ((LEVEL.H - 1 - j) * LEVEL.W + i) * 4); }
-  g.putImageData(img, 0, 0); MAP = { c, seen: new Set(G.charts.includes(LEVEL.index) ? LEVEL.rooms : []) };
+  g.putImageData(img, 0, 0); MAP = { c, seen: new Set(G.charts.includes(LEVEL.index) ? LEVEL.rooms : ((G.rooms || {})[LEVEL.index] || []).map(k => LEVEL.rooms[k]).filter(Boolean)) };   // the rooms he has been in before are still on the map (he can walk back into a region)
 }
 setup();
 // into region n: the world is made again, he stands at its start with the hearts and flask he had
@@ -109,7 +115,7 @@ const ENTERED = [];
 // `at`: where he comes in, by name (an arrive mark: a passage's other end); else the region's start
 function enter(n, at){
   ENT.reset();   // a hall shut behind him is open again before he goes (its tiles are the region's own)
-  const t0 = performance.now(); loadLevel(n); const t1 = performance.now(); R.load(); const t2 = performance.now();
+  const t0 = performance.now(); loadLevel(n); for (const J of Object.values(LEVEL.joins || {})) prepare(J.to); loadLevel(n); const t1 = performance.now(); R.load(); const t2 = performance.now();   // and the regions it joins, made now, in the dark, for walking into
   if (hero.meta) hero.sprite = makeSprite(R.scene, `assets/side/${hero.name}`, hero.meta);
   FX2.ghosts.length = 0; setup(); const t3 = performance.now();
   ENTERED.push({ n, build: Math.round(t1 - t0), load: Math.round(t2 - t1), setup: Math.round(t3 - t2) });   // what going into a region costs (a check: window.__side.entered)
@@ -117,9 +123,46 @@ function enter(n, at){
   CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0;
   giftEnd(); BANNER = null; NAMED = !(roomAt(s.x, s.y + 0.5) || {}).look; if (NAMED) banner(LEVEL.name, SUB[LEVEL.index] || '', 4); marks(); G.level = LEVEL.index; if (!LEVEL.deep) G.top = Math.max(G.top, G.level); G.began = true; store();
 }
+// ---- walking from one region into the next (phase 9, docs/phase9-sheet.md): no dark, no card. Each join has a sill
+// (level.js): a tunnel through rock that is the same, to the tile and the pixel, in the region below and the region
+// above. Near it the other region's paintings are made ready (R.stage); past its middle the other region is put in
+// place around him (cross): he, his scarf, the view, the air's motes and the light are carried over, moved by how far
+// apart the two regions count the same sill. A step past the middle before it happens, so turning round in the middle
+// does not change regions back and forth
+const CROSSED = [];   // what each crossing cost, for a check (window.__side.crossed)
+function joinStep(){
+  if (GO.st || FLIGHT || DISS || P.hp <= 0 || STORY.kind || GIFT) return;
+  for (const side of ['up', 'down']){ const J = LEVEL.joins && LEVEL.joins[side]; if (!J) continue;
+    const x0 = J.x * T, x1 = x0 + SILL.w * T, y0 = J.y * T, mid = (x0 + x1) / 2;
+    if (P.y < y0 - 12 || P.y > y0 + SILL.h * T + 12 || P.x < x0 - 40 || P.x > x1 + 40) continue;
+    if (side === 'up' && BOSS && BOSS.st !== 'dead') continue;   // not while its keeper stands
+    R.stage(J.to);
+    if (P.x < x0 || P.x > x1 || P.y < y0 || P.y > y0 + SILL.h * T) continue;
+    if ((P.x - mid) * J.dir * (side === 'up' ? 1 : -1) > 1){
+      if (R.staged(J.to)){ JOINWAIT = 0; cross(J, side); return; }
+      // the other region is not ready (the phone mode keeps one region's paintings at a time; or a slow machine): after
+      // a moment, the old way, through the dark, and he comes out where he was in the sill
+      if (LOW.on || (JOINWAIT += 1 / 60) > 5){ JOINWAIT = 0; const j0 = { x: J.x, y: J.y }, px = P.x, py = P.y; go(J.to, null); GO.join = { side, j0, px, py }; return; }
+    } else JOINWAIT = 0;
+  }
+}
+let JOINWAIT = 0;
+function cross(J, side){
+  const t0 = performance.now(), from = LEVEL.index;
+  ENT.reset(); loadLevel(J.to);
+  const J2 = LEVEL.joins[side === 'up' ? 'down' : 'up'], dx = (J2.x - J.x) * T, dy = (J2.y - J.y) * T;
+  if (hero.sprite) hero.sprite.g.userData.keep = true; if (SCF) SCF.g.userData.keep = true;
+  const t1 = performance.now(); R.load({ carry: true, shift: { x: dx, y: dy }, at: { x: P.x + dx, y: P.y + dy } }); const t2 = performance.now();
+  FX2.ghosts.length = 0; setup(true);
+  P.x += dx; P.y += dy; P.airTop += dy; if (P.mantle){ P.mantle.x0 += dx; P.mantle.x1 += dx; P.mantle.y0 += dy; P.mantle.y1 += dy; if (P.mantle.wall != null) P.mantle.wall += dx; }
+  CAM.x += dx; CAM.y += dy; SCF.shift(dx, dy);
+  NAMED = side === 'down'; G.level = LEVEL.index; if (!LEVEL.deep) G.top = Math.max(G.top, G.level); learn(); store();   // going up, the region is named when he comes out into its own look; going down he knows where he is
+  setTimeout(() => { for (const K of Object.values(LEVEL.joins || {})) prepare(K.to); }, 2500);   // the region beyond this one, made while he walks on
+  CROSSED.push({ from, to: LEVEL.index, load: Math.round(t1 - t0), scene: Math.round(t2 - t1), setup: Math.round(performance.now() - t2) });
+}
 // going up: the picture goes dark, the next region is made, it comes back
-const GO = { to: -1, t: 0, st: '', from: -1, at: null };
-const go = (n, at = null) => { if (!GO.st){ GO.to = n; GO.from = LEVEL.index; GO.at = at; GO.t = 0; GO.st = 'out'; } };
+const GO = { to: -1, t: 0, st: '', from: -1, at: null, join: null };
+const go = (n, at = null) => { if (!GO.st){ GO.to = n; GO.from = LEVEL.index; GO.at = at; GO.t = 0; GO.st = 'out'; GO.join = null; } };
 // a passage (pass marks): walked into, it takes him to another region, to its arrive mark of that name. Not again until
 // he has been out of it a moment (he comes in beside the other end's)
 const PASS = { cool: 0 };
@@ -224,7 +267,7 @@ function noteWays(dt){
   for (const C of PROPS.cracks) if (!C.gone && !mine.includes(C.id) && Math.abs(C.x - P.x) < C.w / 2 + 4 && Math.abs(C.y - (P.y + 1.2)) < C.h / 2 + 2.5){ mine.push(C.id); DIRTY = DIRTY > 0 ? DIRTY : 2; }
 }
 // is the region's page full; if it has just become so, it is sealed (once) and he is told
-function pageFull(){ const L = ITEMS.left(); return L.threads + L.chests === 0 && !L.relic && LEVEL.rooms.every(r => MAP.seen.has(r)); }
+function pageFull(){ const L = ITEMS.left(); return L.threads + L.chests === 0 && !L.relic && LEVEL.rooms.every(r => r.ghost || MAP.seen.has(r)); }
 function sealPage(){ const n = LEVEL.index; if ((G.sealed = G.sealed || {})[n] || !corwenMet() || !pageFull()) return; G.sealed[n] = 1; store(); sfx.relic(); banner('Corwen seals the page', `nothing in ${LEVEL.name} is left unfound`, 4.5); }
 function mapDots(){
   const dots = SHRINES.filter(S => MAP.seen.has(S.room)).map(S => ({ x: S.x, y: S.y + 0.5, c: '#0099db', r: S.raise ? 1 : 0 }));   // the water: the raising pool larger
@@ -538,6 +581,7 @@ function frame(ts){
     if (NOTE) NOTE.t += dt; drawHud(dt); endFrame(); requestAnimationFrame(frame); return; }
   if (PAUSE){ drawHud(0); endFrame(); requestAnimationFrame(frame); return; }
   if (STORY.active() && !GO.st){ hudBegin(); STORY.draw(dt); endFrame(); requestAnimationFrame(frame); return; }   // a story screen is up: the world waits (on the title, until a press: a browser lets no sound play before one)
+  joinStep();   // first in the frame: if he has walked through a sill's middle, the region is changed before anything looks at it
   if (WAKE > 0) WAKE -= dt;
   if (!NAMED && R.look() === LEVEL.theme && !GO.st && !ENT.st){ NAMED = true; banner(LEVEL.name, SUB[LEVEL.index] || '', 4.5); sfx.gust(); }   // out of the way in: this is the new place
   // an open way on breathes the next region out: its air drifts from the arch
@@ -619,7 +663,8 @@ function frame(ts){
   if (GO.st){
     GO.t += dt;
     if (GO.st === 'out' && GO.t > 0.6){ GO.st = 'load'; GO.t = 0; }                 // a frame fully dark before the work
-    else if (GO.st === 'load' && GO.t > 0.05){ const up = GO.to === GO.from + 1 && GO.to <= CLIMB_TOP; enter(GO.to, GO.at); acc = 0; GO.t = 0;
+    else if (GO.st === 'load' && GO.t > 0.05){ const up = GO.to === GO.from + 1 && GO.to <= CLIMB_TOP && !GO.join; enter(GO.to, GO.at); acc = 0; GO.t = 0;
+      if (GO.join){ const Q = GO.join, J2 = LEVEL.joins[Q.side === 'up' ? 'down' : 'up']; if (J2){ P.x = Q.px + (J2.x - Q.j0.x) * T; P.y = Q.py + (J2.y - Q.j0.y) * T; CAM.x = P.x; CAM.y = P.y + 1.8; SCF.reset(P.x, P.y + 1.8); BANNER = null; NAMED = Q.side === 'down'; } GO.join = null; }   // through a sill, the slow way: where he was in it
       if (up){ GO.st = 'card'; STORY.start('card', { from: GO.from, to: GO.to, name: LEVEL.name, line: CARD[GO.to] || '' }, () => { GO.st = 'in'; GO.t = 0; }); } else GO.st = 'in'; }   // going up: the card shows the mountain and where he is on it
     else if (GO.st === 'in' && !R.isReady) GO.t = 0;   // dark until the region's paintings are in
     else if (GO.st === 'in' && GO.t > 0.7) GO.st = '';
@@ -914,7 +959,8 @@ function onEvent(e){
     case 'rockLand': sfx.crack(); fx.dust(e.at, 8, 2); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.1); break;
     case 'bossPhase': sfx.roar(); FEEL_FX.shake = 0.6; banner(BOSS.name + ' rages', BOSS.rage); break;
     case 'bossDie': buzz(1, 0.9, 700); sfx.roar(); sfx.bossDie(); FEEL_FX.hitstop = 0.3; FEEL_FX.shake = 0.8; SLOW = 1.3; FLASH = 0.5; break;
-    case 'bossDead': { ENT.open(); for (const x of R.exits) x.set(true); sfx.door(); banner(BOSS.name + ' falls', BOSS.fell); ITEMS.spill(BOSS.cx, BOSS.stageY + 2, 60);
+    case 'bossDead': { ENT.open(); for (const x of R.exits) x.set(true); sfx.door();
+      for (const C of PROPS.unseal()){ sfx.break(); fx.dust({ x: C.x, y: C.y - C.h / 2 }, 30, 5); fx.burst({ x: C.x, y: C.y }, 26, 0xc0cbdc); R.shock(C.x, C.y, true); }   // the stone over the way out comes down banner(BOSS.name + ' falls', BOSS.fell); ITEMS.spill(BOSS.cx, BOSS.stageY + 2, 60);
       // what it leaves him, the first time
       const n = LEVEL.index, t = TEACH[n];
       if (!G.beat[n]){ G.beat[n] = true; GIFTING = !!(t && t.name); if (t && t.heart){ G.hearts += t.heart; P.maxHp = maxHearts(); P.hp = P.maxHp; } if (t && t.flask){ G.flasks += t.flask; P.flaskMax = maxFlask(); P.flask = P.flaskMax; } learn(); store();
@@ -954,12 +1000,12 @@ function drawHud(dt){
   if (BOSS && BOSS.st === 'fight' && !BOSS.shown && !ENT.title){ BOSS.shown = true; banner('', BOSS.hint, 3.5); }   // once it is up: how it is hurt
   if (!rising && !TALK.on && !FLIGHT){
     HUD.status(P, EMBER.n, EMBER.cap, P.flaskMax, time, ARTS.cost, embersKnown()); HUD.weapon(P.weapon === 'spade' ? 'spade' : 'blade', armed('spade') ? kname('swap') : null, drawIcon); PURSE = Math.max(0, PURSE - dt); HUD.purse(P, P.flaskMax, G.shards, PURSE, G.threads % THREADS_A_HEART, THREADS_A_HEART);
-    const room = roomAt(P.x, P.y); if (room) MAP.seen.add(room);
-    const st = ITEMS.station(P), place = LEVEL.name + (room ? ' · ' + (room.title || room.name) : '') + (st ? ' · ' + st.station.name : '');   // beside one of the three: their station's name if (place !== PLACE.name){ PLACE.name = place; PLACE.t = 0; } PLACE.t += dt;
+    const room = roomAt(P.x, P.y); if (room && !MAP.seen.has(room)){ MAP.seen.add(room); const k = LEVEL.rooms.indexOf(room), list = ((G.rooms = G.rooms || {})[LEVEL.index] = G.rooms[LEVEL.index] || []); if (k >= 0 && !list.includes(k)){ list.push(k); DIRTY = DIRTY > 0 ? DIRTY : 2; } }
+    const st = ITEMS.station(P), place = (room && room.sill ? '' : LEVEL.name + (room ? ' · ' : '')) + (room ? room.title || room.name : '') + (st ? ' · ' + st.station.name : '');   // beside one of the three: their station's name if (place !== PLACE.name){ PLACE.name = place; PLACE.t = 0; } PLACE.t += dt;
     HUD.place(place, PLACE.t < 3 ? 1 : Math.max(0.45, 1 - (PLACE.t - 3) * 0.5));
     HUD.boss(BOSS && BOSS.hud(), dt);
     const dots = mapDots();
-    HUD.map(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, room, T, dots, Math.max(0, Math.min(1, P.y / (LEVEL.H * T))), SPANS, LEVEL.index, time, P);
+    HUD.map(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, room, T, dots, heightHere(), SPANS, LEVEL.index, time, P);
   }
   if (BANNER && !TALK.on && !NOTE && !(PAUSE && SCREEN && SCREEN !== 'pause')){ BANNER.t -= dt; HUD.banner(BANNER.a, BANNER.b, Math.max(0, Math.min(1, BANNER.t, (BANNER.life - BANNER.t) * 3))); if (BANNER.t <= 0) BANNER = null; }
   { const L = TEACHER.shown(); if (L && !PAUSE && !TALK.on && !NOTE && !rising){ v.set(P.x, P.y, 0).project(R.camera); const sx = Math.round((v.x + 1) / 2 * W), sy = Math.round((1 - v.y) / 2 * 180);
@@ -995,7 +1041,7 @@ function drawHud(dt){
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { knotMenu, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { knotMenu, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });
