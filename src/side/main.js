@@ -31,7 +31,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 56';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 57';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -459,7 +459,7 @@ const FX2 = { ghosts: [], ghostT: 0, runDust: 0 };   // the dash's afterimages; 
 // the aim assist: with nothing in reach ahead and a creature in reach behind, a swing turns to it
 HOOKS.aim = P => {
   const reach = BLADE.reach + MV.aim; let ahead = false, behind = false;
-  for (const e of E.list){ if (!e.alive || Math.abs(e.y - P.y) > 2.2) continue; const d = (e.x - P.x) * P.face; if (d > -0.3 && d < reach) ahead = true; else if (d <= -0.3 && d > -reach) behind = true; }
+  for (const e of E.list){ if (!e.alive || e.d.harmless || Math.abs(e.y - P.y) > 2.2) continue; const d = (e.x - P.x) * P.face; if (d > -0.3 && d < reach) ahead = true; else if (d <= -0.3 && d > -reach) behind = true; }
   return !ahead && behind ? -P.face : 0;
 };
 const CAM = { x: sp.x, y: sp.y + 2, lead: 0, zoom: 1 };
@@ -612,7 +612,7 @@ function frame(ts){
   if (P.hp > 0 && !FLIGHT && !GO.st && (TRAILT -= dt) <= 0){ TRAILT = 0.05; const [an, fr] = heroPose(P, time); TRAIL.push({ x: P.x, y: P.y, face: P.face, an, fr });
     if (TRAIL.length > 2400) TRAIL.splice(0, 1200, ...TRAIL.slice(0, 1200).filter((_, i) => i % 2)); }   // a long way: the far end of it kept more thinly
   if (!ENT.lead) stepEnemies(E, P, sdt, fx, evs); stepArts(sdt); ITEMS.step(sdt, time, P, evs);   // while a keeper's hall shuts and he cannot move, nothing else moves either
-  for (const e of E.list) if (e.alive && !(G.seen = G.seen || {})[e.type] && Math.abs(e.x - P.x) < 9 && Math.abs(e.y - P.y) < 5){ G.seen[e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; }   // met: entered in the Annals
+  for (const e of E.list) if (e.alive && !e.d.harmless && !(G.seen = G.seen || {})[e.type] && Math.abs(e.x - P.x) < 9 && Math.abs(e.y - P.y) < 5){ G.seen[e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; }   // met: entered in the Annals
   { const RD = REGION_DATA[LEVEL.index]; if (RD.tick) RD.tick(sdt, time, TICK); }   // the region's own weather and workings (its file)
   if (BOSS) BOSS.step(P, ENT.lead ? 0 : sdt, fx, evs);   // held, while its hall shuts and the ground begins to go
   ENT.step(sdt, P);

@@ -33,6 +33,10 @@ const DEF = {
   barnacle: { ai: 'spitter', hp: 3, w: 0.8, h: 1.6, color: 0x5a6988, range: 7, charge: 0.6, speed: 9, cooldown: 1.6, variants: ['px_barn_a', 'px_barn_b', 'px_barn_c'], fly: false, cling: 'floor', word: 'Spat on' },
   toad:     { ai: 'spitter', hp: 5, w: 0.9, h: 2.0, color: 0xc0cbdc, range: 10, charge: 0.9, speed: 9, cooldown: 2.0, lob: true, orb: 0xb8f060, variants: ['px_toad_b'], fly: false, cling: 'floor', word: 'Spat on' },
   burrower: { ai: 'burrower', hp: 2, w: 0.6, h: 1.1, color: 0xd0a070, wake: 7, plough: 5.5, rise: 0.45, up: 1.2, art: 'burrower', fly: false },
+  // not creatures to fight (phase 9, the passages): the Bell Road's grey-threaded pilgrims walk their stretch of it and
+  // take no notice of him; the Long Stair's sweeper is always a few steps ahead. Neither is hurt, neither hurts
+  pilgrim:  { ai: 'crawler', hp: 9, w: 0.6, h: 1.9, color: 0x8b9bb4, wake: 0, reach: 0, chase: 1.5, windup: 9, lunge: 0, lungeDist: 0, recover: 1, stun: 0, art: 'px_acolyte', fly: false, harmless: true, tint: 0x9aa4bc, glow: 0x262b33 },
+  sweeper:  { ai: 'sweeper', hp: 9, w: 0.5, h: 1.9, color: 0xc0cbdc, wake: 0, art: 'px_acolyte', fly: false, harmless: true, tint: 0xdde4ff, glow: 0x66708a },
   acolyte:  { ai: 'crawler', hp: 5, w: 0.6, h: 1.9, color: 0xa22633, wake: 8, reach: 2.1, chase: 2.0, windup: 0.62, lunge: 0.2, lungeDist: 1.5, recover: 0.8, stun: 0.5, hitR: 1.2, art: 'px_acolyte', fly: false, word: 'Struck' },
   // the Ossuary's elite (regions/ossuary.js): the house's sexton, a head taller than his men, slow to start and hard to
   // stop, two hearts a blow of his spade. Blocked, he staggers; turned at the right moment, he is open a long while.
@@ -54,7 +58,7 @@ export function spawnEnemies(scene, R){
   for (const m of LEVEL.marks){
     const d = DEF[m.type]; if (!d) continue;
     const x = d.perch && m.perch ? (m.perch.x + 0.5) * T : (m.x + 0.5) * T, y = d.perch && m.perch ? m.perch.y * T + d.h * 0.7 : d.fly ? m.y * T + 1.6 : m.y * T;   // a percher sits on its perch (level.js)
-    const e = { type: m.type, d, x, y, home: { x, y }, vx: 0, vy: 0, face: d.perch && m.perch && m.perch.side ? -m.perch.side : -1, hp: d.hp, st: 'idle', tm: 0, age: Math.random() * 6, flash: 0, dead: 0, alive: true, orb: null };
+    const e = { type: m.type, d, x, y, home: { x, y }, vx: 0, vy: 0, face: d.perch && m.perch && m.perch.side ? -m.perch.side : -1, hp: d.hp, st: 'idle', tm: 0, age: Math.random() * 6, flash: 0, dead: 0, alive: true, orb: null, dirn: m.dir || 1 };
     // a stand-in until the art loads: a glowing shape
     e.stand = new THREE.Mesh(new THREE.PlaneGeometry(d.w * 2, d.h), new THREE.MeshBasicMaterial({ color: d.color }));
     scene.add(e.stand);
@@ -62,7 +66,7 @@ export function spawnEnemies(scene, R){
     const tryArt = names => { if (!names.length) return; const n = names[0];
       fetch(`assets/side/${n}/sprite.json`).then(r => r.ok ? r.json() : null).then(meta => { if (meta && Object.keys(meta.anims).length > 1){ const sp = makeSprite(scene, `assets/side/${n}`, meta).warm(); sp.g.visible = false; e.meta = meta; if (d.cling) cling(e, meta);
         // its drawing replaces the stand-in only once every strip of it is in: it never blinks out while they come
-        let tries = 0; const swap = () => { if (sp.in() || ++tries > 400){ e.sprite = sp; sp.g.visible = true; e.stand.visible = false; } else setTimeout(swap, 60); }; swap(); } else tryArt(names.slice(1)); }).catch(() => tryArt(names.slice(1))); };
+        let tries = 0; const swap = () => { if (sp.in() || ++tries > 400){ e.sprite = sp; sp.g.visible = e.alive; e.stand.visible = false; if (d.tint) sp.g.traverse(o => { if (o.material && o.material.color) o.material.color.setHex(d.tint); }); } else setTimeout(swap, 60); }; swap(); } else tryArt(names.slice(1)); }).catch(() => tryArt(names.slice(1))); };
     tryArt(d.variants ? [d.variants[(m.x * 7 + m.y * 3) % d.variants.length]] : ART[m.type] || [d.art]);
     if (d.cling === 'floor'){ const gy = ground(x, y + 0.3); if (gy > -Infinity){ e.y = e.home.y = gy; } }
     if (e.d.perch) e.home.face = e.face;
@@ -161,6 +165,16 @@ export function stepEnemies(E, P, dt, fx, events){
       e.unseen = Math.abs(dx) < e.d.wake * 1.6 && sees(e, P) ? 0 : (e.unseen || 0) + dt;
       if (e.unseen > GIVE_UP || Math.abs(e.x - e.home.x) > LEASH){ go('return'); e.unseen = 0; } }
     if (hunts && RESTING.has(e.st)) atRest(e, P, dt, dx, dy, go, events, anim);
+    else if (ai === 'sweeper'){   // always a few steps ahead of him, seen from behind; where the stair ends it is gone
+      const dir = e.dirn, ahead = (e.x - P.x) * dir; e.face = dir; let moving = false;
+      if (e.st === 'idle'){ if (Math.abs(dy) < 5 && ahead < 8 && ahead > -3) go('walk'); }
+      else if (e.st === 'walk'){
+        const sp = ahead < 5 ? 9.5 : ahead < 8 ? 6 : 0, nx = e.x + dir * sp * dt, gy = ground(nx, e.y + 0.9);
+        if (sp && gy > -Infinity && Math.abs(gy - e.y) <= 0.6 && !solidAt(nx, gy + 0.3) && !solidAt(nx, gy + 1.3)){ e.x = nx; e.y = gy; moving = true; e.swept = (e.swept || 0) + dt; if (e.swept > 0.2){ e.swept = 0; fx.dust({ x: e.x - dir * 0.4, y: e.y + 0.1 }, 2, 1.2); } }
+        else if (sp && ahead < 5){ fx.dust({ x: e.x, y: e.y + 0.7 }, 14, 3); e.alive = false; e.dead = 9; if (e.sprite) e.sprite.g.visible = false; e.stand.visible = false; }   // the end of its flight: only the dust it raised
+      }
+      if (e.alive) anim(e, 'walk', moving ? e.age * 1.7 : 0);
+    }
     else if (ai === 'crawler'){
       const gy = ground(e.x, e.y + 0.3); if (gy > -Infinity) e.y = gy;
       if (e.st === 'idle' && Math.abs(dx) < e.d.wake && Math.abs(dy) < 2.5) go('chase');
@@ -336,7 +350,7 @@ function killEnemy(e, events){ e.alive = false; e.dead = 0; events.push({ type: 
 export function strikeEnemies(E, P, reach, dmg, events){
   let any = false;
   for (const e of E.list){
-    if (!e.alive || (e.d.ai === 'burrower' && !(e.st === 'rise' || e.st === 'up'))) continue;
+    if (!e.alive || e.d.harmless || (e.d.ai === 'burrower' && !(e.st === 'rise' || e.st === 'up'))) continue;
     const ahead = (e.x - P.x) * P.face, top = e.y + e.d.h, bottom = e.d.fly ? e.y - e.d.h / 2 : e.y;
     if (ahead < -0.4 || ahead > reach + e.d.w || top < P.y - 0.2 || bottom > P.y + 2.7) continue;
     if (e.d.guard && e.d.guard(e, P)){ events.push({ type: 'block', at: { x: e.x - P.face * e.d.w, y: e.y + e.d.h * 0.6 } }); any = true; continue; }   // it turns the blow
@@ -354,7 +368,7 @@ export function strikeEnemies(E, P, reach, dmg, events){
 // from fromX; the hits are marked art, so they give no embers back (main.js)
 export function hitBox(E, x0, x1, y0, y1, dmg, events, seen, fromX, lift = 0){
   for (const e of E.list){
-    if (!e.alive || seen.has(e) || (e.d.ai === 'burrower' && !(e.st === 'rise' || e.st === 'up'))) continue;
+    if (!e.alive || e.d.harmless || seen.has(e) || (e.d.ai === 'burrower' && !(e.st === 'rise' || e.st === 'up'))) continue;
     const top = e.y + e.d.h, bottom = e.d.fly ? e.y - e.d.h / 2 : e.y;
     if (e.x + e.d.w < x0 || e.x - e.d.w > x1 || top < y0 || bottom > y1) continue;
     seen.add(e); e.hp -= dmg; e.flash = 0.15; if (WALK[e.d.ai] && RESTING.has(e.st)){ e.st = WALK[e.d.ai]; e.tm = 0; e.unseen = 0; } e.x += Math.sign(e.x - fromX || 1) * 0.8; if (lift && e.d.fly) e.y += lift; if (e.d.onHit) e.d.onHit(e, dmg, { x: fromX, y: y0, face: Math.sign(e.x - fromX) || 1 }, true);
@@ -366,7 +380,7 @@ export function hitBox(E, x0, x1, y0, y1, dmg, events, seen, fromX, lift = 0){
 // his plunge landing: everything close around where he lands
 export function slamEnemies(E, P, radius, dmg, events){
   for (const e of E.list){
-    if (!e.alive || (e.d.ai === 'burrower' && !(e.st === 'rise' || e.st === 'up'))) continue;
+    if (!e.alive || e.d.harmless || (e.d.ai === 'burrower' && !(e.st === 'rise' || e.st === 'up'))) continue;
     if (Math.abs(e.x - P.x) > radius + e.d.w || e.y > P.y + 1.2 || e.y + e.d.h < P.y - 0.8) continue;
     e.hp -= dmg; e.flash = 0.12; e.x += Math.sign(e.x - P.x || 1) * 0.5; if (e.d.onHit) e.d.onHit(e, dmg, P, true);
     if (e.d.ai === 'crawler' || e.d.ai === 'thrower'){ e.st = 'stunned'; e.tm = 0; e.stun = 0.8; }

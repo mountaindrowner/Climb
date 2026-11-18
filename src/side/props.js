@@ -267,6 +267,14 @@ export function makeProps(scene, R){
     let lamp = null; if (look !== 'apse'){ lamp = new THREE.Mesh(new THREE.PlaneGeometry(26 / PPU, 60 / PPU), basic(hookT, { opacity: 1 })); lamp.position.set(x + w / 2 - 4 / PPU, floor + 30 / PPU - 1 / PPU, 0.02); scene.add(lamp); }
     pools.push({ x, y, w, water, wt, shaft, glow, falls, motes, lamp, look, lx: x + w / 2 - 10 / PPU, ly: floor + 43 / PPU });
   }
+  // ---- water running down a stair (a 'runnel' mark at the head of it: n steps, each `run` tiles long, going down toward
+  // dir): a thin fall down each step's face and a sheen along each tread. The Crypt Stair: it runs down to meet him
+  const runnels = [];
+  for (const mk of LEVEL.marks) if (mk.type === 'runnel'){ const n = mk.n || 6, run = mk.run || 2, dir = mk.dir || 1, X = a => (mk.x + (dir > 0 ? a : 1 - a)) * T;
+    for (let k = 0; k < n; k++){
+      const tread = new THREE.Mesh(new THREE.PlaneGeometry(run * T, 1 / PPU), basic(null, { color: 0x9fe8ff, blending: THREE.AdditiveBlending, opacity: 0.25 })); tread.position.set((X(k * run) + X((k + 1) * run)) / 2, (mk.y - k) * T + 1 / PPU, 0.066); scene.add(tread);
+      const fall = new THREE.Mesh(new THREE.PlaneGeometry(2 / PPU, T), basic(fallTex(), { blending: THREE.AdditiveBlending, opacity: 0.5 })); fall.position.set(X((k + 1) * run) + dir / PPU, (mk.y - k - 0.5) * T, 0.066); fall.material.map.repeat.set(1, T * PPU / 32); scene.add(fall);
+      runnels.push({ tread, fall, ph: k * 0.9 }); } }
   // ---- the leaks: water seeping out of a crack in the rock into a stone bowl on the floor (the bowl is painted, paint.js);
   // the drip, its rings, a little cold light. They mend him and fill the flask; they do not raise him (main.js)
   const leaks = [];
@@ -287,6 +295,7 @@ export function makeProps(scene, R){
           while (F.spl.length && F.spl[0].t > 0.5){ const S = F.spl.shift(); scene.remove(S.m); S.m.geometry.dispose(); S.m.material.dispose(); } }
         for (const M of W.motes){ M.m.position.y += M.v * dt; M.m.position.x = M.x + Math.sin(t * 0.8 + M.ph) * 0.25; if (M.m.position.y > W.y + 8){ M.m.position.y = W.y + 0.5; M.x = W.x + (rnd() - 0.5) * W.w; } M.m.material.opacity = 0.4 + 0.4 * Math.sin(t * 2 + M.ph); } }
       for (const W of pools) if (W.lamp) R.glint(W.lx, W.ly, 0xffb060, 0.3, 3.2);   // Ordric's lamp over the water, small and warm
+      for (const Q of runnels){ Q.fall.material.map.offset.y = -((t * 1.8 + Q.ph) % 1); Q.tread.material.opacity = 0.18 + 0.1 * Math.sin(t * 5 + Q.ph * 3); }
       for (const L of leaks){
         L.m.material.map.offset.y = -((t * 2.2 + L.ph) % 1); L.glow.material.opacity = 0.18 + Math.sin(t * 1.7 + L.ph) * 0.05; R.glint(L.x, L.y + 0.6, 0x9fe8ff, 0.45, 4.2);
         if (rnd() < dt * 2.5){ const ring = new THREE.Mesh(new THREE.PlaneGeometry(1, 1 / PPU), basic(null, { color: 0xdff4ff, blending: THREE.AdditiveBlending, opacity: 0.8 })); ring.position.set(L.x, L.y + 1 / PPU, 0.075); scene.add(ring); L.spl.push({ m: ring, t: 0 }); }

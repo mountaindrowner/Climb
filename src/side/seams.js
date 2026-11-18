@@ -125,40 +125,119 @@ function flights(){
   return r;
 }
 
-// ---- the lower stretch of each passage (phase 9): the rooms under the raising water's room, between the sill he
-// comes through from the keeper's hall below (level.js build) and the hole up through that room's floor. By the
-// region above: cells [column, row, builder] in the rows added under it. A sill is two rooms wide and a room and a
-// half tall, in the bottom row; where he walks right through it, the way goes up beside it and back over it
-// a way up from the sill's far end (its tunnel comes in through the wall at rows 14 to 19) to the room above
-function riseR(){   // the sill to its left: in by the left wall, out by the roof
-  const r = room(1, 2); walls(r); door(r, 'left', 14, 19); door(r, 'top', 30, 35);
-  rect(r, 2, 2, 37, 13); rect(r, 2, 2, 9, 13);                     // its floor, level with the tunnel's
-  for (const [x0, x1, y] of [[12, 18, 17], [22, 28, 21], [12, 18, 25], [22, 28, 29]]){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); }
-  rect(r, 29, 31, 37, 32); shaftUp(r, 30, 35, 37, 41);   // a shelf of rock under the hole in the roof, and the last ledges over it: a drop through them lands on the shelf, not the floor
-  mark(r, 'torch', 6, 18); mark(r, 'torch', 34, 26); mark(r, 'torch', 8, 36); mark(r, 'urn', 34, 14); mark(r, 'crystal', 20, 14);
-  return r;
-}
-function riseL(){   // the sill to its right: in by the right wall, out by the roof at the near end, under the water's room
+// ---- the lower stretch of each passage (phase 9, docs/phase9-sheet.md 2): the rooms under the raising water's room,
+// between the sill he comes through from the keeper's hall below (level.js build) and the hole up through that room's
+// floor. By the region above: cells [column, row, builder] in the rows added under it. A sill is two rooms wide and a
+// room and a half tall, in the bottom row. Where he walks left through it, one tall room beside it goes up to the
+// water (in by its right wall at rows 14 to 19, out by its roof at columns 2 to 5). Where he walks right through it,
+// a tall room beside it (in by the left wall, out by the roof at columns 30 to 35) and a long one back over the sill
+// (in by its floor at the far end, out by its roof at the near end).
+// Each ends the same way under its hole: a shelf of rock, and two ledges over it in the hole's own columns, so the
+// jump up has head room and a drop through them lands on the shelf, not the floor far below
+const headL = r => { rect(r, 2, 31, 9, 32); for (const y of [37, 41]) ledge(r, 2, 5, y); keepUp(r, 3, 4, 34, 44); };
+const headR = r => { rect(r, 29, 31, 37, 32); shaftUp(r, 30, 35, 37, 41); };
+const steps = (r, list) => { for (const [x0, x1, y] of list){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); } };
+const deco = (r, kind, x, y) => mark(r, 'deco', x, y, { kind });
+
+// the Crypt Stair's lower flights: dark; water runs down the steps toward him; the founders' tombs stand open and
+// empty, the oldest lowest, a name over each. Nothing alive. The stair winds round a drop: a flight up to the west
+// wall, ledges back over it to the east, and a long plank across the top of the well
+function lowflights(){
   const r = room(1, 2); walls(r); door(r, 'right', 14, 19); door(r, 'top', 2, 5);
   rect(r, 2, 2, 37, 13);
-  for (const [x0, x1, y] of [[22, 28, 17], [12, 18, 21], [22, 28, 25], [12, 18, 29]]){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); }
-  rect(r, 2, 31, 9, 32); for (const y of [37, 41]) ledge(r, 2, 5, y); keepUp(r, 3, 4, 34, 44);   // a shelf of rock under the hole in the roof, and the last ledges over it: a drop through them lands on the shelf, not the floor
-  mark(r, 'torch', 33, 18); mark(r, 'torch', 6, 28); mark(r, 'torch', 30, 38); mark(r, 'urn', 6, 14); mark(r, 'crystal', 20, 14);
+  stairs(r, 31, 14, 8, -1, 3); rect(r, 2, 2, 7, 21);                 // the first flight, and its landing at the west wall
+  mark(r, 'runnel', 8, 22, { n: 8, run: 3, dir: 1 });                // the water, down it
+  steps(r, [[10, 13, 24], [16, 19, 26], [22, 25, 28], [28, 31, 30]]); rect(r, 33, 31, 37, 32);   // back over it, to a shelf on the east wall
+  ledge(r, 10, 32, 32); for (const x of [14, 20, 26]) mark(r, 'keep', x, 34);                    // the plank over the well
+  headL(r);
+  for (const [x, y] of [[35, 14], [4, 22], [35, 33], [7, 33]]){ deco(r, 'tomb', x, y); deco(r, 'plaque', x, y + 4); }   // the founders, oldest lowest
+  mark(r, 'crystal', 33, 14); mark(r, 'crystal', 6, 22); mark(r, 'torch', 20, 36); mark(r, 'urn', 36, 33);
   return r;
 }
-function over(){    // back over the sill, to under the water's room: in by the floor at the far end, out by the roof at the near
+// the Breach, storm side: storm and garden both. Drowned beds, torn trellis, a gate hanging by one hinge; a nimbus
+// over the beds, lashers in the rain. The only passage with a fight in it
+function stormbeds(){
+  const r = room(1, 2); walls(r); door(r, 'right', 14, 19); door(r, 'top', 2, 5);
+  rect(r, 2, 2, 37, 13);
+  rect(r, 6, 14, 12, 15); rect(r, 18, 14, 26, 15);                   // the beds, banked up
+  steps(r, [[28, 33, 19], [18, 24, 22], [8, 14, 25], [16, 22, 28], [10, 14, 30]]);   // what is left of the trellis
+  headL(r);
+  mark(r, 'lasher', 9, 16); mark(r, 'lasher', 22, 16); mark(r, 'nimbus', 16, 23);
+  deco(r, 'gatehang', 33, 14); deco(r, 'trellis', 30, 14); deco(r, 'trellis', 15, 14); deco(r, 'trellis', 4, 14); deco(r, 'tuft', 8, 16); deco(r, 'tuft', 21, 16); deco(r, 'tuft', 24, 16);
+  mark(r, 'torch', 35, 22); mark(r, 'torch', 5, 27); mark(r, 'urn', 3, 33);
+  return r;
+}
+// a stair, then ledges back over it, then a long plank: the shape of the Bell Road's and the Long Stair's first rooms
+function turning(r){
+  walls(r); door(r, 'left', 14, 19); door(r, 'top', 30, 35);
+  rect(r, 2, 2, 37, 13);
+  stairs(r, 10, 14, 8, 1, 3); rect(r, 34, 2, 37, 21);                // the first flight, and its landing at the east wall
+  steps(r, [[27, 31, 24], [21, 25, 26], [15, 19, 28], [9, 13, 30]]); rect(r, 2, 31, 7, 32);   // back over it, to a shelf on the west wall
+  ledge(r, 8, 28, 32); for (const x of [12, 18, 24]) mark(r, 'keep', x, 34);                  // and along the top
+  headR(r);
+}
+// the long room back over the sill: the ground rises over the sill's crown; a step under the hole at the near end
+function overSill(r){
+  walls(r); door(r, 'bottom', 110, 115); ledge(r, 110, 115, 1); door(r, 'top', 2, 5);
+  rect(r, 40, 2, 78, 4); rect(r, 52, 5, 66, 6);
+  rect(r, 2, 2, 8, 5); for (const y of [10, 14, 18]) ledge(r, 2, 5, y); keepUp(r, 3, 4, 7, 20);
+}
+// the Bell Road, out of the house's gate: the road turns back on itself up the slope, a shrine at each turn covered in
+// carved names. Grey-threaded pilgrims walk it: some going up, some standing at a shrine. They do not fight
+function gatestair(){
+  const r = room(1, 2); turning(r);
+  for (const [x, y] of [[5, 14], [36, 22], [4, 33]]){ deco(r, 'stele', x, y); deco(r, 'candles', x + (x < 20 ? 2 : -2), y); }
+  mark(r, 'pilgrim', 7, 14); mark(r, 'pilgrim', 35, 22); mark(r, 'pilgrim', 18, 33);
+  mark(r, 'torch', 2, 24); mark(r, 'torch', 36, 27); mark(r, 'torch', 25, 36); mark(r, 'urn', 3, 33);
+  return r;
+}
+function bellroad(){
+  const r = room(3, 1); overSill(r);
+  for (const x of [98, 59, 24]){ deco(r, 'stele', x, x === 59 ? 7 : 2); deco(r, 'candles', x + 2, x === 59 ? 7 : 2); }
+  mark(r, 'pilgrim', 88, 2); mark(r, 'pilgrim', 61, 7); mark(r, 'pilgrim', 30, 2); mark(r, 'pilgrim', 16, 2);
+  mark(r, 'torch', 104, 8); mark(r, 'torch', 72, 10); mark(r, 'torch', 44, 9); mark(r, 'torch', 14, 8); mark(r, 'urn', 92, 2); mark(r, 'urn', 34, 2);
+  return r;
+}
+// the Last Hut's lee slope: one broad climb in the last of the ice, terrace over terrace. Climbers' cairns, ropes left
+// fixed, packs put down by those who turned back. A wraith or two
+function leeslope(){
+  const r = room(1, 2); walls(r); door(r, 'left', 14, 19); door(r, 'top', 30, 35);
+  rect(r, 2, 2, 37, 13);
+  rect(r, 22, 14, 37, 17); rect(r, 2, 21, 14, 22); rect(r, 24, 25, 37, 26); rect(r, 2, 29, 14, 30);   // the terraces, east and west by turns
+  steps(r, [[16, 20, 19], [17, 21, 24], [17, 21, 28], [17, 20, 31], [23, 26, 32]]);
+  headR(r);
+  deco(r, 'cairn', 30, 18); deco(r, 'cairn', 6, 31); deco(r, 'pack', 10, 23); deco(r, 'pack', 33, 27); deco(r, 'rope', 21, 14); deco(r, 'rope', 15, 23);
+  mark(r, 'wraith', 20, 36); mark(r, 'torch', 36, 21); mark(r, 'crystal', 4, 23); mark(r, 'urn', 35, 18);
+  return r;
+}
+function leeway(){
+  const r = room(3, 1); overSill(r);
+  deco(r, 'cairn', 59, 7); deco(r, 'cairn', 98, 2); deco(r, 'cairn', 22, 2); deco(r, 'pack', 86, 2); deco(r, 'pack', 31, 2); deco(r, 'pack', 62, 7);
+  mark(r, 'wraith', 72, 13); mark(r, 'torch', 104, 8); mark(r, 'torch', 14, 8); mark(r, 'crystal', 46, 5); mark(r, 'urn', 90, 2);
+  return r;
+}
+// the Long Stair's swept flights: a step for every day of the year, clean. Someone is still sweeping it: a figure always
+// a few steps ahead, seen from behind, never caught up with. Nothing hostile. The one long straight thing on the mountain
+function sweptflight(){
+  const r = room(1, 2); turning(r);
+  mark(r, 'sweeper', 16, 17, { dir: 1 }); mark(r, 'sweeper', 22, 33, { dir: -1 });
+  mark(r, 'torch', 2, 24); mark(r, 'torch', 36, 27); mark(r, 'torch', 5, 36); mark(r, 'crystal', 36, 22);
+  return r;
+}
+function longstair(){
   const r = room(3, 1); walls(r); door(r, 'bottom', 110, 115); ledge(r, 110, 115, 1); door(r, 'top', 2, 5);
-  rect(r, 40, 2, 78, 4); rect(r, 52, 5, 66, 6);                    // the ground rises over the sill's crown
-  rect(r, 2, 2, 8, 5); for (const y of [10, 14, 18]) ledge(r, 2, 5, y); keepUp(r, 3, 4, 7, 20);   // a step under the hole, so the drop from the water's room is not a long one
-  mark(r, 'torch', 100, 8); mark(r, 'torch', 72, 10); mark(r, 'torch', 44, 9); mark(r, 'torch', 16, 8); mark(r, 'urn', 90, 2); mark(r, 'urn', 30, 2); mark(r, 'crystal', 59, 7);
+  stairs(r, 106, 2, 12, -1, 8); rect(r, 2, 2, 10, 13);               // twelve long steps, and the landing at their head
+  rect(r, 6, 21, 7, 22, EMPTY); for (const y of [17, 21]) ledge(r, 2, 5, y); keepUp(r, 3, 4, 15, 20);
+  mark(r, 'sweeper', 94, 4, { dir: -1 });
+  mark(r, 'torch', 100, 9); mark(r, 'torch', 68, 12); mark(r, 'torch', 36, 16); mark(r, 'crystal', 8, 14);
   return r;
 }
 export const LOWER = {
-  1: { layout: [[0, 0, riseL]] },
-  2: { layout: [[2, 0, riseR], [0, 2, over]] },
-  3: { layout: [[2, 0, riseR], [0, 2, over]] },
-  4: { layout: [[0, 0, riseL]] },
-  5: { layout: [[2, 0, riseR], [0, 2, over]] },
+  1: { layout: [[0, 0, lowflights]] },
+  2: { layout: [[2, 0, gatestair], [0, 2, bellroad]] },
+  3: { layout: [[2, 0, leeslope], [0, 2, leeway]] },
+  4: { layout: [[0, 0, stormbeds]] },
+  5: { layout: [[2, 0, sweptflight], [0, 2, longstair]] },
 };
 export const SEAMS = {
   1: { rows: 3, link: [30, 35], layout: [[0, 0, titled(cryptfoot, 'THE CRYPT STAIR')], [0, 1, titled(founders, 'THE CRYPT STAIR'), 1, 2]] },

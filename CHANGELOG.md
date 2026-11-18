@@ -2,7 +2,16 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**One continuous mountain: the join (latest; phase 9a, build 56).**
+**The passages' lower stretches (latest; phase 9a, build 57).** Each passage's new rooms now hold what the sheet says (`docs/phase9-sheet.md` 2).
+- **The Crypt Stair:** a winding stair in the dark with water running down it, a plank over the well, four founders' tombs standing open.
+- **The Bell Road:** shrines cut with names at every turn, and grey pilgrims walking it who take no notice of him.
+- **The Last Hut:** the lee slope: terraces in the last of the ice, cairns, packs put down, fixed ropes, two wraiths.
+- **The Breach:** storm and garden both: lashers on the drowned beds, a nimbus over them, torn trellis, a gate on one hinge.
+- **The Long Stair:** twelve long steps in one line, and the Sweeper always a few steps ahead, never caught.
+- New in the engine: things placed by hand that are only painted (`deco` marks); walkers that neither hurt nor are hurt; water down a stair.
+- Not as the sheet has it: the Bell Road is not in the open air; the Breach is six screens, not eight; pilgrims and the Sweeper use the acolyte's drawing, tinted.
+
+**One continuous mountain: the join (phase 9a, build 56).**
 - **He walks from one region into the next.** No dark, no card. Beyond each keeper's hall is a tunnel through rock (a sill) that is the same, to the pixel, in the region below and the region above; one step past its middle the regions change round him. Measured on all five joins, both ways: the frame of the change differs from the one before by no more than any two frames of walking.
 - **The way out of a keeper's hall is a real opening,** sealed with stone until the keeper falls (in the Roots, the niche's cracked wall, as before). In the Spires and the Gardens it leads over an arch of rock to a cliff.
 - **He can walk back down** through every join. A keeper that has fallen stays fallen; its hall is empty.

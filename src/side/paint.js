@@ -32,6 +32,26 @@ export function noise2(seed){
 // of what stands. Each returns nothing; some leave a glow to add (lanterns, crystals)
 export const px = (g, c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), w, h); };
 export const DECO = {
+  // ---- placed by hand (a 'deco' mark, seams.js: the passages): x the middle, y the floor
+  // a founder's tomb: a stone chest, its lid pushed aside, nothing in it
+  tomb(g, x, y){ px(g, PAL.ink, x - 8, y - 7, 17, 7); px(g, PAL.dark, x - 7, y - 6, 15, 6); px(g, PAL.mid, x - 7, y - 6, 15, 1); px(g, PAL.ink, x - 6, y - 5, 13, 2); px(g, PAL.deep, x - 5, y - 4, 11, 1);
+    px(g, PAL.ink, x - 3, y - 10, 14, 4); px(g, PAL.mid, x - 2, y - 9, 12, 2); px(g, PAL.light, x - 2, y - 9, 12, 1); px(g, PAL.ink, x - 8, y - 1, 17, 1); },
+  // a name cut over it (on the wall behind)
+  plaque(g, x, y){ px(g, PAL.ink, x - 5, y - 6, 11, 6); px(g, PAL.dark, x - 4, y - 5, 9, 4); for (const [a, w] of [[-3, 3], [1, 2], [-3, 2], [0, 3]]) px(g, PAL.light, x + a, y - (a === -3 && w === 3 || a === 1 ? 4 : 2), w, 1); },
+  // a shrine of the road: a standing stone cut all over with names, a cap on it
+  stele(g, x, y, r){ px(g, PAL.ink, x - 5, y - 20, 11, 20); px(g, PAL.mid, x - 4, y - 19, 9, 19); px(g, PAL.light, x - 4, y - 19, 1, 19); px(g, PAL.dark, x + 3, y - 19, 1, 19); px(g, PAL.ink, x - 6, y - 22, 13, 3); px(g, PAL.light, x - 5, y - 21, 11, 1);
+    for (let k = 0; k < 8; k++){ const yy = y - 17 + k * 2, w = 2 + Math.floor(r() * 4), a = Math.floor(r() * (7 - w)); px(g, PAL.dark, x - 3 + a, yy, w, 1); if (r() < 0.5) px(g, PAL.dark, x - 3 + ((a + w + 1) % 6), yy, 1, 1); }
+    px(g, PAL.ink, x - 7, y - 1, 15, 1); },
+  // a pack put down, and not picked up again
+  pack(g, x, y){ px(g, PAL.ink, x - 4, y - 7, 9, 7); px(g, PAL.wood1, x - 3, y - 6, 7, 6); px(g, PAL.wood2, x - 3, y - 6, 7, 1); px(g, PAL.ink, x - 3, y - 4, 7, 1); px(g, PAL.ink, x - 2, y - 9, 5, 2); px(g, PAL.pale, x - 1, y - 8, 3, 1); px(g, PAL.ink, x + 4, y - 3, 3, 3); px(g, PAL.mid, x + 5, y - 2, 1, 1); },
+  // a rope left fixed: up the face from a peg
+  rope(g, x, y, r){ let cx = x; for (let k = 0; k < 40; k++){ if (k % 7 === 6) cx += r() < 0.5 ? -1 : 1; px(g, k % 4 === 3 ? PAL.wood0 : PAL.wood2, cx, y - 1 - k, 1, 1); } px(g, PAL.ink, x - 1, y - 2, 3, 2); px(g, PAL.light, x, y - 2, 1, 1); },
+  // what is left of a trellis: a lattice, torn
+  trellis(g, x, y, r){ for (let a = -6; a <= 6; a++) for (let b = 0; b < 18; b++){ if ((a + b) % 4 && (a - b + 40) % 4) continue; if (b > 9 && r() < 0.45) continue; px(g, (a + b) % 4 ? PAL.wood1 : PAL.wood2, x + a, y - 1 - b, 1, 1); } px(g, PAL.ink, x - 7, y - 19, 1, 19); px(g, PAL.wood0, x + 7, y - 12, 1, 12); },
+  // a garden gate hanging by one hinge
+  gatehang(g, x, y){ px(g, PAL.ink, x - 9, y - 26, 3, 26); px(g, PAL.mid, x - 8, y - 25, 1, 25); px(g, PAL.ink, x - 10, y - 28, 5, 3); px(g, PAL.light, x - 9, y - 27, 3, 1);
+    for (let k = 0; k < 6; k++){ const bx = x - 5 + k * 3, top = y - 22 + k, bot = y - 3 + Math.round(k * 1.6); px(g, PAL.ink, bx, top, 1, bot - top); if (k % 2 === 0) px(g, PAL.dark, bx, top, 1, 2); }
+    for (let k = 0; k < 16; k++){ px(g, PAL.ink, x - 5 + k, y - 20 + Math.round(k * 0.35), 1, 1); px(g, PAL.ink, x - 5 + k, y - 6 + Math.round(k * 0.55), 1, 1); } },
   stalactite(g, x, y, r){ const w = 3 + Math.floor(r() * 4), L = 4 + Math.floor(r() * 8);
     for (let k = 0; k < L; k++){ const half = Math.max(0, Math.round((1 - k / L) * w / 2)); px(g, PAL.ink, x - half - 1, y + k, half * 2 + 3); px(g, k < 2 ? PAL.light : PAL.mid, x - half, y + k, half * 2 + 1); if (half > 0) px(g, PAL.dark, x + half, y + k); } },
   vine(g, x, y, r){ const L = 6 + Math.floor(r() * 16); let cx = x;
@@ -417,6 +437,7 @@ export function paintRegion(n, own = true){
       if (m.mount === 'wall'){ const d = m.side; px(g, PAL.ink, d < 0 ? cx - 5 : cx + 1, Y(m.y) - 5, 5, 3); px(g, PAL.mid, d < 0 ? cx - 4 : cx + 1, Y(m.y) - 4, 4, 1); px(g, PAL.ink, cx + d * 4 - 1, Y(m.y) - 7, 3, 7); px(g, PAL.dark, cx + d * 4, Y(m.y) - 6, 1, 5); }
       else if (m.mount === 'stand'){ const yb = Y(m.base), yt = Y(m.y) - 2; px(g, PAL.ink, cx - 1, yt, 3, yb - yt); px(g, PAL.dark, cx, yt, 1, yb - yt); px(g, PAL.ink, cx - 3, yb - 2, 7, 2); px(g, PAL.mid, cx - 2, yb - 2, 5, 1); } }
     if (m.type === 'crystal') DECO[(THEMES[lookAt(x, y + 0.2)] || TM).gem](g, cx, Y(m.y), rr, glow);
+    if (m.type === 'deco' && DECO[m.kind]) DECO[m.kind](g, cx, Y(m.y), rr, glow);
     if (m.type === 'bell') DECO.bell(g, cx, Y(m.y));
     if (m.perch){   // a gargoyle's perch: a carved corbel out of the wall, or a plinth from the floor
       const P = m.perch, top = Y(P.y), stone = (x, y, w, h) => { px(g, PAL.ink, x, y, w, h); px(g, PAL.mid, x + 1, y + 1, w - 2, h - 2); px(g, PAL.light, x + 1, y + 1, w - 2, 1); px(g, PAL.dark, x + 1, y + h - 2, w - 2, 1); };

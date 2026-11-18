@@ -642,7 +642,7 @@ function nooks(tiles, W, H, marks, rooms, S, M, n){
 }
 // each is moved to the best place in its room: a flat floor seven tiles wide with six of air over it, clear of the other
 // markers. Ordric stands four tiles from the room's flame (on the side with room); the others as near the room's middle as fits
-const NOT_FOE = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep']);
+const NOT_FOE = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel']);
 function stations(tiles, W, H, marks, rooms, S){
   if (!S) return;
   const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i], solid = t => t === ROCK || t === LEDGE;

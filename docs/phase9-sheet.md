@@ -74,16 +74,18 @@ the passages between regions do the loading.**
 
 ## 2. The passages, lengthened
 
-*Built so far (build 56): the room for it, with decision 1 as recommended. Each region above has two or three rows
-added under it: the sill, a way up beside it and (where he walks right through the sill) a way back over it to under
-the raising water's room, which he comes up into through its floor. These rooms are plain: ledges, torches, urns, no
-creatures, in the look of the region below. What the table below says goes in them (the tombs, the pilgrims, the
-cairns, the storm in the garden, the Sweeper) is not built: it waits for your word on this sheet. Screens now: the
-Crypt Stair 6, the Bell Road 9, the Last Hut 9, the Breach 6, the Long Stair 9.*
+*Built (builds 56 and 57), with decision 1 as recommended: the new screens are below the raising water. Each region
+above has two or three rows added under it: the sill, then the passage's lower stretch, which comes up through the
+floor of the raising water's room. Screens now: the Crypt Stair 6, the Bell Road 9, the Last Hut 9, the Breach 6, the
+Long Stair 9.*
 
-**The new screens go below the raising water** (decision 1), between the keeper's hall and the water. So the walk back
-after a fall stays as long as it is now, and Ordric's lamp-rooms stay where they were cut. Each passage is walked
-whole once, on the way up, and again only if he chooses to go down.
+| Passage | As built (build 57) | Differs from the table below |
+|---|---|---|
+| The Crypt Stair | **The lower flights:** a stair up to the west wall with water running down it, ledges back over it, a long plank across the top of the well. Four founders' tombs, lids pushed aside, a name over each, the oldest lowest. Dark: crystals, one torch at the top. Nothing alive | |
+| The Bell Road | **The gate stair and the road:** a stair, ledges back over it, a long terrace; then the road over the sill's crown. Six shrines of carved names with candles. Seven grey pilgrims walk their stretch or stand at a shrine; they take no notice of him and cannot be hurt | It is inside the mountain, not in the open: the rows under a region are rock, and the cliff the Spires' own sill stands on is to the east |
+| The Last Hut | **The lee slope:** terraces east and west by turns, in the last of the ice. Cairns, packs put down, ropes left fixed. Two wraiths | The wind does not yet drop as he climbs (there is no wind in the Spires until phase 9b) |
+| The Breach | **The storm side:** two banked beds with a lasher on each, a nimbus over them, torn trellis to climb, a gate hanging by one hinge | Six screens, not eight. No standing water on the beds |
+| The Long Stair | **The swept flights:** a stair, ledges and a terrace; then twelve long steps in one straight line. The Sweeper is on each flight, a few steps ahead, seen from behind; it keeps ahead of him and where the flight ends it is gone, leaving the dust it raised. Nothing hostile | The Sweeper and the pilgrims are the acolyte's drawing, tinted (decision 3 as recommended); new drawings are on the wishlist |
 
 | Passage | Screens (now 3) | The new stretch, below the water | Then, as now |
 |---|---|---|---|

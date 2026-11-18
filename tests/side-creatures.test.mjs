@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import './helpers/browser.mjs';
 const { LEVELS, loadLevel } = await import('./helpers/reach.mjs');
-const NOT = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep']);
+const NOT = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'pilgrim', 'sweeper']   /* the last two: who he passes in the passages (phase 9), not creatures */);
 const mix = LEVELS.map((_, n) => { const L = loadLevel(n), c = {}; for (const m of L.marks) if (!NOT.has(m.type)) c[m.type] = (c[m.type] || 0) + 1; return { name: L.name, c }; });
 
 test('every region has at least three kinds of creature, and no kind is in more than two regions', () => {
