@@ -106,7 +106,7 @@ export const looks = {
     moss: { c: ['white', 'pale', 'cyan'], p: 0.12 }, plank: ['wood1', 'white', 'wood0', 'wood2'], spike: ['cyan', 'white'],
     ceilLow: [['icicle', 8]], ceil: [['icicle', 70], ['stalactite', 8]],
     floorWall: ['drift', 'crystal', 'rubble', 'drift'], floorOpen: ['drift', 'crystal'], gem: 'crystal',
-    back: { cols: ['ink', 'deep', 'navy'], dim: [0.8, 0.85, 0.95], hole: 5.4, holeOpen: 5.4, stand: [['pillar', 2]], hang: [['icicle', 80], ['stalactite', 20]], pStand: 0.004, pHang: 0.03 },
+    back: { cols: ['ink', 'deep', 'navy'], dim: [0.8, 0.85, 0.95], hole: 99, holeOpen: 99, stand: [['pillar', 2]], hang: [['icicle', 80], ['stalactite', 20]], pStand: 0.004, pHang: 0.03 },
     far: { img: 'spires', dim: 0.35 }, hemi: [0xd8ecff, 0x5878b8, 0.9], shaft: null,
     amb: [0.46, 0.6, 0.86], mist: { col: 'navy', col2: 'deep', a: 0.34, drift: 0.2 }, fore: 'spires',
     air: { n: 50, cols: [0xdfe8ff, 0x9fd0ff], warm: 0.2, vx: 0.1, vy: [-0.4, -0.1], steady: true },

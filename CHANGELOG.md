@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Glacier Galleries (latest; phase 11, build 64): the Spires' east wing.** `docs/phase11-sheet.md` has all of it.
+**The refectory (latest; build 65).** A new room of the Cloister's own, up through the roof of the stair: a long table laid for pilgrims who do not come, the bread turned to stone, two of the house still serving it. No one there fights. This finishes phase 10. Also: the Glacier Galleries' back wall no longer shows the bright sky. An idea of yours is written into the roadmap for later (an item that takes what he kills and calls it back on his side).
+
+**The Glacier Galleries (phase 11, build 64): the Spires' east wing.** `docs/phase11-sheet.md` has all of it.
 - **Ten screens east of the horn,** behind a pane of thin ice that the Toll's step breaks.
 - **Its rule: warmth opens, and it wakes.** A cold brazier is lit by a blow, for good. Its fire melts the ice nearest it: the way that ice closed, the chest kept in it, and whoever sat down in it. The ice is clear, so he can see what a fire will free before he lights it. Most fires are not needed.
 - **Five rooms:** the shelter (the rule, shown), the sitters' gallery, the deep ice (three floors, a pane across each), the Seated's hall, the meltwater (the way out, down inside the tower's foot).

@@ -34,7 +34,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 64, date: '18 NOV 2026', phase: 11, phases: 21, last: 'THE GLACIER GALLERIES' };
+const VERSION = { build: 65, date: '18 NOV 2026', phase: 11, phases: 21, last: 'THE REFECTORY' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -156,6 +156,8 @@ function wingStep(dt){
   if (!PROPS || !P || GO.st) return;
   // the Pilgrims' Cairns: he has turned round on the stones of the way, and they are gone (motor.js); or they are back
   if (RULE.turned !== WAY.was){ WAY.was = RULE.turned; PROPS.show(); if (RULE.turned){ sfx.crack(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.12); for (const B of PROPS.ways) if (Math.hypot(B.x - P.x, B.y - P.y) < 14) fx.dust({ x: B.x, y: B.y }, 8, 2.5); if (!G.turnedOnce){ G.turnedOnce = 1; store(); banner('', 'he turned round, and the way was gone', 3); } } }
+  // the refectory's table, the first time he stands at it
+  if (!G.refectory && P.grounded && LEVEL.theme === 'cloister') for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'tablehead' && Math.abs(m.x * T - P.x) < 6 && Math.abs(m.y * T - P.y) < 2.5){ G.refectory = 1; store(); banner('The refectory', 'the table is laid for pilgrims, as it is every day. The bread has turned to stone.', 6); }
   // its stones' words, as he stands by one; and his own cairn, the first time he comes to it
   if (LEVEL.theme === 'spires' && P.grounded){ const now = performance.now() / 1000;
     for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'reason' && Math.abs((m.x + 0.5) * T - P.x) < 1.3 && Math.abs(m.y * T - P.y) < 1.5 && now - (WAY.said.get(m) || -99) > 14 && !(BANNER && BANNER.t > 0)){ WAY.said.set(m, now); banner('', 'scratched on the stone: ' + m.says, 2.6); }

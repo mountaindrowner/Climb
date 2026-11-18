@@ -50,7 +50,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 64 | 18 Nov 2026 | `5472b28` | The Glacier Galleries (phase 11, second half) | adds | yes (now) |
+| 65 | 18 Nov 2026 | `COMMIT65` | The Cloister's refectory; the Galleries' back wall closed | adds | yes (now) |
+| 64 | 18 Nov 2026 | `5472b28` | The Glacier Galleries (phase 11, second half) | adds | was, until 65 |
 | 63 | 18 Nov 2026 | `a88ef9a` | The version note on the title, the opening and the pause screen | nothing | was, until 64 |
 | 62 | 18 Nov 2026 | `b72435a` | The Pilgrims' Cairns (phase 11, first half) | **moved** (the Spires) | was, until 63 |
 | 61 | 18 Nov 2026 | `7c2606f` | The Bell-Foundry and the Cracked Bell (phase 10, second half) | adds | no |
@@ -75,6 +76,22 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 65: the refectory; the Galleries' wall
+
+- **For the player:** a new room of the Cloister's own, over the head of the stair (rungs up from its top landing):
+  **the refectory.** A long table laid for pilgrims, the bread on it turned to stone, two of the house still serving
+  it. No one there fights. A chest of shards; the table can be walked along; a line the first time he stands at it.
+  This finishes phase 10.
+- **Fixed:** the Glacier Galleries' back wall no longer shows the bright sky; it is dim blue throughout.
+- **Underneath:** new `src/side/regions/refectory.js`; a harmless `server` in `enemies.js`; rungs and a hole cut in the
+  stairwell's upper corner; the Galleries' look in `regions/glacier.js`.
+- **Save:** adds that the refectory's line has been said. Nothing moved.
+- **Checked:** 266 automated checks (the refectory is reached with what he has on arrival; no traps); both rooms
+  looked at in the test browser; the zip opened, the title and every region.
+- **Not checked:** not played by hand; the servers were seen standing at the table, not watched walking their beat.
+- **Caught by a check:** the refectory's chest first held a red strand, which would have made three in the Cloister's
+  own rooms; the rule is two. It holds shards.
 
 ### Build 64: the Glacier Galleries
 
@@ -173,6 +190,5 @@ gone over again.
   browser.
 - **The sounds added since phase 9 are unheard.**
 - The pause menu's lower buttons overlap the controls' help at a small window (seen in build 63; older).
-- The Glacier Galleries' back wall shows the bright sky in patches (build 64).
 - The Toll's keeper check has one row that fails (standing still in its second half is not hurt). Older than phase 9;
   not looked into.

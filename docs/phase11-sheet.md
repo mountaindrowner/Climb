@@ -174,9 +174,8 @@ one struck it.
 
 ## Its look
 
-The glacier's inside: blue and dim. Blocks and panes of clear ice, drawn over what is in them. **Not as planned:** the
-Spires' bright sky still shows through gaps in the back wall, so it is lighter and busier than "blue through ice, very
-dim". To be closed in the next build. Painted in: bedrolls, packs, meltwater on the floor.
+The glacier's inside: blue and dim. Blocks and panes of clear ice, drawn over what is in them. (In build 64 the Spires' bright sky showed through
+gaps in the back wall; closed in build 65.) Painted in: bedrolls, packs, meltwater on the floor.
 
 ## Art
 
@@ -211,5 +210,4 @@ sitters are the Stopped's own drawing. **Cost: $0.06; the balance is $2.85.**
 
 ## Left for later
 
-- The Cloister's refectory (left from phase 10).
 - Phase 12: the Tempest's wings.

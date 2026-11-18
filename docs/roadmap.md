@@ -332,7 +332,9 @@ Pilgrim's Stone; the scree run out into Ordric's hollow.*
 *Phase 11, second half, done (build 64): **the Glacier Galleries**, by the same sheet. Ten screens east of the horn,
 behind a pane of ice the Toll's step breaks. Cold braziers lit by a blow; each fire melts the ice nearest it, which
 opens ways and chests and wakes whoever sat in it; the Seated, freed a fire at a time; the Climber's Flint; the
-meltwater out through the tower's foot. Phase 11 is done. Left from phase 10: the refectory.*
+meltwater out through the tower's foot. Phase 11 is done.*
+
+*Build 65: **the refectory** (the Cloister's own room, over the stair). Phase 10 is done.*
 
 Built two regions at a time. **Spaces, not rectangles** (decision 0.8): each wing has at least one vast space, one
 winding way, and one path no one expects, each shaped by what the place was. Each wing gets its sheet first: its rooms, what each room is for, its gate and shortcut,
@@ -433,6 +435,15 @@ the wings' own (the Sexton, the Corrector, the Cracked Bell, and those still to 
 
 **If these are to be in the release,** the release step at the end of phase 20 waits until this phase is done. The rest
 of phase 20 (the phone, the polish passes) does not depend on it.
+
+## Ideas kept for later
+
+Not planned, not designed: written down so they are not lost. Each needs its own talk before it becomes a phase.
+
+- **An item that takes what he kills and calls it back on his side** (yours, 18 Nov 2026). He kills a creature, the
+  item keeps it, and he can summon it to fight for him. Open questions for when it is fleshed out: how many he can
+  hold, whether a summoned one is spent or returns, what it costs (embers are the natural price), whether elites and
+  wing keepers can be taken, and where on the mountain he finds it.
 
 ## The order, and why
 

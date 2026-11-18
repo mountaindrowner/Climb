@@ -36,6 +36,8 @@ const DEF = {
   // not creatures to fight (phase 9, the passages): the Bell Road's grey-threaded pilgrims walk their stretch of it and
   // take no notice of him; the Long Stair's sweeper is always a few steps ahead. Neither is hurt, neither hurts
   pilgrim:  { ai: 'crawler', hp: 9, w: 0.6, h: 1.9, color: 0x8b9bb4, wake: 0, reach: 0, chase: 1.5, windup: 9, lunge: 0, lungeDist: 0, recover: 1, stun: 0, art: 'px_acolyte', fly: false, harmless: true, tint: 0x9aa4bc, glow: 0x262b33 },
+  // the refectory's two: they serve a table no one comes to, up and down it; they take no notice of him
+  server:   { ai: 'crawler', hp: 9, w: 0.6, h: 1.9, color: 0xead4aa, wake: 0, reach: 0, chase: 1.3, windup: 9, lunge: 0, lungeDist: 0, recover: 1, stun: 0, art: 'px_acolyte', fly: false, harmless: true, tint: 0xe8d8c0, glow: 0x2a2018 },
   sweeper:  { ai: 'sweeper', hp: 9, w: 0.5, h: 1.9, color: 0xc0cbdc, wake: 0, art: 'px_acolyte', fly: false, harmless: true, tint: 0xdde4ff, glow: 0x66708a },
   acolyte:  { ai: 'crawler', hp: 5, w: 0.6, h: 1.9, color: 0xa22633, wake: 8, reach: 2.1, chase: 2.0, windup: 0.62, lunge: 0.2, lungeDist: 1.5, recover: 0.8, stun: 0.5, hitR: 1.2, art: 'px_acolyte', fly: false, word: 'Struck' },
   // the Ossuary's elite (regions/ossuary.js): the house's sexton, a head taller than his men, slow to start and hard to
