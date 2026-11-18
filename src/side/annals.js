@@ -23,7 +23,7 @@ export const ANNALS = [
   { region: 'The Spires', keeper: { theme: 'spires', art: 'wyrm/head', name: 'The Rime Wyrm', line: 'It coils on the pass, and lets none by.' },
     creatures: [
       { type: 'yeti', name: 'Rimeback', art: 'px_yeti', line: 'Patient as the ice. It throws it at whatever climbs.' },
-      { type: 'cairn', name: 'Cairn', art: 'cairns/cairn', line: 'A reason to turn back, in stones. It follows whoever will not look at it.' },
+      { type: 'cairn', name: 'Cairn', art: 'px_cairn', line: 'A reason to turn back, in stones. It follows whoever will not look at it.' },
       { type: 'turned', name: 'The Turned', art: 'px_turned', line: 'He turned back, and stayed. He lets no one up past him.' },
       { type: 'harpy', name: 'High Hawk', art: 'px_harpy', line: 'A hawk of the high air. It strikes twice and is gone.' },
       { type: 'wraith', name: 'The Stopped', art: 'px_wraith', line: 'A climber who sat down to rest. The cold kept the rest.' } ] },
