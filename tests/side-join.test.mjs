@@ -10,7 +10,7 @@ const { loadLevel, T } = await import('./helpers/reach.mjs');
 const LV = await import('../src/side/level.js');
 const { JOIN_MOVED } = await import('../src/side/state.js');
 const { VIEW_H } = await import('../src/side/paint.js');
-const { SILL, JOINS, sill, ROCK, EMPTY, CRACKED } = LV, L = []; for (let n = 0; n <= LV.CLIMB_TOP; n++) L.push({ ...loadLevel(n) });
+const { SILL, JOINS, sill, ROCK, EMPTY, CRACKED, HOLD } = LV, L = []; for (let n = 0; n <= LV.CLIMB_TOP; n++) L.push({ ...loadLevel(n) });
 
 for (const k of Object.keys(JOINS).map(Number)){
   const lo = L[k - 1], hi = L[k], up = lo.joins.up, down = hi.joins.down, name = JOINS[k].title;
@@ -30,7 +30,7 @@ for (const k of Object.keys(JOINS).map(Number)){
   test(`${name}: the way out of the hall below is stone until its keeper falls`, () => {
     const at = (i, j) => lo.tiles[j * lo.W + i];
     if (k === 1) assert.ok(lo.tiles.some((v, q) => v === CRACKED && Math.abs((q % lo.W) - (up.x + SILL.w + 8)) < 3), 'the Roots: the niche\'s cracked wall (the spade opens it)');
-    else { assert.ok(up.seal.length >= 6, 'a seal'); for (const id of up.seal){ const [i, j] = id.split(',').map(Number); assert.equal(at(i, j), CRACKED, `seal at ${id}`); } }
+    else { assert.ok(up.seal.length >= 6, 'a seal'); for (const id of up.seal){ const [i, j] = id.split(',').map(Number); assert.equal(at(i, j), HOLD, `seal at ${id}`); } }
     const ex = lo.marks.find(m => m.type === 'exit'); assert.ok(ex && ex.join, 'no beacon: the way on is walked'); assert.equal(ex.x, up.x + (SILL.w >> 1));
   });
   test(`${name}: the region above was moved as the save's move says`, () => assert.deepEqual(JOIN_MOVED[k], [hi.X0, hi.Y0]));

@@ -42,6 +42,8 @@ export const DECO = {
   stele(g, x, y, r){ px(g, PAL.ink, x - 5, y - 20, 11, 20); px(g, PAL.mid, x - 4, y - 19, 9, 19); px(g, PAL.light, x - 4, y - 19, 1, 19); px(g, PAL.dark, x + 3, y - 19, 1, 19); px(g, PAL.ink, x - 6, y - 22, 13, 3); px(g, PAL.light, x - 5, y - 21, 11, 1);
     for (let k = 0; k < 8; k++){ const yy = y - 17 + k * 2, w = 2 + Math.floor(r() * 4), a = Math.floor(r() * (7 - w)); px(g, PAL.dark, x - 3 + a, yy, w, 1); if (r() < 0.5) px(g, PAL.dark, x - 3 + ((a + w + 1) % 6), yy, 1, 1); }
     px(g, PAL.ink, x - 7, y - 1, 15, 1); },
+  // Ordric's knot: a red knot tied on a rope, its ends hanging
+  knot(g, x, y){ px(g, PAL.ink, x - 2, y - 5, 5, 5); px(g, PAL.red1, x - 1, y - 4, 3, 3); px(g, PAL.fire3, x - 1, y - 4, 1, 1); px(g, PAL.red1, x - 2, y, 1, 3); px(g, PAL.red1, x + 2, y, 1, 4); },
   // a pack put down, and not picked up again
   pack(g, x, y){ px(g, PAL.ink, x - 4, y - 7, 9, 7); px(g, PAL.wood1, x - 3, y - 6, 7, 6); px(g, PAL.wood2, x - 3, y - 6, 7, 1); px(g, PAL.ink, x - 3, y - 4, 7, 1); px(g, PAL.ink, x - 2, y - 9, 5, 2); px(g, PAL.pale, x - 1, y - 8, 3, 1); px(g, PAL.ink, x + 4, y - 3, 3, 3); px(g, PAL.mid, x + 5, y - 2, 1, 1); },
   // a rope left fixed: up the face from a peg

@@ -26,7 +26,7 @@ for (let N = 0; N < LEVELS.length; N++){
     const { seen, W, marks, rooms } = graph(N, ARR);
     // the way on past the keeper's hall is behind stone until the keeper falls (phase 9): never reached without the
     // stone broken, whatever else he has; reached with it
-    const shut = graph(N, ALL.filter(g => g !== 'breaker')).seen, open = graph(N, ALL).seen;
+    const shut = graph(N, N === 0 ? ARR : ALL).seen, open = graph(N, [...ALL, 'fallen']).seen;   // every gift and the keeper standing (in the Roots, before the spade it leaves); and the keeper fallen
     for (const r of rooms){
       if (r.after){ assert.ok(!reached(shut, r, W), `room ${r.name} is reached past the keeper`); assert.ok(reached(open, r, W), `room ${r.name} is not reached once the keeper has fallen`); }
       else if (r.gate && !ARR.includes(r.gate)) assert.ok(!reached(seen, r, W), `room ${r.name} is reached before its gate (${giftName(r.gate)})`);
@@ -36,8 +36,8 @@ for (let N = 0; N < LEVELS.length; N++){
     for (const t of ['water', 'boss', deep ? 'pass' : 'exit']){ const m = t === 'water' ? (q => q && { ...q, x: q.x + Math.floor((q.w || 1) / 2) })(marks.find(k => k.type === 'pool' && !k.plain)) : marks.find(k => k.type === t); if (m || t !== 'boss'){ const sn = m && m.join ? open : seen; assert.ok(m && (nearSeen(sn, W, m.x, m.y) || nearSeen(sn, W, m.x + 2, m.y + 1)), `${t} is not reached with ${said(ARR)}`); } }
   });
   if (ALL.length > ARR.length) test(`${NAME}, played with the real motor and every gift: every room`, () => {
-    const { seen, W, rooms } = graph(N, ALL);
-    for (const r of rooms) assert.ok(reached(seen, r, W), `room ${r.name} is not reached, even with every gift`);
+    const { seen, W, rooms } = graph(N, [...ALL, 'fallen']);
+    for (const r of rooms) assert.ok(reached(seen, r, W), `room ${r.name} is not reached, even with every gift and its keeper fallen`);
   });
   for (const g of gates) test(`${NAME}, played with the real motor: what is behind ${giftName(g)} stays shut without it`, () => {
     const { seen, W, rooms } = graph(N, ALL.filter(x => x !== g));

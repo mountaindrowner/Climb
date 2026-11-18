@@ -12,7 +12,7 @@
 //                  harpy     a white hawk: fast, and it dives twice before it wheels away (ai flitter)
 //                  wraith    drifts at you through anything, rears, and rushes: cut it as it recovers (ai wraith)
 // Each is drawn with its PixelLab strips once they exist (tools/pixellab.py), a glowing stand-in before.
-import { T, ROCK, LEDGE, LEVEL, tileAt, REGION_DATA } from './level.js';
+import { T, ROCK, LEDGE, LEVEL, tileAt, REGION_DATA, RULE } from './level.js';
 import { hurt, isRollInv, shove } from './motor.js';
 import { makeSprite } from './render.js';
 const THREE = window.THREE;
@@ -133,6 +133,8 @@ function notices(e, P, dx, dy){ return Math.abs(dx) < e.d.wake && Math.abs(dy) <
 function walkTo(e, x, dt, sp){ const dir = Math.sign(x - e.x); if (!dir || Math.abs(x - e.x) < 0.05) return false; const nx = e.x + dir * Math.min(sp * dt, Math.abs(x - e.x)); e.face = dir;
   if (solidAt(nx + dir * e.d.w, e.y + 0.3) || ground(nx, e.y + 0.3) < e.y - 0.6) return false; e.x = nx; const gy = ground(e.x, e.y + 0.3); if (gy > -Infinity) e.y = gy; return true; }
 function atRest(e, P, dt, dx, dy, go, events, anim){
+  // the Cloister's acolytes, once the bells have stopped (the Toll fallen): they stand at their posts, and fight only if struck
+  if (e.type === 'acolyte' && RULE.fallen && LEVEL.theme === 'cloister' && e.st === 'idle'){ if (Math.abs(e.x - e.home.x) > 0.3) walkTo(e, e.home.x, dt, pace(e)); e.moving = false; anim(e, 'stand', 0); return; }
   if (!e.beat) e.beat = beatOf(e); let moving = false;
   if (e.st === 'idle'){
     if (e.x < e.beat[0] - 0.3 || e.x > e.beat[1] + 0.3){ go('return'); }   // left off its beat (it gave up somewhere else)

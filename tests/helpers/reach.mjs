@@ -4,12 +4,13 @@
 // to. Nothing guessed about how high or far he goes. Shared by tests/side-physics.test.mjs and tools/gifts-report.mjs.
 //   graph(N, gifts) -> { seen, edges, pos, W, H, marks, rooms }   gifts: the keepers' gifts he has, by CAN key
 //                       ('breaker': the Warden's weight, so cracked stone is broken; 'dash': the Toll's step; 'glide':
-//                       the Wyrm's wind). Kept per region and gift set.
+//                       the Wyrm's wind). 'fallen' is not a gift: the region's keeper has fallen, so what it held is let go
+//                       (level.js RULE: holds gone, given planks there). Doors on the bell are open: he waits. Kept per region and gift set.
 //   arrival(N)       -> the gifts he has when he first comes to region N (the keepers below it; the Deep: none yet)
 //   GIFTS, giftName  -> the gifts in the order he is given them, and what each is called
 //   reached(seen, room, W), goalOf(marks), nearGoal(goal), runback(...)
 import { clock } from './browser.mjs';
-const { LEVEL, LEVELS, loadLevel, T, PHASE, REGION_DATA } = await import('../../src/side/level.js');
+const { LEVEL, LEVELS, loadLevel, T, PHASE, REGION_DATA, RULE } = await import('../../src/side/level.js');
 const M = await import('../../src/side/motor.js');
 const I = await import('../../src/core/input.js');
 const { TEACH } = await import('../../src/side/state.js');
@@ -67,6 +68,7 @@ export function graph(N, gifts = []){
   const L = loadLevel(N); W = L.W;
   const has = new Set(gifts);
   M.CAN.breaker = has.has('breaker'); M.CAN.dash = has.has('dash'); M.CAN.glide = has.has('glide');
+  RULE.fallen = has.has('fallen'); RULE.shut = false;
   if (has.has('breaker')) LEVEL.tiles = LEVEL.tiles.map(t => t === 4 ? 0 : t);   // the cracked stone broken (a copy: the next load is whole again)
   const base = { W: L.W, H: L.H, marks: L.marks, rooms: L.rooms };
   if (CACHE.has(key)) return { ...base, ...CACHE.get(key) };
@@ -77,7 +79,7 @@ export function graph(N, gifts = []){
     const k = q.pop(), [x, y] = pos.get(k), nx = new Map();
     const take = (c, at) => { if (c === k) return; if (!nx.has(c)) nx.set(c, Math.hypot(at[0] - x, at[1] - y)); if (!pos.has(c)) pos.set(c, at); };
     for (const p of progs) for (const [c, at] of run(x, y, p)) take(c, at);
-    if (has.has('glide') && LEVEL.updrafts.length) for (const p of LONG) for (const [c, at] of run(x, y, p, 420)) take(c, at);   // where there is rising air to ride
+    if (has.has('glide') && (LEVEL.updrafts.length || (RULE.fallen && (LEVEL.gusts || []).length))) for (const p of LONG) for (const [c, at] of run(x, y, p, 420)) take(c, at);   // where there is rising air to ride
     edges.set(k, nx);
     for (const c of nx.keys()) if (!seen.has(c)){ seen.add(c); q.push(c); }
   }

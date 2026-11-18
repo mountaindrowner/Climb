@@ -239,6 +239,51 @@ export const LOWER = {
   4: { layout: [[0, 0, stormbeds]] },
   5: { layout: [[2, 0, sweptflight], [0, 2, longstair]] },
 };
+// ---- what each keeper holds in its region, and the quick way it leaves when it falls (phase 9, docs/phase9-sheet.md
+// 3 and 4). By region: a function given the region as built (level.js build) that sets holds, doors and given planks
+// into it and adds the quick way's rooms. While the keeper stands its rule makes the region slower, never impassable;
+// the quick way is stone at both ends. When it falls the rule ends and the quick way is found open.
+// the Roots' quick way: the foot of the well, under the well room, from the pithead. Planks and a knotted rope
+function wellfoot(){
+  const r = room(1, 2); walls(r); door(r, 'left', 2, 7); door(r, 'top', 16, 19);
+  steps(r, [[8, 13, 5], [18, 23, 9], [8, 13, 13], [18, 23, 17], [8, 13, 21], [18, 23, 25], [8, 13, 29]]);
+  rect(r, 14, 31, 37, 32); for (const y of [37, 41]) ledge(r, 16, 19, y); keepUp(r, 17, 18, 34, 44);
+  for (const y of [3, 9, 15, 21, 27, 34]) deco(r, 'rope', 16, y); deco(r, 'knot', 16, 40);   // the rope, and Ordric's knot on it
+  mark(r, 'torch', 30, 6); mark(r, 'torch', 5, 18); mark(r, 'torch', 30, 36); mark(r, 'urn', 34, 2); mark(r, 'urn', 26, 33);
+  r.title = 'THE WELL\'S FOOT';
+  return r;
+}
+export const RULES = {
+  // the Warden's weight: slabs pressed down into the doorways on the way up (he goes under them crouched or rolling).
+  // Its quick way: the well's foot, from the pithead up into the well room, stone at both ends until it falls
+  0: X => { const { HOLD, GIVEN } = X.tile, pit = X.roomOf('pithead'), well = X.roomOf('well');
+    X.addRoom(3, 0, wellfoot, { after: true, quick: true });
+    for (let y = 2; y <= 7; y++) for (const x of [38, 39]) X.set(pit.tx0 + x, pit.ty0 + y, HOLD);
+    for (let x = 16; x <= 19; x++){ X.set(well.tx0 + x, well.ty0, HOLD); X.set(well.tx0 + x, well.ty0 + 1, GIVEN); }
+    for (const [a, b] of [['chamber', 'ascent'], ['ascent', 'gallery'], ['gallery', 'well']]) X.lintel(a, b);
+  },
+  // the Toll's bells: four doors open and shut on the bell's beat (he waits for them): the way into the nave, and the
+  // bell tower's three. The tower is the way up through the house, so while the bell rings it is climbed a door at a
+  // time. Its quick way is the same tower with the bell stopped: straight up from the nave to the chapel's floor, every
+  // door standing open, a lamp left burning at each
+  1: X => { const { DOOR } = X.tile, lamps = [];
+    for (const [a, b] of [['undercroft', 'nave'], ['nave', 'belfry'], ['library', 'belfry'], ['cloister', 'belfry']]) for (const D of X.doorway(a, b, DOOR)) if (b === 'belfry') lamps.push(D);
+    X.addMarks(lamps.map(D => ({ type: 'torch', x: D.x + 5, y: D.y + 4, given: true })));
+    const bel = X.roomOf('belfry'); if (bel) bel.quick = true;
+  },
+  // the Wyrm's wind: on three open faces of the spires, one above another (the saddle to the span), it bears down in
+  // beats on anything in the air. When the Wyrm falls the wind turns: the same three faces lift (he has its wind by
+  // then, and the scarf rides them), and the arch from the hall has planks let into it over the last: the quick way,
+  // straight up from the saddle to the keeper's hall. A red strand is tied where each begins
+  2: X => { const { HOLD, GIVEN, ROCK } = X.tile, sad = X.roomOf('saddle'), sp = X.roomOf('spire'), te = X.roomOf('teeth'), span = X.roomOf('span'); if (!sad || !sp || !te || !span) return;
+    const faces = [{ x: sp.tx0 + 5, y: sad.ty0 + 9, w: 8, h: sp.ty0 - sad.ty0 - 9 + 23 }, { x: sp.tx0 + 5, y: sp.ty0 + 26, w: 8, h: sp.ty1 - sp.ty0 - 26 + 31 }, { x: te.tx0 + 19, y: te.ty0 + 29, w: 8, h: te.ty1 - te.ty0 - 29 }, { x: te.tx0 + 19, y: span.ty0 + 8, w: 8, h: 14 }];
+    for (const F of faces) X.marks.push({ type: 'gust', ...F });
+    // the planks in the arch, over the last face: rock while the Wyrm stands
+    for (let x = te.tx0 + 21; x <= te.tx0 + 24; x++){ let top = -1; for (let y = span.ty1 - 5; y <= span.ty1 + 3; y++) if (X.at(x, y) === ROCK){ X.set(x, y, HOLD); top = y; } if (top >= 0) X.set(x, top, GIVEN); }
+    X.marks.push({ type: 'deco', kind: 'knot', x: sp.tx0 + 4, y: sp.ty0 + 25 }, { type: 'deco', kind: 'knot', x: te.tx0 + 22, y: te.ty0 + 28 }, { type: 'urn', x: sp.tx0 + 2, y: sp.ty0 + 25 }, { type: 'urn', x: te.tx0 + 8, y: te.ty0 + 25 });
+    for (const r of [sp, te, span]) r.quick = true;
+  },
+};
 export const SEAMS = {
   1: { rows: 3, link: [30, 35], layout: [[0, 0, titled(cryptfoot, 'THE CRYPT STAIR')], [0, 1, titled(founders, 'THE CRYPT STAIR'), 1, 2]] },
   2: { rows: 3, link: [30, 35], layout: [[0, 0, titled(gate, 'THE BELL ROAD')], [0, 1, titled(road, 'THE BELL ROAD'), 1, 2]] },

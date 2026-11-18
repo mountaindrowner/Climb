@@ -8,7 +8,7 @@ import { TUNE } from '../config/tuning.js';
 import { WEAPONS } from '../config/weapons.js';
 import { IN, consume, pending } from '../core/input.js';
 import { FEEL } from '../config/feel.js';
-import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt } from './level.js';
+import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt, gustAt } from './level.js';
 const MV = TUNE.move;
 // the side view's warrior is drawn tall and lean (gothic action proportions, ~40 pixels): his body is taller than the
 // climb's, and his jumps and run scale with him so they keep the same feel against his height
@@ -202,6 +202,8 @@ export function stepPlayer(P, dt){
   }
   // the scarf: held open while jump is held; in rising air it opens of itself
   const up = CAN.glide && !P.grounded ? updraftAt(P.x, P.y + 1) : null;
+  // the wind on the Spires' faces while the Wyrm holds it (level.js gustAt): in its beats it bears down on him in the air
+  if (!P.grounded && !P.dive && gustAt(P.x, P.y + 1)){ P.vy -= 34 * dt; P.gusted = 0.2; } else if (P.gusted > 0) P.gusted -= dt;
   if (P.glide && (!H.jump || P.grounded || P.dive || stunned)) P.glide = false;
   if (!P.glide && up && H.jump && !P.dive && !stunned && P.roll <= 0 && P.vy < 4){ P.glide = true; ev(P, 'glide'); }
   if (!P.grounded){

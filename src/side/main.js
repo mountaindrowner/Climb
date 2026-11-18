@@ -9,7 +9,7 @@ import { sfx, ac, musicBus, ambience, setMix, MIX, warm, manifestReady, say, bea
 import { voiceOf } from '../audio/voice.js';
 import { makeScore } from '../audio/score.js';
 import '../ui/feel.js';
-import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE, MEETINGS, SILL, prepare } from './level.js';
+import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE, MEETINGS, SILL, prepare, RULE } from './level.js';
 import { makeTeach, keyName, fill, INTRO, CARDS, drawIcon } from './teach.js';
 import { makeProps } from './props.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt } from './motor.js';
@@ -31,7 +31,7 @@ import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
-const BUILD = 'SIDE 57';   // shown in the corner, so a stale copy is easy to spot
+const BUILD = 'SIDE 58';   // shown in the corner, so a stale copy is easy to spot
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
@@ -86,7 +86,9 @@ function learn(){
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
 // `walked`: he has walked in from the next region (cross): he and his scarf are as they were
 function setup(walked = false){
+  RULE.fallen = !!(G.beat[LEVEL.index] || G.top > LEVEL.index || !KEEPERS[LEVEL.theme]);   // has this region's keeper fallen: what it held is let go (level.js RULE)
   SWINGFX = makeSwingFx(R.scene); PROPS = makeProps(R.scene, R);
+  PROPS.toll = (shut, doors) => { const d = Math.min(...doors.map(B => Math.hypot(B.x - P.x, B.y - P.y))); if (d < 26){ sfx.bell(); if (d < 12) FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.08); } };   // the bell the doors turn on, heard when he is near one
   for (const id of G.broke[LEVEL.index] || []) PROPS.breakId(id);   // the rock he broke here before stays broken
   ITEMS = makeItems(R.scene, R, LEVEL.index); learn(); swapButton();
   fx = spawnFx(R.scene); E = spawnEnemies(R.scene, R); if (!walked || !SCF) SCF = makeScarf(R.scene); FLIGHT = null;
@@ -102,7 +104,6 @@ function setup(walked = false){
   RAISE = SHRINES.find(S => S.raise) || null; TOUCHED.clear();
   CHECK = null; WON = false; DEATH = 0; TRAIL.length = 0;
   if (!BOSS) for (const x of R.exits) x.set(true);   // nothing guards the way on
-  if (!BOSS) PROPS.unseal();   // no keeper stands: the way out of its hall is open
   // the map: the region drawn a pixel a tile, each room shown once he has been in it
   const c = document.createElement('canvas'); c.width = LEVEL.W; c.height = LEVEL.H; const g = c.getContext('2d'), img = g.createImageData(LEVEL.W, LEVEL.H);
   const COL = { 0: [46, 92, 128], 2: [196, 150, 92], 3: [255, 92, 132], 5: [120, 220, 240], 6: [120, 220, 240] };
@@ -596,7 +597,7 @@ function frame(ts){
   // hit-stop: a hit freezes the world a few frames (the effects keep running)
   let sdt = dt; if (FEEL_FX.hitstop > 0){ FEEL_FX.hitstop -= dt; sdt = dt * 0.06; }
   if (SLOW > 0){ SLOW -= dt; sdt *= 0.3; }   // a boss's last moment, drawn out
-  FLASH = Math.max(0, FLASH - dt); PLAYED += dt; PHASE.t += sdt; PROPS.step(sdt, time);
+  FLASH = Math.max(0, FLASH - dt); PLAYED += dt; PHASE.t += sdt; PROPS.step(sdt, time, P);
   if (PROPS.glass.some(K => K.turned && Math.abs(K.x - P.x) < 11 && Math.abs(K.y - P.y) < 7)) sfx.glass();   // the star-glass turns: it can be heard
   acc += sdt; time += dt;
   const evs = [];
@@ -960,7 +961,7 @@ function onEvent(e){
     case 'bossPhase': sfx.roar(); FEEL_FX.shake = 0.6; banner(BOSS.name + ' rages', BOSS.rage); break;
     case 'bossDie': buzz(1, 0.9, 700); sfx.roar(); sfx.bossDie(); FEEL_FX.hitstop = 0.3; FEEL_FX.shake = 0.8; SLOW = 1.3; FLASH = 0.5; break;
     case 'bossDead': { ENT.open(); for (const x of R.exits) x.set(true); sfx.door();
-      for (const C of PROPS.unseal()){ sfx.break(); fx.dust({ x: C.x, y: C.y - C.h / 2 }, 30, 5); fx.burst({ x: C.x, y: C.y }, 26, 0xc0cbdc); R.shock(C.x, C.y, true); }   // the stone over the way out comes down banner(BOSS.name + ' falls', BOSS.fell); ITEMS.spill(BOSS.cx, BOSS.stageY + 2, 60);
+      RULE.fallen = true; for (const C of PROPS.release()) if (Math.hypot(C.x - P.x, C.y - P.y) < 30){ sfx.break(); fx.dust({ x: C.x, y: C.y - C.h / 2 }, 30, 5); fx.burst({ x: C.x, y: C.y }, 26, 0xc0cbdc); R.shock(C.x, C.y, true); }   // what it held is let go: the stone over the way out comes down banner(BOSS.name + ' falls', BOSS.fell); ITEMS.spill(BOSS.cx, BOSS.stageY + 2, 60);
       // what it leaves him, the first time
       const n = LEVEL.index, t = TEACH[n];
       if (!G.beat[n]){ G.beat[n] = true; GIFTING = !!(t && t.name); if (t && t.heart){ G.hearts += t.heart; P.maxHp = maxHearts(); P.hp = P.maxHp; } if (t && t.flask){ G.flasks += t.flask; P.flaskMax = maxFlask(); P.flask = P.flaskMax; } learn(); store();

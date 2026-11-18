@@ -118,6 +118,17 @@ with it off.
 
 The Firmament has no such change: the Fallen's fall is the ending.
 
+### As built (build 58): the Roots, the Cloister, the Spires
+
+| Region | While its keeper stands | When it falls | The quick way |
+|---|---|---|---|
+| **The Roots** | Slabs of the roof pressed down into three doorways on the way up (chamber to ascent, ascent to gallery, gallery to the well): three tiles left under each, so he goes under crouched or rolling | The slabs are gone | **The well's foot:** a new shaft from the pithead up into the well room, a rope down it with Ordric's knot. Stone at both ends until the Warden falls; boards over its mouth after |
+| **The Cloister** | A bell tolls about every two and a half seconds. Four doors turn on it, shut to open and back: the way into the nave, and the bell tower's three. A door does not shut on him | The bell stops. The doors stand open. The acolytes stand at their posts and fight only if struck | **The bell tower,** every door open, a lamp at each: straight up from the nave to the chapel's floor |
+| **The Spires** | Wind bears down in beats on anything in the air on three open faces, one above another (the saddle, the spire, the teeth and span) | The wind turns: the same faces lift, and the scarf rides them (the Wyrm's own gift) | **The three lifts,** and planks let into the arch at the top: 31 seconds from the water to the hall becomes 19. A red knot where each begins |
+
+- **Not as the sheet has it.** The Roots has no nooks behind its low places. The Roots' quick way is no shorter than the old ladder he can already open with the spade (15 seconds either way): it is another way, not a faster one. The Cloister's acolytes do not walk on the bell's beat. The Spires' wind does not push sideways.
+- **How it is held:** three new kinds of tile (a hold, a door, a given plank), drawn apart from the painting, and one flag for whether the region's keeper has fallen. Tests climb each region with the keeper standing and again with it fallen.
+
 ## 4. The given shortcuts
 
 - **One per region, from its raising water to its keeper's hall,** so a finished region is crossed in about a minute.

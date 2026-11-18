@@ -10,6 +10,12 @@
 export const T = 0.5;                       // a tile, in world units (the warrior is about 2.4 tall)
 export const ROOM = { w: 40, h: 23 };       // a room is a screen: 20 x 11.5 units
 export const EMPTY = 0, ROCK = 1, LEDGE = 2, SPIKES = 3, CRACKED = 4, GLASS_A = 5, GLASS_B = 6;
+// what a keeper holds in its region, until it falls (phase 9, docs/phase9-sheet.md 3 and 4; level.js RULE says whether it has):
+//   7 a hold: rock while the keeper stands, nothing after (a seal over the way out of its hall, a slab pressed into a
+//     doorway, a wall of thorn, the stone over a quick way)
+//   8 a door on the bell's beat: shut and open by turns while the keeper stands, open after
+//   9 a given plank: rock while the keeper stands, a plank after (the boards over a quick way's mouth)
+export const HOLD = 7, DOOR = 8, GIVEN = 9;
 // a room spans cw x ch screens (most are one)
 export function room(cw = 1, ch = 1){ const r = { w: ROOM.w * cw, h: ROOM.h * ch, tiles: [], marks: [] }; for (let y = 0; y < r.h; y++) r.tiles.push(new Array(r.w).fill(EMPTY)); return r; }
 export const put = (r, x, y, v) => { if (x >= 0 && y >= 0 && x < r.w && y < r.h) r.tiles[y][x] = v; };

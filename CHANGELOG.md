@@ -2,7 +2,14 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The passages' lower stretches (latest; phase 9a, build 57).** Each passage's new rooms now hold what the sheet says (`docs/phase9-sheet.md` 2).
+**Each keeper holds its region, until it falls (latest; phase 9b, build 58): the Roots, the Cloister, the Spires.**
+- **The Roots (the Warden's weight):** slabs of roof pressed into three doorways; he goes under them crouched. Gone when the Warden falls. A new shaft, the well's foot, joins the pithead to the well room once it has fallen: a rope, and Ordric's knot on it.
+- **The Cloister (the Toll's bells):** four doors turn on a bell's beat (the way into the nave and the tower's three); he waits for them, and none shuts on him. When the Toll falls they stand open and the acolytes stand still unless struck.
+- **The Spires (the Wyrm's wind):** on three open faces the wind bears down in beats. When the Wyrm falls it turns and lifts: with planks let into the arch, a quick way from the saddle straight up to the hall (31 seconds from the water becomes 19).
+- New in the engine: holds, doors and given planks (tiles that change when a keeper falls); wind zones.
+- Not as the sheet has it: no nooks behind the Roots' low places; the Roots' quick way is not shorter than the old ladder; acolytes do not move on the beat.
+
+**The passages' lower stretches (phase 9a, build 57).** Each passage's new rooms now hold what the sheet says (`docs/phase9-sheet.md` 2).
 - **The Crypt Stair:** a winding stair in the dark with water running down it, a plank over the well, four founders' tombs standing open.
 - **The Bell Road:** shrines cut with names at every turn, and grey pilgrims walking it who take no notice of him.
 - **The Last Hut:** the lee slope: terraces in the last of the ice, cairns, packs put down, fixed ropes, two wraiths.

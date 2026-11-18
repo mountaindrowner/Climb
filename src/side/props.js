@@ -1,7 +1,7 @@
 // What stands in the world and changes: star-glass ledges that keep time, blooms that throw him, rising air, and cracked
 // rock that breaks. The painted layers leave these out (render.js, paintAt); they are drawn here, small meshes over them.
 //   makeProps(scene, R) -> { step(dt, t, P), bounce(mark), breakAt(x, y, r) -> [{ id, x, y }], breakId(id), cracks }
-import { T, LEVEL, CRACKED, GLASS_A, GLASS_B, EMPTY, rawAt, glassOn, PHASE } from './level.js';
+import { T, LEVEL, CRACKED, GLASS_A, GLASS_B, EMPTY, HOLD, DOOR, GIVEN, RULE, rawAt, glassOn, gustOn, PHASE } from './level.js';
 import { PPU, PAL, lit, themeNow } from './render.js';
 const THREE = window.THREE;
 const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
@@ -40,6 +40,25 @@ function crackTex(w, h, seed){
   g.strokeStyle = PAL.ink; g.lineWidth = 1; g.strokeRect(0.5, 0.5, c.width - 1, c.height - 1);
   return texOf(c);
 }
+
+// what a keeper holds, drawn apart from the painting since it goes when the keeper falls (level.js RULE): by look
+//   stone  a seal, or the stone over a quick way: dressed courses in the region's stone, no cracks (the spade is no use)
+//   slab   a slab of the roof pressed down into a doorway (the Roots): the same stone, dark under its weight
+//   door   a door on the bell's beat (the Cloister): planks banded with iron
+//   thorn  a wall of thorn (the Gardens)
+function holdTex(w, h, look, seed){
+  const c = cnv(w * 8, h * 8), g = c.getContext('2d'), r = rng(seed), S = themeNow().stone, col = k => PAL[S[k]] || PAL.mid, W = c.width, H = c.height;
+  if (look === 'door'){ px(g, PAL.wood1, 0, 0, W, H); for (let x = 0; x < W; x += 5) px(g, PAL.wood0, x, 0, 1, H); for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (B4[(y & 3) * 4 + (x & 3)] < 2) px(g, PAL.wood2, x, y);
+    for (const y of [3, H >> 1, H - 6]){ px(g, PAL.ink, 0, y - 1, W, 5); px(g, PAL.mid, 0, y, W, 3); px(g, PAL.light, 0, y, W, 1); for (let x = 2; x < W; x += 5) px(g, PAL.ink, x, y + 1, 1, 1); } }
+  else if (look === 'thorn'){ px(g, PAL.ink, 0, 0, W, H); for (let k = 0; k < W * H / 5; k++){ let x = Math.floor(r() * W), y = Math.floor(r() * H); const dx = r() < 0.5 ? -1 : 1, dy = r() < 0.5 ? -1 : 1, L = 4 + Math.floor(r() * 9); for (let n = 0; n < L; n++){ px(g, n % 3 ? PAL.moss0 : PAL.moss1, x, y); if (r() < 0.6) x += dx; if (r() < 0.6) y += dy; } if (r() < 0.5) px(g, PAL.red1, x, y); else px(g, PAL.pale, x, y); } }
+  else { px(g, col('a'), 0, 0, W, H);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++){ const row = Math.floor(y / 6); if (y % 6 === 0 || (x + row * 5) % 11 === 0) px(g, col('aSeam'), x, y); else if (B4[(y & 3) * 4 + (x & 3)] < 3) px(g, col('b'), x, y); }
+    px(g, col('lip2'), 1, 1, W - 2, 1);
+    if (look === 'slab'){ for (let y = H - 5; y < H; y++) for (let x = 0; x < W; x++) if (B4[(y & 3) * 4 + (x & 3)] < (y - (H - 6)) * 3) px(g, PAL.ink, x, y); for (let x = 3; x < W - 2; x += 6){ px(g, PAL.ink, x, H - 8, 1, 3); px(g, PAL.ink, x + 1, H - 6, 1, 1); px(g, PAL.ink, x - 1, H - 6, 1, 1); } } }
+  g.strokeStyle = PAL.ink; g.lineWidth = 1; g.strokeRect(0.5, 0.5, W - 1, H - 1);
+  return texOf(c);
+}
+function plankTex(w){ const c = cnv(w * 8, 5), g = c.getContext('2d'); px(g, PAL.ink, 0, 0, c.width, 5); px(g, PAL.wood1, 1, 1, c.width - 2, 3); px(g, PAL.wood2, 1, 1, c.width - 2, 1); for (let x = 7; x < c.width; x += 8) px(g, PAL.ink, x, 1, 1, 3); return texOf(c); }
 
 // the water at the bottom of the world: a band of it, lit; and the light that comes down to it from far above
 function waterTex(w, h = 6){
@@ -221,13 +240,14 @@ export function makeProps(scene, R){
     m.position.set((mk.x + 0.5) * T, mk.y * T, 0.03); scene.add(m); blooms.push({ mk, m, t: 9 });
   }
   // ---- rising air: pale streaks going up through it
-  for (const u of LEVEL.updrafts){
-    const n = Math.max(8, Math.round((u.x1 - u.x0) * (u.y1 - u.y0) * 0.9));
+  // (and the wind the Wyrm holds: the same streaks, driven down in its beats; turned, they rise)
+  for (const u of [...LEVEL.updrafts, ...(LEVEL.gusts || []).map(g => ({ ...g, gust: true }))]){
+    const n = Math.min(160, Math.max(8, Math.round((u.x1 - u.x0) * (u.y1 - u.y0) * (u.gust ? 0.5 : 0.9))));
     for (let k = 0; k < n; k++){ const len = 3 + Math.floor(rnd() * 7), m = new THREE.Mesh(new THREE.PlaneGeometry(1 / PPU, len / PPU), basic(null, { color: rnd() < 0.3 ? 0xffffff : 0xa8d8ff, blending: THREE.AdditiveBlending, opacity: 0.5 }));
       m.position.set(u.x0 + rnd() * (u.x1 - u.x0), u.y0 + rnd() * (u.y1 - u.y0), 0.6); scene.add(m); drafts.push({ m, u, v: 5 + rnd() * 6, ph: rnd() * 9, x: m.position.x }); }
   }
   // ---- cracked rock: each patch of it is one block. A seal (the way out of a keeper's hall, level.js build) is drawn the
-  // same and is not the spade's to break: it comes down when the keeper falls (unseal)
+  // apart, below, as a hold: it comes down when the keeper falls
   const SEAL = new Set((LEVEL.joins && LEVEL.joins.up && LEVEL.joins.up.seal) || []);
   const seen = new Uint8Array(W * H);
   for (let j = 0; j < H; j++) for (let i = 0; i < W; i++){
@@ -237,8 +257,25 @@ export function makeProps(scene, R){
       for (const [da, db] of [[1, 0], [-1, 0], [0, 1], [0, -1]]){ const na = a + da, nb = b + db; if (na >= 0 && nb >= 0 && na < W && nb < H && !seen[nb * W + na] && rawAt(na, nb) === CRACKED){ seen[nb * W + na] = 1; st.push([na, nb]); } } }
     const w = x1 - x0 + 1, h = y1 - y0 + 1, m = new THREE.Mesh(new THREE.PlaneGeometry(w * T, h * T), lit({ map: crackTex(w, h, i * 131 + j * 17 + 5), transparent: false }));
     m.position.set((x0 + w / 2) * T, (y0 + h / 2) * T, 0.01); scene.add(m);
-    cracks.push({ id: `${i},${j}`, tiles, m, x: m.position.x, y: m.position.y, w: w * T, h: h * T, gone: false, sealed: SEAL.has(`${i},${j}`) || tiles.some(([a, b]) => SEAL.has(a + ',' + b)) });
+    cracks.push({ id: `${i},${j}`, tiles, m, x: m.position.x, y: m.position.y, w: w * T, h: h * T, gone: false });
   }
+  // ---- what the keeper holds: each patch of holds (and given planks) one block, each door one; shown while they hold
+  const held = [], doors = [];
+  { const seen2 = new Uint8Array(W * H), kind = t => t === HOLD || t === GIVEN ? 1 : t === DOOR ? 2 : 0;
+    for (let j = 0; j < H; j++) for (let i = 0; i < W; i++){
+      const k = kind(rawAt(i, j)); if (!k || seen2[j * W + i]) continue;
+      const tiles = [], st = [[i, j]]; seen2[j * W + i] = 1; let x0 = i, x1 = i, y0 = j, y1 = j, given = [];
+      while (st.length){ const [a, b] = st.pop(); tiles.push([a, b]); if (rawAt(a, b) === GIVEN) given.push([a, b]); x0 = Math.min(x0, a); x1 = Math.max(x1, a); y0 = Math.min(y0, b); y1 = Math.max(y1, b);
+        for (const [da, db] of [[1, 0], [-1, 0], [0, 1], [0, -1]]){ const na = a + da, nb = b + db; if (na >= 0 && nb >= 0 && na < W && nb < H && !seen2[nb * W + na] && kind(rawAt(na, nb)) === k){ seen2[nb * W + na] = 1; st.push([na, nb]); } } }
+      const w = x1 - x0 + 1, h = y1 - y0 + 1, look = k === 2 ? 'door' : tiles.some(([a, b]) => SEAL.has(a + ',' + b)) ? 'stone' : LEVEL.theme === 'roots' && h <= 3 && given.length === 0 ? 'slab' : LEVEL.theme === 'gardens' ? 'thorn' : 'stone';
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(w * T, h * T), lit({ map: holdTex(w, h, look, i * 131 + j * 17 + 9), transparent: false })); m.position.set((x0 + w / 2) * T, (y0 + h / 2) * T, 0.012); scene.add(m);
+      const B = { look, tiles, m, x: m.position.x, y: m.position.y, w: w * T, h: h * T, x0: x0 * T, x1: (x1 + 1) * T, y0: y0 * T, y1: (y1 + 1) * T, plank: null, stub: null };
+      if (given.length){ const gx0 = Math.min(...given.map(q => q[0])), gx1 = Math.max(...given.map(q => q[0])), gy = given[0][1], pw = gx1 - gx0 + 1; B.plank = new THREE.Mesh(new THREE.PlaneGeometry(pw * T, 5 / PPU), basic(plankTex(pw), { opacity: 1 })); B.plank.position.set((gx0 + pw / 2) * T, (gy + 1) * T - 2.5 / PPU, 0.012); scene.add(B.plank); }
+      if (k === 2){ B.stub = new THREE.Mesh(new THREE.PlaneGeometry(w * T, T), lit({ map: holdTex(w, 1, 'door', i * 7 + 3), transparent: false })); B.stub.position.set(B.x, B.y1 - T / 2, 0.012); scene.add(B.stub); doors.push(B); }
+      else held.push(B);
+    } }
+  const showHeld = () => { for (const B of held){ B.m.visible = !RULE.fallen; if (B.plank) B.plank.visible = RULE.fallen; } for (const B of doors){ const shut = RULE.shut && !RULE.fallen; B.m.visible = shut; B.stub.visible = !shut; } };
+  RULE.shut = false; showHeld(); let bellT = 1.2;
   // ---- the raising water: each region's pool, where the water gives him back (the Roots' is the first, the sacred pool in
   // its cistern, under the apse). The water is a basin in the floor, deep and lit from below, and he stands in it; behind
   // it, its region's back (BACK: the apse, a niche, ice, a pipe, a spout, a ring, a trough), the water falling into it
@@ -285,9 +322,9 @@ export function makeProps(scene, R){
     leaks.push({ x, y: floor, m, glow, ph: rnd() * 6, spl: [] });
   }
   const shatter = (C, quiet) => { if (C.gone) return; C.gone = true; for (const [a, b] of C.tiles) LEVEL.tiles[b * W + a] = EMPTY; scene.remove(C.m); C.m.geometry.dispose(); C.m.material.map.dispose(); C.m.material.dispose(); };
-  return {
+  const API = {
     cracks, glass, blooms, pools, leaks,
-    step(dt, t){
+    step(dt, t, P){
       for (const W of pools){ W.wt.offset.x = Math.floor(t * 5) / (W.w * PPU); if (W.plain) continue; W.shaft.material.opacity = 0.26 + Math.sin(t * 0.9) * 0.05; W.glow.material.opacity = 0.17 + Math.sin(t * 1.3) * 0.04; R.glint(W.x, W.y + 1.6, 0xbfe8ff, 0.7, 7);
         for (const F of W.falls){ F.m.material.map.offset.y = -((t * 3 + F.ph) % 1); F.m.material.opacity = 0.45 + Math.sin(t * 2 + F.ph) * 0.12;
           if (rnd() < dt * 5){ const ring = new THREE.Mesh(new THREE.PlaneGeometry(1, 1 / PPU), basic(null, { color: 0xdff4ff, blending: THREE.AdditiveBlending, opacity: 0.8 })); ring.position.set(F.x, W.y + T + 1 / PPU, 0.075); scene.add(ring); F.spl.push({ m: ring, t: 0 }); }
@@ -295,6 +332,11 @@ export function makeProps(scene, R){
           while (F.spl.length && F.spl[0].t > 0.5){ const S = F.spl.shift(); scene.remove(S.m); S.m.geometry.dispose(); S.m.material.dispose(); } }
         for (const M of W.motes){ M.m.position.y += M.v * dt; M.m.position.x = M.x + Math.sin(t * 0.8 + M.ph) * 0.25; if (M.m.position.y > W.y + 8){ M.m.position.y = W.y + 0.5; M.x = W.x + (rnd() - 0.5) * W.w; } M.m.material.opacity = 0.4 + 0.4 * Math.sin(t * 2 + M.ph); } }
       for (const W of pools) if (W.lamp) R.glint(W.lx, W.ly, 0xffb060, 0.3, 3.2);   // Ordric's lamp over the water, small and warm
+      // the doors on the bell's beat: every toll they turn, shut to open and back; one will not shut on him (the toll
+      // waits until he is clear). props.toll(shut) is main.js's, for the sound
+      if (doors.length && !RULE.fallen){ bellT -= dt;
+        if (bellT <= 0){ const to = !RULE.shut, inWay = to && P && doors.some(B => P.x + 0.5 > B.x0 && P.x - 0.5 < B.x1 && P.y + 2.5 > B.y0 && P.y < B.y1);
+          if (!inWay){ RULE.shut = to; bellT = to ? 2.2 : 2.8; showHeld(); if (API.toll) API.toll(to, doors); } } }
       for (const Q of runnels){ Q.fall.material.map.offset.y = -((t * 1.8 + Q.ph) % 1); Q.tread.material.opacity = 0.18 + 0.1 * Math.sin(t * 5 + Q.ph * 3); }
       for (const L of leaks){
         L.m.material.map.offset.y = -((t * 2.2 + L.ph) % 1); L.glow.material.opacity = 0.18 + Math.sin(t * 1.7 + L.ph) * 0.05; R.glint(L.x, L.y + 0.6, 0x9fe8ff, 0.45, 4.2);
@@ -305,14 +347,19 @@ export function makeProps(scene, R){
       for (const G of glass){ const on = glassOn(G.k), going = on && left < 0.5 && !PHASE.all;
         G.m.material.opacity = on ? (going && Math.floor(t * 16) % 2 ? 0.45 : 1) : 0.13; G.gl.material.opacity = on ? 0.16 + Math.sin(t * 3 + G.x) * 0.04 : 0.02; G.turned = G.was !== null && G.was !== on; G.was = on; }
       for (const B of blooms){ B.t += dt; const u = Math.min(1, B.t / 0.5), k = u < 0.18 ? 1 - u / 0.18 * 0.55 : 0.45 + 0.55 * (1 - Math.cos((u - 0.18) / 0.82 * Math.PI * 2.5) * Math.exp(-(u - 0.18) * 5)) ; B.m.scale.set(1 + (1 - Math.min(1, k)) * 0.35, Math.max(0.4, k) + Math.sin(t * 1.7 + B.mk.x) * 0.02, 1); }
-      for (const D of drafts){ const m = D.m; m.position.y += D.v * dt; m.position.x = D.x + Math.sin(t * 2 + D.ph) * 0.12; if (m.position.y > D.u.y1){ m.position.y = D.u.y0; D.x = D.u.x0 + rnd() * (D.u.x1 - D.u.x0); }
+      const blow = gustOn();
+      for (const D of drafts){ const m = D.m, down = D.u.gust && !RULE.fallen; if (down && !blow){ m.material.opacity = Math.max(0, m.material.opacity - dt * 2); continue; }
+        m.position.y += (down ? -2.4 : 1) * D.v * dt; m.position.x = D.x + Math.sin(t * 2 + D.ph) * 0.12; if (m.position.y > D.u.y1 || m.position.y < D.u.y0){ m.position.y = down ? D.u.y1 : D.u.y0; D.x = D.u.x0 + rnd() * (D.u.x1 - D.u.x0); }
         const f = Math.min(1, (m.position.y - D.u.y0) / 1.2, (D.u.y1 - m.position.y) / 1.5); m.material.opacity = 0.5 * Math.max(0, f); }
     },
     bounce(mk){ const B = blooms.find(b => b.mk === mk); if (B) B.t = 0; },
     // everything cracked within r of (x, y) breaks; returns what broke
-    breakAt(x, y, r){ const out = []; for (const C of cracks){ if (C.gone || C.sealed) continue; const dx = Math.max(Math.abs(x - C.x) - C.w / 2, 0), dy = Math.max(Math.abs(y - C.y) - C.h / 2, 0); if (Math.hypot(dx, dy) <= r){ shatter(C); out.push(C); } } return out; },
-    unseal(){ const out = cracks.filter(C => C.sealed && !C.gone); for (const C of out) shatter(C); return out; },
-    nearCrack(x, y, r){ return cracks.find(C => !C.gone && !C.sealed && Math.hypot(Math.max(Math.abs(x - C.x) - C.w / 2, 0), Math.max(Math.abs(y - C.y) - C.h / 2, 0)) <= r) || null; },
+    breakAt(x, y, r){ const out = []; for (const C of cracks){ if (C.gone) continue; const dx = Math.max(Math.abs(x - C.x) - C.w / 2, 0), dy = Math.max(Math.abs(y - C.y) - C.h / 2, 0); if (Math.hypot(dx, dy) <= r){ shatter(C); out.push(C); } } return out; },
+    held, doors,
+    // the keeper has fallen (main.js has set RULE.fallen): what it held is let go. Returns the blocks, for their dust
+    release(){ showHeld(); return held.concat(doors); },
+    nearCrack(x, y, r){ return cracks.find(C => !C.gone && Math.hypot(Math.max(Math.abs(x - C.x) - C.w / 2, 0), Math.max(Math.abs(y - C.y) - C.h / 2, 0)) <= r) || null; },
     breakId(id){ const C = cracks.find(c => c.id === id); if (C) shatter(C, true); },
   };
+  return API;
 }
