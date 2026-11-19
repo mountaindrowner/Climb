@@ -1,0 +1,255 @@
+<title>The Climb Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: a one-screen tool. A bar of layers over the map; the map fills what is left; beside it (under it on a phone) a panel for what is selected and for notes. */
+:root {
+  color-scheme: dark;
+  --bg: #0c0e1a; --panel: #141829; --line: #2a3050; --fg: #e8eaf4; --dim: #9aa0bd; --accent: #feae34; --ok: #63c74d; --warn: #e43b44;
+  --k-keeper: #e63c46; --k-elite: #ff9628; --k-person: #ffffff; --k-relic: #ffd650; --k-thread: #ff78c8; --k-water: #3caaff; --k-way: #78ff8c; --k-shards: #c8aa6e; --k-creature: #be7878; --k-thing: #96c8be; --k-note: #fee761;
+  --display: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif; --body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 14px; display: flex; flex-direction: column; overflow: hidden; }
+button, textarea, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.bar { padding-block: 10px 8px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); border-bottom: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; gap: 8px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+h1 { font-family: var(--display); font-weight: 700; font-size: 18px; margin: 0; letter-spacing: 0.01em; }
+.cap { color: var(--dim); font-size: 12px; }
+.grow { flex: 1 1 auto; }
+.btn { background: transparent; border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; white-space: nowrap; }
+.btn:hover { border-color: var(--dim); }
+.btn.on { border-color: var(--accent); color: var(--accent); }
+.btn.go { background: var(--accent); border-color: var(--accent); color: #1a1205; font-weight: 600; }
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px 3px 8px; background: transparent; font-size: 12.5px; }
+.chip[aria-pressed="false"] { opacity: 0.45; }
+.chip .sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.chip .ct { color: var(--dim); font-variant-numeric: tabular-nums; }
+.main { flex: 1 1 auto; min-height: 0; display: flex; }
+.view { flex: 1 1 auto; min-width: 0; position: relative; overflow: hidden; background: #070812; touch-action: none; cursor: grab; }
+.view.dragging { cursor: grabbing; }
+.view.aim { cursor: crosshair; }
+.world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.world.crisp img { image-rendering: pixelated; }
+.world img { display: block; max-width: none; user-select: none; -webkit-user-drag: none; }
+.room { position: absolute; border: 2px solid transparent; }
+.room.sel { border-color: var(--accent); background: rgba(254, 174, 52, 0.08); }
+.mk { position: absolute; width: 0; height: 0; padding: 0; border: 0; background: none; }
+.mk i { position: absolute; left: 0; top: 0; display: block; padding: 6px; transform: translate(-50%, -50%) scale(var(--inv, 1)); transform-origin: center; }
+.mk .g { display: block; box-sizing: border-box; }
+.k-keeper .g { width: 20px; height: 20px; background: var(--k-keeper); border: 2px solid #fff; transform: rotate(45deg); }
+.k-elite .g { width: 16px; height: 16px; background: var(--k-elite); border: 2px solid #3c1e00; transform: rotate(45deg); }
+.k-person .g { width: 15px; height: 15px; background: var(--k-person); border: 3px solid #101018; border-radius: 50%; }
+.k-relic .g { width: 18px; height: 18px; background: var(--k-relic); clip-path: polygon(50% 0, 100% 38%, 81% 100%, 19% 100%, 0 38%); }
+.k-thread .g { width: 11px; height: 11px; background: var(--k-thread); border: 1.5px solid #3c0028; }
+.k-water .g { width: 13px; height: 13px; background: var(--k-water); border: 2px solid #fff; border-radius: 50%; }
+.k-way .g { width: 16px; height: 15px; background: var(--k-way); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.k-shards .g { width: 10px; height: 7px; background: var(--k-shards); border: 1px solid #3c280a; }
+.k-creature .g { width: 7px; height: 7px; background: var(--k-creature); border-radius: 50%; }
+.k-thing .g { width: 7px; height: 7px; background: var(--k-thing); border-radius: 50%; }
+.mk .t { position: absolute; left: calc(100% - 2px); top: 50%; margin-top: -10px; white-space: nowrap; font: 600 12px/18px var(--body); padding: 0 5px; background: rgba(10, 10, 20, 0.92); border: 1px solid currentColor; border-radius: 3px; pointer-events: none; }
+.world:not(.lbl) .mk .t { display: none; }
+.mk.sel i::after { content: ""; position: absolute; inset: -3px; border: 2px solid var(--accent); border-radius: 50%; }
+.mk.has i::before { content: ""; position: absolute; right: -2px; top: -2px; width: 9px; height: 9px; border-radius: 50%; background: var(--k-note); border: 1.5px solid #201a00; z-index: 1; }
+.mk.moved .g { opacity: 0.35; }
+.pin .g { width: 16px; height: 16px; background: var(--k-note); border: 2px solid #201a00; border-radius: 50% 50% 50% 0; transform: rotate(-45deg) translate(6px, -6px); }
+.ghost .g { width: 18px; height: 18px; border: 2px dashed var(--accent); border-radius: 50%; background: rgba(254, 174, 52, 0.18); }
+svg.lines { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
+.zoom { position: absolute; right: max(12px, env(safe-area-inset-right, 0px)); bottom: 12px; display: flex; flex-direction: column; gap: 6px; }
+.zoom .btn { background: var(--panel); width: 36px; height: 36px; padding: 0; font-size: 18px; }
+.hint { position: absolute; left: 12px; bottom: 12px; background: rgba(20, 24, 41, 0.92); border: 1px solid var(--accent); color: var(--accent); border-radius: 6px; padding: 6px 10px; max-width: calc(100% - 80px); }
+.side { flex: 0 0 340px; min-width: 0; border-left: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; }
+.tabs { display: flex; border-bottom: 1px solid var(--line); }
+.tab { flex: 1; background: none; border: 0; border-bottom: 2px solid transparent; padding: 9px 6px; color: var(--dim); font-weight: 500; }
+.tab[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
+.pane { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 12px 14px; padding-right: max(14px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 12px; }
+.pane h2 { font-family: var(--display); font-size: 17px; margin: 0; text-wrap: balance; }
+.kind { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+.sub { color: var(--dim); line-height: 1.45; margin: 0; }
+dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; }
+dt { color: var(--dim); } dd { margin: 0; min-width: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+textarea { width: 100%; min-height: 64px; resize: vertical; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px; box-sizing: border-box; }
+.note { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+.note.done { opacity: 0.5; }
+.note .where { font-size: 12px; color: var(--accent); background: none; border: 0; padding: 0; text-align: left; }
+.note p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.4; }
+.note .acts { display: flex; gap: 10px; font-size: 12px; color: var(--dim); }
+.note .acts button { background: none; border: 0; padding: 0; color: var(--dim); text-decoration: underline; }
+.empty { color: var(--dim); line-height: 1.5; margin: 0; }
+.state { font-size: 12px; color: var(--dim); }
+.state.bad { color: var(--warn); }
+ul.in { margin: 0; padding-left: 18px; color: var(--dim); line-height: 1.5; }
+@media (max-width: 760px) {
+  .main { flex-direction: column; }
+  .side { flex: 0 0 42%; border-left: 0; border-top: 1px solid var(--line); }
+  .pane { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1 { font-size: 16px; }
+  .bar { gap: 6px; padding-block: 8px 6px; }
+  #layers, #regions { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }
+  #layers::-webkit-scrollbar, #regions::-webkit-scrollbar { display: none; }
+  #layers > *, #regions > * { flex: none; }
+  .cap { font-size: 11px; }
+}
+@media (prefers-reduced-motion: no-preference) { .mk.sel i::after { animation: pulse 1.2s ease-in-out infinite; } @keyframes pulse { 50% { opacity: 0.4; } } }
+</style>
+
+<div class="bar">
+  <div class="row">
+    <h1>The Climb Map</h1><span class="cap" id="cap"></span><span class="grow"></span>
+    <button class="btn" id="pinBtn" type="button">Note at a spot</button>
+    <button class="btn go" id="dl" type="button" hidden>Download HD map</button>
+  </div>
+  <div class="row" id="layers"></div>
+  <div class="row" id="regions"></div>
+</div>
+<div class="main">
+  <div class="view" id="view">
+    <div class="world" id="world"><img id="img" src="map.png" alt="The whole mountain: every region, room and wing as built" draggable="false"><svg class="lines" id="lines"></svg></div>
+    <div class="hint" id="hint" hidden></div>
+    <div class="zoom"><button class="btn" id="zin" type="button" aria-label="Zoom in">+</button><button class="btn" id="zout" type="button" aria-label="Zoom out">&minus;</button><button class="btn" id="zfit" type="button" aria-label="Fit the whole mountain" title="Fit">&#9635;</button></div>
+  </div>
+  <div class="side">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tabSel" aria-selected="true" type="button">Selected</button>
+      <button class="tab" role="tab" id="tabNotes" aria-selected="false" type="button">Notes <span id="nNotes"></span></button>
+      <button class="tab" role="tab" id="tabMoves" aria-selected="false" type="button">Moves <span id="nMoves"></span></button>
+    </div>
+    <div class="pane" id="pane"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+const $ = id => document.getElementById(id), el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const KINDS = [['keeper', 'Keepers', true], ['elite', 'Wing keepers', true], ['person', 'People', true], ['relic', 'Relics', true], ['thread', 'Threads', true], ['water', 'Water', true], ['way', 'Ways in and out', true], ['shards', 'Shard chests', false], ['creature', 'Creatures', false], ['thing', 'Mechanisms', false], ['note', 'Your notes', true]];
+const KNAME = { keeper: 'Keeper', elite: 'Wing keeper', person: 'Person', relic: 'Relic', thread: 'Thread', water: 'Water', way: 'Way', shards: 'Chest of shards', creature: 'Creature', thing: 'Mechanism' };
+const MOVABLE = new Set(['keeper', 'elite', 'person', 'relic', 'thread', 'water', 'shards']);
+const GATE = { breaker: 'Needs the Warden\'s spade', dash: 'Needs the Toll\'s step', glide: 'Needs the Wyrm\'s wind' };
+const SHORT = { 'ORDRIC OF THE VIGIL': 'Ordric', 'MIREL THE PENITENT': 'Mirel', 'CORWEN THE ANNALIST': 'Corwen', 'HOB OF THE GUILD': 'Hob' };
+const view = $('view'), world = $('world'), lines = $('lines'), pane = $('pane');
+let DATA = null, db = null, canWrite = true, dbState = 'Connecting to your notes…', sel = null, tab = 'sel', mode = null;
+const show = {}, notes = new Map(), moves = new Map(), mkEl = new Map(), roomEl = new Map(), extra = [];
+try { const s = JSON.parse(localStorage.getItem('climbmap.layers') || 'null'); for (const [k, , on] of KINDS) show[k] = s && k in s ? !!s[k] : on; } catch (e) { for (const [k, , on] of KINDS) show[k] = on; }
+
+// ---- the view: pan, zoom, fit
+const V = { s: 0.2, x: 0, y: 0 };
+const apply = () => { world.style.transform = `translate(${V.x}px,${V.y}px) scale(${V.s})`; world.style.setProperty('--inv', String(Math.max(0.45, Math.min(1, V.s / 0.32)) / V.s)); world.classList.toggle('lbl', V.s >= 0.42); world.classList.toggle('crisp', V.s >= 1); };
+const zoomAt = (cx, cy, f) => { const s = Math.max(0.08, Math.min(4, V.s * f)), k = s / V.s; V.x = cx - (cx - V.x) * k; V.y = cy - (cy - V.y) * k; V.s = s; apply(); };
+const fitBox = (x, y, w, h, pad = 24) => { const r = view.getBoundingClientRect(); V.s = Math.max(0.08, Math.min(3, Math.min((r.width - pad * 2) / w, (r.height - pad * 2) / h))); V.x = (r.width - w * V.s) / 2 - x * V.s; V.y = (r.height - h * V.s) / 2 - y * V.s; apply(); };
+const toWorld = e => { const r = view.getBoundingClientRect(); return { x: (e.clientX - r.left - V.x) / V.s, y: (e.clientY - r.top - V.y) / V.s }; };
+const ptrs = new Map(); let drag = null, moved = 0, pinch = 0, downOn = null;
+view.addEventListener('pointerdown', e => { if (e.target.closest('.zoom')) return; downOn = e.target; view.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); moved = 0; if (ptrs.size === 1) drag = { x: e.clientX, y: e.clientY }; else if (ptrs.size === 2){ const [a, b] = [...ptrs.values()]; pinch = Math.hypot(a.x - b.x, a.y - b.y); } });
+view.addEventListener('pointermove', e => { if (!ptrs.has(e.pointerId)) return; ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (ptrs.size === 2){ const [a, b] = [...ptrs.values()], d = Math.hypot(a.x - b.x, a.y - b.y), r = view.getBoundingClientRect(); if (pinch > 0) zoomAt((a.x + b.x) / 2 - r.left, (a.y + b.y) / 2 - r.top, d / pinch); pinch = d; moved = 99; }
+  else if (drag){ const dx = e.clientX - drag.x, dy = e.clientY - drag.y; moved += Math.abs(dx) + Math.abs(dy); V.x += dx; V.y += dy; drag = { x: e.clientX, y: e.clientY }; if (moved > 4) view.classList.add('dragging'); apply(); } });
+const up = e => { if (!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId); view.classList.remove('dragging'); if (ptrs.size === 0){ if (moved <= 4) click(e); drag = null; } else pinch = 0; };
+view.addEventListener('pointerup', up); view.addEventListener('pointercancel', e => { ptrs.delete(e.pointerId); drag = null; view.classList.remove('dragging'); });
+view.addEventListener('wheel', e => { e.preventDefault(); const r = view.getBoundingClientRect(); zoomAt(e.clientX - r.left, e.clientY - r.top, Math.exp(-e.deltaY * 0.0015)); }, { passive: false });
+const center = f => { const r = view.getBoundingClientRect(); zoomAt(r.width / 2, r.height / 2, f); };
+$('zin').onclick = () => center(1.4); $('zout').onclick = () => center(1 / 1.4); $('zfit').onclick = () => DATA && fitBox(0, 0, DATA.W, DATA.H);
+const focusAt = (x, y, s) => { const r = view.getBoundingClientRect(); V.s = Math.max(V.s, s || 0.9); V.x = r.width / 2 - x * V.s; V.y = r.height / 2 - y * V.s; apply(); };
+
+// ---- what a point is: its room, its region, its tile
+const roomAt = (x, y) => DATA.rooms.filter(r => x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h).sort((a, b) => a.w * a.h - b.w * b.h)[0] || null;
+const levelOf = n => DATA.levels.find(l => l.n === n);
+const tileOf = (lv, x, y) => { const L = levelOf(lv); return L ? { tx: Math.floor((x - L.ox) / DATA.px), ty: Math.floor((L.oy - y) / DATA.px) } : null; };
+const placeOf = (x, y) => { const r = roomAt(x, y); if (r) return (r.title ? titleCase(r.title) + ', ' : levelOf(r.lv).name + ', ') + r.name; return 'outside any room'; };
+const titleCase = s => s.toLowerCase().replace(/(^|[\s-])([a-z])/g, (m, a, b) => a + b.toUpperCase()).replace(/ Of /g, ' of ').replace(/^the /i, 'The ');
+const label = t => { if (t.startsWith('mark:')){ const m = DATA.byId.get(t.slice(5)); return m ? (SHORT[m.n] || m.n) + ' · ' + levelOf(m.lv).name : 'Something no longer on the map'; } if (t.startsWith('room:')){ const r = DATA.rooms.find(r => r.id === t.slice(5)); return r ? 'Room: ' + r.name + ' · ' + (r.title ? titleCase(r.title) : levelOf(r.lv).name) : 'A room no longer on the map'; } return 'A spot'; };
+
+// ---- drawing what is on it
+function build(){
+  $('cap').textContent = DATA.caption; world.style.width = DATA.W + 'px'; world.style.height = DATA.H + 'px'; lines.setAttribute('width', DATA.W); lines.setAttribute('height', DATA.H);
+  DATA.byId = new Map(DATA.marks.map(m => [m.id, m]));
+  for (const r of DATA.rooms){ const d = el('div', 'room'); d.style.cssText = `left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px`; world.insertBefore(d, lines); roomEl.set(r.id, d); }
+  for (const m of DATA.marks){ const b = el('button', 'mk k-' + m.k); b.type = 'button'; b.style.left = m.x + 'px'; b.style.top = m.y + 'px'; b.dataset.id = m.id; b.setAttribute('aria-label', m.n + ', ' + KNAME[m.k].toLowerCase()); const i = el('i'); i.appendChild(el('span', 'g'));
+    if (['keeper', 'elite', 'person', 'relic'].includes(m.k)){ const t = el('span', 't', SHORT[m.n] || m.n); t.style.color = `var(--k-${m.k})`; i.appendChild(t); } b.appendChild(i); world.appendChild(b); mkEl.set(m.id, b); }
+  const L = $('layers'); for (const [k, name] of KINDS){ const n = k === 'note' ? 0 : DATA.marks.filter(m => m.k === k).length, c = el('button', 'chip'); c.type = 'button'; c.id = 'layer-' + k; c.setAttribute('aria-pressed', String(show[k])); const sw = el('span', 'sw'); sw.style.background = `var(--k-${k})`; c.append(sw, el('span', '', name)); if (k !== 'note') c.appendChild(el('span', 'ct', String(n)));
+    c.onclick = () => { show[k] = !show[k]; c.setAttribute('aria-pressed', String(show[k])); try { localStorage.setItem('climbmap.layers', JSON.stringify(show)); } catch (e) {} layers(); }; L.appendChild(c); }
+  const R = $('regions'); R.appendChild(el('span', 'cap', 'Go to')); for (const l of [...DATA.levels].sort((a, b) => a.deep - b.deep || b.n - a.n)){ const b = el('button', 'btn', l.name.replace('The ', '')); b.type = 'button'; b.onclick = () => fitBox(l.x, l.y, l.w, l.h, 30); R.appendChild(b); }
+  layers(); fitBox(0, 0, DATA.W, DATA.H); render();
+}
+function layers(){ for (const m of DATA.marks){ const e = mkEl.get(m.id); e.hidden = !show[m.k]; } overlay(); }
+function overlay(){
+  for (const e of extra) e.remove(); extra.length = 0; lines.textContent = '';
+  for (const m of DATA.marks){ const e = mkEl.get(m.id); e.classList.toggle('has', show.note && [...notes.values()].some(n => n.target === 'mark:' + m.id && !n.done)); e.classList.toggle('moved', moves.has(m.id)); e.classList.toggle('sel', !!sel && sel.type === 'mark' && sel.id === m.id); }
+  for (const [id, d] of roomEl) d.classList.toggle('sel', !!sel && sel.type === 'room' && sel.id === id);
+  if (show.note) for (const [id, n] of notes) if (n.target === 'pin' && !n.done){ const b = el('button', 'mk pin'); b.type = 'button'; b.style.left = n.x + 'px'; b.style.top = n.y + 'px'; b.dataset.note = id; b.setAttribute('aria-label', 'Your note at a spot'); const i = el('i'); i.appendChild(el('span', 'g')); b.appendChild(i); if (sel && sel.type === 'pin' && sel.id === id) b.classList.add('sel'); world.appendChild(b); extra.push(b); }
+  for (const [id, mv] of moves){ const m = DATA.byId.get(id); if (!m || !show[m.k]) continue; const g = el('div', 'mk ghost'); g.style.left = mv.x + 'px'; g.style.top = mv.y + 'px'; const i = el('i'); i.appendChild(el('span', 'g')); const t = el('span', 't', (SHORT[m.n] || m.n) + ' → here'); t.style.color = 'var(--accent)'; i.appendChild(t); g.appendChild(i); world.appendChild(g); extra.push(g);
+    const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line'); ln.setAttribute('x1', m.x); ln.setAttribute('y1', m.y); ln.setAttribute('x2', mv.x); ln.setAttribute('y2', mv.y); ln.setAttribute('stroke', '#feae34'); ln.setAttribute('stroke-width', '3'); ln.setAttribute('stroke-dasharray', '10 8'); ln.setAttribute('vector-effect', 'non-scaling-stroke'); lines.appendChild(ln); }
+  $('nNotes').textContent = notes.size ? '(' + [...notes.values()].filter(n => !n.done).length + ')' : ''; $('nMoves').textContent = moves.size ? '(' + moves.size + ')' : '';
+}
+
+// ---- a click on the map
+function click(e){
+  const p = toWorld(e), t = downOn && downOn.closest ? downOn.closest('.mk') : null;
+  if (mode && mode.type === 'pin'){ setMode(null); sel = { type: 'newpin', x: Math.round(p.x), y: Math.round(p.y) }; tab = 'sel'; overlay(); render(); return; }
+  if (mode && mode.type === 'move'){ const m = DATA.byId.get(mode.id); setMode(null); if (m) propose(m, Math.round(p.x), Math.round(p.y)); return; }
+  if (t && t.dataset.id) sel = { type: 'mark', id: t.dataset.id }; else if (t && t.dataset.note) sel = { type: 'pin', id: t.dataset.note };
+  else { const r = roomAt(p.x, p.y); sel = r ? { type: 'room', id: r.id } : null; }
+  tab = 'sel'; overlay(); render();
+}
+function setMode(m){ mode = m; view.classList.toggle('aim', !!m); const h = $('hint'); h.hidden = !m; if (m) h.textContent = m.type === 'pin' ? 'Click the map where the note belongs.' : 'Click the map where it should be instead.'; $('pinBtn').classList.toggle('on', !!m && m.type === 'pin'); $('pinBtn').textContent = m && m.type === 'pin' ? 'Cancel' : 'Note at a spot'; }
+$('pinBtn').onclick = () => setMode(mode && mode.type === 'pin' ? null : { type: 'pin' });
+addEventListener('keydown', e => { if (e.key === 'Escape' && mode) setMode(null); });
+
+// ---- notes and proposed moves: kept in the page's own store, so they are still here next time, and can be read back
+const stamp = () => new Date().toISOString();
+async function addNote(target, text, at){ if (!db || !text.trim()) return false; try { await db.collection('notes').add({ target, label: label(target), text: text.trim(), x: at.x, y: at.y, lv: at.lv ?? null, tx: at.tx ?? null, ty: at.ty ?? null, place: placeOf(at.x, at.y), at: stamp(), done: false }); return true; } catch (err) { fail(err); return false; } }
+async function propose(m, x, y){ if (!db) return; const r = roomAt(x, y), lv = r ? r.lv : m.lv, t = tileOf(lv, x, y); try { await db.doc('moves/' + m.id.replace(/[^A-Za-z0-9_.-]/g, '_')).set({ id: m.id, name: m.n, kind: m.k, from: { lv: m.lv, tx: m.tx, ty: m.ty, place: placeOf(m.x, m.y) }, to: { lv, tx: t.tx, ty: t.ty, place: placeOf(x, y) }, x, y, at: stamp() }); sel = { type: 'mark', id: m.id }; } catch (err) { fail(err); } }
+function fail(err){ const c = err && err.code; canWrite = !(c === 'permission_denied' || c === 'not_granted'); dbState = c === 'permission_denied' ? 'You can read notes here, not add them.' : 'That could not be saved (' + (c || 'unknown') + '). Try again.'; render(); }
+function noteCard(id, n, withWhere){
+  const c = el('div', 'note' + (n.done ? ' done' : ''));
+  if (withWhere){ const w = el('button', 'where', n.label + (n.place ? ' · ' + n.place : '')); w.type = 'button'; w.onclick = () => { if (n.target.startsWith('mark:') && DATA.byId.has(n.target.slice(5))) sel = { type: 'mark', id: n.target.slice(5) }; else if (n.target.startsWith('room:')) sel = { type: 'room', id: n.target.slice(5) }; else sel = { type: 'pin', id }; focusAt(n.x, n.y, 0.9); tab = 'sel'; overlay(); render(); }; c.appendChild(w); }
+  c.appendChild(el('p', '', n.text)); const a = el('div', 'acts'); a.appendChild(el('span', '', (n.at || '').slice(0, 10)));
+  if (db && canWrite){ const d = el('button', '', n.done ? 'Reopen' : 'Mark done'); d.type = 'button'; d.onclick = () => db.doc('notes/' + id).update({ done: !n.done }).catch(fail); const x = el('button', '', 'Delete'); x.type = 'button'; x.onclick = () => db.doc('notes/' + id).delete().catch(fail); a.append(d, x); }
+  c.appendChild(a); return c;
+}
+function composer(target, at, placeholder){
+  const w = el('div'); w.style.cssText = 'display:flex;flex-direction:column;gap:8px';
+  if (!db){ w.appendChild(el('p', 'state' + (dbState.startsWith('Connecting') ? '' : ' bad'), dbState)); return w; }
+  if (!canWrite){ w.appendChild(el('p', 'state', dbState)); return w; }
+  const ta = el('textarea'); ta.id = 'noteText'; ta.placeholder = placeholder; ta.setAttribute('aria-label', 'Your note'); const b = el('button', 'btn go', 'Save note'); b.type = 'button'; b.style.alignSelf = 'flex-start';
+  b.onclick = async () => { b.disabled = true; const ok = await addNote(target, ta.value, at); b.disabled = false; if (ok){ ta.value = ''; if (target === 'pin') sel = null; } }; w.append(ta, b); return w;
+}
+const notesFor = t => [...notes].filter(([, n]) => n.target === t).sort((a, b) => (b[1].at || '').localeCompare(a[1].at || ''));
+
+// ---- the panel
+function render(){
+  for (const [id, t] of [['tabSel', 'sel'], ['tabNotes', 'notes'], ['tabMoves', 'moves']]) $(id).setAttribute('aria-selected', String(tab === t));
+  pane.textContent = ''; if (!DATA){ pane.appendChild(el('p', 'empty', 'Loading the map…')); return; }
+  if (tab === 'notes'){ const all = [...notes].sort((a, b) => (a[1].done - b[1].done) || (b[1].at || '').localeCompare(a[1].at || '')); if (!all.length) pane.appendChild(el('p', 'empty', db ? 'No notes yet. Click anyone, anything or any room on the map and write what you want changed, or use "Note at a spot" for a place with nothing on it.' : dbState)); for (const [id, n] of all) pane.appendChild(noteCard(id, n, true)); return; }
+  if (tab === 'moves'){ if (!moves.size) pane.appendChild(el('p', 'empty', db ? 'No moves proposed. Select a person, keeper, relic, thread, water or chest, choose "Put it somewhere else", and click where it should go.' : dbState));
+    for (const [id, mv] of moves){ const m = DATA.byId.get(id), c = el('div', 'note'); const w = el('button', 'where', (m ? SHORT[m.n] || m.n : mv.name) + ' · ' + KNAME[mv.kind]); w.type = 'button'; w.onclick = () => { if (m){ sel = { type: 'mark', id }; tab = 'sel'; } focusAt(mv.x, mv.y, 0.9); overlay(); render(); }; c.appendChild(w);
+      c.appendChild(el('p', '', 'From ' + mv.from.place + ' (tile ' + mv.from.tx + ', ' + mv.from.ty + ')\nTo ' + mv.to.place + ' (tile ' + mv.to.tx + ', ' + mv.to.ty + ')')); if (db && canWrite){ const a = el('div', 'acts'), x = el('button', '', 'Withdraw'); x.type = 'button'; x.onclick = () => db.doc('moves/' + id.replace(/[^A-Za-z0-9_.-]/g, '_')).delete().catch(fail); a.appendChild(x); c.appendChild(a); } pane.appendChild(c); } return; }
+  if (!sel){ pane.appendChild(el('h2', '', 'Nothing selected')); pane.appendChild(el('p', 'sub', 'Click a marker to see who or what it is, or a room to see what is in it. Drag to move the map; scroll or pinch to zoom. Names appear as you zoom in.')); pane.appendChild(el('p', 'sub', 'Anything you select can take a note. People, keepers, relics, threads, water and chests can also be given a new place: I read both back and change the game to match.')); if (!db) pane.appendChild(el('p', 'state' + (dbState.startsWith('Connecting') ? '' : ' bad'), dbState)); return; }
+  if (sel.type === 'mark'){ const m = DATA.byId.get(sel.id); if (!m){ sel = null; return render(); } const r = roomAt(m.x, m.y), L = levelOf(m.lv), mv = moves.get(m.id);
+    pane.appendChild(el('div', 'kind', KNAME[m.k])); pane.appendChild(el('h2', '', m.n)); if (m.s) pane.appendChild(el('p', 'sub', m.k === 'person' ? 'First thing said here: “' + m.s + '”' : m.s));
+    const dl = el('dl'); const add = (k, v) => { dl.append(el('dt', '', k), el('dd', '', v)); }; add('Region', L.name + (L.deep ? ' (the Deep)' : '')); if (r){ if (r.title) add(r.wing ? 'Wing' : 'Passage', titleCase(r.title)); add('Room', r.name); } add('Tile', m.tx + ', ' + m.ty); if (mv) add('Proposed', mv.to.place + ' (tile ' + mv.to.tx + ', ' + mv.to.ty + ')'); pane.appendChild(dl);
+    if (MOVABLE.has(m.k) && db && canWrite){ const row = el('div', 'row'), b = el('button', 'btn', mv ? 'Choose a different place' : 'Put it somewhere else'); b.type = 'button'; b.onclick = () => setMode({ type: 'move', id: m.id }); row.appendChild(b); if (mv){ const x = el('button', 'btn', 'Withdraw the move'); x.type = 'button'; x.onclick = () => db.doc('moves/' + m.id.replace(/[^A-Za-z0-9_.-]/g, '_')).delete().catch(fail); row.appendChild(x); } pane.appendChild(row); }
+    for (const [id, n] of notesFor('mark:' + m.id)) pane.appendChild(noteCard(id, n, false)); pane.appendChild(composer('mark:' + m.id, { x: m.x, y: m.y, lv: m.lv, tx: m.tx, ty: m.ty }, 'What should change about ' + (SHORT[m.n] || m.n) + '?')); return; }
+  if (sel.type === 'room'){ const r = DATA.rooms.find(r => r.id === sel.id); if (!r){ sel = null; return render(); } const L = levelOf(r.lv), inside = DATA.marks.filter(m => m.lv === r.lv && m.x >= r.x && m.x < r.x + r.w && m.y >= r.y && m.y < r.y + r.h);
+    pane.appendChild(el('div', 'kind', r.title ? (r.wing ? 'Room in a wing' : 'Room in a passage') : 'Room')); pane.appendChild(el('h2', '', r.name));
+    const dl = el('dl'); const add = (k, v) => { dl.append(el('dt', '', k), el('dd', '', v)); }; add('Region', L.name + (L.deep ? ' (the Deep)' : '')); if (r.title) add(r.wing ? 'Wing' : 'Passage', titleCase(r.title)); add('Size', (Math.round(r.scr * 10) / 10) + (r.scr === 1 ? ' screen' : ' screens')); if (r.gate) add('Gate', GATE[r.gate] || r.gate); if (r.after) add('Opens', 'Only after its keeper falls'); if (L.dark) add('Light', 'Dark: seen by his lamp'); pane.appendChild(dl);
+    const by = new Map(); for (const m of inside){ const k = m.k === 'creature' || m.k === 'thing' ? m.n : (SHORT[m.n] || m.n); by.set(k, (by.get(k) || 0) + 1); } if (by.size){ const ul = el('ul', 'in'); for (const [k, n] of [...by].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))) ul.appendChild(el('li', '', n > 1 ? n + ' × ' + k : k)); pane.appendChild(el('div', 'kind', 'In this room')); pane.appendChild(ul); }
+    for (const [id, n] of notesFor('room:' + r.id)) pane.appendChild(noteCard(id, n, false)); pane.appendChild(composer('room:' + r.id, { x: r.x + r.w / 2, y: r.y + r.h / 2, lv: r.lv }, 'What should change about this room?')); return; }
+  if (sel.type === 'pin'){ const n = notes.get(sel.id); if (!n){ sel = null; return render(); } pane.appendChild(el('div', 'kind', 'Your note at a spot')); pane.appendChild(el('h2', '', n.place || 'A spot')); pane.appendChild(noteCard(sel.id, n, false)); return; }
+  if (sel.type === 'newpin'){ const r = roomAt(sel.x, sel.y), lv = r ? r.lv : null, t = lv != null ? tileOf(lv, sel.x, sel.y) : null; pane.appendChild(el('div', 'kind', 'New note at a spot')); pane.appendChild(el('h2', '', placeOf(sel.x, sel.y))); if (t) pane.appendChild(el('p', 'sub', 'Tile ' + t.tx + ', ' + t.ty + ' in ' + levelOf(lv).name)); pane.appendChild(composer('pin', { x: sel.x, y: sel.y, lv, tx: t && t.tx, ty: t && t.ty }, 'What belongs here, or what is wrong here?')); }
+}
+$('tabSel').onclick = () => { tab = 'sel'; render(); }; $('tabNotes').onclick = () => { tab = 'notes'; render(); }; $('tabMoves').onclick = () => { tab = 'moves'; render(); };
+
+// ---- start: the map first, then the store and the download when the viewer grants them
+apply(); render();
+fetch('map-data.json').then(r => r.json()).then(d => { DATA = d; build(); connect(); }).catch(() => { pane.textContent = ''; pane.appendChild(el('p', 'state bad', 'The map\'s data could not be loaded. Reload the page.')); });
+async function connect(){
+  const use = window.claude && window.claude.use; if (!use){ dbState = 'Notes are saved only when this page is opened in Claude.'; render(); } else {
+    use('db').then(d => { if (!d){ dbState = 'Notes can\'t be saved in this view. Sign in to Claude and open the page again.'; render(); return; } db = d; dbState = '';
+      const late = setTimeout(() => { dbState = 'Your notes can\'t be reached yet. The map still works.'; render(); }, 10000), ok = () => clearTimeout(late);
+      db.collection('notes').onSnapshot(s => { ok(); notes.clear(); for (const doc of s.docs){ const v = doc.data(); if (v && typeof v.text === 'string') notes.set(doc.id, v); } overlay(); render(); }, e => { ok(); dbState = 'Your notes could not be loaded (' + (e && e.code || 'unknown') + ').'; render(); });
+      db.collection('moves').onSnapshot(s => { moves.clear(); for (const doc of s.docs){ const v = doc.data(); if (v && v.id && v.to) moves.set(v.id, v); } overlay(); render(); }, () => {}); render(); });
+    use('downloads').then(dl => { if (!dl) return; const b = $('dl'); b.hidden = false; b.onclick = async () => { b.disabled = true; const was = b.textContent; b.textContent = 'Preparing…'; try { const blob = await (await fetch('the-climb-map-build-72.png')).blob(); await dl.save({ filename: 'the-climb-map-build-72.png', data: blob }); b.textContent = 'Saved'; } catch (e) { b.textContent = e && e.code === 'declined' ? was : 'Could not save'; } setTimeout(() => { b.textContent = was; b.disabled = false; }, 1800); }; }); }
+}
+})();
+</script>
