@@ -336,6 +336,11 @@ meltwater out through the tower's foot. Phase 11 is done.*
 
 *Build 65: **the refectory** (the Cloister's own room, over the stair). Phase 10 is done.*
 
+*Phase 12, first half, done (build 66): **the Wreck of the Works**, by `docs/phase12-sheet.md`. Nine screens west of the
+Tempest's landing, open to anyone. Iron in two halves with the current in one; levers that send it across; coils and
+Wright's-arms; the Jar, dull until he makes it live; the Wright's Boots; out by a grate into the watch. Still to do in
+phase 12: the Eye of the Storm.*
+
 Built two regions at a time. **Spaces, not rectangles** (decision 0.8): each wing has at least one vast space, one
 winding way, and one path no one expects, each shaped by what the place was. Each wing gets its sheet first: its rooms, what each room is for, its gate and shortcut,
 its creatures, its elite, its one moment, its relic, and a weapon (the Ember plan's step 4) where one fits. Each

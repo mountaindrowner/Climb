@@ -50,7 +50,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 65 | 18 Nov 2026 | `11c8b38` | The Cloister's refectory; the Galleries' back wall closed | adds | yes (now) |
+| 66 | 18 Nov 2026 | `COMMIT66` | The Wreck of the Works (phase 12, first half) | **moved** (the Tempest) | yes (now) |
+| 65 | 18 Nov 2026 | `11c8b38` | The Cloister's refectory; the Galleries' back wall closed | adds | was, until 66 |
 | 64 | 18 Nov 2026 | `5472b28` | The Glacier Galleries (phase 11, second half) | adds | was, until 65 |
 | 63 | 18 Nov 2026 | `a88ef9a` | The version note on the title, the opening and the pause screen | nothing | was, until 64 |
 | 62 | 18 Nov 2026 | `b72435a` | The Pilgrims' Cairns (phase 11, first half) | **moved** (the Spires) | was, until 63 |
@@ -76,6 +77,24 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 66: the Wreck of the Works
+
+- **For the player:** the Tempest's west wing, nine screens, open to anyone. Iron in two halves with the current in
+  one of them; levers that send it to the other; coils, Wright's-arms; the Jar; the Wright's Boots. All of it in
+  `docs/phase12-sheet.md`.
+- **Underneath:** new `src/side/regions/works.js`; two new tiles (the works' iron) in `rooms.js`, `level.js`
+  (`RULE.sw`, `RULE.surge`), `props.js`; the lever, the discharge and the Jar's breaking in `main.js`; a wing keeper's
+  bar now reads its name from the creature; `SIDE.boots` in `motor.js`; the Tempest is three columns wider on the west;
+  doors cut into the landing and the watch.
+- **Save: moved.** Everything a save had found or broken in the Tempest is shifted 80 tiles east, once (`winged` 2 to
+  3). Adds: which way the lever is, the Jar broken (`still`), the relic.
+- **Checked:** 274 automated checks, eight of them the wing's; a play-through in the test browser (the rule, a coil,
+  an arm, the Jar dull and live, its discharge, its breaking, both grates); the zip opened, the title and every region.
+- **Not checked:** not played by hand; the sounds; the boots in play.
+- **During this build the session's worker was restarted** in the middle of a test run. Nothing was lost: the work was
+  on disk, and every check was run again from the start afterwards.
+- **Cost:** nothing; all of it is drawn in code.
 
 ### Build 65: the refectory; the Galleries' wall
 

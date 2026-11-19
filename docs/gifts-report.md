@@ -10,9 +10,9 @@ what docs/metroidvania.md sets out to change. Runbacks are the shortest way from
 | Region | He comes with | Places | What each later gift opens | Waters | Raising water to where it leads |
 |---|---|---|---|---|---|
 | The Roots | nothing yet | 980 | The Warden's Spade +668; The Toll's Step +4; The Wyrm's Wind +0 | 3 | 22 s |
-| The Cloister | The Warden's Spade | 1827 | The Toll's Step +481; The Wyrm's Wind +0 | 3 | 19 s |
+| The Cloister | The Warden's Spade | 1926 | The Toll's Step +481; The Wyrm's Wind +0 | 3 | 19 s |
 | The Spires | The Warden's Spade, The Toll's Step | 2166 | The Wyrm's Wind +417 | 4 | 31 s |
-| The Tempest | The Warden's Spade, The Toll's Step, The Wyrm's Wind | 1387 | (all his) | 4 | 31 s |
+| The Tempest | The Warden's Spade, The Toll's Step, The Wyrm's Wind | 1802 | (all his) | 4 | 31 s |
 | The Gardens | The Warden's Spade, The Toll's Step, The Wyrm's Wind | 1163 | (all his) | 3 | 31 s |
 | The Firmament | The Warden's Spade, The Toll's Step, The Wyrm's Wind | 1608 | (all his) | 3 | 35 s |
 | The Workings | nothing yet | 759 | The Warden's Spade +0; The Toll's Step +0; The Wyrm's Wind +0 | 1 | 2 s |
@@ -33,7 +33,7 @@ Runbacks to the keeper:
 
 ## The Cloister
 
-He comes with The Warden's Spade: **1827 places**.
+He comes with The Warden's Spade: **1926 places**.
 
 - **The Toll's Step** opens **481** more places: The Scriptorium: hall 317, The Scriptorium: rubrication 78, The Scriptorium: furnace 47, The Scriptorium: lectern 37, The Scriptorium: stacks 2. Rooms opened: hall, furnace, rubrication, lectern.
 - **The Wyrm's Wind** opens **0** more places.
@@ -59,7 +59,7 @@ Runbacks to the keeper:
 
 ## The Tempest
 
-He comes with The Warden's Spade, The Toll's Step, The Wyrm's Wind: **1387 places**.
+He comes with The Warden's Spade, The Toll's Step, The Wyrm's Wind: **1802 places**.
 
 - Every gift is already his here.
 

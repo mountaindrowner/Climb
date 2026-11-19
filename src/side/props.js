@@ -1,7 +1,7 @@
 // What stands in the world and changes: star-glass ledges that keep time, blooms that throw him, rising air, and cracked
 // rock that breaks. The painted layers leave these out (render.js, paintAt); they are drawn here, small meshes over them.
 //   makeProps(scene, R) -> { step(dt, t, P), bounce(mark), breakAt(x, y, r) -> [{ id, x, y }], breakId(id), cracks }
-import { T, LEVEL, CRACKED, GLASS_A, GLASS_B, EMPTY, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, RULE, rawAt, glassOn, gustOn, PHASE } from './level.js';
+import { T, LEVEL, CRACKED, GLASS_A, GLASS_B, EMPTY, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, liveAt, RULE, rawAt, glassOn, gustOn, PHASE } from './level.js';
 import { PPU, PAL, lit, themeNow } from './render.js';
 const THREE = window.THREE;
 const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
@@ -316,9 +316,10 @@ export function makeProps(scene, R){
   RULE.shut = false; showHeld(); let bellT = 1.2;
   // ---- the storm's gantries (live decks): each run an iron grating; while the storm rules it spits
   const decks = [];
-  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++){ if (rawAt(i, j) !== LIVE || (i > 0 && rawAt(i - 1, j) === LIVE)) continue; let n = 1; while (rawAt(i + n, j) === LIVE) n++;
-    const c = cnv(n * 8, 5), g = c.getContext('2d'); px(g, PAL.ink, 0, 0, c.width, 5); px(g, PAL.mid, 1, 1, c.width - 2, 1); for (let x = 1; x < c.width - 1; x += 2) px(g, PAL.dark, x, 2, 1, 2); px(g, PAL.light, 1, 1, 1, 1); px(g, PAL.light, c.width - 2, 1, 1, 1);
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(n * T, 5 / PPU), basic(texOf(c), { opacity: 1 })); m.position.set((i + n / 2) * T, (j + 1) * T - 2.5 / PPU, 0.012); scene.add(m); decks.push({ m, x: (i + n / 2) * T, y: (j + 1) * T, w: n * T, ph: rnd() * 9 }); }
+  // (and the works' iron, the Wreck of the Works: a deck of one half is copper, of the other steel)
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++){ const t0 = rawAt(i, j); if ((t0 !== LIVE && t0 !== IRON_A && t0 !== IRON_B) || (i > 0 && rawAt(i - 1, j) === t0)) continue; let n = 1; while (rawAt(i + n, j) === t0) n++;
+    const c = cnv(n * 8, 5), g = c.getContext('2d'), top = t0 === IRON_A ? PAL.rust : t0 === IRON_B ? PAL.light : PAL.mid, rib = t0 === IRON_A ? PAL.wood1 : PAL.dark; px(g, PAL.ink, 0, 0, c.width, 5); px(g, top, 1, 1, c.width - 2, 1); for (let x = 1; x < c.width - 1; x += 2) px(g, rib, x, 2, 1, 2); px(g, t0 === IRON_A ? PAL.fire2 : PAL.light, 1, 1, 1, 1); px(g, t0 === IRON_A ? PAL.fire2 : PAL.light, c.width - 2, 1, 1, 1);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(n * T, 5 / PPU), basic(texOf(c), { opacity: 1 })); m.position.set((i + n / 2) * T, (j + 1) * T - 2.5 / PPU, 0.012); scene.add(m); decks.push({ m, x: (i + n / 2) * T, y: (j + 1) * T, w: n * T, ph: rnd() * 9, i, j, works: t0 !== LIVE }); }
   // ---- the storm's rods ('rod' marks): an iron mast with a ball at its tip. main.js strikes them in turn (rod.warn 0 to 1
   // as the strike comes, rod.bolt while it lands); here they are drawn: the mark of where it will land, and the bolt
   const rods = [];
@@ -390,7 +391,7 @@ export function makeProps(scene, R){
       if (doors.length && !RULE.fallen){ bellT -= dt;
         if (bellT <= 0){ const to = !RULE.shut, inWay = to && P && doors.some(B => P.x + 0.5 > B.x0 && P.x - 0.5 < B.x1 && P.y + 2.5 > B.y0 && P.y < B.y1);
           if (!inWay){ RULE.shut = to; bellT = to ? 2.2 : 2.8; showHeld(); if (API.toll) API.toll(to, doors); } } }
-      for (const D of decks){ const live = !RULE.fallen; D.m.material.color.setHex(live && Math.sin(t * 31 + D.ph) > 0.86 ? 0xbfe0ff : live ? 0xffffff : 0x8f96a8); if (live && rnd() < dt * 1.5) R.glint(D.x + (rnd() - 0.5) * D.w, D.y + 0.1, 0x9fd0ff, 0.9, 2.2, 0.12); }
+      for (const D of decks){ const live = D.works ? liveAt(D.i, D.j) : !RULE.fallen; D.m.material.color.setHex(live && Math.sin(t * 31 + D.ph) > 0.86 ? 0xbfe0ff : live ? 0xffffff : 0x8f96a8); if (live && rnd() < dt * 1.5) R.glint(D.x + (rnd() - 0.5) * D.w, D.y + 0.1, 0x9fd0ff, 0.9, 2.2, 0.12); }
       for (const Q of rods){ Q.mark.material.opacity = RULE.fallen ? 0 : Q.warn * (0.1 + 0.06 * Math.sin(t * 40)); Q.boltT = Math.max(0, Q.boltT - dt); Q.bolt.material.opacity = Q.boltT > 0 ? 0.9 : 0; Q.bolt.scale.x = 0.6 + rnd() * 0.9; Q.m.material.color.setHex(RULE.fallen ? 0x8f96a8 : 0xffffff); if (!RULE.fallen && Q.warn > 0) R.glint(Q.x, Q.y + 3.2, 0xbfe0ff, 0.5 + Q.warn, 3.5); }
       for (const Q of runnels){ Q.fall.material.map.offset.y = -((t * 1.8 + Q.ph) % 1); Q.tread.material.opacity = 0.18 + 0.1 * Math.sin(t * 5 + Q.ph * 3); }
       for (const L of leaks){

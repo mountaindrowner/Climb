@@ -34,7 +34,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 65, date: '18 NOV 2026', phase: 11, phases: 21, last: 'THE REFECTORY' };
+const VERSION = { build: 66, date: '18 NOV 2026', phase: 12, phases: 21, last: 'THE WRECK OF THE WORKS' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -85,12 +85,13 @@ const SUB = LEVELS.map(l => l.sub), CARD = LEVELS.map(l => l.card);   // under a
 function learn(){
   const b = n => !!G.beat[n] || G.top > n || (DEV && LEVEL.index > n);
   CAN.breaker = b(0); CAN.dash = b(1); CAN.glide = b(2);
-  if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the spade (a save from before has it now) SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); EMBER.mend = has('seedheart') ? 7 : 10;
+  if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the spade (a save from before has it now) SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); SIDE.boots = has('boots'); EMBER.mend = has('seedheart') ? 7 : 10;
 }
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
 const WAY = { was: false, said: new Map() };   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
 // `walked`: he has walked in from the next region (cross): he and his scarf are as they were
 function setup(walked = false){
+  RULE.sw = (G.sw && G.sw[LEVEL.index]) || 0; RULE.surge = 0; RULE.swFree = false;   // the Wreck of the Works: the lever as he left it
   RULE.litAll = false; RULE.lit = new Set((G.lit && G.lit[LEVEL.index]) || []);   // the Glacier Galleries: the fires he has lit here burn on
   RULE.turned = false; RULE.down = !!G.cairnDown; WAY.was = false; WAY.said = new Map();   // the Pilgrims' Cairns: the way is whole as he comes in; his own cairn, once down, stays down
   RULE.ring = 0; RULE.still = !!(G.still && G.still[LEVEL.index]);   // the Bell-Foundry: nothing rings as he comes in; its Cracked Bell, once fallen, stays fallen
@@ -162,6 +163,8 @@ function wingStep(dt){
   if (LEVEL.theme === 'spires' && P.grounded){ const now = performance.now() / 1000;
     for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'reason' && Math.abs((m.x + 0.5) * T - P.x) < 1.3 && Math.abs(m.y * T - P.y) < 1.5 && now - (WAY.said.get(m) || -99) > 14 && !(BANNER && BANNER.t > 0)){ WAY.said.set(m, now); banner('', 'scratched on the stone: ' + m.says, 2.6); }
     if (!G.cairnSeen) for (const e of E.list) if (e.type === 'hiscairn' && e.alive && Math.abs(e.x - P.x) < 3.2 && Math.abs(e.y - P.y) < 2){ G.cairnSeen = 1; store(); banner('His own cairn', 'his name is on the top stone, from before he fell. Under it: NOT YET.', 6.5); } }
+  // the Wreck of the Works: the Jar's discharge runs through all the iron for a moment (level.js liveAt)
+  if (RULE.surge > 0 && !PAUSE){ RULE.surge = Math.max(0, RULE.surge - dt); if (RULE.surge === 0) PROPS.show(); }
   // the Bell-Foundry's ringing dies away: in silence the shutters go up (the tongues and the slag see RULE.ring for themselves)
   if (RULE.ring > 0 && !PAUSE){ RULE.ring = Math.max(0, RULE.ring - dt); if (RULE.ring === 0){ PROPS.show(); if (PROPS.shutters.some(B => Math.hypot(B.x - P.x, B.y - P.y) < 26)) sfx.creak(); } }
   if (P.dashT > 0) for (const S of PROPS.tear(P)){ sfx.swing(true); fx.burst({ x: S.x, y: S.y }, 28, 0xead4aa); fx.dust({ x: S.x, y: S.y0 }, 12, 3); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.2); (G.broke[LEVEL.index] = G.broke[LEVEL.index] || []).push(S.id); store(); }
@@ -948,9 +951,9 @@ const TICK = { R, get P(){ return P; }, get fx(){ return fx; }, sfx, LEVEL, flas
 const TCTX = { get P(){ return P; }, solidAt };
 // a creature's own voice, quieter the further off it is
 // the Bell-Foundry: how long iron rings (a touch, a blow on the Bell); the Founder's Felt (how far a parry's ring stills, how long)
-const RING = [3.6, 4.6], FELT = { r: 7, t: 1.1 };
+const RING = [3.6, 4.6], FELT = { r: 7, t: 1.1 }, SURGE = 0.6;
 // a wing's keeper has no hall of its own: its name and strength show once it has been struck, while he is near it
-const miniHud = () => { if (!E || !P) return null; const e = E.list.find(q => q.type === 'crackedbell' && q.alive && q.woke); return e && Math.hypot(e.x - P.x, e.y - P.y) < 34 ? { name: 'The Cracked Bell', frac: Math.max(0, e.hp / e.d.hp), phase: e.two ? 2 : 1 } : null; };
+const miniHud = () => { if (!E || !P) return null; const e = E.list.find(q => q.d.name && q.alive && q.woke && Math.hypot(q.x - P.x, q.y - P.y) < 34); return e ? { name: e.d.name, frac: Math.max(0, e.hp / e.d.hp), phase: e.two ? 2 : 1 } : null; };
 const cry = (c, what) => { if (!c) return; const d = Math.hypot(c.x - P.x, c.y - P.y); beast(c.type, what, Math.max(0, 1 - d / 22)); };
 function onEvent(e){
   const at = { x: P.x, y: P.y }; TEACHER.event(e, TCTX);
@@ -997,7 +1000,16 @@ function onEvent(e){
       sfx.ember && sfx.ember(); sfx.glass(); fx.burst(e.at, 20, 0xfeae34); fx.ring(e.at, 0xfeae34); R.glint(e.at.x, e.at.y, 0xfeae34, 1.2, 8, 0.6); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.12);
       for (const B of PROPS.ices) if (B.fire === e.key){ fx.dust({ x: B.x, y: B.y }, 18, 3.5); fx.burst({ x: B.x, y: B.y }, 14, 0xcfeaff); }
       if (!G.thawSaid){ G.thawSaid = 1; store(); banner('', 'the fire takes; the ice near it lets go', 3); } break; }
+    // a lever struck in the Wreck of the Works (regions/works.js): the current goes to the other half of the iron
+    case 'switch': { if (RULE.still) break; RULE.sw = RULE.sw ? 0 : 1; (G.sw = G.sw || {})[LEVEL.index] = RULE.sw; store(); PROPS.show(); sfx.creak(); sfx.zap(); fx.burst(e.at, 14, 0xbfe8ff); R.glint(e.at.x, e.at.y, 0xbfe8ff, 0.9, 6, 0.3); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.1);
+      for (const D of PROPS.decks) if (D.works && Math.hypot(D.x - P.x, D.y - P.y) < 24) R.glint(D.x, D.y, 0xbfe8ff, 0.5, 2.5, 0.2);
+      if (!G.swSaid){ G.swSaid = 1; store(); banner('', 'the lever sends the current to the other half of the iron', 3.4); } break; }
+    case 'arc': if (Math.hypot(e.at.x - P.x, e.at.y - P.y) < 16) sfx.zap(); break;
+    // the Jar lets go: for a moment the current is in every piece of iron in the works
+    case 'surge': { RULE.surge = SURGE; sfx.thunder(); sfx.zap(); FLASH = Math.max(FLASH, 0.3); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.4); fx.ring(e.at, 0xffffff); fx.burst(e.at, 30, 0xbfe8ff); R.shock(e.at.x, e.at.y, true); for (const D of PROPS.decks) if (D.works) R.glint(D.x, D.y, 0xffffff, 1, 3, 0.3); break; }
     case 'kill':
+      // the Jar is broken: the works are dead, for good. No iron shocks; the coils and the arms are still; the grates lift
+      if (e.e && e.e.type === 'jar'){ RULE.still = true; RULE.surge = 0; (G.still = G.still || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.glass(); sfx.thunder(); sfx.door(); FEEL_FX.shake = 0.7; SLOW = Math.max(SLOW, 0.9); FLASH = Math.max(FLASH, 0.4); fx.burst(e.at, 40, 0xbfe8ff); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); for (const B of PROPS.grates) fx.dust({ x: B.x, y: B.y }, 14, 3); banner('The Jar is broken', 'what the Wrights caught has gone back to the storm', 5.5); }
       if (e.e && e.e.type === 'seated'){ G.seatedDown = 1; store(); banner('The Seated lies down', 'what the ice kept, the fire let go', 5); }
       // a thing that is not a creature (his own cairn): it is knocked down, and that is all
       if (e.e && e.e.d.prop){ sfx.crack(); sfx.break(); fx.dust(e.at, 26, 4); fx.burst(e.at, 14, 0xc0cbdc); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.3); if (e.e.type === 'hiscairn'){ G.cairnDown = 1; RULE.down = true; store(); banner('It is down', 'the stone with his name on it lies with the others', 5); } break; }

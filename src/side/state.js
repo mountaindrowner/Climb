@@ -15,7 +15,7 @@
 //   G.seen, G.slain, G.keepers: what he has met, killed, and which keepers he has faced (Corwen's Annals, annals.js)
 import { TUNE } from '../config/tuning.js';
 const KEY = 'climb-side', OKEY = 'climb-side-opts';
-const blank = () => ({ seamed: 1, level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], worn: [], knots: 0, arms: [], wield: 'blade', got: {}, broke: {}, met: {}, charts: [], began: false, falls: 0, seen: {}, slain: {}, keepers: {}, blocked: {}, fallsBy: {}, sealed: {}, rooms: {}, joined: 1, winged: 2 });
+const blank = () => ({ seamed: 1, level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], worn: [], knots: 0, arms: [], wield: 'blade', got: {}, broke: {}, met: {}, charts: [], began: false, falls: 0, seen: {}, slain: {}, keepers: {}, blocked: {}, fallsBy: {}, sealed: {}, rooms: {}, joined: 1, winged: 3 });
 export const G = blank();
 export const OPT = { music: 0.7, sfx: 1, voice: 0.8, text: 'normal', shake: 1, flash: 1, diff: 1, synth: false, rumble: true, phone: 'auto', hints: true };   // hints: the opening's help when he struggles (teach.js)   // phone: 'auto' (by the device), true, false   // diff: 0 story, 1 climber, 2 summit
 const read = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e){ return null; } };
@@ -33,9 +33,10 @@ export const JOIN_MOVED = { 1: [0, 46], 2: [0, 69], 3: [40, 69], 4: [0, 46], 5: 
 // the Scriptorium (build 60) is three rooms to the west of the Cloister: its places moved 120 tiles east with it
 // the Pilgrims' Cairns (build 62) are three rooms to the west of the Spires: the same, there. [dx, dy, since]: `since`
 // the count a save's `winged` must be under for the move still to be owed
-export const WING_MOVED = { 1: [120, 0, 1], 2: [120, 0, 2] };
+// the Wreck of the Works (build 66) is three rooms to the west of the Tempest, which stood one room in already: 80 tiles
+export const WING_MOVED = { 1: [120, 0, 1], 2: [120, 0, 2], 3: [80, 0, 3] };
 function winged(S){
-  const have = S.winged || 0; if (have >= 2) return; S.winged = 2;
+  const have = S.winged || 0; if (have >= 3) return; S.winged = 3;
   for (const n of Object.keys(WING_MOVED)){ const [dx, dy, since] = WING_MOVED[n]; if (have >= since) continue; const mv = id => { const m = /^([a-z]?)(-?\d+),(-?\d+)$/.exec(id); return m ? m[1] + (+m[2] + dx) + ',' + (+m[3] + dy) : id; };
     for (const k of ['got', 'broke', 'blocked', 'lit']) if (S[k] && S[k][n]) S[k][n] = S[k][n].map(mv); }
 }
@@ -78,6 +79,7 @@ export const RELICS = {   // name: whose it was; line: what it does; lore: whose
   stylus:      { name: 'Sexton\'s Stylus',       line: 'Each creature he kills gives 2 more embers.', lore: 'It scratched a mark for every one of his falls. Under them, in another hand, the whole count is struck through.' },
   blankleaf:   { name: 'Copyist\'s Blank Leaf',   line: 'After he rests at water, the first blow that lands does no harm.', lore: 'The one page in the house that was never spoiled. Nothing was ever written on it.' },
   felt:        { name: 'Founder\'s Felt',        line: 'A parry rings: everything near him is stilled for a breath.', lore: 'The founders wrapped a tongue in it when a bell was to be struck and not heard.' },
+  boots:       { name: 'Wright\'s Boots',         line: 'Live iron does not shock him.', lore: 'Cork and gum. The Wrights wore them to walk their own works. They did not take them off to sleep.' },
   flint:       { name: 'Climber\'s Flint',        line: 'A blow that lands gives two embers, not one.', lore: 'It lit the shelter\'s fire every night of the climb. On the last night no one struck it.' },
   turnstone:   { name: 'Pilgrim\'s Stone',        line: 'After a blow, nothing can hurt him for a breath longer.', lore: 'The top stone of a cairn. He carried it up once, and set it down. NOT YET is scratched on it.' },
   starcompass: { name: 'Astronomer\'s Compass',    line: 'The map shows what is still to be found.',       lore: 'It does not point north. It points at the star that is missing.' },

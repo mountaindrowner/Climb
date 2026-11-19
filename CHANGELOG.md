@@ -2,7 +2,15 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The refectory (latest; build 65).** A new room of the Cloister's own, up through the roof of the stair: a long table laid for pilgrims who do not come, the bread turned to stone, two of the house still serving it. No one there fights. This finishes phase 10. Also: the Glacier Galleries' back wall no longer shows the bright sky. An idea of yours is written into the roadmap for later (an item that takes what he kills and calls it back on his side).
+**The Wreck of the Works (latest; phase 12, build 66): the Tempest's west wing.** `docs/phase12-sheet.md` has all of it.
+- **Nine screens west of the landing, open to anyone.** The Wrights' works, where they tried to catch the lightning and keep it.
+- **Its rule: the current is always somewhere.** The iron is in two halves, copper and steel, and the current runs in one of them. Standing on the live half costs a heart. A lever, struck, sends the current to the other half, everywhere at once. Nothing turns it off.
+- **Five rooms:** the yard (the rule, shown), the coils (a climb, a lever at each landing), the cranes (three spans of deck, a hook swinging over each), the jar-house, the drafting room.
+- **The Jar,** the wing's keeper: dull until he sends the current to its half. Then it can be broken, and it fills; full, it lets it all go through every piece of iron in the house. When it breaks the works are dead for good and the grates lift.
+- **A relic, the Wright's Boots:** live iron does not shock him.
+- Nothing was drawn outside the game for this: the levers, coils, hooks and the Jar are drawn in code.
+
+**The refectory (build 65).** A new room of the Cloister's own, up through the roof of the stair: a long table laid for pilgrims who do not come, the bread turned to stone, two of the house still serving it. No one there fights. This finishes phase 10. Also: the Glacier Galleries' back wall no longer shows the bright sky. An idea of yours is written into the roadmap for later (an item that takes what he kills and calls it back on his side).
 
 **The Glacier Galleries (phase 11, build 64): the Spires' east wing.** `docs/phase11-sheet.md` has all of it.
 - **Ten screens east of the horn,** behind a pane of thin ice that the Toll's step breaks.

@@ -9,7 +9,7 @@ import { SCRIPT, PEOPLE } from '../src/side/talk.js';
 const relics = [];
 for (let N = 0; N < LEVELS.length; N++){
   const { W, H, tiles, marks, rooms } = { ...loadLevel(N) }, NAME = LEVELS[N].name;
-  const wingOf = m => { const r = rooms.find(r => r.gate && m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1); return r ? r.title || r.name : ''; };
+  const wingOf = m => { const r = rooms.find(r => (r.gate || r.wing) && m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1); return r ? r.title || r.name : ''; };
   const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i];
   test(`${NAME}: a relic, two threads, the three people`, () => {
     const chests = marks.filter(m => m.type === 'chest'), relic = m => /^relic:/.test(m.holds || ''), wings = new Set(marks.map(wingOf).filter(Boolean));
@@ -33,7 +33,7 @@ test('no relic is in two regions, and every keeper leaves something', () => { as
 // the region it is entered under, and each region's page is its keeper's
 test("Corwen's Annals: every creature entered, each under the region it lives in", async () => {
   const { ANNALS } = await import('../src/side/annals.js'), all = new Set(ANNALS.flatMap(a => a.creatures.map(c => c.type)));
-  const NOT = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust', 'rod', 'pilgrim', 'sweeper', 'clapper', 'hiscairn', 'brazier', 'sitter', 'server']   /* the last two: who he passes in the passages (phase 9), not creatures */);
+  const NOT = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust', 'rod', 'pilgrim', 'sweeper', 'clapper', 'hiscairn', 'brazier', 'sitter', 'server', 'lever', 'coil', 'crane']   /* the last two: who he passes in the passages (phase 9), not creatures */);
   for (let N = 0; N < LEVELS.length; N++){
     const { marks, theme } = loadLevel(N), here = new Set(marks.filter(m => !NOT.has(m.type)).map(m => m.type));
     for (const t of here) assert.ok(all.has(t), `${t} (in ${LEVELS[N].name}) has no entry`);

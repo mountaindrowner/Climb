@@ -58,7 +58,7 @@ function support(P, x, y){
 }
 // is he standing on the stones of the way, and on nothing else (a foot on rock or a plank is the ground)
 const wayUnder = (P) => { const j = ty(P.y - 0.02); let way = false; for (let i = tx(P.x - BODY.hw + 1e-3); i <= tx(P.x + BODY.hw - 1e-3); i++){ if (facedAt(i, j)) way = true; else { const t = tileAt(i, j); if (t === ROCK || t === LEDGE) return false; } } return way; };
-const liveUnder = (P) => { const j = ty(P.y - 0.02); for (let i = tx(P.x - BODY.hw + 1e-3); i <= tx(P.x + BODY.hw - 1e-3); i++) if (liveAt(i, j)) return true; return false; };
+const liveUnder = (P) => { if (SIDE.boots) return false; const j = ty(P.y - 0.02); for (let i = tx(P.x - BODY.hw + 1e-3); i <= tx(P.x + BODY.hw - 1e-3); i++) if (liveAt(i, j)) return true; return false; };
 const spikesUnder = (P) => { const j = ty(P.y - 0.02); for (let i = tx(P.x - BODY.hw + 1e-3); i <= tx(P.x + BODY.hw - 1e-3); i++) if (tileAt(i, j) === SPIKES) return true; return false; };
 
 // the launch speed that rises exactly `height` (as the 3D motor finds it)
@@ -351,7 +351,8 @@ export const SPADE = { name: 'Warden\'s spade', reach: 2.6, guard: false, digs: 
 ] };
 export const weaponOf = P => P.weapon === 'blade' ? BLADE : P.weapon === 'spade' ? SPADE : WEAPONS[P.weapon];
 export const swingOf = (P, A) => A.special ? weaponOf(P)[A.special] : weaponOf(P).combo[A.i];
-export const SIDE = { fallSafe: 9, feather: false, watching: false, leaf: false, stone: false };   // stone: the Pilgrim's Stone is worn: after a blow nothing can hurt him for longer
+export const SIDE = { fallSafe: 9, feather: false, watching: false, leaf: false, stone: false, boots: false };   // boots: the Wright's Boots are worn: live iron does not shock him
+//   // stone: the Pilgrim's Stone is worn: after a blow nothing can hurt him for longer
 //   // leaf: the Copyist's Blank Leaf is unspent: the next blow that lands does no harm
 // the ember arts (main.js spends the embers and says which): each a keeper's gift turned to a blow.
 //   slam   the Warden's weight: down on the ground (from the air, a plunge first); the blow runs along the floor both ways

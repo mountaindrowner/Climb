@@ -475,7 +475,7 @@ gantry (her pack left behind: she cannot carry it here), Corwen in the stacks.
 masthead (*the Eye's way opens above it*) · gale.
 
 ### The Wreck of the Works
-*Tempest, west · 12 screens · open*
+*Tempest, west · 9 screens · open · built (build 66, `docs/phase12-sheet.md`)*
 
 **History.** The Wrights built a works on the storm's edge to catch the lightning in jars and coils and keep it, and so
 make their own flame. The storm took it apart.

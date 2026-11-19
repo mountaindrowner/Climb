@@ -127,6 +127,7 @@ export const ICONS = {
   felt: ['', '.....kkkkkk', '....kllllllk', '...klpllllllk', '...kllllllllk', '...kkkkkkkkkk', '...kWuWuWuWuk', '...kllllllllk', '...kllllllmmk', '....kllllmmk', '.....kkkkkk'],
   turnstone: ['', '', '....kkkkkkkk', '...kpppppllk', '..kpplllllmmk', '..kplkklkklmk', '..klllllllmmk', '...kmmmmmmmk', '....kkkkkkk'],
   flint: ['', '', '......kkkk', '....kkllllk', '...kllpllmk', '..kllllmmmk..Y', '..klmmmmmk..yY', '...kkmmkk..oy', '.....kk...o'],
+  boots: ['', '', '....kkkk', '....kWWk', '....kWWk', '....kWWk', '....kWWkkkk', '....kWWWWWWk', '....kuuuuuuk', '....kkkkkkkk'],
   blankleaf: ['', '...kkkkkkkk', '..kppppppppk', '..kppppppppk', '..kpllllllpk', '..kppppppppk', '..kpllllllpk', '..kppppppppk', '..kpllllllpk', '..kppppppppk', '..kppppppkk', '...kkkkkkk'],
   stylus: ['............kk', '...........kpk', '..........kplk', '.........kplk', '........kplk', '.......kplk', '......kplk', '.....kyyk', '....kyyk', '...klk', '..kk'],
   starcompass: ['.....kkkkkk', '...kkyyyyyykk', '..kyykkkkkkyyk', '..kykdnnYndkyk', '.kykdnnYwYnnkyk', '.kyknnYwwwYnkyk', '.kykdnnYwYnnkyk', '..kykdnnYndkyk', '..kyykkkkkkyyk', '...kkyyyyyykk', '.....kkkkkk'],
