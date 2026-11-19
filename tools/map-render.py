@@ -19,7 +19,8 @@ SEAMCOL = (150, 140, 120)
 off = {0: (0, 0)}; climb = [d for d in D if not d['deep']]
 for a, b in zip(climb, climb[1:]): u, dn = a['joins']['up'], b['joins']['down']; off[b['n']] = (off[a['n']][0] + u['x'] - dn['x'], off[a['n']][1] + u['y'] - dn.get('y', 0))
 deep = [d for d in D if d['deep']]; gap = 30
-for d in deep: off[d['n']] = (off[0][0], -d['H'] - gap)
+yy = 0
+for d in deep: yy -= d['H'] + gap; off[d['n']] = (off[0][0], yy)   # the Deep's levels one under another, under the mountain's foot
 x0 = min(off[d['n']][0] for d in D); y0 = min(off[d['n']][1] for d in D); x1 = max(off[d['n']][0] + d['W'] for d in D); y1 = max(off[d['n']][1] + d['H'] for d in D)
 ML, MR, MT, MB = 330, 60, 120, 150; W = (x1 - x0) * PX + ML + MR; H = (y1 - y0) * PX + MT + MB
 im = Image.new('RGB', (W, H), (14, 14, 26)); dr = ImageDraw.Draw(im)
