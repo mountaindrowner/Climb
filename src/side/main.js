@@ -34,7 +34,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 67, date: '19 NOV 2026', phase: 12, phases: 21, last: 'THE EYE OF THE STORM' };
+const VERSION = { build: 68, date: '19 NOV 2026', phase: 13, phases: 21, last: 'THE AQUEDUCTS' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -86,13 +86,14 @@ function learn(){
   const b = n => !!G.beat[n] || G.top > n || (DEV && LEVEL.index > n);
   CAN.breaker = b(0); CAN.dash = b(1); CAN.glide = b(2);
   if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the spade (a save from before has it now)
-  SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); SIDE.boots = has('boots'); SIDE.calm = has('stillair'); EMBER.mend = has('seedheart') ? 7 : 10;   // what he carries, worn (builds 49 to 66 had this line inside the comment above it: these did nothing)
+  SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); SIDE.boots = has('boots'); SIDE.calm = has('stillair'); if (P){ P.flaskMax = maxFlask(); P.flask = Math.min(P.flask, P.flaskMax); } EMBER.mend = has('seedheart') ? 7 : 10;   // what he carries, worn (builds 49 to 66 had this line inside the comment above it: these did nothing)
 }
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
 const CALMS = { wait: 2.5, open: 4, near: 4.5, ease: 0.5 }, EYE = { door: null, p: 0, held: null };   // the Eye of the Storm (regions/eye.js CALMS says the same): the door of cloud he waits at, and how long he has waited
 const WAY = { was: false, said: new Map() };   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
 // `walked`: he has walked in from the next region (cross): he and his scarf are as they were
 function setup(walked = false){
+  RULE.wetAll = false; RULE.wet = new Set(LEVEL.marks.filter(m => m.type === 'wheel' && m.open !== false).map(m => m.key)); { const W0 = G.wet && G.wet[LEVEL.index]; if (W0) for (const k of Object.keys(W0)){ if (W0[k]) RULE.wet.add(k); else RULE.wet.delete(k); } }   // the Aqueducts: each sluice wheel as he left it (or as its keeper did)
   RULE.hush = 0; RULE.open = 0; RULE.calmFree = false; EYE.door = EYE.held = null; EYE.p = 0;   // the Eye of the Storm: its doors of cloud shut
   RULE.sw = (G.sw && G.sw[LEVEL.index]) || 0; RULE.surge = 0; RULE.swFree = false;   // the Wreck of the Works: the lever as he left it
   RULE.litAll = false; RULE.lit = new Set((G.lit && G.lit[LEVEL.index]) || []);   // the Glacier Galleries: the fires he has lit here burn on
@@ -179,6 +180,8 @@ function wingStep(dt){
     if (RULE.open > 0){ RULE.open -= dt; if (RULE.open <= 0){ const B = EYE.held, inIt = B && P.x + 0.6 > B.x0 && P.x - 0.6 < B.x1 && P.y + 2.5 > B.y0 && P.y < B.y1; if (inIt) RULE.open = 0.05; else { RULE.open = 0; if (B) B.open = false; EYE.held = null; sfx.whoosh(); } } }
     if (!G.eyeSeat && P.grounded) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'seat' && Math.abs(m.x * T - P.x) < 3 && Math.abs(m.y * T - P.y) < 2){ G.eyeSeat = 1; store(); banner('Its seat', RULE.fallen ? 'the Thunderhead sat here, and the storm went round it. No more.' : 'something sat here, and the storm went round it. It has gone down.', 7); }
   }
+  // the Aqueducts: the head, the first time he stands at it
+  if (!G.headSeen && P.grounded && (LEVEL.flows || []).length) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'spout' && Math.abs(m.x * T - P.x) < 3.5 && Math.abs(m.y * T - P.y) < 2){ G.headSeen = 1; store(); banner('The head', 'it comes up from the pool at the bottom of the world. The same water.', 7); }
   // the Wreck of the Works: the Jar's discharge runs through all the iron for a moment (level.js liveAt)
   if (RULE.surge > 0 && !PAUSE){ RULE.surge = Math.max(0, RULE.surge - dt); if (RULE.surge === 0) PROPS.show(); }
   // the Bell-Foundry's ringing dies away: in silence the shutters go up (the tongues and the slag see RULE.ring for themselves)
@@ -1021,10 +1024,18 @@ function onEvent(e){
       for (const D of PROPS.decks) if (D.works && Math.hypot(D.x - P.x, D.y - P.y) < 24) R.glint(D.x, D.y, 0xbfe8ff, 0.5, 2.5, 0.2);
       if (!G.swSaid){ G.swSaid = 1; store(); banner('', 'the lever sends the current to the other half of the iron', 3.4); } break; }
     case 'arc': if (Math.hypot(e.at.x - P.x, e.at.y - P.y) < 16) sfx.zap(); break;
+    // the Aqueducts: a sluice wheel turned (by him, or put back by its keeper); a keeper's arm come down; the Lock letting go
+    case 'sluice': { const on = !RULE.wet.has(e.key); if (on) RULE.wet.add(e.key); else RULE.wet.delete(e.key); ((G.wet = G.wet || {})[LEVEL.index] = G.wet[LEVEL.index] || {})[e.key] = on ? 1 : 0; store();
+      const hear = Math.hypot(e.at.x - P.x, e.at.y - P.y) < 22; if (hear){ sfx.creak(); if (on) sfx.splash(); else sfx.door(); } fx.burst(e.at, 12, 0xbfe8ff); R.glint(e.at.x, e.at.y, 0xbfe8ff, 0.9, 5, 0.3); if (!e.by) FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.08);
+      if (!e.by && !G.wetTold){ G.wetTold = 1; store(); banner('A sluice wheel', on ? 'its water runs. Struck again, it stops.' : 'its water stops. Struck again, it runs.', 5); }
+      else if (e.by && hear && !G.keptTold){ G.keptTold = 1; store(); banner('', 'the keeper has put the wheel back as the house left it', 4); } break; }
+    case 'thud': if (Math.hypot(e.at.x - P.x, e.at.y - P.y) < 18){ sfx.slam(); fx.dust(e.at, 12, 3); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.18); } break;
+    case 'flood': { RULE.surge = e.secs; sfx.rumble(); sfx.splash(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.5); fx.burst(e.at, 34, 0xbfe8ff); fx.dust(e.at, 16, 5); break; }
     // the Jar lets go: for a moment the current is in every piece of iron in the works
     case 'surge': { RULE.surge = SURGE; sfx.thunder(); sfx.zap(); FLASH = Math.max(FLASH, 0.3); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.4); fx.ring(e.at, 0xffffff); fx.burst(e.at, 30, 0xbfe8ff); R.shock(e.at.x, e.at.y, true); for (const D of PROPS.decks) if (D.works) R.glint(D.x, D.y, 0xffffff, 1, 3, 0.3); break; }
     case 'kill':
       // the Jar is broken: the works are dead, for good. No iron shocks; the coils and the arms are still; the grates lift
+      if (e.e && e.e.type === 'lock'){ RULE.still = true; RULE.surge = 0; (G.still = G.still || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.door(); sfx.rumble(); sfx.splash(); FEEL_FX.shake = 0.7; SLOW = Math.max(SLOW, 0.9); fx.burst(e.at, 40, 0xbfe8ff); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); for (const B of PROPS.grates) fx.dust({ x: B.x, y: B.y }, 14, 3); banner('The Lock is open', 'the water goes where it was going. Its keepers stand down.', 5.5); }
       if (e.e && e.e.type === 'jar'){ RULE.still = true; RULE.surge = 0; (G.still = G.still || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.glass(); sfx.thunder(); sfx.door(); FEEL_FX.shake = 0.7; SLOW = Math.max(SLOW, 0.9); FLASH = Math.max(FLASH, 0.4); fx.burst(e.at, 40, 0xbfe8ff); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); for (const B of PROPS.grates) fx.dust({ x: B.x, y: B.y }, 14, 3); banner('The Jar is broken', 'what the Wrights caught has gone back to the storm', 5.5); }
       if (e.e && e.e.type === 'seated'){ G.seatedDown = 1; store(); banner('The Seated lies down', 'what the ice kept, the fire let go', 5); }
       // a thing that is not a creature (his own cairn): it is knocked down, and that is all

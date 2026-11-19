@@ -543,7 +543,7 @@ put the pack down and does not know what to do with her hands), Corwen on the te
 sundial · canopy · bower · *the gardeners' gate* (new: the way to the Keepers' Houses).
 
 ### The Aqueducts
-*Gardens, west and below · 9 screens · open*
+*Gardens, west and below · 9 screens (built, build 68) · open*
 
 **History.** The garden's water came from the pool at the bottom of the world: carried up by the Well's keepers in the
 first days, then by a channel through the mountain that the house built. It still runs.

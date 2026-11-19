@@ -2,7 +2,16 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Eye of the Storm (latest; phase 12, build 67): the Tempest's east wing.** `docs/phase12-sheet.md` has all of it.
+**The Aqueducts (latest; phase 13, build 68): the Gardens' west wing.** `docs/phase13-sheet.md` has all of it.
+- **Nine screens west of the wellspring, open to anyone.** The channel that brings the garden its water, up from the pool at the bottom of the world.
+- **Its rule: the water runs one way, and it carries him.** Along a channel it takes him faster than he can run, and throws him span to span. Down a fall nothing rises: a fall across a climb bars it.
+- **Sluice wheels** stop and start the water. **Sluice-keepers**, stone servants of the house, put each wheel back as it was. **Water-striders** are fast on running water and helpless when it stops.
+- **Five rooms:** the arches (the channel on its arcade, the old beds under it), the sluices (three falls, three wheels, three keepers), the lock, the head, the spill (the overflow: a fall until its wheel is shut, then a stair to the wellspring).
+- **The Lock,** the wing's keeper: a gate that lets its water go down the floor again and again. Be up on a pier.
+- **A relic:** the Carrier's Yoke. His flask holds one draught more.
+- 294 checks. A save is moved (the Gardens stand three rooms further east).
+
+**The Eye of the Storm (phase 12, build 67): the Tempest's east wing.** `docs/phase12-sheet.md` has all of it.
 - **Seven screens east of the masthead and above it,** climbed on the Wyrm's wind. The middle of the storm: clear sky, sun, no wind.
 - **Its rule: nothing moves while he moves.** The Hush hang where they are until he stands still; then they come. A guard turned to one stops it.
 - **Doors of cloud** are rock to one who pushes. Each opens to one who stands still before it for two and a half seconds, and stays open for four.

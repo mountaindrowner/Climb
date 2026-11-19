@@ -128,6 +128,7 @@ export const ICONS = {
   turnstone: ['', '', '....kkkkkkkk', '...kpppppllk', '..kpplllllmmk', '..kplkklkklmk', '..klllllllmmk', '...kmmmmmmmk', '....kkkkkkk'],
   flint: ['', '', '......kkkk', '....kkllllk', '...kllpllmk', '..kllllmmmk..Y', '..klmmmmmk..yY', '...kkmmkk..oy', '.....kk...o'],
   stillair: ['', '', '.....kkkkkk', '...kkWWWWWWkk', '..kWWWppppWWWk', '..kWWp....pWWk', '..kWWp....pWWk', '..kWWWppppWWWk', '...kkWWWWWWkk', '.....kkkkkk'],
+  yoke: ['', '', '.kkkkkkkkkkkkkk', '.kuuuuWWWWuuuuk', '.kkkkkkkkkkkkkk', '..k..........k', '..k..........k', '.kkk........kkk', '.kck........kck', '.kck........kck', '.kkk........kkk'],
   boots: ['', '', '....kkkk', '....kWWk', '....kWWk', '....kWWk', '....kWWkkkk', '....kWWWWWWk', '....kuuuuuuk', '....kkkkkkkk'],
   blankleaf: ['', '...kkkkkkkk', '..kppppppppk', '..kppppppppk', '..kpllllllpk', '..kppppppppk', '..kpllllllpk', '..kppppppppk', '..kpllllllpk', '..kppppppppk', '..kppppppkk', '...kkkkkkk'],
   stylus: ['............kk', '...........kpk', '..........kplk', '.........kplk', '........kplk', '.......kplk', '......kplk', '.....kyyk', '....kyyk', '...klk', '..kk'],

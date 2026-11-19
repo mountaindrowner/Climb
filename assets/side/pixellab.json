@@ -1154,5 +1154,32 @@
     "group": "09156bc3-5103-438f-bca5-c1467849e625"
    }
   }
+ },
+ "px_sluicer": {
+  "id": "650d80f2-6b4c-45cd-b677-aeef0717118f",
+  "description": "a squat heavy stone automaton that keeps water gates, built of grey carved stone blocks with patches of green moss and bronze joints, a round stone head with one glowing cyan eye slit, thick arms, one hand is a big bronze crank wheel, short thick legs, old and weathered, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "walk": {
+    "action": "walking forward slowly with heavy steps",
+    "frames": 8,
+    "group": "86671fd8-a9c3-412b-b175-80cfb8868a7d"
+   },
+   "attack": {
+    "action": "raising one heavy arm high and slamming it down on the ground in front of it",
+    "frames": 8,
+    "group": "b0773d18-875b-469d-8b17-70b54d62deac"
+   }
+  }
+ },
+ "px_strider": {
+  "id": "bd33ace6-c37d-4d42-8774-90840f47e314",
+  "description": "a large water strider insect, a small flat dark teal body held low, six very long thin legs spread wide to the sides, two long hooked front legs, pale blue highlights, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "skate": {
+    "action": "skating quickly forward over water, its long legs flicking",
+    "frames": 8,
+    "group": "4cf74203-8356-4e7f-9b84-5779e58ecf85"
+   }
+  }
  }
 }

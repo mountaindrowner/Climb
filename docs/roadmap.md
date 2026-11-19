@@ -346,6 +346,11 @@ climbed on the Wyrm's wind. Nothing moves while he moves: the Hush come when he 
 only to one who stands and waits. The Thunderhead's empty seat; a Breath of the Eye. Phase 12 is done. In the same
 build, four relics that had never been switched on were mended (the build log has it).*
 
+*Phase 13, first half, done (build 68): **the Aqueducts**, by `docs/phase13-sheet.md`. Nine screens west of the
+wellspring, open to anyone. Running water that carries him and bars a climb where it falls; sluice wheels; the stone
+keepers that put them back; the Lock; the Carrier's Yoke; out by the spill. Still to do in phase 13: the Keepers'
+Houses.*
+
 Built two regions at a time. **Spaces, not rectangles** (decision 0.8): each wing has at least one vast space, one
 winding way, and one path no one expects, each shaped by what the place was. Each wing gets its sheet first: its rooms, what each room is for, its gate and shortcut,
 its creatures, its elite, its one moment, its relic, and a weapon (the Ember plan's step 4) where one fits. Each

@@ -50,6 +50,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 68 | 19 Nov 2026 | `COMMIT68` | The Aqueducts (phase 13, first half) | **moved** (the Gardens) | yes (now) |
 | 67 | 19 Nov 2026 | `df2ecd3` | The Eye of the Storm (phase 12, second half); four relics that did nothing, fixed | no | yes (now) |
 | 66 | 19 Nov 2026 | `b3ff915` | The Wreck of the Works (phase 12, first half) | **moved** (the Tempest) | yes (now) |
 | 65 | 18 Nov 2026 | `11c8b38` | The Cloister's refectory; the Galleries' back wall closed | adds | was, until 66 |
@@ -78,6 +79,29 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 68: the Aqueducts
+
+- **For the player:** the Gardens' west wing, nine screens, open to anyone, through a new door in the wellspring's
+  west wall. Running water that carries him along a channel and bars a climb where it falls; sluice wheels that stop
+  and start it; stone keepers that put the wheels back; water-striders; the Lock; the Carrier's Yoke (one more
+  draught in the flask). All of it in `docs/phase13-sheet.md`.
+- **Underneath:** new `src/side/regions/aqueducts.js`; running water as a new kind of place in `level.js` (`flows`,
+  `RULE.wet`, `flowAt`) and in the motor (`FLOW`: the push along a channel, the bearing-down of a fall, the speed
+  kept through a leap, no ledge-grab in falling water); the water drawn in `props.js`; the wheels, the keepers'
+  undoing, the flood and the Lock's opening in `main.js`; `maxFlask` counts the yoke in `state.js`; the Gardens are
+  three columns wider on the west; two doors cut in the wellspring's west wall. New art: `assets/side/px_sluicer`,
+  `px_strider`, `px_lock` (the last drawn by hand for the Annals).
+- **The motor changed for everyone, a little:** the two new lines in it do nothing where there is no running water,
+  and the checks for every other region pass unchanged. If his movement feels different anywhere outside the
+  Aqueducts in this build, that is a fault and this is the build to compare against 67.
+- **Save: moved.** Everything a save had found or broken in the Gardens is shifted 120 tiles east, once (`winged`
+  3 to 4). Adds: each wheel as he left it (`wet`), the Lock open (`still`), the relic, and which words were said.
+- **Checked:** 294 automated checks, eleven of them the wing's; a play-through in the test browser (the water
+  with and against him, the wheels, the ride, a fall barring and letting him by, the keepers, the Lock's flood on
+  the floor and on a pier, its opening, the relic, the spill); the zip opened, the title and every region.
+- **Not checked:** not played by hand; the sounds; a save from before the move, loaded in the real game.
+- **Cost:** $0.07 (the sluice-keeper and the water-strider).
 
 ### Build 67: the Eye of the Storm
 

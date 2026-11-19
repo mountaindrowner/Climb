@@ -37,6 +37,9 @@ export const ANNALS = [
       { type: 'spark', name: 'Ball Lightning', art: 'px_spark', line: 'Lightning that will not finish falling.' } ] },
   { region: 'The Gardens', keeper: { theme: 'gardens', art: 'mother/heart', name: 'Mother Thorn', line: 'What the garden grew, untended.' },
     creatures: [
+      { type: 'sluicer', name: 'Sluice-keeper', art: 'px_sluicer', line: 'A servant of the house, in stone. It puts each wheel back as it was left.' },
+      { type: 'strider', name: 'Water-strider', art: 'px_strider', line: 'Fast on running water. With its water stopped, it sits where it was left.' },
+      { type: 'lock', name: 'The Lock', art: 'px_lock', line: 'The gate between the channel and the head. It opens fighting.' },
       { type: 'thornback', name: 'Thornback', art: 'px_thornback', line: 'Kept once, for the keepers\' table. It keeps itself now.' },
       { type: 'lasher', name: 'Lasher', art: 'px_lasher', line: 'It was a flower. No one told it when to stop.' },
       { type: 'toad', name: 'Fountain Toad', art: 'px_toad_b', line: 'It sat in the keepers\' fountain, and was fed. No one feeds it now. It swells anyway.' },

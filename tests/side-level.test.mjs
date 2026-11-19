@@ -12,11 +12,13 @@ const GOAL = marks.find(m => m.type === 'boss') || marks.find(m => m.type === 'e
 let BROKE = false; const GATED = rooms.some(r => r.gate || r.after);   // after: the way on past the keeper's hall, behind stone until the keeper falls (phase 9)
 const at = (i, j) => { if (i < 0 || j < 0 || i >= W || j >= H) return ROCK; const t = tiles[j * W + i]; return t === 4 || t === 7 || t === 11 || t === 13 ? (BROKE ? EMPTY : ROCK) : t === 9 ? (BROKE ? LEDGE : ROCK) : t === 8 || t === 12 || t === 15 || t === 18 ? EMPTY : t === 10 ? (BROKE ? LEDGE : 3) : t === 5 || t === 6 || t === 14 || t === 16 || t === 17 ? LEDGE : t; };   // BROKE is also: its keeper fallen (what it held let go); a door on the bell is waited for   // cracked rock is rock (until broken); star-glass, a ledge (he waits for it)
 const solid = (i, j) => at(i, j) === ROCK;
+// a fall of water whose wheel is behind a wing's keeper (the Aqueducts' spill): nothing stands in it, or climbs it, until BROKE
+const BARRED = new Set(); { const late = new Set(marks.filter(m => m.type === 'wheel' && m.after).map(m => m.key)); for (const m of marks) if (m.type === 'flow' && m.dir === 'd' && late.has(m.key)) for (let j = m.y; j < m.y + (m.h || 2); j++) for (let i = m.x; i < m.x + (m.w || 4); i++) BARRED.add(j * W + i); }
 const support = (i, j) => { const t = at(i, j); return t === ROCK || t === LEDGE; };
 const BODY = 5;   // tiles tall, rounded up (he is 2.4 units: 4.8 tiles)
 const roomy = (i, j) => { for (let d = 0; d < BODY; d++) if (solid(i, j + d)) return false; return true; };
 // he is 0.68 wide: where he stands, a column beside also has to be clear to his height
-const stand = (i, j) => at(i, j) !== ROCK && at(i, j) !== 3 && support(i, j - 1) && roomy(i, j) && (roomy(i - 1, j) || roomy(i + 1, j));
+const stand = (i, j) => at(i, j) !== ROCK && at(i, j) !== 3 && support(i, j - 1) && roomy(i, j) && (roomy(i - 1, j) || roomy(i + 1, j)) && (BROKE || !BARRED.has(j * W + i));
 // crouched or rolling he fits under three tiles: he can go along there, not jump
 const low = (i, j) => { if (at(i, j) === ROCK || at(i, j) === 3 || !support(i, j - 1)) return false; for (let d = 0; d < 3; d++) if (solid(i, j + d)) return false; return true; };   // crouched 1.4: three tiles
 

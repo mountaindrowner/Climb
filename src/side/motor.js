@@ -8,7 +8,7 @@ import { TUNE } from '../config/tuning.js';
 import { WEAPONS } from '../config/weapons.js';
 import { IN, consume, pending } from '../core/input.js';
 import { FEEL } from '../config/feel.js';
-import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt, gustAt, liveAt, RULE, facedAt } from './level.js';
+import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt, gustAt, flowAt, liveAt, RULE, facedAt } from './level.js';
 const MV = TUNE.move;
 // the side view's warrior is drawn tall and lean (gothic action proportions, ~40 pixels): his body is taller than the
 // climb's, and his jumps and run scale with him so they keep the same feel against his height
@@ -23,6 +23,7 @@ const MANTLE = 2.6, STEP = T + 0.02;
 //   glide    the Wyrm's wind: jump again when the jumps are spent, and hold: the scarf spreads and he falls slowly; held in
 //            rising air, it lifts him
 export const CAN = { breaker: false, dash: false, glide: false };
+export const FLOW = { push: 6, grip: 40, fall: 9, carry: 1.2, air: 5 };   // running water: how fast a channel carries him (his run is 7.6), how hard it takes hold, how fast a fall of it bears him down
 export const GLIDE = { fall: 2.3, rise: 8.5, accel: 5, run: 0.88 }, AIRDASH = { time: 0.2, speed: 1.4 }, BLOOM = { height: 7 };
 
 // ---- tiles under, beside and over a box
@@ -201,6 +202,10 @@ export function stepPlayer(P, dt){
     if (P.grounded && (dir === 0 || Math.sign(P.vx) === -dir || Math.abs(P.vx) > Math.abs(target))) accel = MV.decel;
     if (dir !== 0 && dir !== P.face && (!P.atk || FEEL.turn)){ P.face = dir; if (P.grounded && Math.abs(P.vx) > 1.5) ev(P, 'skid'); }
   }
+  // running water (the Aqueducts; level.js flowAt): what stands in a channel is carried along it
+  const fl = flowAt(P.x, P.y + 0.2); P.flow = fl;
+  if (fl && fl.dx){ target += fl.dx * FLOW.push; if (P.grounded) accel = Math.max(accel, FLOW.grip); P.carry = FLOW.carry; }
+  else if (P.carry > 0){ P.carry = P.grounded ? 0 : P.carry - dt; if (!P.grounded && Math.abs(P.vx) > Math.abs(target) && (dir === 0 || Math.sign(P.vx) === dir)) accel = FLOW.air; }   // thrown off the end of a channel, he keeps what it gave him a while: a long leap
   if (P.roll <= 0 && !stunned && !P.dive){ const dv = target - P.vx; P.vx += Math.sign(dv) * Math.min(Math.abs(dv), accel * dt); }
   else if (stunned) P.vx *= Math.exp(-dt * 4);
 
@@ -231,6 +236,7 @@ export function stepPlayer(P, dt){
     }
   }
 
+  if (fl && fl.dy && !P.dive && !P.grounded){ P.vy = Math.min(P.vy, -FLOW.fall); P.glide = false; P.airTop = Math.min(P.airTop, P.y + 2); }   // falling water: nothing rises through it, and it sets him down (it was not a fall)
   // ---- move: across (climbing steps on the way), then up or down
   const wasGrounded = P.grounded, y0 = P.y;
   moveX(P, P.vx * dt);
@@ -295,6 +301,7 @@ function moveY(P, dy, yStart){
 // a plank overhead, anywhere along it (not only at its end): his hands pass its top, and he hauls himself up through
 // it. A plank is passed from below, so what an edge allows at its end, its middle allows too
 function tryPlank(P){
+  if (P.flow && P.flow.dy) return;   // not in falling water: there is no hauling up through it
   const i = tx(P.x);
   for (let j = ty(P.y + 0.3); j <= ty(P.y + MANTLE); j++){
     if (tileAt(i, j) !== LEDGE) continue;
@@ -306,6 +313,7 @@ function tryPlank(P){
   }
 }
 function tryMantle(P, d){
+  if (P.flow && P.flow.dy) return;
   const front = P.x + d * (BODY.hw + 0.12), i = tx(front);
   // the lowest top of a wall in front within reach: the tile there is solid, the one over it is open
   for (let j = ty(P.y + 0.3); j <= ty(P.y + MANTLE); j++){
