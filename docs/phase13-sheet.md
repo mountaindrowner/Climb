@@ -112,6 +112,58 @@ the masonry are drawn in code. **Cost: $0.07; the balance is $2.72.**
 - **A save is moved:** the Gardens stand three rooms further east than they did. The first time a save from before
   is loaded, what it had found and broken in the Gardens is moved with them, once.
 
-## Left for later
+## The Keepers' Houses
 
-- The Keepers' Houses (the next sheet).
+*The plan, written before building. What was built, and what was checked, closes this section when it is done.*
+
+Where the keepers of the flame lived: his house among them. They left after the dark. The house's servant did not.
+Small houses, every one kept: beds made, tables laid, fires laid and not lit. Eight screens, east of the arbor,
+behind the gardeners' gate (a shuttered door the Toll's step goes through).
+
+### Its rule: disturb nothing
+
+Everywhere else he breaks every pot he passes, and is paid for it. Here every table is laid and every shelf is set,
+and the things on them are **settings**: they break at a blow like anything else, and give a few shards. But a
+broken setting is a thing out of its place, and:
+
+- **The Housekeeper comes.** It travels by the servants' doors (there is one on every floor of every house) and
+  comes out on the floor where the broken thing is. It sets the thing right. Whoever is on that floor in its reach,
+  it strikes. When everything is in its place again it goes back to its round in the lane.
+- **His own house is shut** while anything in the wing is out of its place. Its door opens to one who has left the
+  houses as he found them.
+- Striking the Housekeeper itself is the worst disarrangement: it does not forgive that. It follows him floor to
+  floor, through its doors, until it is broken or he is out of the wing.
+
+Two ways to his house, then. The quiet way: touch nothing, and the door is open. The other: break the Housekeeper
+(it carries the key), and nothing in these houses will be set right again.
+
+Moths make the quiet way hard: they come at his head from the lamps, and a swing at a moth beside a laid table is a
+swing at the table.
+
+### The rooms (cells east of the Gardens' own three columns; the arbor is beside the lane)
+
+1. **The lane** (two screens). The row of house fronts. In from the arbor by the gardeners' gate. Doors up into the
+   two houses, a stair down to the long table. The Housekeeper's round.
+2. **The long table** (two screens, under the lane: the vast space). The keepers' common hall. One table the length
+   of it, laid for all of them. A thread at the far end, past every place.
+3. **The first house** (one screen, over the lane's west end). Three floors, a small climb.
+4. **The back way** (one screen, over the first house: the path no one expects). Its attic, and a door out onto the
+   cascade's high terrace: the short way to the bower.
+5. **The second house** (one screen, over the lane's east end). Three floors, moths.
+6. **His house** (one screen, over the second). The door that is shut while anything is out of place. A table laid
+   for two. The relic. Nothing is said.
+
+### What is in it
+
+- **Settings** (not creatures): a blow breaks one. A few shards, once. The Housekeeper sets it right.
+- **Moths.** One blow. They wake when he is near and come at his head.
+- **The Housekeeper** (the wing's keeper, about 22 blows). Tall, slow to wind up, long in the reach. Calm, it walks
+  the lane and will not look at him.
+
+### The relic: the Second Place
+
+*In his house the table was laid for two. He took his own place from it. The other is still laid.* **One heart more.**
+
+### Art
+
+To buy: the Housekeeper (a walk, a blow), a moth. Everything else drawn in code. About $0.10.
