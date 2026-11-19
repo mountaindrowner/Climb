@@ -8,7 +8,7 @@ import { TUNE } from '../config/tuning.js';
 import { WEAPONS } from '../config/weapons.js';
 import { IN, consume, pending } from '../core/input.js';
 import { FEEL } from '../config/feel.js';
-import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt, gustAt, flowAt, moversNow, liveAt, RULE, facedAt } from './level.js';
+import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt, gustAt, flowAt, moversNow, liveAt, RULE, facedAt, waterOver } from './level.js';
 const MV = TUNE.move;
 // the side view's warrior is drawn tall and lean (gothic action proportions, ~40 pixels): his body is taller than the
 // climb's, and his jumps and run scale with him so they keep the same feel against his height
@@ -23,8 +23,13 @@ const MANTLE = 2.6, STEP = T + 0.02;
 //   glide    the Wyrm's wind: jump again when the jumps are spent, and hold: the scarf spreads and he falls slowly; held in
 //            rising air, it lifts him
 export const CAN = { breaker: false, dash: false, glide: false };
+// deep water (phase 16; level.js waters). It bears him up: without the Wyrm's wind his feet go no deeper than `float`
+// under its top, and he swims along it. With the wind the thread carries him under: jump held he rises, down held he
+// sinks, neither and he hangs, sinking a very little. `in`: how much of him is in it before it has him. `hop`: the
+// leap out of it from its top (how high), `out`: how long that leap is its own before the water can have him back
+export const SWIM = { in: 0.9, float: 1.5, speed: 5.2, top: 4.2, rise: 5.4, sink: 5.4, drift: 0.45, accel: 7, grip: 16, hop: 1.9, out: 0.34, wade: 0.62, bell: 1.25 };
 export const FLOW = { push: 6, grip: 40, fall: 9, carry: 1.2, air: 5 };   // running water: how fast a channel carries him (his run is 7.6), how hard it takes hold, how fast a fall of it bears him down
-export const GLIDE = { fall: 2.3, rise: 8.5, accel: 5, run: 0.88 }, AIRDASH = { time: 0.2, speed: 1.4 }, BLOOM = { height: 7 };
+export const GLIDE = { fall: 2.3, rise: 8.5, accel: 5, run: 0.88, cold: 0.62 }, AIRDASH = { time: 0.2, speed: 1.4 }, BLOOM = { height: 7 };
 
 // ---- tiles under, beside and over a box
 const tx = x => Math.floor(x / T), ty = y => Math.floor(y / T);
@@ -127,7 +132,7 @@ export function stepPlayer(P, dt){
 
   // ---- hauling himself up onto an edge: it carries him
   if (P.mantle){
-    const M = P.mantle; M.t += dt; const u = Math.min(1, M.t / M.dur), e = u * u * (3 - 2 * u);
+    const M = P.mantle; M.t += dt * (SIDE.rope ? 2 : 1); const u = Math.min(1, M.t / M.dur), e = u * u * (3 - 2 * u);
     P.x = M.x0 + (M.x1 - M.x0) * Math.max(0, (u - 0.45) / 0.55); P.y = M.y0 + (M.y1 - M.y0) * Math.min(1, e * 1.25); P.vx = P.vy = 0;
     if (u >= 1){ P.mantle = null; P.grounded = true; P.y = M.y1; P.airTop = P.y; P.landT = 0.12; ev(P, 'land', { drop: 0 }); }
     return;
@@ -136,6 +141,7 @@ export function stepPlayer(P, dt){
   // ---- presses
   if (consume('jump')){
     if (P.grounded && H.down && (support(P, P.x, P.y) === LEDGE || P.ride)){ P.drop = 0.25; P.dropping = true; P.grounded = false; P.y -= 0.03; ev(P, 'dropThrough'); }   // down + jump: through a ledge
+    else if (P.swim){ if (P.depth < SWIM.float + 0.45 && !stunned){ P.swim = false; P.hopT = SWIM.out; P.vy = launchSpeed(SWIM.hop, 0); P.launch = 0; P.jumpT = 0; P.airJumps = 0; P.airTop = P.y; ev(P, 'surface'); } }   // at the water's top: out of it
     else if (!P.grounded && P.coyote <= 0 && !stunned && P.airJumps > 0 && !(P.vy <= 0 && heightAbove(P) < -P.vy * MV.buffer + 0.25)){
       P.airJumps--; takeOff(P, true); P.flip = MV.flip; P.dive = null; P.glide = false; ev(P, 'doubleJump');
     }
@@ -204,6 +210,15 @@ export function stepPlayer(P, dt){
     if (P.grounded && (dir === 0 || Math.sign(P.vx) === -dir || Math.abs(P.vx) > Math.abs(target))) accel = MV.decel;
     if (dir !== 0 && dir !== P.face && (!P.atk || FEEL.turn)){ P.face = dir; if (P.grounded && Math.abs(P.vx) > 1.5) ev(P, 'skid'); }
   }
+  // deep water: where he is in it (its top over his feet), and whether it has him
+  { P.hopT = Math.max(0, (P.hopT || 0) - dt);
+    const top = waterOver(P.x, P.y + SWIM.in) ?? waterOver(P.x, P.y + 0.05), wz = top != null, was = P.swim; P.depth = wz ? top - P.y : 0; P.wet = wz && P.depth > 0.3; P.under = wz && P.depth > BODY.stand - 0.2;
+    if (wz && !CAN.glide && P.grounded && P.depth > SWIM.float + 0.2){ P.grounded = false; P.coyote = 0; P.crouch = false; }   // too deep to stand in: it lifts him off his feet
+    P.swim = wz && P.depth > SWIM.in && !P.grounded && !P.mantle && P.hopT <= 0 && P.dashT <= 0;
+    if (P.swim && !was){ ev(P, 'splash', { v: -P.vy }); P.dive = null; P.glide = false; P.flip = 0; P.airJumps = 0; if (P.vy < -6) P.vy = -6; }
+    if (P.swim){ P.airTop = P.y; P.airDash = 1;
+      if (P.roll <= 0 && !stunned && !(P.atk && P.atk.phase !== 'rec' && swingOf(P, P.atk).dash)){ target = dir * (CAN.glide ? SWIM.speed : SWIM.top) * (SIDE.bell && CAN.glide ? SWIM.bell : 1) * IN.mag; accel = SWIM.grip; if (dir && dir !== P.face && !P.atk) P.face = dir; } }
+    else if (P.wet && P.grounded && P.depth > SWIM.in) target *= SWIM.wade; }   // wading: slower
   // running water (the Aqueducts; level.js flowAt): what stands in a channel is carried along it
   const fl = flowAt(P.x, P.y + 0.2); P.flow = fl;
   if (fl && fl.dx){ target += fl.dx * FLOW.push; if (P.grounded) accel = Math.max(accel, FLOW.grip); P.carry = FLOW.carry; }
@@ -220,12 +235,21 @@ export function stepPlayer(P, dt){
   // the wind on the Spires' faces while the Wyrm holds it (level.js gustAt): in its beats it bears down on him in the air
   if (!P.grounded && !P.dive && gustAt(P.x, P.y + 1)){ P.vy -= 34 * dt; P.gusted = 0.2; } else if (P.gusted > 0) P.gusted -= dt;
   if (P.glide && (!H.jump || P.grounded || P.dive || stunned)) P.glide = false;
-  if (!P.glide && up && H.jump && !P.dive && !stunned && P.roll <= 0 && P.vy < 4){ P.glide = true; ev(P, 'glide'); }
-  if (!P.grounded){
+  if (!P.glide && up && !up.cold && H.jump && !P.dive && !stunned && P.roll <= 0 && P.vy < 4 && !P.swim){ P.glide = true; ev(P, 'glide'); }
+  if (P.swim){
+    // the water has him. With the wind he goes where he means to; without it he is borne up to its top and kept there
+    let want = CAN.glide ? (H.jump ? SWIM.rise : H.down ? -SWIM.sink : -SWIM.drift) : SWIM.rise;
+    if (want > 0 && P.depth <= SWIM.float) want = (SWIM.float - P.depth) * -6;   // at its top: held there, bobbing
+    if (stunned) want = Math.min(want, 0);
+    P.vy += (want - P.vy) * Math.min(1, dt * SWIM.accel); P.glide = false;
+    if (!CAN.glide && P.depth > SWIM.float + 0.7 && P.vy < 2) P.vy = 2;   // it will not let him under, however he came into it
+  }
+  else if (!P.grounded){
     if (P.dive){ P.vy = -MV.dive.speed; P.dive.t += dt; }
     else if (P.dashT > 0 || (P.art && P.art.k === 'cleave')) P.vy = 0;
     else if (P.glide && (up || P.vy <= 0)){
-      if (up) P.vy += (GLIDE.rise - P.vy) * Math.min(1, dt * GLIDE.accel);
+      if (up && up.cold) P.vy += (-GLIDE.fall * GLIDE.cold - P.vy) * Math.min(1, dt * 9);   // cold air coming up (the Great Shaft): it does not lift him, it holds him back
+      else if (up) P.vy += (GLIDE.rise - P.vy) * Math.min(1, dt * GLIDE.accel);
       else P.vy += (-GLIDE.fall * (SIDE.calm ? 0.6 : 1) - P.vy) * Math.min(1, dt * 9);
       P.airTop = P.y; P.flip = 0;   // however far he came down under it, it was not a fall
     }
@@ -242,6 +266,7 @@ export function stepPlayer(P, dt){
   // ---- what he stands on has moved (the Orrery Wing; level.js movers): it takes him with it. A wall in the way
   // stops him and it goes on without him; going down it sets him on whatever floor it passes
   const MS = moversNow();
+  if (P.ride && P.ride.kind === 'raft') P.ride.load = 0.12;
   if (P.ride){ const m = P.ride; if (!P.grounded || m.ghost || !MS.length) P.ride = null; else { const dx = m.x - P.rideX, dy = m.y - P.rideY; P.rideX = m.x; P.rideY = m.y; if (dx) moveX(P, dx);
       if (dy > 0){ if (boxRock(P, P.x, P.y + dy)){ P.ride = null; P.grounded = false; P.vy = 0; } else P.y = m.y; } else if (dy < 0){ P.grounded = false; moveY(P, m.y - P.y, P.y + 0.05); if (!P.grounded){ P.y = m.y; P.grounded = true; } else if (P.y > m.y + 1e-3) P.ride = null; } } }
   // ---- move: across (climbing steps on the way), then up or down
@@ -260,7 +285,7 @@ export function stepPlayer(P, dt){
   }
   // ---- catching an edge in the air: a wall just ahead whose top is within reach above his feet
   // (never while he is going down: dropping through a plank, or holding down, he means to fall past what is near)
-  if (!P.grounded && FEEL.ledge && P.roll <= 0 && !stunned && !P.dive && P.vy < 5 && !P.dropping && !H.down){   // dropping: from a drop through a plank until he lands
+  if (!P.grounded && FEEL.ledge && P.roll <= 0 && !stunned && !P.dive && P.vy < 5 && !P.dropping && !H.down && (!P.swim || P.depth < SWIM.float + 0.6)){   // (under the water he does not haul himself onto every edge he passes: only out of it, at its top)   // dropping: from a drop through a plank until he lands
     const d = H.right ? 1 : H.left ? -1 : 0;
     if (d) tryMantle(P, d);
     if (!P.mantle) tryPlank(P);
@@ -369,7 +394,7 @@ export const SPADE = { name: 'Warden\'s spade', reach: 2.6, guard: false, digs: 
 ] };
 export const weaponOf = P => P.weapon === 'blade' ? BLADE : P.weapon === 'spade' ? SPADE : WEAPONS[P.weapon];
 export const swingOf = (P, A) => A.special ? weaponOf(P)[A.special] : weaponOf(P).combo[A.i];
-export const SIDE = { fallSafe: 9, feather: false, watching: false, leaf: false, stone: false, boots: false, calm: false, hour: false };   // calm: a Breath of the Eye is worn: under the glide he sinks more slowly
+export const SIDE = { fallSafe: 9, feather: false, watching: false, leaf: false, stone: false, boots: false, calm: false, hour: false, bell: false, rope: false };   // calm: a Breath of the Eye is worn: under the glide he sinks more slowly
 //   // boots: the Wright's Boots are worn: live iron does not shock him
 //   // stone: the Pilgrim's Stone is worn: after a blow nothing can hurt him for longer
 //   // leaf: the Copyist's Blank Leaf is unspent: the next blow that lands does no harm

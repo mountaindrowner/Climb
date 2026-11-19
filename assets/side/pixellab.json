@@ -1251,5 +1251,21 @@
     "group": "4e2079b8-1132-48da-9226-60bc7e9e8ec0"
    }
   }
+ },
+ "px_sunk": {
+  "id": "7e669d87-e42f-4377-a654-4dae1620521e",
+  "description": "a drowned miner drifting upright under water, pale bloated grey-green body, a miner's cap with a dead lamp on it, long ragged clothes and hair trailing upward, both arms reaching forward with long fingers, blank pale eyes, pale green and grey with dark teal shadows, simple stylized chunky pixel art with few colors and bold shapes, seen strictly from the side in flat profile, 2D platformer enemy",
+  "anims": {
+   "walk": {
+    "action": "drifting slowly forward under water, arms reaching out in front, clothes and hair trailing",
+    "frames": 8,
+    "group": "99af1c83-c4d7-4807-a2ed-1cde1dfee63d"
+   },
+   "attack": {
+    "action": "lunging forward and grabbing with both arms",
+    "frames": 8,
+    "group": "ea4476ec-156a-4ef0-8391-43848732a865"
+   }
+  }
  }
 }

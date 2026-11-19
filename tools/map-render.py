@@ -15,7 +15,8 @@ def font(sz, bold=False):
 F_ROOM, F_WING, F_REG, F_LEG, F_TAG = font(13), font(17, True), font(40, True), font(18), font(14, True)
 TH = { 'roots': ((122, 84, 56), (58, 38, 30), (255, 196, 120)), 'cloister': ((112, 104, 134), (50, 46, 66), (214, 200, 255)), 'spires': ((150, 190, 214), (62, 84, 108), (210, 240, 255)),
        'tempest': ((70, 98, 140), (30, 42, 68), (160, 210, 255)), 'gardens': ((120, 160, 96), (48, 72, 50), (200, 255, 170)), 'firmament': ((84, 78, 140), (34, 30, 66), (255, 226, 150)),
-       'workings': ((104, 70, 58), (44, 28, 26), (255, 170, 120)), 'vein': ((58, 78, 112), (16, 20, 36), (160, 230, 255)) }
+       'workings': ((104, 70, 58), (44, 28, 26), (255, 170, 120)), 'vein': ((58, 78, 112), (16, 20, 36), (160, 230, 255)),
+       'flooded': ((46, 104, 96), (12, 34, 36), (150, 255, 200)), 'shaft': ((70, 72, 92), (14, 14, 22), (255, 190, 120)) }
 WINGCOL = { 'THE OSSUARY': (196, 180, 150), 'THE SCRIPTORIUM': (206, 176, 120), 'THE BELL-FOUNDRY': (214, 120, 70), 'THE PILGRIMS\' CAIRNS': (190, 200, 210), 'THE GLACIER GALLERIES': (130, 220, 240),
             'THE WRECK OF THE WORKS': (200, 150, 90), 'THE EYE OF THE STORM': (236, 244, 255), 'THE AQUEDUCTS': (90, 190, 220), 'THE KEEPERS\' HOUSES': (230, 180, 120), 'THE ORRERY WING': (240, 180, 70) }
 SEAMCOL = (150, 140, 120)
@@ -24,7 +25,7 @@ SHORT = { 'ORDRIC OF THE VIGIL': 'Ordric', 'MIREL THE PENITENT': 'Mirel', 'CORWE
 # where each level sits: the join above one is the join below the next; the Deep's levels one under another, under the foot
 off = {0: (0, 0)}; climb = [d for d in D if not d['deep']]
 for a, b in zip(climb, climb[1:]): u, dn = a['joins']['up'], b['joins']['down']; off[b['n']] = (off[a['n']][0] + u['x'] - dn['x'], off[a['n']][1] + u['y'] - dn.get('y', 0))
-deep = [d for d in D if d['deep']]; gap = 30; yy = 0
+deep = sorted([d for d in D if d['deep']], key=lambda d: -(d.get('depth') or [0, 0])[1]); gap = 30; yy = 0   # the Deep, by how far down each is
 for d in deep: yy -= d['H'] + gap; off[d['n']] = (off[0][0], yy)
 x0 = min(off[d['n']][0] for d in D); y0 = min(off[d['n']][1] for d in D); x1 = max(off[d['n']][0] + d['W'] for d in D); y1 = max(off[d['n']][1] + d['H'] for d in D)
 ML, MR, MT, MB = 330, 60, 120, 150; W = (x1 - x0) * PX + ML + MR; H = (y1 - y0) * PX + MT + MB

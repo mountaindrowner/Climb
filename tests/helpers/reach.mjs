@@ -10,7 +10,7 @@
 //   GIFTS, giftName  -> the gifts in the order he is given them, and what each is called
 //   reached(seen, room, W), goalOf(marks), nearGoal(goal), runback(...)
 import { clock } from './browser.mjs';
-const { LEVEL, LEVELS, loadLevel, T, PHASE, REGION_DATA, RULE } = await import('../../src/side/level.js');
+const { LEVEL, LEVELS, loadLevel, T, PHASE, REGION_DATA, RULE, waterAt } = await import('../../src/side/level.js');
 const M = await import('../../src/side/motor.js');
 const I = await import('../../src/core/input.js');
 const { TEACH } = await import('../../src/side/state.js');
@@ -20,7 +20,7 @@ export { LEVELS, loadLevel, LEVEL, T };
 
 export const GIFTS = TEACH.map(t => t.can).filter(Boolean);                        // ['breaker', 'dash', 'glide']
 export const giftName = c => (TEACH.find(t => t.can === c) || { name: c }).name;
-export const arrival = N => REGION_DATA[N] && REGION_DATA[N].deep ? [] : TEACH.slice(0, N).map(t => t.can).filter(Boolean);
+export const arrival = N => REGION_DATA[N] && REGION_DATA[N].deep ? [...(REGION_DATA[N].needs || [])] : TEACH.slice(0, N).map(t => t.can).filter(Boolean);   // (needs: a section of the Deep he cannot come into without a gift: the Flooded Levels, the Wyrm's wind)
 
 let W = 0;
 // one input program from where he stands; returns where he came to rest, by tile (grounded, not hurt). Places are kept
@@ -36,6 +36,8 @@ function run(x, y, prog, frames = 150){
     for (let s = 0; s < 2; s++){ M.stepPlayer(P, H120); clock.t += H120; t += H120; }
     I.endFrame(); P.events.length = 0;
     if (P.hp < hp0) return out;
+    // in deep water he does not stand, and is somewhere all the same: where the water has him counts, every other tile of it
+    if (P.swim && !(P.hurtT > 0)){ const ci = Math.floor(P.x / T), cj = Math.round(P.y / T); if (!(ci & 1) && !(cj & 1)){ const k = cj * W + ci; if (!out.has(k)) out.set(k, [P.x, P.y]); } }
     if (pend){ if (!out.has(pend[0])) out.set(pend[0], pend[1]); pend = null; if (stop) break; }
     if (!P.grounded) left = true;
     if (P.grounded && P.vy === 0 && !(P.roll > 0) && !(P.dashT > 0) && !P.mantle){ const ci = Math.floor(P.x / T), cj = Math.round(P.y / T), k = cj * W + ci; pend = [k, [P.x, P.y]]; if (left && f > 20) stop = true; }   // (mid-roll is not a rest: nothing touches him then)
@@ -65,14 +67,19 @@ for (const d of ['left', 'right']){
 PROGS.push((t, I) => { I.hold('down', true); if (t < 0.01) I.tap('jump'); });                                   // drop through a ledge
 PROGS.push((t, I) => { if (t < 0.01 || Math.abs(t - 0.3) < 0.008) I.tap('jump'); I.hold('jump', t < 0.8); });  // straight up through a ledge
 
-export { run, PROGS, DASH, LONG };   // for the stuck-finder (tests/helpers/stuck.mjs)
+// in deep water (phase 16): along it, up it, down it, each way; and at its top, out of it
+const SWIMP = [];
+for (const d of ['left', 'right', '']) for (const v of ['jump', 'down', '']) SWIMP.push((t, I) => { if (d) I.hold(d, true); if (v) I.hold(v, true); if (v === 'jump' && t < 0.01) I.tap('jump'); });
+for (const d of ['left', 'right']) SWIMP.push((t, I) => { I.hold(d, true); I.hold('jump', true); if (t < 0.01 || (t > 0.5 && Math.floor(t * 3) !== Math.floor((t - 1 / 60) * 3))) I.tap('jump'); });
+export { run, PROGS, DASH, LONG, SWIMP };   // for the stuck-finder (tests/helpers/stuck.mjs)
+const tileSupport = (x, y) => { const t = LEVEL.tiles[(Math.round(y / T) - 1) * W + Math.floor(x / T)]; return t === 1 || t === 2; };
 const CACHE = new Map();
 export function graph(N, gifts = []){
   const key = N + ':' + [...gifts].sort().join(',');
   const L = loadLevel(N); W = L.W;
   const has = new Set(gifts);
   M.CAN.breaker = has.has('breaker'); M.CAN.dash = has.has('dash'); M.CAN.glide = has.has('glide');
-  RULE.fallen = has.has('fallen'); RULE.shut = false; RULE.ring = 0; RULE.still = has.has('still') || has.has('fallen'); RULE.turned = false; RULE.litAll = !has.has('unlit'); RULE.lit = new Set(); RULE.sw = 0; RULE.surge = 0; RULE.swFree = !has.has('current'); RULE.hush = 0; RULE.open = 0; RULE.calmFree = !has.has('hurry'); RULE.upset = has.has('upset') ? 1 : 0; RULE.unkept = false; RULE.wetAll = has.has('wet'); RULE.wet = new Set(RULE.still ? [] : LEVEL.marks.filter(m => m.type === 'wheel' && m.after).map(m => m.key));   // ('wet': every sluice is open, the Aqueducts' water all runs. Without it he has shut every wheel he can come to: one behind the wing's keeper (after) still runs until that keeper is down)   // ('hurry': he does not wait at the Eye's doors of cloud: they stay shut)   // ('current': the works' iron shocks, the lever one way)   // the tests' player lights every fire he comes to ('unlit': none of them burn)   // 'still': the Bell-Foundry's Cracked Bell has fallen (its grates are up)
+  RULE.fallen = has.has('fallen'); RULE.shut = false; RULE.ring = 0; RULE.still = has.has('still') || has.has('fallen'); RULE.turned = false; RULE.litAll = !has.has('unlit'); RULE.lit = new Set(); RULE.sw = 0; RULE.surge = 0; RULE.swFree = !has.has('current'); RULE.hush = 0; RULE.open = 0; RULE.calmFree = !has.has('hurry'); RULE.upset = has.has('upset') ? 1 : 0; RULE.unkept = false; RULE.tide = has.has('lowtide') ? 0 : 1; RULE.wetAll = has.has('wet'); RULE.wet = new Set(RULE.still ? [] : LEVEL.marks.filter(m => m.type === 'wheel' && m.after).map(m => m.key));   // ('wet': every sluice is open, the Aqueducts' water all runs. Without it he has shut every wheel he can come to: one behind the wing's keeper (after) still runs until that keeper is down)   // ('hurry': he does not wait at the Eye's doors of cloud: they stay shut)   // ('current': the works' iron shocks, the lever one way)   // the tests' player lights every fire he comes to ('unlit': none of them burn)   // 'still': the Bell-Foundry's Cracked Bell has fallen (its grates are up)
   if (has.has('breaker')) LEVEL.tiles = LEVEL.tiles.map(t => t === 4 ? 0 : t);
   if (has.has('dash')) LEVEL.tiles = LEVEL.tiles.map(t => t === 11 ? 0 : t);   // vellum torn (the Toll's step goes through it)   // the cracked stone broken (a copy: the next load is whole again)
   const base = { W: L.W, H: L.H, marks: L.marks, rooms: L.rooms };
@@ -83,7 +90,9 @@ export function graph(N, gifts = []){
   while (q.length){
     const k = q.pop(), [x, y] = pos.get(k), nx = new Map();
     const take = (c, at) => { if (c === k) return; if (!nx.has(c)) nx.set(c, Math.hypot(at[0] - x, at[1] - y)); if (!pos.has(c)) pos.set(c, at); };
-    for (const p of progs) for (const [c, at] of run(x, y, p)) take(c, at);
+    const inWater = LEVEL.waters.length && (waterAt(x, y + 0.9) || waterAt(x, y + 0.05));
+    if (!inWater || tileSupport(x, y)) for (const p of progs) for (const [c, at] of run(x, y, p)) take(c, at);
+    if (inWater) for (const p of SWIMP) for (const [c, at] of run(x, y, p, 200)) take(c, at);
     if (has.has('glide') && (LEVEL.updrafts.length || (RULE.fallen && (LEVEL.gusts || []).length))) for (const p of LONG) for (const [c, at] of run(x, y, p, 420)) take(c, at);   // where there is rising air to ride
     edges.set(k, nx);
     for (const c of nx.keys()) if (!seen.has(c)){ seen.add(c); q.push(c); }

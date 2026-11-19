@@ -387,7 +387,12 @@ decision 0.10 matters.
 *Art cost:* the Deep's creatures and elites, about $3 to $6. The Auger is drawn in pieces, in code.
 
 *Phase 15 done (build 72): **the lamp, and the Vein**, by `docs/phase15-sheet.md`. A light he carries; twelve dark
-screens behind the guild's seal; lamps he lights that stay lit; the Echo; the Assayer; Raw Lampstone. Next: phase 16.*
+screens behind the guild's seal; lamps he lights that stay lit; the Echo; the Assayer; Raw Lampstone.*
+
+*Phase 16 done (build 73): **the Flooded Levels, the Great Shaft, and travel through the water**, by
+`docs/phase16-sheet.md`. Deep water (it bears him up; with the wind it carries him under); twelve screens under the
+Workings' cistern; the Sunk, blind eels, the Pump and its tide; the way through the water, given at the flooded
+chapel; four screens of Shaft below the Vein's lip, and the light under its floor. Next: phase 17.*
 
 ## Phase 18: the Shard, and the end of the story
 

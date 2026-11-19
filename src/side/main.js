@@ -34,7 +34,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 72, date: '19 NOV 2026', phase: 15, phases: 22, last: 'THE LAMP, AND THE VEIN' };
+const VERSION = { build: 73, date: '19 NOV 2026', phase: 16, phases: 22, last: 'THE FLOODED LEVELS, AND THE WATER' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -86,7 +86,7 @@ function learn(){
   const b = n => !!G.beat[n] || G.top > n || (DEV && LEVEL.index > n);
   CAN.breaker = b(0); CAN.dash = b(1); CAN.glide = b(2);
   if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the spade (a save from before has it now)
-  SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); SIDE.boots = has('boots'); SIDE.calm = has('stillair'); if (CAN.breaker && !G.lamp){ G.lamp = 1; G.lampNew = 1; } if (P){ P.flaskMax = maxFlask(); P.flask = Math.min(P.flask, P.flaskMax); const mh = maxHearts(); if (mh > P.maxHp) P.hp += mh - P.maxHp; P.maxHp = mh; P.hp = Math.min(P.hp, mh); }   // (the yoke, the second place: worn or taken off) EMBER.mend = has('seedheart') ? 7 : 10;   // what he carries, worn (builds 49 to 66 had this line inside the comment above it: these did nothing)
+  SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); SIDE.boots = has('boots'); SIDE.calm = has('stillair'); SIDE.bell = has('shiftbell'); SIDE.rope = has('lastrope'); if (CAN.breaker && !G.lamp){ G.lamp = 1; G.lampNew = 1; } if (P){ P.flaskMax = maxFlask(); P.flask = Math.min(P.flask, P.flaskMax); const mh = maxHearts(); if (mh > P.maxHp) P.hp += mh - P.maxHp; P.maxHp = mh; P.hp = Math.min(P.hp, mh); }   // (the yoke, the second place: worn or taken off) EMBER.mend = has('seedheart') ? 7 : 10;   // what he carries, worn (builds 49 to 66 had this line inside the comment above it: these did nothing)
 }
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
 const GLITTER = { lv: null, at: [] };   // the Vein: where its crystals are (they light the dark round them)
@@ -100,6 +100,7 @@ function setup(walked = false){
   RULE.sw = (G.sw && G.sw[LEVEL.index]) || 0; RULE.surge = 0; RULE.swFree = false;   // the Wreck of the Works: the lever as he left it
   RULE.litAll = false; RULE.lit = new Set((G.lit && G.lit[LEVEL.index]) || []);   // the Glacier Galleries: the fires he has lit here burn on
   RULE.turned = false; RULE.down = !!G.cairnDown; WAY.was = false; WAY.said = new Map();   // the Pilgrims' Cairns: the way is whole as he comes in; his own cairn, once down, stays down
+  RULE.tide = 1;
   RULE.ring = 0; RULE.still = !!(G.still && G.still[LEVEL.index]);   // the Bell-Foundry: nothing rings as he comes in; its Cracked Bell, once fallen, stays fallen
   RULE.fallen = !!(G.beat[LEVEL.index] || G.top > LEVEL.index || !KEEPERS[LEVEL.theme]);   // has this region's keeper fallen: what it held is let go (level.js RULE)
   SWINGFX = makeSwingFx(R.scene); PROPS = makeProps(R.scene, R);
@@ -113,8 +114,8 @@ function setup(walked = false){
   // where the water is: the region's raising pool (a pool that is not plain: a fall raises him there) and the leaks (they
   // mend him and fill the flask, nothing more). Both are where he chooses his knots. `half`: how near counts as at it
   SHRINES = [
-    ...LEVEL.marks.filter(m => m.type === 'pool' && !m.plain).map(m => { const w = (m.w || 8) * T, x = m.x * T + w / 2, y = m.y * T; return { x, y, half: w / 2, raise: true, room: roomAt(x, y + 0.5) }; }),
-    ...LEVEL.marks.filter(m => m.type === 'shrine').map(m => { const x = (m.x + 0.5) * T, y = m.y * T; return { x, y, half: 1.1, raise: false, room: roomAt(x, y + 0.5) }; }),
+    ...LEVEL.marks.filter(m => m.type === 'pool' && !m.plain).map(m => { const w = (m.w || 8) * T, x = m.x * T + w / 2, y = m.y * T; return { x, y, half: w / 2, raise: true, room: roomAt(x, y + 0.5), id: 'r' }; }),
+    ...LEVEL.marks.filter(m => m.type === 'shrine').map(m => { const x = (m.x + 0.5) * T, y = m.y * T; return { x, y, half: 1.1, raise: false, room: roomAt(x, y + 0.5), id: m.x + ',' + m.y }; }),
   ];
   RAISE = SHRINES.find(S => S.raise) || null; TOUCHED.clear();
   CHECK = null; WON = false; DEATH = 0; TRAIL.length = 0;
@@ -135,8 +136,11 @@ function enter(n, at){
   if (hero.meta) hero.sprite = makeSprite(R.scene, `assets/side/${hero.name}`, hero.meta);
   FX2.ghosts.length = 0; setup(); const t3 = performance.now();
   ENTERED.push({ n, build: Math.round(t1 - t0), load: Math.round(t2 - t1), setup: Math.round(t3 - t2) });   // what going into a region costs (a check: window.__side.entered)
-  const am = at && LEVEL.marks.find(m => m.type === 'arrive' && m.name === at), s = am ? { x: (am.x + 0.5) * T, y: am.y * T } : spawnPoint(), old = P; P = born(s.x, s.y); PASS.cool = 1.2; P.hp = Math.max(1, Math.min(P.maxHp, old.hp)); P.flask = Math.min(P.flaskMax, old.flask);
+  // (`at` beginning '@': up out of one of its waters, by the water's id: travel through the water)
+  const ws = at && at[0] === '@' ? SHRINES.find(S => S.id === at.slice(1)) || RAISE : null;
+  const am = at && !ws && LEVEL.marks.find(m => m.type === 'arrive' && m.name === at), s = ws ? { x: ws.x, y: ws.y } : am ? { x: (am.x + 0.5) * T, y: am.y * T } : spawnPoint(), old = P; P = born(s.x, s.y); PASS.cool = 1.2; P.hp = Math.max(1, Math.min(P.maxHp, old.hp)); P.flask = Math.min(P.flaskMax, old.flask);
   CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0;
+  if (ws){ TOUCHED.add(ws); WAKE = 1.5; LATER.push({ t: 0.75, f: () => splash(s.x, s.y) }); }
   giftEnd(); BANNER = null; NAMED = !(roomAt(s.x, s.y + 0.5) || {}).look; if (NAMED) banner(LEVEL.name, SUB[LEVEL.index] || '', 4); marks(); G.level = LEVEL.index; if (!LEVEL.deep) G.top = Math.max(G.top, G.level); G.began = true; store();
 }
 // ---- what the keeper holds in its region, where it needs the game's hand (phase 9, docs/phase9-sheet.md 3). Level.js
@@ -189,13 +193,19 @@ function wingStep(dt){
   // the lamp (phase 15): Ordric's, his from the Warden on (learn: a save already past the Warden has it at once). Where
   // it is dark it is the light he has; and the guild's lamps he comes to with it are lit, and stay lit. What lives in
   // the dark and gives its own light is seen by it
+  // deep water, the first time: what it does with him (without the Wyrm's wind; and with it)
+  if (P.swim && P.depth > 1.3){ if (!CAN.glide && !G.floatTold){ G.floatTold = 1; store(); banner('The water bears him up', 'he cannot go under it. Not yet.', 5.5); } else if (CAN.glide && !G.swimTold){ G.swimTold = 1; store(); banner('The water carries him', 'Jump: up. Down: under. Let go, and he hangs in it.', 7); } }
   { const dark = !!REGION_DATA[LEVEL.index].dark;
-    if (dark && G.lamp) R.glint(P.x, P.y + 1.4, 0xffe2b0, 1.25, has('lampstone') ? 11.5 : 8.5, 0);
+    if (dark && G.lamp) R.glint(P.x, P.y + 1.4, P.under ? 0xd8ffd0 : 0xffe2b0, 1.25, (has('lampstone') ? 11.5 : 8.5) * (P.under ? 0.8 : 1), 0);   // (under the water it reaches a little less far, and goes green)
     if (G.lamp && PROPS.glamps.length) for (const Q of PROPS.glamps) if (!RULE.lit.has(Q.id) && Math.abs(Q.x - P.x) < 1.5 && Q.y > P.y - 0.5 && Q.y < P.y + 5.5){ RULE.lit.add(Q.id); (G.lit = G.lit || {})[LEVEL.index] = [...RULE.lit]; store(); sfx.relic(); fx.burst({ x: Q.x, y: Q.y }, 14, 0xffd9a0); R.glint(Q.x, Q.y, 0xffffff, 1.2, 7, 0.5);
       if (!G.glampTold){ G.glampTold = 1; store(); banner('A guild lamp', 'lit from his own. It will stay lit.', 5); } }
     if (dark){ if (!GLITTER.lv || GLITTER.lv !== LEVEL){ GLITTER.lv = LEVEL; GLITTER.at = LEVEL.marks.filter(m => m.type === 'crystal').map(m => [(m.x + 0.5) * T, m.y * T + 0.4]); }
       let g = 0; for (const q of GLITTER.at.filter(q => Math.abs(q[0] - P.x) < 14 && Math.abs(q[1] - P.y) < 9).sort((u, v) => Math.hypot(u[0] - P.x, u[1] - P.y) - Math.hypot(v[0] - P.x, v[1] - P.y))){ if (++g > 3) break; R.glint(q[0], q[1], 0x9fe8ff, 0.75, 4.6, 0); }
-      let n = 0; for (const e of E.list){ if (!e.alive || Math.abs(e.x - P.x) > 16 || Math.abs(e.y - P.y) > 10) continue; if (e.type === 'echo' && e.shown) R.glint(e.x, e.y + 1.2, 0x9fd8ff, 0.42, 2.6, 0); else if (e.type === 'assayer') R.glint(e.x, e.y + 3, 0xffd9a0, 0.6, 7.5, 0); else if (e.type === 'glimmer' && n++ < 3) R.glint(e.x, e.y + 0.4, 0x9fe8ff, e.dormant ? 0.3 : 0.5, 2, 0); } }
+      let n = 0; for (const e of E.list){ if (!e.alive || Math.abs(e.x - P.x) > 16 || Math.abs(e.y - P.y) > 10) continue; if (e.type === 'echo' && e.shown) R.glint(e.x, e.y + 1.2, 0x9fd8ff, 0.42, 2.6, 0); else if (e.type === 'assayer') R.glint(e.x, e.y + 3, 0xffd9a0, 0.6, 7.5, 0); else if (e.type === 'pump') R.glint(e.x, e.y + 2.4, 0x9fffc0, 0.7, 8, 0); else if (e.type === 'valve') R.glint(e.x, e.y + 0.7, 0xffc880, 0.5, 2.6, 0); else if (e.type === 'eel' && e.st !== 'idle' && e.st !== 'rest') R.glint(e.x, e.y + 0.3, 0xa8f070, 0.5, 2.4, 0); else if (e.type === 'glimmer' && n++ < 3) R.glint(e.x, e.y + 0.4, 0x9fe8ff, e.dormant ? 0.3 : 0.5, 2, 0); } }
+    if (!G.under && dark) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'shiftlamp' && Math.abs((m.x + 0.5) * T - P.x) < 1.8 && Math.abs(m.y * T - P.y) < 2.6){ G.under = 1; oldWaters(); store(); sfx.shrine(); fx.ring({ x: P.x, y: P.y + 1.2 }, 0x9fffd0); R.glint(P.x, P.y + 1.2, 0xd8ffd0, 1.3, 9, 1.2);
+      card({ head: 'THE WATER KNOWS HIM', title: 'The Way Through the Water', icon: 'flask', does: 'At any water he has found, he can go under, and come up at another.', how: ['At a water, {down}: the water. Then: Go under.', 'A water is found by standing in it.'], lore: 'The lamp on the altar was never filled, and has not gone out. It is the same water as the pool above. It was under the whole mountain all along.' }); }
+    // the Great Shaft's floor: the light that comes up out of the hole in it, and the first time he stands by it
+    if (dark) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'breach' && Math.abs(m.x * T - P.x) < 18 && Math.abs(m.y * T - P.y) < 9){ R.glint(m.x * T, m.y * T + 0.4, 0xffb060, 1.05 + 0.08 * Math.sin(time * 1.7), 7, 0); if (!G.floorSeen && P.grounded && Math.abs(m.x * T - P.x) < 7){ G.floorSeen = 1; store(); banner('The floor of the Shaft', 'there is a light under it. It is not his.', 7); } }
     if (!G.lipSeen && dark && P.grounded) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'shaft' && Math.abs(m.x * T - P.x) < 12 && P.y > m.y * T + 3){ G.lipSeen = 1; store(); banner('The lip', 'the Great Shaft. It goes down further than his lamp.', 7); } }
   // the Orrery Wing: the hours cut in the wall, the first time he stands by them
   if (!G.datesSeen && P.grounded && (LEVEL.movers || []).length) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'dates' && Math.abs(m.x * T - P.x) < 3 && Math.abs(m.y * T - P.y) < 2){ G.datesSeen = 1; store(); banner('The hours', 'every hour it gave for the flame to come back. All of them are past.', 7); }
@@ -460,9 +470,42 @@ function knotMenu(){
     b.addEventListener('pointerenter', () => { if (MSEL !== i){ MSEL = i; menuMark(); } });   // what it does shows under the mouse too
     if (on){ b.style.color = '#fee761'; b.style.borderColor = '#fee761'; } grid.appendChild(b); });
   rows.push(grid);
-  const leave = () => { SCREEN = ''; PAUSE = false; KSEL = null; KNOTMSG = ''; menuHide(); }; rows.push(menuButton('Leave the water', leave, true));
+  const leave = () => { SCREEN = ''; PAUSE = false; KSEL = null; KNOTMSG = ''; menuHide(); };
+  if (G.under) rows.push(menuButton('Go under', () => waterMenu()));
+  rows.push(menuButton('Leave the water', leave, true));
   menuShow(rows, false, leave); MENU.style.top = '30%'; MSEL = Math.min(keep, menuItems().length - 1); menuMark();
 }
+// ---- travel through the water (phase 16, docs/phase16-sheet.md): given at the lamp in the chapel of the shift. At any
+// water he has found he can go under, and come up at another. G.wat[n]: the waters of region n he has stood in ('r'
+// its raising water; a leak by its place and its room's name)
+let ATWATER = null, UNDER = null, WSEL = null;
+const found = S => { const L = ((G.wat = G.wat || {})[LEVEL.index] = G.wat[LEVEL.index] || []), key = S.raise ? 'r' : S.id + '|' + ((S.room && S.room.name) || 'a leak'); if (!L.some(k => k.split('|')[0] === key.split('|')[0])){ L.push(key); store(); } };
+// a save from before this had no list: the raising water of every region he has been in is his
+function oldWaters(){ G.wat = G.wat || {}; for (let n = 0; n < LEVELS.length; n++){ const been = REGION_DATA[n].deep ? !!(G.rooms && (G.rooms[n] || []).length) : G.began && n <= G.top; if (been && !(G.wat[n] = G.wat[n] || []).includes('r')) G.wat[n].unshift('r'); } }
+// the waters he can come up at: the mountain from its top down, then the Deep; the one he stands in left out
+function waterList(){ const out = [], here = ATWATER ? ATWATER.id : ''; const order = [...LEVELS.keys()].filter(n => !REGION_DATA[n].deep).reverse().concat([...LEVELS.keys()].filter(n => REGION_DATA[n].deep));
+  for (const n of order) for (const k of (G.wat && G.wat[n]) || []){ const [id, room] = k.split('|'); if (n === LEVEL.index && id === here) continue; out.push({ n, id, raise: id === 'r', name: LEVELS[n].name.replace(/^The /, ''), room: room || '' }); }
+  return out; }
+function waterMenu(){
+  SCREEN = 'under'; PAUSE = true; release(); oldWaters(); WSEL = waterList();
+  const rows = [menuLabel('GO UNDER  ·  AND COME UP WHERE')], grid = document.createElement('div');
+  grid.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:min(94vw,620px)';
+  WSEL.forEach((w, i) => { const b = menuButton(w.raise ? w.name : w.name + ' · ' + w.room, () => goUnder(w), true); if (w.raise){ b.style.color = '#9fe8ff'; b.style.borderColor = '#9fe8ff'; } b.addEventListener('pointerenter', () => { if (MSEL !== i){ MSEL = i; menuMark(); } }); grid.appendChild(b); });
+  rows.push(grid); const back = () => { WSEL = null; knotMenu(); }; rows.push(menuButton('Not now', back, true));
+  menuShow(rows, false, back); MENU.style.top = '26%'; MSEL = 0; menuMark();
+}
+function drawUnder(W){
+  HUD.dark(0.9, '#0b1020'); HUD.text('THE WATER', W / 2, 14, '#cfe6ff', 2, 'center'); HUD.rule(Math.round(W / 2), 34, 60, '#9fe8ff');
+  const w = WSEL && WSEL[MSEL];
+  if (!WSEL || !WSEL.length) HUD.fine('HE HAS FOUND NO OTHER WATER YET.', W / 2, 150, '#8b9bb4', 'center');
+  else if (w){ HUD.text(LEVELS[w.n].name.toUpperCase(), W / 2, 146, '#fff2d0', 1, 'center'); HUD.fine(w.raise ? 'ITS RAISING WATER' : 'A LEAK: ' + w.room.toUpperCase(), W / 2, 158, '#9fe8ff', 'center'); }
+}
+// under: he comes apart into the water he stands in, as in a fall; and rises out of the other. It is not a fall
+function goUnder(w){ SCREEN = ''; PAUSE = false; KSEL = null; WSEL = null; KNOTMSG = ''; menuHide(); BANNER = null; P.vx = P.vy = 0; UNDER = { t: 0, went: false, drops: dissolve(), n: w.n, id: w.id }; fx.ring({ x: P.x, y: P.y + 0.6 }, 0xcfe6ff); fx.burst({ x: P.x, y: P.y + 1.2 }, 18, 0xdff4ff); sfx.splash(); }
+const dropsStep = (drops, dt, quiet) => { for (const d of drops){ if (d.sunk){ d.sunk += dt; d.m.scale.y = Math.max(0.05, 1 - d.sunk * 2); d.m.position.y -= dt * 0.25; d.m.material.opacity = Math.max(0, 1 - d.sunk * 1.6); continue; }
+    d.vy -= 16 * dt; d.x += d.vx * dt; d.y += d.vy * dt; d.m.position.set(d.x, d.y, 0.06);
+    if (d.vy < 0 && (solidAt(d.x, d.y - 0.03) || (d.y < d.floor + 0.02))){ d.y = Math.max(d.y, d.floor); d.sunk = 0.001; d.m.position.y = d.y; if (!quiet && Math.random() < 0.15) sfx.step(); } } };
+const dropsEnd = drops => { for (const d of drops){ R.scene.remove(d.m); d.m.geometry.dispose(); d.m.material.dispose(); } };
 function drawKnots(W){
   HUD.dark(0.9, '#181425'); HUD.text('THE KNOTS', W / 2, 14, '#fff2d0', 2, 'center'); HUD.rule(Math.round(W / 2), 34, 60, '#ead4aa');
   const id = KSEL && KSEL[MSEL], r = id && RELICS[id];
@@ -475,7 +518,7 @@ function drawKnots(W){
 const PBTN = menuButton('II', () => pause(!PAUSE), true); PBTN.style.cssText += ';position:absolute;left:50%;top:8px;transform:translateX(-50%);z-index:6;padding:3px 9px;font-size:12px;display:none;opacity:0.6;background:rgba(24,20,37,.4);box-shadow:none;border:2px solid rgba(234,212,170,.5);border-radius:10px';
 (document.getElementById('stage') || document.body).appendChild(PBTN);
 function pause(on){
-  if (STORY.active() || GO.st || TALK.on || NOTE) return; if (SCREEN === 'shop' || SCREEN === 'knots'){ SCREEN = ''; PAUSE = false; menuHide(); return; }
+  if (STORY.active() || GO.st || TALK.on || NOTE) return; if (SCREEN === 'shop' || SCREEN === 'knots' || SCREEN === 'under'){ SCREEN = ''; PAUSE = false; menuHide(); return; }
   PAUSE = on; SCREEN = on ? 'pause' : ''; if (!on){ menuHide(); return; } release();
   menuShow([menuButton('Go on', () => pause(false)), menuButton('The Map', mapScreen, true), menuButton('What he carries', carryScreen, true), menuButton('The Annals', () => annals(LEVEL.index), true), menuButton('Options', () => options(() => pause(true)), true), menuButton('To the title', () => { PAUSE = false; SCREEN = ''; title(); }, true)], false, () => pause(false));
 }
@@ -526,7 +569,7 @@ const hear = () => { HEARD = true; ac(); }; STORY.quiet = () => !HEARD; for (con
 addEventListener('keydown', e => { if (e.code === 'KeyN'){ MUTED = !MUTED; try { localStorage.setItem('climb-side-mute', MUTED ? '1' : '0'); } catch (err){} banner('', MUTED ? 'music off' : 'music on', 1.6); } });
 // a region with no music of its own has another's (musicOf: the Workings, the Roots')
 const alias = theme => { const R = REGION_DATA.find(q => q.theme === theme); return (R && R.musicOf) || theme; };
-const SCORE = makeScore(), AMB = { vein: 'cave', workings: 'cave', roots: 'cave', cloister: 'cave', spires: 'wind', tempest: 'storm', gardens: 'garden', firmament: 'wind' };
+const SCORE = makeScore(), AMB = { flooded: 'cave', shaft: 'wind', vein: 'cave', workings: 'cave', roots: 'cave', cloister: 'cave', spires: 'wind', tempest: 'storm', gardens: 'garden', firmament: 'wind' };
 function score(){
   if (!HEARD) return; const A = ac(); if (!A) return; if (!MUSIC) MUSIC = makeMusic(A, musicBus() || A.destination);
   const k = STORY.kind, fight = BOSS && BOSS.active() && BOSS.st !== 'die', quiet = ENT.hush || (BOSS && (BOSS.st === 'die' || (BOSS.st === 'dead' && !WON)));
@@ -697,10 +740,10 @@ function frame(ts){
   if (VIEW.on) viewStep(dt);
   if (ENT.lead && !ENT.first && (IN.pressed.has('jump') || IN.pressed.has('attack'))){ IN.pressed.delete('jump'); IN.pressed.delete('attack'); ENT.skip(); }   // seen it before: a press goes straight to the keeper
   USE = P.hp > 0 && P.grounded && !FLIGHT && !GO.st && WAKE <= 0 && !(BOSS && BOSS.active() && BOSS.st !== 'dead') ? ITEMS.near(P) : null;
-  if (!USE && P.hp > 0 && P.grounded && !FLIGHT && !GO.st && WAKE <= 0 && G.relics.length){ const S = SHRINES.find(S => Math.abs(P.x - S.x) < S.half && Math.abs(P.y - S.y) < 1.5); if (S) USE = { type: 'flame', x: S.x, y: S.y }; }   // at a flame: the knots
-  if (USE && IN.pressed.has('down')){ IN.pressed.delete('down'); if (USE.type === 'npc') talkTo(USE); else if (USE.type === 'flame') knotMenu(); else ITEMS.open(USE, evs); }
+  if (!USE && P.hp > 0 && P.grounded && !FLIGHT && !GO.st && WAKE <= 0 && (G.relics.length || G.under)){ const S = SHRINES.find(S => Math.abs(P.x - S.x) < S.half && Math.abs(P.y - S.y) < 1.5); if (S) USE = { type: 'flame', x: S.x, y: S.y, S }; }   // at a flame: the knots
+  if (USE && IN.pressed.has('down')){ IN.pressed.delete('down'); if (USE.type === 'npc') talkTo(USE); else if (USE.type === 'flame'){ ATWATER = USE.S; knotMenu(); } else ITEMS.open(USE, evs); }
   const h = 1 / 120;
-  while (acc >= h){ const x0 = P.x; if (DEATH <= 0 && !FLIGHT && !DISS && !GO.st && WAKE <= 0 && RECEIVE <= 0 && !ENT.lead) stepPlayer(P, h); else if (ENT.lead){ P.vx = 0; if (ENT.face) P.face = ENT.face; if (ENT.brace && !P.blocking){ P.blocking = true; P.blockAt = performance.now() / 1000; } } P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
+  while (acc >= h){ const x0 = P.x; if (DEATH <= 0 && !FLIGHT && !DISS && !UNDER && !GO.st && WAKE <= 0 && RECEIVE <= 0 && !ENT.lead) stepPlayer(P, h); else if (ENT.lead){ P.vx = 0; if (ENT.face) P.face = ENT.face; if (ENT.brace && !P.blocking){ P.blocking = true; P.blockAt = performance.now() / 1000; } } P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
   endFrame();
   if (P.hp > 0 && !FLIGHT && !GO.st && (TRAILT -= dt) <= 0){ TRAILT = 0.05; const [an, fr] = heroPose(P, time); TRAIL.push({ x: P.x, y: P.y, face: P.face, an, fr });
     if (TRAIL.length > 2400) TRAIL.splice(0, 1200, ...TRAIL.slice(0, 1200).filter((_, i) => i % 2)); }   // a long way: the far end of it kept more thinly
@@ -726,11 +769,10 @@ function frame(ts){
   // what he found, lit and learned is kept. (The old rewind, his path run back, is kept in reserve: FLIGHT)
   if (P.hp <= 0 && DEATH <= 0 && !FLIGHT && !DISS){ DEATH = 0.7; P.vx = 0; G.falls = (G.falls || 0) + 1; (G.fallsBy = G.fallsBy || {})[LEVEL.index] = (G.fallsBy[LEVEL.index] || 0) + 1; DISS = { t: 0, raised: false, drops: dissolve() }; BANNER = null; fx.burst({ x: P.x, y: P.y + 1.2 }, 18, 0xdff4ff); FEEL_FX.hitstop = 0.22; R.glint(P.x, P.y + 1, 0x9fe8ff, 1, 5, 0.5); sfx.hurt(); sfx.death(); buzz(1, 1, 450); }
   if (DEATH > 0) DEATH -= dt;
+  if (UNDER){ const U = UNDER; U.t += dt; dropsStep(U.drops, dt, true); if (U.t >= 0.7 && !U.went){ U.went = true; dropsEnd(U.drops); U.drops = []; go(U.n, '@' + U.id); } if (U.went && !GO.st) UNDER = null; }
   if (DISS){
     const D = DISS; D.t += dt;
-    for (const d of D.drops){ if (d.sunk){ d.sunk += dt; d.m.scale.y = Math.max(0.05, 1 - d.sunk * 2); d.m.position.y -= dt * 0.25; d.m.material.opacity = Math.max(0, 1 - d.sunk * 1.6); continue; }
-      d.vy -= 16 * dt; d.x += d.vx * dt; d.y += d.vy * dt; d.m.position.set(d.x, d.y, 0.06);
-      if (d.vy < 0 && (solidAt(d.x, d.y - 0.03) || (d.y < d.floor + 0.02))){ d.y = Math.max(d.y, d.floor); d.sunk = 0.001; d.m.position.y = d.y; if (Math.random() < 0.15) sfx.step(); } }   // into the ground
+    dropsStep(D.drops, dt);   // into the ground
     if (D.t >= DISS_T.raise && !D.raised){ D.raised = true; for (const d of D.drops){ R.scene.remove(d.m); d.m.geometry.dispose(); d.m.material.dispose(); } D.drops = []; raise(); }
     if (D.t >= DISS_T.end) DISS = null;
   }
@@ -745,7 +787,7 @@ function frame(ts){
   // at the water: mended, the flask filled. The first time at each, what it is: the raising pool gives him back after a
   // fall; a leak only mends
   for (const S of SHRINES) if (Math.abs(P.x - S.x) < S.half && Math.abs(P.y - S.y) < 1.5 && P.hp > 0 && !DISS && (!TOUCHED.has(S) || P.flask < P.flaskMax || P.hp < P.maxHp)){
-    const first = !TOUCHED.has(S); TOUCHED.add(S); if (G.lampNew){ G.lampNew = 0; banner('The lamp', 'Ordric has left it by the water for him. It does not burn down.', 7); } P.flask = P.flaskMax; P.hp = P.maxHp; SIDE.leaf = has('blankleaf'); SIDE.hour = has('lastpage'); if (first) sfx.shrine(); else sfx.drink(); store(); fx.ring({ x: P.x, y: S.y + 0.6 }, 0x9fe8ff); R.glint(P.x, S.y + 1, 0x9fe8ff, 0.8, 6, 0.8);
+    const first = !TOUCHED.has(S); TOUCHED.add(S); found(S); if (G.lampNew){ G.lampNew = 0; banner('The lamp', 'Ordric has left it by the water for him. It does not burn down.', 7); } P.flask = P.flaskMax; P.hp = P.maxHp; SIDE.leaf = has('blankleaf'); SIDE.hour = has('lastpage'); if (first) sfx.shrine(); else sfx.drink(); store(); fx.ring({ x: P.x, y: S.y + 0.6 }, 0x9fe8ff); R.glint(P.x, S.y + 1, 0x9fe8ff, 0.8, 6, 0.8);
     if (first) (BANNER ? f => LATER.push({ t: 4, f }) : f => f())(() => banner(S.raise ? 'The water gathers here' : 'Water seeps through the rock here', S.raise ? 'when he falls, it gives him back here' : 'it mends him, and fills the flask', 4));   // after the place's own name, if that is up
   }
 
@@ -781,10 +823,12 @@ function frame(ts){
   FEEL_FX.kick *= Math.exp(-dt * 14);   // a blow nudges the view the way it goes
   R.setCamera(cx + (Math.random() - 0.5) * sk + FEEL_FX.kick, cy + (Math.random() - 0.5) * sk, CAM.zoom);
   // the warrior (not while he is dead and the scarf is on its way)
-  const gone = (P.hp <= 0 && DEATH < 0.6 && !FLIGHT) || (DISS && !DISS.raised); if (hero.sprite) hero.sprite.g.visible = !gone;   // come apart, he is gone
+  const gone = (P.hp <= 0 && DEATH < 0.6 && !FLIGHT) || (DISS && !DISS.raised) || (UNDER && (!UNDER.went || GO.st === 'out' || GO.st === 'load')); if (hero.sprite) hero.sprite.g.visible = !gone;   // come apart, he is gone
   if (hero.sprite){
     const pose = heroPose(P, time), RW = FLIGHT && FLIGHT.s, anim = RW ? RW.an : pose[0], frac = RW ? RW.fr : pose[1], anchor = RW ? null : pose[2];   // running back: the drawing he had there
     let rot = 0;
+    if (P.swim && CAN.glide && P.under) rot = -P.face * Math.min(1, Math.abs(P.vx) / 5) * 0.75;   // carried under the water: he lies along the way he is going
+    if (P.under && !PAUSE && Math.random() < 0.06) fx.burst({ x: P.x + P.face * 0.2, y: P.y + 2.1 }, 1, 0xbfe8ff);
     if (P.flip > 0 && !MOVES.flip.includes(anim)){ const q = 1 - P.flip / MV.flip; rot = -Math.PI * 2 * Math.min(1, q * 1.1) * (P.face < 0 ? -1 : 1); }   // no drawn flip: turn the sprite
     if (anchor && anchor.ledge) hero.sprite.show(anim, frac, P.mantle.wall, P.mantle.y1 - SINK, P.mantle.d, 0.05, 0, anchor);   // the climb, on the ledge's corner
     else if (anchor && typeof anchor === 'object') hero.sprite.show(anim, frac, P.x, P.y - SINK, P.face, 0.05, 0, anchor);
@@ -998,6 +1042,9 @@ function onEvent(e){
   switch (e.type){
     case 'jump': sfx.jump(); fx.puff(at, 8, 1.6); break;
     case 'doubleJump': sfx.jump(); fx.ring(at, 0x9ff0ff); FX2.flipped = true; break;
+    // deep water: into it (the harder he came, the more of it), out of it
+    case 'splash': sfx.splash(); fx.ring({ x: P.x, y: P.y + P.depth }, 0xcfe6ff); fx.burst({ x: P.x, y: P.y + P.depth }, Math.min(26, 8 + Math.round((e.v || 0) * 1.2)), 0xbfe8ff); break;
+    case 'surface': sfx.splash(); fx.burst({ x: P.x, y: P.y + 1.4 }, 10, 0xdff4ff); break;
     case 'land': sfx.step(); fx.puff(at, e.hard ? 20 : 8, e.hard ? 3.2 : 2); if (e.hard) FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.12); if (e.hard || (e.drop || 0) > 0.8 || FX2.flipped){ landT = LAND_T; } FX2.flipped = false; break;
     case 'slam': { if (e.art) waves(P.x, P.y); PLUNGE_T = PLUNGE_LAND; landT = 0; sfx.slam(); fx.puff(at, 24, 3.6); R.shock(P.x, P.y + 0.3, true); fx.ring(at, 0xffd27a);
       buzz(0.55, 0.45, 150); const storm = has('stormglass'), spade = P.weapon === 'spade', rad = MV.dive.radius * (storm ? 1.5 : 1) * (spade ? 0.8 : 1), dmg = MV.dive.dmg + (storm ? 1 : 0) + (G.edge && !spade ? 1 : 0), out = [];   // the spade's plunge: narrower, and it breaks what is under him
@@ -1065,6 +1112,7 @@ function onEvent(e){
     case 'kill':
       // the Jar is broken: the works are dead, for good. No iron shocks; the coils and the arms are still; the grates lift
       if (e.e && e.e.type === 'assayer'){ RULE.still = true; (G.still = G.still || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.door(); sfx.crack(); FEEL_FX.shake = 0.6; SLOW = Math.max(SLOW, 0.9); fx.burst(e.at, 36, 0xffd9a0); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); for (const B of PROPS.grates) fx.dust({ x: B.x, y: B.y }, 14, 3); banner('The Assayer is still', 'it weighed him, and the beam did not come down', 5.5); }
+      if (e.e && e.e.type === 'pump'){ RULE.still = true; RULE.tide = 0; (G.still = G.still || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.door(); sfx.rumble(); sfx.splash(); FEEL_FX.shake = 0.7; SLOW = Math.max(SLOW, 0.9); fx.burst(e.at, 40, 0xbfe8ff); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); for (const B of PROPS.grates) fx.dust({ x: B.x, y: B.y }, 14, 3); banner('The Pump runs free', 'it has stopped nothing. The water goes down.', 6); }
       if (e.e && e.e.type === 'almanac'){ RULE.still = true; (G.still = G.still || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.door(); sfx.crack(); FEEL_FX.shake = 0.6; SLOW = Math.max(SLOW, 0.9); fx.burst(e.at, 36, 0xfeae34); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); for (const B of PROPS.grates) fx.dust({ x: B.x, y: B.y }, 14, 3); banner('The Almanac is shut', 'it was an hour out about this, too', 5.5); }
       if (e.e && e.e.type === 'housekeeper'){ RULE.unkept = true; (G.unkept = G.unkept || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.door(); sfx.crack(); FEEL_FX.shake = 0.5; SLOW = Math.max(SLOW, 0.9); fx.burst(e.at, 30, 0xfff2d0); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); banner('The Housekeeper is still', 'nothing in these houses will be set right again', 5.5); }
       if (e.e && e.e.type === 'lock'){ RULE.still = true; RULE.surge = 0; (G.still = G.still || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.door(); sfx.rumble(); sfx.splash(); FEEL_FX.shake = 0.7; SLOW = Math.max(SLOW, 0.9); fx.burst(e.at, 40, 0xbfe8ff); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); for (const B of PROPS.grates) fx.dust({ x: B.x, y: B.y }, 14, 3); banner('The Lock is open', 'the water goes where it was going. Its keepers stand down.', 5.5); }
@@ -1168,13 +1216,14 @@ function drawHud(dt){
     if (t > 3.4) RISEN = null; }
   if (FLASH > 0 && OPT.flash) HUD.dark(FLASH * 1.4, '#ffffff');
   // over what he can use: the key for it
-  if (USE && !PAUSE && !TALK.on && !NOTE){ v.set(USE.x, USE.y + (USE.type === 'npc' ? 2.6 : 1.5), 0).project(R.camera); HUD.prompt(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180), USE.type === 'npc' ? 'TALK' : USE.type === 'flame' ? 'TIE KNOTS' : 'OPEN', time, kname('down')); }
+  if (USE && !PAUSE && !TALK.on && !NOTE){ v.set(USE.x, USE.y + (USE.type === 'npc' ? 2.6 : 1.5), 0).project(R.camera); HUD.prompt(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180), USE.type === 'npc' ? 'TALK' : USE.type === 'flame' ? (G.under ? 'THE WATER' : 'TIE KNOTS') : 'OPEN', time, kname('down')); }
   TALK.draw(HUD, dt, time);
   if (NOTE) drawCard(NOTE, W, true);
   if (PAUSE && SCREEN === 'annals') drawAnnals(W);
   else if (PAUSE && SCREEN === 'map') drawMap();
   else if (PAUSE && SCREEN === 'shop') drawShop(W);
   else if (PAUSE && SCREEN === 'knots') drawKnots(W);
+  else if (PAUSE && SCREEN === 'under') drawUnder(W);
   else if (PAUSE && SCREEN === 'carry') drawCarry(W);
   else if (PAUSE){ HUD.dark(0.66); HUD.version(VERSION_LINES, 0.85, W / 2, 'center', 1); HUD.text('PAUSED', W / 2, 14, '#fff2d0', 2, 'center'); HUD.rule(Math.round(W / 2), 34, 60, '#ead4aa');
     // what he carries
@@ -1190,7 +1239,7 @@ function drawHud(dt){
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { knotMenu, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, RULE, VERSION, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { knotMenu, waterMenu, goUnder, waterList, get under(){ return UNDER; }, set atWater(v){ ATWATER = v; }, get shrines(){ return SHRINES; }, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, RULE, VERSION, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

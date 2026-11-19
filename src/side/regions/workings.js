@@ -71,18 +71,23 @@ function long(){
   return r;
 }
 function cistern(){
-  const r = room(2, 2); walls(r); door(r, 'top', 10, 15); door(r, 'right', 2, 7);   // (east, at its foot: the guild's seal, and the stair to the Vein)
-  // the water came in here and stayed: a deep basin across the floor, stone steps down into it, the roof high
-  rect(r, 20, 1, 66, 3, EMPTY);
+  const r = room(2, 2); walls(r); door(r, 'top', 10, 15); door(r, 'right', 10, 15);   // (east, on the quay: the guild's seal, and the stair to the Vein)
+  // the water came in here and stayed: the room is under it to four times his depth (phase 16: deep water, motor.js
+  // SWIM). It bears him up, and he crosses on the stones or along its top. In the floor under it, the sump: a square
+  // hole, and a green light a long way down it. With the Wyrm's wind he can go under, and that is the way to the
+  // Flooded Levels
+  mark(r, 'water', 2, 2, { w: 65, h: 8 }); rect(r, 40, 0, 46, 1, EMPTY); mark(r, 'water', 40, 0, { w: 7, h: 2 });
+  mark(r, 'pass', 40, 0, { w: 7, h: 2, to: 8, at: 'top', gate: 'glide' }); mark(r, 'arrive', 43, 6, { name: 'sump' }); mark(r, 'dlamp', 43, 2);
+  rect(r, 67, 2, 77, 9);                                                              // the quay, east: dry, and the door on it
   // the guild's ladder of staging down from the hole in the roof, a jump apart: the way back up as well as down
-  // (marked 'keep' over each, so the wear on the rock leaves room to stand on them)
+  // (marked 'keep' over each, so the wear on the rock leaves room to stand on them). Its two lowest are under the water now
   for (const [x0, x1, y] of [[6, 11, 7], [14, 20, 12], [6, 11, 17], [14, 20, 22], [6, 11, 27], [14, 20, 32], [6, 11, 37], [10, 15, 42]]){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); mark(r, 'keep', x1 - 1, y + 3); }
   ledge(r, 30, 38, 10); ledge(r, 48, 56, 10); ledge(r, 66, 74, 16);                     // stones standing out of the water
-  mark(r, 'pool', 20, 1, { w: 47, plain: true });
+  for (const x of [69, 72, 75]) for (const y of [11, 14]) mark(r, 'keep', x, y);       // the quay stays level
   mark(r, 'lamprey', 34, 30); mark(r, 'lamprey', 52, 34); mark(r, 'lamprey', 70, 30);
-  mark(r, 'barnacle', 12, 4); mark(r, 'barnacle', 72, 4);
+  mark(r, 'barnacle', 33, 11);
   mark(r, 'torch', 6, 26); mark(r, 'torch', 40, 16); mark(r, 'torch', 74, 22);
-  mark(r, 'crystal', 34, 11); mark(r, 'crystal', 52, 11);
+  mark(r, 'crystal', 36, 11); mark(r, 'crystal', 52, 11);
   mark(r, 'chest', 70, 17, { holds: 'relic:tally' });
   return r;
 }
@@ -90,12 +95,14 @@ function cistern(){
 // the guild's seal (phase 15): a wall of stone they built across the way down, and broke open again themselves, and
 // built again. The Warden's spade breaks it. Two of the guild's lamps here, unlit: the lamp he carries lights them
 function sealroom(){
-  const r = room(); walls(r); door(r, 'left', 2, 7); door(r, 'bottom', 28, 32);
-  rect(r, 14, 2, 15, 21); rect(r, 14, 2, 15, 7, CRACKED);
-  for (const x of [8, 10, 12, 17, 19, 21]) for (const y of [3, 6]) mark(r, 'keep', x, y);   // the floor stays level at the seal's foot, both sides: the wear would bank rock against it and shut the way under the wall
-  mark(r, 'glamp', 8, 8); mark(r, 'glamp', 24, 8);
-  mark(r, 'pass', 28, 0, { w: 5, h: 3, to: 7, at: 'top', gate: 'breaker' }); mark(r, 'arrive', 22, 2, { name: 'seal' });
-  mark(r, 'torch', 4, 10); mark(r, 'urn', 20, 2); mark(r, 'crystal', 36, 2);
+  const r = room(); walls(r); door(r, 'left', 10, 15); door(r, 'bottom', 28, 32);
+  rect(r, 2, 2, 37, 9); rect(r, 28, 2, 32, 9, EMPTY);                // it stands at the height of the cistern's quay, over the water; the stair goes down through its floor
+  rect(r, 14, 10, 15, 21); rect(r, 14, 10, 15, 15, CRACKED);
+  for (const x of [8, 10, 12, 17, 19, 21]) for (const y of [11, 14]) mark(r, 'keep', x, y);   // the floor stays level at the seal's foot, both sides: the wear would bank rock against it and shut the way under the wall
+  for (const y of [3, 6, 9]) for (const x of [29, 31]) mark(r, 'keep', x, y);
+  mark(r, 'glamp', 8, 16); mark(r, 'glamp', 24, 16);
+  mark(r, 'pass', 28, 0, { w: 5, h: 3, to: 7, at: 'top', gate: 'breaker' }); mark(r, 'arrive', 22, 10, { name: 'seal' });
+  mark(r, 'torch', 4, 18); mark(r, 'urn', 20, 10); mark(r, 'crystal', 36, 10);
   r.title = 'THE GUILD\'S SEAL';
   return r;
 }

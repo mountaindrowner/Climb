@@ -4,7 +4,7 @@
 // a drop through a plank) he is stuck. Every gift is his, so a pocket is one the player can never get out of. Only the
 // rooms are searched (not the rock over the summit), and from each place up to six moves on.
 //   pockets(N) -> [{ x, y, room }]   tiles where he would be stuck
-import { graph, run, PROGS, DASH, LONG, GIFTS, LEVEL, T } from './reach.mjs';
+import { graph, run, PROGS, DASH, LONG, SWIMP, GIFTS, LEVEL, T } from './reach.mjs';
 const { BODY } = await import('../../src/side/motor.js');
 const ROCK = 1, LEDGE = 2;
 export function pockets(N){
@@ -16,7 +16,7 @@ export function pockets(N){
   for (const k of seen){ if (!air[k]){ air[k] = 1; q.push(k); } }
   while (q.length){ const k = q.pop(), i = k % W, j = (k - i) / W; for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]){ const ii = i + a, jj = j + b; if (ii < 0 || jj < 0 || ii >= W || jj >= H) continue; const kk = jj * W + ii; if (!air[kk] && !rock(ii, jj)){ air[kk] = 1; q.push(kk); } } }
   const fits = (x, y) => { for (let jj = Math.floor((y + 1e-4) / T); jj <= Math.floor((y + BODY.crouch - 1e-4) / T); jj++) for (let ii = Math.floor((x - BODY.hw + 1e-4) / T); ii <= Math.floor((x + BODY.hw - 1e-4) / T); ii++) if (at(ii, jj) === ROCK) return false; return true; };
-  const progs = PROGS.concat(DASH), out = []; out.tried = 0; out.standable = 0;
+  const progs = PROGS.concat(DASH, (LEVEL.waters || []).length ? SWIMP : []), out = [];   // (where there is deep water, the ways through it too) out.tried = 0; out.standable = 0;
   for (let j = 1; j < H; j++) for (let i = 0; i < W; i++){
     const k = j * W + i; if (!air[k] || seen.has(k) || rock(i, j)) continue;
     if (!LEVEL.rooms.some(r => i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1)) continue;   // only where he plays (not over the summit's roof)

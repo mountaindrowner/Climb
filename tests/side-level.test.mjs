@@ -3,13 +3,13 @@
 // room is reached, and the shrine, the arena's stage and the way out. Guards the organic pass, which reshapes rooms.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { LEVEL, LEVELS, loadLevel, ROCK, LEDGE, EMPTY } from '../src/side/level.js';
+import { LEVEL, LEVELS, loadLevel, ROCK, LEDGE, EMPTY, REGION_DATA } from '../src/side/level.js';
 
 for (let N = 0; N < LEVELS.length; N++){
-const { W, H, tiles, marks, rooms, pads, updrafts } = { ...loadLevel(N) }, NAME = LEVELS[N].name;
+const { W, H, tiles, marks, rooms, pads, updrafts, waters } = { ...loadLevel(N) }, NAME = LEVELS[N].name;
 const GOAL = marks.find(m => m.type === 'boss') || marks.find(m => m.type === 'exit') || marks.find(m => m.type === 'pass');   // where the region leads: its boss, its way out, or (in the Deep, off the climb) the passage back
 // BROKE: he has the Warden's weight and has broken the cracked stone (a gated room is played both ways)
-let BROKE = false; const GATED = rooms.some(r => r.gate || r.after);   // after: the way on past the keeper's hall, behind stone until the keeper falls (phase 9)
+let BROKE = false; const GATED = rooms.some(r => r.gate || r.after || r.needs);   // after: the way on past the keeper's hall, behind stone until the keeper falls (phase 9)
 // what moves and can be stood on (the Orrery Wing): he waits for it, so it is a plank everywhere it goes
 const MOVING = new Set(); for (const m of marks) if (m.type === 'mover') for (let k = 0; k < 96; k++){ const a = k / 96 * Math.PI * 2, x = m.kind === 'slide' ? m.x + 0.5 + Math.sin(a) * (m.ax || 0) : m.x + 0.5 + Math.cos(a) * (m.r || 8), y = m.kind === 'slide' ? m.y + Math.sin(a) * (m.ay || 0) : m.y + Math.sin(a) * (m.r || 8), w = (m.w || 5) / 2; for (let i = Math.ceil(x - w); i <= Math.floor(x + w - 1); i++) MOVING.add((Math.round(y) - 1) * W + i); }
 const at = (i, j) => { if (i < 0 || j < 0 || i >= W || j >= H) return ROCK; const t = tiles[j * W + i]; if (t === EMPTY && MOVING.has(j * W + i)) return LEDGE; return t === 4 || t === 7 || t === 11 || t === 13 ? (BROKE ? EMPTY : ROCK) : t === 9 ? (BROKE ? LEDGE : ROCK) : t === 8 || t === 12 || t === 15 || t === 18 || t === 19 ? EMPTY : t === 10 ? (BROKE ? LEDGE : 3) : t === 5 || t === 6 || t === 14 || t === 16 || t === 17 ? LEDGE : t; };   // BROKE is also: its keeper fallen (what it held let go); a door on the bell is waited for   // cracked rock is rock (until broken); star-glass, a ledge (he waits for it)
@@ -20,19 +20,29 @@ const support = (i, j) => { const t = at(i, j); return t === ROCK || t === LEDGE
 const BODY = 5;   // tiles tall, rounded up (he is 2.4 units: 4.8 tiles)
 const roomy = (i, j) => { for (let d = 0; d < BODY; d++) if (solid(i, j + d)) return false; return true; };
 // he is 0.68 wide: where he stands, a column beside also has to be clear to his height
-const stand = (i, j) => at(i, j) !== ROCK && at(i, j) !== 3 && support(i, j - 1) && roomy(i, j) && (roomy(i - 1, j) || roomy(i + 1, j)) && (BROKE || !BARRED.has(j * W + i));
+// deep water (phase 16): WET[k] is the row over the top of the water a tile is in (0: dry). It bears him up: without
+// the Wyrm's wind his feet go no deeper than three tiles under its top, so he neither stands nor swims below that.
+// With the wind (BROKE; or a section he cannot come into without it) he goes anywhere in it. He leaves it at its top
+const WET = new Int16Array(W * H); for (const w of waters) for (let j = Math.round(w.y0 * 2); j < Math.round(w.y1 * 2); j++) for (let i = Math.round(w.x0 * 2); i < Math.round(w.x1 * 2); i++) if (i >= 0 && j >= 0 && i < W && j < H) WET[j * W + i] = 1;
+for (let i = 0; i < W; i++){ let top = 0; for (let j = H - 1; j >= 0; j--){ if (WET[j * W + i]){ if (!top) top = j + 1; WET[j * W + i] = top; } else top = 0; } }
+const WIND = (REGION_DATA[N].needs || []).includes('glide'), deepAt = (i, j) => { const t = i < 0 || j < 0 || i >= W || j >= H ? 0 : WET[j * W + i]; return t ? t - j : 0; };
+const swims = (i, j) => { const d = deepAt(i, j); return d > 0 && at(i, j) !== ROCK && roomy(i, j) && (WIND || BROKE ? d >= 2 : d === 3 || d === 4); };
+const stand = (i, j) => at(i, j) !== ROCK && at(i, j) !== 3 && support(i, j - 1) && roomy(i, j) && (roomy(i - 1, j) || roomy(i + 1, j)) && (BROKE || !BARRED.has(j * W + i)) && (WIND || BROKE || deepAt(i, j) <= 3);
 // crouched or rolling he fits under three tiles: he can go along there, not jump
 const low = (i, j) => { if (at(i, j) === ROCK || at(i, j) === 3 || !support(i, j - 1)) return false; for (let d = 0; d < 3; d++) if (solid(i, j + d)) return false; return true; };   // crouched 1.4: three tiles
 
 function reach(edges){
   const sp = marks.find(m => m.type === 'spawn'); let s = { i: sp.x, j: sp.y };
-  while (!stand(s.i, s.j) && s.j > 0) s.j--;
+  while (!stand(s.i, s.j) && !swims(s.i, s.j) && s.j > 0) s.j--;
   const seen = new Uint8Array(W * H), q = [[s.i, s.j]]; seen[s.j * W + s.i] = 1;
-  let from = 0; const push = (i, j, crawl) => { if (i >= 0 && j >= 0 && i < W && j < H && (stand(i, j) || (crawl && low(i, j)))){ if (edges) edges.push(from, j * W + i); if (!seen[j * W + i]){ seen[j * W + i] = 1; q.push([i, j]); } } };
-  const fall = (i, j) => { while (j > 0 && !support(i, j - 1) && !solid(i, j - 1)) j--; return j; };
+  let from = 0; const push = (i, j, crawl) => { if (i >= 0 && j >= 0 && i < W && j < H && (stand(i, j) || swims(i, j) || (crawl && low(i, j)))){ if (edges) edges.push(from, j * W + i); if (!seen[j * W + i]){ seen[j * W + i] = 1; q.push([i, j]); } } };
+  const fall = (i, j) => { while (j > 0 && !support(i, j - 1) && !solid(i, j - 1) && !swims(i, j)) j--; return j; };   // (into deep water: it has him)
   const clear = (x0, x1, y0, y1) => { for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) for (let y = y0; y <= y1; y++) if (solid(x, y)) return false; return true; };
   while (q.length){
     const [i, j] = q.pop(); from = j * W + i;
+    // in deep water: along it and up and down it; and from near its top, out onto what stands at its edge
+    if (swims(i, j)){ for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (swims(i + a, j + b)) push(i + a, j + b);
+      const top = WET[j * W + i]; if (top - j <= 5) for (let dx = -4; dx <= 4; dx++) for (let tj = top - 2; tj <= top + 1; tj++){ const ti = i + dx; if (stand(ti, tj) && !swims(ti, tj) && clear(i, ti, Math.max(tj, top - 1), tj + BODY - 1)) push(ti, tj); } }
     for (const dir of [-1, 1]){
       push(i + dir, j, true);   // along, crouched if need be
       if (!stand(i, j)) continue;
@@ -52,7 +62,7 @@ function reach(edges){
     // a bloom throws him high (fourteen tiles, and his air jump after): up its column, then across
     if (pads.has(j * W + i)) for (let dy = 1; dy <= 17; dy++){ if (!clear(i, i, j, j + dy + BODY - 1)) break; for (let dx = -9; dx <= 9; dx++){ const ti = i + dx, tj = j + dy; if (stand(ti, tj) && clear(i, ti, tj, tj + BODY - 1)) push(ti, tj); for (let d2 = 1; d2 <= 6; d2++) if (stand(ti, tj - d2) && clear(i, ti, tj, tj + BODY - 1) && clear(ti, ti, tj - d2, tj + BODY - 1)) push(ti, tj - d2); } }
     // rising air carries him (the scarf) up its height, and out a little way either side at any level
-    for (const u of updrafts){ if (u.gate && !BROKE) continue; const x0 = Math.round(u.x0 * 2), x1 = Math.round(u.x1 * 2) - 1, y0 = Math.round(u.y0 * 2), y1 = Math.round(u.y1 * 2);
+    for (const u of updrafts){ if ((u.gate && !BROKE) || u.cold) continue; const x0 = Math.round(u.x0 * 2), x1 = Math.round(u.x1 * 2) - 1, y0 = Math.round(u.y0 * 2), y1 = Math.round(u.y1 * 2);
       if (i < x0 - 2 || i > x1 + 2 || j < y0 - 6 || j > y1) continue;
       for (let tj = j; tj <= y1 + 3; tj++) for (let ti = x0 - 7; ti <= x1 + 7; ti++){ if (!stand(ti, tj)) continue; const a = Math.max(x0, Math.min(x1, ti)); if (clear(a, ti, tj, tj + BODY - 1)) push(ti, tj); } }
     // drop through the ledge underfoot
@@ -65,7 +75,7 @@ const near = (seen, mx, my, r = 3) => { for (let a = -r; a <= r; a++) for (let b
 test(`${NAME}: every room, the raising water, the boss's stage and the way out can be reached from the spawn`, () => {
   const seen = reach(), inRoom = (seen, r) => { for (let j = r.ty0; j < r.ty1; j++) for (let i = r.tx0; i < r.tx1; i++) if (seen[j * W + i]) return true; return false; };
   // a room behind a gate (a wing) is shut until he has what opens it, and open after
-  for (const r of rooms) if (r.gate || r.after) assert.ok(!inRoom(seen, r), `room ${r.name} is open before its gate (${r.gate || 'the keeper'})`); else assert.ok(inRoom(seen, r), `room ${r.name} is cut off`);
+  for (const r of rooms) if (r.gate || r.after || r.needs) assert.ok(!inRoom(seen, r), `room ${r.name} is open before its gate (${r.gate || r.needs || 'the keeper'})`);   // (needs: a room under deep water, reached only with the Wyrm's wind) else assert.ok(inRoom(seen, r), `room ${r.name} is cut off`);
   let seenOut = seen;   // the Roots' way up is walled with cracked stone: it is reached with the spade the Warden leaves (phase 5)
   if (GATED){ BROKE = true; const after = reach(); BROKE = false; for (const r of rooms) assert.ok(inRoom(after, r), `room ${r.name} is cut off, even with its gate open`); seenOut = after; }
   const deep = !marks.some(k => k.type === 'exit');   // a section of the Deep: no way on, its passages instead
@@ -75,7 +85,7 @@ test(`${NAME}: every room, the raising water, the boss's stage and the way out c
   if (marks.some(k => k.type === 'pass' && k.gate)){ BROKE = true; const open = reach(); BROKE = false; for (const m of marks.filter(k => k.type === 'pass' && k.gate)){ assert.ok(near(open, m.x + 1, m.y + 1) || near(open, m.x + 2, m.y), `the gated passage at ${m.x},${m.y} cannot be reached with its gate open`); assert.ok(!(near(seen, m.x + 1, m.y + 1, 1) || near(seen, m.x + 2, m.y, 1)), `the gated passage at ${m.x},${m.y} is open before its gate`); } }
 });
 test(`${NAME}: the organic pass leaves every marker in open air`, () => {
-  for (const m of marks) assert.notEqual(at(m.x, m.y), ROCK, `${m.type} at ${m.x},${m.y} is in rock`);
+  for (const m of marks) if (m.type !== 'water') assert.notEqual(at(m.x, m.y), ROCK, `${m.type} at ${m.x},${m.y} is in rock`);   // (a body of water is marked from its corner, which may be in its bank)
 });
 
 for (const broke of GATED ? [false, true] : [false]) test(`${NAME}: no traps${broke ? ' (its gates open)' : ''}: from anywhere he can get to, he can still get to where the region leads`, () => {

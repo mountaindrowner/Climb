@@ -2,7 +2,17 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The lamp, and the Vein (latest; phase 15, build 72).** `docs/phase15-sheet.md` has all of it.
+**The Flooded Levels, the Great Shaft, and travel through the water (latest; phase 16, build 73).** `docs/phase16-sheet.md` has all of it.
+- **Deep water.** It bears him up: without the Wyrm's wind he floats and cannot go under. With it the water carries him: jump to rise, down to sink, let go and he hangs. No breath to run out.
+- **The Workings' cistern is deep now,** and in its floor is the sump: the way down, for one who has the wind.
+- **The Flooded Levels:** twelve screens under water and in pockets of air. The Sunk rise at whoever passes over them. Blind eels strike what moves fast and never know what drifts. Rafts sink under him. The guild's drowned lamps are still lit.
+- **The Pump,** its keeper, cannot be struck. It moves the water in its hall up and down; he breaks its three valves. It does not stop: it runs free, and the water goes down the overflow.
+- **Travel through the water,** given at the lamp in the flooded chapel: at any water he has found, go under and come up at another.
+- **The Great Shaft:** below the Vein's lip. A long glide down through cold air; water at its foot; its floor reached under that water, and a warm light coming up through it.
+- **Relics:** the Shift Bell (faster under water; the eels do not feel him), the Last Rope (up onto an edge twice as fast).
+- 378 checks. No save is moved; in the Workings the guild's seal stands again and is broken again.
+
+**The lamp, and the Vein (phase 15, build 72).** `docs/phase15-sheet.md` has all of it.
 - **A lamp he carries,** Ordric's, his from the Warden on. It does not burn down.
 - **The Vein:** a new part of the Deep, twelve screens, behind the guild's seal off the Workings' cistern. It is truly dark: he sees by his lamp, by the vein's crystals, and by the guild's lamps he lights as he comes to them, which stay lit.
 - **Its rule: do not go back over it.** The Echo goes where he went a few seconds ago and strikes where he was. It will not come into the light of a lamp he has lit.

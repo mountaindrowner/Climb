@@ -55,6 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 73 | 19 Nov 2026 | `COMMIT73` | The Flooded Levels, the Great Shaft, travel through the water (phase 16) | no | yes (now) |
 | 72 | 19 Nov 2026 | `1a53c35` | The lamp, and the Vein (phase 15): the dark | no | yes (now) |
 | 71 | 19 Nov 2026 | `aaae08a` | The Orrery Wing (phase 14); things that move and carry him | no | yes (now) |
 | 70 | 19 Nov 2026 | `1a5edcb` | A mend to 69: the moths keep to their own rooms | no | yes (now) |
@@ -88,6 +89,51 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 73: the Flooded Levels, the Great Shaft, and travel through the water
+
+- **For the player:** deep water (it bears him up; with the Wyrm's wind it carries him under). The Workings' cistern
+  is deep, and the sump in its floor is the way down. **The Flooded Levels**, twelve screens: the Sunk, blind eels,
+  rafts, the guild's drowned lamps, and **the Pump**, which moves the water in its hall and is fought by its three
+  valves. **Travel through the water**, given at the lamp in the flooded chapel: at any water he has found, go
+  under and come up at another. **The Great Shaft**, four screens below the Vein's lip: the long glide, the water at
+  its foot, the floor under that water, and the light under the floor. Two relics. All of it in
+  `docs/phase16-sheet.md`.
+- **Underneath:** new `src/side/regions/flooded.js` and `shaft.js` (the ninth and tenth levels). Bodies of deep
+  water, rafts and cold rising air in `level.js`; swimming in `motor.js`; the water, the drowned lamps and the rafts
+  drawn in `props.js`; the waters he has found, the menu at the water and going under in `main.js`. A region can say
+  it `needs` a gift to be come into, and a room can; a region can be `empty`. The checks' two ways of working out
+  where he can get to (`tests/side-level.test.mjs`, `tests/helpers/reach.mjs`) both know water now. New art:
+  `assets/side/px_sunk`.
+- **The motor changed.** Everything in it about water is new. What was there is touched in four places: a jump
+  pressed in water is a leap out of it, not a double jump; he does not catch an edge while under water; the scarf
+  does not open in cold air; pulling himself onto an edge is quicker with the Last Rope. Nothing else about how he
+  moves on land or in the air should be different, and the checks that play every region with the motor all pass.
+- **The Workings changed.** The cistern's floor is under water; the seal room is ten rows higher, on a quay. One
+  barnacle is gone from the quay.
+- **Save: not moved.** In the Workings, a save that had broken the guild's seal finds it standing and breaks it
+  again; the seal room's two lamps and one urn are as new. Adds: the waters found (`wat`), the way through the water
+  (`under`), the Pump run free (`still` for the Flooded Levels), two relics, and which words were said. The game has
+  ten levels now.
+- **Checked:** 378 automated checks, ten of them this phase's, and the two slow ones that play every level with
+  the real motor (every room reached with what he has, nowhere to be stuck) pass on both new levels. A play-through
+  in the test browser, in four parts: afloat over the sump without the wind, down it with the wind, into the first
+  air and back up; the chapel's lamp and its page; the Pump's tide watched for sixteen seconds, its three valves
+  broken with the blade, the grate open, down the overflow into the Vein; going under at the Roots and coming up at
+  the Firmament's raising water and at one of its leaks; the Shaft fallen without the wind (into the water, out onto
+  the camp) and glided with it (through the arch, onto the floor). No page errors in any of it.
+- **Not checked:** not played by hand. How swimming feels. The sounds. Whether the Pump is a good fight or only a
+  working one. How dark the Shaft is on a real screen. An old save with real progress.
+- **Cost:** $0.06 (the Sunk).
+- **To try** (the playtest list):
+  1. In the Workings' cistern before the Wyrm: wade in. Does floating read as "not yet", or as a bug?
+  2. With the wind: go under at the sump. Does it feel like being carried, or like losing control? Are rising and
+     sinking the right speed?
+  3. Drift past an eel slowly, then rush one. Is it clear why it struck?
+  4. The Pump: is the tide readable? Is there always something to do at low water and at high?
+  5. The chapel: is it clear what was given, and where to use it?
+  6. Go under at one water and come up at another, a few times across the mountain. Is the list quick to use?
+  7. The Shaft under the scarf: is the long glide quiet and good, or just long?
 
 ### Build 72: the lamp, and the Vein
 

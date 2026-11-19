@@ -1,7 +1,7 @@
 // What stands in the world and changes: star-glass ledges that keep time, blooms that throw him, rising air, and cracked
 // rock that breaks. The painted layers leave these out (render.js, paintAt); they are drawn here, small meshes over them.
 //   makeProps(scene, R) -> { step(dt, t, P), bounce(mark), breakAt(x, y, r) -> [{ id, x, y }], breakId(id), cracks }
-import { T, LEVEL, CRACKED, GLASS_A, GLASS_B, EMPTY, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, flowOn, moverAt, liveAt, RULE, rawAt, glassOn, gustOn, PHASE } from './level.js';
+import { T, LEVEL, CRACKED, GLASS_A, GLASS_B, EMPTY, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, flowOn, moverAt, liveAt, RULE, rawAt, glassOn, gustOn, PHASE, waterTop } from './level.js';
 import { PPU, PAL, lit, themeNow } from './render.js';
 const THREE = window.THREE;
 const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
@@ -316,7 +316,11 @@ export function makeProps(scene, R){
     const plate = w => { const W8 = Math.round(w * PPU), c = cnv(W8, 14), g = c.getContext('2d'); g.clearRect(0, 0, W8, 14); px(g, PAL.ink, 0, 0, W8, 5); px(g, '#d77643', 1, 1, W8 - 2, 3); px(g, '#feae34', 1, 1, W8 - 2, 1); for (let x = 3; x < W8 - 2; x += 5) px(g, PAL.ink, x, 2, 1, 2);
       const cx = W8 >> 1; for (let y = -5; y <= 5; y++){ const half = Math.floor(Math.sqrt(25 - y * y)); px(g, PAL.ink, cx - half - 1, 8 + y, half * 2 + 2, 1); } for (let y = -4; y <= 4; y++){ const half = Math.floor(Math.sqrt(16 - y * y)); px(g, y < -1 ? '#9fe8ff' : '#0099db', cx - half, 8 + y, half * 2 + 1, 1); } px(g, '#ffffff', cx - 2, 5, 2, 1); return texOf(c); };
     const hubs = new Set();
-    for (const m of LEVEL.movers){ const P0 = { m, plate: new THREE.Mesh(new THREE.PlaneGeometry(m.w, 14 / PPU), basic(plate(m.w), { opacity: 1 })) }; P0.plate.position.z = 0.048; scene.add(P0.plate);
+    // a raft (the Flooded Levels): the guild's rubbish, lashed. Planks, a barrel under them
+    const raft = w => { const W8 = Math.round(w * PPU), c = cnv(W8, 14), g = c.getContext('2d'); g.clearRect(0, 0, W8, 14); px(g, PAL.ink, 0, 0, W8, 5); px(g, PAL.wood1, 1, 1, W8 - 2, 3); px(g, PAL.wood3, 1, 1, W8 - 2, 1); for (let x = 6; x < W8 - 2; x += 9) px(g, PAL.ink, x, 1, 1, 3); px(g, PAL.wood0, 2, 3, W8 - 4, 1);
+      const cx = W8 >> 1; px(g, PAL.ink, cx - 9, 5, 18, 9); px(g, PAL.wood2, cx - 8, 5, 16, 8); px(g, PAL.wood0, cx - 8, 10, 16, 3); px(g, '#8b9bb4', cx - 8, 7, 16, 1); px(g, '#8b9bb4', cx - 8, 11, 16, 1); return texOf(c); };
+    for (const m of LEVEL.movers){ const P0 = { m, plate: new THREE.Mesh(new THREE.PlaneGeometry(m.w, 14 / PPU), basic(m.kind === 'raft' ? raft(m.w) : plate(m.w), { opacity: 1 })) }; P0.plate.position.z = 0.048; scene.add(P0.plate);
+      if (m.kind === 'raft'){ planets.push(P0); continue; }
       if (m.kind === 'arm'){ P0.arm = new THREE.Mesh(new THREE.PlaneGeometry(1, 3 / PPU), basic(null, { color: 0xb86f50, opacity: 0.9 })); P0.arm.position.z = 0.02; scene.add(P0.arm);
         const key = m.cx + ',' + m.cy; if (!hubs.has(key)){ hubs.add(key); const c = cnv(22, 22), g = c.getContext('2d'); g.clearRect(0, 0, 22, 22); for (let y = -10; y <= 10; y++){ const half = Math.floor(Math.sqrt(100 - y * y)); px(g, PAL.ink, 11 - half - 1, 11 + y, half * 2 + 2, 1); } for (let y = -9; y <= 9; y++){ const half = Math.floor(Math.sqrt(81 - y * y)); px(g, y < -3 ? '#fee761' : '#feae34', 11 - half, 11 + y, half * 2 + 1, 1); } px(g, '#ffffff', 7, 6, 3, 2); const h = new THREE.Mesh(new THREE.PlaneGeometry(22 / PPU, 22 / PPU), basic(texOf(c), { opacity: 1 })); h.position.set(m.cx, m.cy - 0.3, 0.021); scene.add(h); R.glint && 0; } }
       else { const len = Math.hypot(m.ax, m.ay) * 2 + 0.6, rail = new THREE.Mesh(new THREE.PlaneGeometry(2 / PPU, len), basic(null, { color: 0x5a4a50, opacity: 0.9 })); rail.position.set(m.cx, m.cy - 0.3, 0.019); rail.rotation.z = -Math.atan2(m.ax, m.ay || 1e-6); scene.add(rail); }
@@ -329,6 +333,26 @@ export function makeProps(scene, R){
       if (!dark){ const mk = on => { const c = cnv(10, 16), g = c.getContext('2d'); g.clearRect(0, 0, 10, 16); px(g, PAL.ink, 4, 0, 2, 4); px(g, PAL.ink, 1, 3, 8, 2); px(g, on ? '#feae34' : '#5a4a50', 2, 3, 6, 1); px(g, PAL.ink, 1, 5, 8, 9); px(g, on ? '#fff2d0' : '#262b44', 2, 6, 6, 7); if (on){ px(g, '#ffffff', 4, 8, 2, 4); px(g, '#fee761', 3, 9, 4, 2); } else px(g, '#3a4466', 3, 7, 1, 5); px(g, PAL.ink, 2, 14, 6, 2); px(g, on ? '#feae34' : '#5a4a50', 3, 14, 4, 1); return texOf(c); }; dark = mk(false); lit0 = mk(true); }
       const x = (m.x + 0.5) * T, y = m.y * T, a = new THREE.Mesh(new THREE.PlaneGeometry(10 / PPU, 16 / PPU), basic(dark, { opacity: 1 })), b = new THREE.Mesh(new THREE.PlaneGeometry(10 / PPU, 16 / PPU), basic(lit0, { opacity: 1 })), glow = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 2.6), basic(halo || (halo = (() => { const c = cnv(26, 26), g = c.getContext('2d'); g.clearRect(0, 0, 26, 26); for (let y = 0; y < 26; y++) for (let x = 0; x < 26; x++){ const d = Math.hypot(x - 12.5, y - 12.5) / 13; if (d < 1 && B4[(y & 3) * 4 + (x & 3)] / 16 < (1 - d) * (1 - d) * 1.6) px(g, '#ffffff', x, y); } return texOf(c); })()), { color: 0xffd9a0, blending: THREE.AdditiveBlending, opacity: 0.0 }));
       for (const q of [a, b]){ q.position.set(x, y - 0.5, 0.03); scene.add(q); } glow.position.set(x, y - 0.5, 0.029); scene.add(glow); glamps.push({ id: m.x + ',' + m.y, x, y: y - 0.5, a, b, glow, on: null }); } }
+  // ---- deep water (phase 16; level.js waters): a body of it, before him, so he is seen through it; its top a bright
+  // line that moves. The Pump's water (key 'tide') rises and falls: its sheet is drawn to where its top is now
+  const waters = [];
+  if ((LEVEL.waters || []).length){
+    const body = (() => { const c = cnv(32, 32), g = c.getContext('2d'); px(g, '#0b2a2e', 0, 0, 32, 32); for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++){ const b = B4[(y & 3) * 4 + (x & 3)]; if (b < 3) px(g, '#124e4a', x, y); else if (b > 13 && (x + y * 3) % 7 === 0) px(g, '#1f7a6a', x, y); } const t = texOf(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; })();
+    const line = (() => { const c = cnv(32, 4), g = c.getContext('2d'); g.clearRect(0, 0, 32, 4); for (let x = 0; x < 32; x++){ const up = (x % 16) < 9; px(g, '#bfe8ff', x, up ? 0 : 1); px(g, '#2ce8f5', x, up ? 1 : 2); if (x % 5 === 0) px(g, '#0099db', x, 3); } const t = texOf(c); t.wrapS = THREE.RepeatWrapping; return t; })();
+    // one sheet for each body; a body standing on another (a sump under a flooded room) has no line of its own
+    for (const w of LEVEL.waters){ const ww = w.x1 - w.x0, hh = w.y1 - w.y0, bm = body.clone(); bm.needsUpdate = true; bm.repeat.set(ww * PPU / 32, hh * PPU / 32);
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(ww, hh), basic(bm, { opacity: 0.5 })); m.position.set(w.x0 + ww / 2, w.y0 + hh / 2, 0.071); scene.add(m);
+      const under = w.deep || LEVEL.waters.some(u => u !== w && w.y1 >= u.y0 - 0.01 && w.y1 < u.y1 && w.x0 >= u.x0 - 0.01 && w.x1 <= u.x1 + 0.01); let top = null, lm = null;
+      if (!under){ lm = line.clone(); lm.needsUpdate = true; lm.repeat.set(ww * PPU / 32, 1); top = new THREE.Mesh(new THREE.PlaneGeometry(ww, 4 / PPU), basic(lm, { opacity: 0.9 })); top.position.set(w.x0 + ww / 2, w.y1 - 2 / PPU, 0.072); scene.add(top); }
+      waters.push({ w, m, bm, top, lm, ww, hh, at: -1 }); }
+  }
+  // ---- the guild's lamps that went under (a 'dlamp' mark): still lit, faintly, and green
+  const dlamps = [];
+  { let tex = null, halo2 = null; for (const mk of LEVEL.marks) if (mk.type === 'dlamp'){
+      if (!tex){ const c = cnv(10, 16), g = c.getContext('2d'); g.clearRect(0, 0, 10, 16); px(g, PAL.ink, 4, 0, 2, 4); px(g, PAL.ink, 1, 3, 8, 2); px(g, '#3e8948', 2, 3, 6, 1); px(g, PAL.ink, 1, 5, 8, 9); px(g, '#63c74d', 2, 6, 6, 7); px(g, '#d8ffb0', 4, 8, 2, 4); px(g, '#a8f070', 3, 9, 4, 2); px(g, PAL.ink, 2, 14, 6, 2); px(g, '#3e8948', 3, 14, 4, 1); tex = texOf(c);
+        const c2 = cnv(26, 26), g2 = c2.getContext('2d'); g2.clearRect(0, 0, 26, 26); for (let y = 0; y < 26; y++) for (let x = 0; x < 26; x++){ const d = Math.hypot(x - 12.5, y - 12.5) / 13; if (d < 1 && B4[(y & 3) * 4 + (x & 3)] / 16 < (1 - d) * (1 - d) * 1.6) px(g2, '#ffffff', x, y); } halo2 = texOf(c2); }
+      const x = (mk.x + 0.5) * T, y = mk.y * T + 0.5, a = new THREE.Mesh(new THREE.PlaneGeometry(10 / PPU, 16 / PPU), basic(tex, { opacity: 1 })), glow = new THREE.Mesh(new THREE.PlaneGeometry(3, 3), basic(halo2, { color: 0x7fffb0, blending: THREE.AdditiveBlending, opacity: 0.4 }));
+      a.position.set(x, y, 0.03); glow.position.set(x, y, 0.029); scene.add(a); scene.add(glow); dlamps.push({ x, y, glow }); } }
   // ---- running water (the Aqueducts; level.js flows): along a channel, a band of it on the channel's floor, streaming;
   // down a fall, a sheet of it, and foam at its foot. Seen only while it runs
   const streams = [];
@@ -440,6 +464,10 @@ export function makeProps(scene, R){
       if (glamps.length){ let n = 0; for (const Q of glamps){ const on = RULE.lit.has(Q.id); if (on !== Q.on){ Q.on = on; Q.a.visible = !on; Q.b.visible = on; } Q.glow.material.opacity = on ? 0.5 + 0.08 * Math.sin(t * 5 + Q.x) : 0; }
         if (P) for (const Q of glamps.filter(Q => Q.on && Math.abs(Q.x - P.x) < 15 && Math.abs(Q.y - P.y) < 10).sort((u, v) => Math.hypot(u.x - P.x, u.y - P.y) - Math.hypot(v.x - P.x, v.y - P.y))){ if (++n > 4) break; R.glint(Q.x, Q.y, 0xffd9a0, 1.05, 7.2, 0); } }
       for (const Q of planets){ const m = Q.m, [x, y] = moverAt(m, PHASE.t); Q.plate.position.x = x; Q.plate.position.y = y - 7 / PPU + 2 / PPU; if (Q.arm){ const dx = x - m.cx, dy = y - 0.3 - (m.cy - 0.3), L = Math.hypot(dx, dy); Q.arm.scale.x = L; Q.arm.position.x = m.cx + dx / 2; Q.arm.position.y = m.cy - 0.3 + dy / 2; Q.arm.rotation.z = Math.atan2(dy, dx); } }
+      for (const Wt of waters){ const top = waterTop(Wt.w), h = Math.max(0, top - Wt.w.y0); if (h !== Wt.at){ Wt.at = h; Wt.m.visible = h > 0.02; Wt.m.scale.y = Math.max(1e-3, h / Wt.hh); Wt.m.position.y = Wt.w.y0 + h / 2; Wt.bm.repeat.y = h * PPU / 32; if (Wt.top){ Wt.top.visible = h > 0.02; Wt.top.position.y = top - 2 / PPU; } }
+        if (Wt.lm) Wt.lm.offset.x = Math.floor(t * 4) / 32; Wt.bm.offset.y = Math.floor(t * 1.5) / 32; }
+      if (dlamps.length){ let n = 0; for (const Q of dlamps) Q.glow.material.opacity = 0.34 + 0.07 * Math.sin(t * 2.2 + Q.x);
+        if (P) for (const Q of dlamps.filter(Q => Math.abs(Q.x - P.x) < 16 && Math.abs(Q.y - P.y) < 10).sort((u, v) => Math.hypot(u.x - P.x, u.y - P.y) - Math.hypot(v.x - P.x, v.y - P.y))){ if (++n > 4) break; R.glint(Q.x, Q.y, 0x7fffb0, 0.8, 6.4, 0); } }
       for (const S of streams){ const on = flowOn(S.f); S.m.visible = on; if (S.foam) S.foam.visible = on; if (!on) continue; if (S.f.dx) S.map.offset.x = -S.f.dx * ((t * S.k) % 1); else S.map.offset.y = (t * S.k) % 1; if (S.foam) S.foam.material.opacity = 0.35 + 0.2 * Math.sin(t * 17 + S.f.x0); if (rnd() < dt * 5 && P && Math.abs(P.x - (S.f.x0 + S.f.x1) / 2) < 16) R.glint(S.f.x0 + rnd() * (S.f.x1 - S.f.x0), S.f.y0 + (S.f.dx ? 0.4 : rnd() * (S.f.y1 - S.f.y0)), 0xbfe8ff, 0.7, 1.6, 0.12); }
       for (const B of calms){ const o = B.open ? 0.1 : 1 - 0.6 * B.p + (B.p > 0 ? 0.05 * Math.sin(t * 9) : 0); B.m.material.opacity += (o - B.m.material.opacity) * Math.min(1, dt * 7); if (B.p > 0 && !B.open && rnd() < dt * 14 * B.p) R.glint(B.x + (rnd() - 0.5) * (B.x1 - B.x0), B.y + (rnd() - 0.5) * (B.y1 - B.y0), 0xffffff, 0.9, 1.6, 0.1); }
       for (const D of decks){ const live = D.works ? liveAt(D.i, D.j) : !RULE.fallen; D.m.material.color.setHex(live && Math.sin(t * 31 + D.ph) > 0.86 ? 0xbfe0ff : live ? 0xffffff : 0x8f96a8); if (live && rnd() < dt * 1.5) R.glint(D.x + (rnd() - 0.5) * D.w, D.y + 0.1, 0x9fd0ff, 0.9, 2.2, 0.12); }

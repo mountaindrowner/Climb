@@ -30,6 +30,7 @@ for (let N = 0; N < LEVELS.length; N++){
     for (const r of rooms){
       if (r.after){ assert.ok(!reached(shut, r, W), `room ${r.name} is reached past the keeper`); assert.ok(reached(open, r, W), `room ${r.name} is not reached once the keeper has fallen`); }
       else if (r.gate && !ARR.includes(r.gate)) assert.ok(!reached(seen, r, W), `room ${r.name} is reached before its gate (${giftName(r.gate)})`);
+      else if (r.needs && !ARR.includes(r.needs)){ assert.ok(!reached(seen, r, W), `room ${r.name} is reached without ${giftName(r.needs)}`); assert.ok(reached(graph(N, ALL).seen, r, W), `room ${r.name} is not reached with ${giftName(r.needs)}`); }   // (needs: a room under deep water: only with the Wyrm's wind)
       else assert.ok(reached(seen, r, W), `room ${r.name} is not reached with ${said(ARR)}`);
     }
     const deep = !marks.some(k => k.type === 'exit');   // a section of the Deep: its passage back, not a way on

@@ -10,6 +10,8 @@ import gardens from './regions/gardens.js';
 import firmament from './regions/firmament.js';
 import workings from './regions/workings.js';
 import vein from './regions/vein.js';
+import flooded from './regions/flooded.js';
+import greatshaft from './regions/shaft.js';
 import { SEAMS, LOWER, RULES } from './seams.js';
 import * as OSSUARY from './regions/ossuary.js';
 import * as SCRIPTORIUM from './regions/scriptorium.js';
@@ -394,6 +396,8 @@ const REGIONS = [
   { ...firmament, quiet: [...(firmament.quiet || []), ...ORRERY.QUIET], enemies: { ...firmament.enemies, ...ORRERY.enemies }, ai: { ...firmament.ai, ...ORRERY.ai }, deco: (px, PAL) => ({ ...firmament.deco(px, PAL), ...ORRERY.decoDef(px, PAL) }), looksDef: ORRERY.looksOf(firmament.themeDef) },   // the Firmament with what its wing brings (regions/orrery.js)
   workings,   // the Deep: off the climb, under it (deep: true)
   vein,       // and under that, behind the guild's seal (dark: true)
+  flooded,    // under the Workings' cistern, down its sump: deep water (needs the Wyrm's wind)
+  greatshaft, // below the Vein's lip: the Auger's hole
 ];
 export const LEVELS = REGIONS.map(r => ({ name: r.name, theme: r.theme, sub: r.sub || '', card: r.card || '', epithet: r.epithet || '' }));
 export const REGION_DATA = REGIONS;
@@ -432,7 +436,7 @@ function core(n){
     const r = make(), ox = cx * ROOM.w, oy = cy * ROOM.h;
     for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) tiles[(oy + y) * W + ox + x] = r.tiles[y][x];
     for (const m of r.marks) marks.push({ ...m, x: ox + m.x, y: oy + m.y });
-    if (!r.filler) rooms.push({ name: make.name, title: r.title || '', gate: r.gate || '', open: !!r.open, ...(r.after ? { after: true } : {}), x0: ox * T, y0: oy * T, x1: (ox + r.w) * T, y1: (oy + r.h) * T, tx0: ox, ty0: oy, tx1: ox + r.w, ty1: oy + r.h });
+    if (!r.filler) rooms.push({ name: make.name, title: r.title || '', gate: r.gate || '', open: !!r.open, ...(r.after ? { after: true } : {}), ...(r.needs ? { needs: r.needs } : {}), x0: ox * T, y0: oy * T, x1: (ox + r.w) * T, y1: (oy + r.h) * T, tx0: ox, ty0: oy, tx1: ox + r.w, ty1: oy + r.h });
   }
   if (SEAM){   // he comes in at the seam's foot (the region's own start is let go); a hole up into the first room, boarded
     let first = true; for (let k = marks.length - 1; k >= 0; k--) if (marks[k].type === 'spawn'){ if (marks.slice(0, k).some(m => m.type === 'spawn')) marks.splice(k, 1); }
@@ -613,12 +617,17 @@ function build(n){
 }
 // what the motor asks about every step: the flowers' tiles, and the rising air (in world units)
 function finish(L){
-  const pads = new Map(), updrafts = [], gusts = [], flows = [], movers = [];
+  const pads = new Map(), updrafts = [], gusts = [], flows = [], movers = [], waters = [];
   for (const m of L.marks){
     if (m.type === 'bloom') for (let a = -1; a <= 1; a++) pads.set(m.y * L.W + m.x + a, m);
-    if (m.type === 'updraft') updrafts.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 12)) * T, ...(m.gate ? { gate: m.gate } : {}) });   // gate: this rising air is a wing's way in (the simple reach test counts it only with the gift)
+    if (m.type === 'updraft') updrafts.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 12)) * T, ...(m.gate ? { gate: m.gate } : {}), ...(m.cold ? { cold: true } : {}) });   // gate: this rising air is a wing's way in (the simple reach test counts it only with the gift)
     if (m.type === 'flow') flows.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 2)) * T, dx: m.dir === 'w' ? -1 : m.dir === 'e' ? 1 : 0, dy: m.dir === 'd' ? -1 : 0, key: m.key || '' });   // running water (the Aqueducts): it carries what stands in it; falling, nothing rises through it. It runs while its wheel is open (RULE.wet)
     if (m.type === 'mover') movers.push({ kind: m.kind || 'arm', cx: (m.x + 0.5) * T, cy: m.y * T, r: (m.r || 8) * T, ax: (m.ax || 0) * T, ay: (m.ay || 0) * T, period: m.period || 8, ph: m.ph || 0, dir: m.dir || 1, w: (m.w || 5) * T, x: 0, y: 0, px: 0, py: 0, at: -1 });   // a thing that moves and can be stood on (the Orrery Wing): a planet on an arm (round cx, cy at r), or a pallet that slides (by ax, ay either side of cx, cy). Its place is the world's clock's (PHASE.t), nothing else's
+    // deep water (phase 16, the Flooded Levels; motor.js SWIM): a body of it, from its bottom-left tile. It bears him up;
+    // with the Wyrm's wind it carries him under. key 'tide': the Pump moves it (RULE.tide, 0 its floor to 1 its top)
+    if (m.type === 'water') waters.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 4)) * T, key: m.key || '', lo: (m.y + (m.up || 0)) * T, deep: !!m.deep });   // lo: where the Pump's water stands at its lowest (`up` rows over its bottom)
+    // a raft (the Flooded Levels): planks on the water. Stood on, it goes down under him; left, it comes back up
+    if (m.type === 'raft') movers.push({ kind: 'raft', cx: (m.x + 0.5) * T, cy: m.y * T, r: 0, ax: 0, ay: 0, period: 1, ph: 0, dir: 1, w: (m.w || 5) * T, x: 0, y: 0, px: 0, py: 0, at: -1, sink: 0, load: 0, deep: (m.deep || 7) * T });
     if (m.type === 'gust') gusts.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 12)) * T });   // the wind the Wyrm holds: it bears down there in beats; when the Wyrm falls it turns, and lifts
   }
   // ice a fire melts: each tile of it answers to the brazier nearest it in its own room (meltOf: tile -> the brazier's
@@ -627,7 +636,7 @@ function finish(L){
   const nearest = (x, y) => { const R0 = roomAt(x, y); let best = null, bd = 1e9; for (const b of braziers){ if (roomAt(b.x, b.y) !== R0) continue; const d = Math.hypot(b.x - x, b.y - y); if (d < bd){ bd = d; best = b; } } return best && best.x + ',' + best.y; };
   if (braziers.length){ for (let k = 0; k < L.tiles.length; k++) if (L.tiles[k] === MELT){ const key = nearest(k % L.W, Math.floor(k / L.W)); if (key) meltOf.set(k, key); }
     for (const m of L.marks) if (m.ice) m.fire = nearest(m.x, m.y); }
-  return { joins: {}, X0: 0, Y0: 0, ...L, pads, updrafts, gusts, flows, movers, meltOf, tiles0: L.tiles.slice() };
+  return { joins: {}, X0: 0, Y0: 0, ...L, pads, updrafts, gusts, flows, movers, waters, meltOf, tiles0: L.tiles.slice() };
 }
 // ---- where the three who climb are found in each region: a room each, never the first, spread through it. Each stands
 // at a station of their own (items.js draws it and lights it): Ordric at a flame, Mirel at a fire, Corwen at a desk
@@ -699,7 +708,7 @@ function nooks(tiles, W, H, marks, rooms, S, M, n){
 }
 // each is moved to the best place in its room: a flat floor seven tiles wide with six of air over it, clear of the other
 // markers. Ordric stands four tiles from the room's flame (on the side with room); the others as near the room's middle as fits
-const NOT_FOE = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust', 'rod', 'flow', 'mover', 'glamp']);
+const NOT_FOE = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust', 'rod', 'flow', 'mover', 'glamp', 'water', 'raft', 'dlamp', 'valve']);
 function stations(tiles, W, H, marks, rooms, S){
   if (!S) return;
   const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i], solid = t => t === ROCK || t === LEDGE;
@@ -861,7 +870,7 @@ function organic(tiles, W, H, marks, rooms, seed0 = 1234567, wear = { sag: 1, sw
 export const PHASE = { t: 0, period: 2.4, all: false };
 // the region's keeper: has it fallen (what it held is let go); are the doors on its bell's beat shut just now (props.js
 // turns them; in a test they are open: he waits)
-export const RULE = { fallen: false, shut: false, tearing: false, ring: 0, still: false, turned: false, lit: new Set(), litAll: false, sw: 0, surge: 0, swFree: false, hush: 0, open: 0, ox0: 0, ox1: -1, oy0: 0, oy1: -1, calmFree: false, wet: new Set(), wetAll: false, upset: 0, unkept: false };   // upset: how many things in the Keepers' Houses are out of their place (and 9 while their keeper is after him)
+export const RULE = { fallen: false, shut: false, tearing: false, ring: 0, still: false, turned: false, lit: new Set(), litAll: false, sw: 0, surge: 0, swFree: false, hush: 0, open: 0, ox0: 0, ox1: -1, oy0: 0, oy1: -1, calmFree: false, wet: new Set(), wetAll: false, upset: 0, unkept: false, tide: 1 };   // upset: how many things in the Keepers' Houses are out of their place (and 9 while their keeper is after him)
 //   // wet: the sluice wheels that are open, by key (the Aqueducts: their water runs); wetAll: every one (a test)   // hush: how long he has stood still (the Eye of the Storm); open: seconds its doors of cloud stay open; calmFree: they are open (the tests' player waits as he must)
 //   // sw: which half of the works' iron the current is in (0, 1); surge: seconds of the Jar's discharge left (all of it live); swFree: the tests' player throws every lever as he needs it (none of it shocks)   // lit: the braziers that burn in this region, each by its place 'x,y' (the Glacier Galleries); litAll: every one (the tests' player lights what he comes to)
 //   // turned: on the stones of the way he has turned round (motor.js): they are gone until he stands on the ground   // ring: seconds of ringing left in the Bell-Foundry (iron was touched); still: its Cracked Bell has fallen, and nothing there rings again
@@ -877,15 +886,23 @@ export const facedAt = (tx, ty) => tx >= 0 && ty >= 0 && tx < LEVEL.W && ty < LE
 export const liveAt = (tx, ty) => { if (tx < 0 || ty < 0 || tx >= LEVEL.W || ty >= LEVEL.H) return false; const t = LEVEL.tiles[ty * LEVEL.W + tx]; if (t === LIVE) return !RULE.fallen;
   if (t === IRON_A || t === IRON_B) return !RULE.still && !RULE.swFree && (RULE.surge > 0 || (t === IRON_A) === (RULE.sw === 0)); return false; };   // the works' iron: the half the current is in (all of it, while the Jar lets go)
 // where a mover is at a time: the middle of its top (he stands on it as on a plank: from above only)
-export const moverAt = (m, t) => { const a = (t / m.period + m.ph) * Math.PI * 2; return m.kind === 'arm' ? [m.cx + Math.cos(a * m.dir) * m.r, m.cy + Math.sin(a * m.dir) * m.r] : [m.cx + Math.sin(a) * m.ax, m.cy + Math.sin(a) * m.ay]; };
+export const moverAt = (m, t) => { if (m.kind === 'raft') return [m.cx, m.cy - (m.sink || 0)]; const a = (t / m.period + m.ph) * Math.PI * 2; return m.kind === 'arm' ? [m.cx + Math.cos(a * m.dir) * m.r, m.cy + Math.sin(a * m.dir) * m.r] : [m.cx + Math.sin(a) * m.ax, m.cy + Math.sin(a) * m.ay]; };
 // the movers as they are now, each with where it was the step before (px, py). In a test (PHASE.all: he waits for
 // what turns) each is everywhere on its way at once, and still
 export function moversNow(){
   const L = LEVEL.movers || []; if (!L.length) return L;
   if (PHASE.all){ if (!LEVEL.moverGhosts){ LEVEL.moverGhosts = []; for (const m of L) for (let k = 0; k < 24; k++){ const [x, y] = moverAt(m, (k / 24 - m.ph) * m.period); LEVEL.moverGhosts.push({ ...m, x, y, px: x, py: y, ghost: true }); } } return LEVEL.moverGhosts; }
-  const t = PHASE.t; for (const m of L) if (m.at !== t){ const [x, y] = moverAt(m, t); if (m.at < 0){ m.px = x; m.py = y; } else { m.px = m.x; m.py = m.y; } m.x = x; m.y = y; m.at = t; }
+  const t = PHASE.t; for (const m of L) if (m.at !== t){ if (m.kind === 'raft' && m.at >= 0){ const dt = Math.min(0.1, Math.max(0, t - m.at)); if (m.load > 0){ m.load -= dt; m.sink = Math.min(m.deep, m.sink + RAFT.sink * dt); } else m.sink = Math.max(0, m.sink - RAFT.rise * dt); }
+    const [x, y] = moverAt(m, t); if (m.at < 0){ m.px = x; m.py = y; } else { m.px = m.x; m.py = m.y; } m.x = x; m.y = y; m.at = t; }
   return L;
 }
+export const RAFT = { sink: 1.5, rise: 1.1 };   // a raft under him: how fast it goes down, and comes back
+// deep water: the body of it at a point, and where its top is now (the Pump's water rises and falls; once the Pump runs
+// free it is gone)
+export const waterTop = w => w.key === 'tide' ? (RULE.still ? w.lo : w.lo + (w.y1 - w.lo) * RULE.tide) : w.y1;
+export const waterAt = (x, y) => { for (const w of LEVEL.waters || []) if (x >= w.x0 && x < w.x1 && y >= w.y0 && y < waterTop(w)) return w; return null; };
+// the top of the water over a point (bodies of it stand one on another: a sump under a flooded room), or null out of it
+export const waterOver = (x, y) => { const w = waterAt(x, y); if (!w) return null; let top = waterTop(w); for (let k = 0; k < 6; k++){ const u = waterAt(x, top + 0.01); if (!u) break; top = waterTop(u); } return top; };
 export const flowOn = f => f.key === 'surge' ? RULE.surge > 0 : RULE.wetAll || RULE.wet.has(f.key);   // ('surge': the Lock's water, while it lets go)
 export const flowAt = (x, y) => { for (const f of LEVEL.flows || []) if (x >= f.x0 && x < f.x1 && y >= f.y0 && y < f.y1 && flowOn(f)) return f; return null; };
 export const updraftAt = (x, y) => { for (const u of LEVEL.updrafts) if (x >= u.x0 && x < u.x1 && y >= u.y0 && y < u.y1) return u; if (RULE.fallen) for (const u of LEVEL.gusts || []) if (x >= u.x0 && x < u.x1 && y >= u.y0 && y < u.y1) return u; return null; };

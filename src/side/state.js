@@ -85,6 +85,8 @@ export const RELICS = {   // name: whose it was; line: what it does; lore: whose
   yoke:        { name: 'Carrier\'s Yoke',        line: 'His flask holds one draught more.', lore: 'Before the channel was cut, the water came up from the pool on men\'s shoulders. One of them left this at the head.' },
   place:       { name: 'The Second Place',       line: 'One heart more.', lore: 'In his house the table was laid for two. He took his own place from it. The other is still laid.' },
   lastpage:    { name: 'The Last Page',          line: 'Once each rest, a blow that would end him leaves him one heart.', lore: 'The almanac\'s last page. Every other has an hour on it. This one is blank.' },
+  shiftbell:   { name: 'The Shift Bell',         line: 'Under water he goes faster, and the eels do not feel him.', lore: 'It called the shift up at the end of the day. That night nobody rang it.' },
+  lastrope:    { name: 'The Last Rope',          line: 'He pulls himself up onto an edge twice as fast.', lore: 'The camp hung on it. It was let out to its end and tied off, and nobody came back up it.' },
   lampstone:   { name: 'Raw Lampstone',          line: 'His lamp reaches further.', lore: 'A piece of the vein that gives light without being broken. The guild sealed the level it came from, and then opened it again.' },
   flint:       { name: 'Climber\'s Flint',        line: 'A blow that lands gives two embers, not one.', lore: 'It lit the shelter\'s fire every night of the climb. On the last night no one struck it.' },
   turnstone:   { name: 'Pilgrim\'s Stone',        line: 'After a blow, nothing can hurt him for a breath longer.', lore: 'The top stone of a cairn. He carried it up once, and set it down. NOT YET is scratched on it.' },
@@ -100,4 +102,6 @@ export const TEACH = [
   { name: '', how: [] },
   { name: '', how: [] },   // the Workings: no keeper
   { name: '', how: [] },   // the Vein: none of the mountain's keepers (the Assayer is its own, as a wing's is)
+  { name: '', how: [] },   // the Flooded Levels: the Pump is its own
+  { name: '', how: [] },   // the Great Shaft: nobody
 ];

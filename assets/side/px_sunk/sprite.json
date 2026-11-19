@@ -1,0 +1,36 @@
+{
+ "name": "px_sunk",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 64,
+   "h": 64,
+   "foot": 62,
+   "cx": 31.5,
+   "footLast": 62,
+   "cxLast": 31.5,
+   "n": 1
+  },
+  "walk": {
+   "frames": 9,
+   "w": 92,
+   "h": 92,
+   "foot": 77,
+   "cx": 45.5,
+   "footLast": 77,
+   "cxLast": 54.0,
+   "n": 1
+  },
+  "attack": {
+   "frames": 9,
+   "w": 92,
+   "h": 92,
+   "foot": 76,
+   "cx": 45.5,
+   "footLast": 76,
+   "cxLast": 45.0,
+   "n": 1
+  }
+ }
+}

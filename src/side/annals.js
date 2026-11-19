@@ -63,6 +63,12 @@ export const ANNALS = [
       { type: 'glimmer', name: 'Glimmer', art: 'px_glimmer', line: 'Ore, until it is touched.' },
       { type: 'echo', name: 'The Echo', art: 'px_echo', line: 'It goes where he went, and strikes where he was.' },
       { type: 'assayer', name: 'The Assayer', art: 'px_assayer', line: 'It weighs what is brought to it, and finds it light.' } ] },
+  { region: 'The Flooded Levels', keeper: { theme: 'flooded', art: 'px_mole/stand', name: 'The Auger', line: 'The water came in over its track. It was already below.' },
+    creatures: [
+      { type: 'sunk', name: 'The Sunk', art: 'px_sunk', line: 'They were on the shift the water took. They rise at whoever passes over them.' },
+      { type: 'eel', name: 'Blind Eel', art: 'px_eel', line: 'It cannot see him. It feels the water move.' },
+      { type: 'pump', name: 'The Pump', art: 'px_pump', line: 'Two hundred years at it. It has never been behind, and never ahead.' } ] },
+  { region: 'The Great Shaft', keeper: { theme: 'shaft', art: 'px_mole/stand', name: 'The Auger', line: 'Its hole. It went straight down, and through.' }, creatures: [] },
 ];
 export const PEOPLE_PAGE = [
   { who: 'lamplighter', name: 'Ordric of the Vigil', art: 'px_moth', line: 'An old moth who keeps the lamps, and does not fly at them.' },

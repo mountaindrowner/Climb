@@ -26,6 +26,7 @@ export const PEOPLE = { lamplighter: { name: 'ORDRIC OF THE VIGIL', art: 'px_mot
 const FACES = { px_mole: [14, 8, 32], px_mole2: [12, 0, 32], px_moth: [18, 7, 32], px_hermit: [22, 10, 32], px_hermit_free: [22, 10, 32], px_rook: [20, 8, 32] };
 // Hob is met only in the Deep, so his lines are by region index from the Workings (6) down
 const HOB = []; HOB[7] = ['You lit them. I have not had the oil for these since before the seal went up.', 'It glitters, down here. It is always a little further on. Do not go after it the way they did.', 'Something goes behind you in the knot, where you have been. Stand under a lamp you have lit. It will not come into that.'];
+HOB[8] = ['The pump was my grandfather\'s. It has never been behind, and it has never been ahead.', 'What is in the water was on my shift. Go slow past the holes. The eels feel a thing that hurries.', 'There is a lamp on the chapel altar that I did not fill. It has not gone out.'];
 HOB[6] = ['Mind the lamps. I carried every drop of their oil down myself.', 'The vein runs thin up here. Lower down it comes good. It always comes good lower down.', 'You will find me further on. I am always a little further on.'];
 export const SCRIPT = {   // at most three lines a meeting, each short and new; the theme is never said (docs/writing.md)
   hob: HOB,

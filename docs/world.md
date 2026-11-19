@@ -17,11 +17,13 @@ in it. This file is so that whoever builds a room knows what happened there.
 |---|---|---|
 | The six regions of the climb | Yes | |
 | The Workings | **Yes (build 28)** | Down the Pithead, a new Roots room off the corridor (not the tunnel). Cage shaft, tally-house (a flame), bunkhouse (Hob), props, long level, cistern. Lampreys and barnacles; the Roots' crawlers, bats and delvers for now. The Guild Tally (urns spill half again as many shards). The Hewers and the Wick-flies (the lamp-moths, renamed: a wild moth would muddle Ordric) wait on art; the Shift-boss too |
-| The Flooded Levels, the Vein, the Great Shaft, the Hollow, the Source | No | The way on down is under the cistern's water, closed to him yet |
+| The Vein | **Yes (build 72)** | Behind the guild's seal, off the Workings' cistern. `docs/phase15-sheet.md` |
+| The Flooded Levels, the Great Shaft | **Yes (build 73)** | Deep water; the sump in the cistern's floor; the Pump; travel through the water, given at the flooded chapel; the Shaft below the Vein's lip. `docs/phase16-sheet.md` |
+| The Hollow, the Source | No | The way on is the hole in the Shaft's floor, and the light coming up through it |
 | The seams | **First pass (build 30)** | All five, three screens each (a foot in the region below's look, two screens up into the region's own), where the plan below is six to ten: the Crypt Stair (founders' tombs, the house's light coming down), the Bell Road (a shrine at the turn), the Last Hut (a flame kept, bunks), the Breach (the wall's courses either side), the Long Stair. More rooms, and their own creatures, later |
 | The wings | **The Ossuary (build 31), the Scriptorium (build 60)**; the other nine not yet | The first wing, by hand, 8 screens: the door at the well's foot (cracked stone, the Warden's weight), the long aisle, the sorting, the niches, the Sexton's yard, the count. Worn in the Cloister's look. The Tallymen and the grave-lights are the house's acolytes and house-lamps for now; the Sexton has his own drawing (build 32: a hooded gravedigger, a head and more taller than him, his spade brought down like digging), two hearts a blow. The relic is the Sexton's Stylus. The deadhouse stair lets out over the Warden's hall, not the grotto: a drop, one way. His own tally on the wall is not drawn yet |
 
-**Travel through the water** (down into one raising pool, up out of another) is a later ability, found or earned, not there from the start. Since phase 2 (build 44) every rest point is water: one raising pool a region, near where he comes in, and leaks elsewhere (`docs/roadmap.md`, decision 0.1). Where this file says a flame is kept in a place, read a leak, unless it is the flame of the story (the summit's cradle, the light at the Source).
+**Travel through the water** (down into one water, up out of another) is built (build 73): given at the lamp on the altar of the flooded chapel, in the Flooded Levels. It was a later ability, found or earned, not there from the start. Since phase 2 (build 44) every rest point is water: one raising pool a region, near where he comes in, and leaks elsewhere (`docs/roadmap.md`, decision 0.1). Where this file says a flame is kept in a place, read a leak, unless it is the flame of the story (the summit's cradle, the light at the Source).
 
 **Direction:** a Metroidvania, not a roguelike (`docs/side.md`). The world grows by sections the gifts open, and is gone
 back through.
@@ -152,7 +154,7 @@ boots, a hymn scratched on a beam, every verse numbered so none would be missed)
 the water came in; see the Flooded Levels).
 
 ### The Flooded Levels
-*−600 to −1,300 m · 12 screens · needs the Wyrm's wind (under the water it carries him too)*
+*−600 to −1,300 m · 12 screens (built, build 73) · needs the Wyrm's wind (under the water it carries him too)*
 
 **History.** At six hundred metres the guild cut into water. It was the same water as the pool above: it had been under
 the whole mountain all along. It rose and took four levels in a night. The guild built a great pump to drive it out, and
@@ -199,7 +201,7 @@ it again.
 (the hall where the engine was built, empty, its track going down into a hole) · *the lip* (the edge of the Great Shaft).
 
 ### The Great Shaft
-*−2,200 to −2,900 m · 4 screens · needs the Wyrm's wind*
+*−2,200 to −2,900 m · 4 screens (built, build 73) · the drop is open from the lip; its floor needs the Wyrm's wind*
 
 **History.** The Auger's hole. It bored straight down for seven hundred metres, and broke through into something.
 

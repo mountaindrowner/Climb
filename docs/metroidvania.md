@@ -166,7 +166,7 @@ route, a shortcut, a landmark, a flame and a fight, and a map that marks somethi
 3. **Corwen's map:** seen, visited, open and stopped ways, newly open, falls, sealed pages (idea 2).
 4. **Keepers re-tune their regions** and the given shortcuts (ideas 3, 4), one region at a time, with the next wings.
 5. **Knowledge gates** as each wing is built (idea 5); rough rock drawn everywhere (idea 7).
-6. **The water travel**, with the Flooded Levels (idea 1).
+6. **The water travel**, with the Flooded Levels (idea 1). *Done (build 73).*
 
 Each section, before it is built, gets the compendium's region worksheet (identity, grammar, entrances, gate, payoff,
 shortcut, landmark, longest wandering, the question at its entrance, the answer before he leaves), filled in under its

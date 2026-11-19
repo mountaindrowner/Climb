@@ -22,7 +22,7 @@ const lamp = (r, x, y) => mark(r, 'glamp', x, y);                   // a guild l
 function seal(){
   const r = cave(); door(r, 'top', 4, 9); up(r, 4, 9, [5, 9, 13, 17, 21]); door(r, 'right', 2, 7);
   // (the way up is taken from the third rung: the room's roof is the level's, and there is no jumping higher than its top)
-  mark(r, 'spawn', 14, 2); mark(r, 'arrive', 14, 2, { name: 'top' }); mark(r, 'pass', 4, 15, { w: 6, h: 6, to: 6, at: 'seal' });
+  mark(r, 'spawn', 14, 2); mark(r, 'arrive', 14, 2, { name: 'top' }); mark(r, 'arrive', 17, 2, { name: 'overflow' }); mark(r, 'pass', 4, 15, { w: 6, h: 6, to: 6, at: 'seal' });
   rect(r, 20, 1, 26, 1, EMPTY); mark(r, 'pool', 20, 1, { w: 7, look: 'trough' });   // the Vein's raising water: the last trough the guild set
   lamp(r, 14, 8); lamp(r, 32, 8); mark(r, 'crystal', 36, 2); mark(r, 'urn', 28, 2);
   mark(r, 'npc', 32, 2, { who: 'hob' });                             // Hob, under the second lamp: he has come down ahead, as he said
@@ -72,7 +72,9 @@ function cradle(){
   return r;
 }
 function lip(){
-  const r = cave(); rect(r, 2, 2, 37, 20, EMPTY); door(r, 'left', 12, 17);
+  const r = cave(); rect(r, 2, 2, 37, 20, EMPTY); door(r, 'left', 12, 17); door(r, 'bottom', 23, 29);
+  // (the Great Shaft itself: the hole in the floor, and the way down it)
+  mark(r, 'pass', 23, 0, { w: 7, h: 2, to: 9, at: 'top', gate: 'still' }); mark(r, 'arrive', 16, 2, { name: 'lip' });
   rect(r, 2, 2, 12, 11); ledge(r, 14, 18, 5); ledge(r, 14, 18, 8);   // the lip itself, and rungs back up to it from the foot
   ledge(r, 17, 22, 11); ledge(r, 25, 30, 13); ledge(r, 32, 37, 15); mark(r, 'chest', 35, 16, { holds: 'thread' });
   deco(r, 'shaft', 26, 2); lamp(r, 8, 18); mark(r, 'crystal', 34, 2);
@@ -181,5 +183,5 @@ const ai = {
 export default { name: 'The Vein', theme: 'vein', sub: 'where the lampstone grew, and glittered', card: '', epithet: '',
   deep: true, dark: true, depth: [-2.2, -1.3], musicOf: 'roots', ambOf: 'roots', vestibule: false,
   seed: 2718281, cols: 3, wear: { sag: 0.5, swell: 0.5, humps: 0.4 },
-  layout: [[0, 0, cradle, 2, 1], [2, 0, lip], [0, 1, solid], [1, 1, assay, 2, 1], [0, 2, knot, 2, 2], [2, 2, solid], [2, 3, solid], [0, 4, seal], [1, 4, glitter, 2, 1]],
+  layout: [[0, 4, seal], [0, 0, cradle, 2, 1], [2, 0, lip], [0, 1, solid], [1, 1, assay, 2, 1], [0, 2, knot, 2, 2], [2, 2, solid], [2, 3, solid], [1, 4, glitter, 2, 1]],   // (the seal first: its stair is where the level leads back to)
   themeDef, deco: decoDef, enemies, ai };
