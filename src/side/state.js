@@ -47,7 +47,12 @@ function joined(S){
     for (const k of ['got', 'broke', 'blocked']) if (S[k] && S[k][n]) S[k][n] = S[k][n].map(mv); }
 }
 export function loadSave(){ const s = read(KEY); Object.assign(G, blank()); if (s && typeof s === 'object'){ seamed(s); joined(s); winged(s); knotted(s); Object.assign(G, s); G.top = Math.max(G.top || 0, G.level || 0); G.began = true; } const o = read(OKEY); if (o) Object.assign(OPT, o); return G; }
-export function store(){ try { localStorage.setItem(KEY, JSON.stringify(G)); } catch (e){} }
+// trying a place from the title (main.js tryStart): what happens then is not his save. It is written beside it, and his
+// own is not touched
+export const TRY = { on: false };
+export function store(){ try { localStorage.setItem(TRY.on ? KEY + '-try' : KEY, JSON.stringify(G)); } catch (e){} }
+// the save in hand made new, the one in the browser left as it is
+export function fresh(){ for (const k of Object.keys(G)) delete G[k]; Object.assign(G, blank()); }
 export function storeOpt(){ try { localStorage.setItem(OKEY, JSON.stringify(OPT)); } catch (e){} }
 export function wipe(){ Object.assign(G, blank()); try { localStorage.removeItem(KEY); } catch (e){} }
 // a relic works only while it is tied into the scarf; he can carry more than he can wear, and chooses at a flame

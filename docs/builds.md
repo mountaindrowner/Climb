@@ -55,6 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 75 | 19 Nov 2026 | `COMMIT75` | Try a place: any level, or a moment, from the title (for playtesting) | no | yes (now) |
 | 74 | 19 Nov 2026 | `ba84266` | The Hollow, the Auger, the grip, the Source (phase 17) | no | yes (now) |
 | 73 | 19 Nov 2026 | `18a5cde` | The Flooded Levels, the Great Shaft, travel through the water (phase 16) | no | yes (now) |
 | 72 | 19 Nov 2026 | `1a53c35` | The lamp, and the Vein (phase 15): the dark | no | yes (now) |
@@ -90,6 +91,29 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 75: try a place
+
+- **For the player:** on the title, **Try a place**. Any of the eleven levels from its start, with what he would
+  have by then: on the climb, what the keepers below it leave; in the Deep, everything the climb gives short of its
+  last keeper, and below the Flooded Levels the way through the water too. Or one of five moments: **deep water
+  before the Wyrm** (he floats), **deep water with the wind** (the sump), **the Pump**, **the Auger**, **the grip**
+  (the Auger still, at the foot of its pit). While trying, the corner of the screen says so. "To the title" in the
+  pause menu ends it.
+- **It is not his save.** When a trial begins his save is put by; what the trial stores is written beside it under
+  another name; at the title his own is back. A climb never begun is still never begun.
+- **Underneath:** `tryMenu`, `tryStart`, `endTry` in `main.js`; `TRY` and `fresh` in `state.js` (while a trial is
+  on, `store` writes to `climb-side-try`). No level, creature or rule is changed.
+- **No change to the motor.**
+- **Save: not moved, not touched.** One more key in the browser's storage (`climb-side-try`), which nothing reads.
+- **Checked:** in the test browser. From a browser with no save: all eleven levels and all five moments started one
+  after another, each with the right gifts in hand and no page error, then back to a title that still says "Begin
+  the climb" with nothing stored as his. With a save in hand: a trial of the Hollow, a fall in it, back to the title:
+  his save the same to the letter, and "Climb on" takes him where he was. The menu fits a phone held sideways. Of
+  the automated checks, the ones that touch what changed were run again (107 of them); the whole suite was last
+  run for build 74.
+- **Not checked:** not played by hand.
+- **Cost:** nothing.
 
 ### Build 74: the Hollow, the Auger, the grip, and the Source
 

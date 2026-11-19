@@ -15,7 +15,7 @@ import { makeProps } from './props.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt, hurt, isRollInv } from './motor.js';
 import { width as textWidth } from './pixelfont.js';
 const wrapText = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };
-import { G, OPT, loadSave, store, storeOpt, wipe, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, THREADS_A_HEART, DIFF } from './state.js';
+import { G, OPT, loadSave, store, storeOpt, wipe, TRY, fresh, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, THREADS_A_HEART, DIFF } from './state.js';
 import { makeItems } from './items.js';
 import { makeTalk, SCRIPT } from './talk.js';
 import { ANNALS, PEOPLE_PAGE } from './annals.js';
@@ -34,7 +34,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 74, date: '19 NOV 2026', phase: 17, phases: 22, last: 'THE HOLLOW, THE AUGER, AND THE SOURCE' };
+const VERSION = { build: 75, date: '19 NOV 2026', phase: 17, phases: 22, last: 'TRY A PLACE' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -319,15 +319,54 @@ function viewStep(dt){
   if (VIEW.done && (VIEW.t -= dt) <= 0){ VIEW.done = false; nextView(); }
 }
 function endView(){ VIEW.on = false; VIEW.list = []; SIDE.watching = false; ENT.reset(); if (BOSS) BOSS.reset(); for (const k of Object.keys(G)) delete G[k]; Object.assign(G, JSON.parse(VIEW.snap)); store(); }
+// ---- trying a place (from the title): any level from its start, or one of a few moments, with what he would have by
+// then. It is for looking at the game, a level at a time. It is not his save: that is put by when a trial begins and
+// is back, untouched, when he returns to the title (state.js TRY: what a trial stores is written beside it)
+const TRYING = { snap: null };
+// what he would have: on the climb, what the keepers below have left him; in the Deep, all that the climb gives short of
+// its last keeper. `more`: a moment's own (who else has fallen, where he stands)
+const TRIES = () => { const deep = LEVELS.map((l, n) => n).filter(n => REGION_DATA[n].deep).sort((a, b) => (REGION_DATA[b].depth || [0, 0])[1] - (REGION_DATA[a].depth || [0, 0])[1]);
+  return [...LEVELS.map((l, n) => n).filter(n => !REGION_DATA[n].deep), ...deep].map(n => ({ n, name: LEVELS[n].name })); };
+const MOMENTS = () => { const at = name => LEVELS.findIndex(l => l.name === name), W = at('The Workings'), F = at('The Flooded Levels'), H = at('The Hollow');
+  return [
+    { name: 'Deep water, before the Wyrm', n: W, gifts: 2, room: 'cistern', tx: 17, ty: 13, say: 'the cistern. He has the spade and the step, and not the wind.' },
+    { name: 'Deep water, with the wind', n: W, room: 'cistern', tx: 17, ty: 13, say: 'the cistern. In its floor, under the water, the sump.' },
+    { name: 'The Pump', n: F, room: 'pumphouse', tx: 22, ty: 17, say: 'down the trunk, under the wall, and up into its hall.' },
+    { name: 'The Auger', n: H, room: 'circles', tx: 44, ty: 4, say: 'its hall is down the hole to the west of him.' },
+    { name: 'The grip (the Auger still)', n: H, beat: [H], room: 'bore', tx: 60, ty: 2, say: 'the foot of its pit. The east wall is rough rock.' },
+  ].filter(m => m.n >= 0); };
+function tryMenu(){
+  const rows = [menuLabel('TRY A PLACE  ·  FROM ITS START, WITH WHAT HE WOULD HAVE BY THEN')], grid = document.createElement('div'), grid2 = document.createElement('div');
+  for (const g of [grid, grid2]) g.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:min(94vw,600px)';
+  for (const t of TRIES()) grid.appendChild(menuButton(t.name.replace(/^The /, ''), () => tryStart(t), true)); rows.push(grid);
+  rows.push(menuLabel('OR A MOMENT')); for (const m of MOMENTS()) grid2.appendChild(menuButton(m.name, () => tryStart(m), true)); rows.push(grid2);
+  rows.push(menuLabel('NOTHING HERE IS KEPT. HIS OWN CLIMB IS NOT TOUCHED.')); rows.push(menuButton('Back', title, true)); menuShow(rows, false, title); MENU.style.top = '30%';
+}
+function tryStart(t){
+  if (!TRY.on){ TRYING.snap = JSON.stringify(G); TRY.on = true; }
+  const n = t.n, deep = !!REGION_DATA[n].deep, gifts = t.gifts != null ? t.gifts : deep ? CLIMB_TOP : n;   // how many of the climb's keepers have fallen
+  fresh(); for (let k = 0; k < gifts; k++){ G.beat[k] = true; const g = TEACH[k]; if (g && g.heart) G.hearts += g.heart; if (g && g.flask) G.flasks += g.flask; }
+  for (const k of t.beat || []) G.beat[k] = true;
+  G.top = deep ? Math.max(0, gifts) : n; G.level = n; G.began = true; G.shards = 150; G.lampNew = 0;
+  if (deep && (REGION_DATA[n].depth || [0, 0])[1] < -2) G.under = 1;   // below the Flooded Levels he has been through its chapel
+  G.taught = { move: 1, jump: 1, cut: 1, block: 1, parry: 1, crouch: 1, drop: 1, double: 1 };
+  menuHide(); STORY.kind = null; SCREEN = ''; PAUSE = false; resetLevels(); enter(n); G.lampNew = 0; G.top = deep ? Math.max(0, gifts) : n; store();
+  if (t.room){ const r = LEVEL.rooms.find(q => q.name === t.room); if (r){ const x = r.x0 + (t.tx + 0.5) * T, y = r.y0 + t.ty * T; P = born(x, y); P.grounded = false; P.airTop = y; CAM.x = x; CAM.y = y + 2; CAM.lead = 0; if (SCF) SCF.reset(x, y + 1.8); } }
+  LATER.push({ t: t.room ? 0.6 : 4.6, f: () => banner('Trying: ' + (t.name || LEVEL.name), t.say || 'this is not his save. Nothing here is kept.', 6) });
+}
+// (the world is made again as his own save has it while the trial is still on, so that making it stores nothing of
+// his: a climb never begun stays never begun)
+function endTry(){ const back = () => { for (const k of Object.keys(G)) delete G[k]; Object.assign(G, JSON.parse(TRYING.snap)); }; ENT.reset(); back(); resetLevels(); enter(Math.min(G.level || 0, LEVELS.length - 1)); back(); TRY.on = false; TRYING.snap = null; BANNER = null; LATER.length = 0; }
 function resume(n){ menuHide(); STORY.kind = null; SCREEN = ''; PAUSE = false; if (LEVEL.index !== n) enter(n); else { const s = spawnPoint(); P = born(s.x, s.y); CHECK = null; if (BOSS) BOSS.reset(); ENT.reset(); banner(LEVEL.name, SUB[n] || '', 4); G.level = n; store(); } }
 function title(){
   if (VIEW.on) endView();   // back from watching: the save as it was
+  if (TRY.on) endTry();     // back from trying a place: his own save, as it was
   // until the opening is in hand the title is shown without its buttons, a thin bar filling under it
   if (!GATE.ready){ menuHide(); SCREEN = ''; PAUSE = false; STORY.start('title', { progress: GATE.progress }); if (!GATE.waiting){ GATE.waiting = true; GATE.p.then(() => { if (STORY.kind === 'title' && !SCREEN) title(); }); } return; }
   const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;justify-content:center;max-width:92vw';
   const top = DEV ? LEVELS.length - 1 : G.top; if (top > 0) LEVELS.forEach((l, n) => { if (n <= top) row.appendChild(menuButton(`${n + 1} ${l.name.replace('The ', '')}`, () => resume(n), true)); });
   let sure = false; const again = menuButton(G.began ? 'Begin again' : 'Begin the climb', () => { if (G.began && !sure){ sure = true; again.textContent = 'Begin again? All is lost'; return; } begin(); }, G.began);
-  menuShow([G.began ? menuButton('Climb on: ' + LEVELS[Math.min(G.level, LEVELS.length - 1)].name, () => resume(Math.min(G.level, LEVELS.length - 1))) : null, again, top > 0 ? row : null, menuButton('The keepers', keepers, true), menuButton('Options', () => options(title), true)], true);
+  menuShow([G.began ? menuButton('Climb on: ' + LEVELS[Math.min(G.level, LEVELS.length - 1)].name, () => resume(Math.min(G.level, LEVELS.length - 1))) : null, again, top > 0 ? row : null, menuButton('Try a place', tryMenu, true), menuButton('The keepers', keepers, true), menuButton('Options', () => options(title), true)], true);
   SCREEN = ''; PAUSE = false; if (STORY.kind === 'title') STORY.opts = {}; else STORY.start('title');   // already up (it was waiting): it is not begun again
 }
 // the options: each button steps its setting on
@@ -1215,7 +1254,7 @@ function drawHud(dt){
   if (BANNER && !TALK.on && !NOTE && !(PAUSE && SCREEN && SCREEN !== 'pause')){ BANNER.t -= dt; HUD.banner(BANNER.a, BANNER.b, Math.max(0, Math.min(1, BANNER.t, (BANNER.life - BANNER.t) * 3))); if (BANNER.t <= 0) BANNER = null; }
   { const L = TEACHER.shown(); if (L && !PAUSE && !TALK.on && !NOTE && !rising){ v.set(P.x, P.y, 0).project(R.camera); const sx = Math.round((v.x + 1) / 2 * W), sy = Math.round((1 - v.y) / 2 * 180);
     HUD.lesson(L.show.map(([a, word]) => [kname(a), word]), sx, sy > 150 ? sy - 52 : sy + 6, L.a, time); } }   // under him (over him, if he is low on the screen)
-  HUD.label(BUILD);
+  HUD.label(TRY.on ? 'TRYING - NOT KEPT - ' + BUILD : BUILD);
   if (FLIGHT){ const u = FLIGHT.t / FLIGHT.dur; HUD.dark(0.16 + u * 0.3, '#cfe6ff'); HUD.g.globalAlpha = 0.35; for (let k = 0; k < 14; k++){ const y = (k * 37 + Math.floor(time * 60) * 13) % 180, x = (k * 71 + Math.floor(time * 60) * 29) % W; HUD.px('#ffffff', x, y, 18 + (k * 13) % 50, 1); } HUD.g.globalAlpha = 1; if (u > 0.82) HUD.dark((u - 0.82) / 0.18, '#ffffff'); }
   // a fall: the dark comes down after the drops have sunk, and lifts off him rising out of the water; the word over him
   if (DISS){ const t = DISS.t, k = t < DISS_T.dark ? 0 : t < DISS_T.raise ? (t - DISS_T.dark) / (DISS_T.raise - DISS_T.dark) : 1 - (t - DISS_T.raise) / (DISS_T.end - DISS_T.raise); if (k > 0) HUD.dark(Math.min(1, k), '#0b0810'); }
@@ -1247,7 +1286,7 @@ function drawHud(dt){
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { knotMenu, waterMenu, goUnder, waterList, get under(){ return UNDER; }, set atWater(v){ ATWATER = v; }, get shrines(){ return SHRINES; }, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, RULE, VERSION, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { knotMenu, tryMenu, tryStart, TRIES, MOMENTS, TRY, waterMenu, goUnder, waterList, get under(){ return UNDER; }, set atWater(v){ ATWATER = v; }, get shrines(){ return SHRINES; }, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, RULE, VERSION, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

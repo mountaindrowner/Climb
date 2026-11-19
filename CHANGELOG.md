@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Hollow, the Auger, the grip, and the Source (latest; phase 17, build 74).** `docs/phase17-sheet.md` has all of it.
+**Try a place (latest; build 75).** For playtesting. On the title, **Try a place**: any of the eleven levels from its start, with what he would have by then; or one of five moments (deep water before the Wyrm and with the wind, the Pump, the Auger, the grip). Nothing done there is kept, and his own save is not touched: it is back, to the letter, at the title.
+
+**The Hollow, the Auger, the grip, and the Source (phase 17, build 74).** `docs/phase17-sheet.md` has all of it.
 - **The Hollow:** the bottom of the Deep, fourteen screens under the floor of the Great Shaft. The guild's last camp and the last page of its tally; the floor torn in rings; Echoes.
 - **The Auger,** the Deep's keeper: the guild's engine, a drill on iron legs. It drives its bit down where he stands. When the bit sticks he gets up on its back and strikes the collar. Twice it bores the whole floor away and they fall together to the floor below. It has an entrance like the six keepers of the climb.
 - **The grip,** what it leaves: he clings to rough rock and climbs it. Rough rock is a material of its own. In this build it is only in the Hollow.
