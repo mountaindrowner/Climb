@@ -1,0 +1,36 @@
+{
+ "name": "px_almanac",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 64,
+   "h": 64,
+   "foot": 62,
+   "cx": 36.0,
+   "footLast": 62,
+   "cxLast": 36.0,
+   "n": 1
+  },
+  "strike": {
+   "frames": 9,
+   "w": 84,
+   "h": 84,
+   "foot": 72,
+   "cx": 46.0,
+   "footLast": 72,
+   "cxLast": 44.5,
+   "n": 1
+  },
+  "read": {
+   "frames": 9,
+   "w": 84,
+   "h": 84,
+   "foot": 72,
+   "cx": 46.0,
+   "footLast": 72,
+   "cxLast": 46.0,
+   "n": 1
+  }
+ }
+}

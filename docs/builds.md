@@ -50,6 +50,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 71 | 19 Nov 2026 | `COMMIT71` | The Orrery Wing (phase 14); things that move and carry him | no | yes (now) |
 | 70 | 19 Nov 2026 | `1a5edcb` | A mend to 69: the moths keep to their own rooms | no | yes (now) |
 | 69 | 19 Nov 2026 | `b21499c` | The Keepers' Houses (phase 13, second half) | no | yes (now) |
 | 68 | 19 Nov 2026 | `d38c09e` | The Aqueducts (phase 13, first half) | **moved** (the Gardens) | yes (now) |
@@ -81,6 +82,31 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 71: the Orrery Wing
+
+- **For the player:** the Firmament's east wing, nine screens, open to anyone, through a new door off the orrery
+  room's shelf. Planets and pallets he stands on and rides; a floor of hours that calls one hour and strikes the
+  next; armillaries; the Almanac; the Last Page (once each rest, the blow that would end him leaves him one heart);
+  a short way from the winding room into the aphelion. All of it in `docs/phase14-sheet.md`.
+- **Underneath:** new `src/side/regions/orrery.js`; **things that move and can be stood on** as a new kind of place
+  in `level.js` (`movers`, `moverAt`, `moversNow`) and in the motor (he is carried, lands on one from above, walks
+  and drops off; a wall stops him and not it); they are drawn in `props.js`; the hours' sounds and words, the
+  Almanac's end and the relic's cue in `main.js`; the relic's rule in the motor's `hurt`; the Firmament is three
+  columns wider on the east; doors cut in the orrery room and the aphelion. New art: `assets/side/px_almanac`,
+  `px_roller` (the last drawn by hand for the Annals).
+- **The motor changed for everyone again, a little:** the new lines do nothing where nothing moves, and every other
+  region's checks pass unchanged. As with build 68: if his movement feels different outside this wing, compare with
+  the build before.
+- **In a check, a mover is everywhere on its way at once** (he is taken to wait for it, as he is for star-glass). So
+  the checks say what can be reached by riding, not how hard the timing is.
+- **Save: not moved** (the columns are added on the east). Adds: the Almanac shut (`still`), the relic, and which
+  words were said.
+- **Checked:** 314 automated checks, nine of them the wing's; a play-through in the test browser (a pallet, the
+  hours both ways, the ride from the mounting block to the Almanac's door, an armillary, the Almanac's calls and its
+  end, the relic, the way out); the zip opened, the title and every region.
+- **Not checked:** not played by hand; the sounds.
+- **Cost:** $0.07 (the Almanac).
 
 ### Build 70: a mend to 69
 

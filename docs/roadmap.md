@@ -355,6 +355,10 @@ Houses.*
 broken setting brings the Housekeeper by its servants' doors and shuts his own house until it is set right. The
 Second Place. Phase 13 is done.*
 
+*Phase 14 done (build 71): **the Orrery Wing**, by `docs/phase14-sheet.md`. Nine screens east of the orrery room. Things
+that move and carry him (new); hours called and struck an hour late; the Almanac; the Last Page. With it, phases 10
+to 14 are done.*
+
 Built two regions at a time. **Spaces, not rectangles** (decision 0.8): each wing has at least one vast space, one
 winding way, and one path no one expects, each shaped by what the place was. Each wing gets its sheet first: its rooms, what each room is for, its gate and shortcut,
 its creatures, its elite, its one moment, its relic, and a weapon (the Ember plan's step 4) where one fits. Each

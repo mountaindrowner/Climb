@@ -84,6 +84,7 @@ export const RELICS = {   // name: whose it was; line: what it does; lore: whose
   stillair:    { name: 'A Breath of the Eye',    line: 'Gliding, he sinks more slowly.', lore: 'Air from the middle of the storm, where nothing moves. It was kept behind a door that opens to no one in a hurry.' },
   yoke:        { name: 'Carrier\'s Yoke',        line: 'His flask holds one draught more.', lore: 'Before the channel was cut, the water came up from the pool on men\'s shoulders. One of them left this at the head.' },
   place:       { name: 'The Second Place',       line: 'One heart more.', lore: 'In his house the table was laid for two. He took his own place from it. The other is still laid.' },
+  lastpage:    { name: 'The Last Page',          line: 'Once each rest, a blow that would end him leaves him one heart.', lore: 'The almanac\'s last page. Every other has an hour on it. This one is blank.' },
   flint:       { name: 'Climber\'s Flint',        line: 'A blow that lands gives two embers, not one.', lore: 'It lit the shelter\'s fire every night of the climb. On the last night no one struck it.' },
   turnstone:   { name: 'Pilgrim\'s Stone',        line: 'After a blow, nothing can hurt him for a breath longer.', lore: 'The top stone of a cairn. He carried it up once, and set it down. NOT YET is scratched on it.' },
   starcompass: { name: 'Astronomer\'s Compass',    line: 'The map shows what is still to be found.',       lore: 'It does not point north. It points at the star that is missing.' },

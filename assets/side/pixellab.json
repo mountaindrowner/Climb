@@ -1197,5 +1197,21 @@
     "group": "24cd6a16-4fcd-4087-abd7-b9e5b981d188"
    }
   }
+ },
+ "px_almanac": {
+  "id": "0d179103-09a5-4158-840b-bd799e3eeaa5",
+  "description": "a tall thin old brass automaton astronomer in a long robe made of overlapping brass plates, its head is a round clock dial with one hand and no face, holding a huge open book in both hands in front of its chest, a small glowing star set in its breast, tarnished brass and dark blue, simple stylized chunky pixel art with few colors and bold shapes, seen strictly from the side in flat profile, 2D platformer enemy",
+  "anims": {
+   "read": {
+    "action": "standing still, turning a page of the huge book with one hand, the clock hand on its face ticking forward",
+    "frames": 8,
+    "group": "d7d73ef9-2c85-443e-b68d-50e23d238568"
+   },
+   "strike": {
+    "action": "raising one arm straight up and bringing it down sharply as if ringing a bell",
+    "frames": 8,
+    "group": "5aa87236-b392-40dd-8241-cddb9b64fe06"
+   }
+  }
  }
 }

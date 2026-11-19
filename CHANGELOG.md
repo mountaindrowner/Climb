@@ -2,7 +2,16 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**A mend (latest; build 70).** In the Keepers' Houses a moth came through a floor for him. Each now keeps to its own room.
+**The Orrery Wing (latest; phase 14, build 71): the Firmament's east wing.** `docs/phase14-sheet.md` has all of it.
+- **Nine screens east of the orrery room, open to anyone.** The astronomers' brass sky, wound to tell the hour the flame would come back.
+- **Things that move and carry him:** new to the game. Pallets that rise and fall, planets on turning arms. He rides the orrery up through its room.
+- **The hours:** a floor of plates, a hammer over each. It calls an hour, and strikes the one after. Always. The lit plate is the safe one.
+- **Five rooms:** the escapement, the hours, the arms, the Almanac, the winding room (a short way into the aphelion).
+- **Armillaries** (rings that roll) and **the Almanac,** the wing's keeper: it reads two hours at once, then three.
+- **A relic:** the Last Page. Once each rest, a blow that would end him leaves him one heart.
+- 314 checks. Phases 10 to 14, the wings, are done.
+
+**A mend (build 70).** In the Keepers' Houses a moth came through a floor for him. Each now keeps to its own room.
 
 **The Keepers' Houses (phase 13, build 69): the Gardens' east wing.** `docs/phase13-sheet.md` has all of it.
 - **Eight screens east of the arbor,** through a shuttered gate the Toll's step tears. Where the keepers of the flame lived: every house kept, beds made, tables laid, fires laid and not lit.

@@ -616,7 +616,7 @@ ascension · vigil · aphelion · zenith (*the cradle*: the stone the flame stoo
 The Fallen carries a dark lamp, and does not put it down even to fight; when it is spent, the lamp goes out of its hand.
 
 ### The Orrery Wing
-*Firmament, west · 9 screens · open*
+*Firmament, east (built, build 71; the plan said west) · 9 screens · open*
 
 **History.** The astronomers' great work: a brass sky, every star on an arm, wound to run forward, to tell the hour the
 flame would come back. It has told it many times.

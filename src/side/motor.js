@@ -8,7 +8,7 @@ import { TUNE } from '../config/tuning.js';
 import { WEAPONS } from '../config/weapons.js';
 import { IN, consume, pending } from '../core/input.js';
 import { FEEL } from '../config/feel.js';
-import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt, gustAt, flowAt, liveAt, RULE, facedAt } from './level.js';
+import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt, gustAt, flowAt, moversNow, liveAt, RULE, facedAt } from './level.js';
 const MV = TUNE.move;
 // the side view's warrior is drawn tall and lean (gothic action proportions, ~40 pixels): his body is taller than the
 // climb's, and his jumps and run scale with him so they keep the same feel against his height
@@ -52,6 +52,7 @@ function unstick(P){
   }
 }
 // what holds his feet up at height y: rock, or a ledge (unless he is dropping through ledges)
+const onMover = (P, m) => P.x + BODY.hw > m.x - m.w / 2 && P.x - BODY.hw < m.x + m.w / 2;
 function support(P, x, y){
   const j = ty(y - 0.02); if (Math.abs((j + 1) * T - y) > 0.03) return null;
   for (let i = tx(x - BODY.hw + 1e-3); i <= tx(x + BODY.hw - 1e-3); i++){ const t = tileAt(i, j); if (t === ROCK || (t === LEDGE && P.drop <= 0) || t === SPIKES) return t; }
@@ -97,6 +98,7 @@ function heightAbove(P){
 export function hurt(P, n, fromX, msg){
   if (P.inv > 0 || isRollInv(P) || SIDE.watching || (P.art && P.art.safe && !(P.art.k === 'gust' && P.art.t > ARTS.gust.safe))) return false;   // watching (main.js: the keepers' entrances) nothing touches him
   const spared = SIDE.leaf; if (spared) SIDE.leaf = false; else P.hp -= n;
+  if (P.hp <= 0 && SIDE.hour){ SIDE.hour = false; P.hp = 1; ev(P, 'lastpage'); }   // the Almanac's last page: once each rest, the blow that would end him leaves him one heart
   P.inv = (TUNE.player.invuln || 1) * (SIDE.stone ? 1.6 : 1); P.hurtT = MV.hurtStun; P.atk = null; P.dive = null;
   const away = fromX == null ? -P.face : Math.sign(P.x - fromX) || -P.face;
   P.vx = away * MV.knock; P.vy = MV.knockUp; P.grounded = false;
@@ -133,7 +135,7 @@ export function stepPlayer(P, dt){
 
   // ---- presses
   if (consume('jump')){
-    if (P.grounded && H.down && support(P, P.x, P.y) === LEDGE){ P.drop = 0.25; P.dropping = true; P.grounded = false; P.y -= 0.03; ev(P, 'dropThrough'); }   // down + jump: through a ledge
+    if (P.grounded && H.down && (support(P, P.x, P.y) === LEDGE || P.ride)){ P.drop = 0.25; P.dropping = true; P.grounded = false; P.y -= 0.03; ev(P, 'dropThrough'); }   // down + jump: through a ledge
     else if (!P.grounded && P.coyote <= 0 && !stunned && P.airJumps > 0 && !(P.vy <= 0 && heightAbove(P) < -P.vy * MV.buffer + 0.25)){
       P.airJumps--; takeOff(P, true); P.flip = MV.flip; P.dive = null; P.glide = false; ev(P, 'doubleJump');
     }
@@ -237,11 +239,17 @@ export function stepPlayer(P, dt){
   }
 
   if (fl && fl.dy && !P.dive && !P.grounded){ P.vy = Math.min(P.vy, -FLOW.fall); P.glide = false; P.airTop = Math.min(P.airTop, P.y + 2); }   // falling water: nothing rises through it, and it sets him down (it was not a fall)
+  // ---- what he stands on has moved (the Orrery Wing; level.js movers): it takes him with it. A wall in the way
+  // stops him and it goes on without him; going down it sets him on whatever floor it passes
+  const MS = moversNow();
+  if (P.ride){ const m = P.ride; if (!P.grounded || m.ghost || !MS.length) P.ride = null; else { const dx = m.x - P.rideX, dy = m.y - P.rideY; P.rideX = m.x; P.rideY = m.y; if (dx) moveX(P, dx);
+      if (dy > 0){ if (boxRock(P, P.x, P.y + dy)){ P.ride = null; P.grounded = false; P.vy = 0; } else P.y = m.y; } else if (dy < 0){ P.grounded = false; moveY(P, m.y - P.y, P.y + 0.05); if (!P.grounded){ P.y = m.y; P.grounded = true; } else if (P.y > m.y + 1e-3) P.ride = null; } } }
   // ---- move: across (climbing steps on the way), then up or down
   const wasGrounded = P.grounded, y0 = P.y;
   moveX(P, P.vx * dt);
   if (P.grounded){
-    if (!support(P, P.x, P.y)){ P.grounded = false; P.vy = 0; P.coyote = MV.coyote; P.airTop = P.y; }
+    const on = P.ride && onMover(P, P.ride) && P.drop <= 0; if (P.ride && !on) P.ride = null;
+    if (!on && !support(P, P.x, P.y)){ const m = MS.length && P.drop <= 0 ? MS.find(q => Math.abs(q.y - P.y) < 0.03 && onMover(P, q)) : null; if (m){ P.ride = m; P.rideX = m.x; P.rideY = m.y; } else { P.grounded = false; P.vy = 0; P.coyote = MV.coyote; P.airTop = P.y; } }
   }
   if (!P.grounded){ moveY(P, P.vy * dt, y0); P.airTop = Math.max(P.airTop, P.y); }
   if (P.grounded && !wasGrounded) landed(P);
@@ -291,6 +299,8 @@ function moveY(P, dy, yStart){
         for (let i = tx(P.x - BODY.hw + 1e-3); i <= tx(P.x + BODY.hw - 1e-3); i++){ const t = tileAt(i, j); if (t === ROCK || t === SPIKES || (t === LEDGE && P.drop <= 0 && yStart >= top - 1e-3)) hit = true; }
         if (hit){ P.y = top; P.vy = 0; P.grounded = true; return; }
       }
+      // landing on a thing that moves: he was over its top (as it is, or as it was a step ago) and comes down to it
+      if (P.drop <= 0){ const MS = moversNow(); for (const m of MS) if (ny <= m.y && P.y >= Math.min(m.y, m.py) - 0.02 && yStart >= Math.min(m.y, m.py) - 0.06 && onMover(P, m)){ P.y = m.y; P.vy = 0; P.grounded = true; P.ride = m; P.rideX = m.x; P.rideY = m.y; return; } }
       P.y = ny;
     } else {
       if (boxRock(P, P.x, ny)){ P.y = ty(ny + P.h) * T - P.h - 1e-4; P.vy = 0; ev(P, 'bonk'); return; }   // a ceiling
@@ -359,7 +369,7 @@ export const SPADE = { name: 'Warden\'s spade', reach: 2.6, guard: false, digs: 
 ] };
 export const weaponOf = P => P.weapon === 'blade' ? BLADE : P.weapon === 'spade' ? SPADE : WEAPONS[P.weapon];
 export const swingOf = (P, A) => A.special ? weaponOf(P)[A.special] : weaponOf(P).combo[A.i];
-export const SIDE = { fallSafe: 9, feather: false, watching: false, leaf: false, stone: false, boots: false, calm: false };   // calm: a Breath of the Eye is worn: under the glide he sinks more slowly
+export const SIDE = { fallSafe: 9, feather: false, watching: false, leaf: false, stone: false, boots: false, calm: false, hour: false };   // calm: a Breath of the Eye is worn: under the glide he sinks more slowly
 //   // boots: the Wright's Boots are worn: live iron does not shock him
 //   // stone: the Pilgrim's Stone is worn: after a blow nothing can hurt him for longer
 //   // leaf: the Copyist's Blank Leaf is unspent: the next blow that lands does no harm

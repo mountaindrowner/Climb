@@ -34,7 +34,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 70, date: '19 NOV 2026', phase: 13, phases: 22, last: 'THE KEEPERS\' HOUSES' };
+const VERSION = { build: 71, date: '19 NOV 2026', phase: 14, phases: 22, last: 'THE ORRERY WING' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -185,6 +185,8 @@ function wingStep(dt){
   // any is, his house is shut (level.js KEPT). He is not shut in its doorway
   if (PROPS.kepts.length){ let n = 0; for (const e of E.list){ if (e.type === 'setting' && e.broken) n++; else if (e.type === 'housekeeper' && e.alive && e.wronged) n++; }
     if (n !== RULE.upset){ const was = RULE.upset; RULE.upset = n; PROPS.show(); if (!RULE.unkept && (was === 0) !== (n === 0)){ if (PROPS.kepts.some(B => Math.hypot(B.x - P.x, B.y - P.y) < 24)) sfx.door(); for (const B of PROPS.kepts) if (n > 0 && P.x + 0.4 > B.x0 && P.x - 0.4 < B.x1 && P.y + 2.4 > B.y0 && P.y < B.y1) P.y = B.y1 + 0.52; } } }
+  // the Orrery Wing: the hours cut in the wall, the first time he stands by them
+  if (!G.datesSeen && P.grounded && (LEVEL.movers || []).length) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'dates' && Math.abs(m.x * T - P.x) < 3 && Math.abs(m.y * T - P.y) < 2){ G.datesSeen = 1; store(); banner('The hours', 'every hour it gave for the flame to come back. All of them are past.', 7); }
   // the Aqueducts: the head, the first time he stands at it
   if (!G.headSeen && P.grounded && (LEVEL.flows || []).length) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'spout' && Math.abs(m.x * T - P.x) < 3.5 && Math.abs(m.y * T - P.y) < 2){ G.headSeen = 1; store(); banner('The head', 'it comes up from the pool at the bottom of the world. The same water.', 7); }
   // the Wreck of the Works: the Jar's discharge runs through all the iron for a moment (level.js liveAt)
@@ -731,7 +733,7 @@ function frame(ts){
   // at the water: mended, the flask filled. The first time at each, what it is: the raising pool gives him back after a
   // fall; a leak only mends
   for (const S of SHRINES) if (Math.abs(P.x - S.x) < S.half && Math.abs(P.y - S.y) < 1.5 && P.hp > 0 && !DISS && (!TOUCHED.has(S) || P.flask < P.flaskMax || P.hp < P.maxHp)){
-    const first = !TOUCHED.has(S); TOUCHED.add(S); P.flask = P.flaskMax; P.hp = P.maxHp; SIDE.leaf = has('blankleaf'); if (first) sfx.shrine(); else sfx.drink(); store(); fx.ring({ x: P.x, y: S.y + 0.6 }, 0x9fe8ff); R.glint(P.x, S.y + 1, 0x9fe8ff, 0.8, 6, 0.8);
+    const first = !TOUCHED.has(S); TOUCHED.add(S); P.flask = P.flaskMax; P.hp = P.maxHp; SIDE.leaf = has('blankleaf'); SIDE.hour = has('lastpage'); if (first) sfx.shrine(); else sfx.drink(); store(); fx.ring({ x: P.x, y: S.y + 0.6 }, 0x9fe8ff); R.glint(P.x, S.y + 1, 0x9fe8ff, 0.8, 6, 0.8);
     if (first) (BANNER ? f => LATER.push({ t: 4, f }) : f => f())(() => banner(S.raise ? 'The water gathers here' : 'Water seeps through the rock here', S.raise ? 'when he falls, it gives him back here' : 'it mends him, and fills the flask', 4));   // after the place's own name, if that is up
   }
 
@@ -959,7 +961,7 @@ const POOL_LINES = ['The water gives him back.', 'Again.', 'It is not his doing.
 let RISEN = null;   // the word over him as he comes up: { t, line, n }
 function raise(){
   const s = RAISE ? { x: RAISE.x, y: RAISE.y } : spawnPoint(), keep = EMBER.n, n = G.falls || 1;
-  P = born(s.x, s.y); refill(); if (BOSS) BOSS.reset(); ENT.reset(); EMBER.n = keep; SIDE.leaf = has('blankleaf'); SCF.reset(s.x, s.y + 1.8); TRAIL.length = 0; CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0; FX2.ghosts.forEach(G2 => { G2.life = 0; }); store();
+  P = born(s.x, s.y); refill(); if (BOSS) BOSS.reset(); ENT.reset(); EMBER.n = keep; SIDE.leaf = has('blankleaf'); SIDE.hour = has('lastpage'); SCF.reset(s.x, s.y + 1.8); TRAIL.length = 0; CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0; FX2.ghosts.forEach(G2 => { G2.life = 0; }); store();
   WAKE = 1.1; RISEN = { t: 0, line: POOL_LINES[(n - 1) % POOL_LINES.length], n }; if (RAISE) TOUCHED.add(RAISE);   // raised in it: it needs no telling
   splash(s.x, s.y); sfx.shrine();
 }
@@ -1040,12 +1042,17 @@ function onEvent(e){
     case 'setright': if (Math.hypot(e.at.x - P.x, e.at.y - P.y) < 20){ sfx.relic(); R.glint(e.at.x, e.at.y, 0xfff2d0, 0.9, 4, 0.3); } break;
     case 'swept': if (Math.hypot(e.at.x - P.x, e.at.y - P.y) < 18){ sfx.swing(true); fx.dust(e.at, 10, 3); } break;
     case 'servdoor': if (Math.hypot(e.at.x - P.x, e.at.y - P.y) < 22){ sfx.creak(); fx.dust(e.at, 6, 2); } break;
+    // the Orrery Wing: an hour called; a hammer down (the first that lands on him: what the wing is wrong about, said once)
+    case 'called': if (Math.hypot(e.e.x - P.x, e.e.y - P.y) < 30) sfx.crackbell(false); break;
+    case 'hammer': if (Math.hypot(e.at.x - P.x, e.at.y - P.y) < 26){ sfx.slam(); fx.dust(e.at, 12, 3); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.22); R.glint(e.at.x, e.at.y + 0.3, 0xfeae34, 1, 4, 0.2); }
+      if (e.hit && !G.hourTold){ G.hourTold = 1; store(); banner('An hour late', 'it struck the hour after the one it called. It always has.', 6); } break;
     case 'thud': if (Math.hypot(e.at.x - P.x, e.at.y - P.y) < 18){ sfx.slam(); fx.dust(e.at, 12, 3); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.18); } break;
     case 'flood': { RULE.surge = e.secs; sfx.rumble(); sfx.splash(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.5); fx.burst(e.at, 34, 0xbfe8ff); fx.dust(e.at, 16, 5); break; }
     // the Jar lets go: for a moment the current is in every piece of iron in the works
     case 'surge': { RULE.surge = SURGE; sfx.thunder(); sfx.zap(); FLASH = Math.max(FLASH, 0.3); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.4); fx.ring(e.at, 0xffffff); fx.burst(e.at, 30, 0xbfe8ff); R.shock(e.at.x, e.at.y, true); for (const D of PROPS.decks) if (D.works) R.glint(D.x, D.y, 0xffffff, 1, 3, 0.3); break; }
     case 'kill':
       // the Jar is broken: the works are dead, for good. No iron shocks; the coils and the arms are still; the grates lift
+      if (e.e && e.e.type === 'almanac'){ RULE.still = true; (G.still = G.still || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.door(); sfx.crack(); FEEL_FX.shake = 0.6; SLOW = Math.max(SLOW, 0.9); fx.burst(e.at, 36, 0xfeae34); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); for (const B of PROPS.grates) fx.dust({ x: B.x, y: B.y }, 14, 3); banner('The Almanac is shut', 'it was an hour out about this, too', 5.5); }
       if (e.e && e.e.type === 'housekeeper'){ RULE.unkept = true; (G.unkept = G.unkept || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.door(); sfx.crack(); FEEL_FX.shake = 0.5; SLOW = Math.max(SLOW, 0.9); fx.burst(e.at, 30, 0xfff2d0); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); banner('The Housekeeper is still', 'nothing in these houses will be set right again', 5.5); }
       if (e.e && e.e.type === 'lock'){ RULE.still = true; RULE.surge = 0; (G.still = G.still || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.door(); sfx.rumble(); sfx.splash(); FEEL_FX.shake = 0.7; SLOW = Math.max(SLOW, 0.9); fx.burst(e.at, 40, 0xbfe8ff); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); for (const B of PROPS.grates) fx.dust({ x: B.x, y: B.y }, 14, 3); banner('The Lock is open', 'the water goes where it was going. Its keepers stand down.', 5.5); }
       if (e.e && e.e.type === 'jar'){ RULE.still = true; RULE.surge = 0; (G.still = G.still || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.glass(); sfx.thunder(); sfx.door(); FEEL_FX.shake = 0.7; SLOW = Math.max(SLOW, 0.9); FLASH = Math.max(FLASH, 0.4); fx.burst(e.at, 40, 0xbfe8ff); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); for (const B of PROPS.grates) fx.dust({ x: B.x, y: B.y }, 14, 3); banner('The Jar is broken', 'what the Wrights caught has gone back to the storm', 5.5); }
@@ -1076,6 +1083,7 @@ function onEvent(e){
     case 'burst': sfx.break(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.2); fx.dust(e.at, 22, 4.5); fx.burst({ x: e.at.x, y: e.at.y + 0.4 }, 14, 0xd0a070); R.shock(e.at.x, e.at.y + 0.3, true); break;
     case 'step': sfx.step(); break;
     case 'mantle': sfx.whoosh(); break;
+    case 'lastpage': { sfx.relic(); fx.ring({ x: P.x, y: P.y + 1.2 }, 0xfeae34); SLOW = Math.max(SLOW, 0.5); banner('', 'the last page: not this hour', 2.6); break; }
     case 'spared': { sfx.block(); fx.burst({ x: P.x, y: P.y + 1.4 }, 18, 0xead4aa); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.25); banner('', 'the blank leaf takes the blow', 2.2); break; }
     case 'hurt': { window.__side.lastHurt = e.msg; buzz(0.7, 0.5, 200); sfx.hurt(); fx.burst({ x: P.x, y: P.y + 1.3 }, 10, 0xff6060); const a = SCF.tip(); fx.burst({ x: a.x, y: a.y }, 12, 0xff7030); fx.burst({ x: a.x, y: a.y }, 6, 0xfee761); FLASH = Math.max(FLASH, 0.12); break; }   // the end of the scarf burns off
     case 'skid': fx.kick(at, Math.sign(P.vx) || P.face, 6, 2.2); break;

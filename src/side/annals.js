@@ -50,7 +50,9 @@ export const ANNALS = [
     creatures: [
       { type: 'sentinel', name: 'Sentinel', art: 'px_sentinel', line: 'Brass, and faithful to a door no one comes to.' },
       { type: 'oculus', name: 'Oculus', art: 'px_oculus', line: 'The great lens, still looking for the star that went out.' },
-      { type: 'mote', name: 'Star-cinder', art: 'px_mote', line: 'A cinder of the star that fell. There were very many.' } ] },
+      { type: 'mote', name: 'Star-cinder', art: 'px_mote', line: 'A cinder of the star that fell. There were very many.' },
+      { type: 'roller', name: 'Armillary', art: 'px_roller', line: 'A ring come off the brass sky. It still goes round.' },
+      { type: 'almanac', name: 'The Almanac', art: 'px_almanac', line: 'It reads the hour the flame will come back. It has read it many times.' } ] },
   { region: 'The Workings', keeper: { theme: 'workings', art: 'px_mole/stand', name: 'The Auger', line: 'The guild\'s engine. Its order was deeper. It is somewhere below, still at it.' },
     creatures: [
       { type: 'lamprey', name: 'Sump Lamprey', art: 'px_lamprey', line: 'It fastened to the roof when the levels flooded, and never let go.' },

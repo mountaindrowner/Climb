@@ -20,9 +20,10 @@ import * as WORKS from './regions/works.js';
 import * as EYE from './regions/eye.js';
 import * as AQUEDUCTS from './regions/aqueducts.js';
 import * as HOUSES from './regions/houses.js';
+import * as ORRERY from './regions/orrery.js';
 // the wings set into a region after it is built (so the region itself is not changed): by region, { left: columns added
 // to its west, build(X) }
-const WINGS = { 1: [SCRIPTORIUM.wing, FOUNDRY.wing, REFECTORY.wing], 2: [CAIRNS.wing, GLACIER.wing], 3: [WORKS.wing, EYE.wing], 4: [AQUEDUCTS.wing, HOUSES.wing] };   // a region's wings: each `left` columns added west of it or `right` columns east, and what it builds there
+const WINGS = { 1: [SCRIPTORIUM.wing, FOUNDRY.wing, REFECTORY.wing], 2: [CAIRNS.wing, GLACIER.wing], 3: [WORKS.wing, EYE.wing], 4: [AQUEDUCTS.wing, HOUSES.wing], 5: [ORRERY.wing] };   // a region's wings: each `left` columns added west of it or `right` columns east, and what it builds there
 export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT };
 
 // ---- the first region: up from the bottom of the mountain
@@ -389,7 +390,7 @@ const REGIONS = [
   // each in its own file (regions/); the Tempest with what its wing brings (regions/works.js)
   { ...tempest, quiet: [...tempest.quiet, ...WORKS.QUIET, ...EYE.QUIET], enemies: { ...tempest.enemies, ...WORKS.enemies, ...EYE.enemies }, ai: { ...tempest.ai, ...WORKS.ai, ...EYE.ai }, deco: (px, PAL) => ({ ...tempest.deco(px, PAL), ...WORKS.decoDef(px, PAL), ...EYE.decoDef(px, PAL) }), looksDef: EYE.looks },
   { ...gardens, quiet: [...(gardens.quiet || []), ...AQUEDUCTS.QUIET, ...HOUSES.QUIET], enemies: { ...gardens.enemies, ...AQUEDUCTS.enemies, ...HOUSES.enemies }, ai: { ...gardens.ai, ...AQUEDUCTS.ai, ...HOUSES.ai }, deco: (px, PAL) => ({ ...gardens.deco(px, PAL), ...AQUEDUCTS.decoDef(px, PAL), ...HOUSES.decoDef(px, PAL) }), looksDef: { ...AQUEDUCTS.looks, ...HOUSES.looks } },   // the Gardens with what their wing brings (regions/aqueducts.js)
-  firmament,
+  { ...firmament, quiet: [...(firmament.quiet || []), ...ORRERY.QUIET], enemies: { ...firmament.enemies, ...ORRERY.enemies }, ai: { ...firmament.ai, ...ORRERY.ai }, deco: (px, PAL) => ({ ...firmament.deco(px, PAL), ...ORRERY.decoDef(px, PAL) }), looksDef: ORRERY.looksOf(firmament.themeDef) },   // the Firmament with what its wing brings (regions/orrery.js)
   workings,   // the Deep: off the climb, under it (deep: true)
 ];
 export const LEVELS = REGIONS.map(r => ({ name: r.name, theme: r.theme, sub: r.sub || '', card: r.card || '', epithet: r.epithet || '' }));
@@ -610,11 +611,12 @@ function build(n){
 }
 // what the motor asks about every step: the flowers' tiles, and the rising air (in world units)
 function finish(L){
-  const pads = new Map(), updrafts = [], gusts = [], flows = [];
+  const pads = new Map(), updrafts = [], gusts = [], flows = [], movers = [];
   for (const m of L.marks){
     if (m.type === 'bloom') for (let a = -1; a <= 1; a++) pads.set(m.y * L.W + m.x + a, m);
     if (m.type === 'updraft') updrafts.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 12)) * T, ...(m.gate ? { gate: m.gate } : {}) });   // gate: this rising air is a wing's way in (the simple reach test counts it only with the gift)
     if (m.type === 'flow') flows.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 2)) * T, dx: m.dir === 'w' ? -1 : m.dir === 'e' ? 1 : 0, dy: m.dir === 'd' ? -1 : 0, key: m.key || '' });   // running water (the Aqueducts): it carries what stands in it; falling, nothing rises through it. It runs while its wheel is open (RULE.wet)
+    if (m.type === 'mover') movers.push({ kind: m.kind || 'arm', cx: (m.x + 0.5) * T, cy: m.y * T, r: (m.r || 8) * T, ax: (m.ax || 0) * T, ay: (m.ay || 0) * T, period: m.period || 8, ph: m.ph || 0, dir: m.dir || 1, w: (m.w || 5) * T, x: 0, y: 0, px: 0, py: 0, at: -1 });   // a thing that moves and can be stood on (the Orrery Wing): a planet on an arm (round cx, cy at r), or a pallet that slides (by ax, ay either side of cx, cy). Its place is the world's clock's (PHASE.t), nothing else's
     if (m.type === 'gust') gusts.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 12)) * T });   // the wind the Wyrm holds: it bears down there in beats; when the Wyrm falls it turns, and lifts
   }
   // ice a fire melts: each tile of it answers to the brazier nearest it in its own room (meltOf: tile -> the brazier's
@@ -623,7 +625,7 @@ function finish(L){
   const nearest = (x, y) => { const R0 = roomAt(x, y); let best = null, bd = 1e9; for (const b of braziers){ if (roomAt(b.x, b.y) !== R0) continue; const d = Math.hypot(b.x - x, b.y - y); if (d < bd){ bd = d; best = b; } } return best && best.x + ',' + best.y; };
   if (braziers.length){ for (let k = 0; k < L.tiles.length; k++) if (L.tiles[k] === MELT){ const key = nearest(k % L.W, Math.floor(k / L.W)); if (key) meltOf.set(k, key); }
     for (const m of L.marks) if (m.ice) m.fire = nearest(m.x, m.y); }
-  return { joins: {}, X0: 0, Y0: 0, ...L, pads, updrafts, gusts, flows, meltOf, tiles0: L.tiles.slice() };
+  return { joins: {}, X0: 0, Y0: 0, ...L, pads, updrafts, gusts, flows, movers, meltOf, tiles0: L.tiles.slice() };
 }
 // ---- where the three who climb are found in each region: a room each, never the first, spread through it. Each stands
 // at a station of their own (items.js draws it and lights it): Ordric at a flame, Mirel at a fire, Corwen at a desk
@@ -695,7 +697,7 @@ function nooks(tiles, W, H, marks, rooms, S, M, n){
 }
 // each is moved to the best place in its room: a flat floor seven tiles wide with six of air over it, clear of the other
 // markers. Ordric stands four tiles from the room's flame (on the side with room); the others as near the room's middle as fits
-const NOT_FOE = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust', 'rod', 'flow']);
+const NOT_FOE = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust', 'rod', 'flow', 'mover']);
 function stations(tiles, W, H, marks, rooms, S){
   if (!S) return;
   const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i], solid = t => t === ROCK || t === LEDGE;
@@ -872,6 +874,16 @@ export const facedAt = (tx, ty) => tx >= 0 && ty >= 0 && tx < LEVEL.W && ty < LE
 // a live deck (the storm's gantries) while the keeper stands: to stand on it is to be shocked (motor.js)
 export const liveAt = (tx, ty) => { if (tx < 0 || ty < 0 || tx >= LEVEL.W || ty >= LEVEL.H) return false; const t = LEVEL.tiles[ty * LEVEL.W + tx]; if (t === LIVE) return !RULE.fallen;
   if (t === IRON_A || t === IRON_B) return !RULE.still && !RULE.swFree && (RULE.surge > 0 || (t === IRON_A) === (RULE.sw === 0)); return false; };   // the works' iron: the half the current is in (all of it, while the Jar lets go)
+// where a mover is at a time: the middle of its top (he stands on it as on a plank: from above only)
+export const moverAt = (m, t) => { const a = (t / m.period + m.ph) * Math.PI * 2; return m.kind === 'arm' ? [m.cx + Math.cos(a * m.dir) * m.r, m.cy + Math.sin(a * m.dir) * m.r] : [m.cx + Math.sin(a) * m.ax, m.cy + Math.sin(a) * m.ay]; };
+// the movers as they are now, each with where it was the step before (px, py). In a test (PHASE.all: he waits for
+// what turns) each is everywhere on its way at once, and still
+export function moversNow(){
+  const L = LEVEL.movers || []; if (!L.length) return L;
+  if (PHASE.all){ if (!LEVEL.moverGhosts){ LEVEL.moverGhosts = []; for (const m of L) for (let k = 0; k < 24; k++){ const [x, y] = moverAt(m, (k / 24 - m.ph) * m.period); LEVEL.moverGhosts.push({ ...m, x, y, px: x, py: y, ghost: true }); } } return LEVEL.moverGhosts; }
+  const t = PHASE.t; for (const m of L) if (m.at !== t){ const [x, y] = moverAt(m, t); if (m.at < 0){ m.px = x; m.py = y; } else { m.px = m.x; m.py = m.y; } m.x = x; m.y = y; m.at = t; }
+  return L;
+}
 export const flowOn = f => f.key === 'surge' ? RULE.surge > 0 : RULE.wetAll || RULE.wet.has(f.key);   // ('surge': the Lock's water, while it lets go)
 export const flowAt = (x, y) => { for (const f of LEVEL.flows || []) if (x >= f.x0 && x < f.x1 && y >= f.y0 && y < f.y1 && flowOn(f)) return f; return null; };
 export const updraftAt = (x, y) => { for (const u of LEVEL.updrafts) if (x >= u.x0 && x < u.x1 && y >= u.y0 && y < u.y1) return u; if (RULE.fallen) for (const u of LEVEL.gusts || []) if (x >= u.x0 && x < u.x1 && y >= u.y0 && y < u.y1) return u; return null; };
