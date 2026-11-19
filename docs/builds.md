@@ -7,6 +7,11 @@ build to go back to.
 **The rule:** no build is pushed to the itch.io page without its entry here. `tools/push-itch.sh` refuses one that has
 no entry, that is not committed, or that does not start in a browser.
 
+**The map page:** after a build is pushed, the map at https://claude.ai/artifact/XdHbnbJHLPb2SxELnczC3h is redrawn from
+it: `tools/map-update.sh <dir>` writes its four files (a few seconds), and they are published to that same address.
+Notes and proposed moves left on the page are read back before the next piece of work, and withdrawn or marked done
+once the game matches them.
+
 ## Going back
 
 To put an earlier build back on the page:
