@@ -11,7 +11,7 @@ def font(sz, bold=False):
 F_ROOM, F_WING, F_REG, F_LEG = font(13), font(17, True), font(40, True), font(18)
 # theme: (open air in a room, rock in a room, accent for the name)
 TH = { 'roots': ((122, 84, 56), (58, 38, 30), (255, 196, 120)), 'cloister': ((112, 104, 134), (50, 46, 66), (214, 200, 255)), 'spires': ((150, 190, 214), (62, 84, 108), (210, 240, 255)),
-       'tempest': ((70, 98, 140), (30, 42, 68), (160, 210, 255)), 'gardens': ((120, 160, 96), (48, 72, 50), (200, 255, 170)), 'firmament': ((84, 78, 140), (34, 30, 66), (255, 226, 150)), 'workings': ((104, 70, 58), (44, 28, 26), (255, 170, 120)) }
+       'tempest': ((70, 98, 140), (30, 42, 68), (160, 210, 255)), 'gardens': ((120, 160, 96), (48, 72, 50), (200, 255, 170)), 'firmament': ((84, 78, 140), (34, 30, 66), (255, 226, 150)), 'workings': ((104, 70, 58), (44, 28, 26), (255, 170, 120)), 'vein': ((58, 78, 112), (16, 20, 36), (160, 230, 255)) }
 WINGCOL = { 'THE OSSUARY': (196, 180, 150), 'THE SCRIPTORIUM': (206, 176, 120), 'THE BELL-FOUNDRY': (214, 120, 70), 'THE PILGRIMS\' CAIRNS': (190, 200, 210), 'THE GLACIER GALLERIES': (130, 220, 240),
             'THE WRECK OF THE WORKS': (200, 150, 90), 'THE EYE OF THE STORM': (236, 244, 255), 'THE AQUEDUCTS': (90, 190, 220), 'THE KEEPERS\' HOUSES': (230, 180, 120), 'THE ORRERY WING': (240, 180, 70) }
 SEAMCOL = (150, 140, 120)
