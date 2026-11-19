@@ -49,6 +49,19 @@ export const ledge = (r, x0, x1, y, v = LEDGE) => rect(r, x0, y, x1, y, v);
 export function stairs(r, x, y, n, dir, run = 2){
   for (let i = 0; i < n; i++) for (let k = 0; k < run; k++){ const cx = x + dir * (i * run + k); rect(r, cx, 0, cx, y + i, ROCK); }
 }
+// ---- height made of rock, not of planks (the map pass, docs/map-pass-sheet.md). A room's ups and downs are its own
+// stone: shelves out of its walls, piers and boulders up from its floor, steps cut in it. A plank is for a thing that
+// is a plank
+// a shelf of rock out of a side wall ('L' or 'R'): from the wall to column x, its top at row y (he stands on y + 1)
+// (it tapers: two deep at the wall, one at its outer half. Shelves one over another on the same wall want six rows
+// between each and the next across the shaft, or he strikes his head on the one above as he leaps: he grabs the edge
+// and pulls up, which is what he is best at)
+export const shelf = (r, side, x, y, thick = 2) => { const w0 = 2, w1 = r.w - 3; if (side === 'L'){ rect(r, w0, y, x, y); if (thick > 1) rect(r, w0, y - thick + 1, w0 + Math.floor((x - w0) / 2), y - 1); } else { rect(r, x, y, w1, y); if (thick > 1) rect(r, x + Math.ceil((w1 - x) / 2), y - thick + 1, w1, y - 1); } };
+// a pier, a boulder, a stalagmite: rock up from the floor (row 2) to row y
+export const pier = (r, x0, x1, y) => rect(r, x0, 2, x1, y);
+// rock hung from the roof down to row y; and, out from its foot toward column x, a step he can stand on (under a hole
+// in the roof beside it, which is what it is for: the way up into the room above)
+export const hung = (r, x0, x1, y, stepTo = null, thick = 3) => { rect(r, x0, y, x1, r.h - 1); if (stepTo != null) rect(r, Math.min(stepTo, x1 + 1), y, Math.max(stepTo, x0 - 1), y + thick - 1); };
 export const mark = (r, type, x, y, extra) => r.marks.push({ type, x, y, ...extra });
 // a place dug into rock (phase 8: where the people are found): rock laid all round the hollow (x0..x1 wide, h high, its
 // floor at row y), a roof `roof` thick over it, `back` thick behind it, and its mouth open on one side ('L' or 'R'). It

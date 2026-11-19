@@ -4,7 +4,7 @@
 // hole cut through the floor at `link` (tile columns of the first room, boarded over) lets him up into the region.
 // title: what the place line says there. By region index: 1 the Crypt Stair (into the Cloister), 2 the Bell Road (the
 // Spires), 3 the Last Hut (the Tempest), 4 the Breach (the Gardens), 5 the Long Stair (the Firmament).
-import { room, rect, walls, door, ledge, mark, stairs, den, EMPTY, LEDGE, SPIKES, CRACKED } from './rooms.js';
+import { room, rect, walls, door, ledge, mark, stairs, den, shelf, EMPTY, LEDGE, SPIKES, CRACKED } from './rooms.js';
 
 // the way up to a hole in the roof: ledges stacked in the hole's own columns, a jump apart (from beside it, the hole's
 // rock edge is in the way of a jump), from row y0 to just under the roof
@@ -243,13 +243,15 @@ export const LOWER = {
 // 3 and 4). By region: a function given the region as built (level.js build) that sets holds, doors and given planks
 // into it and adds the quick way's rooms. While the keeper stands its rule makes the region slower, never impassable;
 // the quick way is stone at both ends. When it falls the rule ends and the quick way is found open.
-// the Roots' quick way: the foot of the well, under the well room, from the pithead. Planks and a knotted rope
+// the Roots' quick way: the foot of the well, under the well room, from the pithead. Stone shelves and a knotted rope
 function wellfoot(){
   const r = room(1, 2); walls(r); door(r, 'left', 2, 7); door(r, 'top', 16, 19);
-  steps(r, [[8, 13, 5], [18, 23, 9], [8, 13, 13], [18, 23, 17], [8, 13, 21], [18, 23, 25], [8, 13, 29]]);
-  rect(r, 14, 31, 37, 32); for (const y of [37, 41]) ledge(r, 16, 19, y); keepUp(r, 17, 18, 34, 44);
+  // up it: shelves of the well's own stone, out of one wall and then the other, the rope hanging down between their
+  // ends; the last runs in under the mouth of the well, a flue in the roof, and up that go two rungs (the map pass)
+  shelf(r, 'R', 18, 7); shelf(r, 'L', 15, 13); shelf(r, 'R', 18, 19); shelf(r, 'L', 15, 25); shelf(r, 'R', 16, 31);
+  rect(r, 12, 37, 15, 43); rect(r, 20, 37, 23, 43); for (const y of [37, 41]) ledge(r, 16, 19, y); keepUp(r, 17, 18, 34, 44);
   for (const y of [3, 9, 15, 21, 27, 34]) deco(r, 'rope', 16, y); deco(r, 'knot', 16, 40);   // the rope, and Ordric's knot on it
-  mark(r, 'torch', 30, 6); mark(r, 'torch', 5, 18); mark(r, 'torch', 30, 36); mark(r, 'urn', 34, 2); mark(r, 'urn', 26, 33);
+  mark(r, 'torch', 30, 11); mark(r, 'torch', 5, 18); mark(r, 'torch', 30, 36); mark(r, 'urn', 34, 2); mark(r, 'urn', 26, 32);
   r.title = 'THE WELL\'S FOOT';
   return r;
 }

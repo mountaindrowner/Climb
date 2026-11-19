@@ -55,6 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 76 | 19 Nov 2026 | `COMMIT76` | The map pass, pilot: the Roots in stone (84 planks to 17) | no | yes (now) |
 | 75 | 19 Nov 2026 | `3a4aa64` | Try a place: any level, or a moment, from the title (for playtesting) | no | yes (now) |
 | 74 | 19 Nov 2026 | `ba84266` | The Hollow, the Auger, the grip, the Source (phase 17) | no | yes (now) |
 | 73 | 19 Nov 2026 | `18a5cde` | The Flooded Levels, the Great Shaft, travel through the water (phase 16) | no | yes (now) |
@@ -91,6 +92,47 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 76: the map pass, pilot: the Roots in stone
+
+- **For the player:** the Roots, its wing (the Ossuary) and its quick way (the well's foot) no longer change height
+  by planks hung in the air. Climbs are stone: shelves out of one wall and then the other, boulders and pillars up
+  from the floor, rock hung from the roof, stairs and stepped floors. **84 planks became 17.** The 17 are the rungs
+  of four ladders (each in a narrow flue, wall to wall), two steps off a wall, and two stagings on posts or legs.
+  None is bare in the air, and no rock is joined to nothing. `docs/map-pass-sheet.md` has the rule, the budget, what
+  the pilot taught, and every room before and after.
+- **Nothing found has moved** beyond a tile or two: every thread, chest, relic, person, shrine and water is where it
+  was. Rooms, doors and their order are the same. The corridor's spike pit is two tiles further west and five wide
+  (it was six), so that the boulder by Ordric's door stands clear of it.
+- **Planks are drawn held up**, in every timber region: a strut under an end let into rock, a post under a free end
+  with ground below it, a rope up from a free end with rock over it.
+- **Other ten levels: untouched,** to be compared with. A new check holds each to the planks it has today, so none
+  gets worse before its turn.
+- **To try** (Try a place, the Roots):
+  1. Water to Warden: does each room have a shape now?
+  2. The well, two screens of shelves: a climb you enjoy, or a chore? Is six rows right?
+  3. Anywhere your head strikes stone when you meant to go up: which room?
+  4. The Pithead's ladder and the Sexton's: do they read as ladders?
+  5. Ordric's roof without the plank: clear?
+  6. Do you miss dropping through a plank anywhere?
+  7. Then the Cloister, untouched. Which would you rather the whole mountain was?
+- **Underneath:** `shelf`, `pier`, `hung` in `rooms.js`; the Roots' rooms in `level.js`, the Ossuary's in
+  `regions/ossuary.js`, the well's foot in `seams.js`; the supports in `paint.js`. New: `tests/helpers/platforms.mjs`
+  (counts planks by what they touch, and rock joined to nothing) and `tests/side-platforms.test.mjs` (the budget).
+- **Checks changed, and why:** three pointed at planks that are gone (a mantle and a drop, in the chamber; "the first
+  room has planks"). They point at the Pithead's deck and ladder and the corridor's step now. The first room no
+  longer teaches dropping through a plank, because the way up through the Roots has none; the hint still comes the
+  first time he stands on one holding down.
+- **Found by the checks while building, and mended:** a boulder tucked under a shelf in the Ossuary that he could
+  not pass either way; a boulder that shut Ordric into his room; a slot behind a heap he could drop into and not
+  leave; stacked shelves that struck his head. **Found by eye:** the pass that wears the rock smooth had filled the
+  bridge's chasm between the new pillars; it is marked to stay open.
+- **No change to the motor.** **Save: not moved.**
+- **Checked:** 417 automated checks, all passing, his real jump through every room of the Roots with what he has
+  on arrival and with everything; nowhere he can stand that he cannot leave. Fifteen rooms looked at in the test
+  browser, desktop and phone.
+- **Not checked:** not played by hand. The Warden's fight was not fought again with the stone step in its stage.
+- **Cost:** nothing.
 
 ### Build 75: try a place
 

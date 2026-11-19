@@ -55,7 +55,10 @@ test('the opening rooms ask for each lesson', () => {
   const inRoom = (r, fn) => { for (let j = Math.round(r.y0 / T); j < Math.round(r.y1 / T); j++) for (let i = Math.round(r.x0 / T); i < Math.round(r.x1 / T); i++) if (fn(i, j)) return true; return false; };
   assert.ok(inRoom(room('corridor'), (i, j) => tile(i, j) === LV.SPIKES), 'the corridor has its spike pit (jump)');
   assert.ok(L.marks.some(m => m.type === 'crawler' && m.x >= room('corridor').x0 && m.x < room('corridor').x1), 'and a crawler alone (cut, block)');
-  assert.ok(inRoom(room('start'), (i, j) => tile(i, j) === LV.LEDGE), 'the start has planks (drop through, the thread above)');
+  // (the map pass: the Roots' way up has no planks left, so the first room no longer asks for dropping through one. The
+  // first he meets is the lamplighter's step, behind Ordric's room; the hint comes the first time he stands on any)
+  assert.ok(inRoom(room('corridor'), (i, j) => tile(i, j) === LV.LEDGE), 'the first plank is in the corridor (drop through)');
+  assert.ok(L.marks.some(m => m.type === 'thread' && m.x >= room('start').x0 / T && m.x < room('start').x1 / T && m.y - room('start').y0 / T >= 10), 'the start has a thread set high (the second jump)');
   // the tunnel: somewhere the gap is too low to stand in and high enough to crouch through
   const r = room('tunnel'); let low = false;
   for (let i = Math.round(r.x0 / T); i < Math.round(r.x1 / T) && !low; i++) for (let j = Math.round(r.y0 / T); j < Math.round(r.y1 / T); j++){

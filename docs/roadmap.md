@@ -399,6 +399,20 @@ screens at the bottom; the Deep's keeper, with an entrance to match the six; rou
 the wall home to the Roots. **Carried to phase 18: rough rock in the regions already built** (the plan's faces from
 the Roots on; in this build it is only in the Hollow). Next: phase 18.*
 
+## The map pass (between phases 17 and 18)
+
+*Asked for after build 75. `docs/map-pass-sheet.md`.* The mountain changed height mostly by planks hung in the air.
+The pass rebuilds each level so that height comes from the shape of the place (shelves, piers, hung rock, stairs,
+stepped floors), keeps a plank only where it is a made thing (a rung, a step off a wall, a staging on posts), and
+then dresses the new shapes. One level a build, each held to a budget by a check.
+
+- **Pilot: the Roots (build 76).** Done: 84 planks to 17, none bare in the air. Waiting on the player's comparison
+  with an untouched level before the rest are done.
+- **Then, in order:** the Cloister, the Spires, the Tempest, the Gardens, the Firmament, the Workings, the Vein, the
+  Flooded Levels, the Great Shaft, the Hollow.
+- **Phase 18's rough rock** (faces in every region) is cut into the same walls, so it is laid out with each level's
+  pass and switched on in phase 18.
+
 ## Phase 18: the Shard, and the end of the story
 
 - **The Shard,** reached with the grip, last.

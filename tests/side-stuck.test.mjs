@@ -11,9 +11,9 @@ const rockAt = (x, y) => { const L = loadLevel(0); return L.tiles[Math.floor(y /
 const inRock = P => { for (let y = P.y + 0.02; y < P.y + M.BODY.crouch; y += 0.1) for (const x of [P.x - M.BODY.hw + 0.01, P.x, P.x + M.BODY.hw - 0.01]) if (rockAt(x, y)) return true; return false; };
 
 test('a creature cannot push him into rock (the block by Corwen, in the Roots)', () => {
-  loadLevel(0); const P = M.newPlayer(17.2 * T, 48 * T);   // just left of the block at tiles 18-20
+  loadLevel(0); const P = M.newPlayer(16.2 * T, 48 * T);   // just left of the block at tiles 17-20
   assert.ok(!inRock(P), 'he starts clear');
-  const all = M.shove(P, 19.5 * T);   // shoved into the block
+  const all = M.shove(P, 18.5 * T);   // shoved into the block
   assert.equal(all, false, 'the shove stops short'); assert.ok(!inRock(P), 'and he is not in the rock');
 });
 test('if he is ever in rock, he is put out of it', () => {
@@ -36,12 +36,12 @@ const sim = (x, y, prog, frames = 160) => { loadLevel(0); I.release(); clock.t +
   for (let f = 0; f < frames; f++){ prog(t, P); for (let s = 0; s < 2; s++){ M.stepPlayer(P, 1 / 120); clock.t += 1 / 120; t += 1 / 120; } for (const e of P.events){ ev.add(e.type); order.push(e.type); } I.endFrame(); P.events.length = 0; }
   I.release(); return { P, ev, order }; };
 test('a jump under the middle of a plank his hands reach hauls him up onto it', () => {
-  const { P, ev } = sim(25.5, 48, t => { if (t < 0.01) I.tap('jump'); I.hold('jump', t < 0.6); });   // the chamber's plank at 55 (tiles 22-28)
-  assert.ok(ev.has('mantle'), 'he caught it'); assert.equal(Math.round(P.y / T), 56, 'and stands on it');
+  const { P, ev } = sim(104.5, 2, t => { if (t < 0.01) I.tap('jump'); I.hold('jump', t < 0.6); });   // the Pithead's deck at row 9 (tiles 95-105), from the floor under it
+  assert.ok(ev.has('mantle'), 'he caught it'); assert.equal(Math.round(P.y / T), 10, 'and stands on it');
 });
 test('dropping through a plank, he does not catch the next one on the way down', () => {
-  // standing on the chamber's plank at 55 a moment, then down and jump (through it), then steering toward the plank at 51
-  const { order } = sim(23, 56, t => { I.hold('down', t > 0.2 && t < 0.45); if (Math.abs(t - 0.25) < 0.006) I.tap('jump'); I.hold('left', t > 0.3); });
+  // standing on a rung of the Pithead's ladder (row 16) a moment, then down and jump (through it), steering as he falls to the rung at 11
+  const { order } = sim(87, 17, t => { I.hold('down', t > 0.2 && t < 0.45); if (Math.abs(t - 0.25) < 0.006) I.tap('jump'); I.hold('left', t > 0.3); });
   const from = order.indexOf('dropThrough'), to = order.indexOf('land', from);
   assert.ok(from >= 0 && to > from, 'he dropped through and landed'); assert.ok(!order.slice(from, to).includes('mantle'), 'and caught nothing on the way down');
 });

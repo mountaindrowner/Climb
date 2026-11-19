@@ -263,8 +263,17 @@ export function paintPlay(glows, TM){
       } else {   // timber: the Roots' (roots hanging from it), the Spires' (rimed, icicles), the Gardens' (bound with vine)
         px(g, PAL.ink, x0 - 1, y0 - 1, w + 2, 5); px(g, PK[0], x0, y0, w, 3); px(g, PK[1], x0, y0, w, 1); px(g, PK[2], x0, y0 + 2, w, 1);
         for (let x = x0 + 4 + Math.floor(r() * 4); x < x1 - 2; x += 6 + Math.floor(r() * 5)) px(g, PK[2], x, y0 + 1, 1, 1);
-        for (const [x, dir] of [[x0, -1], [x1 - 1, 1]]){
-          if (wall(dir)) for (let k = 0; k < 4; k++) px(g, PAL.wood0, x - dir * k, y0 + 3 + k);
+        // what holds it up (the map pass): let into rock, a strut from the wall under that end; a free end stands on a
+        // post if there is ground within reach under it, or hangs by a rope from rock over it
+        for (const [x, dir, ci] of [[x0, -1, i], [x1 - 1, 1, e]]){
+          if (wall(dir)){ for (let k = 0; k < 7; k++){ px(g, PAL.ink, x - dir * k, y0 + 4 + (6 - k), 1, 2); px(g, PAL.wood0, x - dir * k, y0 + 3 + (6 - k)); } continue; }
+          let under = 0, over = 0;
+          for (let d = 1; d <= 8 && !under; d++){ const t = paintAt(ci, j - d); if (t === ROCK) under = d; else if (t !== EMPTY) break; }
+          if (!under) for (let d = 1; d <= 16 && !over; d++){ const t = paintAt(ci, j + d); if (t === ROCK) over = d; else if (t !== EMPTY) break; }
+          const xp = dir < 0 ? x + 1 : x - 2;
+          if (under){ const len = Y(j - under + 1) - (y0 + 3); px(g, PAL.ink, xp - 1, y0 + 3, 4, len); px(g, PAL.wood0, xp, y0 + 3, 2, len); px(g, PAL.wood2, xp, y0 + 3, 1, len);
+            for (let k = 0; k < 4; k++) px(g, PAL.wood0, xp - dir * (2 + k), y0 + 3 + (3 - k)); }
+          else if (over){ const top = Y(j + over); for (let y = top; y < y0; y++) px(g, (y - top) % 3 === 2 ? PAL.wood0 : PAL.wood2, xp, y); px(g, PAL.ink, xp - 1, y0 - 2, 3, 2); px(g, PAL.wood2, xp, y0 - 2, 1, 2); }
           else if (r() < 0.5) px(g, PAL.wood2, x - dir, y0 + 3, 1, 3 + Math.floor(r() * 5));
         }
         if (mk === 'ice'){ px(g, PAL.white, x0, y0, w, 1); for (let x = x0 + 2 + Math.floor(r() * 3); x < x1 - 1; x += 3 + Math.floor(r() * 4)){ const h = 2 + Math.floor(r() * 4); px(g, PAL.cyan, x, y0 + 3, 1, h); px(g, PAL.white, x, y0 + 3, 1, 1); } }

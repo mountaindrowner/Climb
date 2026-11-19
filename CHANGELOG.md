@@ -2,7 +2,14 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Try a place (latest; build 75).** For playtesting. On the title, **Try a place**: any of the eleven levels from its start, with what he would have by then; or one of five moments (deep water before the Wyrm and with the wind, the Pump, the Auger, the grip). Nothing done there is kept, and his own save is not touched: it is back, to the letter, at the title.
+**The map pass, pilot: the Roots in stone (latest; build 76).** `docs/map-pass-sheet.md` has all of it.
+- **Height from the shape of the place.** The Roots, the Ossuary and the well's foot climb by stone now: shelves out of the walls, boulders, pillars, rock hung from the roof, stairs. 84 planks became 17, and each of the 17 is a made thing: a rung of a ladder, a step off a wall, a staging on posts.
+- **Nothing hangs in the air,** plank or rock. Planks are drawn held up (a strut, a post, a rope) in every timber region.
+- **Nothing found has moved.** Same rooms, doors and order.
+- **A budget of platforms for every level,** held by a check. The other ten levels are untouched, for comparison.
+- 417 checks. No save is moved.
+
+**Try a place (build 75).** For playtesting. On the title, **Try a place**: any of the eleven levels from its start, with what he would have by then; or one of five moments (deep water before the Wyrm and with the wind, the Pump, the Auger, the grip). Nothing done there is kept, and his own save is not touched: it is back, to the letter, at the title.
 
 **The Hollow, the Auger, the grip, and the Source (phase 17, build 74).** `docs/phase17-sheet.md` has all of it.
 - **The Hollow:** the bottom of the Deep, fourteen screens under the floor of the Great Shaft. The guild's last camp and the last page of its tally; the floor torn in rings; Echoes.

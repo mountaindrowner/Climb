@@ -4,7 +4,7 @@
 // other: the Roots (caves), the Cloister (a ruined monastery), the Spires (ice, and the high pass), then, each in its own
 // file under regions/, the Tempest (the storm round the mountain), the Gardens (above the cloud) and the Firmament (the
 // summit, among the stars). One is in play at a time (LEVEL; loadLevel changes it).
-import { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, room, put, rect, walls, door, ledge, stairs, mark, open, den, ROUGH, TIER_A, TIER_B } from './rooms.js';
+import { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, room, put, rect, walls, door, ledge, stairs, mark, open, den, ROUGH, TIER_A, TIER_B, shelf, pier, hung } from './rooms.js';
 import tempest from './regions/tempest.js';
 import gardens from './regions/gardens.js';
 import firmament from './regions/firmament.js';
@@ -33,46 +33,56 @@ export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, D
 // ---- the first region: up from the bottom of the mountain
 function start(){
   const r = room(); walls(r); door(r, 'right', 2, 7);
-  ledge(r, 12, 17, 6);
   // the water at the bottom of the world, in a basin cut a tile into the floor: he wakes standing in it, and it gives him
   // back. A cistern older than anything above it (props.js draws it)
   rect(r, 3, 1, 12, 1, EMPTY);
   mark(r, 'pool', 3, 1, { w: 10 });
-  mark(r, 'spawn', 7, 1); mark(r, 'torch', 5, 7); mark(r, 'torch', 30, 7); mark(r, 'crystal', 20, 2);
-  ledge(r, 22, 26, 12); mark(r, 'thread', 24, 13);                    // a thread, high: the first thing worth a second jump
-  mark(r, 'npc', 27, 2, { who: 'wren' }); mark(r, 'urn', 16, 2); mark(r, 'urn', 33, 2);
+  // the floor rises in two steps past the water; over them rock hangs from the roof, and on its lip a thread: the first
+  // thing worth a second jump
+  pier(r, 14, 15, 3); pier(r, 16, 19, 5); hung(r, 27, 31, 11, 22, 2);
+  mark(r, 'spawn', 7, 1); mark(r, 'torch', 5, 7); mark(r, 'torch', 34, 7); mark(r, 'crystal', 21, 2);
+  mark(r, 'thread', 24, 13);
+  mark(r, 'npc', 27, 2, { who: 'wren' }); mark(r, 'urn', 23, 2); mark(r, 'urn', 33, 2);
   return r;
 }
 function corridor(){
-  const r = room(); walls(r); door(r, 'left', 2, 7); door(r, 'top', 30, 36); door(r, 'right', 2, 7);
-  rect(r, 16, 0, 21, 1, EMPTY); rect(r, 16, 0, 21, 0, SPIKES);   // a pit with spikes: jump it
+  const r = room(); walls(r); door(r, 'left', 2, 7); door(r, 'top', 27, 36); door(r, 'right', 2, 7);
+  rect(r, 11, 0, 15, 1, EMPTY); rect(r, 11, 0, 15, 0, SPIKES);   // a pit with spikes: jump it
   // Ordric's lamp-room: cut into the rock past the pit, where the well-keepers trimmed their lamps before the climb.
-  // The way on goes over its roof: a plank up from the pit's edge, the roof, then the planks up into the shaft
-  den(r, 24, 33, 2, 6, { open: 'L', back: 2 }); ledge(r, 19, 22, 5); ledge(r, 36, 37, 6);
-  ledge(r, 32, 37, 14); ledge(r, 26, 31, 18); ledge(r, 30, 36, 21);   // the last, in the doorway: up into the shaft
-  mark(r, 'crawler', 10, 2); mark(r, 'torch', 12, 8); mark(r, 'torch', 26, 6); mark(r, 'crystal', 37, 15);
-  mark(r, 'urn', 6, 2); mark(r, 'urn', 28, 2); mark(r, 'chest', 33, 15, { holds: 'shards' });   // (Ordric stands at 25: STATIONS)
+  // The way on goes over its roof: up off the boulder at its mouth, the roof, a shelf out of the east wall, a step
+  // of the rock that hangs beside the hole, and up into the shaft
+  den(r, 24, 33, 2, 6, { open: 'L', back: 2, roof: 1 }); pier(r, 19, 20, 4);   // (the boulder stands three tiles clear of his door)
+  ledge(r, 36, 37, 6);                                            // (the one plank: the lamplighter's step, down behind his room to the Pithead's door)
+  shelf(r, 'R', 33, 14, 1); hung(r, 24, 26, 16, 29);
+  mark(r, 'crawler', 7, 2); mark(r, 'torch', 8, 8); mark(r, 'torch', 26, 6); mark(r, 'crystal', 37, 15);
+  mark(r, 'urn', 3, 2); mark(r, 'urn', 28, 2); mark(r, 'chest', 33, 15, { holds: 'shards' });   // (Ordric stands at 25: STATIONS)
+  for (const x of [28, 31, 34]) mark(r, 'keep', x, 11); for (const x of [31, 34]) mark(r, 'keep', x, 18);
   return r;
 }
 function shaft(){
-  const r = room(); walls(r); door(r, 'bottom', 30, 36); door(r, 'left', 15, 19);
+  const r = room(); walls(r); door(r, 'bottom', 27, 36); door(r, 'left', 15, 19);
   rect(r, 2, 2, 22, 13);                                          // the rock the shaft is cut beside
-  ledge(r, 33, 37, 5); ledge(r, 25, 29, 9); ledge(r, 33, 37, 13); ledge(r, 24, 28, 17);
+  shelf(r, 'R', 32, 6); rect(r, 23, 9, 25, 10);                   // up it: a shelf out of the east wall, a lip of the rock, the rock's top
   mark(r, 'flitter', 30, 16); mark(r, 'crystal', 24, 2); mark(r, 'crystal', 37, 20); mark(r, 'torch', 10, 17);
   rect(r, 8, 2, 21, 7, EMPTY); rect(r, 22, 2, 22, 6, CRACKED);         // a room in the rock beside the shaft, walled up
   mark(r, 'chest', 12, 2, { holds: 'relic:whetstone' }); mark(r, 'urn', 16, 2); mark(r, 'urn', 19, 2); mark(r, 'crystal', 9, 2);   // its light shows round the cracked stone
+  for (const x of [24, 26]) for (const y of [4, 7]) mark(r, 'keep', x, y); for (const x of [33, 36]) mark(r, 'keep', x, 9);
   return r;
 }
 // the Pithead: where the Lamp-guild went down. The winding gear over the old cage shaft, the guild's lamps, and the hole:
 // down it is the Workings (regions/workings.js), the first of the Deep
 function pithead(){
   const r = room(); walls(r); door(r, 'left', 2, 7); door(r, 'bottom', 18, 22); door(r, 'top', 5, 8);
-  for (const y of [6, 11, 16, 21]) ledge(r, 5, 8, y);                // the well-keepers' old ladder, up into its shaft (oldshaft)
-  ledge(r, 15, 25, 9);                                            // the headframe's deck over the hole
+  // the well-keepers' old ladder, up into its shaft (oldshaft): a flue of the rock, its rungs set from side to side.
+  // The flue begins a man's height over the floor; a boulder under it is the first step, to the ladder or to the deck
+  rect(r, 2, 11, 4, 20); rect(r, 9, 11, 10, 20); pier(r, 5, 8, 5);
+  for (const y of [11, 16, 21]) ledge(r, 5, 8, y);
+  ledge(r, 14, 26, 9);                                            // the headframe's deck over the hole (a deck: planks laid on two legs)
   rect(r, 14, 2, 14, 8); rect(r, 26, 2, 26, 8);                    // its legs
-  mark(r, 'pass', 18, 0, { w: 5, h: 3, to: 6, at: 'down' }); mark(r, 'arrive', 9, 2, { name: 'pithead' });
-  mark(r, 'torch', 12, 8); mark(r, 'torch', 28, 8); mark(r, 'torch', 34, 12); mark(r, 'crystal', 32, 2);
+  mark(r, 'pass', 18, 0, { w: 5, h: 3, to: 6, at: 'down' }); mark(r, 'arrive', 10, 2, { name: 'pithead' });
+  mark(r, 'torch', 12, 12); mark(r, 'torch', 28, 8); mark(r, 'torch', 34, 12); mark(r, 'crystal', 32, 2);
   mark(r, 'urn', 3, 2); mark(r, 'urn', 35, 2); mark(r, 'flitter', 30, 15);
+  for (const y of [8, 13, 18]) for (const x of [6, 7]) mark(r, 'keep', x, y);
   return r;
 }
 // the well-keepers' old ladder shaft, from the Pithead up under the gallery. Its top is the gallery nook's floor, rotten
@@ -80,30 +90,31 @@ function pithead(){
 // through, and the way from the top of the Roots down to the Pithead and the pool is open, both ways, from then on
 function oldshaft(){
   const r = room(); walls(r); door(r, 'bottom', 5, 8); door(r, 'top', 5, 8);
-  rect(r, 12, 0, 39, 22);                                        // the rock round it: a narrow shaft
+  rect(r, 2, 0, 4, 22); rect(r, 9, 0, 39, 22);                    // the rock round it: a flue no wider than its ladder
   for (const y of [4, 9, 14, 19]) ledge(r, 5, 8, y);
-  for (let y = 3; y <= 18; y += 3) { mark(r, 'keep', 4, y); mark(r, 'keep', 9, y); }   // the wear leaves it open
-  mark(r, 'torch', 10, 11); mark(r, 'urn', 10, 2);
+  for (let y = 2; y <= 20; y += 3) for (const x of [6, 7]) mark(r, 'keep', x, y);   // the wear leaves it open
   return r;
 }
 function tunnel(){
-  const r = room(); walls(r); door(r, 'right', 15, 19); door(r, 'top', 3, 15);
+  const r = room(); walls(r); door(r, 'right', 15, 19); door(r, 'top', 7, 14);
   rect(r, 2, 2, 37, 13);                                          // solid under the tunnel
-  rect(r, 17, 17, 28, 20);                                        // a low stretch: crouch or roll under it
-  stairs(r, 13, 14, 8, -1, 1);                                    // up to the hole in the roof
-  rect(r, 2, 2, 5, 20);                                           // the stair meets the wall: no pit beside its top
-  mark(r, 'burrower', 30, 14); mark(r, 'torch', 33, 18); mark(r, 'crystal', 20, 14);
-  mark(r, 'urn', 34, 14); mark(r, 'urn', 22, 14);
+  rect(r, 19, 17, 30, 20);                                        // a low stretch: crouch or roll under it
+  stairs(r, 15, 14, 9, -1, 1);                                    // steps up through the roof: they come out on the chamber's floor
+  rect(r, 2, 2, 6, 22);                                           // the stair meets the wall: no pit beside its top
+  mark(r, 'burrower', 32, 14); mark(r, 'torch', 34, 18); mark(r, 'crystal', 17, 14);
+  mark(r, 'urn', 35, 14); mark(r, 'urn', 24, 14);
   return r;
 }
 function chamber(){
-  const r = room(); walls(r); door(r, 'bottom', 3, 15); door(r, 'right', 2, 7); door(r, 'top', 26, 32);
-  ledge(r, 3, 15, 1);                                             // over the hole up from the tunnel: jump up through it
-  ledge(r, 12, 18, 5); ledge(r, 22, 28, 9); ledge(r, 10, 16, 13); ledge(r, 24, 32, 16); ledge(r, 26, 32, 20);
-  rect(r, 18, 2, 20, 3);
-  rect(r, 29, 8, 37, 9); rect(r, 29, 15, 37, 16); for (const x of [30, 33, 36]) mark(r, 'keep', x, 11);   // Corwen's cell: a shelf of rock over the east door and a brow over that, off the second plank: he reads where he can see who comes up
-  mark(r, 'flitter', 20, 12); mark(r, 'torch', 11, 15); mark(r, 'torch', 29, 18); mark(r, 'crystal', 30, 2); mark(r, 'crystal', 14, 14); mark(r, 'crawler', 30, 2);
-  mark(r, 'npc', 24, 2, { who: 'scribe' }); mark(r, 'chest', 11, 14, { holds: 'shards' });
+  const r = room(); walls(r); door(r, 'bottom', 7, 14); door(r, 'right', 2, 7); door(r, 'top', 26, 32);
+  rect(r, 6, 1, 6, 1, EMPTY);                                     // the last step of the tunnel's stair, cut in the stairwell's edge
+  // the stair comes up at its west end; the room is across the stairwell (a jump). Up it, all of rock: a boulder, a
+  // stalagmite, a long shelf out of the west wall, a brow out of the east one, and a step under the hole in the roof
+  pier(r, 17, 20, 5); pier(r, 21, 24, 9); shelf(r, 'L', 18, 13); shelf(r, 'R', 26, 15, 1); rect(r, 30, 19, 37, 20);
+  rect(r, 29, 8, 37, 9); for (const x of [30, 33, 36]) mark(r, 'keep', x, 11);   // Corwen's cell: a shelf of rock over the east door, the brow over that: he reads where he can see who comes up
+  mark(r, 'flitter', 20, 14); mark(r, 'torch', 11, 16); mark(r, 'torch', 27, 18); mark(r, 'crystal', 30, 2); mark(r, 'crystal', 14, 14); mark(r, 'crawler', 32, 2);
+  mark(r, 'npc', 28, 2, { who: 'scribe' }); mark(r, 'chest', 11, 14, { holds: 'shards' });
+  for (const x of [23, 26, 29]) mark(r, 'keep', x, 18); for (const x of [4, 8, 12]) mark(r, 'keep', x, 16);
   return r;
 }
 function ascent(){
@@ -116,32 +127,36 @@ function ascent(){
 function gallery(){
   const r = room(); walls(r); door(r, 'left', 16, 20); door(r, 'right', 2, 7);
   rect(r, 2, 2, 12, 15);                                          // the walkway in, high
-  ledge(r, 14, 19, 12); ledge(r, 22, 27, 8);                      // down to the floor
+  rect(r, 13, 10, 17, 11); pier(r, 20, 25, 7);                    // down to the floor: a lip of the walkway's rock, a boulder
   rect(r, 28, 0, 31, 1, EMPTY); rect(r, 28, 0, 31, 0, SPIKES);    // a spiked gap before the well
   rect(r, 16, 19, 18, 20); rect(r, 30, 18, 33, 20);               // teeth in the roof
-  mark(r, 'crawler', 22, 2); mark(r, 'spitter', 35, 13); mark(r, 'torch', 6, 19); mark(r, 'torch', 25, 6); mark(r, 'crystal', 15, 2); mark(r, 'crystal', 36, 2);
+  mark(r, 'crawler', 16, 2); mark(r, 'spitter', 35, 13); mark(r, 'torch', 6, 19); mark(r, 'torch', 27, 6); mark(r, 'crystal', 15, 2); mark(r, 'crystal', 36, 2);
   rect(r, 4, 2, 11, 10, EMPTY); rect(r, 12, 2, 12, 5, CRACKED);         // a nook under the walkway, tall enough to plunge in
-  rect(r, 5, 0, 8, 1, CRACKED);                                       // its floor rotten boards: under them the well-keepers' old ladder, down to the Pithead (oldshaft)
-  mark(r, 'thread', 7, 3); mark(r, 'urn', 20, 2); mark(r, 'crystal', 10, 2);
+  rect(r, 5, 0, 8, 1, CRACKED);                                       // its floor rotten boards: under them the well-keepers' old way, down to the Pithead (oldshaft)
+  mark(r, 'thread', 7, 3); mark(r, 'urn', 18, 2); mark(r, 'crystal', 10, 2);
   return r;
 }
 // two screens tall: ledges up to the arena, and a door halfway up to the grotto
 function well(){
   const r = room(1, 2); walls(r); door(r, 'left', 2, 7); door(r, 'left', 38, 42); door(r, 'top', 30, 36);
   rect(r, 38, 2, 39, 6, CRACKED);                                   // the Ossuary's door, walled up: bones behind it (regions/ossuary.js)
-  [[24, 32, 5], [8, 16, 9], [22, 30, 13], [30, 37, 17], [14, 22, 21], [2, 10, 25], [16, 24, 29], [8, 16, 33], [2, 12, 37], [16, 24, 36], [30, 37, 38], [30, 36, 42]]
-    .forEach(([a, b, y]) => ledge(r, a, b, y));
-  mark(r, 'flitter', 20, 24); mark(r, 'flitter', 26, 36); mark(r, 'spitter', 36, 30);
-  mark(r, 'torch', 34, 8); mark(r, 'torch', 4, 20); mark(r, 'torch', 34, 26); mark(r, 'torch', 20, 42); mark(r, 'crystal', 3, 2); mark(r, 'crystal', 37, 18); mark(r, 'crystal', 3, 26);
+  // the well: a great shaft the water made, climbed from wall to wall on shelves of its own rock, six rows from each
+  // to the next. A boulder at its foot; the fourth shelf has a chest on it; the sixth is the sill of the grotto's door
+  pier(r, 20, 23, 3);
+  shelf(r, 'R', 24, 9); shelf(r, 'L', 21, 13); shelf(r, 'R', 24, 19); shelf(r, 'L', 21, 25); shelf(r, 'R', 24, 31); shelf(r, 'L', 22, 37);
+  shelf(r, 'R', 28, 38); rect(r, 34, 42, 37, 43);                   // across from the sill; and a step under the hole up into the Warden's hall
+  mark(r, 'flitter', 22, 24); mark(r, 'flitter', 23, 40); mark(r, 'spitter', 36, 27);
+  mark(r, 'torch', 34, 12); mark(r, 'torch', 4, 17); mark(r, 'torch', 34, 23); mark(r, 'torch', 20, 42); mark(r, 'crystal', 3, 2); mark(r, 'crystal', 37, 21); mark(r, 'crystal', 3, 26);
   mark(r, 'urn', 12, 2); mark(r, 'chest', 8, 26, { holds: 'shards' });
+  for (const y of [6, 11, 16, 22, 28, 34, 41]) for (const x of [22, 23]) mark(r, 'keep', x, y);
   return r;
 }
 function roost(){
   const r = room(); walls(r); door(r, 'bottom', 26, 32); door(r, 'right', 14, 18);
-  ledge(r, 26, 32, 1);                                            // a step in the hole up from the chamber
-  ledge(r, 16, 22, 5); ledge(r, 5, 11, 8); ledge(r, 14, 20, 11); ledge(r, 27, 37, 13);
-  rect(r, 6, 16, 9, 20); rect(r, 20, 18, 23, 20);                 // hanging rock
-  mark(r, 'flitter', 10, 14); mark(r, 'flitter', 30, 17); mark(r, 'torch', 3, 12); mark(r, 'torch', 34, 4); mark(r, 'crystal', 18, 2); mark(r, 'crystal', 35, 14);
+  // up to the east door: a boulder, a shelf out of the west wall (a chest on it), a stalagmite, the door's own shelf
+  pier(r, 20, 22, 5); pier(r, 15, 19, 9); shelf(r, 'L', 11, 8); shelf(r, 'R', 27, 13);
+  rect(r, 6, 16, 9, 20); rect(r, 20, 19, 23, 20);                 // hanging rock
+  mark(r, 'flitter', 10, 14); mark(r, 'flitter', 30, 17); mark(r, 'torch', 3, 12); mark(r, 'torch', 34, 4); mark(r, 'crystal', 24, 2); mark(r, 'crystal', 35, 14);
   mark(r, 'chest', 7, 9, { holds: 'shards' }); mark(r, 'urn', 30, 14);
   return r;
 }
@@ -149,10 +164,11 @@ function bridge(){
   const r = room(); walls(r); door(r, 'left', 14, 18); door(r, 'right', 14, 18);
   rect(r, 2, 2, 37, 13);                                          // high ground both sides
   rect(r, 10, 2, 29, 13, EMPTY); rect(r, 10, 2, 29, 2, SPIKES);   // a chasm with spikes at the bottom
-  ledge(r, 13, 15, 12); ledge(r, 19, 21, 14); ledge(r, 25, 27, 12);
+  pier(r, 13, 15, 11); pier(r, 19, 21, 13); pier(r, 25, 27, 11);  // the bridge: three pillars of the chasm's own rock
+  for (const x of [11, 17, 23, 28]) for (const y of [4, 8, 11]) mark(r, 'keep', x, y);   // (the chasm between them stays a chasm: the wear would close it)
   rect(r, 15, 18, 17, 20); rect(r, 24, 19, 26, 20);
   rect(r, 2, 19, 10, 20);                                         // the bridge's west gate, roofed: Mirel waits in it, over the chasm he fell down
-  mark(r, 'flitter', 20, 17); mark(r, 'torch', 5, 17); mark(r, 'torch', 34, 17); mark(r, 'crystal', 20, 3); mark(r, 'crystal', 12, 3); mark(r, 'crystal', 28, 3);
+  mark(r, 'flitter', 20, 17); mark(r, 'torch', 5, 17); mark(r, 'torch', 34, 17); mark(r, 'crystal', 17, 3); mark(r, 'crystal', 11, 3); mark(r, 'crystal', 23, 3);
   mark(r, 'urn', 4, 14); mark(r, 'urn', 36, 14);
   return r;
 }
@@ -160,19 +176,19 @@ function bridge(){
 function grotto(){
   const r = room(); walls(r); door(r, 'left', 14, 18); door(r, 'right', 15, 19);
   rect(r, 2, 2, 37, 13); rect(r, 12, 8, 27, 13, EMPTY);           // the floor, and the basin in it
-  ledge(r, 13, 16, 11); ledge(r, 23, 26, 11);                     // steps out of it
+  rect(r, 12, 8, 14, 10); rect(r, 25, 8, 27, 10);                 // steps out of it, cut in its sides
   rect(r, 30, 14, 37, 14);                                        // a step up to the well
-  mark(r, 'shrine', 20, 8); mark(r, 'crystal', 13, 8); mark(r, 'crystal', 26, 8); mark(r, 'crystal', 18, 8);
+  mark(r, 'shrine', 20, 8); mark(r, 'crystal', 16, 8); mark(r, 'crystal', 24, 8); mark(r, 'crystal', 18, 8);
   mark(r, 'torch', 6, 17); mark(r, 'torch', 33, 18);
-  mark(r, 'npc', 23, 8, { who: 'lamplighter' });
+  mark(r, 'npc', 22, 8, { who: 'lamplighter' });
   return r;
 }
 // the top: a vast cavern over a long stage. The Warden rises at the back of it; the way on opens when it falls
 function arena(){
   const r = room(2, 2); walls(r); door(r, 'bottom', 70, 76);
   rect(r, 2, 2, 77, 8);                                           // the stage
-  rect(r, 70, 0, 76, 8, EMPTY); ledge(r, 70, 76, 1); ledge(r, 70, 76, 5); ledge(r, 70, 76, 8);   // up through it
-  ledge(r, 9, 17, 15); ledge(r, 62, 70, 15);                      // high ground at either end, out of the sweep
+  rect(r, 70, 0, 76, 8, EMPTY); rect(r, 70, 2, 72, 3);                                           // up through it: a step left in the hole
+  ledge(r, 9, 17, 15); ledge(r, 61, 69, 15);                      // high ground at either end, out of the sweep (stagings: on a strut and posts)
   door(r, 'right', 33, 38); rect(r, 64, 32, 77, 32);              // the deadhouse stair from the Ossuary comes out on a shelf too high to climb back to
   mark(r, 'boss', 40, 9); mark(r, 'exit', 6, 9);
   // the way up is in a niche at the stage's end, walled with cracked stone: the first thing the spade the Warden leaves
@@ -410,6 +426,7 @@ const QUIET = new Set(REGIONS.flatMap(r => r.quiet || []));   // a boss's stage 
 // where the wear (organic) left a place he could wedge into and never leave, filled: found by the stuck-finder
 // (tests/helpers/stuck.mjs; tests/side-stuck.test.mjs fails on any new one). Whole tiles, x0 y0 x1 y1, by region
 const FILL = {
+  0: [[92, 125, 92, 127]],     // the Warden's hall: a notch the wear leaves high in the west wall
   1: [[64, 109, 64, 112]],     // the Cloister's cells: a notch beside the narrow shaft
   2: [[107, 150, 107, 153]],   // the Spires' teeth: a tooth of rock under an overhang
 };
