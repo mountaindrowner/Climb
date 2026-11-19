@@ -303,5 +303,7 @@ gone over again.
   browser.
 - **The sounds added since phase 9 are unheard.**
 - The pause menu's lower buttons overlap the controls' help at a small window (seen in build 63; older).
+- **The Thornback (the Gardens' boar) is drawn at an angle,** not side-on (you saw it, 19 Nov 2026). To be redrawn:
+  `docs/pixellab-wishlist.md`, "To redo".
 - The Toll's keeper check has one row that fails (standing still in its second half is not hurt). Older than phase 9;
   not looked into.

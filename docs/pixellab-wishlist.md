@@ -51,3 +51,11 @@ wing's sheet is written. Roughly $10 to $20 in all, so these wait for the genera
 |---|---|---|
 | ~~The copyist, the blot, the Corrector~~ made, build 60 (`px_copyist`, `px_blot`, `px_corrector`) | The Scriptorium | $0.30 spent |
 | The Bell-Foundry's slag (drawn, build 61: $0.05); its tongues and the Cracked Bell are drawn in code, the Bell from the Toll's pieces | Phase 10, second half | done |
+
+## To redo
+
+- **The Thornback (the Gardens' boar)** (yours, 19 Nov 2026). Its drawing is turned part-way toward the viewer, not a
+  flat side view like everything else, so it looks wrong facing left or right. Replace it: a new character in strict
+  side profile, with the same animations it has now (`assets/side/px_thornback`), so nothing in the game's code
+  changes but the pictures. About $0.10. Check the other creatures for the same fault while doing it.
+

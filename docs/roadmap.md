@@ -455,6 +455,35 @@ the wings' own (the Sexton, the Corrector, the Cracked Bell, and those still to 
 **If these are to be in the release,** the release step at the end of phase 20 waits until this phase is done. The rest
 of phase 20 (the phone, the polish passes) does not depend on it.
 
+## Phase 22: a puzzle in every section, and one great one
+
+*Added 2026-11-19, on your word: "I'd like to have some puzzles... every section to have a puzzle", and "some big
+puzzles that unlock really cool stuff... a more cryptic, hinted-at puzzle that has to be pieced together".*
+
+Not designed yet. This is what was asked for, written down so it is built to, with nothing decided that you have not
+decided.
+
+**Two kinds.**
+
+- **One puzzle in every section.** Each level, and each wing, gets a puzzle of its own: something worked out, not
+  fought and not jumped. Small enough to solve in the room it is in, and made of that place, the same way the
+  minibosses are. Its prize is ordinary (a thread, a chest, a short way round).
+- **One great puzzle, across the whole mountain.** Cryptic, but hinted: its pieces are in plain sight in several
+  sections, and nobody is told they belong together. It has to be pieced together. Its prize is something he can get
+  no other way and would not want to be without: you named the summoning item (below, under ideas) or a weapon.
+
+**What is already there to build on.** Several wings' rules are close to puzzles already: the doors of cloud that open
+only to one who waits, the house that is open only to one who has broken nothing, the fires and the ice, the sluice
+wheels. The roadmap's own "knowledge gates" (phases 10 to 14) are the same idea. This phase would give every section
+one on purpose, and tie some of them into the great one.
+
+**To settle with you before any of it is built:**
+- What the great puzzle's prize is: the summoning item, a weapon, or both in turn.
+- How cryptic. "Hinted at, not super hidden" is the instruction: so every piece is somewhere he will walk past, and
+  at least one person on the mountain says something that points at it.
+- Whether the Deep's sections get theirs here or with phases 15 to 17.
+- Whether it has to be in the release (if so, the release step waits for it, as it does for the minibosses).
+
 ## Ideas kept for later
 
 Not planned, not designed: written down so they are not lost. Each needs its own talk before it becomes a phase.
@@ -462,7 +491,8 @@ Not planned, not designed: written down so they are not lost. Each needs its own
 - **An item that takes what he kills and calls it back on his side** (yours, 18 Nov 2026). He kills a creature, the
   item keeps it, and he can summon it to fight for him. Open questions for when it is fleshed out: how many he can
   hold, whether a summoned one is spent or returns, what it costs (embers are the natural price), whether elites and
-  wing keepers can be taken, and where on the mountain he finds it.
+  wing keepers can be taken, and where on the mountain he finds it. *19 Nov 2026: you named this as a likely prize
+  for the great puzzle of phase 22.*
 
 ## The order, and why
 
@@ -474,6 +504,8 @@ Not planned, not designed: written down so they are not lost. Each needs its own
 5. Phases **19 and 20** finish and ship it.
 6. Phase **21** adds a miniboss to every level. It is last because each one is cut into a level that is otherwise
    finished, and is fought with everything he has by then.
+7. Phase **22** adds a puzzle to every section, and one great puzzle across all of them. It is after everything
+   else for the same reason: its pieces are set into sections that are otherwise finished.
 
 Content waits on the rules because otherwise each rule change would mean revisiting every room built before it. That
 is the rework this order avoids.
