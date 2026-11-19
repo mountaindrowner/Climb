@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 74 | 19 Nov 2026 | `COMMIT74` | The Hollow, the Auger, the grip, the Source (phase 17) | no | yes (now) |
+| 74 | 19 Nov 2026 | `ba84266` | The Hollow, the Auger, the grip, the Source (phase 17) | no | yes (now) |
 | 73 | 19 Nov 2026 | `18a5cde` | The Flooded Levels, the Great Shaft, travel through the water (phase 16) | no | yes (now) |
 | 72 | 19 Nov 2026 | `1a53c35` | The lamp, and the Vein (phase 15): the dark | no | yes (now) |
 | 71 | 19 Nov 2026 | `aaae08a` | The Orrery Wing (phase 14); things that move and carry him | no | yes (now) |
