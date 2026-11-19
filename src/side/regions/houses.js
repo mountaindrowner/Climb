@@ -164,10 +164,13 @@ export const ai = {
   },
   moth(e, P, dt, c){
     const d = e.d; e.fr = ((e.fr || 0) + dt * 3) % 1; e.ph = (e.ph || e.home.x * 1.7) + dt * 7;
+    if (!e.rm) e.rm = (c.rooms || []).find(r => e.home.x >= r.x0 && e.home.x < r.x1 && e.home.y >= r.y0 && e.home.y < r.y1) || { x0: -1e9, x1: 1e9, y0: -1e9, y1: 1e9 };
+    const here = P.x > e.rm.x0 && P.x < e.rm.x1 && P.y > e.rm.y0 - 0.5 && P.y < e.rm.y1;   // it keeps to its own room: it does not come through a floor for him
+    if (e.st === 'back' && !here) c.go('idle');
     if (e.st === 'back'){ const a = Math.atan2(e.y - (P.y + 1.8), e.x - P.x); e.x += Math.cos(a) * d.back * dt; e.y += Math.sin(a) * d.back * dt + Math.sin(e.ph) * dt; if (e.tm > 0.9) c.go('come'); }
     else if (e.st === 'come'){ const tx = P.x, ty = P.y + 1.9, L = Math.hypot(tx - e.x, ty - e.y) || 1, s = Math.min(L, d.speed * dt); e.x += (tx - e.x) / L * s + Math.cos(e.ph * 0.7) * dt * 1.2; e.y += (ty - e.y) / L * s + Math.sin(e.ph) * dt * 1.6; e.face = Math.sign(tx - e.x) || e.face;
-      if (L < 0.6 && !c.isRollInv(P) && c.hurt(P, 1, e.x, d.word)) c.go('back'); if (c.dist > d.wake * 2.4) c.go('idle'); }
-    else { if (e.st !== 'idle') c.go('idle'); e.x += (e.home.x + Math.cos(e.ph * 0.4) * 0.5 - e.x) * Math.min(1, dt * 2); e.y += (e.home.y + Math.sin(e.ph * 0.6) * 0.3 - e.y) * Math.min(1, dt * 2); if (c.dist < d.wake && Math.abs(c.dy) < 4){ c.go('come'); c.events.push({ type: 'notice', e }); } }
+      if (L < 0.6 && !c.isRollInv(P) && c.hurt(P, 1, e.x, d.word)) c.go('back'); if (c.dist > d.wake * 2.4 || !here) c.go('idle'); }
+    else { if (e.st !== 'idle') c.go('idle'); e.x += (e.home.x + Math.cos(e.ph * 0.4) * 0.5 - e.x) * Math.min(1, dt * 2); e.y += (e.home.y + Math.sin(e.ph * 0.6) * 0.3 - e.y) * Math.min(1, dt * 2); if (here && c.dist < d.wake && Math.abs(c.dy) < 4){ c.go('come'); c.events.push({ type: 'notice', e }); } }
     c.anim(e, 'fly', e.fr);
   },
   housekeeper(e, P, dt, c){

@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Keepers' Houses (latest; phase 13, build 69): the Gardens' east wing.** `docs/phase13-sheet.md` has all of it.
+**A mend (latest; build 70).** In the Keepers' Houses a moth came through a floor for him. Each now keeps to its own room.
+
+**The Keepers' Houses (phase 13, build 69): the Gardens' east wing.** `docs/phase13-sheet.md` has all of it.
 - **Eight screens east of the arbor,** through a shuttered gate the Toll's step tears. Where the keepers of the flame lived: every house kept, beds made, tables laid, fires laid and not lit.
 - **Its rule: disturb nothing.** The things on the tables and shelves break like anything else and pay a few shards. But a broken thing is out of its place: the Housekeeper comes by the servants' doors to set it right and strikes whoever is near, and his own house is shut until it is.
 - **Two ways into his house:** touch nothing, and its door is open. Or break the Housekeeper.

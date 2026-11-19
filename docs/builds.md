@@ -50,6 +50,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 70 | 19 Nov 2026 | `COMMIT70` | A mend to 69: the moths keep to their own rooms | no | yes (now) |
 | 69 | 19 Nov 2026 | `b21499c` | The Keepers' Houses (phase 13, second half) | no | yes (now) |
 | 68 | 19 Nov 2026 | `d38c09e` | The Aqueducts (phase 13, first half) | **moved** (the Gardens) | yes (now) |
 | 67 | 19 Nov 2026 | `df2ecd3` | The Eye of the Storm (phase 12, second half); four relics that did nothing, fixed | no | yes (now) |
@@ -80,6 +81,19 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 70: a mend to 69
+
+- **For the player:** in the Keepers' Houses a moth no longer comes through a floor or a ceiling for him. Each keeps
+  to its own room, and goes back to its lamp when he leaves it.
+- **Why so soon:** I saw it in the picture I took of build 69 for you, after 69 had gone out: a moth from the long
+  table was up in the lane, through the floor. It is the same fault the Hush had in the Eye of the Storm, and I
+  should have carried that lesson over. Build 69 is otherwise the same as this one.
+- **Underneath:** four lines in the moth's turn in `src/side/regions/houses.js`; one more case in its check.
+- **Save:** nothing.
+- **Checked:** 304 automated checks (the moth's check now also holds it to its room); the zip opened, the title and
+  every region.
+- **Not checked:** not played by hand; no new play-through in the test browser for this mend.
 
 ### Build 69: the Keepers' Houses
 

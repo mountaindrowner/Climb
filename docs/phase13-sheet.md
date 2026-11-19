@@ -190,6 +190,8 @@ the servants' doors are drawn in code. **Cost: $0.11; the balance is $2.61.**
   - While making that change I broke a line of the creatures' code. The syntax check caught it before anything ran.
   - The Lock and the Housekeeper shared one switch for "this wing's keeper is down": breaking either would have
     opened the other's door. Found while writing the build log; the Housekeeper has its own now.
+  - **After build 69 went out:** a moth came through the lane's floor from the long table. Each moth now keeps to
+    its own room (build 70).
 - **Not as the plan had it:**
   - The wing is not locked behind the Toll's step. The back way is a second way in for one who finds it, and by the
     Gardens he has the step anyway.

@@ -56,6 +56,7 @@ test('struck, it does not forgive: it comes for him, floor to floor; out of the 
 test('a moth sleeps by its lamp; woken, it comes at his head and bites, and draws off', () => {
   const e = mk('moth', 0, 3), far = turn(e, FAR, 2); assert.equal(e.st, 'idle'); assert.equal(far.hurts.length, 0); assert.ok(Math.abs(e.x) < 1.2);
   const e2 = mk('moth', 0, 3), near = turn(e2, { x: 2, y: 0, h: 2.4 }, 4); assert.ok(near.hurts.includes('Bitten')); assert.ok(near.hurts.length <= 3); assert.equal(HO.enemies.moth.hp, 1);
+  const rooms = [{ x0: -10, x1: 10, y0: 1, y1: 12 }], e3 = mk('moth', 0, 3), under = turn(e3, { x: 0.5, y: -1.5, h: 2.4 }, 4, { rooms }); assert.equal(e3.st, 'idle', 'he is under its floor, in the next room'); assert.equal(under.hurts.length, 0);
 });
 test('in his house: the Second Place. One heart more', () => {
   const h = room('hishouse'); assert.ok(L.marks.some(m => m.type === 'chest' && m.holds === 'relic:place' && inRoom(m, h))); assert.ok(L.marks.some(m => m.type === 'deco' && m.kind === 'table2' && inRoom(m, h))); assert.equal(L.marks.filter(m => m.type === 'setting' && inRoom(m, h)).length, 2, 'laid for two');
