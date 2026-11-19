@@ -1,7 +1,7 @@
 // What stands in the world and changes: star-glass ledges that keep time, blooms that throw him, rising air, and cracked
 // rock that breaks. The painted layers leave these out (render.js, paintAt); they are drawn here, small meshes over them.
 //   makeProps(scene, R) -> { step(dt, t, P), bounce(mark), breakAt(x, y, r) -> [{ id, x, y }], breakId(id), cracks }
-import { T, LEVEL, CRACKED, GLASS_A, GLASS_B, EMPTY, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, flowOn, liveAt, RULE, rawAt, glassOn, gustOn, PHASE } from './level.js';
+import { T, LEVEL, CRACKED, GLASS_A, GLASS_B, EMPTY, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, flowOn, liveAt, RULE, rawAt, glassOn, gustOn, PHASE } from './level.js';
 import { PPU, PAL, lit, themeNow } from './render.js';
 const THREE = window.THREE;
 const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
@@ -320,24 +320,25 @@ export function makeProps(scene, R){
       else { const map = sheet(); map.repeat.set(w * PPU / 16, h * PPU / 32); const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), basic(map, { opacity: 0.55 })); m.position.set(f.x0 + w / 2, f.y0 + h / 2, 0.05); scene.add(m);
         const foam = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.5, 0.5), basic(null, { color: 0xffffff, blending: THREE.AdditiveBlending, opacity: 0.5 })); foam.position.set(f.x0 + w / 2, f.y0 + 0.25, 0.051); scene.add(foam); streams.push({ f, m, map, foam, k: 2.6 }); } }
   }
-  const held = [], doors = [], shutters = [], grates = [];
-  { const seen2 = new Uint8Array(W * H), kind = t => t === HOLD || t === GIVEN ? 1 : t === DOOR ? 2 : t === SHUTTER ? 3 : t === STILLED ? 4 : 0;
+  const held = [], doors = [], shutters = [], grates = [], kepts = [];
+  { const seen2 = new Uint8Array(W * H), kind = t => t === HOLD || t === GIVEN ? 1 : t === DOOR ? 2 : t === SHUTTER ? 3 : t === STILLED ? 4 : t === KEPT ? 5 : 0;
     for (let j = 0; j < H; j++) for (let i = 0; i < W; i++){
       const k = kind(rawAt(i, j)); if (!k || seen2[j * W + i]) continue;
       const tiles = [], st = [[i, j]]; seen2[j * W + i] = 1; let x0 = i, x1 = i, y0 = j, y1 = j, given = [];
       while (st.length){ const [a, b] = st.pop(); tiles.push([a, b]); if (rawAt(a, b) === GIVEN) given.push([a, b]); x0 = Math.min(x0, a); x1 = Math.max(x1, a); y0 = Math.min(y0, b); y1 = Math.max(y1, b);
         for (const [da, db] of [[1, 0], [-1, 0], [0, 1], [0, -1]]){ const na = a + da, nb = b + db; if (na >= 0 && nb >= 0 && na < W && nb < H && !seen2[nb * W + na] && kind(rawAt(na, nb)) === k){ seen2[nb * W + na] = 1; st.push([na, nb]); } } }
-      const w = x1 - x0 + 1, h = y1 - y0 + 1, look = k === 3 ? 'iron' : k === 4 ? 'grate' : k === 2 ? 'door' : tiles.some(([a, b]) => SEAL.has(a + ',' + b)) ? 'stone' : LEVEL.theme === 'roots' && h <= 3 && given.length === 0 ? 'slab' : LEVEL.theme === 'gardens' ? 'thorn' : 'stone';
+      const w = x1 - x0 + 1, h = y1 - y0 + 1, look = k === 3 ? 'iron' : k === 4 ? 'grate' : k === 2 || k === 5 ? 'door' : tiles.some(([a, b]) => SEAL.has(a + ',' + b)) ? 'stone' : LEVEL.theme === 'roots' && h <= 3 && given.length === 0 ? 'slab' : LEVEL.theme === 'gardens' ? 'thorn' : 'stone';
       const m = new THREE.Mesh(new THREE.PlaneGeometry(w * T, h * T), lit({ map: holdTex(w, h, look, i * 131 + j * 17 + 9), transparent: look === 'grate', alphaTest: look === 'grate' ? 0.5 : 0 })); m.position.set((x0 + w / 2) * T, (y0 + h / 2) * T, 0.012); scene.add(m);
       const B = { look, tiles, m, x: m.position.x, y: m.position.y, w: w * T, h: h * T, x0: x0 * T, x1: (x1 + 1) * T, y0: y0 * T, y1: (y1 + 1) * T, plank: null, stub: null };
       if (given.length){ const gx0 = Math.min(...given.map(q => q[0])), gx1 = Math.max(...given.map(q => q[0])), gy = given[0][1], pw = gx1 - gx0 + 1; B.plank = new THREE.Mesh(new THREE.PlaneGeometry(pw * T, 5 / PPU), basic(plankTex(pw), { opacity: 1 })); B.plank.position.set((gx0 + pw / 2) * T, (gy + 1) * T - 2.5 / PPU, 0.012); scene.add(B.plank); }
       if (k === 2){ B.stub = new THREE.Mesh(new THREE.PlaneGeometry(w * T, T), lit({ map: holdTex(w, 1, 'door', i * 7 + 3), transparent: false })); B.stub.position.set(B.x, B.y1 - T / 2, 0.012); scene.add(B.stub); doors.push(B); }
       else if (k === 3){ if (h > w){ B.stub = new THREE.Mesh(new THREE.PlaneGeometry(w * T, T), lit({ map: holdTex(w, 1, 'iron', i * 7 + 5), transparent: false })); B.stub.position.set(B.x, B.y1 - T / 2, 0.012); scene.add(B.stub); } shutters.push(B); }   // a shutter: up in its doorway (its foot showing) until iron rings
       else if (k === 4) grates.push(B);
+      else if (k === 5) kepts.push(B);   // the door of his house: shut while anything in the houses is out of its place
       else held.push(B);
     } }
   const showHeld = () => { for (const B of held){ B.m.visible = !RULE.fallen; if (B.plank) B.plank.visible = RULE.fallen; } for (const B of doors){ const shut = RULE.shut && !RULE.fallen; B.m.visible = shut; B.stub.visible = !shut; }
-    for (const B of shutters){ const shut = RULE.ring > 0 && !RULE.still; B.m.visible = shut; if (B.stub) B.stub.visible = !shut; } for (const B of grates) B.m.visible = !RULE.still; for (const B of ways) B.m.visible = !RULE.turned; for (const B of ices) B.m.visible = !(RULE.litAll || RULE.lit.has(B.fire)); };
+    for (const B of shutters){ const shut = RULE.ring > 0 && !RULE.still; B.m.visible = shut; if (B.stub) B.stub.visible = !shut; } for (const B of grates) B.m.visible = !RULE.still; for (const B of kepts) B.m.visible = RULE.upset > 0 && !RULE.unkept; for (const B of ways) B.m.visible = !RULE.turned; for (const B of ices) B.m.visible = !(RULE.litAll || RULE.lit.has(B.fire)); };
   RULE.shut = false; showHeld(); let bellT = 1.2;
   // ---- the storm's gantries (live decks): each run an iron grating; while the storm rules it spits
   const decks = [];
@@ -438,7 +439,7 @@ export function makeProps(scene, R){
     bounce(mk){ const B = blooms.find(b => b.mk === mk); if (B) B.t = 0; },
     // everything cracked within r of (x, y) breaks; returns what broke
     breakAt(x, y, r){ const out = []; for (const C of cracks){ if (C.gone) continue; const dx = Math.max(Math.abs(x - C.x) - C.w / 2, 0), dy = Math.max(Math.abs(y - C.y) - C.h / 2, 0); if (Math.hypot(dx, dy) <= r){ shatter(C); out.push(C); } } return out; },
-    held, doors, decks, rods, sheets, shutters, grates, ways, ices, calms, streams, show: showHeld,   // show: the rule has changed (a ring begun or ended, the wing gone still): what is shut is drawn shut
+    held, doors, decks, rods, sheets, shutters, grates, ways, ices, calms, streams, kepts, show: showHeld,   // show: the rule has changed (a ring begun or ended, the wing gone still): what is shut is drawn shut
     // the sheets of vellum his body is in or against (he is in the Toll's step): torn. Returns them
     tear(P){ const out = []; for (const S of sheets) if (!S.gone && P.x + 0.6 > S.x0 && P.x - 0.6 < S.x1 && P.y + 2.4 > S.y0 && P.y < S.y1){ rip(S); out.push(S); } return out; },
     // the keeper has fallen (main.js has set RULE.fallen): what it held is let go. Returns the blocks, for their dust

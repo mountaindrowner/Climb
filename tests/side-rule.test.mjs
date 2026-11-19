@@ -45,5 +45,6 @@ test('the Tempest: three rods on the way up, and a shaft of live gantries that i
 });
 test('the Gardens: four ways up choked with thorn; withered, they are the quick way', () => {
   const L = { ...R.loadLevel(4) }; assert.equal(count(L, GIVEN), 16, 'boards over four mouths');
-  const a = way(4, R.GIFTS), b = way(4, [...R.GIFTS, 'fallen']); assert.ok(b.units < a.units * 0.75, `fallen ${Math.round(b.units)} units, standing ${Math.round(a.units)}`);
+  // (a fifth shorter, where this once asked a quarter: since build 69 the Keepers' Houses' back way is a short way up for one who has not felled her, too. It is meant to be)
+  const a = way(4, R.GIFTS), b = way(4, [...R.GIFTS, 'fallen']); assert.ok(b.units < a.units * 0.8, `fallen ${Math.round(b.units)} units, standing ${Math.round(a.units)}`);
 });

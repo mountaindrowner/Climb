@@ -562,7 +562,7 @@ Elite: *the Lock*, a great gate that fights as it opens.
 shortcut to the wellspring).
 
 ### The Keepers' Houses
-*Gardens, east · 9 screens · the Toll's step*
+*Gardens, east · 8 screens (built, build 69; the plan said 9) · the Toll's step*
 
 **History.** Where the keepers of the flame lived: his house among them. They left after the dark. The house's servants
 did not.

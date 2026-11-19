@@ -351,6 +351,10 @@ wellspring, open to anyone. Running water that carries him and bars a climb wher
 keepers that put them back; the Lock; the Carrier's Yoke; out by the spill. Still to do in phase 13: the Keepers'
 Houses.*
 
+*Phase 13, second half, done (build 69): **the Keepers' Houses**. Eight screens east of the arbor. Disturb nothing: a
+broken setting brings the Housekeeper by its servants' doors and shuts his own house until it is set right. The
+Second Place. Phase 13 is done.*
+
 Built two regions at a time. **Spaces, not rectangles** (decision 0.8): each wing has at least one vast space, one
 winding way, and one path no one expects, each shaped by what the place was. Each wing gets its sheet first: its rooms, what each room is for, its gate and shortcut,
 its creatures, its elite, its one moment, its relic, and a weapon (the Ember plan's step 4) where one fits. Each

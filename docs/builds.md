@@ -50,6 +50,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 69 | 19 Nov 2026 | `COMMIT69` | The Keepers' Houses (phase 13, second half) | no | yes (now) |
 | 68 | 19 Nov 2026 | `d38c09e` | The Aqueducts (phase 13, first half) | **moved** (the Gardens) | yes (now) |
 | 67 | 19 Nov 2026 | `df2ecd3` | The Eye of the Storm (phase 12, second half); four relics that did nothing, fixed | no | yes (now) |
 | 66 | 19 Nov 2026 | `b3ff915` | The Wreck of the Works (phase 12, first half) | **moved** (the Tempest) | yes (now) |
@@ -79,6 +80,35 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 69: the Keepers' Houses
+
+- **For the player:** the Gardens' east wing, eight screens, through a shuttered gate in the arbor that the Toll's
+  step tears. Kept houses where breaking anything is the mistake: a broken setting brings the Housekeeper by its
+  servants' doors, and shuts his own house until it is set right. Moths. The Second Place (one heart more). A back
+  way out onto the cascade's high terrace. All of it in `docs/phase13-sheet.md`.
+- **Underneath:** new `src/side/regions/houses.js`; a new tile (the door of his house, 19) in `rooms.js`, `level.js`
+  (`RULE.upset`), `props.js`; the count of things out of place, the events and the Housekeeper's end in `main.js`;
+  `maxHearts` counts the relic in `state.js`; a creature's definition can now say `wakeful` (never asleep) in
+  `enemies.js`; a gate cut through the arbor's east pier and a door through the cascade's east wall. New art:
+  `assets/side/px_housekeeper`, `px_moth`.
+- **Save: not moved** (the rooms are cut into columns the Gardens already had). Adds: the relic, each setting's
+  shards paid (in `broke`), the Housekeeper broken (`unkept`), and one word said.
+- **Found while writing this entry, and fixed before the build went out:** the Gardens now have two wing keepers,
+  the Lock and the Housekeeper, and there was one switch for "this region's wing keeper is down". Breaking the
+  Housekeeper would have opened the Lock's gate and stood its sluice-keepers down; opening the Lock would have opened
+  his house. The Housekeeper has its own switch now (`unkept`), a check holds the two apart, and a broken Housekeeper
+  stays broken when he comes back.
+- **A side effect on the Gardens themselves, and an older check changed for it:** the back way is a short way up
+  toward the bower for anyone, not only after Mother Thorn falls. An older check said the withered thorn ways make
+  the way to her at least a quarter shorter; with the back way there the gain is 23% (152 units against 197). The
+  back way is meant to be a shortcut, so I kept it and the check now asks for a fifth. If the Gardens should stay
+  the long way round until she falls, the back way's door is the thing to shut.
+- **Checked:** 304 automated checks, ten of them the wing's; a play-through in the test browser (the gate, the
+  calm Housekeeper, a setting broken and set right two floors up, the Housekeeper wronged and broken, the quiet way,
+  the relic, his own table, the back way); the zip opened, the title and every region.
+- **Not checked:** not played by hand; the sounds.
+- **Cost:** $0.11 (the Housekeeper and the moth).
 
 ### Build 68: the Aqueducts
 

@@ -37,6 +37,8 @@ export const ANNALS = [
       { type: 'spark', name: 'Ball Lightning', art: 'px_spark', line: 'Lightning that will not finish falling.' } ] },
   { region: 'The Gardens', keeper: { theme: 'gardens', art: 'mother/heart', name: 'Mother Thorn', line: 'What the garden grew, untended.' },
     creatures: [
+      { type: 'moth', name: 'Moth', art: 'px_moth', line: 'It sleeps by a lamp that is trimmed every evening, for no one.' },
+      { type: 'housekeeper', name: 'The Housekeeper', art: 'px_housekeeper', line: 'It lays every table and makes every bed. They are not coming.' },
       { type: 'sluicer', name: 'Sluice-keeper', art: 'px_sluicer', line: 'A servant of the house, in stone. It puts each wheel back as it was left.' },
       { type: 'strider', name: 'Water-strider', art: 'px_strider', line: 'Fast on running water. With its water stopped, it sits where it was left.' },
       { type: 'lock', name: 'The Lock', art: 'px_lock', line: 'The gate between the channel and the head. It opens fighting.' },

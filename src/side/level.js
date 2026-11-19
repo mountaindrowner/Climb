@@ -4,7 +4,7 @@
 // other: the Roots (caves), the Cloister (a ruined monastery), the Spires (ice, and the high pass), then, each in its own
 // file under regions/, the Tempest (the storm round the mountain), the Gardens (above the cloud) and the Firmament (the
 // summit, among the stars). One is in play at a time (LEVEL; loadLevel changes it).
-import { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, room, put, rect, walls, door, ledge, stairs, mark, open, den } from './rooms.js';
+import { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, room, put, rect, walls, door, ledge, stairs, mark, open, den } from './rooms.js';
 import tempest from './regions/tempest.js';
 import gardens from './regions/gardens.js';
 import firmament from './regions/firmament.js';
@@ -19,10 +19,11 @@ import * as REFECTORY from './regions/refectory.js';
 import * as WORKS from './regions/works.js';
 import * as EYE from './regions/eye.js';
 import * as AQUEDUCTS from './regions/aqueducts.js';
+import * as HOUSES from './regions/houses.js';
 // the wings set into a region after it is built (so the region itself is not changed): by region, { left: columns added
 // to its west, build(X) }
-const WINGS = { 1: [SCRIPTORIUM.wing, FOUNDRY.wing, REFECTORY.wing], 2: [CAIRNS.wing, GLACIER.wing], 3: [WORKS.wing, EYE.wing], 4: [AQUEDUCTS.wing] };   // a region's wings: each `left` columns added west of it or `right` columns east, and what it builds there
-export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM };
+const WINGS = { 1: [SCRIPTORIUM.wing, FOUNDRY.wing, REFECTORY.wing], 2: [CAIRNS.wing, GLACIER.wing], 3: [WORKS.wing, EYE.wing], 4: [AQUEDUCTS.wing, HOUSES.wing] };   // a region's wings: each `left` columns added west of it or `right` columns east, and what it builds there
+export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT };
 
 // ---- the first region: up from the bottom of the mountain
 function start(){
@@ -387,7 +388,7 @@ const REGIONS = [
       [0, 5, eyrie, 2, 1], [2, 5, span], [0, 6, crown, 2, 2]], cols: 3 },
   // each in its own file (regions/); the Tempest with what its wing brings (regions/works.js)
   { ...tempest, quiet: [...tempest.quiet, ...WORKS.QUIET, ...EYE.QUIET], enemies: { ...tempest.enemies, ...WORKS.enemies, ...EYE.enemies }, ai: { ...tempest.ai, ...WORKS.ai, ...EYE.ai }, deco: (px, PAL) => ({ ...tempest.deco(px, PAL), ...WORKS.decoDef(px, PAL), ...EYE.decoDef(px, PAL) }), looksDef: EYE.looks },
-  { ...gardens, quiet: [...(gardens.quiet || []), ...AQUEDUCTS.QUIET], enemies: { ...gardens.enemies, ...(AQUEDUCTS.enemies || {}) }, ai: { ...gardens.ai, ...(AQUEDUCTS.ai || {}) }, deco: (px, PAL) => ({ ...gardens.deco(px, PAL), ...AQUEDUCTS.decoDef(px, PAL) }), looksDef: AQUEDUCTS.looks },   // the Gardens with what their wing brings (regions/aqueducts.js)
+  { ...gardens, quiet: [...(gardens.quiet || []), ...AQUEDUCTS.QUIET, ...HOUSES.QUIET], enemies: { ...gardens.enemies, ...AQUEDUCTS.enemies, ...HOUSES.enemies }, ai: { ...gardens.ai, ...AQUEDUCTS.ai, ...HOUSES.ai }, deco: (px, PAL) => ({ ...gardens.deco(px, PAL), ...AQUEDUCTS.decoDef(px, PAL), ...HOUSES.decoDef(px, PAL) }), looksDef: { ...AQUEDUCTS.looks, ...HOUSES.looks } },   // the Gardens with what their wing brings (regions/aqueducts.js)
   firmament,
   workings,   // the Deep: off the climb, under it (deep: true)
 ];
@@ -601,7 +602,7 @@ function build(n){
         if (j1 - j >= 3){ for (let y = j; y <= j1; y++) for (const d of [-1, 0]) set(bx + d, y, v); out.push({ x: bx, y: j, top: j1 }); } j = j1; }
       return out; };
     const addMarks = list => { mountTorches(tiles, W, H, list); marks.push(...list); };
-    const X = { set, at, W, H, X0, Y0, rooms, marks, roomOf, addRoom, lintel, doorway, addMarks, tile: { EMPTY, ROCK, LEDGE, SPIKES, CRACKED, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM } };
+    const X = { set, at, W, H, X0, Y0, rooms, marks, roomOf, addRoom, lintel, doorway, addMarks, tile: { EMPTY, ROCK, LEDGE, SPIKES, CRACKED, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT } };
     if (WING) for (const w of WING) w.build(X);
     if (RULES[n]) RULES[n](X);
   }
@@ -751,7 +752,7 @@ loadLevel(typeof location !== 'undefined' && location.search ? (parseInt(new URL
 // raises low humps along long floors. The same every load (a fixed seed).
 function organic(tiles, W, H, marks, rooms, seed0 = 1234567, wear = { sag: 1, swell: 1, humps: 0.8 }){
   let seed = seed0; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647, ri = (a, b) => a + Math.floor(rnd() * (b - a + 1));
-  const at = (i, j) => { if (i < 0 || j < 0 || i >= W || j >= H) return ROCK; const t = tiles[j * W + i]; return t === CRACKED || t === HOLD || t === GIVEN || t === DOOR || t === VELLUM || t === STILLED ? ROCK : t === SHUTTER || t === MELT || t === CALM ? EMPTY : t === FACED || t === IRON_A || t === IRON_B ? LEDGE : t === GLASS_A || t === GLASS_B ? LEDGE : t; };   // cracked rock is rock (and what a keeper holds), star-glass a ledge
+  const at = (i, j) => { if (i < 0 || j < 0 || i >= W || j >= H) return ROCK; const t = tiles[j * W + i]; return t === CRACKED || t === HOLD || t === GIVEN || t === DOOR || t === VELLUM || t === STILLED ? ROCK : t === SHUTTER || t === MELT || t === CALM || t === KEPT ? EMPTY : t === FACED || t === IRON_A || t === IRON_B ? LEDGE : t === GLASS_A || t === GLASS_B ? LEDGE : t; };   // cracked rock is rock (and what a keeper holds), star-glass a ledge
   const set = (i, j, v) => { if (i > 0 && j > 0 && i < W - 1 && j < H - 1) tiles[j * W + i] = v; };
   const air = (i, j) => at(i, j) === EMPTY, rock = (i, j) => at(i, j) === ROCK, support = (i, j) => { const t = at(i, j); return t === ROCK || t === LEDGE; };
   const stand = (i, j) => air(i, j) && support(i, j - 1);
@@ -856,7 +857,8 @@ function organic(tiles, W, H, marks, rooms, seed0 = 1234567, wear = { sag: 1, sw
 export const PHASE = { t: 0, period: 2.4, all: false };
 // the region's keeper: has it fallen (what it held is let go); are the doors on its bell's beat shut just now (props.js
 // turns them; in a test they are open: he waits)
-export const RULE = { fallen: false, shut: false, tearing: false, ring: 0, still: false, turned: false, lit: new Set(), litAll: false, sw: 0, surge: 0, swFree: false, hush: 0, open: 0, ox0: 0, ox1: -1, oy0: 0, oy1: -1, calmFree: false, wet: new Set(), wetAll: false };   // wet: the sluice wheels that are open, by key (the Aqueducts: their water runs); wetAll: every one (a test)   // hush: how long he has stood still (the Eye of the Storm); open: seconds its doors of cloud stay open; calmFree: they are open (the tests' player waits as he must)
+export const RULE = { fallen: false, shut: false, tearing: false, ring: 0, still: false, turned: false, lit: new Set(), litAll: false, sw: 0, surge: 0, swFree: false, hush: 0, open: 0, ox0: 0, ox1: -1, oy0: 0, oy1: -1, calmFree: false, wet: new Set(), wetAll: false, upset: 0, unkept: false };   // upset: how many things in the Keepers' Houses are out of their place (and 9 while their keeper is after him)
+//   // wet: the sluice wheels that are open, by key (the Aqueducts: their water runs); wetAll: every one (a test)   // hush: how long he has stood still (the Eye of the Storm); open: seconds its doors of cloud stay open; calmFree: they are open (the tests' player waits as he must)
 //   // sw: which half of the works' iron the current is in (0, 1); surge: seconds of the Jar's discharge left (all of it live); swFree: the tests' player throws every lever as he needs it (none of it shocks)   // lit: the braziers that burn in this region, each by its place 'x,y' (the Glacier Galleries); litAll: every one (the tests' player lights what he comes to)
 //   // turned: on the stones of the way he has turned round (motor.js): they are gone until he stands on the ground   // ring: seconds of ringing left in the Bell-Foundry (iron was touched); still: its Cracked Bell has fallen, and nothing there rings again
 //   // tearing: he is in the Toll's step this instant (motor.js): vellum does not stop him (main.js tears it)
@@ -864,7 +866,7 @@ export const glassOn = k => PHASE.all || ((PHASE.t / PHASE.period) % 2 < 1) === 
 // the tile as it is drawn into the level (cracked rock and star-glass as themselves)
 export const rawAt = (tx, ty) => tx < 0 || ty < 0 || tx >= LEVEL.W || ty >= LEVEL.H ? ROCK : LEVEL.tiles[ty * LEVEL.W + tx];
 // the tile as he meets it now: cracked rock is rock, star-glass a ledge while it is there
-export const tileAt = (tx, ty) => { if (tx < 0 || ty < 0 || tx >= LEVEL.W || ty >= LEVEL.H) return ROCK; const t = LEVEL.tiles[ty * LEVEL.W + tx]; return t < CRACKED ? t : t === CRACKED ? ROCK : t === HOLD ? (RULE.fallen ? EMPTY : ROCK) : t === GIVEN ? (RULE.fallen ? LEDGE : ROCK) : t === DOOR ? (RULE.shut && !RULE.fallen ? ROCK : EMPTY) : t === LIVE ? LEDGE : t === VELLUM ? (RULE.tearing ? EMPTY : ROCK) : t === SHUTTER ? (RULE.ring > 0 && !RULE.still ? ROCK : EMPTY) : t === STILLED ? (RULE.still ? EMPTY : ROCK) : t === FACED ? (RULE.turned ? EMPTY : LEDGE) : t === IRON_A || t === IRON_B ? LEDGE : t === CALM ? (RULE.calmFree || (RULE.open > 0 && tx >= RULE.ox0 && tx <= RULE.ox1 && ty >= RULE.oy0 && ty <= RULE.oy1) ? EMPTY : ROCK) : t === MELT ? (RULE.litAll || RULE.lit.has(LEVEL.meltOf.get(ty * LEVEL.W + tx)) ? EMPTY : ROCK) : glassOn(t) ? LEDGE : EMPTY; };
+export const tileAt = (tx, ty) => { if (tx < 0 || ty < 0 || tx >= LEVEL.W || ty >= LEVEL.H) return ROCK; const t = LEVEL.tiles[ty * LEVEL.W + tx]; return t < CRACKED ? t : t === CRACKED ? ROCK : t === HOLD ? (RULE.fallen ? EMPTY : ROCK) : t === GIVEN ? (RULE.fallen ? LEDGE : ROCK) : t === DOOR ? (RULE.shut && !RULE.fallen ? ROCK : EMPTY) : t === LIVE ? LEDGE : t === VELLUM ? (RULE.tearing ? EMPTY : ROCK) : t === SHUTTER ? (RULE.ring > 0 && !RULE.still ? ROCK : EMPTY) : t === STILLED ? (RULE.still ? EMPTY : ROCK) : t === FACED ? (RULE.turned ? EMPTY : LEDGE) : t === IRON_A || t === IRON_B ? LEDGE : t === KEPT ? (RULE.upset > 0 && !RULE.unkept ? ROCK : EMPTY) : t === CALM ? (RULE.calmFree || (RULE.open > 0 && tx >= RULE.ox0 && tx <= RULE.ox1 && ty >= RULE.oy0 && ty <= RULE.oy1) ? EMPTY : ROCK) : t === MELT ? (RULE.litAll || RULE.lit.has(LEVEL.meltOf.get(ty * LEVEL.W + tx)) ? EMPTY : ROCK) : glassOn(t) ? LEDGE : EMPTY; };
 // a stone of the way, whether or not it is there now (motor.js: he is standing on the way)
 export const facedAt = (tx, ty) => tx >= 0 && ty >= 0 && tx < LEVEL.W && ty < LEVEL.H && LEVEL.tiles[ty * LEVEL.W + tx] === FACED;
 // a live deck (the storm's gantries) while the keeper stands: to stand on it is to be shocked (motor.js)

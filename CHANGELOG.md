@@ -2,7 +2,16 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Aqueducts (latest; phase 13, build 68): the Gardens' west wing.** `docs/phase13-sheet.md` has all of it.
+**The Keepers' Houses (latest; phase 13, build 69): the Gardens' east wing.** `docs/phase13-sheet.md` has all of it.
+- **Eight screens east of the arbor,** through a shuttered gate the Toll's step tears. Where the keepers of the flame lived: every house kept, beds made, tables laid, fires laid and not lit.
+- **Its rule: disturb nothing.** The things on the tables and shelves break like anything else and pay a few shards. But a broken thing is out of its place: the Housekeeper comes by the servants' doors to set it right and strikes whoever is near, and his own house is shut until it is.
+- **Two ways into his house:** touch nothing, and its door is open. Or break the Housekeeper.
+- **Six rooms:** the lane, the long table (laid for all of them), two houses of three floors, his house (a table laid for two), and a back way out onto the cascade's high terrace.
+- **Moths,** which make it hard to swing at anything without breaking something.
+- **A relic:** the Second Place. One heart more.
+- 304 checks. Phase 13 is done.
+
+**The Aqueducts (phase 13, build 68): the Gardens' west wing.** `docs/phase13-sheet.md` has all of it.
 - **Nine screens west of the wellspring, open to anyone.** The channel that brings the garden its water, up from the pool at the bottom of the world.
 - **Its rule: the water runs one way, and it carries him.** Along a channel it takes him faster than he can run, and throws him span to span. Down a fall nothing rises: a fall across a climb bars it.
 - **Sluice wheels** stop and start the water. **Sluice-keepers**, stone servants of the house, put each wheel back as it was. **Water-striders** are fast on running water and helpless when it stops.

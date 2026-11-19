@@ -64,7 +64,7 @@ export function wear(id, on = !has(id)){
 // a save from before the knots (build 39): what he carried, he wore, as many as there are knots for
 function knotted(S){ if (!Array.isArray(S.worn)){ const n = (S.relics || []).length; S.knots = Math.max(0, Math.min(KNOTS.most - KNOTS.base, n - KNOTS.base)); S.worn = (S.relics || []).slice(0, KNOTS.base + S.knots); } }
 export const THREADS_A_HEART = 3;
-export const maxHearts = () => Math.max(2, Math.min(9, TUNE.player.hp + Math.floor(G.threads / THREADS_A_HEART) + G.hearts + [2, 0, -2][OPT.diff]));
+export const maxHearts = () => Math.max(2, Math.min(10, Math.min(9, TUNE.player.hp + Math.floor(G.threads / THREADS_A_HEART) + G.hearts + [2, 0, -2][OPT.diff]) + (has('place') ? 1 : 0)));   // (the Second Place: one heart more)
 export const maxFlask = () => Math.min(7, Math.min(6, TUNE.player.flask + G.flasks) + (has('yoke') ? 1 : 0));   // (the Carrier's Yoke: one draught more)
 export const took = (n, id) => (G.got[n] || []).includes(id);
 export const take = (n, id) => { (G.got[n] = G.got[n] || []).push(id); store(); };
@@ -83,6 +83,7 @@ export const RELICS = {   // name: whose it was; line: what it does; lore: whose
   boots:       { name: 'Wright\'s Boots',         line: 'Live iron does not shock him.', lore: 'Cork and gum. The Wrights wore them to walk their own works. They did not take them off to sleep.' },
   stillair:    { name: 'A Breath of the Eye',    line: 'Gliding, he sinks more slowly.', lore: 'Air from the middle of the storm, where nothing moves. It was kept behind a door that opens to no one in a hurry.' },
   yoke:        { name: 'Carrier\'s Yoke',        line: 'His flask holds one draught more.', lore: 'Before the channel was cut, the water came up from the pool on men\'s shoulders. One of them left this at the head.' },
+  place:       { name: 'The Second Place',       line: 'One heart more.', lore: 'In his house the table was laid for two. He took his own place from it. The other is still laid.' },
   flint:       { name: 'Climber\'s Flint',        line: 'A blow that lands gives two embers, not one.', lore: 'It lit the shelter\'s fire every night of the climb. On the last night no one struck it.' },
   turnstone:   { name: 'Pilgrim\'s Stone',        line: 'After a blow, nothing can hurt him for a breath longer.', lore: 'The top stone of a cairn. He carried it up once, and set it down. NOT YET is scratched on it.' },
   starcompass: { name: 'Astronomer\'s Compass',    line: 'The map shows what is still to be found.',       lore: 'It does not point north. It points at the star that is missing.' },

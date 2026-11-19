@@ -158,10 +158,11 @@ export function stepEnemies(E, P, dt, fx, events){
   for (const e of E.list){
     e.flash = Math.max(0, e.flash - dt);
     if (!e.alive){ if (e.aim) e.aim.visible = false; if (e.hump) e.hump.visible = false; e.dead += dt; e.y -= dt * (e.d.fly ? 6 : 0); if (e.orb){ E.scene.remove(e.orb.m); e.orb = null; } continue; }
+    // (wakeful, in a creature's definition: it is never asleep. The Housekeeper keeps its houses whether he is near or not)
     // asleep: far out of sight and at rest, it does nothing and is not drawn until he comes near (a region three times
     // the size has three times the creatures; only those near him think). One in the middle of something finishes it
     const far = Math.abs(P.x - e.x) > SLEEP.x || Math.abs(P.y - e.y) > SLEEP.y, rest = (e.st === 'idle' || e.st === 'return' || e.st === 'patrol' || e.st === 'perch' || e.st === 'hide' || e.st === 'float' || e.st === 'circle' || e.st === 'drift' || !e.st) && !e.orb;
-    if (far && rest && e.age > 0.5 && !(e.d.own && RULE.ring > 0)){ if (!e.asleep){ e.asleep = true; if (e.sprite) e.sprite.g.visible = false; e.stand.visible = false; } continue; }
+    if (far && rest && e.age > 0.5 && !e.d.wakeful && !(e.d.own && RULE.ring > 0)){ if (!e.asleep){ e.asleep = true; if (e.sprite) e.sprite.g.visible = false; e.stand.visible = false; } continue; }
     if (e.asleep){ e.asleep = false; if (e.sprite) e.sprite.g.visible = true; else if (!e.d.own) e.stand.visible = true; }
     if (e.stilled > 0 && !e.d.own){ e.stilled -= dt; continue; }   // stilled for a breath (the Founder's Felt: a parry rang)
     e.tm += dt; e.age += dt;

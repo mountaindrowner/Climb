@@ -114,7 +114,7 @@ the masonry are drawn in code. **Cost: $0.07; the balance is $2.72.**
 
 ## The Keepers' Houses
 
-*The plan, written before building. What was built, and what was checked, closes this section when it is done.*
+*The plan was written before building; "As built" at the end of this section says what came of it.*
 
 Where the keepers of the flame lived: his house among them. They left after the dark. The house's servant did not.
 Small houses, every one kept: beds made, tables laid, fires laid and not lit. Eight screens, east of the arbor,
@@ -166,4 +166,39 @@ swing at the table.
 
 ### Art
 
-To buy: the Housekeeper (a walk, a blow), a moth. Everything else drawn in code. About $0.10.
+The Housekeeper (with a walk and a blow) and the moth are PixelLab's. The settings, the furniture, the shutters and
+the servants' doors are drawn in code. **Cost: $0.11; the balance is $2.61.**
+
+### As built (build 69), and what was checked
+
+- **304 automated checks pass**, ten of them the wing's own: its screens, a servants' door on every floor that
+  has a setting, and the Gardens no wider than before; the door of his house shut and open by the rule; all of it
+  reached by one who touches nothing, and all but his house by one who has broken a thing; a setting broken and set
+  right; the Housekeeper calm; tending a thing and striking who is near; going floor to floor by its doors and home
+  again; wronged, and letting go; a moth; the relic.
+- **Played through by the test browser:** the gate refusing a walk and torn by the Toll's step; four seconds beside
+  the calm Housekeeper, untouched; a setting broken two floors up, his house shut, the Housekeeper gone from the lane
+  and out of the servants' door on that floor a second and a half later, three blows on him as he stood, the thing
+  set right, his house open, the Housekeeper home; the Housekeeper struck, following him into the second house, and
+  broken; the quiet way up through the second house into his; the relic, and one heart more; a place on his own
+  table broken, the door shut under him, the Housekeeper come up to set it right; out by the back way.
+- **Found and fixed while building:**
+  - The gate was first at the arbor's floor, under an old shelf of planks: a jump there takes hold of the shelf, so
+    the Toll's step could not be taken. The gate is now at the shelf's height, with planks down into the lane.
+  - The Housekeeper slept when he was far from the lane (the game rests distant creatures), so it never came to his
+    house. It and the settings are now never asleep.
+  - While making that change I broke a line of the creatures' code. The syntax check caught it before anything ran.
+  - The Lock and the Housekeeper shared one switch for "this wing's keeper is down": breaking either would have
+    opened the other's door. Found while writing the build log; the Housekeeper has its own now.
+- **Not as the plan had it:**
+  - The wing is not locked behind the Toll's step. The back way is a second way in for one who finds it, and by the
+    Gardens he has the step anyway.
+  - There is no separate room for the Housekeeper's round. Its round is the lane.
+  - Eight screens, not nine. They are cut into two columns the Gardens already had, so nothing moves.
+- **Not checked:** nothing here was played by hand. The sounds. Whether a blow meant for a moth breaks a setting
+  often enough to matter, or too often. Whether the Housekeeper is too easy to break (it is pushed along by blows).
+- **A save is not moved.**
+
+## Left for later
+
+- Phase 13 is done. Next is phase 14: the Firmament's wing, the Orrery.
