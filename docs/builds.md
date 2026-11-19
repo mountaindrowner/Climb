@@ -55,6 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 74 | 19 Nov 2026 | `COMMIT74` | The Hollow, the Auger, the grip, the Source (phase 17) | no | yes (now) |
 | 73 | 19 Nov 2026 | `18a5cde` | The Flooded Levels, the Great Shaft, travel through the water (phase 16) | no | yes (now) |
 | 72 | 19 Nov 2026 | `1a53c35` | The lamp, and the Vein (phase 15): the dark | no | yes (now) |
 | 71 | 19 Nov 2026 | `aaae08a` | The Orrery Wing (phase 14); things that move and carry him | no | yes (now) |
@@ -89,6 +90,44 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 74: the Hollow, the Auger, the grip, and the Source
+
+- **For the player:** the bottom of the Deep. **The Hollow**, fourteen screens under the Great Shaft's floor: the
+  guild's last camp, the floor torn in rings, Echoes. **The Auger**, the Deep's keeper, with an entrance like the
+  other six: it drives its bit down where he stands; when the bit sticks he gets on its back and strikes the collar;
+  twice it bores the floor away and they fall to the next. It leaves **the grip**: he clings to rough rock and
+  climbs it. Past it, **the Source**: a spring, a low flame no one keeps, and one draught more in his flask for
+  good. Past that, a rough wall up, and out at the Pithead in the Roots. One relic. All of it in
+  `docs/phase17-sheet.md`.
+- **Underneath:** new `src/side/regions/hollow.js` (the eleventh level) and `src/side/auger.js` (the keeper, drawn in
+  code). Three new tiles: rough rock, and the bore's two floors that go (`rooms.js`, `level.js`). The grip in
+  `motor.js`. Rough rock's face drawn in `props.js`. The Auger's entrance in `entrance.js`. A thing that moves and is
+  stood on can now be placed by its owner (the Auger's back). Water that only falls to be looked at. The Shaft's
+  floor has the way down in its pit. Both ways the checks work out where he can get to now climb rough rock, up and
+  down. `assets/side/px_auger` is drawn by hand for the Annals.
+- **The motor changed.** New: taking hold of rough rock, climbing, coming down, leaping off. Nothing that was there
+  is changed, and rough rock is only in the Hollow, so nothing above it can be affected by this.
+- **The keepers' gifts are four now, not three.** Anything that lists them (what he carries, the checks that play a
+  region "with every gift") has one more.
+- **Save: not moved.** Adds: the Auger fallen (`beat` for the Hollow), the Source found (`source`, and one more in
+  `flasks`), the relic, and which words were said. The game has eleven levels now.
+- **Checked:** 405 automated checks, six of them this phase's, and the slow ones that play every level with the
+  real motor pass on the Hollow, its pit with the floors gone included. A play-through in the test browser, in two
+  parts. The fight from start to end: the hall shut, the dread, its rise, three tears and a bite, up on its back,
+  eight blows at the collar, the first floor bored away, the second, its fall, the grip given and its page. Then,
+  with the Auger still: out of the pit by its wall and into the circles; through to the Source and its page, the
+  flask one deeper; up the wall beyond it and out at the Pithead. No page errors in any of it.
+- **Not checked:** not played by hand, and a keeper most of all needs that. How hard it is. The sounds (its music is
+  the keepers' shared piece). Its short rise, the second time it is met. How dark its hall is on a real screen.
+- **Cost:** nothing.
+- **To try** (the playtest list):
+  1. The Auger: is it clear when it can be hurt? Is getting onto its back a good moment or a fiddly one?
+  2. The floor going: a thrill or a muddle? Can you tell it is coming?
+  3. After it falls: do you find, without being told, that the pit's wall can be climbed now?
+  4. Climbing: is going into a wall to go up it natural? Do you ever let go by accident?
+  5. The Source: after everything above, does it land? Is one page enough, or too much?
+  6. The wall back to the Roots: a good way home, or just a long climb?
 
 ### Build 73: the Flooded Levels, the Great Shaft, and travel through the water
 

@@ -69,6 +69,7 @@ export const ANNALS = [
       { type: 'eel', name: 'Blind Eel', art: 'px_eel', line: 'It cannot see him. It feels the water move.' },
       { type: 'pump', name: 'The Pump', art: 'px_pump', line: 'Two hundred years at it. It has never been behind, and never ahead.' } ] },
   { region: 'The Great Shaft', keeper: { theme: 'shaft', art: 'px_mole/stand', name: 'The Auger', line: 'Its hole. It went straight down, and through.' }, creatures: [] },
+  { region: 'The Hollow', keeper: { theme: 'hollow', art: 'px_auger/stand', name: 'The Auger', line: 'The guild\'s engine. Its order was: deeper. There is no deeper.' }, creatures: [] },
 ];
 export const PEOPLE_PAGE = [
   { who: 'lamplighter', name: 'Ordric of the Vigil', art: 'px_moth', line: 'An old moth who keeps the lamps, and does not fly at them.' },

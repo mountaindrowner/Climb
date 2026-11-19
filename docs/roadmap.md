@@ -392,7 +392,12 @@ screens behind the guild's seal; lamps he lights that stay lit; the Echo; the As
 *Phase 16 done (build 73): **the Flooded Levels, the Great Shaft, and travel through the water**, by
 `docs/phase16-sheet.md`. Deep water (it bears him up; with the wind it carries him under); twelve screens under the
 Workings' cistern; the Sunk, blind eels, the Pump and its tide; the way through the water, given at the flooded
-chapel; four screens of Shaft below the Vein's lip, and the light under its floor. Next: phase 17.*
+chapel; four screens of Shaft below the Vein's lip, and the light under its floor.*
+
+*Phase 17 done (build 74): **the Hollow, the Auger, the grip, and the Source**, by `docs/phase17-sheet.md`. Fourteen
+screens at the bottom; the Deep's keeper, with an entrance to match the six; rough rock and the grip; the Source;
+the wall home to the Roots. **Carried to phase 18: rough rock in the regions already built** (the plan's faces from
+the Roots on; in this build it is only in the Hollow). Next: phase 18.*
 
 ## Phase 18: the Shard, and the end of the story
 

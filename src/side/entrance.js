@@ -24,6 +24,7 @@ export const STYLES = {
   spires:    { role: 'KEEPER OF THE PASS',      name: '#ffffff', glow: '#2ce8f5', accent: 0x2ce8f5, seal: 'ice',   dread: 'frost',  wait: 3.2, reveal: 4.75, burst: 'frost', tint: '#262b44', vigCol: '#c0cbdc' },
   tempest:   { role: 'KEEPER OF THE STORM',     name: '#fee761', glow: '#ffffff', accent: 0xfee761, seal: 'storm', dread: 'static', wait: 3.2, reveal: 4.9, burst: 'bolt',  tint: '#262b44', vigCol: '#181425' },
   gardens:   { role: 'KEEPER OF THE GARDENS',   name: '#f6757a', glow: '#63c74d', accent: 0x63c74d, seal: 'thorn', dread: 'roots',  wait: 3.0, reveal: 3.6, burst: 'bloom', tint: '#193c3e', vigCol: '#193c3e' },
+  hollow:    { role: 'KEEPER OF THE DEEP',      name: '#ffd9a0', glow: '#f77622', accent: 0xf77622, seal: 'stone', dread: 'bore',   wait: 3.4, reveal: 4.6, burst: 'bore',  tint: '#0b0810', vigCol: '#0b0810' },
   firmament: { role: 'AT THE TOP OF THE WORLD', name: '#ffffff', glow: '#8b9bb4', accent: 0xc0cbdc, seal: 'glass', dread: 'stars',  wait: 4.6, reveal: 5.0, burst: 'star',  tint: '#000000', vigCol: '#000000' },
 };
 const PLAIN = STYLES.roots;
@@ -169,6 +170,13 @@ export function makeEntrance(scene, R, H){
         R.glint(B.cx, rm.y1 - 4, 0xfeae34, 0.4 + n * 0.2, 8, 0.6); fx.debris(rm.x0 + 1, rm.x1 - 1, roof(), B.stageY, 4 + n * 2); }
       MOOD.dark = 0.12 + 0.15 * E.beats; MOOD.flicker = 0.3;
     },
+    // the Auger: a grinding under the floor, going round him, nearer each turn; the floor shudders in a ring; his
+    // lamp gutters; grit comes down. Then it stops
+    bore(k, dt, B, rm, fx){
+      MOOD.dark = 0.15 + 0.5 * k; MOOD.flicker = k < 0.9 ? 0.4 + 0.5 * k : 0;
+      if (k < 0.9){ E.boreA = (E.boreA || 0) + dt * (1.6 + 5 * k); const rad = 9 - 6.5 * k, x = Math.max(rm.x0 + 1, Math.min(rm.x1 - 1, E.hero.x + Math.cos(E.boreA) * rad)); if (Math.random() < dt * 30) fx.dust({ x, y: B.stageY }, 3, 1.5 + 2 * k); H.shake(0.05 + 0.2 * k);
+        if ((E.beatT -= dt) <= 0){ E.beatT = 0.5 - 0.3 * k; H.sfx.rumble(); H.buzz(0.2 + 0.5 * k, 0.5, 120); fx.debris(rm.x0 + 1, rm.x1 - 1, roof(), B.stageY, 2 + Math.floor(5 * k)); } }
+    },
     // the Wyrm: the wind drops, snow comes down slow, the cold closes in white, and something huge passes over
     frost(k, dt, B, rm, fx){
       MOOD.dark = 0.15 + 0.45 * k; MOOD.flicker = 0;
@@ -202,6 +210,7 @@ export function makeEntrance(scene, R, H){
   };
   // ---- the reveal: its name, its music, and its own burst
   const BURST = {
+    bore(B, rm, fx){ const x = B.x != null ? B.x : B.cx; H.shake(1.0); H.flash(0.28); H.buzz(1, 0.9, 700); H.sfx.roar(); H.sfx.impact(true); H.sfx.crack(); fx.ring({ x, y: B.stageY }, 0xf77622); fx.dust({ x, y: B.stageY }, 60, 8); fx.debris(rm.x0 + 1, rm.x1 - 1, roof(), B.stageY, 70); R.shock(x, B.stageY + 1, true); R.glint(x, B.stageY + 3, 0xff8a40, 1.8, 12, 0.9); },
     quake(B, rm, fx){ H.shake(1.0); H.flash(0.3); H.buzz(1, 0.9, 700); H.sfx.roar(); H.sfx.impact(true); fx.ring({ x: B.cx, y: B.stageY }, 0xffd27a); fx.dust({ x: B.cx, y: B.stageY }, 50, 7); fx.debris(rm.x0 + 1, rm.x1 - 1, roof(), B.stageY, 60); R.shock(B.cx, B.stageY + 2, true); },
     toll(B, rm, fx){ H.shake(0.8); H.flash(0.35); H.buzz(1, 0.7, 600); H.sfx.parry(); H.sfx.roar(); for (let i = 0; i < 4; i++) later(i * 0.12, () => { fx.ring({ x: B.cx, y: B.stageY + 4 }, i % 2 ? 0xf77622 : 0xfeae34); R.shock(B.cx, B.stageY + 4, true); }); R.glint(B.cx, B.stageY + 5, 0xfeae34, 1.8, 12, 1); },
     frost(B, rm, fx){ H.shake(0.7); H.flash(0.22); H.buzz(0.9, 0.8, 500); H.sfx.roar(); H.sfx.crack(); fx.burst({ x: B.cx, y: B.stageY + 4 }, 60, 0xc0cbdc); fx.debris(rm.x0 + 1, rm.x1 - 1, roof(), B.stageY, 90, [0xffffff, 0xc0cbdc, 0x2ce8f5], true); R.glint(B.cx, B.stageY + 5, 0x2ce8f5, 1.6, 12, 1); },

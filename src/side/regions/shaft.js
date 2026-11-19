@@ -38,6 +38,8 @@ function floor(){
   const r = mass(); door(r, 'left', 6, 10);
   // the arch comes in under water; the water stands in the west of it; then the floor, and the hole in it
   rect(r, 2, 6, 37, 20, EMPTY); rect(r, 14, 6, 37, SHAFT.top - 1); rect(r, 23, 8, 30, SHAFT.top - 1, EMPTY); ledge(r, 23, 25, 11);
+  // the hole goes on down: into the Hollow (phase 17)
+  rect(r, 25, 6, 28, 7, EMPTY); mark(r, 'pass', 25, 6, { w: 4, h: 2, to: 10, at: 'top', gate: 'glide' }); mark(r, 'arrive', 18, SHAFT.top, { name: 'floor' });
   mark(r, 'water', 2, 6, { w: 12, h: SHAFT.top - 6 }); mark(r, 'water', 0, 6, { w: 2, h: 5, deep: true });
   deco(r, 'breach', 27, 8); mark(r, 'chest', 34, SHAFT.top, { holds: 'relic:lastrope' }); mark(r, 'urn', 18, SHAFT.top);
   for (let x = 4; x <= 36; x += 4) for (const y of [16, 19]) keep(r, x, y);

@@ -12,7 +12,7 @@ const GOAL = marks.find(m => m.type === 'boss') || marks.find(m => m.type === 'e
 let BROKE = false; const GATED = rooms.some(r => r.gate || r.after || r.needs);   // after: the way on past the keeper's hall, behind stone until the keeper falls (phase 9)
 // what moves and can be stood on (the Orrery Wing): he waits for it, so it is a plank everywhere it goes
 const MOVING = new Set(); for (const m of marks) if (m.type === 'mover') for (let k = 0; k < 96; k++){ const a = k / 96 * Math.PI * 2, x = m.kind === 'slide' ? m.x + 0.5 + Math.sin(a) * (m.ax || 0) : m.x + 0.5 + Math.cos(a) * (m.r || 8), y = m.kind === 'slide' ? m.y + Math.sin(a) * (m.ay || 0) : m.y + Math.sin(a) * (m.r || 8), w = (m.w || 5) / 2; for (let i = Math.ceil(x - w); i <= Math.floor(x + w - 1); i++) MOVING.add((Math.round(y) - 1) * W + i); }
-const at = (i, j) => { if (i < 0 || j < 0 || i >= W || j >= H) return ROCK; const t = tiles[j * W + i]; if (t === EMPTY && MOVING.has(j * W + i)) return LEDGE; return t === 4 || t === 7 || t === 11 || t === 13 ? (BROKE ? EMPTY : ROCK) : t === 9 ? (BROKE ? LEDGE : ROCK) : t === 8 || t === 12 || t === 15 || t === 18 || t === 19 ? EMPTY : t === 10 ? (BROKE ? LEDGE : 3) : t === 5 || t === 6 || t === 14 || t === 16 || t === 17 ? LEDGE : t; };   // BROKE is also: its keeper fallen (what it held let go); a door on the bell is waited for   // cracked rock is rock (until broken); star-glass, a ledge (he waits for it)
+const at = (i, j) => { if (i < 0 || j < 0 || i >= W || j >= H) return ROCK; const t = tiles[j * W + i]; if (t === EMPTY && MOVING.has(j * W + i)) return LEDGE; return t === 20 ? ROCK : t === 4 || t === 7 || t === 11 || t === 13 || t === 21 || t === 22 ? (BROKE ? EMPTY : ROCK) : t === 9 ? (BROKE ? LEDGE : ROCK) : t === 8 || t === 12 || t === 15 || t === 18 || t === 19 ? EMPTY : t === 10 ? (BROKE ? LEDGE : 3) : t === 5 || t === 6 || t === 14 || t === 16 || t === 17 ? LEDGE : t; };   // BROKE is also: its keeper fallen (what it held let go); a door on the bell is waited for   // cracked rock is rock (until broken); star-glass, a ledge (he waits for it)
 const solid = (i, j) => at(i, j) === ROCK;
 // a fall of water whose wheel is behind a wing's keeper (the Aqueducts' spill): nothing stands in it, or climbs it, until BROKE
 const BARRED = new Set(); { const late = new Set(marks.filter(m => m.type === 'wheel' && m.after).map(m => m.key)); for (const m of marks) if (m.type === 'flow' && m.dir === 'd' && late.has(m.key)) for (let j = m.y; j < m.y + (m.h || 2); j++) for (let i = m.x; i < m.x + (m.w || 4); i++) BARRED.add(j * W + i); }
@@ -65,6 +65,10 @@ function reach(edges){
     for (const u of updrafts){ if ((u.gate && !BROKE) || u.cold) continue; const x0 = Math.round(u.x0 * 2), x1 = Math.round(u.x1 * 2) - 1, y0 = Math.round(u.y0 * 2), y1 = Math.round(u.y1 * 2);
       if (i < x0 - 2 || i > x1 + 2 || j < y0 - 6 || j > y1) continue;
       for (let tj = j; tj <= y1 + 3; tj++) for (let ti = x0 - 7; ti <= x1 + 7; ti++){ if (!stand(ti, tj)) continue; const a = Math.max(x0, Math.min(x1, ti)); if (clear(a, ti, tj, tj + BODY - 1)) push(ti, tj); } }
+    // the Auger's grip (BROKE): a rough face beside him is climbed, to its top, and he may leap off it on the way
+    if (BROKE) for (const dir of [-1, 1]){ let y0 = j; while (y0 <= j + 7 && tiles[y0 * W + i + dir] !== 20) y0++; if (y0 > j + 7 || !clear(i, i, j, y0 + BODY - 1)) continue;   // (a jump, to where the rough begins)
+      let tj = y0; while (tj + 1 < H && tiles[(tj + 1) * W + i + dir] === 20 && !solid(i, tj + 1 + BODY - 1)) tj++;
+      for (let y = j; y <= tj + 1; y++){ if (stand(i + dir, y) && clear(i, i + dir, y, y + BODY - 1)) push(i + dir, y); for (let dx = 1; dx <= 6; dx++){ const ti = i - dir * dx; for (let dy = -10; dy <= 2; dy++) if (stand(ti, y + dy) && clear(i, ti, Math.max(y, y + dy), Math.max(y, y + dy) + BODY - 1) && clear(ti, ti, y + dy, Math.max(y, y + dy) + BODY - 1)) push(ti, y + dy); } } }
     // drop through the ledge underfoot
     if (at(i, j - 1) === LEDGE){ const fj = fall(i, j - 1); push(i, fj); }
   }
@@ -91,8 +95,9 @@ test(`${NAME}: the organic pass leaves every marker in open air`, () => {
 for (const broke of GATED ? [false, true] : [false]) test(`${NAME}: no traps${broke ? ' (its gates open)' : ''}: from anywhere he can get to, he can still get to where the region leads`, () => {
   BROKE = broke; const edges = [], seen = reach(edges), back = new Map(); BROKE = false;
   for (let k = 0; k < edges.length; k += 2){ const a = edges[k], b = edges[k + 1]; if (!back.has(b)) back.set(b, []); back.get(b).push(a); }
-  const boss = GOAL, ok = new Uint8Array(W * H), q = [];
-  for (let a = -6; a <= 6; a++) for (let b = -2; b <= 3; b++){ const k = (boss.y + b) * W + boss.x + a; if (seen[k]){ ok[k] = 1; q.push(k); } }
+  const ok = new Uint8Array(W * H), q = [];
+  // (where the region leads: its keeper's stage; or, if that is gone with the keeper, as the Auger's floor is, its first passage)
+  for (const boss of [GOAL, marks.find(m => m.type === 'pass')].filter(Boolean)){ const ps = boss.type === 'pass'; for (let a = -6; a <= (ps ? (boss.w || 2) + 6 : 6); a++) for (let b = ps ? -6 : -2; b <= (ps ? (boss.h || 2) : 3); b++){ const k = (boss.y + b) * W + boss.x + a; if (k >= 0 && seen[k]){ ok[k] = 1; q.push(k); } } if (q.length) break; }
   while (q.length){ const k = q.pop(); for (const p of back.get(k) || []) if (!ok[p]){ ok[p] = 1; q.push(p); } }
   const stuck = []; for (let k = 0; k < W * H; k++) if (seen[k] && !ok[k]) stuck.push(k);
   const where = stuck.slice(0, 5).map(k => { const i = k % W, j = (k - i) / W, r = rooms.find(r => i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1); return `${r ? r.name : '?'} ${i},${j}`; });

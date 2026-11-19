@@ -71,14 +71,21 @@ PROGS.push((t, I) => { if (t < 0.01 || Math.abs(t - 0.3) < 0.008) I.tap('jump');
 const SWIMP = [];
 for (const d of ['left', 'right', '']) for (const v of ['jump', 'down', '']) SWIMP.push((t, I) => { if (d) I.hold(d, true); if (v) I.hold(v, true); if (v === 'jump' && t < 0.01) I.tap('jump'); });
 for (const d of ['left', 'right']) SWIMP.push((t, I) => { I.hold(d, true); I.hold('jump', true); if (t < 0.01 || (t > 0.5 && Math.floor(t * 3) !== Math.floor((t - 1 / 60) * 3))) I.tap('jump'); });
-export { run, PROGS, DASH, LONG, SWIMP };   // for the stuck-finder (tests/helpers/stuck.mjs)
+// the Auger's grip (phase 17): into a wall and kept on (he climbs a rough face, and pulls up at its top); and a jump at it first
+const CLIMBP = [];
+for (const d of ['left', 'right']){ CLIMBP.push((t, I) => { I.hold(d, true); }); CLIMBP.push((t, I) => { I.hold(d, true); if (t < 0.01) I.tap('jump'); I.hold('jump', t < 0.4); });
+  // part of the way up one, and off it (onto whatever is beside it there)
+  for (const up of [2.2, 3.2, 4.2, 5.2]) CLIMBP.push((t, I) => { I.hold(d, t < up); I.hold(d === 'left' ? 'right' : 'left', t >= up && t < up + 0.25); });
+  // and down one: off its top the other way, back onto its face, and down it
+  for (const back of [0.16, 0.3]) CLIMBP.push((t, I) => { I.hold(d === 'left' ? 'right' : 'left', t < back); I.hold(d, t >= back && t < back + 0.7); I.hold('down', t >= back + 0.7); }); }
+export { run, PROGS, DASH, LONG, SWIMP, CLIMBP };   // for the stuck-finder (tests/helpers/stuck.mjs)
 const tileSupport = (x, y) => { const t = LEVEL.tiles[(Math.round(y / T) - 1) * W + Math.floor(x / T)]; return t === 1 || t === 2; };
 const CACHE = new Map();
 export function graph(N, gifts = []){
   const key = N + ':' + [...gifts].sort().join(',');
   const L = loadLevel(N); W = L.W;
   const has = new Set(gifts);
-  M.CAN.breaker = has.has('breaker'); M.CAN.dash = has.has('dash'); M.CAN.glide = has.has('glide');
+  M.CAN.breaker = has.has('breaker'); M.CAN.dash = has.has('dash'); M.CAN.glide = has.has('glide'); M.CAN.grip = has.has('grip'); RULE.bore = 0;
   RULE.fallen = has.has('fallen'); RULE.shut = false; RULE.ring = 0; RULE.still = has.has('still') || has.has('fallen'); RULE.turned = false; RULE.litAll = !has.has('unlit'); RULE.lit = new Set(); RULE.sw = 0; RULE.surge = 0; RULE.swFree = !has.has('current'); RULE.hush = 0; RULE.open = 0; RULE.calmFree = !has.has('hurry'); RULE.upset = has.has('upset') ? 1 : 0; RULE.unkept = false; RULE.tide = has.has('lowtide') ? 0 : 1; RULE.wetAll = has.has('wet'); RULE.wet = new Set(RULE.still ? [] : LEVEL.marks.filter(m => m.type === 'wheel' && m.after).map(m => m.key));   // ('wet': every sluice is open, the Aqueducts' water all runs. Without it he has shut every wheel he can come to: one behind the wing's keeper (after) still runs until that keeper is down)   // ('hurry': he does not wait at the Eye's doors of cloud: they stay shut)   // ('current': the works' iron shocks, the lever one way)   // the tests' player lights every fire he comes to ('unlit': none of them burn)   // 'still': the Bell-Foundry's Cracked Bell has fallen (its grates are up)
   if (has.has('breaker')) LEVEL.tiles = LEVEL.tiles.map(t => t === 4 ? 0 : t);
   if (has.has('dash')) LEVEL.tiles = LEVEL.tiles.map(t => t === 11 ? 0 : t);   // vellum torn (the Toll's step goes through it)   // the cracked stone broken (a copy: the next load is whole again)
@@ -86,12 +93,13 @@ export function graph(N, gifts = []){
   if (CACHE.has(key)) return { ...base, ...CACHE.get(key) };
   const sp = L.marks.find(m => m.type === 'spawn'), start = sp.y * W + sp.x, pos = new Map([[start, [(sp.x + 0.5) * T, sp.y * T]]]);
   const seen = new Set([start]), q = [start], edges = new Map();
-  const progs = has.has('dash') ? PROGS.concat(DASH) : PROGS;
+  const progs = has.has('dash') ? PROGS.concat(DASH) : PROGS, rough = LEVEL.tiles.includes(20);
   while (q.length){
     const k = q.pop(), [x, y] = pos.get(k), nx = new Map();
     const take = (c, at) => { if (c === k) return; if (!nx.has(c)) nx.set(c, Math.hypot(at[0] - x, at[1] - y)); if (!pos.has(c)) pos.set(c, at); };
     const inWater = LEVEL.waters.length && (waterAt(x, y + 0.9) || waterAt(x, y + 0.05));
     if (!inWater || tileSupport(x, y)) for (const p of progs) for (const [c, at] of run(x, y, p)) take(c, at);
+    if (rough && has.has('grip')) for (const p of CLIMBP) for (const [c, at] of run(x, y, p, 900)) take(c, at);   // up a rough face: a long way
     if (inWater) for (const p of SWIMP) for (const [c, at] of run(x, y, p, 200)) take(c, at);
     if (has.has('glide') && (LEVEL.updrafts.length || (RULE.fallen && (LEVEL.gusts || []).length))) for (const p of LONG) for (const [c, at] of run(x, y, p, 420)) take(c, at);   // where there is rising air to ride
     edges.set(k, nx);

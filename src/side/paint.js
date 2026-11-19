@@ -5,7 +5,7 @@
 import { T, ROCK, LEDGE, SPIKES, EMPTY, LEVEL, rawAt, REGION_DATA, SILL, sill } from './level.js';
 import { loadLevel } from './level.js';
 // what the painted layers see: the level as drawn, with cracked rock and star-glass left out (they are drawn apart, since they change)
-export const paintAt = (i, j) => { const t = rawAt(i, j); return t > SPIKES ? EMPTY : t; };
+export const paintAt = (i, j) => { const t = rawAt(i, j); return t === 20 ? ROCK : t > SPIKES ? EMPTY : t; };   // (20: rough rock, painted as rock; its face is drawn over it, props.js)
 export const PPU = 16;                  // pixels to a world unit: a tile is 8, the warrior ~28 tall
 export const VIEW_H = 15.5;             // world units the screen is tall: 248 pixels (11.25 at first, then 13.5; each time drawn back, to see more of the world)
 export const TH = Math.round(VIEW_H * PPU), CELL = T * PPU;

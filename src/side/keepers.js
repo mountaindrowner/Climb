@@ -5,7 +5,8 @@ import { makeWyrm } from './wyrm.js';
 import { makeThunderhead } from './thunderhead.js';
 import { makeMother } from './mother.js';
 import { makeFallen } from './fallen.js';
+import { makeAuger } from './auger.js';
 import { withThrows } from './throws.js';
 // each with what it throws laid over it (throws.js)
 const thrown = make => (scene, R) => withThrows(make(scene, R), scene);
-export const KEEPERS = { roots: thrown(makeWarden), cloister: thrown(makeToll), spires: thrown(makeWyrm), tempest: thrown(makeThunderhead), gardens: thrown(makeMother), firmament: thrown(makeFallen) };
+export const KEEPERS = { roots: thrown(makeWarden), cloister: thrown(makeToll), spires: thrown(makeWyrm), tempest: thrown(makeThunderhead), gardens: thrown(makeMother), firmament: thrown(makeFallen), hollow: makeAuger };   // (the Auger, the Deep's: it throws its own spoil)

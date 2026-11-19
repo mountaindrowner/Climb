@@ -59,3 +59,8 @@ wing's sheet is written. Roughly $10 to $20 in all, so these wait for the genera
   side profile, with the same animations it has now (`assets/side/px_thornback`), so nothing in the game's code
   changes but the pictures. About $0.10. Check the other creatures for the same fault while doing it.
 
+## To draw: his climb (phase 17)
+
+With the Auger's grip he climbs rough rock. He has no drawing for it: on a wall he is shown in his falling pose, turned
+to the wall. Wanted: a climb seen from the side (hand over hand, four to six frames, looping), and a still frame for
+hanging.

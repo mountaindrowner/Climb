@@ -150,6 +150,7 @@ const ai = {
     if (Math.abs(dx) < 0.6 && Math.abs(dy) < 1 && !c.isRollInv(P) && c.hurt(P, 1, e.x, d.word)) c.go('rest');
   },
   echo(e, P, dt, c){
+    // (the Tally's End, a relic of the Hollow: once each rest, an Echo that catches him does not hurt him)
     const m = e.mk || {}; e.st = 'idle';
     if (!e.rm) e.rm = (c.rooms || []).find(r => e.home.x >= r.x0 && e.home.x < r.x1 && e.home.y >= r.y0 && e.home.y < r.y1) || { x0: -1e9, x1: 1e9, y0: -1e9, y1: 1e9 };
     const here = P.x > e.rm.x0 && P.x < e.rm.x1 && P.y > e.rm.y0 - 0.5 && P.y < e.rm.y1, late = m.late && !((c.E && c.E.list) || []).some(q => q.type === 'assayer' && q.alive && q.stage >= 2);
@@ -159,7 +160,7 @@ const ai = {
       if (s){ const lit = lampsLit(c), inLight = lit.some(l => Math.hypot(l[0] - s[1], l[1] - (s[2] + 1.2)) < ECHO.shy);
         if (!e.shown){ e.x = s[1]; e.y = s[2]; e.shown = true; } else if (!inLight){ const L = Math.hypot(s[1] - e.x, s[2] - e.y), k = Math.min(L, ECHO.speed * dt); if (L > 1e-4){ e.x += (s[1] - e.x) / L * k; e.y += (s[2] - e.y) / L * k; e.face = Math.sign(s[1] - e.x) || e.face; } }
         e.held = inLight;
-        if (Math.hypot(P.x - e.x, P.y - e.y) < 0.7 && !c.isRollInv(P) && !lit.some(l => Math.hypot(l[0] - P.x, l[1] - (P.y + 1.2)) < ECHO.shy) && c.hurt(P, 1, e.x, e.d.word)){ e.trail = null; e.shown = false; e.clock = 0; } } }
+        if (Math.hypot(P.x - e.x, P.y - e.y) < 0.7 && !c.isRollInv(P) && !lit.some(l => Math.hypot(l[0] - P.x, l[1] - (P.y + 1.2)) < ECHO.shy) && (c.SIDE && c.SIDE.tally ? ((c.SIDE.tally = false), c.events.push({ type: 'turned', e }), true) : c.hurt(P, 1, e.x, e.d.word))){ e.trail = null; e.shown = false; e.clock = 0; } } }
     const T3 = three(); if (!T3) return;
     if (!e.g){ e.g = mesh(T3, texes(T3).ghost, 14 / 16, 38 / 16, { alphaTest: 0, depthWrite: false, opacity: 0 }); c.E.scene.add(e.g); }
     e.g.position.set(e.x, e.y + 1.19, 0.05); e.g.scale.x = e.face || 1; e.g.material.opacity += ((e.shown ? (e.held ? 0.25 : 0.6) : 0) - e.g.material.opacity) * Math.min(1, dt * 6);

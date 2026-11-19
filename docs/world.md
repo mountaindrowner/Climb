@@ -19,7 +19,7 @@ in it. This file is so that whoever builds a room knows what happened there.
 | The Workings | **Yes (build 28)** | Down the Pithead, a new Roots room off the corridor (not the tunnel). Cage shaft, tally-house (a flame), bunkhouse (Hob), props, long level, cistern. Lampreys and barnacles; the Roots' crawlers, bats and delvers for now. The Guild Tally (urns spill half again as many shards). The Hewers and the Wick-flies (the lamp-moths, renamed: a wild moth would muddle Ordric) wait on art; the Shift-boss too |
 | The Vein | **Yes (build 72)** | Behind the guild's seal, off the Workings' cistern. `docs/phase15-sheet.md` |
 | The Flooded Levels, the Great Shaft | **Yes (build 73)** | Deep water; the sump in the cistern's floor; the Pump; travel through the water, given at the flooded chapel; the Shaft below the Vein's lip. `docs/phase16-sheet.md` |
-| The Hollow, the Source | No | The way on is the hole in the Shaft's floor, and the light coming up through it |
+| The Hollow, the Source | **Yes (build 74)** | The Auger and its hall of three floors; the grip; the Source; the wall home to the Pithead. Rough rock is only here yet. `docs/phase17-sheet.md` |
 | The seams | **First pass (build 30)** | All five, three screens each (a foot in the region below's look, two screens up into the region's own), where the plan below is six to ten: the Crypt Stair (founders' tombs, the house's light coming down), the Bell Road (a shrine at the turn), the Last Hut (a flame kept, bunks), the Breach (the wall's courses either side), the Long Stair. More rooms, and their own creatures, later |
 | The wings | **The Ossuary (build 31), the Scriptorium (build 60)**; the other nine not yet | The first wing, by hand, 8 screens: the door at the well's foot (cracked stone, the Warden's weight), the long aisle, the sorting, the niches, the Sexton's yard, the count. Worn in the Cloister's look. The Tallymen and the grave-lights are the house's acolytes and house-lamps for now; the Sexton has his own drawing (build 32: a hooded gravedigger, a head and more taller than him, his spade brought down like digging), two hearts a blow. The relic is the Sexton's Stylus. The deadhouse stair lets out over the Warden's hall, not the grotto: a drop, one way. His own tally on the wall is not drawn yet |
 
@@ -218,7 +218,7 @@ quietest place.
 **Rooms.** *the drop* (three screens of shaft, the hanging camp in it) · *the floor* (where he lands, and sees the light).
 
 ### The Hollow
-*−2,900 to −3,100 m · 14 screens · the Auger is here; past it, the Source*
+*−2,900 to −3,100 m · 14 screens (built, build 74) · the Auger is here; past it, the Source*
 
 **History.** Under the mountain there is a hollow nobody made, older than the house, older than the flame. The Auger
 broke into its roof. The guild came down after it and were not heard from. The engine is still turning.

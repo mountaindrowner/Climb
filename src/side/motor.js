@@ -8,7 +8,7 @@ import { TUNE } from '../config/tuning.js';
 import { WEAPONS } from '../config/weapons.js';
 import { IN, consume, pending } from '../core/input.js';
 import { FEEL } from '../config/feel.js';
-import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt, gustAt, flowAt, moversNow, liveAt, RULE, facedAt, waterOver } from './level.js';
+import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt, gustAt, flowAt, moversNow, liveAt, RULE, facedAt, waterOver, roughAt } from './level.js';
 const MV = TUNE.move;
 // the side view's warrior is drawn tall and lean (gothic action proportions, ~40 pixels): his body is taller than the
 // climb's, and his jumps and run scale with him so they keep the same feel against his height
@@ -22,7 +22,10 @@ const MANTLE = 2.6, STEP = T + 0.02;
 //   dash     the Toll's step: a roll begun in the air flies level and fast for a moment, once each time he leaves the ground
 //   glide    the Wyrm's wind: jump again when the jumps are spent, and hold: the scarf spreads and he falls slowly; held in
 //            rising air, it lifts him
-export const CAN = { breaker: false, dash: false, glide: false };
+export const CAN = { breaker: false, dash: false, glide: false, grip: false };
+// the Auger's grip (phase 17): on rough rock (level.js roughAt) he clings, and climbs. How fast up it and down it, how
+// hard he throws himself off it, and how long before he can take hold again
+export const GRIP = { up: 4.4, down: 6.5, off: 6.6, again: 0.28 };
 // deep water (phase 16; level.js waters). It bears him up: without the Wyrm's wind his feet go no deeper than `float`
 // under its top, and he swims along it. With the wind the thread carries him under: jump held he rises, down held he
 // sinks, neither and he hangs, sinking a very little. `in`: how much of him is in it before it has him. `hop`: the
@@ -64,6 +67,8 @@ function support(P, x, y){
   return null;
 }
 // is he standing on the stones of the way, and on nothing else (a foot on rock or a plank is the ground)
+// is there rough rock beside him on that side, anywhere along his height
+const roughBeside = (P, d) => { const i = tx(P.x + d * (BODY.hw + 0.1)); for (let j = ty(P.y + 0.15); j <= ty(P.y + BODY.stand - 0.25); j++) if (roughAt(i, j)) return true; return false; };
 const wayUnder = (P) => { const j = ty(P.y - 0.02); let way = false; for (let i = tx(P.x - BODY.hw + 1e-3); i <= tx(P.x + BODY.hw - 1e-3); i++){ if (facedAt(i, j)) way = true; else { const t = tileAt(i, j); if (t === ROCK || t === LEDGE) return false; } } return way; };
 const liveUnder = (P) => { if (SIDE.boots) return false; const j = ty(P.y - 0.02); for (let i = tx(P.x - BODY.hw + 1e-3); i <= tx(P.x + BODY.hw - 1e-3); i++) if (liveAt(i, j)) return true; return false; };
 const spikesUnder = (P) => { const j = ty(P.y - 0.02); for (let i = tx(P.x - BODY.hw + 1e-3); i <= tx(P.x + BODY.hw - 1e-3); i++) if (tileAt(i, j) === SPIKES) return true; return false; };
@@ -138,6 +143,19 @@ export function stepPlayer(P, dt){
     return;
   }
 
+  // ---- the Auger's grip: against a rough face, going into it, he takes hold. Held, he goes up it; down held, down it;
+  // jump throws him off it; away lets go. At its top he pulls himself up onto it
+  P.clingCd = Math.max(0, (P.clingCd || 0) - dt);
+  { const toward = H.right && !H.left ? 1 : H.left && !H.right ? -1 : 0;
+    if (!P.cling && CAN.grip && toward && P.clingCd <= 0 && !stunned && P.roll <= 0 && !P.dive && !P.swim && !P.art && P.hp > 0 && roughBeside(P, toward) && boxRock(P, P.x + toward * 0.08, P.y)){ P.cling = { d: toward }; P.atk = null; P.crouch = false; ev(P, 'cling'); }
+    if (P.cling){ const d = P.cling.d;
+      if (stunned || P.hp <= 0 || !CAN.grip || !roughBeside(P, d)) P.cling = null;
+      else if (consume('jump')){ P.cling = null; P.clingCd = GRIP.again; P.grounded = false; takeOff(P, false); P.vx = -d * GRIP.off; P.face = -d; P.airJumps = FEEL.doubleJump ? 1 : 0; ev(P, 'jump'); }
+      else if (toward === -d){ P.cling = null; P.clingCd = GRIP.again; P.grounded = false; }
+      else { const want = H.down ? -GRIP.down : toward === d ? GRIP.up : 0; P.vx = 0; P.vy = want; P.face = d; P.glide = false; P.flip = 0; P.airTop = P.y; P.airDash = 1; P.airJumps = FEEL.doubleJump ? 1 : 0; P.climbing = want;
+        if (want){ P.grounded = false; moveY(P, want * dt, P.y); if (P.grounded && want < 0) P.cling = null; }
+        if (P.cling && want > 0){ tryMantle(P, d); if (P.mantle) P.cling = null; }
+        if (P.cling){ P.climbT = (P.climbT || 0) + Math.abs(want) * dt; if (want && Math.floor(P.climbT * 1.4) !== Math.floor((P.climbT - Math.abs(want) * dt) * 1.4)) ev(P, 'step'); return; } } } }
   // ---- presses
   if (consume('jump')){
     if (P.grounded && H.down && (support(P, P.x, P.y) === LEDGE || P.ride)){ P.drop = 0.25; P.dropping = true; P.grounded = false; P.y -= 0.03; ev(P, 'dropThrough'); }   // down + jump: through a ledge
@@ -394,7 +412,7 @@ export const SPADE = { name: 'Warden\'s spade', reach: 2.6, guard: false, digs: 
 ] };
 export const weaponOf = P => P.weapon === 'blade' ? BLADE : P.weapon === 'spade' ? SPADE : WEAPONS[P.weapon];
 export const swingOf = (P, A) => A.special ? weaponOf(P)[A.special] : weaponOf(P).combo[A.i];
-export const SIDE = { fallSafe: 9, feather: false, watching: false, leaf: false, stone: false, boots: false, calm: false, hour: false, bell: false, rope: false };   // calm: a Breath of the Eye is worn: under the glide he sinks more slowly
+export const SIDE = { fallSafe: 9, feather: false, watching: false, leaf: false, stone: false, boots: false, calm: false, hour: false, bell: false, rope: false, tally: false };   // calm: a Breath of the Eye is worn: under the glide he sinks more slowly
 //   // boots: the Wright's Boots are worn: live iron does not shock him
 //   // stone: the Pilgrim's Stone is worn: after a blow nothing can hurt him for longer
 //   // leaf: the Copyist's Blank Leaf is unspent: the next blow that lands does no harm

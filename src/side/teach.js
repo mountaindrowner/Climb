@@ -140,6 +140,8 @@ export const ICONS = {
   starcompass: ['.....kkkkkk', '...kkyyyyyykk', '..kyykkkkkkyyk', '..kykdnnYndkyk', '.kykdnnYwYnnkyk', '.kyknnYwwwYnkyk', '.kykdnnYwYnnkyk', '..kykdnnYndkyk', '..kyykkkkkkyyk', '...kkyyyyyykk', '.....kkkkkk'],
   breaker: ['......kkkk', '......kYYk', '......kYYk', '......kYYk', '....kkkYYkkk', '....kYYYYYYk', '.....kYYYYk', '......kYYk', '.......kk', '..k.k......k.k', '.kmmkmmmmmmkmmk', '.kmkmmmkmmmmkmk', '.kkkkkkkkkkkkkk'],
   dash: ['.......kkkkk', '.......kWWWk', '.......kWWWk', '.......kWWWk', '.......kWWWk', '.......kWWWkkk', 'pp..kkkkWWWWWWk', '....kWWWWWWWWWk', '.pp.kWWWWWWWWWk', '....kkkkkkkkkkk'],
+  grip: ['', '..kk..kk..kk', '.kWWkkWWkkWWk', '.kWWkkWWkkWWk', '.kuukkuukkuuk', '..kuuuuuuuuk', '..kuuuuuuuuk', '...kuuuuuuk', '....kuuuuk', '....kuuuuk', '.....kkkk'],
+  tallysend: ['', '...kkkkkkkk', '..kppppppppk', '..kpllllllpk', '..kppppppppk', '..kpllllppk', '..kppppppppk', '..kppppppppk', '..kpppllppk', '..kppppppkk', '...kkkkkkk'],
   glide: ['', '....kkkkkk', '...kCCCCCCk', '..kCkkkkkkCk', '..kCk.kkk.kCk', '..kCk.kCk..kCk', '..kCk..kCCCCk', '...kCk..kkkk', '....kCCk', '.....kk'],
   heart: ['..kkk...kkk', '.kssrk.kssrk', 'kssrrrkrrrrrk', 'ksrrrrrrrrrrk', 'krrrrrrrrrrRk', '.krrrrrrrrRk', '..krrrrrrRk', '...krrrrRk', '....krrRk', '.....kRk', '......k'],
   flask: ['.....kkk', '.....kpk', '.....kpk', '....kkpkk', '...kCCCCCk', '..kCwCCCCCk', '..kCCCCCCCk', '..kBBBBBBBk', '..kBBBBBBBk', '...kkkkkkk'],

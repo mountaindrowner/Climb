@@ -18,7 +18,7 @@ for (let N = 0; N < LEVELS.length; N++){
     for (const w of wings){ const wr = chests.filter(m => relic(m) && wingOf(m) === w); assert.equal(wr.length, 1, `one relic in ${w}`); const wid = wr[0].holds.slice(6); assert.ok(RELICS[wid], `relic ${wid} is not a known one`); relics.push(wid); }
     assert.equal(marks.filter(m => m.type === 'thread' && !wingOf(m)).length + chests.filter(m => m.holds === 'thread' && !wingOf(m)).length, 2, 'two threads on the climb');
     const deep = !marks.some(m => m.type === 'exit');   // the Deep has its own people (Hob); the climb has the three
-    if (!REGION_DATA[N].empty)   // (nobody is in the Great Shaft: Hob does not go down it)
+    if (!REGION_DATA[N].empty && !REGION_DATA[N].alone)   // (nobody is in the Great Shaft, and no one to speak to in the Hollow: Hob does not go down that far)
     for (const who of Object.keys(PEOPLE).filter(w => (w === 'hob') === deep)){ assert.equal(marks.filter(m => m.type === 'npc' && m.who === who).length, 1, `${who} once`); assert.ok((SCRIPT[who][N] || []).length, `${who} has something to say here`); }
     for (const m of chests) assert.ok(!m.holds || m.holds === 'shards' || m.holds === 'thread' || /^relic:/.test(m.holds), `a chest holds ${m.holds}`);
   });

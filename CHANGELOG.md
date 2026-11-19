@@ -2,7 +2,16 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Flooded Levels, the Great Shaft, and travel through the water (latest; phase 16, build 73).** `docs/phase16-sheet.md` has all of it.
+**The Hollow, the Auger, the grip, and the Source (latest; phase 17, build 74).** `docs/phase17-sheet.md` has all of it.
+- **The Hollow:** the bottom of the Deep, fourteen screens under the floor of the Great Shaft. The guild's last camp and the last page of its tally; the floor torn in rings; Echoes.
+- **The Auger,** the Deep's keeper: the guild's engine, a drill on iron legs. It drives its bit down where he stands. When the bit sticks he gets up on its back and strikes the collar. Twice it bores the whole floor away and they fall together to the floor below. It has an entrance like the six keepers of the climb.
+- **The grip,** what it leaves: he clings to rough rock and climbs it. Rough rock is a material of its own. In this build it is only in the Hollow.
+- **The Source:** a spring, and a low flame beside it that no one keeps. His flask holds one draught more, for good.
+- **The way home:** past the Source a rough wall goes up, and comes out at the Pithead in the Roots.
+- **A relic:** the Tally's End (once each rest, an Echo that catches him does not hurt him).
+- 405 checks. No save is moved.
+
+**The Flooded Levels, the Great Shaft, and travel through the water (phase 16, build 73).** `docs/phase16-sheet.md` has all of it.
 - **Deep water.** It bears him up: without the Wyrm's wind he floats and cannot go under. With it the water carries him: jump to rise, down to sink, let go and he hangs. No breath to run out.
 - **The Workings' cistern is deep now,** and in its floor is the sump: the way down, for one who has the wind.
 - **The Flooded Levels:** twelve screens under water and in pockets of air. The Sunk rise at whoever passes over them. Blind eels strike what moves fast and never know what drifts. Rafts sink under him. The guild's drowned lamps are still lit.

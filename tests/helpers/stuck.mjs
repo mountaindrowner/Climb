@@ -4,13 +4,13 @@
 // a drop through a plank) he is stuck. Every gift is his, so a pocket is one the player can never get out of. Only the
 // rooms are searched (not the rock over the summit), and from each place up to six moves on.
 //   pockets(N) -> [{ x, y, room }]   tiles where he would be stuck
-import { graph, run, PROGS, DASH, LONG, SWIMP, GIFTS, LEVEL, T } from './reach.mjs';
+import { graph, run, PROGS, DASH, LONG, SWIMP, CLIMBP, GIFTS, LEVEL, T } from './reach.mjs';
 const { BODY } = await import('../../src/side/motor.js');
 const ROCK = 1, LEDGE = 2;
 export function pockets(N){
   const G = graph(N, GIFTS), { seen, W, H } = G, tiles = LEVEL.tiles;   // graph() leaves this region loaded, cracked stone broken
   const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i];
-  const rock = (i, j) => at(i, j) === ROCK || at(i, j) === 3 || at(i, j) === 4 || at(i, j) === 7 || at(i, j) === 9 || at(i, j) === 11 || at(i, j) === 13;   // rock, spikes' base, cracked (broken above)
+  const rock = (i, j) => at(i, j) === ROCK || at(i, j) === 3 || at(i, j) === 4 || at(i, j) === 7 || at(i, j) === 9 || at(i, j) === 11 || at(i, j) === 13 || at(i, j) === 20 || at(i, j) === 21 || at(i, j) === 22;   // rock, spikes' base, cracked (broken above)
   // open air joined to where he plays
   const air = new Uint8Array(W * H), q = [];
   for (const k of seen){ if (!air[k]){ air[k] = 1; q.push(k); } }
@@ -28,6 +28,7 @@ export function pockets(N){
       const next = [];
       for (const [px, py] of front){
         for (const p of progs){ for (const [c, pos] of run(px, py, p)){ if (seen.has(c)){ ok = true; break; } if (!tried.has(c)){ tried.add(c); next.push(pos); } } if (ok) break; }
+        if (!ok && LEVEL.tiles.includes(20)) for (const p of CLIMBP){ for (const [c] of run(px, py, p, 900)) if (seen.has(c)){ ok = true; break; } if (ok) break; }
         if (!ok && LEVEL.updrafts.length) for (const p of LONG){ for (const [c] of run(px, py, p, 420)) if (seen.has(c)){ ok = true; break; } if (ok) break; }
         if (ok) break;
       }

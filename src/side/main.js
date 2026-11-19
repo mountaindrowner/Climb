@@ -34,7 +34,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 73, date: '19 NOV 2026', phase: 16, phases: 22, last: 'THE FLOODED LEVELS, AND THE WATER' };
+const VERSION = { build: 74, date: '19 NOV 2026', phase: 17, phases: 22, last: 'THE HOLLOW, THE AUGER, AND THE SOURCE' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -84,7 +84,7 @@ const SUB = LEVELS.map(l => l.sub), CARD = LEVELS.map(l => l.card);   // under a
 // what he can do, from what he has beaten and what he carries
 function learn(){
   const b = n => !!G.beat[n] || G.top > n || (DEV && LEVEL.index > n);
-  CAN.breaker = b(0); CAN.dash = b(1); CAN.glide = b(2);
+  CAN.breaker = b(0); CAN.dash = b(1); CAN.glide = b(2); CAN.grip = !!G.beat[TEACH.findIndex(t => t.can === 'grip')];
   if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the spade (a save from before has it now)
   SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); SIDE.boots = has('boots'); SIDE.calm = has('stillair'); SIDE.bell = has('shiftbell'); SIDE.rope = has('lastrope'); if (CAN.breaker && !G.lamp){ G.lamp = 1; G.lampNew = 1; } if (P){ P.flaskMax = maxFlask(); P.flask = Math.min(P.flask, P.flaskMax); const mh = maxHearts(); if (mh > P.maxHp) P.hp += mh - P.maxHp; P.maxHp = mh; P.hp = Math.min(P.hp, mh); }   // (the yoke, the second place: worn or taken off) EMBER.mend = has('seedheart') ? 7 : 10;   // what he carries, worn (builds 49 to 66 had this line inside the comment above it: these did nothing)
 }
@@ -100,7 +100,7 @@ function setup(walked = false){
   RULE.sw = (G.sw && G.sw[LEVEL.index]) || 0; RULE.surge = 0; RULE.swFree = false;   // the Wreck of the Works: the lever as he left it
   RULE.litAll = false; RULE.lit = new Set((G.lit && G.lit[LEVEL.index]) || []);   // the Glacier Galleries: the fires he has lit here burn on
   RULE.turned = false; RULE.down = !!G.cairnDown; WAY.was = false; WAY.said = new Map();   // the Pilgrims' Cairns: the way is whole as he comes in; his own cairn, once down, stays down
-  RULE.tide = 1;
+  RULE.tide = 1; RULE.bore = 0;
   RULE.ring = 0; RULE.still = !!(G.still && G.still[LEVEL.index]);   // the Bell-Foundry: nothing rings as he comes in; its Cracked Bell, once fallen, stays fallen
   RULE.fallen = !!(G.beat[LEVEL.index] || G.top > LEVEL.index || !KEEPERS[LEVEL.theme]);   // has this region's keeper fallen: what it held is let go (level.js RULE)
   SWINGFX = makeSwingFx(R.scene); PROPS = makeProps(R.scene, R);
@@ -122,7 +122,7 @@ function setup(walked = false){
   if (!BOSS) for (const x of R.exits) x.set(true);   // nothing guards the way on
   // the map: the region drawn a pixel a tile, each room shown once he has been in it
   const c = document.createElement('canvas'); c.width = LEVEL.W; c.height = LEVEL.H; const g = c.getContext('2d'), img = g.createImageData(LEVEL.W, LEVEL.H);
-  const COL = { 0: [46, 92, 128], 2: [196, 150, 92], 3: [255, 92, 132], 5: [120, 220, 240], 6: [120, 220, 240] };
+  const COL = { 0: [46, 92, 128], 21: [46, 92, 128], 22: [46, 92, 128], 2: [196, 150, 92], 3: [255, 92, 132], 5: [120, 220, 240], 6: [120, 220, 240] };
   for (let j = 0; j < LEVEL.H; j++) for (let i = 0; i < LEVEL.W; i++){ const k = COL[LEVEL.tiles[j * LEVEL.W + i]]; if (k) img.data.set([...k, 255], ((LEVEL.H - 1 - j) * LEVEL.W + i) * 4); }
   g.putImageData(img, 0, 0); MAP = { c, seen: new Set(G.charts.includes(LEVEL.index) ? LEVEL.rooms : ((G.rooms || {})[LEVEL.index] || []).map(k => LEVEL.rooms[k]).filter(Boolean)) };   // the rooms he has been in before are still on the map (he can walk back into a region)
 }
@@ -206,6 +206,12 @@ function wingStep(dt){
       card({ head: 'THE WATER KNOWS HIM', title: 'The Way Through the Water', icon: 'flask', does: 'At any water he has found, he can go under, and come up at another.', how: ['At a water, {down}: the water. Then: Go under.', 'A water is found by standing in it.'], lore: 'The lamp on the altar was never filled, and has not gone out. It is the same water as the pool above. It was under the whole mountain all along.' }); }
     // the Great Shaft's floor: the light that comes up out of the hole in it, and the first time he stands by it
     if (dark) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'breach' && Math.abs(m.x * T - P.x) < 18 && Math.abs(m.y * T - P.y) < 9){ R.glint(m.x * T, m.y * T + 0.4, 0xffb060, 1.05 + 0.08 * Math.sin(time * 1.7), 7, 0); if (!G.floorSeen && P.grounded && Math.abs(m.x * T - P.x) < 7){ G.floorSeen = 1; store(); banner('The floor of the Shaft', 'there is a light under it. It is not his.', 7); } }
+    // the Hollow: the last page of the tally, on the camp's table; and the Source
+    if (dark && P.grounded) for (const m of LEVEL.marks){ if (m.type !== 'deco') continue; const near = Math.abs((m.x + 0.5) * T - P.x) < 2.2 && Math.abs(m.y * T - P.y) < 2;
+      if (m.kind === 'tally' && near && !G.tallySeen){ G.tallySeen = 1; store(); banner('The last page of the tally', 'a depth. Under it, in the same hand as every page before it, one word.', 8); }
+      if (m.kind === 'sourceflame'){ R.glint((m.x + 0.5) * T, m.y * T + 0.7, 0xff9a40, 1.9 + 0.15 * Math.sin(time * 2.1), 13, 0); if (Math.abs((m.x + 0.5) * T - P.x) < 16 && Math.random() < 0.08) fx.burst({ x: (m.x + 0.5) * T + (Math.random() - 0.5) * 0.3, y: m.y * T + 1 }, 1, 0xfee761);
+        if (Math.abs((m.x + 0.5) * T - P.x) < 6 && !G.source){ G.source = 1; G.flasks = (G.flasks || 0) + 1; P.flaskMax = maxFlask(); P.flask = P.flaskMax; P.hp = P.maxHp; store(); sfx.shrine(); fx.ring({ x: P.x, y: P.y + 1 }, 0xffd9a0); R.glint(P.x, P.y + 1.2, 0xfff0d0, 1.4, 10, 1.5);
+          card({ head: 'THE BOTTOM OF THE MOUNTAIN', title: 'The Source', icon: 'flask', does: 'His flask is filled to the brim: it holds one draught more, for good.', how: ['It is a water: he can rest here, and go under here.'], lore: 'A spring, rising in the floor of the Hollow. Beside it a flame, burning low, kept by no one he can see. The water goes up from here: to the pool, to the Well, under the whole mountain.' }); } } }
     if (!G.lipSeen && dark && P.grounded) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'shaft' && Math.abs(m.x * T - P.x) < 12 && P.y > m.y * T + 3){ G.lipSeen = 1; store(); banner('The lip', 'the Great Shaft. It goes down further than his lamp.', 7); } }
   // the Orrery Wing: the hours cut in the wall, the first time he stands by them
   if (!G.datesSeen && P.grounded && (LEVEL.movers || []).length) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'dates' && Math.abs(m.x * T - P.x) < 3 && Math.abs(m.y * T - P.y) < 2){ G.datesSeen = 1; store(); banner('The hours', 'every hour it gave for the flame to come back. All of them are past.', 7); }
@@ -569,7 +575,7 @@ const hear = () => { HEARD = true; ac(); }; STORY.quiet = () => !HEARD; for (con
 addEventListener('keydown', e => { if (e.code === 'KeyN'){ MUTED = !MUTED; try { localStorage.setItem('climb-side-mute', MUTED ? '1' : '0'); } catch (err){} banner('', MUTED ? 'music off' : 'music on', 1.6); } });
 // a region with no music of its own has another's (musicOf: the Workings, the Roots')
 const alias = theme => { const R = REGION_DATA.find(q => q.theme === theme); return (R && R.musicOf) || theme; };
-const SCORE = makeScore(), AMB = { flooded: 'cave', shaft: 'wind', vein: 'cave', workings: 'cave', roots: 'cave', cloister: 'cave', spires: 'wind', tempest: 'storm', gardens: 'garden', firmament: 'wind' };
+const SCORE = makeScore(), AMB = { hollow: 'cave', flooded: 'cave', shaft: 'wind', vein: 'cave', workings: 'cave', roots: 'cave', cloister: 'cave', spires: 'wind', tempest: 'storm', gardens: 'garden', firmament: 'wind' };
 function score(){
   if (!HEARD) return; const A = ac(); if (!A) return; if (!MUSIC) MUSIC = makeMusic(A, musicBus() || A.destination);
   const k = STORY.kind, fight = BOSS && BOSS.active() && BOSS.st !== 'die', quiet = ENT.hush || (BOSS && (BOSS.st === 'die' || (BOSS.st === 'dead' && !WON)));
@@ -787,7 +793,7 @@ function frame(ts){
   // at the water: mended, the flask filled. The first time at each, what it is: the raising pool gives him back after a
   // fall; a leak only mends
   for (const S of SHRINES) if (Math.abs(P.x - S.x) < S.half && Math.abs(P.y - S.y) < 1.5 && P.hp > 0 && !DISS && (!TOUCHED.has(S) || P.flask < P.flaskMax || P.hp < P.maxHp)){
-    const first = !TOUCHED.has(S); TOUCHED.add(S); found(S); if (G.lampNew){ G.lampNew = 0; banner('The lamp', 'Ordric has left it by the water for him. It does not burn down.', 7); } P.flask = P.flaskMax; P.hp = P.maxHp; SIDE.leaf = has('blankleaf'); SIDE.hour = has('lastpage'); if (first) sfx.shrine(); else sfx.drink(); store(); fx.ring({ x: P.x, y: S.y + 0.6 }, 0x9fe8ff); R.glint(P.x, S.y + 1, 0x9fe8ff, 0.8, 6, 0.8);
+    const first = !TOUCHED.has(S); TOUCHED.add(S); found(S); if (G.lampNew){ G.lampNew = 0; banner('The lamp', 'Ordric has left it by the water for him. It does not burn down.', 7); } P.flask = P.flaskMax; P.hp = P.maxHp; SIDE.leaf = has('blankleaf'); SIDE.hour = has('lastpage'); SIDE.tally = has('tallysend'); if (first) sfx.shrine(); else sfx.drink(); store(); fx.ring({ x: P.x, y: S.y + 0.6 }, 0x9fe8ff); R.glint(P.x, S.y + 1, 0x9fe8ff, 0.8, 6, 0.8);
     if (first) (BANNER ? f => LATER.push({ t: 4, f }) : f => f())(() => banner(S.raise ? 'The water gathers here' : 'Water seeps through the rock here', S.raise ? 'when he falls, it gives him back here' : 'it mends him, and fills the flask', 4));   // after the place's own name, if that is up
   }
 
@@ -1017,7 +1023,7 @@ const POOL_LINES = ['The water gives him back.', 'Again.', 'It is not his doing.
 let RISEN = null;   // the word over him as he comes up: { t, line, n }
 function raise(){
   const s = RAISE ? { x: RAISE.x, y: RAISE.y } : spawnPoint(), keep = EMBER.n, n = G.falls || 1;
-  P = born(s.x, s.y); refill(); if (BOSS) BOSS.reset(); ENT.reset(); EMBER.n = keep; SIDE.leaf = has('blankleaf'); SIDE.hour = has('lastpage'); SCF.reset(s.x, s.y + 1.8); TRAIL.length = 0; CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0; FX2.ghosts.forEach(G2 => { G2.life = 0; }); store();
+  P = born(s.x, s.y); refill(); if (BOSS) BOSS.reset(); ENT.reset(); EMBER.n = keep; SIDE.leaf = has('blankleaf'); SIDE.hour = has('lastpage'); SIDE.tally = has('tallysend'); SCF.reset(s.x, s.y + 1.8); TRAIL.length = 0; CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0; FX2.ghosts.forEach(G2 => { G2.life = 0; }); store();
   WAKE = 1.1; RISEN = { t: 0, line: POOL_LINES[(n - 1) % POOL_LINES.length], n }; if (RAISE) TOUCHED.add(RAISE);   // raised in it: it needs no telling
   splash(s.x, s.y); sfx.shrine();
 }
@@ -1044,6 +1050,8 @@ function onEvent(e){
     case 'doubleJump': sfx.jump(); fx.ring(at, 0x9ff0ff); FX2.flipped = true; break;
     // deep water: into it (the harder he came, the more of it), out of it
     case 'splash': sfx.splash(); fx.ring({ x: P.x, y: P.y + P.depth }, 0xcfe6ff); fx.burst({ x: P.x, y: P.y + P.depth }, Math.min(26, 8 + Math.round((e.v || 0) * 1.2)), 0xbfe8ff); break;
+    case 'cling': sfx.step(); fx.puff({ x: P.x + P.face * 0.3, y: P.y + 1.2 }, 5, 1.2); if (!G.gripTold){ G.gripTold = 1; store(); } break;
+    case 'turned': sfx.parry(); fx.ring({ x: P.x, y: P.y + 1.2 }, 0xead4aa); banner('', 'the Tally\'s End: the Echo is turned', 2.6); break;
     case 'surface': sfx.splash(); fx.burst({ x: P.x, y: P.y + 1.4 }, 10, 0xdff4ff); break;
     case 'land': sfx.step(); fx.puff(at, e.hard ? 20 : 8, e.hard ? 3.2 : 2); if (e.hard) FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.12); if (e.hard || (e.drop || 0) > 0.8 || FX2.flipped){ landT = LAND_T; } FX2.flipped = false; break;
     case 'slam': { if (e.art) waves(P.x, P.y); PLUNGE_T = PLUNGE_LAND; landT = 0; sfx.slam(); fx.puff(at, 24, 3.6); R.shock(P.x, P.y + 0.3, true); fx.ring(at, 0xffd27a);
