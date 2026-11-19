@@ -37,7 +37,7 @@ export const ANNALS = [
       { type: 'spark', name: 'Ball Lightning', art: 'px_spark', line: 'Lightning that will not finish falling.' } ] },
   { region: 'The Gardens', keeper: { theme: 'gardens', art: 'mother/heart', name: 'Mother Thorn', line: 'What the garden grew, untended.' },
     creatures: [
-      { type: 'moth', name: 'Moth', art: 'px_moth', line: 'It sleeps by a lamp that is trimmed every evening, for no one.' },
+      { type: 'moth', name: 'Moth', art: 'px_housemoth', line: 'It sleeps by a lamp that is trimmed every evening, for no one.' },
       { type: 'housekeeper', name: 'The Housekeeper', art: 'px_housekeeper', line: 'It lays every table and makes every bed. They are not coming.' },
       { type: 'sluicer', name: 'Sluice-keeper', art: 'px_sluicer', line: 'A servant of the house, in stone. It puts each wheel back as it was left.' },
       { type: 'strider', name: 'Water-strider', art: 'px_strider', line: 'Fast on running water. With its water stopped, it sits where it was left.' },
@@ -57,6 +57,12 @@ export const ANNALS = [
     creatures: [
       { type: 'lamprey', name: 'Sump Lamprey', art: 'px_lamprey', line: 'It fastened to the roof when the levels flooded, and never let go.' },
       { type: 'barnacle', name: 'Pit Barnacle', art: 'px_barn_a', line: 'It grew where the water rose, and stayed when the water went down.' } ] },
+  { region: 'The Vein', keeper: { theme: 'vein', art: 'px_mole/stand', name: 'The Auger', line: 'It was built here. Its cradle is empty, and its track goes down.' },
+    creatures: [
+      { type: 'prospector', name: 'Prospector', art: 'px_prospector', line: 'His face to the glitter. It is always a little further on.' },
+      { type: 'glimmer', name: 'Glimmer', art: 'px_glimmer', line: 'Ore, until it is touched.' },
+      { type: 'echo', name: 'The Echo', art: 'px_echo', line: 'It goes where he went, and strikes where he was.' },
+      { type: 'assayer', name: 'The Assayer', art: 'px_assayer', line: 'It weighs what is brought to it, and finds it light.' } ] },
 ];
 export const PEOPLE_PAGE = [
   { who: 'lamplighter', name: 'Ordric of the Vigil', art: 'px_moth', line: 'An old moth who keeps the lamps, and does not fly at them.' },

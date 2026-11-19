@@ -38,6 +38,8 @@ def wait(job, what):
         print(what, j['status'], round((j.get('last_response') or {}).get('progress') or 0, 2)); time.sleep(8)
 
 def character(name, desc, size=128, detail='highly detailed'):
+    # never onto a folder that is there already: build 69 drew the Houses' moth over Ordric (both 'px_moth'). FORCE=1 to mean it
+    if os.path.isdir(os.path.join(OUT, name)) and not os.environ.get('FORCE'): sys.exit(f'assets/side/{name} exists already: choose another name, or set FORCE=1 to draw over it')
     r = call('POST', '/create-character-v3', {'description': desc, 'image_size': {'width': size, 'height': size}, 'view': 'side', 'no_background': True,
                                               'outline': 'single color black outline', 'detail': detail})
     b = book(); b[name] = {'id': r['character_id'], 'description': desc, 'anims': {}}; save_book(b)

@@ -1,0 +1,36 @@
+{
+ "name": "px_prospector",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 64,
+   "h": 64,
+   "foot": 62,
+   "cx": 32.5,
+   "footLast": 62,
+   "cxLast": 32.5,
+   "n": 1
+  },
+  "walk": {
+   "frames": 9,
+   "w": 84,
+   "h": 84,
+   "foot": 72,
+   "cx": 42.5,
+   "footLast": 72,
+   "cxLast": 44.0,
+   "n": 1
+  },
+  "attack": {
+   "frames": 9,
+   "w": 84,
+   "h": 84,
+   "foot": 72,
+   "cx": 42.5,
+   "footLast": 72,
+   "cxLast": 46.5,
+   "n": 1
+  }
+ }
+}

@@ -146,7 +146,7 @@ export const enemies = {
   // a setting: a thing in its place. A blow breaks it; the Housekeeper sets it right. Not a creature
   setting: { ai: 'setting', own: true, prop: true, wakeful: true, hp: 99, w: 0.45, h: 0.8, color: 0xffffff, fly: false, guard(e){ if (!e.broken) e.struck = true; return true; }, onHit(e){ e.hp = e.d.hp; if (!e.broken) e.struck = true; } },
   // a moth: it sleeps by a lamp. Woken, it comes at his head
-  moth: { ai: 'moth', hp: 1, w: 0.4, h: 0.5, color: 0xead4aa, wake: 5.5, speed: 3.6, back: 2.6, art: 'px_moth', fly: true, word: 'Bitten' },
+  moth: { ai: 'moth', hp: 1, w: 0.4, h: 0.5, color: 0xead4aa, wake: 5.5, speed: 3.6, back: 2.6, art: 'px_housemoth', fly: true, word: 'Bitten' },
   // the Housekeeper: the wing's keeper. It walks its round and looks at no one. A thing out of its place, it goes to
   // by the servants' doors, and sets right; whoever is in its reach on that floor, it strikes. Struck, it does not forgive
   housekeeper: { ai: 'housekeeper', wakeful: true, hp: KEEPER.hp, w: 0.7, h: 2.6, color: 0xead4aa, art: 'px_housekeeper', fly: false, name: 'The Housekeeper', word: 'Put out', guard(e){ return !!e.gone; }, onHit(e){ e.wronged = true; e.woke = true; },

@@ -70,7 +70,9 @@ test(`${NAME}: every room, the raising water, the boss's stage and the way out c
   if (GATED){ BROKE = true; const after = reach(); BROKE = false; for (const r of rooms) assert.ok(inRoom(after, r), `room ${r.name} is cut off, even with its gate open`); seenOut = after; }
   const deep = !marks.some(k => k.type === 'exit');   // a section of the Deep: no way on, its passages instead
   for (const t of ['water', 'boss', deep ? 'pass' : 'exit']){ const m = t === 'water' ? (q => q && { ...q, x: q.x + Math.floor((q.w || 1) / 2) })(marks.find(k => k.type === 'pool' && !k.plain)) : marks.find(k => k.type === t); if (m || t !== 'boss') assert.ok(m && near(t === 'exit' ? seenOut : seen, m.x, m.y), `${t} cannot be reached`); }
-  for (const m of marks.filter(k => k.type === 'pass')) assert.ok(near(seen, m.x + 1, m.y + 1) || near(seen, m.x + 2, m.y), `a passage at ${m.x},${m.y} cannot be reached`);
+  for (const m of marks.filter(k => k.type === 'pass' && !k.gate)) assert.ok(near(seen, m.x + 1, m.y + 1) || near(seen, m.x + 2, m.y), `a passage at ${m.x},${m.y} cannot be reached`);
+  // a passage behind a gate (the guild's seal, in the Workings: the Warden's spade) is reached once the gate is open, and not before
+  if (marks.some(k => k.type === 'pass' && k.gate)){ BROKE = true; const open = reach(); BROKE = false; for (const m of marks.filter(k => k.type === 'pass' && k.gate)){ assert.ok(near(open, m.x + 1, m.y + 1) || near(open, m.x + 2, m.y), `the gated passage at ${m.x},${m.y} cannot be reached with its gate open`); assert.ok(!(near(seen, m.x + 1, m.y + 1, 1) || near(seen, m.x + 2, m.y, 1)), `the gated passage at ${m.x},${m.y} is open before its gate`); } }
 });
 test(`${NAME}: the organic pass leaves every marker in open air`, () => {
   for (const m of marks) assert.notEqual(at(m.x, m.y), ROCK, `${m.type} at ${m.x},${m.y} is in rock`);

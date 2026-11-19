@@ -322,6 +322,13 @@ export function makeProps(scene, R){
       else { const len = Math.hypot(m.ax, m.ay) * 2 + 0.6, rail = new THREE.Mesh(new THREE.PlaneGeometry(2 / PPU, len), basic(null, { color: 0x5a4a50, opacity: 0.9 })); rail.position.set(m.cx, m.cy - 0.3, 0.019); rail.rotation.z = -Math.atan2(m.ax, m.ay || 1e-6); scene.add(rail); }
       planets.push(P0); }
   }
+  // ---- the guild's lamps (the Deep; a 'glamp' mark): each hangs dark until the lamp he carries lights it (main.js; it is
+  // in RULE.lit then, and in his save). Lit, it gives light, and stays lit
+  const glamps = [];
+  { let dark = null, lit0 = null, halo = null; for (const m of LEVEL.marks) if (m.type === 'glamp'){
+      if (!dark){ const mk = on => { const c = cnv(10, 16), g = c.getContext('2d'); g.clearRect(0, 0, 10, 16); px(g, PAL.ink, 4, 0, 2, 4); px(g, PAL.ink, 1, 3, 8, 2); px(g, on ? '#feae34' : '#5a4a50', 2, 3, 6, 1); px(g, PAL.ink, 1, 5, 8, 9); px(g, on ? '#fff2d0' : '#262b44', 2, 6, 6, 7); if (on){ px(g, '#ffffff', 4, 8, 2, 4); px(g, '#fee761', 3, 9, 4, 2); } else px(g, '#3a4466', 3, 7, 1, 5); px(g, PAL.ink, 2, 14, 6, 2); px(g, on ? '#feae34' : '#5a4a50', 3, 14, 4, 1); return texOf(c); }; dark = mk(false); lit0 = mk(true); }
+      const x = (m.x + 0.5) * T, y = m.y * T, a = new THREE.Mesh(new THREE.PlaneGeometry(10 / PPU, 16 / PPU), basic(dark, { opacity: 1 })), b = new THREE.Mesh(new THREE.PlaneGeometry(10 / PPU, 16 / PPU), basic(lit0, { opacity: 1 })), glow = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 2.6), basic(halo || (halo = (() => { const c = cnv(26, 26), g = c.getContext('2d'); g.clearRect(0, 0, 26, 26); for (let y = 0; y < 26; y++) for (let x = 0; x < 26; x++){ const d = Math.hypot(x - 12.5, y - 12.5) / 13; if (d < 1 && B4[(y & 3) * 4 + (x & 3)] / 16 < (1 - d) * (1 - d) * 1.6) px(g, '#ffffff', x, y); } return texOf(c); })()), { color: 0xffd9a0, blending: THREE.AdditiveBlending, opacity: 0.0 }));
+      for (const q of [a, b]){ q.position.set(x, y - 0.5, 0.03); scene.add(q); } glow.position.set(x, y - 0.5, 0.029); scene.add(glow); glamps.push({ id: m.x + ',' + m.y, x, y: y - 0.5, a, b, glow, on: null }); } }
   // ---- running water (the Aqueducts; level.js flows): along a channel, a band of it on the channel's floor, streaming;
   // down a fall, a sheet of it, and foam at its foot. Seen only while it runs
   const streams = [];
@@ -430,6 +437,8 @@ export function makeProps(scene, R){
       if (doors.length && !RULE.fallen){ bellT -= dt;
         if (bellT <= 0){ const to = !RULE.shut, inWay = to && P && doors.some(B => P.x + 0.5 > B.x0 && P.x - 0.5 < B.x1 && P.y + 2.5 > B.y0 && P.y < B.y1);
           if (!inWay){ RULE.shut = to; bellT = to ? 2.2 : 2.8; showHeld(); if (API.toll) API.toll(to, doors); } } }
+      if (glamps.length){ let n = 0; for (const Q of glamps){ const on = RULE.lit.has(Q.id); if (on !== Q.on){ Q.on = on; Q.a.visible = !on; Q.b.visible = on; } Q.glow.material.opacity = on ? 0.5 + 0.08 * Math.sin(t * 5 + Q.x) : 0; }
+        if (P) for (const Q of glamps.filter(Q => Q.on && Math.abs(Q.x - P.x) < 15 && Math.abs(Q.y - P.y) < 10).sort((u, v) => Math.hypot(u.x - P.x, u.y - P.y) - Math.hypot(v.x - P.x, v.y - P.y))){ if (++n > 4) break; R.glint(Q.x, Q.y, 0xffd9a0, 1.05, 7.2, 0); } }
       for (const Q of planets){ const m = Q.m, [x, y] = moverAt(m, PHASE.t); Q.plate.position.x = x; Q.plate.position.y = y - 7 / PPU + 2 / PPU; if (Q.arm){ const dx = x - m.cx, dy = y - 0.3 - (m.cy - 0.3), L = Math.hypot(dx, dy); Q.arm.scale.x = L; Q.arm.position.x = m.cx + dx / 2; Q.arm.position.y = m.cy - 0.3 + dy / 2; Q.arm.rotation.z = Math.atan2(dy, dx); } }
       for (const S of streams){ const on = flowOn(S.f); S.m.visible = on; if (S.foam) S.foam.visible = on; if (!on) continue; if (S.f.dx) S.map.offset.x = -S.f.dx * ((t * S.k) % 1); else S.map.offset.y = (t * S.k) % 1; if (S.foam) S.foam.material.opacity = 0.35 + 0.2 * Math.sin(t * 17 + S.f.x0); if (rnd() < dt * 5 && P && Math.abs(P.x - (S.f.x0 + S.f.x1) / 2) < 16) R.glint(S.f.x0 + rnd() * (S.f.x1 - S.f.x0), S.f.y0 + (S.f.dx ? 0.4 : rnd() * (S.f.y1 - S.f.y0)), 0xbfe8ff, 0.7, 1.6, 0.12); }
       for (const B of calms){ const o = B.open ? 0.1 : 1 - 0.6 * B.p + (B.p > 0 ? 0.05 * Math.sin(t * 9) : 0); B.m.material.opacity += (o - B.m.material.opacity) * Math.min(1, dt * 7); if (B.p > 0 && !B.open && rnd() < dt * 14 * B.p) R.glint(B.x + (rnd() - 0.5) * (B.x1 - B.x0), B.y + (rnd() - 0.5) * (B.y1 - B.y0), 0xffffff, 0.9, 1.6, 0.1); }
@@ -453,7 +462,7 @@ export function makeProps(scene, R){
     bounce(mk){ const B = blooms.find(b => b.mk === mk); if (B) B.t = 0; },
     // everything cracked within r of (x, y) breaks; returns what broke
     breakAt(x, y, r){ const out = []; for (const C of cracks){ if (C.gone) continue; const dx = Math.max(Math.abs(x - C.x) - C.w / 2, 0), dy = Math.max(Math.abs(y - C.y) - C.h / 2, 0); if (Math.hypot(dx, dy) <= r){ shatter(C); out.push(C); } } return out; },
-    held, doors, decks, rods, sheets, shutters, grates, ways, ices, calms, streams, kepts, show: showHeld,   // show: the rule has changed (a ring begun or ended, the wing gone still): what is shut is drawn shut
+    held, doors, decks, rods, sheets, shutters, grates, ways, ices, calms, streams, kepts, glamps, show: showHeld,   // show: the rule has changed (a ring begun or ended, the wing gone still): what is shut is drawn shut
     // the sheets of vellum his body is in or against (he is in the Toll's step): torn. Returns them
     tear(P){ const out = []; for (const S of sheets) if (!S.gone && P.x + 0.6 > S.x0 && P.x - 0.6 < S.x1 && P.y + 2.4 > S.y0 && P.y < S.y1){ rip(S); out.push(S); } return out; },
     // the keeper has fallen (main.js has set RULE.fallen): what it held is let go. Returns the blocks, for their dust

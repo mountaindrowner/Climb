@@ -386,6 +386,9 @@ decision 0.10 matters.
 
 *Art cost:* the Deep's creatures and elites, about $3 to $6. The Auger is drawn in pieces, in code.
 
+*Phase 15 done (build 72): **the lamp, and the Vein**, by `docs/phase15-sheet.md`. A light he carries; twelve dark
+screens behind the guild's seal; lamps he lights that stay lit; the Echo; the Assayer; Raw Lampstone. Next: phase 16.*
+
 ## Phase 18: the Shard, and the end of the story
 
 - **The Shard,** reached with the grip, last.

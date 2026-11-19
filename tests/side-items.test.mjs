@@ -33,7 +33,7 @@ test('no relic is in two regions, and every keeper leaves something', () => { as
 // the region it is entered under, and each region's page is its keeper's
 test("Corwen's Annals: every creature entered, each under the region it lives in", async () => {
   const { ANNALS } = await import('../src/side/annals.js'), all = new Set(ANNALS.flatMap(a => a.creatures.map(c => c.type)));
-  const NOT = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust', 'rod', 'pilgrim', 'sweeper', 'clapper', 'hiscairn', 'brazier', 'sitter', 'server', 'lever', 'coil', 'crane', 'wheel', 'flow', 'setting', 'mover', 'hours']   /* the last two: who he passes in the passages (phase 9), not creatures */);
+  const NOT = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust', 'rod', 'pilgrim', 'sweeper', 'clapper', 'hiscairn', 'brazier', 'sitter', 'server', 'lever', 'coil', 'crane', 'wheel', 'flow', 'setting', 'mover', 'hours', 'glamp']   /* the last two: who he passes in the passages (phase 9), not creatures */);
   for (let N = 0; N < LEVELS.length; N++){
     const { marks, theme } = loadLevel(N), here = new Set(marks.filter(m => !NOT.has(m.type)).map(m => m.type));
     for (const t of here) assert.ok(all.has(t), `${t} (in ${LEVELS[N].name}) has no entry`);

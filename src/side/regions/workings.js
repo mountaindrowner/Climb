@@ -9,7 +9,7 @@
 //   long      the long level: a rail line the whole width of the Workings, carts on it, a gap where the floor went
 //   cistern   the bottom, where the water came in and stayed: lampreys on the roof, barnacles on the rock. The way on
 //             down (to the Flooded Levels) is under the water, and closed to him yet
-import { room, rect, walls, door, ledge, mark, stairs, EMPTY, LEDGE, SPIKES } from '../rooms.js';
+import { room, rect, walls, door, ledge, mark, stairs, EMPTY, LEDGE, SPIKES, CRACKED } from '../rooms.js';
 
 const filler = draw => { const r = room(); draw(r); r.filler = true; return r; };
 function solid(){ return filler(r => { rect(r, 0, 0, 39, 22); }); }
@@ -71,7 +71,7 @@ function long(){
   return r;
 }
 function cistern(){
-  const r = room(2, 2); walls(r); door(r, 'top', 10, 15);
+  const r = room(2, 2); walls(r); door(r, 'top', 10, 15); door(r, 'right', 2, 7);   // (east, at its foot: the guild's seal, and the stair to the Vein)
   // the water came in here and stayed: a deep basin across the floor, stone steps down into it, the roof high
   rect(r, 20, 1, 66, 3, EMPTY);
   // the guild's ladder of staging down from the hole in the roof, a jump apart: the way back up as well as down
@@ -84,6 +84,19 @@ function cistern(){
   mark(r, 'torch', 6, 26); mark(r, 'torch', 40, 16); mark(r, 'torch', 74, 22);
   mark(r, 'crystal', 34, 11); mark(r, 'crystal', 52, 11);
   mark(r, 'chest', 70, 17, { holds: 'relic:tally' });
+  return r;
+}
+
+// the guild's seal (phase 15): a wall of stone they built across the way down, and broke open again themselves, and
+// built again. The Warden's spade breaks it. Two of the guild's lamps here, unlit: the lamp he carries lights them
+function sealroom(){
+  const r = room(); walls(r); door(r, 'left', 2, 7); door(r, 'bottom', 28, 32);
+  rect(r, 14, 2, 15, 21); rect(r, 14, 2, 15, 7, CRACKED);
+  for (const x of [8, 10, 12, 17, 19, 21]) for (const y of [3, 6]) mark(r, 'keep', x, y);   // the floor stays level at the seal's foot, both sides: the wear would bank rock against it and shut the way under the wall
+  mark(r, 'glamp', 8, 8); mark(r, 'glamp', 24, 8);
+  mark(r, 'pass', 28, 0, { w: 5, h: 3, to: 7, at: 'top', gate: 'breaker' }); mark(r, 'arrive', 22, 2, { name: 'seal' });
+  mark(r, 'torch', 4, 10); mark(r, 'urn', 20, 2); mark(r, 'crystal', 36, 2);
+  r.title = 'THE GUILD\'S SEAL';
   return r;
 }
 
@@ -102,5 +115,5 @@ const themeDef = {
 export default { name: 'The Workings', theme: 'workings', sub: 'the guild\'s mines, under the water', card: '', epithet: '',
   deep: true, depth: [-0.6, -0.1], musicOf: 'roots', ambOf: 'roots', vestibule: false, looks: { cage: 'roots' },
   seed: 3141592, cols: 3, wear: { sag: 0.7, swell: 0.6, humps: 0.5 },
-  layout: [[0, 0, cistern, 2, 2], [2, 0, solid], [2, 1, solid], [0, 2, long, 3, 1], [0, 3, cage, 1, 2], [1, 3, props, 2, 1], [1, 4, tally], [2, 4, bunk]],
+  layout: [[0, 3, cage, 1, 2], [0, 0, cistern, 2, 2], [2, 0, sealroom], [2, 1, solid], [0, 2, long, 3, 1], [1, 3, props, 2, 1], [1, 4, tally], [2, 4, bunk]],
   themeDef };

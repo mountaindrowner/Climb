@@ -1,6 +1,6 @@
 # Phase 15: the lamp, and the Vein (the sheet)
 
-*The plan, written before building. "As built" at the end says what came of it.*
+*The plan was written before building; "As built" at the end says what came of it.*
 
 Two things, and the second needs the first: a light he carries, and the first part of the Deep that is truly dark.
 
@@ -74,5 +74,47 @@ it again.* **His lamp reaches further.**
 
 ### Art
 
-To buy: the Prospector (a swing), the glimmer (a walk). The Echo, the Assayer, the lamps and the crystals are drawn
-in code. About $0.12.
+The Prospector (a swing, a walk) and the glimmer are PixelLab's. The Echo, the Assayer, the lamps and the crystals'
+light are drawn in code. **Cost: $0.12; the balance is $2.42.**
+
+## As built (build 72), and what was checked
+
+- **338 automated checks pass**, nine of them this phase's own: the Vein's screens, its dark, its water, stair and
+  lamps; the stair out taken by a jump from its rungs; the Workings' seal, and the stair behind it reached only with
+  the spade; the Prospector; the glimmer; the Echo catching one who stands and not one who goes on; the Echo held at
+  the edge of a lit lamp's light, and not by an unlit one; the Assayer; the relic and the count of things to find.
+- **Played through by the test browser:** a guild lamp lit by coming to it; three seconds behind a Prospector with
+  nothing, then between him and the glitter and struck; a glimmer still at four tiles and biting at one; the Echo
+  catching him after he walked and stood in the dark; the same walk to a lamp, lit, and six seconds under it with
+  the Echo held at the edge; ten seconds under one of the Assayer's pans (four blows) and ten under its post
+  (none); the Assayer broken, its hatch open, down into the cradle; the relic; out onto the lip; up the stair into
+  the Workings behind the seal, and back down the hole into the Vein.
+- **Found and fixed while building:**
+  - **The way out of the Vein could not be taken.** I had set it at the top of the stair, but that room's roof is
+    the top of the level, and he cannot jump into the last rows under it. The checks passed it (they ask only that
+    he can get near). Found by playing it; the way up is now taken from the third rung, and a check plays the jump.
+  - The dark was too dark to play in: his lamp's pool was faint and small. The lamp, the lit lamps and the crystals
+    are brighter now.
+  - A lit lamp's glow was drawn as a hard square.
+  - A lit lamp's safe ground was smaller than its light looked, so standing in the light was not safe. It is wider.
+  - The wear had banked rock against the guild's seal, which would have shut the way under the wall even with the
+    seal broken. The floor is held level there.
+  - The older checks took the new stair for the Workings' way out, and said a passage behind a gate "cannot be
+    reached". They are taught: a gated passage must be reached with its gate open, and not before.
+  - Each level of the Deep has Hob in it once, and the Vein had no Hob. He is at its water, under the second lamp,
+    with three things to say; the third is the Echo's rule.
+  - **Ordric had been drawn wrong since build 69** (my fault: see the build log). Mended in this build.
+- **Not as the plan had it:**
+  - The lamp is not handed over in a scene. He has it from the Warden on, and is told at the next water.
+  - The seal is at the Workings' cistern, not below the Flooded Levels, which are not built.
+  - The Prospectors do not test whether he is in the light: only whether he is between them and their crystal.
+  - The knot is three straight galleries joined by four shafts. It loops, but it is not hard to hold in the head, and
+    Corwen's map is not needed for it.
+- **Not checked:** nothing here was played by hand. The sounds. **How dark it really looks on a screen**: I have only
+  my own captures, and darkness is the thing most likely to be wrong on someone else's display. Whether the Echo is
+  frightening or only a nuisance. Whether the Assayer is too easy once the post is found to be safe (it always is).
+- **A save is not moved.** A save that is already past the Warden has the lamp at once.
+
+## Left for later
+
+- Phase 16: the Flooded Levels, the Great Shaft, and travel through the water. The lip is where the Shaft begins.

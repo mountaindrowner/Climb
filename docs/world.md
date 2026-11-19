@@ -176,7 +176,7 @@ pump-house* (the elite) · *the overflow* (where the water pours down a stair in
 (a niche the miners carved, flooded to the altar; a guild lamp on it, still burning under the water).
 
 ### The Vein
-*−1,300 to −2,200 m · 12 screens · needs the Warden's weight (to break the guild's seal on the deep levels)*
+*−1,300 to −2,200 m · 12 screens (built, build 72) · needs the Warden's weight (to break the guild's seal on the deep levels)*
 
 **History.** Below the flood the vein of lampstone grew richer and stranger: it began to glitter, to grow in crystals,
 to give light on its own without being broken. The guild sealed these levels for a time, then opened them again, because

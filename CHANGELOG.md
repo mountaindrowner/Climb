@@ -2,7 +2,16 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Orrery Wing (latest; phase 14, build 71): the Firmament's east wing.** `docs/phase14-sheet.md` has all of it.
+**The lamp, and the Vein (latest; phase 15, build 72).** `docs/phase15-sheet.md` has all of it.
+- **A lamp he carries,** Ordric's, his from the Warden on. It does not burn down.
+- **The Vein:** a new part of the Deep, twelve screens, behind the guild's seal off the Workings' cistern. It is truly dark: he sees by his lamp, by the vein's crystals, and by the guild's lamps he lights as he comes to them, which stay lit.
+- **Its rule: do not go back over it.** The Echo goes where he went a few seconds ago and strikes where he was. It will not come into the light of a lamp he has lit.
+- **Prospectors** notice only what comes between them and the glitter. **Glimmers** are ore until he is on them.
+- **The Assayer,** its keeper: a great balance whose pans come down where he stands.
+- **A relic:** Raw Lampstone. His lamp reaches further.
+- 338 checks. No save is moved.
+
+**The Orrery Wing (phase 14, build 71): the Firmament's east wing.** `docs/phase14-sheet.md` has all of it.
 - **Nine screens east of the orrery room, open to anyone.** The astronomers' brass sky, wound to tell the hour the flame would come back.
 - **Things that move and carry him:** new to the game. Pallets that rise and fall, planets on turning arms. He rides the orrery up through its room.
 - **The hours:** a floor of plates, a hammer over each. It calls an hour, and strikes the one after. Always. The lit plate is the safe one.

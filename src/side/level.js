@@ -9,6 +9,7 @@ import tempest from './regions/tempest.js';
 import gardens from './regions/gardens.js';
 import firmament from './regions/firmament.js';
 import workings from './regions/workings.js';
+import vein from './regions/vein.js';
 import { SEAMS, LOWER, RULES } from './seams.js';
 import * as OSSUARY from './regions/ossuary.js';
 import * as SCRIPTORIUM from './regions/scriptorium.js';
@@ -392,6 +393,7 @@ const REGIONS = [
   { ...gardens, quiet: [...(gardens.quiet || []), ...AQUEDUCTS.QUIET, ...HOUSES.QUIET], enemies: { ...gardens.enemies, ...AQUEDUCTS.enemies, ...HOUSES.enemies }, ai: { ...gardens.ai, ...AQUEDUCTS.ai, ...HOUSES.ai }, deco: (px, PAL) => ({ ...gardens.deco(px, PAL), ...AQUEDUCTS.decoDef(px, PAL), ...HOUSES.decoDef(px, PAL) }), looksDef: { ...AQUEDUCTS.looks, ...HOUSES.looks } },   // the Gardens with what their wing brings (regions/aqueducts.js)
   { ...firmament, quiet: [...(firmament.quiet || []), ...ORRERY.QUIET], enemies: { ...firmament.enemies, ...ORRERY.enemies }, ai: { ...firmament.ai, ...ORRERY.ai }, deco: (px, PAL) => ({ ...firmament.deco(px, PAL), ...ORRERY.decoDef(px, PAL) }), looksDef: ORRERY.looksOf(firmament.themeDef) },   // the Firmament with what its wing brings (regions/orrery.js)
   workings,   // the Deep: off the climb, under it (deep: true)
+  vein,       // and under that, behind the guild's seal (dark: true)
 ];
 export const LEVELS = REGIONS.map(r => ({ name: r.name, theme: r.theme, sub: r.sub || '', card: r.card || '', epithet: r.epithet || '' }));
 export const REGION_DATA = REGIONS;
@@ -430,7 +432,7 @@ function core(n){
     const r = make(), ox = cx * ROOM.w, oy = cy * ROOM.h;
     for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) tiles[(oy + y) * W + ox + x] = r.tiles[y][x];
     for (const m of r.marks) marks.push({ ...m, x: ox + m.x, y: oy + m.y });
-    if (!r.filler) rooms.push({ name: make.name, title: r.title || '', gate: r.gate || '', open: !!r.open, x0: ox * T, y0: oy * T, x1: (ox + r.w) * T, y1: (oy + r.h) * T, tx0: ox, ty0: oy, tx1: ox + r.w, ty1: oy + r.h });
+    if (!r.filler) rooms.push({ name: make.name, title: r.title || '', gate: r.gate || '', open: !!r.open, ...(r.after ? { after: true } : {}), x0: ox * T, y0: oy * T, x1: (ox + r.w) * T, y1: (oy + r.h) * T, tx0: ox, ty0: oy, tx1: ox + r.w, ty1: oy + r.h });
   }
   if (SEAM){   // he comes in at the seam's foot (the region's own start is let go); a hole up into the first room, boarded
     let first = true; for (let k = marks.length - 1; k >= 0; k--) if (marks[k].type === 'spawn'){ if (marks.slice(0, k).some(m => m.type === 'spawn')) marks.splice(k, 1); }
@@ -697,7 +699,7 @@ function nooks(tiles, W, H, marks, rooms, S, M, n){
 }
 // each is moved to the best place in its room: a flat floor seven tiles wide with six of air over it, clear of the other
 // markers. Ordric stands four tiles from the room's flame (on the side with room); the others as near the room's middle as fits
-const NOT_FOE = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust', 'rod', 'flow', 'mover']);
+const NOT_FOE = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust', 'rod', 'flow', 'mover', 'glamp']);
 function stations(tiles, W, H, marks, rooms, S){
   if (!S) return;
   const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i], solid = t => t === ROCK || t === LEDGE;

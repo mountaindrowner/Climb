@@ -34,7 +34,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 71, date: '19 NOV 2026', phase: 14, phases: 22, last: 'THE ORRERY WING' };
+const VERSION = { build: 72, date: '19 NOV 2026', phase: 15, phases: 22, last: 'THE LAMP, AND THE VEIN' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -86,9 +86,10 @@ function learn(){
   const b = n => !!G.beat[n] || G.top > n || (DEV && LEVEL.index > n);
   CAN.breaker = b(0); CAN.dash = b(1); CAN.glide = b(2);
   if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the spade (a save from before has it now)
-  SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); SIDE.boots = has('boots'); SIDE.calm = has('stillair'); if (P){ P.flaskMax = maxFlask(); P.flask = Math.min(P.flask, P.flaskMax); const mh = maxHearts(); if (mh > P.maxHp) P.hp += mh - P.maxHp; P.maxHp = mh; P.hp = Math.min(P.hp, mh); }   // (the yoke, the second place: worn or taken off) EMBER.mend = has('seedheart') ? 7 : 10;   // what he carries, worn (builds 49 to 66 had this line inside the comment above it: these did nothing)
+  SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); SIDE.boots = has('boots'); SIDE.calm = has('stillair'); if (CAN.breaker && !G.lamp){ G.lamp = 1; G.lampNew = 1; } if (P){ P.flaskMax = maxFlask(); P.flask = Math.min(P.flask, P.flaskMax); const mh = maxHearts(); if (mh > P.maxHp) P.hp += mh - P.maxHp; P.maxHp = mh; P.hp = Math.min(P.hp, mh); }   // (the yoke, the second place: worn or taken off) EMBER.mend = has('seedheart') ? 7 : 10;   // what he carries, worn (builds 49 to 66 had this line inside the comment above it: these did nothing)
 }
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
+const GLITTER = { lv: null, at: [] };   // the Vein: where its crystals are (they light the dark round them)
 const CALMS = { wait: 2.5, open: 4, near: 4.5, ease: 0.5 }, EYE = { door: null, p: 0, held: null };   // the Eye of the Storm (regions/eye.js CALMS says the same): the door of cloud he waits at, and how long he has waited
 const WAY = { was: false, said: new Map() };   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
 // `walked`: he has walked in from the next region (cross): he and his scarf are as they were
@@ -185,6 +186,17 @@ function wingStep(dt){
   // any is, his house is shut (level.js KEPT). He is not shut in its doorway
   if (PROPS.kepts.length){ let n = 0; for (const e of E.list){ if (e.type === 'setting' && e.broken) n++; else if (e.type === 'housekeeper' && e.alive && e.wronged) n++; }
     if (n !== RULE.upset){ const was = RULE.upset; RULE.upset = n; PROPS.show(); if (!RULE.unkept && (was === 0) !== (n === 0)){ if (PROPS.kepts.some(B => Math.hypot(B.x - P.x, B.y - P.y) < 24)) sfx.door(); for (const B of PROPS.kepts) if (n > 0 && P.x + 0.4 > B.x0 && P.x - 0.4 < B.x1 && P.y + 2.4 > B.y0 && P.y < B.y1) P.y = B.y1 + 0.52; } } }
+  // the lamp (phase 15): Ordric's, his from the Warden on (learn: a save already past the Warden has it at once). Where
+  // it is dark it is the light he has; and the guild's lamps he comes to with it are lit, and stay lit. What lives in
+  // the dark and gives its own light is seen by it
+  { const dark = !!REGION_DATA[LEVEL.index].dark;
+    if (dark && G.lamp) R.glint(P.x, P.y + 1.4, 0xffe2b0, 1.25, has('lampstone') ? 11.5 : 8.5, 0);
+    if (G.lamp && PROPS.glamps.length) for (const Q of PROPS.glamps) if (!RULE.lit.has(Q.id) && Math.abs(Q.x - P.x) < 1.5 && Q.y > P.y - 0.5 && Q.y < P.y + 5.5){ RULE.lit.add(Q.id); (G.lit = G.lit || {})[LEVEL.index] = [...RULE.lit]; store(); sfx.relic(); fx.burst({ x: Q.x, y: Q.y }, 14, 0xffd9a0); R.glint(Q.x, Q.y, 0xffffff, 1.2, 7, 0.5);
+      if (!G.glampTold){ G.glampTold = 1; store(); banner('A guild lamp', 'lit from his own. It will stay lit.', 5); } }
+    if (dark){ if (!GLITTER.lv || GLITTER.lv !== LEVEL){ GLITTER.lv = LEVEL; GLITTER.at = LEVEL.marks.filter(m => m.type === 'crystal').map(m => [(m.x + 0.5) * T, m.y * T + 0.4]); }
+      let g = 0; for (const q of GLITTER.at.filter(q => Math.abs(q[0] - P.x) < 14 && Math.abs(q[1] - P.y) < 9).sort((u, v) => Math.hypot(u[0] - P.x, u[1] - P.y) - Math.hypot(v[0] - P.x, v[1] - P.y))){ if (++g > 3) break; R.glint(q[0], q[1], 0x9fe8ff, 0.75, 4.6, 0); }
+      let n = 0; for (const e of E.list){ if (!e.alive || Math.abs(e.x - P.x) > 16 || Math.abs(e.y - P.y) > 10) continue; if (e.type === 'echo' && e.shown) R.glint(e.x, e.y + 1.2, 0x9fd8ff, 0.42, 2.6, 0); else if (e.type === 'assayer') R.glint(e.x, e.y + 3, 0xffd9a0, 0.6, 7.5, 0); else if (e.type === 'glimmer' && n++ < 3) R.glint(e.x, e.y + 0.4, 0x9fe8ff, e.dormant ? 0.3 : 0.5, 2, 0); } }
+    if (!G.lipSeen && dark && P.grounded) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'shaft' && Math.abs(m.x * T - P.x) < 12 && P.y > m.y * T + 3){ G.lipSeen = 1; store(); banner('The lip', 'the Great Shaft. It goes down further than his lamp.', 7); } }
   // the Orrery Wing: the hours cut in the wall, the first time he stands by them
   if (!G.datesSeen && P.grounded && (LEVEL.movers || []).length) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'dates' && Math.abs(m.x * T - P.x) < 3 && Math.abs(m.y * T - P.y) < 2){ G.datesSeen = 1; store(); banner('The hours', 'every hour it gave for the flame to come back. All of them are past.', 7); }
   // the Aqueducts: the head, the first time he stands at it
@@ -514,7 +526,7 @@ const hear = () => { HEARD = true; ac(); }; STORY.quiet = () => !HEARD; for (con
 addEventListener('keydown', e => { if (e.code === 'KeyN'){ MUTED = !MUTED; try { localStorage.setItem('climb-side-mute', MUTED ? '1' : '0'); } catch (err){} banner('', MUTED ? 'music off' : 'music on', 1.6); } });
 // a region with no music of its own has another's (musicOf: the Workings, the Roots')
 const alias = theme => { const R = REGION_DATA.find(q => q.theme === theme); return (R && R.musicOf) || theme; };
-const SCORE = makeScore(), AMB = { workings: 'cave', roots: 'cave', cloister: 'cave', spires: 'wind', tempest: 'storm', gardens: 'garden', firmament: 'wind' };
+const SCORE = makeScore(), AMB = { vein: 'cave', workings: 'cave', roots: 'cave', cloister: 'cave', spires: 'wind', tempest: 'storm', gardens: 'garden', firmament: 'wind' };
 function score(){
   if (!HEARD) return; const A = ac(); if (!A) return; if (!MUSIC) MUSIC = makeMusic(A, musicBus() || A.destination);
   const k = STORY.kind, fight = BOSS && BOSS.active() && BOSS.st !== 'die', quiet = ENT.hush || (BOSS && (BOSS.st === 'die' || (BOSS.st === 'dead' && !WON)));
@@ -733,7 +745,7 @@ function frame(ts){
   // at the water: mended, the flask filled. The first time at each, what it is: the raising pool gives him back after a
   // fall; a leak only mends
   for (const S of SHRINES) if (Math.abs(P.x - S.x) < S.half && Math.abs(P.y - S.y) < 1.5 && P.hp > 0 && !DISS && (!TOUCHED.has(S) || P.flask < P.flaskMax || P.hp < P.maxHp)){
-    const first = !TOUCHED.has(S); TOUCHED.add(S); P.flask = P.flaskMax; P.hp = P.maxHp; SIDE.leaf = has('blankleaf'); SIDE.hour = has('lastpage'); if (first) sfx.shrine(); else sfx.drink(); store(); fx.ring({ x: P.x, y: S.y + 0.6 }, 0x9fe8ff); R.glint(P.x, S.y + 1, 0x9fe8ff, 0.8, 6, 0.8);
+    const first = !TOUCHED.has(S); TOUCHED.add(S); if (G.lampNew){ G.lampNew = 0; banner('The lamp', 'Ordric has left it by the water for him. It does not burn down.', 7); } P.flask = P.flaskMax; P.hp = P.maxHp; SIDE.leaf = has('blankleaf'); SIDE.hour = has('lastpage'); if (first) sfx.shrine(); else sfx.drink(); store(); fx.ring({ x: P.x, y: S.y + 0.6 }, 0x9fe8ff); R.glint(P.x, S.y + 1, 0x9fe8ff, 0.8, 6, 0.8);
     if (first) (BANNER ? f => LATER.push({ t: 4, f }) : f => f())(() => banner(S.raise ? 'The water gathers here' : 'Water seeps through the rock here', S.raise ? 'when he falls, it gives him back here' : 'it mends him, and fills the flask', 4));   // after the place's own name, if that is up
   }
 
@@ -1052,6 +1064,7 @@ function onEvent(e){
     case 'surge': { RULE.surge = SURGE; sfx.thunder(); sfx.zap(); FLASH = Math.max(FLASH, 0.3); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.4); fx.ring(e.at, 0xffffff); fx.burst(e.at, 30, 0xbfe8ff); R.shock(e.at.x, e.at.y, true); for (const D of PROPS.decks) if (D.works) R.glint(D.x, D.y, 0xffffff, 1, 3, 0.3); break; }
     case 'kill':
       // the Jar is broken: the works are dead, for good. No iron shocks; the coils and the arms are still; the grates lift
+      if (e.e && e.e.type === 'assayer'){ RULE.still = true; (G.still = G.still || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.door(); sfx.crack(); FEEL_FX.shake = 0.6; SLOW = Math.max(SLOW, 0.9); fx.burst(e.at, 36, 0xffd9a0); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); for (const B of PROPS.grates) fx.dust({ x: B.x, y: B.y }, 14, 3); banner('The Assayer is still', 'it weighed him, and the beam did not come down', 5.5); }
       if (e.e && e.e.type === 'almanac'){ RULE.still = true; (G.still = G.still || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.door(); sfx.crack(); FEEL_FX.shake = 0.6; SLOW = Math.max(SLOW, 0.9); fx.burst(e.at, 36, 0xfeae34); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); for (const B of PROPS.grates) fx.dust({ x: B.x, y: B.y }, 14, 3); banner('The Almanac is shut', 'it was an hour out about this, too', 5.5); }
       if (e.e && e.e.type === 'housekeeper'){ RULE.unkept = true; (G.unkept = G.unkept || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.door(); sfx.crack(); FEEL_FX.shake = 0.5; SLOW = Math.max(SLOW, 0.9); fx.burst(e.at, 30, 0xfff2d0); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); banner('The Housekeeper is still', 'nothing in these houses will be set right again', 5.5); }
       if (e.e && e.e.type === 'lock'){ RULE.still = true; RULE.surge = 0; (G.still = G.still || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.door(); sfx.rumble(); sfx.splash(); FEEL_FX.shake = 0.7; SLOW = Math.max(SLOW, 0.9); fx.burst(e.at, 40, 0xbfe8ff); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); for (const B of PROPS.grates) fx.dust({ x: B.x, y: B.y }, 14, 3); banner('The Lock is open', 'the water goes where it was going. Its keepers stand down.', 5.5); }

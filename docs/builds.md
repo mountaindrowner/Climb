@@ -50,6 +50,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 72 | 19 Nov 2026 | `COMMIT72` | The lamp, and the Vein (phase 15): the dark | no | yes (now) |
 | 71 | 19 Nov 2026 | `aaae08a` | The Orrery Wing (phase 14); things that move and carry him | no | yes (now) |
 | 70 | 19 Nov 2026 | `1a5edcb` | A mend to 69: the moths keep to their own rooms | no | yes (now) |
 | 69 | 19 Nov 2026 | `b21499c` | The Keepers' Houses (phase 13, second half) | no | yes (now) |
@@ -82,6 +83,34 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 72: the lamp, and the Vein
+
+- **For the player:** a lamp he carries (his from the Warden on; told of at the next water). A new part of the Deep,
+  **the Vein**: twelve screens, truly dark, behind the guild's seal in a new room off the foot of the Workings'
+  cistern (the Warden's spade breaks it). Guild lamps that he lights by coming to them, and that stay lit.
+  Prospectors, glimmers, the Echo (which follows where he went and will not enter a lit lamp's light), the Assayer.
+  A relic: Raw Lampstone (his lamp reaches further). All of it in `docs/phase15-sheet.md`.
+- **Underneath:** new `src/side/regions/vein.js`, a new level (the eighth; `dark: true`); the Workings gain a room
+  (`sealroom`) and a door in the cistern's east wall; the lamp's light, the lighting of lamps, the dark's own lights
+  and the Assayer's end in `main.js`; the guild's lamps drawn in `props.js`; a core room can now be marked `after`
+  (behind its keeper) in `level.js`; a passage can carry a `gate`. Lit lamps are kept in the save's `lit`, with the
+  Glacier's fires. New art: `assets/side/px_prospector`, `px_glimmer`; `px_echo` and `px_assayer` drawn by hand for
+  the Annals.
+- **A fault of mine from build 69, mended here: Ordric was drawn wrong.** His drawing lives in a folder called
+  `px_moth` (he is a moth). In build 69 I named the Keepers' Houses' moth the same, and the new drawing went over his.
+  So in builds 69, 70 and 71 Ordric, at every water on the mountain, was the Houses' pale moth, and had lost his idle
+  movement. I found it while adding Hob to the Vein. His files are back exactly as they were before build 69 (checked
+  against that commit, byte for byte); the Houses' moth has its own folder (`px_housemoth`); no other drawing was
+  affected (each of the other new folders was new); and the art tool now refuses to draw onto a folder that exists.
+- **No change to the motor** in this build.
+- **Save: not moved.** Adds: the lamp (`lamp`), lit lamps (`lit`, per level), the Assayer still (`still` for the
+  Vein), the relic, and which words were said. The game now has eight levels, not seven: anything that counts them
+  (the level list in the menu, for one) shows one more.
+- **Checked:** 338 automated checks, nine of them this phase's; a play-through in the test browser (see the
+  sheet); the zip opened, the title and every region, the Vein among them.
+- **Not checked:** not played by hand; the sounds; how dark it looks on a real screen.
+- **Cost:** $0.12 (the Prospector and the glimmer).
 
 ### Build 71: the Orrery Wing
 
@@ -329,6 +358,7 @@ gone over again.
   browser.
 - **The sounds added since phase 9 are unheard.**
 - The pause menu's lower buttons overlap the controls' help at a small window (seen in build 63; older).
+- **Builds 69 to 71 show Ordric as the wrong moth** (mended in 72). If one of those is ever restored, it has this fault.
 - **The Thornback (the Gardens' boar) is drawn at an angle,** not side-on (you saw it, 19 Nov 2026). To be redrawn:
   `docs/pixellab-wishlist.md`, "To redo".
 - The Toll's keeper check has one row that fails (standing still in its second half is not hurt). Older than phase 9;

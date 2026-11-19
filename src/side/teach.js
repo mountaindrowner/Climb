@@ -131,6 +131,7 @@ export const ICONS = {
   yoke: ['', '', '.kkkkkkkkkkkkkk', '.kuuuuWWWWuuuuk', '.kkkkkkkkkkkkkk', '..k..........k', '..k..........k', '.kkk........kkk', '.kck........kck', '.kck........kck', '.kkk........kkk'],
   place: ['', '', '....kkkkkk', '..kkwwwwwwkk', '.kwwwppppwwwk', '.kwwpwwwwpwwk', '.kwwpwwwwpwwk', '.kwwwppppwwwk', '..kkwwwwwwkk', '....kkkkkk'],
   lastpage: ['', '...kkkkkkkk', '..kppppppppk', '..kppppppppk', '..kppppppppk', '..kppppppppk', '..kppppppppk', '..kppppppppk', '..kppppppkkk', '..kpppppkpk', '..kkkkkkkk'],
+  lampstone: ['', '', '......kk', '.....kwwk', '....kwppwk', '...kwwppwwk', '...kwppppwk', '....kwppwk', '....kwppwk', '.....kwwk', '......kk'],
   boots: ['', '', '....kkkk', '....kWWk', '....kWWk', '....kWWk', '....kWWkkkk', '....kWWWWWWk', '....kuuuuuuk', '....kkkkkkkk'],
   blankleaf: ['', '...kkkkkkkk', '..kppppppppk', '..kppppppppk', '..kpllllllpk', '..kppppppppk', '..kpllllllpk', '..kppppppppk', '..kpllllllpk', '..kppppppppk', '..kppppppkk', '...kkkkkkk'],
   stylus: ['............kk', '...........kpk', '..........kplk', '.........kplk', '........kplk', '.......kplk', '......kplk', '.....kyyk', '....kyyk', '...klk', '..kk'],

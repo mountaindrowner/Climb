@@ -983,13 +983,13 @@
   }
  },
  "px_moth": {
-  "id": "74b7558a-14ae-4091-89d7-9b9984188b69",
-  "description": "a large pale moth, dusty cream and grey wings spread, fat furry body, feathery antennae, soft and dusty, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "id": "7df1ff5c-fef1-49f3-802a-b51dd3cdb0d5",
+  "description": "an old moth standing upright, a big round furry moth head with two large dark glossy eyes and two big feathery fern-like antennae sweeping back, a ruff of pale fur at its neck, tattered dusty grey-brown wings folded down its back like a long cloak, thin dark legs, holding a tall iron pole with a small lantern hanging from its hook, an anthropomorphic creature standing upright on two legs like a person, tall and lean with long thin legs, worn and weathered, grim and dignified, not cute, not chibi, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer character",
   "anims": {
-   "fly": {
-    "action": "fluttering in place, wings beating up and down",
-    "frames": 6,
-    "group": "4e2079b8-1132-48da-9226-60bc7e9e8ec0"
+   "idle": {
+    "action": "standing still, breathing slowly, antennae twitching, the lantern swaying a little",
+    "frames": 8,
+    "group": "966429ce-38fa-43f8-9175-31e369597154"
    }
   }
  },
@@ -1211,6 +1211,44 @@
     "action": "raising one arm straight up and bringing it down sharply as if ringing a bell",
     "frames": 8,
     "group": "5aa87236-b392-40dd-8241-cddb9b64fe06"
+   }
+  }
+ },
+ "px_prospector": {
+  "id": "b5343162-0ada-421e-83a8-277175b6e62a",
+  "description": "a gaunt old miner prospector, bent forward, a wide dusty hat and a long ragged coat, a pickaxe held in both hands, a small dead lamp hanging at the belt, pale dust all over, the eyes two pale blue glints, grey and brown with pale blue highlights, simple stylized chunky pixel art with few colors and bold shapes, seen strictly from the side in flat profile, 2D platformer enemy",
+  "anims": {
+   "attack": {
+    "action": "raising the pickaxe high overhead and swinging it down hard in front",
+    "frames": 8,
+    "group": "fe8ed32c-fd2e-4d84-92ec-fc6e43c980ad"
+   },
+   "walk": {
+    "action": "walking forward slowly, bent, the pickaxe held low",
+    "frames": 8,
+    "group": "1212faa7-5386-4918-8271-881f22827dbe"
+   }
+  }
+ },
+ "px_glimmer": {
+  "id": "2769dad3-73d9-410f-a7ef-91b87b3512c0",
+  "description": "a low crab-like creature whose back is a cluster of pale blue-white glowing crystals, six short dark legs, no eyes, it looks like a lump of crystal ore, simple stylized chunky pixel art with few colors and bold shapes, seen strictly from the side in flat profile, 2D platformer enemy",
+  "anims": {
+   "walk": {
+    "action": "scuttling forward quickly on its short legs",
+    "frames": 6,
+    "group": "5200984f-3e4d-49b2-bef4-a4324995cd1e"
+   }
+  }
+ },
+ "px_housemoth": {
+  "id": "74b7558a-14ae-4091-89d7-9b9984188b69",
+  "description": "a large pale moth, dusty cream and grey wings spread, fat furry body, feathery antennae, soft and dusty, simple stylized chunky pixel art with few colors and bold shapes, seen from the side in profile, 2D platformer enemy",
+  "anims": {
+   "fly": {
+    "action": "fluttering in place, wings beating up and down",
+    "frames": 6,
+    "group": "4e2079b8-1132-48da-9226-60bc7e9e8ec0"
    }
   }
  }
