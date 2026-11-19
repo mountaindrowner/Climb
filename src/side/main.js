@@ -34,7 +34,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 66, date: '19 NOV 2026', phase: 12, phases: 21, last: 'THE WRECK OF THE WORKS' };
+const VERSION = { build: 67, date: '19 NOV 2026', phase: 12, phases: 21, last: 'THE EYE OF THE STORM' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -85,12 +85,15 @@ const SUB = LEVELS.map(l => l.sub), CARD = LEVELS.map(l => l.card);   // under a
 function learn(){
   const b = n => !!G.beat[n] || G.top > n || (DEV && LEVEL.index > n);
   CAN.breaker = b(0); CAN.dash = b(1); CAN.glide = b(2);
-  if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the spade (a save from before has it now) SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); SIDE.boots = has('boots'); EMBER.mend = has('seedheart') ? 7 : 10;
+  if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the spade (a save from before has it now)
+  SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); SIDE.boots = has('boots'); SIDE.calm = has('stillair'); EMBER.mend = has('seedheart') ? 7 : 10;   // what he carries, worn (builds 49 to 66 had this line inside the comment above it: these did nothing)
 }
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
+const CALMS = { wait: 2.5, open: 4, near: 4.5, ease: 0.5 }, EYE = { door: null, p: 0, held: null };   // the Eye of the Storm (regions/eye.js CALMS says the same): the door of cloud he waits at, and how long he has waited
 const WAY = { was: false, said: new Map() };   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
 // `walked`: he has walked in from the next region (cross): he and his scarf are as they were
 function setup(walked = false){
+  RULE.hush = 0; RULE.open = 0; RULE.calmFree = false; EYE.door = EYE.held = null; EYE.p = 0;   // the Eye of the Storm: its doors of cloud shut
   RULE.sw = (G.sw && G.sw[LEVEL.index]) || 0; RULE.surge = 0; RULE.swFree = false;   // the Wreck of the Works: the lever as he left it
   RULE.litAll = false; RULE.lit = new Set((G.lit && G.lit[LEVEL.index]) || []);   // the Glacier Galleries: the fires he has lit here burn on
   RULE.turned = false; RULE.down = !!G.cairnDown; WAY.was = false; WAY.said = new Map();   // the Pilgrims' Cairns: the way is whole as he comes in; his own cairn, once down, stays down
@@ -163,6 +166,19 @@ function wingStep(dt){
   if (LEVEL.theme === 'spires' && P.grounded){ const now = performance.now() / 1000;
     for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'reason' && Math.abs((m.x + 0.5) * T - P.x) < 1.3 && Math.abs(m.y * T - P.y) < 1.5 && now - (WAY.said.get(m) || -99) > 14 && !(BANNER && BANNER.t > 0)){ WAY.said.set(m, now); banner('', 'scratched on the stone: ' + m.says, 2.6); }
     if (!G.cairnSeen) for (const e of E.list) if (e.type === 'hiscairn' && e.alive && Math.abs(e.x - P.x) < 3.2 && Math.abs(e.y - P.y) < 2){ G.cairnSeen = 1; store(); banner('His own cairn', 'his name is on the top stone, from before he fell. Under it: NOT YET.', 6.5); } }
+  // the Eye of the Storm: how long he has stood still (the Hush stir on it: regions/eye.js); the door of cloud he stands
+  // by thins as he waits, and opens; it is open a little while, and not shut on him while he is in it
+  if (PROPS.calms.length && !PAUSE){
+    const still = P.grounded && Math.abs(P.vx) < 0.6 && !(P.dashT > 0) && !IN.held.left && !IN.held.right; RULE.hush = still ? RULE.hush + dt : 0;   // still: on his feet, not moving, and not pushing either way (leaning on the door is not waiting)
+    let near = null, nd = CALMS.near; for (const B of PROPS.calms){ if (P.y + 2.4 < B.y0 || P.y > B.y1 + 0.5) continue; const d = Math.max(B.x0 - P.x, P.x - B.x1, 0); if (B.flat && (d > 0 || Math.abs(P.y - B.y1) > 0.3)) continue; if (d < nd){ nd = d; near = B; } }   // (a floor of cloud: only for one who stands on it)
+    if (near !== EYE.door){ EYE.door = near; EYE.p = 0; }
+    if (near && !near.open){ EYE.p = still ? EYE.p + dt : Math.max(0, EYE.p - dt * CALMS.ease);
+      if (!G.eyeTold && nd < 1.5){ G.eyeTold = 1; store(); banner('A door of cloud', 'it gives to nothing that pushes. It opens to one who stands and waits.', 6); }
+      if (EYE.p >= CALMS.wait){ if (EYE.held) EYE.held.open = false; EYE.held = near; near.open = true; EYE.p = 0; RULE.open = CALMS.open; RULE.ox0 = near.i0; RULE.ox1 = near.i1; RULE.oy0 = near.j0; RULE.oy1 = near.j1; sfx.whoosh(); fx.dust({ x: near.x, y: near.y0 }, 14, 3); } }
+    for (const B of PROPS.calms) B.p = B === EYE.door && !B.open ? Math.min(1, EYE.p / CALMS.wait) : 0;
+    if (RULE.open > 0){ RULE.open -= dt; if (RULE.open <= 0){ const B = EYE.held, inIt = B && P.x + 0.6 > B.x0 && P.x - 0.6 < B.x1 && P.y + 2.5 > B.y0 && P.y < B.y1; if (inIt) RULE.open = 0.05; else { RULE.open = 0; if (B) B.open = false; EYE.held = null; sfx.whoosh(); } } }
+    if (!G.eyeSeat && P.grounded) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'seat' && Math.abs(m.x * T - P.x) < 3 && Math.abs(m.y * T - P.y) < 2){ G.eyeSeat = 1; store(); banner('Its seat', RULE.fallen ? 'the Thunderhead sat here, and the storm went round it. No more.' : 'something sat here, and the storm went round it. It has gone down.', 7); }
+  }
   // the Wreck of the Works: the Jar's discharge runs through all the iron for a moment (level.js liveAt)
   if (RULE.surge > 0 && !PAUSE){ RULE.surge = Math.max(0, RULE.surge - dt); if (RULE.surge === 0) PROPS.show(); }
   // the Bell-Foundry's ringing dies away: in silence the shutters go up (the tongues and the slag see RULE.ring for themselves)

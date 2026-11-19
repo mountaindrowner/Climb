@@ -32,6 +32,7 @@ export const ANNALS = [
     creatures: [
       { type: 'squall', name: 'Squall Knight', art: 'px_squall', line: 'The storm took his name and left him his shield.' },
       { type: 'nimbus', name: 'Nimbus', art: 'px_nimbus', line: 'A piece of the storm, wearing its mask.' },
+      { type: 'hush', name: 'The Hush', art: 'px_hush', line: 'It does not move while he moves. It comes when he stands still.' },
       { type: 'jar', name: 'The Jar', art: 'px_jar', line: 'The Wrights caught the lightning to keep it. It kept them.' },
       { type: 'spark', name: 'Ball Lightning', art: 'px_spark', line: 'Lightning that will not finish falling.' } ] },
   { region: 'The Gardens', keeper: { theme: 'gardens', art: 'mother/heart', name: 'Mother Thorn', line: 'What the garden grew, untended.' },

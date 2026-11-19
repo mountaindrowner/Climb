@@ -341,6 +341,11 @@ Tempest's landing, open to anyone. Iron in two halves with the current in one; l
 Wright's-arms; the Jar, dull until he makes it live; the Wright's Boots; out by a grate into the watch. Still to do in
 phase 12: the Eye of the Storm.*
 
+*Phase 12, second half, done (build 67): **the Eye of the Storm**. Seven screens east of the masthead and above it,
+climbed on the Wyrm's wind. Nothing moves while he moves: the Hush come when he stands still, and a door of cloud opens
+only to one who stands and waits. The Thunderhead's empty seat; a Breath of the Eye. Phase 12 is done. In the same
+build, four relics that had never been switched on were mended (the build log has it).*
+
 Built two regions at a time. **Spaces, not rectangles** (decision 0.8): each wing has at least one vast space, one
 winding way, and one path no one expects, each shaped by what the place was. Each wing gets its sheet first: its rooms, what each room is for, its gate and shortcut,
 its creatures, its elite, its one moment, its relic, and a weapon (the Ember plan's step 4) where one fits. Each

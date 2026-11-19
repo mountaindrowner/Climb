@@ -80,6 +80,7 @@ export const RELICS = {   // name: whose it was; line: what it does; lore: whose
   blankleaf:   { name: 'Copyist\'s Blank Leaf',   line: 'After he rests at water, the first blow that lands does no harm.', lore: 'The one page in the house that was never spoiled. Nothing was ever written on it.' },
   felt:        { name: 'Founder\'s Felt',        line: 'A parry rings: everything near him is stilled for a breath.', lore: 'The founders wrapped a tongue in it when a bell was to be struck and not heard.' },
   boots:       { name: 'Wright\'s Boots',         line: 'Live iron does not shock him.', lore: 'Cork and gum. The Wrights wore them to walk their own works. They did not take them off to sleep.' },
+  stillair:    { name: 'A Breath of the Eye',    line: 'Gliding, he sinks more slowly.', lore: 'Air from the middle of the storm, where nothing moves. It was kept behind a door that opens to no one in a hurry.' },
   flint:       { name: 'Climber\'s Flint',        line: 'A blow that lands gives two embers, not one.', lore: 'It lit the shelter\'s fire every night of the climb. On the last night no one struck it.' },
   turnstone:   { name: 'Pilgrim\'s Stone',        line: 'After a blow, nothing can hurt him for a breath longer.', lore: 'The top stone of a cairn. He carried it up once, and set it down. NOT YET is scratched on it.' },
   starcompass: { name: 'Astronomer\'s Compass',    line: 'The map shows what is still to be found.',       lore: 'It does not point north. It points at the star that is missing.' },

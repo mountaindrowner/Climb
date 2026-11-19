@@ -1143,5 +1143,16 @@
     "group": "4e8ca7a2-74d1-4c56-b07e-0e30ccbf747e"
    }
   }
+ },
+ "px_hush": {
+  "id": "cdc9d154-7db9-4d2c-a1e7-eb3bf583a6ef",
+  "description": "a floating puff of white cloud, only a cloud, round and soft, no body, no legs, no arms, no clothes, with one plain smooth white oval mask on the front of it, the mask is blank with no eyes and no mouth, thin wisps of mist hanging under the cloud, all white and pale grey-blue, no other colors, simple stylized chunky pixel art with few colors and bold shapes, seen from the side, 2D platformer enemy",
+  "anims": {
+   "float": {
+    "action": "the cloud floating in place, slowly swelling and shrinking, wisps drifting under it",
+    "frames": 8,
+    "group": "09156bc3-5103-438f-bca5-c1467849e625"
+   }
+  }
  }
 }

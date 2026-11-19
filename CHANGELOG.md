@@ -2,7 +2,16 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Wreck of the Works (latest; phase 12, build 66): the Tempest's west wing.** `docs/phase12-sheet.md` has all of it.
+**The Eye of the Storm (latest; phase 12, build 67): the Tempest's east wing.** `docs/phase12-sheet.md` has all of it.
+- **Seven screens east of the masthead and above it,** climbed on the Wyrm's wind. The middle of the storm: clear sky, sun, no wind.
+- **Its rule: nothing moves while he moves.** The Hush hang where they are until he stands still; then they come. A guard turned to one stops it.
+- **Doors of cloud** are rock to one who pushes. Each opens to one who stands still before it for two and a half seconds, and stays open for four.
+- **Four rooms:** the storm's wall (the wind up it, rungs down it), the lower still, the upper still, the Thunderhead's empty seat. The way out of the seat is a floor of cloud that lets go of one who stands on it.
+- **A relic:** a Breath of the Eye. Gliding, he sinks more slowly.
+- **Fixed: four relics did nothing** (Featherfall, the Seedheart, the Pilgrim's Stone, the Wright's Boots). The line that switches them on was inside a comment, since build 49 for the first two.
+- 283 checks. Phase 12 is done.
+
+**The Wreck of the Works (phase 12, build 66): the Tempest's west wing.** `docs/phase12-sheet.md` has all of it.
 - **Nine screens west of the landing, open to anyone.** The Wrights' works, where they tried to catch the lightning and keep it.
 - **Its rule: the current is always somewhere.** The iron is in two halves, copper and steel, and the current runs in one of them. Standing on the live half costs a heart. A lever, struck, sends the current to the other half, everywhere at once. Nothing turns it off.
 - **Five rooms:** the yard (the rule, shown), the coils (a climb, a lever at each landing), the cranes (three spans of deck, a hook swinging over each), the jar-house, the drafting room.

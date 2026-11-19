@@ -494,7 +494,7 @@ caught lightning, which lets it go all at once.
 a relic) · *the cable run* (a shortcut along a cable to the anchorage).
 
 ### The Eye of the Storm
-*Tempest, east, above · 9 screens · the Wyrm's wind*
+*Tempest, east, above · 7 screens (built, build 67; the plan said 9) · the Wyrm's wind*
 
 **History.** The middle of the storm, where it is still. The Thunderhead sat here before it came down to fight.
 

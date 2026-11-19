@@ -219,7 +219,7 @@ export function stepPlayer(P, dt){
     else if (P.dashT > 0 || (P.art && P.art.k === 'cleave')) P.vy = 0;
     else if (P.glide && (up || P.vy <= 0)){
       if (up) P.vy += (GLIDE.rise - P.vy) * Math.min(1, dt * GLIDE.accel);
-      else P.vy += (-GLIDE.fall - P.vy) * Math.min(1, dt * 9);
+      else P.vy += (-GLIDE.fall * (SIDE.calm ? 0.6 : 1) - P.vy) * Math.min(1, dt * 9);
       P.airTop = P.y; P.flip = 0;   // however far he came down under it, it was not a fall
     }
     else {
@@ -351,7 +351,8 @@ export const SPADE = { name: 'Warden\'s spade', reach: 2.6, guard: false, digs: 
 ] };
 export const weaponOf = P => P.weapon === 'blade' ? BLADE : P.weapon === 'spade' ? SPADE : WEAPONS[P.weapon];
 export const swingOf = (P, A) => A.special ? weaponOf(P)[A.special] : weaponOf(P).combo[A.i];
-export const SIDE = { fallSafe: 9, feather: false, watching: false, leaf: false, stone: false, boots: false };   // boots: the Wright's Boots are worn: live iron does not shock him
+export const SIDE = { fallSafe: 9, feather: false, watching: false, leaf: false, stone: false, boots: false, calm: false };   // calm: a Breath of the Eye is worn: under the glide he sinks more slowly
+//   // boots: the Wright's Boots are worn: live iron does not shock him
 //   // stone: the Pilgrim's Stone is worn: after a blow nothing can hurt him for longer
 //   // leaf: the Copyist's Blank Leaf is unspent: the next blow that lands does no harm
 // the ember arts (main.js spends the embers and says which): each a keeper's gift turned to a blow.

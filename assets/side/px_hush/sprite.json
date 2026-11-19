@@ -1,0 +1,26 @@
+{
+ "name": "px_hush",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 48,
+   "h": 48,
+   "foot": 42,
+   "cx": 23.5,
+   "footLast": 42,
+   "cxLast": 23.5,
+   "n": 1
+  },
+  "float": {
+   "frames": 9,
+   "w": 52,
+   "h": 52,
+   "foot": 44,
+   "cx": 25.5,
+   "footLast": 44,
+   "cxLast": 26.0,
+   "n": 1
+  }
+ }
+}

@@ -27,7 +27,7 @@ export const EMPTY = 0, ROCK = 1, LEDGE = 2, SPIKES = 3, CRACKED = 4, GLASS_A = 
 //  16, 17 the works' iron (phase 12, the Wreck of the Works; level.js RULE.sw): a deck of one half or the other. A ledge.
 //     The current runs through one half at a time (16 while the lever is one way, 17 while it is the other): to stand
 //     on that half is to be shocked. A lever sends it across. Dead for good once the Jar is broken (RULE.still)
-export const HOLD = 7, DOOR = 8, GIVEN = 9, LIVE = 10, VELLUM = 11, SHUTTER = 12, STILLED = 13, FACED = 14, MELT = 15, IRON_A = 16, IRON_B = 17;
+export const HOLD = 7, DOOR = 8, GIVEN = 9, LIVE = 10, VELLUM = 11, SHUTTER = 12, STILLED = 13, FACED = 14, MELT = 15, IRON_A = 16, IRON_B = 17, CALM = 18;   // 18 a door of cloud (phase 12, the Eye of the Storm; level.js RULE.open): rock, until he has stood still before it long enough; then nothing, a little while
 // a room spans cw x ch screens (most are one)
 export function room(cw = 1, ch = 1){ const r = { w: ROOM.w * cw, h: ROOM.h * ch, tiles: [], marks: [] }; for (let y = 0; y < r.h; y++) r.tiles.push(new Array(r.w).fill(EMPTY)); return r; }
 export const put = (r, x, y, v) => { if (x >= 0 && y >= 0 && x < r.w && y < r.h) r.tiles[y][x] = v; };

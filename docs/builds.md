@@ -50,6 +50,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 67 | 19 Nov 2026 | `COMMIT67` | The Eye of the Storm (phase 12, second half); four relics that did nothing, fixed | no | yes (now) |
 | 66 | 19 Nov 2026 | `b3ff915` | The Wreck of the Works (phase 12, first half) | **moved** (the Tempest) | yes (now) |
 | 65 | 18 Nov 2026 | `11c8b38` | The Cloister's refectory; the Galleries' back wall closed | adds | was, until 66 |
 | 64 | 18 Nov 2026 | `5472b28` | The Glacier Galleries (phase 11, second half) | adds | was, until 65 |
@@ -77,6 +78,31 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 67: the Eye of the Storm
+
+- **For the player:** the Tempest's east wing, seven screens, reached from the masthead and climbed on the Wyrm's
+  wind. Nothing moves while he moves: the Hush come only when he stands still, and a door of cloud opens only to one
+  who stands and waits. The Thunderhead's empty seat; a new relic, a Breath of the Eye (gliding, he sinks more
+  slowly). All of it in `docs/phase12-sheet.md`.
+- **A fix he may notice: four relics now do what they say.** Featherfall (no hurt from a long fall), the Seedheart
+  (a heart mended for 7 embers, not 10), the Pilgrim's Stone and the Wright's Boots did nothing: the line that
+  switches them on was inside a comment, since build 49 for the first two. If something to do with falls, mending or
+  live iron seems different from build 66, this is why.
+- **Underneath:** new `src/side/regions/eye.js`; a new tile (a door of cloud, 18) in `rooms.js`, `level.js`
+  (`RULE.hush`, `RULE.open` and the open door's box), `props.js` (the cloud, thinning); the waiting, the words and the
+  floor of cloud in `main.js`; `SIDE.calm` in `motor.js`; the relic in `state.js`, its knot and icon; the Hush in the
+  Annals and the voices; the Tempest is three columns wider on the east; a door cut in the masthead's east wall. New
+  art: `assets/side/px_hush`.
+- **Save: not moved** (the columns are added on the east). Adds: the relic, and that the two sets of words were said
+  (`eyeTold`, `eyeSeat`).
+- **Checked:** 283 automated checks, eight of them the wing's; a play-through in the test browser (the wind, each kind
+  of door, the Hush frozen and coming, a guard, the relic measured in the running game, the floor of cloud); the zip
+  opened, the title and every region.
+- **Not checked:** not played by hand; the sounds; the four mended relics in play, other than by reading the line.
+- **During this build the session's worker was restarted** again: I ran the full checks and the test browser at the
+  same time and the machine ran out of memory. Nothing was lost. Every check was run again afterwards, one at a time.
+- **Cost:** $0.06 (the Hush, drawn twice; the first is not used).
 
 ### Build 66: the Wreck of the Works
 

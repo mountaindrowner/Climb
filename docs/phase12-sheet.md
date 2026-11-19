@@ -89,6 +89,86 @@ None bought. The levers, coils, arms, decks and the Jar are drawn in code. **The
 - **Nine screens, not twelve,** and no "cable run" room: the way out is a door into the watch.
 - **A save is moved:** the Tempest is two rooms further east than it was.
 
+## The Eye of the Storm
+
+The Tempest's east wing: the middle of the storm, where it is still. The Thunderhead sat here before it came down to
+fight. Seven screens, east of the masthead and above it. After all that noise: clear sky, sun, no wind, an empty seat.
+
+### Its rule: nothing moves while he moves
+
+Everywhere else in the game, standing still is safe and moving is the risk. Here it is the other way round.
+
+- **The Hush** are pale pieces of cloud with a blank mask. While he moves they hang where they are, and he can walk
+  past them or cut them down (two cuts). When he stands still, the ones in his room come for him, without a sound.
+  One strikes, then draws off for a moment. A guard turned to it stops it.
+- **A door of cloud** is rock to one who pushes at it. It opens only to one who stands still in front of it for two
+  and a half seconds; it thins as he waits. Then it is open for four seconds, and shuts. Leaning on it with the stick
+  held does not count as waiting. If he is knocked or steps away, the waiting drains at half speed, not all at once.
+
+So each door is a small fight: he must stand, and what is in the room comes while he does. He can cut them down first
+(they do not fight back while he moves), hold his guard up and wait, or take the blows.
+
+### How it is entered, and left
+
+- **In:** a door in the masthead's east wall, into the foot of the storm's wall. The wall is two screens high and
+  sheer. The only way up it is the Wyrm's wind: a glide in the rising air. So the wing is the Tempest's reward for
+  the gift he was given in the Spires.
+- **Down the wall:** two rungs in its face, out of the wind. They are eleven tiles apart: too far to climb (a double
+  jump is seven), near enough to come down by without a fall that hurts.
+- **Out of the seat room:** a floor of cloud over the wall's landing. It bears one who walks over it. It lets go of
+  one who stands still on it, and he comes down on the landing.
+
+### The rooms
+
+1. **The wall** (two screens, one over the other). The storm's own dark and rain at its foot; the wind; the landing.
+2. **The lower still** (two screens). The first Hush hangs by the path, and lets him pass. One door of cloud.
+3. **The upper still** (two screens), up a shaft at the far end. Two doors of cloud, four Hush, a chest of shards.
+4. **The seat** (one screen). The Thunderhead's seat, empty. The relic, behind a last door of cloud. The floor of cloud.
+
+### The relic: a Breath of the Eye
+
+Air from the middle of the storm. **Gliding, he sinks more slowly** (at six tenths of the speed). It makes every glide
+in the game reach further.
+
+### What is said
+
+- At the first door, once: *A door of cloud. It gives to nothing that pushes. It opens to one who stands and waits.*
+- At the seat, once: *Something sat here, and the storm went round it. It has gone down.* With the Thunderhead beaten:
+  *The Thunderhead sat here, and the storm went round it. No more.*
+
+### Art
+
+The Hush is its own drawing from PixelLab, asked for twice: the first came back as a small figure with a wrapped head,
+not a cloud, and is not used. The doors of cloud and the seat are drawn in code. **Cost: $0.06; the balance is $2.79.**
+
+### As built (build 67), and what was checked
+
+- **283 automated checks pass**, eight of them the wing's own: its screens and its gate; the wall climbed on the wind
+  and no other way; a door of cloud rock until waited at, and only that door; one who will not wait gets no further
+  than the first door; the Hush frozen, coming, striking, drawing off; a guard stopping it, and only in its own room;
+  the floor of cloud; the relic and the slower sink.
+- **Played through by the test browser:** in from the masthead; up the wall on the wind; the first door refusing a
+  push, thinning as he stood, opening, and he through it; the Hush still while he walked and coming when he stopped;
+  a Hush cut down; a guard held up for four seconds with no blow landing; the upper still's door; the words at the
+  seat; the relic's door and the relic taken; the glide's sink measured before (2.3) and after (1.38); the floor of
+  cloud bearing him as he walked, letting go when he stood, and the landing under it; a jump back up at it refused.
+- **Found and fixed while building:**
+  - The wind first reached high enough to throw him up through the seat's floor. Shortened.
+  - With that fixed, a double jump from the landing and a grab of the hole's edge still got him into the seat room,
+    past both stills. That is why the way out is now a floor of cloud and not a hole.
+  - There was no way back down the wall that the checks would accept (a long fall hurts). Hence the rungs.
+  - The Hush came through floors from the rooms above and below. Each now stirs only for one in its own room.
+  - A man who just stood in the still was dead in four seconds. The Hush now rests longer after a strike, is slower,
+    and breaks on a guard.
+- **Found, and older than this wing: four relics did nothing.** The line that switches on Featherfall, the Seedheart,
+  the Pilgrim's Stone and the Wright's Boots had been inside a comment since build 49 (the last two since they were
+  added, in builds 62 and 66). The checks did not see it because they set those switches themselves. It is fixed,
+  and the new relic's effect was measured in the running game, not only in the checks.
+- **Not checked:** nothing here was played by hand. The sounds. Whether two and a half seconds is the right wait.
+  Whether the floor of cloud drops him when he did not mean it to (it is six tiles wide and he must stand on it).
+- **Seven screens, not nine.**
+- **A save is not moved:** the wing is added on the east, so nothing shifts.
+
 ## Left for later
 
-- The Eye of the Storm (the next sheet).
+- Phase 12 is done. Next is phase 13: the Gardens' wings.
