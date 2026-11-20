@@ -55,6 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 77 | 20 Nov 2026 | `COMMIT77` | From the playtest: the edge grab, roomier shafts, plain words, the goal said | **yes** | yes (now) |
 | 76 | 19 Nov 2026 | `a77ee13` | The map pass, pilot: the Roots in stone (84 planks to 17) | no | yes (now) |
 | 75 | 19 Nov 2026 | `3a4aa64` | Try a place: any level, or a moment, from the title (for playtesting) | no | yes (now) |
 | 74 | 19 Nov 2026 | `ba84266` | The Hollow, the Auger, the grip, the Source (phase 17) | no | yes (now) |
@@ -92,6 +93,56 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 77: from the playtest: the edge grab, roomier shafts, plain words, the goal
+
+*Build 76 was played by two people on 20 Nov 2026 (`docs/playtest-2026-11-20.md`). This build is the part of what
+they said that needs no change to the world beyond the Roots.*
+
+- **The edge grab (a change to how he moves).** He takes an edge only on the way up: rising, or just past the top of
+  a jump, and pressing toward it. Coming down he never does. Before, he took any edge in reach while pressing toward
+  it, rising or falling, and among close shelves that was constant.
+- **Roomier shafts in the Roots.** The well, the well's foot and the Ossuary's niches: shelves five or six rows apart
+  (were six) with four clear tiles between their lips (were two). The well's chest and two crystals moved with their
+  shelves, one row.
+- **Plain words.** About two hundred lines rewritten to speak to the player: every hint, card, ability, relic, shop
+  line, menu, map label, banner and keeper's line, the intro and the ending, and what the four people say.
+  `docs/words-sheet.md` has the rule and every line before and after. "He" is "you". A measure is 10 embers. A knot
+  is a relic slot. The water that raises him is a checkpoint pool.
+- **The goal is said.** The intro says who you are and what to do. The pause screen opens with the goal and the next
+  step. Each person's first two lines in a region say where you are and what to do. A way down into the Deep says it
+  is optional and that the climb is up. A blocked way says what opens it.
+- **Less text when something is given.** An ability's card has two lines of how; the rest is in the Inventory. A
+  relic's card leaves its history to the Inventory. Banners wrap (long ones ran off the screen).
+- **To try:**
+  1. Go down the well by running off each shelf. Do you ever catch an edge you did not mean to?
+  2. Go up it. Jump at a lip, pressing toward it: does he take it every time you mean him to?
+  3. Jump a gap and arrive a little low. He no longer saves himself on the way down. Is that fair, or do you miss it?
+  4. The intro: after it, can you say who you are and what you are doing?
+  5. Pause in the first room. Is "GOAL / NEXT" the right amount, or noise?
+  6. Talk to Ordric. Is that the right amount of direction?
+  7. Pick up a relic and read its card. Do you know what it does?
+  8. Go to the Pithead's hole. Does the warning stop you going down by accident, without nagging?
+  9. Anything that still reads as vague: tell me the line.
+- **Underneath:** `GRAB` and `topT` in `motor.js`. `goalLines` in `main.js`; the Deep's two notices in `wingStep`.
+  The banner wraps in `hud.js`. Abilities have `more` lines (shown in the Inventory only). `docs/writing.md` has a
+  new first section, "Two voices".
+- **Changed outside the Roots, and why:** the middle dip of the Foundry's slag runs is two tiles wide (was three):
+  its crossing needed a grab on the way down. Nothing else in any other level is moved.
+- **Checks changed, and why:** the stuck-finder counts a perch left by a long, sore drop as left (it was only passing
+  because he caught edges falling). The first-pass reach check lets a jump begin from the lip of a shelf with
+  another over it; his real jump is still the judge. The Aqueducts' "nothing rises through falling water" allows
+  the first plank, which can be flown onto from outside the water and leads nowhere. Three new checks hold the grab
+  rule.
+- **Save: not moved.** Two new marks in it (the Deep's notices having been shown).
+- **Checked:** 420 automated checks pass (418 in the full run; the other two were checks pointing at moved things, mended and run again alone), his real jump through every room of all eleven levels with the
+  new grab. In the test browser: a fresh start through the title, the intro and the first room; Ordric and his shop;
+  the pause screen; the Inventory; the Pithead's warning.
+- **Not checked:** not played by hand. I cannot judge whether the grab now feels right; that is the first thing to
+  try. The words were read by me, not by a player.
+- **Not done from the playtest, on purpose:** everything under "Broken" and "Set aside" in the playtest's list,
+  except the words and the goal. The Cloister's pass waits, as you said.
+- **Cost:** nothing.
 
 ### Build 76: the map pass, pilot: the Roots in stone
 

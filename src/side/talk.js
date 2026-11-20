@@ -25,33 +25,35 @@ export const PEOPLE = { lamplighter: { name: 'ORDRIC OF THE VIGIL', art: 'px_mot
 // middle of the figure (Mirel's middle is her shell)
 const FACES = { px_mole: [14, 8, 32], px_mole2: [12, 0, 32], px_moth: [18, 7, 32], px_hermit: [22, 10, 32], px_hermit_free: [22, 10, 32], px_rook: [20, 8, 32] };
 // Hob is met only in the Deep, so his lines are by region index from the Workings (6) down
-const HOB = []; HOB[7] = ['You lit them. I have not had the oil for these since before the seal went up.', 'It glitters, down here. It is always a little further on. Do not go after it the way they did.', 'Something goes behind you in the knot, where you have been. Stand under a lamp you have lit. It will not come into that.'];
-HOB[8] = ['The pump was my grandfather\'s. It has never been behind, and it has never been ahead.', 'What is in the water was on my shift. Go slow past the holes. The eels feel a thing that hurries.', 'There is a lamp on the chapel altar that I did not fill. It has not gone out.'];
-HOB[6] = ['Mind the lamps. I carried every drop of their oil down myself.', 'The vein runs thin up here. Lower down it comes good. It always comes good lower down.', 'You will find me further on. I am always a little further on.'];
-export const SCRIPT = {   // at most three lines a meeting, each short and new; the theme is never said (docs/writing.md)
+const HOB = []; HOB[7] = ['You lit them. Stay near a lamp you have lit.', 'Something follows the path you took down here. It will not come into lamplight.', 'Do not go back the way you came. Keep moving on.'];
+HOB[8] = ['The pump was my grandfather\'s. It has never stopped.', 'Go slowly past the holes in the walls. The eels strike at anything fast.', 'There is a lamp on the chapel altar that I never filled. Go and stand by it.'];
+HOB[6] = ['I am Hob. This is the Deep: the guild\'s mines, under the mountain.', 'It is not the way up. Come down here for what is hidden, when you are ready.', 'I will be further down. I always am.'];
+// (build 77, from a playtest: the lines were too vague. Each meeting now says, in order: who or where; what to do next
+// or how; and one line of their own. docs/writing.md, "Two voices")
+export const SCRIPT = {
   hob: HOB,
   lamplighter: [
-    ['You came up out of the water. They all do, the ones it gives back.', 'That red thread was tied on you. It burns when you are hurt. The water mends it.', INTRO.lamplighter],   // who he is (teach.js): said the first time he is met, wherever that is
-    ['They rang the hours for the flame. When it went dark, they rang louder.', 'Come down hard on cracked stone now, and it gives.', 'Shards, if you have them.'],
-    ['The pass is above us, and what coils on it.', 'You will fall here. Everyone does. The water does not seem to mind.', 'Shards, if you have them.'],
-    ['Open the thread in the rising air, and let it take you up.', 'I never could. I always wanted to do the carrying.', 'Shards, if you have them.'],
-    ['Sun. I had forgotten it has a smell.', 'Planted for the keepers of the flame. No one told the garden they had gone.', 'Shards, if you have them.'],
-    ['My last flame. The one above, I have never flown at. It was never mine.', 'What waits by it has your walk. It holds a lamp, and will not set it down.', 'Go up. You are expected.'],
+    ['You fell from the top. The water brought you back. It always will.', 'The way up is through these caves. The Warden guards the top of them.', INTRO.lamplighter],   // who he is (teach.js): said the first time he is met, wherever that is
+    ['This house rang its bell for the flame. The bell still rings.', 'Some doors here only open on the bell\'s beat. Wait for it.', 'The Toll hangs in the chapel at the top. Shards, if you have them.'],
+    ['The pass is above us. The Wyrm coils on it.', 'On the open faces the wind pushes you down. Climb between gusts.', 'Shards, if you have them.'],
+    ['You have the Wyrm\'s wind. Hold jump in the air to glide.', 'Rising air will carry you up. I never could ride it. I always wanted to do the carrying.', 'Shards, if you have them.'],
+    ['Sun. I had forgotten it has a smell.', 'Mother Thorn grows at the top of this garden. The summit is past her.', 'Shards, if you have them.'],
+    ['This is my last lamp. The summit is just above us.', 'What waits there looks like you. It holds a lamp, and will not put it down.', 'Go up. You are expected.'],
   ],
   wren: [
-    ['You fell past me. I counted it as one of mine, out of habit.', INTRO.wren, 'I mean to reach the flame deserving it. You see what I carry.', 'Break the urns. Those before us hid what they could not carry up.'],
-    ['Forty falls. I keep the count, so it can be held against me at the top.', 'Threads are caught in the high places. Red, like yours. Mine is grey.', 'I do not know why you were given red.'],
-    ['My hands have stopped working. I will not rest. Resting is how the count goes up.', 'There is a crack in the rock with a draught through it. Something was walled in.'],
-    ['I cannot carry it through the storm. I have tried.', 'Each time the water gives me back, and the shell is waiting on the bank.', 'It keeps giving me back. I have not earned one of those.'],
-    ['I put it down. The shell. Over there somewhere, in the flowers.', 'I went back for it twice. It was never mine. I found it on a shore somewhere.', 'I have stopped counting. I do not know what to do with my hands.'],
-    ['This is as far as I go, for now. I can see it from here.', 'What is up there is yours to face.', 'Go on. I will be along. There is no hurry any more.'],
+    [INTRO.wren, 'I count every fall. I mean to arrive deserving it.', 'Break the urns you find. There are shards inside.'],
+    ['Forty falls. I keep the count so it can be held against me at the top.', 'Look in the high places. Red threads are caught there. Three make a new heart.', 'Mine is grey. I do not know why you were given red.'],
+    ['My hands have stopped working. I will not rest. Resting is how the count goes up.', 'There is a crack in the rock near here, with a draught through it. Something is behind it.'],
+    ['I cannot carry my shell through this storm. I have tried.', 'Each time I fall, the water brings me back, and the shell is waiting on the bank.', 'I have not earned that. It keeps happening.'],
+    ['I put the shell down. Over there, in the flowers.', 'I went back for it twice. It was never mine. I found it on a shore.', 'I have stopped counting. I do not know what to do with my hands.'],
+    ['This is as far as I go, for now. I can see the top from here.', 'What is up there is yours to face.', 'Go on. I will follow. There is no hurry any more.'],
   ],
   scribe: [
-    [INTRO.scribe, 'Someone must; no one looks up now.', 'These are the Roots. Everything above stands on what is down here, and forgets it.'],
-    ['The house kept the flame\'s hours. Every mark on these walls is a night rung.', 'The last mark is a night with no bell.'],
-    ['The Spires are the mountain\'s own bones. Nothing was built here. Things only cling.'],
-    ['The Tempest is new. My oldest pages have clear sky on them.'],
-    ['The Gardens fed the keepers of the flame. See how well it does untended.', 'I have no entry that explains that.'],
+    [INTRO.scribe, 'These caves are the Roots. The whole mountain stands on them.', 'Open your map to see where you have been.'],
+    ['This house kept the flame\'s hours. Every mark on these walls is a night they rang.', 'The last mark is a night with no bell.'],
+    ['The Spires. Nothing was built here. The pass at the top is the only way on.'],
+    ['The Tempest is new. My oldest pages show clear sky here.', 'The storm came when the flame went out.'],
+    ['The Gardens fed the keepers of the flame. They grow well with no one tending them.', 'I have no entry that explains that.'],
     ['The Firmament. I have charted every star from here but one.', 'That one is on the ground, up ahead, and dark. I have left the page open.'],
   ],
 };

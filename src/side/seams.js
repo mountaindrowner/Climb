@@ -4,7 +4,7 @@
 // hole cut through the floor at `link` (tile columns of the first room, boarded over) lets him up into the region.
 // title: what the place line says there. By region index: 1 the Crypt Stair (into the Cloister), 2 the Bell Road (the
 // Spires), 3 the Last Hut (the Tempest), 4 the Breach (the Gardens), 5 the Long Stair (the Firmament).
-import { room, rect, walls, door, ledge, mark, stairs, den, shelf, EMPTY, LEDGE, SPIKES, CRACKED } from './rooms.js';
+import { room, rect, walls, door, ledge, mark, stairs, den, shelf, pier, EMPTY, LEDGE, SPIKES, CRACKED } from './rooms.js';
 
 // the way up to a hole in the roof: ledges stacked in the hole's own columns, a jump apart (from beside it, the hole's
 // rock edge is in the way of a jump), from row y0 to just under the roof
@@ -248,10 +248,11 @@ function wellfoot(){
   const r = room(1, 2); walls(r); door(r, 'left', 2, 7); door(r, 'top', 16, 19);
   // up it: shelves of the well's own stone, out of one wall and then the other, the rope hanging down between their
   // ends; the last runs in under the mouth of the well, a flue in the roof, and up that go two rungs (the map pass)
-  shelf(r, 'R', 18, 7); shelf(r, 'L', 15, 13); shelf(r, 'R', 18, 19); shelf(r, 'L', 15, 25); shelf(r, 'R', 16, 31);
+  pier(r, 12, 14, 4);                                              // a fallen block is the first step (five or six rows to a shelf, four clear tiles between lips: build 77)
+  shelf(r, 'R', 19, 9); shelf(r, 'L', 14, 15); shelf(r, 'R', 19, 20); shelf(r, 'L', 14, 26); shelf(r, 'R', 16, 31);
   rect(r, 12, 37, 15, 43); rect(r, 20, 37, 23, 43); for (const y of [37, 41]) ledge(r, 16, 19, y); keepUp(r, 17, 18, 34, 44);
   for (const y of [3, 9, 15, 21, 27, 34]) deco(r, 'rope', 16, y); deco(r, 'knot', 16, 40);   // the rope, and Ordric's knot on it
-  mark(r, 'torch', 30, 11); mark(r, 'torch', 5, 18); mark(r, 'torch', 30, 36); mark(r, 'urn', 34, 2); mark(r, 'urn', 26, 32);
+  mark(r, 'torch', 30, 14); mark(r, 'torch', 5, 20); mark(r, 'torch', 30, 36); mark(r, 'urn', 34, 2); mark(r, 'urn', 26, 32);
   r.title = 'THE WELL\'S FOOT';
   return r;
 }

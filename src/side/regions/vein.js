@@ -123,7 +123,7 @@ const enemies = {
   // a glimmer: ore, until he is on it
   glimmer: { ai: 'glimmer', hp: 2, w: 0.6, h: 0.6, color: 0x9fe8ff, wake: 1.4, speed: 5.4, art: 'px_glimmer', fly: false, word: 'Bitten', onHit(e){ e.woke = true; } },
   // the Echo: it goes where he went, a few seconds after, and strikes where he was. It cannot be struck. It will not come into a lit lamp's light
-  echo: { ai: 'echo', own: true, noAim: true, hp: 99, w: 0.4, h: 2.2, color: 0xbfe8ff, fly: true, word: 'Caught by his echo', guard(){ return true; } },
+  echo: { ai: 'echo', own: true, noAim: true, hp: 99, w: 0.4, h: 2.2, color: 0xbfe8ff, fly: true, word: 'Caught by your Echo', guard(){ return true; } },
   // the Assayer: the Vein's keeper. A great balance. It weighs what is brought to it, and finds it light
   assayer: { ai: 'assayer', own: true, hp: ASSAY.hp, w: 0.8, h: 3.4, color: 0xb86f50, fly: false, name: 'The Assayer', word: 'Found light', onHit(e){ e.woke = true; },
     spawn(e, c){ if (c.RULE.still) e.alive = false; } },
@@ -181,7 +181,7 @@ const ai = {
   },
 };
 
-export default { name: 'The Vein', theme: 'vein', sub: 'where the lampstone grew, and glittered', card: '', epithet: '',
+export default { name: 'The Vein', theme: 'vein', sub: 'the dark mine where the lampstone grew', card: '', epithet: '',
   deep: true, dark: true, depth: [-2.2, -1.3], musicOf: 'roots', ambOf: 'roots', vestibule: false,
   seed: 2718281, cols: 3, wear: { sag: 0.5, swell: 0.5, humps: 0.4 },
   layout: [[0, 4, seal], [0, 0, cradle, 2, 1], [2, 0, lip], [0, 1, solid], [1, 1, assay, 2, 1], [0, 2, knot, 2, 2], [2, 2, solid], [2, 3, solid], [1, 4, glitter, 2, 1]],   // (the seal first: its stair is where the level leads back to)

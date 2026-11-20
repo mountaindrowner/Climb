@@ -63,10 +63,12 @@ Three shapes, in `rooms.js`, do most of it:
 Stone is not a plank: he cannot jump up through it. Building the Roots in stone found these, and the checks now hold
 them:
 
-1. **Shelves alternate, six rows apart.** From a shelf on one wall to the next on the other is six rows up. Two on
-   the same wall are twelve apart. Closer, and his head strikes the one above before his feet reach the one across.
+1. **Shelves alternate, five or six rows apart.** From a shelf on one wall to the next on the other is five rows up,
+   then six, so two on the same wall are eleven apart: a full jump from under one never strikes it. *(Build 76 had
+   six and twelve. Played, that was a stretch every time. Five is inside one jump and a reach of the hand.)*
 2. **Shelves taper.** Two thick only at the wall half. A shelf two thick to its lip closes the jump under it.
-3. **Two clear tiles between the lips** of facing shelves. His body is a tile and a third wide.
+3. **Four clear tiles between the lips** of facing shelves. *(Build 76 had two: his body is a tile and a third wide,
+   and it felt like threading a slot.)* Going down, he runs off one lip and lands on the next.
 4. **Three clear tiles between a boulder and anything overhead beside it.** Tucked under a shelf, a boulder is a
    wall he cannot get past either way. (Found in the Ossuary, and at the mouth of Ordric's room, where it shut him
    in.)
@@ -89,7 +91,7 @@ them:
 | Chamber | 6 | Two piers as steps, a shelf from each wall, Corwen's shelf out of the east wall |
 | Ascent | 0 | (it was already a ramp) |
 | Gallery | 3 | A rib of rock and a pier |
-| The well | 13 | A boulder, then eight shelves, left and right, up both screens |
+| The well | 13 | A boulder, then seven shelves, right and left, up both screens |
 | Roost | 4 | Two piers, a shelf from each wall, a rock hung over the middle |
 | Bridge | 3 planks over the chasm | Three pillars of the chasm's own rock |
 | Grotto | 2 | Steps cut in the sides of the basin |
@@ -100,6 +102,21 @@ them:
 | Ossuary: the niches | 7 | A boulder and four shelves, left and right |
 | Ossuary: the Sexton's yard | 4 | His ladder, in a flue in the corner. **4 kept** |
 | Ossuary: the count | 2 | Rock |
+
+## After the first playtest (build 77)
+
+Played 20 Nov 2026. The verdict was good; three things came back and are changed.
+
+- **"He grabs edges too perfectly."** With shelves close together there was always an edge in reach. He now takes an
+  edge **only on the way up**: rising, or in the first eighth of a second after the top of a jump, and pressing
+  toward it. **Coming down he never does.** Stepping off an edge is a fall from the start. (Leaving deep water at its
+  top is unchanged.) `GRAB` in `motor.js`.
+- **"The zigzags feel too tight."** The three shafts (the well, the well's foot, the Ossuary's niches) are re-laid to
+  rules 1 and 3 above: five or six rows, four clear tiles.
+- **What the stricter grab broke, and where.** One jump in the Foundry (a dip under a low roof, its far lip a tile
+  higher) only worked by catching the lip while falling; the dip is a tile narrower. Two perches in the Firmament
+  that nobody can reach were "left" only by a grab on the way down; leaving by a long drop now counts, as it should.
+  One check on the Aqueducts' falling water was passing by luck and now states what is true.
 
 ## For the player to try (the playtest list)
 

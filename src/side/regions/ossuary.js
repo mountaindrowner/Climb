@@ -47,9 +47,9 @@ function niches(){
   door(r, 'left', 2, 7); door(r, 'left', 25, 30);                                   // to the sorting; to the yard
   // the wall of niches up the right side, a light in each that is still lit. The lower two are deep enough to stand
   // in, and across from them shelves stand out of the west wall: the climb is from one side to the other
-  pier(r, 18, 22, 4);                                                              // (three clear tiles between it and the shelf over it: he has to be able to step off it under that shelf)
-  shelf(r, 'R', 26, 7, 1); shelf(r, 'L', 23, 12); shelf(r, 'R', 26, 18); shelf(r, 'L', 23, 24);   // the last is the step through to the yard
-  mark(r, 'crystal', 36, 8); mark(r, 'crystal', 36, 19);
+  pier(r, 17, 20, 4);                                                              // (clear of the shelf over it: he has to be able to step off it under that shelf)
+  shelf(r, 'R', 25, 8); shelf(r, 'L', 20, 13); shelf(r, 'R', 25, 19); shelf(r, 'L', 20, 24);   // five or six rows from each to the next, four clear tiles between lips; the last is the step through to the yard
+  mark(r, 'crystal', 36, 9); mark(r, 'crystal', 36, 20);
   for (const y of [26, 32, 38]) { rect(r, 35, y, 37, y); mark(r, 'crystal', 36, y + 1); }
   mark(r, 'shrine', 7, 25);                                                         // a flame kept here, before the Sexton's yard
   mark(r, 'wisp', 22, 30); mark(r, 'wisp', 28, 39); mark(r, 'flitter', 12, 36);

@@ -250,7 +250,7 @@ const ai = {
   },
 };
 
-export default { name: 'The Flooded Levels', theme: 'flooded', sub: 'four levels the water took in a night', card: '', epithet: '',
+export default { name: 'The Flooded Levels', theme: 'flooded', sub: 'four mine levels, flooded in one night', card: '', epithet: '',
   deep: true, dark: true, needs: ['glide'], depth: [-1.3, -0.6], musicOf: 'roots', ambOf: 'roots', vestibule: false,
   seed: 1618033, cols: 3, wear: { sag: 0.4, swell: 0.4, humps: 0.3 },
   layout: [[0, 3, sump, 1, 2], [1, 4, solid], [2, 4, solid], [1, 3, pockets, 2, 1], [0, 2, drowned, 3, 1], [0, 1, chapel], [1, 1, pumphouse, 2, 1], [0, 0, solid], [1, 0, overflow, 2, 1]],

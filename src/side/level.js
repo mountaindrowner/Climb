@@ -140,15 +140,17 @@ function gallery(){
 function well(){
   const r = room(1, 2); walls(r); door(r, 'left', 2, 7); door(r, 'left', 38, 42); door(r, 'top', 30, 36);
   rect(r, 38, 2, 39, 6, CRACKED);                                   // the Ossuary's door, walled up: bones behind it (regions/ossuary.js)
-  // the well: a great shaft the water made, climbed from wall to wall on shelves of its own rock, six rows from each
-  // to the next. A boulder at its foot; the fourth shelf has a chest on it; the sixth is the sill of the grotto's door
-  pier(r, 20, 23, 3);
-  shelf(r, 'R', 24, 9); shelf(r, 'L', 21, 13); shelf(r, 'R', 24, 19); shelf(r, 'L', 21, 25); shelf(r, 'R', 24, 31); shelf(r, 'L', 22, 37);
-  shelf(r, 'R', 28, 38); rect(r, 34, 42, 37, 43);                   // across from the sill; and a step under the hole up into the Warden's hall
-  mark(r, 'flitter', 22, 24); mark(r, 'flitter', 23, 40); mark(r, 'spitter', 36, 27);
-  mark(r, 'torch', 34, 12); mark(r, 'torch', 4, 17); mark(r, 'torch', 34, 23); mark(r, 'torch', 20, 42); mark(r, 'crystal', 3, 2); mark(r, 'crystal', 37, 21); mark(r, 'crystal', 3, 26);
-  mark(r, 'urn', 12, 2); mark(r, 'chest', 8, 26, { holds: 'shards' });
-  for (const y of [6, 11, 16, 22, 28, 34, 41]) for (const x of [22, 23]) mark(r, 'keep', x, y);
+  // the well: a great shaft the water made, climbed from wall to wall on shelves of its own rock: five or six rows
+  // from each to the next, eleven between two on the same wall, four clear tiles between their lips (build 77: they
+  // were six rows and two tiles, and felt tight). A boulder at its foot; the fourth shelf has a chest on it; the
+  // sixth is the sill of the grotto's door
+  pier(r, 20, 21, 5);                                               // (beside the hatch of the quick way, at 16 to 19, not on it)
+  shelf(r, 'R', 25, 10); shelf(r, 'L', 20, 15); shelf(r, 'R', 25, 21); shelf(r, 'L', 20, 26); shelf(r, 'R', 25, 32); shelf(r, 'L', 20, 37);
+  shelf(r, 'R', 28, 38, 1); rect(r, 34, 42, 37, 43);                // across from the sill; and a step under the hole up into the Warden's hall
+  mark(r, 'flitter', 23, 24); mark(r, 'flitter', 23, 40); mark(r, 'spitter', 36, 27);
+  mark(r, 'torch', 34, 16); mark(r, 'torch', 4, 21); mark(r, 'torch', 34, 26); mark(r, 'torch', 20, 42); mark(r, 'crystal', 3, 2); mark(r, 'crystal', 37, 22); mark(r, 'crystal', 3, 27);
+  mark(r, 'urn', 12, 2); mark(r, 'chest', 8, 27, { holds: 'shards' });
+  for (const y of [7, 11, 15, 20, 25, 30, 35, 41]) for (const x of [22, 23]) mark(r, 'keep', x, y);
   return r;
 }
 function roost(){
@@ -400,11 +402,11 @@ function crown(){
 // the regions, from the bottom of the mountain up: rooms on a grid, [column, row, builder, columns wide, rows tall].
 // `fill` is what is between the rooms; `wear` is how hard the organic pass works the rock
 const REGIONS = [
-  { name: 'The Roots', theme: 'roots', sub: 'the bottom of the world, and the water there', card: '', epithet: 'IT HAS FORGOTTEN WHAT IT GUARDS', quiet: ['arena', ...OSSUARY.QUIET], seed: 1234567, wear: { sag: 1, swell: 1, humps: 0.8 },
+  { name: 'The Roots', theme: 'roots', sub: 'the caves at the bottom of the mountain', card: '', epithet: 'IT HAS FORGOTTEN WHAT IT GUARDS', quiet: ['arena', ...OSSUARY.QUIET], seed: 1234567, wear: { sag: 1, swell: 1, humps: 0.8 },
     layout: [[0, 0, start], [1, 0, corridor], [2, 0, pithead], [2, 1, oldshaft], [1, 1, shaft], [0, 1, tunnel], [0, 2, chamber], [1, 2, ascent], [2, 2, gallery], [3, 2, well, 1, 2], [0, 3, roost], [1, 3, bridge], [2, 3, grotto], [2, 4, arena, 2, 2], ...OSSUARY.LAYOUT], looks: OSSUARY.LOOKS },
-  { name: 'The Cloister', theme: 'cloister', sub: 'a house that kept the hours of the flame', card: 'The dark is below him. He is still being called.', epithet: 'IT RINGS FOR A LIGHT IT CANNOT SEE', quiet: ['chapel', ...SCRIPTORIUM.QUIET, ...FOUNDRY.QUIET, ...REFECTORY.QUIET], enemies: { ...SCRIPTORIUM.enemies, ...FOUNDRY.enemies }, ai: { ...SCRIPTORIUM.ai, ...FOUNDRY.ai }, deco: (px, PAL) => ({ ...SCRIPTORIUM.decoDef(px, PAL), ...FOUNDRY.decoDef(px, PAL), ...REFECTORY.decoDef(px, PAL) }), looksDef: { ...SCRIPTORIUM.looks, ...FOUNDRY.looks }, seed: 7654321, wear: { sag: 0.55, swell: 0.5, humps: 0.4 },
+  { name: 'The Cloister', theme: 'cloister', sub: 'a monastery that rang its bell for the flame', card: 'The caves are below you. Keep climbing.', epithet: 'IT RINGS FOR A LIGHT IT CANNOT SEE', quiet: ['chapel', ...SCRIPTORIUM.QUIET, ...FOUNDRY.QUIET, ...REFECTORY.QUIET], enemies: { ...SCRIPTORIUM.enemies, ...FOUNDRY.enemies }, ai: { ...SCRIPTORIUM.ai, ...FOUNDRY.ai }, deco: (px, PAL) => ({ ...SCRIPTORIUM.decoDef(px, PAL), ...FOUNDRY.decoDef(px, PAL), ...REFECTORY.decoDef(px, PAL) }), looksDef: { ...SCRIPTORIUM.looks, ...FOUNDRY.looks }, seed: 7654321, wear: { sag: 0.55, swell: 0.5, humps: 0.4 },
     layout: [[0, 0, undercroft], [1, 0, nave, 2, 1], [3, 0, belfry, 1, 3], [0, 1, stairwell, 1, 2], [1, 1, cells], [2, 1, library], [1, 2, cloister, 2, 1], [1, 3, chapel, 2, 1]] },
-  { name: 'The Spires', theme: 'spires', sub: 'the open air, and the high pass', card: 'Out of the stone, into the cold and the sky.', epithet: 'IT COILS ON THE PASS, AND LETS NONE BY', quiet: ['crown', ...CAIRNS.QUIET, ...GLACIER.QUIET], enemies: { ...CAIRNS.enemies, ...GLACIER.enemies }, ai: { ...CAIRNS.ai, ...GLACIER.ai }, deco: (px, PAL) => ({ ...CAIRNS.decoDef(px, PAL), ...GLACIER.decoDef(px, PAL) }), looksDef: GLACIER.looks, seed: 2468102, fill: EMPTY, sky: true, wear: { sag: 1.1, swell: 0.5, humps: 0.6 },
+  { name: 'The Spires', theme: 'spires', sub: 'the open air, and the high pass', card: 'Out of the stone, into the cold and the open sky.', epithet: 'IT COILS ON THE PASS, AND LETS NONE BY', quiet: ['crown', ...CAIRNS.QUIET, ...GLACIER.QUIET], enemies: { ...CAIRNS.enemies, ...GLACIER.enemies }, ai: { ...CAIRNS.ai, ...GLACIER.ai }, deco: (px, PAL) => ({ ...CAIRNS.decoDef(px, PAL), ...GLACIER.decoDef(px, PAL) }), looksDef: GLACIER.looks, seed: 2468102, fill: EMPTY, sky: true, wear: { sag: 1.1, swell: 0.5, humps: 0.6 },
     layout: [[0, 0, mouth], [1, 0, saddle, 2, 1], [0, 1, massif], [1, 1, nest], [2, 1, spire, 1, 2], [0, 2, hollow], [1, 2, ropeway], [0, 3, chimney], [1, 3, brow], [0, 4, icecave, 2, 1], [2, 3, teeth, 1, 2],
       [0, 5, eyrie, 2, 1], [2, 5, span], [0, 6, crown, 2, 2]], cols: 3 },
   // each in its own file (regions/); the Tempest with what its wing brings (regions/works.js)

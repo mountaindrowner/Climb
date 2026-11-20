@@ -68,6 +68,7 @@ function slagruns(){
   // three runs, one under another, each sloping the other way; slag still hot in the dips
   run(r, 8, 37, 30, 35); run(r, 2, 31, 24, 19); run(r, 8, 37, 8, 13);
   for (const [x, y] of [[20, 33], [12, 23], [26, 12]]){ rect(r, x, y - 1, x + 2, y + 1, EMPTY); rect(r, x, y - 2, x + 2, y - 2); rect(r, x, y - 1, x + 2, y - 1, SPIKES); }   // a dip in each, and what lies in it
+  rect(r, 14, 21, 14, 22);                                         // the middle dip is two wide: its far lip is a tile higher under a low roof, and he no longer takes an edge coming down (build 77)
   ledge(r, 2, 6, 28); ledge(r, 33, 37, 16); ledge(r, 2, 6, 5);     // from the end of each run up to the next
   tongue(r, 30, 35); tongue(r, 22, 22); tongue(r, 14, 10);
   mark(r, 'slag', 34, 2); mark(r, 'chest', 30, 2, { holds: 'shards' });   // under the last run

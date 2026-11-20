@@ -57,7 +57,7 @@ export function makeWyrm(scene, R){
   const room = LEVEL.rooms.find(r => r.name === 'crown'), mk = LEVEL.marks.find(m => m.type === 'boss');
   if (!room || !mk) return null;
   const stageY = mk.y * T, cx = (mk.x + 0.5) * T, xMin = room.x0 + 4, xMax = room.x1 - 4, lair = { x: room.x1 + 8, y: stageY - 6 };
-  const B = { name: W.name, hint: 'cut its head when it is caught in the ice', rage: 'the mountain itself turns on you', fell: 'the pass is open',
+  const B = { name: W.name, hint: 'Attack its head when it is stuck in the ice.', rage: 'Now the mountain falls on you too.', fell: 'The Wyrm is beaten. The pass is open.',
     st: 'dormant', tm: 0, hp: W.hp, phase: 1, flash: 0, cd: 1.5, room, stageY, cx, mode: 'circle', mt: 0, acts: 0,
     h: { x: lair.x, y: lair.y, vx: -1, vy: 0, a: Math.PI }, trail: [], jaw: 0, spikes: [], ice: [], gone: 0, frost: [], rz: {}, revealAt: RISE.roar };   // its name and its music on the roar (entrance.js)
   const piece = (file, z) => { const t = tex(`assets/side/wyrm/${file}.png`), m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), litMat({ map: t, normalMap: tex(`assets/side/wyrm/${file}_n.png`), transparent: true, alphaTest: 0.5, side: THREE.DoubleSide })); m.position.z = z; m.visible = false; scene.add(m); return m; };

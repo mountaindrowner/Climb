@@ -10,6 +10,58 @@ iceberg), what players say on Reddit and elsewhere (what they love, and what mak
 LeBlanc's eight kinds of fun (from the MDA paper; it is often credited to Riot, but it is LeBlanc's, and Riot has not
 written about it).
 
+## Two voices (added 20 Nov 2026, from a playtest)
+
+Two people played build 76 and could not say what a relic did, what "a measure" was, where to go, or why. The rules
+below were written for the story. They were being applied to instructions too, and instructions need the opposite.
+So every line in the game is now one of two kinds, and is written to that kind's rules.
+
+**1. Player text: anything the player has to act on.** Hints, cards, gifts, relics' effects, shop lines, menus,
+prompts, map labels, goals, what a keeper is weak to, what just happened.
+
+- **Say "you".** Speak to the person holding the controller. Never "he".
+- **Say what to do, or what it does.** Lead with the verb or the effect: *Hit its fists while they rest on the ground.*
+- **Use the player's words, and one word for one thing.** The fixed words are in the table below. No synonyms.
+- **Numbers, not measures.** *10 embers*, not *a full measure*. *+1 damage*, not *hits harder*.
+- **Name what is needed.** A blocked way says what opens it. A mystery about how to play is a fault.
+- **One idea a line. Two lines when a thing is given;** the rest is in the Inventory for those who want it.
+- **No flavour in it.** If a line would read the same in another game's manual, it is right.
+
+**2. World text: what the place and its people say.** People's lines, inscriptions, the Annals, a relic's history, a
+keeper's epithet, the intro and the ending. The twelve rules below still hold for it, with three limits:
+
+- **It may never be the only place something needed is said.** If the player must know it, player text says it too.
+- **A person's first two lines in a region are useful:** who they are or where this is, then what to do next or how.
+  Their third line is their own.
+- **Plain words.** It can be grave. It cannot be a riddle. No inversions ("to one who stands and waits").
+
+**The player's words**
+
+| Say | Not |
+|---|---|
+| you, your | he, his |
+| die, death (in instructions and counts) | fall, fallen |
+| checkpoint pool; spring | the raising water; a leak; a water |
+| heal | mend |
+| drink (of the flask) | draught |
+| hit, attack; combo; damage | blow, cut; string; harm |
+| 10 embers | a measure |
+| ember power | ember art |
+| relic slot (the knots in the scarf are the slots) | knot, alone |
+| equip, remove | tie, untie, wear |
+| ability | gift |
+| slam | plunge |
+| air dash | the step |
+| sword | blade |
+| beaten | fallen, still (of a keeper, in status lines) |
+| blocked, needs | shut, for something heavier |
+
+Names stay as they are (the Warden's Spade, the Tally's End). A name can be strange; what it does cannot.
+
+Where this came from: Unity's and Microsoft's writing guides for interface text (speak to "you", clear, concise,
+action first, one term for one thing), and the usual advice on tutorials (short, at the moment of need, a little at
+a time). No outside tool or skill was installed for it.
+
 ## The twelve rules
 
 **1. The what is plain; the why is deep.** Anyone who plays should be able to say, without a wiki: he fell from the top,

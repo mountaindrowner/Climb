@@ -86,7 +86,7 @@ export function makeFallen(scene, R){
   const torch = LEVEL.marks.find(m => m.type === 'torch' && Math.abs((m.x + 0.5) * T - home0) < 1.6 && Math.abs(m.y * T - stageY) < 3), homeX = torch ? Math.max(xMin + 4, (torch.x + 0.5) * T - 1.9) : home0;
   const START = { st: 'dormant', tm: 0, hp: D.hp, phase: 1, flash: 0, cd: 0.6, mode: 'stalk', mt: 0, acts: 0, x: homeX, y: stageY, vx: 0, vy: 0, face: 1, dist: 0, mash: 0, took: 0, tookT: 0, cut: null, alpha: 1,
     fly: null, given: false, gone: false, drawn: false, rang: false, dest: null, beat: 0, crackT: -1, crackX: 0 };
-  const B = { name: D.name, hint: 'turn its blade; cut when it is spent', rage: 'it calls on the sky', fell: 'what you left here is yours again',
+  const B = { name: D.name, hint: 'Block its sword. Attack when it is tired.', rage: 'It calls down the sky.', fell: 'What you left here is yours again.',
     room, stageY, cx, waves: [], shards: [], ghosts: [], drops: [], seen: false, revealAt: RISE.strike, ...START };
   // ---- what it is drawn with: his strips, dark; its eyes; its scarf
   const dark = new THREE.Color(0x343c60), white = new THREE.Color(0xffffff), tint = new THREE.Color();

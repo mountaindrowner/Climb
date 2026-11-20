@@ -34,6 +34,9 @@ export function pockets(N){
       }
       front.splice(0, front.length, ...next.slice(0, 30));
     }
+    // a perch he can only leave by a long drop: he lands sore, and is out all the same (build 77: he no longer takes
+    // an edge on the way down, so such a drop is a drop)
+    if (!ok) for (const p of progs.slice(0, 40)){ for (const [c] of run(x, y, p, 600, true)) if (seen.has(c)){ ok = true; break; } if (ok) break; }
     if (!ok){ const r = LEVEL.rooms.find(r => i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1); out.push({ x: i, y: j, room: r ? r.name : '?' }); }
   }
   return out;

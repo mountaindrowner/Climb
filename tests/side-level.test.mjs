@@ -53,7 +53,10 @@ function reach(edges){
       for (let dx = 1; dx <= 9; dx++) for (let dy = -12; dy <= 7; dy++){   // a double jump now rises 3.8 (seven tiles)
         const ti = i + dir * dx, tj = j + dy; if (!stand(ti, tj)) continue;
         const peak = Math.max(j, tj);   // feet just clear the higher of the two
-        if (clear(i, i, j, peak + BODY - 1) && clear(i, ti, peak, peak + BODY - 1) && clear(ti, ti, tj, peak + BODY - 1)) push(ti, tj);
+        // he rises where he stands; or, from the lip of a shelf with another over it, in the open column beyond the lip
+        // (he runs off it and jumps: the real motor's checks, tests/side-physics.test.mjs, are the judge of that)
+        const up0 = clear(i, i, j, peak + BODY - 1) ? i : dx > 1 && clear(i + dir, i + dir, j, peak + BODY - 1) ? i + dir : null;
+        if (up0 != null && clear(up0, ti, peak, peak + BODY - 1) && clear(ti, ti, tj, peak + BODY - 1)) push(ti, tj);
       }
     }
     if (!stand(i, j)) continue;

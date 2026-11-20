@@ -115,7 +115,12 @@ export function makeHud(hud){
   H.banner = (a, b, alpha) => {
     if (alpha <= 0) return; g.globalAlpha = Math.min(1, alpha);
     const big = width(a, 2) <= H.W - 24 ? 2 : 1; text(g, a, H.W / 2, 50, C.cream, big, 'center');
-    if (b){ H.rule(Math.round(H.W / 2), 50 + 7 * big + 5, Math.min(70, Math.round(width(a, big) / 2) + 8), C.bone); text(g, b, H.W / 2, 50 + 7 * big + 11, C.pale, 1, 'center'); }
+    if (b){ if (a) H.rule(Math.round(H.W / 2), 50 + 7 * big + 5, Math.min(70, Math.round(width(a, big) / 2) + 8), C.bone);
+      // the line under it, wrapped to the picture (build 77: a long one ran off both sides), on a dark band so it reads over anything
+      const lines = []; let ln = ''; for (const w of String(b).split(' ')){ const t = ln ? ln + ' ' + w : w; if (width(t) > H.W - 28 && ln){ lines.push(ln); ln = w; } else ln = t; } if (ln) lines.push(ln);
+      const y0 = a ? 50 + 7 * big + 11 : 58, wide = Math.max(...lines.map(l => width(l)));
+      g.globalAlpha = Math.min(1, alpha) * 0.55; px(C.ink, Math.round(H.W / 2 - wide / 2) - 4, y0 - 3, wide + 8, lines.length * 9 + 4); g.globalAlpha = Math.min(1, alpha);
+      lines.forEach((l, k) => text(g, l, H.W / 2, y0 + k * 9, C.pale, 1, 'center')); }
     g.globalAlpha = 1;
   };
   // a boss comes: black closes in above and below, and its name is set out

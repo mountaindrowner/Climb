@@ -17,6 +17,10 @@ export const BODY = { hw: 0.34, stand: 2.4, crouch: 1.4, roll: 1.25 };
 // rises and falls quicker (grav), so the same arc takes less time: a snappier jump, not a floatier one
 export const SCALE = { jump: 1.48, run: 1.38, grav: 1.22 };
 const MANTLE = 2.6, STEP = T + 0.02;
+// taking an edge is for the way up (build 77, from a playtest: with shelves close together he hauled himself onto
+// every lip he passed). He takes one while he is rising, or in the first moment after the top of a jump (`top`,
+// seconds): the jump that falls just short. Coming down he never does. `topT` is how long since he was last rising
+export const GRAB = { top: 0.12 };
 // what he has learned on the way up (the game sets these from what he has beaten; a keeper teaches one as it falls):
 //   breaker  the Warden's gift, the spade: only it breaks cracked rock (main.js breakRock)
 //   dash     the Toll's step: a roll begun in the air flies level and fast for a moment, once each time he leaves the ground
@@ -86,7 +90,7 @@ function launchSpeed(height, ease){
 
 export function newPlayer(x, y){
   return { x, y, vx: 0, vy: 0, h: BODY.stand, face: 1, grounded: true, coyote: 0, jumpBuf: 0, jumpT: 1, launch: 0, airT: 0, airJumps: 1, airTop: y,
-    flip: 0, roll: 0, rollCd: 0, rollDir: 1, dive: null, plant: 0, crouch: false, mantle: null, landT: 0, drop: 0,
+    flip: 0, roll: 0, rollCd: 0, rollDir: 1, dive: null, plant: 0, crouch: false, mantle: null, topT: 9, landT: 0, drop: 0,
     glide: false, airDash: 1, dashT: 0, bounce: false,
     hp: TUNE.player.hp, maxHp: TUNE.player.hp, flask: TUNE.player.flask, flaskMax: TUNE.player.flask, inv: 0, hurtT: 0, atk: null, weapon: 'blade', runPhase: 0, events: [] };
 }
@@ -127,6 +131,7 @@ export function stepPlayer(P, dt){
   if (P.roll > 0){ P.roll = Math.max(0, P.roll - dt); if (P.roll === 0) P.rollCd = MV.roll.cooldown; }
   if (!FEEL.coyote) P.coyote = 0;
   P.airT = P.grounded || P.mantle ? 0 : P.airT + dt;
+  P.topT = P.grounded || P.mantle ? 9 : P.vy > 0 ? 0 : (P.topT || 0) + dt;   // (on the ground: 9, so stepping off an edge is a fall from the start)
   if (P.grounded || P.mantle){ P.airJumps = FEEL.doubleJump ? 1 : 0; P.airDash = 1; P.glide = false; }
   P.dashT = Math.max(0, P.dashT - dt); RULE.tearing = P.dashT > 0;   // in the Toll's step, vellum does not stop him
   // the stones of the way (the Pilgrims' Cairns): the way he faced when he stepped onto them is the way he must keep
@@ -301,9 +306,11 @@ export function stepPlayer(P, dt){
     const m = LEVEL.pads.get(ty(P.y + 0.01) * LEVEL.W + tx(P.x));
     if (m){ P.vy = launchSpeed(BLOOM.height, MV.launch.ground); P.launch = MV.launch.ground; P.jumpT = 0; P.grounded = false; P.crouch = false; P.roll = 0; P.plant = 0; P.atk = null; P.bounce = true; P.airJumps = FEEL.doubleJump ? 1 : 0; P.airTop = P.y; ev(P, 'bloom', { m }); }
   }
-  // ---- catching an edge in the air: a wall just ahead whose top is within reach above his feet
-  // (never while he is going down: dropping through a plank, or holding down, he means to fall past what is near)
-  if (!P.grounded && FEEL.ledge && P.roll <= 0 && !stunned && !P.dive && P.vy < 5 && !P.dropping && !H.down && (!P.swim || P.depth < SWIM.float + 0.6)){   // (under the water he does not haul himself onto every edge he passes: only out of it, at its top)   // dropping: from a drop through a plank until he lands
+  // ---- catching an edge in the air: a wall just ahead whose top is within reach above his feet, and he pressing
+  // toward it. Only on the way up (GRAB): never while he is coming down, dropping through a plank, or holding down.
+  // (Out of water he hauls himself at its top whichever way he is moving: that is leaving the water, not a jump)
+  const goingUp = P.vy > 0 || P.topT < GRAB.top;
+  if (!P.grounded && FEEL.ledge && P.roll <= 0 && !stunned && !P.dive && P.vy < 5 && !P.dropping && !H.down && (P.swim ? P.depth < SWIM.float + 0.6 : goingUp)){   // (under the water he does not haul himself onto every edge he passes: only out of it, at its top)   // dropping: from a drop through a plank until he lands
     const d = H.right ? 1 : H.left ? -1 : 0;
     if (d) tryMantle(P, d);
     if (!P.mantle) tryPlank(P);

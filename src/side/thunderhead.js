@@ -47,7 +47,7 @@ export function makeThunderhead(scene, R){
   const room = LEVEL.rooms.find(r => r.name === 'gale'), mk = LEVEL.marks.find(m => m.type === 'boss');
   if (!room || !mk) return null;
   const stageY = mk.y * T, cx = (mk.x + 0.5) * T, xMin = room.x0 + 2.6, xMax = room.x0 + 34.4;
-  const B = { name: TH.name, hint: 'it strikes the rods: cut one while it burns', rage: 'the whole sky comes down', fell: 'the storm breaks',
+  const B = { name: TH.name, hint: 'It strikes the rods. Attack a rod while it burns.', rage: 'Now lightning falls everywhere.', fell: 'The Thunderhead is beaten. The storm breaks.',
     st: 'dormant', tm: 0, hp: TH.hp, phase: 1, flash: 0, cd: 1.2, room, stageY, cx, mode: 'idle', mt: 0, acts: 0,
     mx: cx, my: stageY + 13, tilt: 0, kx: cx, ky: stageY + 13, out: 0, hz: [], arcs: [], zaps: [], wind: 0, windA: 0, look: 0, gone: 0 };
   const piece = (file, w, h, z) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w / 16, h / 16), litMat({ map: tex(BASE + file + '.png'), normalMap: tex(BASE + file + '_n.png'), transparent: true, alphaTest: 0.5 })); m.position.z = z; scene.add(m); return m; };

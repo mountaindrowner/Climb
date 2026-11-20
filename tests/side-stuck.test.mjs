@@ -39,6 +39,21 @@ test('a jump under the middle of a plank his hands reach hauls him up onto it', 
   const { P, ev } = sim(104.5, 2, t => { if (t < 0.01) I.tap('jump'); I.hold('jump', t < 0.6); });   // the Pithead's deck at row 9 (tiles 95-105), from the floor under it
   assert.ok(ev.has('mantle'), 'he caught it'); assert.equal(Math.round(P.y / T), 10, 'and stands on it');
 });
+// taking an edge is for the way up (build 77, from a playtest: among shelves close together he hauled himself onto every
+// lip he passed). The well's first shelf, in the Roots: its lip at tile 145, its top at row 57; the boulder under it at 140-141
+test('jumping toward an edge and pressing toward it, he takes it', () => {
+  const { P, ev } = sim(141, 52, t => { if (t < 0.01) I.tap('jump'); I.hold('jump', t < 0.6); I.hold('right', true); });   // from the boulder, across three clear tiles
+  assert.ok(ev.has('mantle'), 'he took the edge'); assert.equal(Math.round(P.y / T), 57, 'and stands on the shelf');
+});
+test('coming down past an edge, pressing toward it, he does not take it', () => {
+  for (const [x, y, why] of [[144.2, 56, 'falling beside the lip, a tile under its top'], [143.2, 59, 'falling from over it']]){
+    const { P, ev } = sim(x, y, t => { I.hold('right', why === 'falling from over it' ? t > 0.12 : true); });
+    assert.ok(!ev.has('mantle'), `${why}: he took the edge`); assert.equal(Math.round(P.y / T), 48, `${why}: he comes down to the floor`);
+  }
+});
+test('stepping off an edge is a fall from the start: no edge is taken on the way', () => {
+  const P = M.newPlayer(141 * T, 52 * T + 0.01); assert.ok(P.topT >= M.GRAB.top, 'he begins as one who is not rising');
+});
 test('dropping through a plank, he does not catch the next one on the way down', () => {
   // standing on a rung of the Pithead's ladder (row 16) a moment, then down and jump (through it), steering as he falls to the rung at 11
   const { order } = sim(87, 17, t => { I.hold('down', t > 0.2 && t < 0.45); if (Math.abs(t - 0.25) < 0.006) I.tap('jump'); I.hold('left', t > 0.3); });

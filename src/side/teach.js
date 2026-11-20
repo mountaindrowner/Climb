@@ -32,11 +32,11 @@ export const LESSONS = {
   move:   [['move', 'MOVE']],
   jump:   [['jump', 'JUMP']],
   double: [['jump', 'JUMP AGAIN IN THE AIR']],
-  cut:    [['attack', 'CUT']],
+  cut:    [['attack', 'ATTACK']],
   block:  [['block', 'BLOCK']],
-  parry:  [['block', 'BLOCK JUST AS IT LANDS: IT REELS']],
+  parry:  [['block', 'BLOCK JUST BEFORE A HIT LANDS TO STUN IT']],
   crouch: [['down', 'CROUCH'], ['roll', 'ROLL']],
-  drop:   [['down', '+'], ['jump', 'DROP THROUGH']],
+  drop:   [['down', '+'], ['jump', 'DROP THROUGH THE PLANK']],
 };
 const SHOW_FOR = 8, TIMES = 3;
 export function makeTeach(G, OPT, store){
@@ -102,16 +102,16 @@ export function makeTeach(G, OPT, store){
 
 // ---- the people's first words: the first time each is met, anywhere, they say who they are and what they do
 export const INTRO = {
-  lamplighter: 'I keep the lamps by the water. Bring me shards and I can do a little for you.',
-  scribe: 'I write the mountain down. Ask me what is still to be found here.',
-  wren: 'I am Mirel. I climb, and I count.',
+  lamplighter: 'I am Ordric. I keep the lamps. Bring me shards and I will make you stronger.',
+  scribe: 'I am Corwen. I map the mountain. Ask me what is left to find here.',
+  wren: 'I am Mirel. I am climbing to the flame, like you.',
 };
 
 // ---- the cards for the systems: when each first matters. `how` lines have the keys filled in ({action})
 export const CARDS = {
-  knots: { head: 'HOW IT WORKS', title: 'The knots', icon: 'knot', does: 'A relic works only while it is tied into his scarf.', how: ['He has a few knots. At the water, he chooses what he wears.'] },
-  embers: { head: 'HOW IT WORKS', title: 'Embers', icon: 'embers', does: 'Every blow that lands gives him an ember.', how: ['A full measure pays for a power: {art}.', 'With the flask dry, {flask} spends a measure to mend a heart.'] },
-  map: { head: 'HOW IT WORKS', title: 'The map', icon: 'map', does: 'Every room he has been in.', how: ['The large blue mark is the water that raises him; a small one mends him.'] },
+  knots: { head: 'HOW IT WORKS', title: 'Relics', icon: 'knot', does: 'A relic only works while it is equipped.', how: ['You have a few relic slots: the knots in your scarf.', 'Rest at a pool to choose which relics you equip.'] },
+  embers: { head: 'HOW IT WORKS', title: 'Embers', icon: 'embers', does: 'Every hit you land gives you one ember.', how: ['With 10 embers, {art} uses a power.', 'With your flask empty, {flask} spends 10 embers to heal one heart.'] },
+  map: { head: 'HOW IT WORKS', title: 'The map', icon: 'map', does: 'The map shows every room you have entered.', how: ['Large blue mark: a checkpoint pool. Small blue mark: a spring that heals you.'] },
 };
 
 // ---- the pictures: 16 pixels square, a letter a colour (the palette, assets/side/palette.json)

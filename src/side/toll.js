@@ -65,7 +65,7 @@ export function makeToll(scene, R){
   if (!room || !mk) return null;
   const stageY = mk.y * T, cx = (mk.x + 0.5) * T, railY = room.y1 - 1.7, D = railY - stageY, xMin = room.x0 + 4, xMax = room.x1 - 4;
   const lenFor = rim => D - rim - W.H;               // the chain's length that puts the rim that far over the stage
-  const B = { name: W.name, hint: 'cut it when it lies on the stage', rage: 'it tolls, and the roof answers', fell: 'the way up is open',
+  const B = { name: W.name, hint: 'Attack it when it lies on the stage.', rage: 'It rings, and the roof starts to fall.', fell: 'The Toll is beaten. The way up is open.',
     st: 'dormant', tm: 0, hp: W.hp, phase: 1, flash: 0, cd: 1.2, room, stageY, cx, mode: 'idle', mt: 0, px: cx, len: lenFor(13), ang: 0, clap: 0, clapV: 0, n: 0, acts: 0, ripples: [], cinders: [], fall: null,
     sc: 1, dim: 1, pulse: 0, aura: 0, beat: 0, rung: 0, slammed: false, seq: W.rise.full, side: 1, lastToll: -9 };
   const mesh = (file, w, h, z) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w / 16, h / 16), litMat({ map: tex(`assets/side/toll/${file}.png`), normalMap: tex(`assets/side/toll/${file}_n.png`), transparent: true, alphaTest: 0.5, color: 0xd8d0c4 })   /* a little under full, so the bronze does not bloom its face away */); m.position.z = z; m.visible = false; scene.add(m); return m; };

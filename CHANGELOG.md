@@ -2,7 +2,14 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The map pass, pilot: the Roots in stone (latest; build 76).** `docs/map-pass-sheet.md` has all of it.
+**From the playtest: the edge grab, roomier shafts, plain words, the goal (latest; build 77).** `docs/words-sheet.md`, `docs/playtest-2026-11-20.md`.
+- **He takes an edge only on the way up,** pressing toward it. Coming down he never does.
+- **The Roots' shafts are roomier:** shelves five or six rows apart, four clear tiles between their lips.
+- **The game speaks to you.** About two hundred lines rewritten: hints, cards, abilities, relics, the shop, menus, the map, banners, the keepers, the intro and ending, and the people. Numbers and plain names for things (10 embers, relic slot, checkpoint pool).
+- **The goal is said:** in the intro, at the top of the pause screen (the goal, and the next step), by each person, and at the ways down into the Deep.
+- 420 checks. No save is moved.
+
+**The map pass, pilot: the Roots in stone (build 76).** `docs/map-pass-sheet.md` has all of it.
 - **Height from the shape of the place.** The Roots, the Ossuary and the well's foot climb by stone now: shelves out of the walls, boulders, pillars, rock hung from the roof, stairs. 84 planks became 17, and each of the 17 is a made thing: a rung of a ladder, a step off a wall, a staging on posts.
 - **Nothing hangs in the air,** plank or rock. Planks are drawn held up (a strut, a post, a rope) in every timber region.
 - **Nothing found has moved.** Same rooms, doors and order.

@@ -409,6 +409,9 @@ then dresses the new shapes. One level a build, each held to a budget by a check
 - **Pilot: the Roots (build 76).** Done: 84 planks to 17, none bare in the air. **Played 20 Nov 2026 and judged
   good: the pass goes on.** What that playtest found is sorted in `docs/playtest-2026-11-20.md`: what bears on the
   pass (the edge grab, faults in the Cloister's rooms), what is broken, and what is set aside by subject.
+- **After the playtest (build 77).** The edge grab is for the way up only; the Roots' shafts are five or six rows and
+  four clear tiles; the words speak to the player and the goal is said (`docs/words-sheet.md`). The spacing rules in
+  the map-pass sheet are the ones every later level is built to. **The Cloister's pass waits on the player's word.**
 - **Then, in order:** the Cloister, the Spires, the Tempest, the Gardens, the Firmament, the Workings, the Vein, the
   Flooded Levels, the Great Shaft, the Hollow.
 - **Phase 18's rough rock** (faces in every region) is cut into the same walls, so it is laid out with each level's

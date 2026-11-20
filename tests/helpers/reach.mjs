@@ -25,7 +25,7 @@ export const arrival = N => REGION_DATA[N] && REGION_DATA[N].deep ? [...(REGION_
 let W = 0;
 // one input program from where he stands; returns where he came to rest, by tile (grounded, not hurt). Places are kept
 // as where he really stood, not tile centres: a tile's centre can be inside a wall for a body 0.68 wide
-function run(x, y, prog, frames = 150){
+function run(x, y, prog, frames = 150, hurtOk = false){   // hurtOk: a fall that hurts him and leaves him standing still counts (the stuck-finder: he is out, if sore)
   I.release(); clock.t += 10;
   const P = M.newPlayer(x, y), hp0 = P.hp, out = new Map();
   // a place he comes to rest counts once he has stood there a frame unhurt (what hurts whoever stands on it, spikes or
@@ -35,7 +35,7 @@ function run(x, y, prog, frames = 150){
     prog(t, I, P);
     for (let s = 0; s < 2; s++){ M.stepPlayer(P, H120); clock.t += H120; t += H120; }
     I.endFrame(); P.events.length = 0;
-    if (P.hp < hp0) return out;
+    if (P.hp <= 0 || (P.hp < hp0 && !hurtOk)) return out;
     // in deep water he does not stand, and is somewhere all the same: where the water has him counts, every other tile of it
     if (P.swim && !(P.hurtT > 0)){ const ci = Math.floor(P.x / T), cj = Math.round(P.y / T); if (!(ci & 1) && !(cj & 1)){ const k = cj * W + ci; if (!out.has(k)) out.set(k, [P.x, P.y]); } }
     if (pend){ if (!out.has(pend[0])) out.set(pend[0], pend[1]); pend = null; if (stop) break; }

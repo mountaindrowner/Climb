@@ -47,7 +47,7 @@ test('a glimmer is ore until he is on it; then it is fast, and bites', () => {
 const ROOMS = [{ x0: -20, x1: 40, y0: -5, y1: 20 }];
 test('the Echo goes where he went, a few seconds after, and strikes where he was: standing still, he is caught; moving on, he is not', () => {
   const d = VN.enemies.echo; assert.equal(d.guard(), true, 'it cannot be struck');
-  const walk = (t, P) => { P.x = Math.min(10, t * 5); }, e = mk('echo', 30), stood = turn(e, { x: 0, y: 0, h: 2.4 }, 2 + ECHO.delay + 0.8, { rooms: ROOMS }, walk); assert.ok(stood.hurts.includes('Caught by his echo'));
+  const walk = (t, P) => { P.x = Math.min(10, t * 5); }, e = mk('echo', 30), stood = turn(e, { x: 0, y: 0, h: 2.4 }, 2 + ECHO.delay + 0.8, { rooms: ROOMS }, walk); assert.ok(stood.hurts.includes('Caught by your Echo'));
   const on = (t, P) => { P.x = t * 5; }, e2 = mk('echo', 30), went = turn(e2, { x: 0, y: 0, h: 2.4 }, 7, { rooms: ROOMS }, on); assert.equal(went.hurts.length, 0, 'it is always that far behind'); assert.ok(e2.shown && e2.x > 10 && e2.x < 7 * 5 - 5);
   const out = turn(mk('echo', 30), { x: 80, y: 0, h: 2.4 }, 6, { rooms: ROOMS }); assert.equal(out.hurts.length, 0, 'not in its room: nothing');
 });

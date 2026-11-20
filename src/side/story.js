@@ -252,7 +252,7 @@ export function makeStory(hud, heroBase){
   function title(dt){
     g.drawImage(night, 0, 0); beacon(false, S.t); marker(0, S.t); snowfall(dt, -8);
     say('THE CLIMB', 0.115, 0.08, Math.min(1, S.t / 1.2), '#fff2d0', 12);
-    say('what fell is called back up', 0.262, 0.032, ease((S.t - 0.8) / 1.2) * 0.85, '#cfe6ff', 13);
+    say('you fell. climb back to the flame.', 0.262, 0.032, ease((S.t - 0.8) / 1.2) * 0.85, '#cfe6ff', 13);
     // while the opening is still coming in: a thin bar where the buttons will be
     if (S.quiet && S.quiet() && Math.floor(S.t * 2) % 2 === 0) say('press any key, or tap, for sound', 0.95, 0.024, 0.75, '#8b9bb4');   // a browser lets no sound play before a press
     const pr = S.opts.progress && S.opts.progress(); if (pr != null){ px(PAL.ink, 12, 101, 102, 4); px('#3a4466', 13, 102, 100, 2); px(PAL.fire3, 13, 102, Math.max(1, Math.round(100 * pr)), 2); }
@@ -260,8 +260,8 @@ export function makeStory(hud, heroBase){
   function intro(dt){
     const t = S.t;
     // the lines, each with when it comes and goes
-    const L = [[0.6, 4.6, 'He stood at the top of the world, and he fell.'], [5.3, 7.5, 'Past the stars.'], [7.7, 10.0, 'Past gardens no one tends.'], [10.2, 12.5, 'Through the storm.'], [12.7, 15.0, 'Past the spires of ice.'], [15.2, 17.5, 'Past the halls of stone.'],
-      [17.8, 21.0, 'Down, into the roots of the mountain, and the water there.'], [22.0, 24.6, 'The water gave him back.'], [24.9, 27.0, 'Far above, a light.'], [27.2, 29.3, 'He was not made to stay where he was left.']];
+    const L = [[0.5, 2.6, 'You kept the flame at the top of this mountain.'], [2.8, 4.8, 'You let it go out. You fell.'], [5.3, 7.5, 'Past the stars.'], [7.7, 10.0, 'Past the gardens.'], [10.2, 12.5, 'Through the storm.'], [12.7, 15.0, 'Past the spires of ice.'], [15.2, 17.5, 'Past the halls of stone.'],
+      [17.8, 21.0, 'Down into the water at the bottom of the mountain.'], [22.0, 24.6, 'The water brought you back.'], [24.9, 27.0, 'Far above, a light is calling you.'], [27.2, 29.3, 'Climb back to the top.']];
     const FALL0 = 5, FALL1 = 21.4;
     if (t < FALL0){
       // the summit, and him off it
@@ -340,7 +340,7 @@ export function makeStory(hud, heroBase){
     if (t > 1.5 && S.said < 0){ S.said = 0; sfx.shrine && sfx.shrine(); }
     // the light goes down the way he fell, to the water: it was never only at the top
     if (t > 6 && t < 16){ const u = ease((t - 6) / 6); for (let y = APEX + 4; y < APEX + 4 + u * 152; y += 2){ const F = flank(y); if (F.l > 2) px(y % 4 ? PAL.fire3 : PAL.white, F.l + 4 + Math.round(Math.sin(y * 0.4) * 1.5), y); } }
-    const L = [[2.2, 5.6, 'The flame he had let die was burning.'], [6.2, 9.4, 'It had never gone out.'], [9.8, 13.6, 'It had gone down into the dark to find him.'], [14.2, 18.4, 'Below lay the whole of the mountain: the garden, the storm, the ice, the stone, the water.'], [19.0, 22.6, 'He had not climbed it alone.']];
+    const L = [[2.2, 5.6, 'The flame you let die was burning.'], [6.2, 9.4, 'It had never gone out.'], [9.8, 13.6, 'It had gone down into the dark to find you.'], [14.2, 18.4, 'Below lay the whole mountain: the garden, the storm, the ice, the stone, the water.'], [19.0, 22.6, 'You did not climb it alone.']];
     for (const [a, b, text] of L) if (t > a && t < b) say(text, 0.88, 0.042, Math.min(1, (t - a) / 0.6, (b - t) / 0.6));
     if (t > 23.4){ say('THE CLIMB', 0.115, 0.08, ease((t - 23.4) / 1.5), '#fff2d0', 12); say('thank you for playing', 0.262, 0.03, ease((t - 24.6) / 1.5) * 0.85, '#c0cbdc', 13); }
     if (t >= LEN.ending) end();
