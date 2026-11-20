@@ -406,8 +406,9 @@ The pass rebuilds each level so that height comes from the shape of the place (s
 stepped floors), keeps a plank only where it is a made thing (a rung, a step off a wall, a staging on posts), and
 then dresses the new shapes. One level a build, each held to a budget by a check.
 
-- **Pilot: the Roots (build 76).** Done: 84 planks to 17, none bare in the air. Waiting on the player's comparison
-  with an untouched level before the rest are done.
+- **Pilot: the Roots (build 76).** Done: 84 planks to 17, none bare in the air. **Played 20 Nov 2026 and judged
+  good: the pass goes on.** What that playtest found is sorted in `docs/playtest-2026-11-20.md`: what bears on the
+  pass (the edge grab, faults in the Cloister's rooms), what is broken, and what is set aside by subject.
 - **Then, in order:** the Cloister, the Spires, the Tempest, the Gardens, the Firmament, the Workings, the Vein, the
   Flooded Levels, the Great Shaft, the Hollow.
 - **Phase 18's rough rock** (faces in every region) is cut into the same walls, so it is laid out with each level's
