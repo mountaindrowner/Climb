@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 77 | 20 Nov 2026 | `COMMIT77` | From the playtest: the edge grab, roomier shafts, plain words, the goal said | **yes** | yes (now) |
+| 77 | 20 Nov 2026 | `a2cae7a` | From the playtest: the edge grab, roomier shafts, plain words, the goal said | **yes** | yes (now) |
 | 76 | 19 Nov 2026 | `a77ee13` | The map pass, pilot: the Roots in stone (84 planks to 17) | no | yes (now) |
 | 75 | 19 Nov 2026 | `3a4aa64` | Try a place: any level, or a moment, from the title (for playtesting) | no | yes (now) |
 | 74 | 19 Nov 2026 | `ba84266` | The Hollow, the Auger, the grip, the Source (phase 17) | no | yes (now) |
