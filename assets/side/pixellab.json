@@ -1239,7 +1239,8 @@
     "frames": 6,
     "group": "5200984f-3e4d-49b2-bef4-a4324995cd1e"
    }
-  }
+  },
+  "note": "replaced by px_glimmer_c (build 80): it was drawn in a three-quarter view"
  },
  "px_housemoth": {
   "id": "74b7558a-14ae-4091-89d7-9b9984188b69",
@@ -1267,5 +1268,34 @@
     "group": "ea4476ec-156a-4ef0-8391-43848732a865"
    }
   }
+ },
+ "px_glimmer_b": {
+  "id": "c15ef3d4-586a-4f3b-a0b8-c11a4c5ae704",
+  "description": "a low crab-like creature drawn in pure flat side profile at ground level, a 2D side-scrolling platformer enemy sprite: a dark slate body shaped like a low dome, one row of short dark legs along its bottom edge only, a cluster of pale blue-white glowing crystals standing straight up out of its back, no eyes, it looks like a lump of crystal ore. The camera is level with the ground: the top of its back is not seen, no perspective, not three-quarter view, not from above. Simple stylized chunky pixel art with few colors and bold shapes",
+  "anims": {},
+  "note": "a draft, not used: the folder is not kept"
+ },
+ "px_glimmer_c": {
+  "id": "82be606c-da03-4800-b0bc-6a739578d1bd",
+  "description": "a rock crab seen exactly side-on, walking to the right, flat like a beetle in a side-scrolling platformer: a wide low dark slate shell with a flat underside, four short dark legs in a row under it touching the ground, two small pincers at the front, and a cluster of tall pale blue-white glowing crystals growing straight up from the top of its shell, no eyes. It looks like a lump of crystal ore with legs. Strict orthographic side elevation, level horizon, the shell top is not visible. Simple stylized chunky pixel art with few colors and bold shapes",
+  "anims": {
+   "walk": {
+    "action": "scuttling forward quickly on its short legs, staying flat and level, seen exactly side-on",
+    "frames": 6,
+    "group": "6eb206da-0522-4a0e-aa4b-3aef291617e9"
+   }
+  }
+ },
+ "px_glimmer_d": {
+  "id": "5c199050-7fe1-4fa3-8fd2-4c92a7535ac1",
+  "description": "a rock crab seen exactly side-on, walking to the right, flat like a beetle in a side-scrolling platformer: a wide low dark slate shell with a flat underside, four short dark legs in a row under it touching the ground, two small pincers at the front, and a cluster of tall pale blue glowing crystals growing straight up from the top of its shell, no eyes. It looks like a lump of crystal ore with legs. Strict orthographic side elevation, level horizon, the shell top is not visible. Simple stylized chunky pixel art with few colors and bold shapes",
+  "anims": {
+   "walk": {
+    "action": "scuttling forward quickly on its short legs, staying flat and level, seen exactly side-on",
+    "frames": 6,
+    "group": "d8b2bd1d-b774-455d-ab28-460fc1bf1494"
+   }
+  },
+  "note": "a draft, not used: the folder is not kept"
  }
 }

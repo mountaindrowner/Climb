@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Under the water, and out of the walls (latest; build 79).**
+**The Glimmer, side-on (latest; build 80).** The Vein's crab-like creature was drawn in a three-quarter view; it is redrawn from the side, like everything else, at the same size.
+
+**Under the water, and out of the walls (build 79).**
 - **No slam gets him under deep water** before he has the Wyrm's wind. One begun while floating used to hold him still, and a leap out of the water then carried him seven metres down, under the barriers the water makes.
 - **In the Cloister:** no gargoyle's pedestal in a spike pit, none with its head in rock, and the plank by Mirel stops short of her.
 - **Eight other creatures** that began inside rock are moved. A check holds every level to all of this.

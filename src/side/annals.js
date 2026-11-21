@@ -60,7 +60,7 @@ export const ANNALS = [
   { region: 'The Vein', keeper: { theme: 'vein', art: 'px_mole/stand', name: 'The Auger', line: 'It was built here. Its cradle is empty, and its track goes down.' },
     creatures: [
       { type: 'prospector', name: 'Prospector', art: 'px_prospector', line: 'His face to the glitter. It is always a little further on.' },
-      { type: 'glimmer', name: 'Glimmer', art: 'px_glimmer', line: 'Ore, until it is touched.' },
+      { type: 'glimmer', name: 'Glimmer', art: 'px_glimmer_c', line: 'Ore, until it is touched.' },
       { type: 'echo', name: 'The Echo', art: 'px_echo', line: 'It goes where he went, and strikes where he was.' },
       { type: 'assayer', name: 'The Assayer', art: 'px_assayer', line: 'It weighs what is brought to it, and finds it light.' } ] },
   { region: 'The Flooded Levels', keeper: { theme: 'flooded', art: 'px_mole/stand', name: 'The Auger', line: 'The water came in over its track. It was already below.' },

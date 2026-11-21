@@ -55,6 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 80 | 21 Nov 2026 | `COMMIT80` | The Glimmer redrawn side-on (the "crabs at an angle") | no | yes (now) |
 | 79 | 21 Nov 2026 | `6e00f76` | The slam that got him under deep water; things standing in walls and spikes | **yes** | yes (now) |
 | 78 | 21 Nov 2026 | `522a77c` | The broken list from the playtest; four old faults found on the way | no | yes (now) |
 | 77 | 20 Nov 2026 | `a2cae7a` | From the playtest: the edge grab, roomier shafts, plain words, the goal said | **yes** | yes (now) |
@@ -95,6 +96,24 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 80: the Glimmer, side-on
+
+- **For the player:** the Glimmer (the crab-like ore creature in the Vein) is redrawn. The old one was drawn in a
+  three-quarter view, as if seen from above and to one side; everything else in the game is seen from the side. The
+  new one is side-on: a flat shell, its legs in a row under it, pincers in front, crystals standing straight up.
+  This was "the crabs are at an angle" in the playtest of 20 Nov.
+- **Its crystals are blue at rest as well as when it runs,** like the crystals of the Vein it hides among. (The old
+  one's were grey-white at rest.)
+- **It is the size the old one was.** The new drawing is larger, so it is drawn at three quarters.
+- **How it was made:** four drawings were tried. Two were still at an angle or muddy, one was a smaller version that
+  did not read, and the third is the one used. A seven-frame walk and its lighting maps.
+- **Underneath:** `assets/side/px_glimmer_c` (new), `px_glimmer` removed; `regions/vein.js`, `annals.js`.
+- **No change to how it behaves, to the motor, or to any room. Save: not moved.**
+- **Checked:** the checks that touch it (the Vein's, the creatures', the misplaced-things check), and a look at it
+  in the Vein in the test browser. The whole suite was last run for build 79; nothing it covers changed.
+- **Not checked:** not played by hand. In the Vein's dark it is only seen by his lamp, so judge it there.
+- **Cost:** about 5 of the account's 9,100 generations. No money.
 
 ### Build 79: under the water, and out of the walls
 

@@ -121,7 +121,7 @@ const enemies = {
   // a prospector: his face to the glitter. He notices only what comes between him and it
   prospector: { ai: 'prospector', hp: 4, w: 0.6, h: 2.0, color: 0x8b9bb4, sees: 6.5, reach: 2.2, wind: 0.55, rest: 0.9, speed: 2.4, art: 'px_prospector', fly: false, word: 'Struck with a pick', onHit(e){ e.woke = true; } },
   // a glimmer: ore, until he is on it
-  glimmer: { ai: 'glimmer', hp: 2, w: 0.6, h: 0.6, color: 0x9fe8ff, wake: 1.4, speed: 5.4, art: 'px_glimmer', fly: false, word: 'Bitten', onHit(e){ e.woke = true; } },
+  glimmer: { ai: 'glimmer', hp: 2, w: 0.6, h: 0.6, color: 0x9fe8ff, wake: 1.4, speed: 5.4, art: 'px_glimmer_c', scale: 0.75, fly: false, word: 'Bitten', onHit(e){ e.woke = true; } },
   // the Echo: it goes where he went, a few seconds after, and strikes where he was. It cannot be struck. It will not come into a lit lamp's light
   echo: { ai: 'echo', own: true, noAim: true, hp: 99, w: 0.4, h: 2.2, color: 0xbfe8ff, fly: true, word: 'Caught by your Echo', guard(){ return true; } },
   // the Assayer: the Vein's keeper. A great balance. It weighs what is brought to it, and finds it light
