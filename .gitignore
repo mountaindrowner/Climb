@@ -5,3 +5,4 @@ node_modules/
 /tools/out/
 /.playwright/
 __pycache__/
+/itch-page/build/
