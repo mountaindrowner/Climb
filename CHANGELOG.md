@@ -2,7 +2,19 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Glimmer, side-on (latest; build 80).** The Vein's crab-like creature was drawn in a three-quarter view; it is redrawn from the side, like everything else, at the same size.
+**The second playtest's broken things (latest; build 81).** `docs/builds.md` has each one.
+- **The copy of him** left standing at a way into the Deep is gone: his picture was kept across a join and never let go.
+- **Tab is the menu key** (P and Escape still work), and in a screen within a screen it goes back one.
+- **The second jump breaks a fall.** No damage for what he fell before it.
+- **No slam gets under the Great Shaft's water:** a leap out and a slam at once used to.
+- **A keeper's hall is its own:** outside creatures are put back.
+- **Shop prices** are in the game's pixel digits (120 read as 180).
+- **Embers do not heal.** The Gardener's Seed: each drink heals one more heart.
+- **Small:** the dash 10% further, a little more reach, the ink creature freed, Mirel's bedroll redrawn, the Cairns' stones fall, a lip at the Spires' gate, the Great Shaft's bank.
+- **F2 shows where he is** (room and tile), for notes. A walk test holds every level to its known low spots.
+- 458 checks. No save is moved.
+
+**The Glimmer, side-on (build 80).** The Vein's crab-like creature was drawn in a three-quarter view; it is redrawn from the side, like everything else, at the same size.
 
 **Under the water, and out of the walls (build 79).**
 - **No slam gets him under deep water** before he has the Wyrm's wind. One begun while floating used to hold him still, and a leap out of the water then carried him seven metres down, under the barriers the water makes.

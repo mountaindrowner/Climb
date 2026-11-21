@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 80 | 21 Nov 2026 | `526af11` | The Glimmer redrawn side-on (the "crabs at an angle") | no | yes (now) |
+| 81 | 21 Nov 2026 | `COMMIT81` | The second playtest's broken things: the copy of him, the menu key, falls, the Great Shaft's water, and small numbers | no | yes (now) |
+| 80 | 21 Nov 2026 | `526af11` | The Glimmer redrawn side-on (the "crabs at an angle") | no | replaced by 81 |
 | 79 | 21 Nov 2026 | `6e00f76` | The slam that got him under deep water; things standing in walls and spikes | **yes** | yes (now) |
 | 78 | 21 Nov 2026 | `522a77c` | The broken list from the playtest; four old faults found on the way | no | yes (now) |
 | 77 | 20 Nov 2026 | `a2cae7a` | From the playtest: the edge grab, roomier shafts, plain words, the goal said | **yes** | yes (now) |
@@ -96,6 +97,106 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 81: the second playtest's broken things
+
+*The first step of the order agreed after the playtest of 21 Nov (`docs/playtest-2026-11-21.md`): the bugs and the
+small numbers, before any design. Each line names the note it answers.*
+
+**For the player**
+
+- **The copy of him standing in the floor is gone (B1).** It was real, and it was his own picture. Walking across a
+  join between two regions (the crypt stair, say) marks his picture to be kept while the new region is put round him.
+  The mark was never taken off. The next time he went through the dark into the Deep or out of it, he was made
+  again, and the old picture was kept as well: left standing at the last place he had been, which is the hole he
+  dropped into. That is why you saw it at the Workings' seal, the Vein's lip and the Roots' pithead, and only after
+  you had been up the crypt stair. Confirmed before and after: two of him drawn, then one.
+- **The menu key is Tab (B2).** P and Escape still work. Tab is there because a browser keeps Escape for leaving
+  full screen, which is how the game is played on its page: that is the most likely reason Escape "was a problem".
+  And in a screen that came from another (the map, the inventory, the Annals, options), the key now goes **back one
+  screen**; it used to drop you straight out into play. Where the browser allows it, Escape is also kept for the
+  game while in full screen. The hint on screen says TAB MENU.
+- **The second jump breaks a fall (B3, F1).** Whatever he fell before it does not count. Two things were wrong:
+  the fall was still measured from the top, and near the ground a jump press was being saved for the ground and
+  never became the second jump at all, so he landed, was hurt, and then jumped. At the end of a fall long enough to
+  hurt, the press is now the second jump. (A fall hurts from 9 metres; that number is not shown anywhere yet.)
+- **The Great Shaft's water cannot be cheated with the slam (B4).** You were right that build 79 had not closed it.
+  Build 79 ended a slam begun while floating. This one: leap out of the water and slam within a sixth of a second.
+  The slam was ended, but its speed was not, and in the moment after a leap the water does not hold him: he went to
+  the floor and swam under the arch. Now a slam in water loses its speed with it, and without the wind the water
+  turns him back up in every state. The check drops him in this way too, into every deep water of every level.
+- **Nothing from outside comes into a keeper's fight (B5).** While a keeper stands, a creature that lives outside
+  its hall and has come in is put back where it lives.
+- **Shop prices can be read (B6).** The menus' typeface has a 2, a 5 and an 8 that look alike: 120 read as 180.
+  Prices are drawn in the game's own pixel digits, in gold.
+- **Embers no longer heal (F5).** The flask is the only way. The hints and the embers' card say so no longer.
+  **The Gardener's Seed** made that healing cheaper, so it needed something else to do: each drink from the flask
+  now heals one more heart. That is my choice of stand-in, and yours to change.
+- **The ink creature in the Scriptorium's first room (B7)** lay in a slot two tiles deep between two heaps and could
+  not leave it. The lowest heap is made a step, and it lies on that.
+- **Mirel's bedroll (B10)** was a green bar with a red end in a black frame: a health bar. It is a grey folded
+  blanket with a rolled head end.
+- **The Cairns' stones (B9)** drop, tilt and fade when the way falls. They used to blink out.
+- **The top of the Bell Road (B11).** Coming up into the Spires, the rock-smoothing had rounded the corner into a
+  lip over half the hatch. The air over it is marked to stay open.
+- **The Great Shaft's west bank (F6)** was level with the water's top, so it did not look like a way out. It is a
+  row higher.
+- **Small numbers:** the air dash goes 10% further (A6). The sword reaches 2.1 (was 1.9) and the heavy weapon 2.85
+  (was 2.6) (A2). The barnacles are drawn two pixels into the ground (C6).
+
+**For giving notes**
+
+- **A place readout (U7).** Press **F2** (or Options, Place). In the bottom right it shows the region's number, the
+  room's name and his tile in that room: `1 BRIDGE 9,14`. Read it out with a note and I can go straight there.
+
+**A walk test (B11)**
+
+- You asked for one. A low spot is floor he can walk onto from where he stands, where he fits only crouched or
+  rolling: a lip overhead. The check lists every one in every level (41 today) and fails on a new one, with its room
+  and tiles. Some of the 41 are meant (the Roots' crawl, the Cloister's cells); the rest are for each region's map
+  pass to look at.
+
+**Found on the way**
+
+- **A slam could be left on him** if the ember slam was used while he was hauling himself onto an edge: he stood up
+  with the slam still armed. It cannot begin there now.
+
+**Not done, and why**
+
+- **The lip at the far right of the Ossuary (B11).** I could not tell which it is from the map: nothing there is
+  low enough to catch his head while walking, and the jumps clear. With F2 on, the next time you pass it, the
+  readout will name it.
+- **Ordric moved off the pools (P2).** I had listed this as small. It is not: at the crypt stair, the Spires' gate
+  and the last hut, his room starts at the water's edge and the way up goes over its roof. Moving him means recutting
+  each of those rooms, so it goes with each region's pass and the people's places.
+- **Frogs that only face you, and the slam that hurts them without killing (B8).** That is how they are made to
+  behave, so it belongs to the creature pass, not here.
+- **The stutter (B12).** Still not found.
+
+- **Underneath:** `render.js` (the kept mark taken off after one use), `main.js` (the menu key; `keepOut`; `pixNum`;
+  the readout; the stones; no ember heal), `motor.js` (the second jump; slams in water and on a mantle; `AIRDASH`,
+  `BLADE`, `SPADE`), `enemies.js` (`keepOut`, `sink`), `items.js`, `state.js`, `teach.js`, `seams.js`,
+  `regions/scriptorium.js`, `regions/shaft.js`. New checks: `tests/side-walk.test.mjs`, `tests/side-hall.test.mjs`;
+  `tests/side-under.test.mjs` has the leap-then-slam.
+- **Save: not moved.** A save that wears the Gardener's Seed gets its new effect.
+- **Checked:** 458 checks pass. In the test browser: the copy of him, before and after; Tab into the menu, into
+  the inventory, back one, and out; the shop's prices; the readout; Mirel's rest.
+- **Not checked:** nothing here was played by a person. The second jump at the end of a fall, the further dash and
+  the longer reach are changes to how he feels, which I cannot judge. The keeper's hall rule was checked on its own
+  and not in a real fight. Whether Escape is kept in full screen depends on the browser and on itch's page; Tab does
+  not.
+
+**To try**
+
+1. Go up the crypt stair into the Cloister, come back down, and drop into the Deep at the pithead. Come back up.
+   There should be one of you.
+2. In full screen, press **Tab**. Open the map from the menu and press Tab again: you should be back at the menu,
+   not in play. Then try Escape for the same, and tell me what the browser does.
+3. Fall a long way and jump again just before the ground. No damage. Then fall the same way without it.
+4. The Great Shaft: float, leap, slam at once. You should not get under.
+5. Ordric's shop: read the prices aloud.
+6. Press **F2**, walk about, and read me the place from the far right of the Ossuary where your head caught.
+7. Does the sword's reach feel right now, or too long? The dash?
 
 ### Build 80: the Glimmer, side-on
 

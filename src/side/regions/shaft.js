@@ -24,7 +24,7 @@ function drop(){
   mark(r, 'spawn', 10, 61); mark(r, 'arrive', 10, 61, { name: 'top' }); mark(r, 'pass', 8, 63, { w: 5, h: 4, to: 7, at: 'lip' });
   // the camp, stage under stage, and at the water a stage of rock to climb out onto
   for (const [x0, x1, y] of SHAFT.stages) ledge(r, x0, x1, y);
-  rect(r, 8, 6, 13, SHAFT.top - 1);
+  rect(r, 8, 6, 13, SHAFT.top);   // (build 81: a row higher than the water, so it is seen to be a bank; it was level with the water's top, and he could not tell he could get out there)
   rect(r, 32, 6, 39, 10, EMPTY); mark(r, 'water', 8, 6, { w: 24, h: SHAFT.top - 6 }); mark(r, 'water', 32, 6, { w: 8, h: 5, deep: true });
   mark(r, 'updraft', 8, 16, { w: 24, h: 40, cold: true });
   deco(r, 'camp', 27, 56); deco(r, 'cot', 11, 41); deco(r, 'kettle', 28, 36); deco(r, 'depth', 20, 48); deco(r, 'depth', 20, 28); deco(r, 'depthonly', 20, 18);

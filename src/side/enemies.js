@@ -30,7 +30,7 @@ const DEF = {
   // set against the nearest of it, its drawing's rock against the rock. variants: drawings it is one of, by where it is
   spitter:  { ai: 'spitter', aim: true, hp: 2, w: 0.6, h: 0.8, color: 0x70ff70, range: 8, charge: 0.7, speed: 8, cooldown: 2.0, art: 'px_leech', fly: true, cling: 'wall' },
   lamprey:  { ai: 'spitter', hp: 3, w: 0.5, h: 1.2, color: 0xf6757a, range: 9, charge: 0.65, speed: 10, cooldown: 1.8, burst: 2, orb: 0xd8ff80, art: 'px_lamprey', fly: true, cling: 'ceiling', mouthY: -0.44, word: 'Spat on' },
-  barnacle: { ai: 'spitter', hp: 3, w: 0.8, h: 1.6, color: 0x5a6988, range: 7, charge: 0.6, speed: 9, cooldown: 1.6, variants: ['px_barn_a', 'px_barn_b', 'px_barn_c'], fly: false, cling: 'floor', word: 'Spat on' },
+  barnacle: { ai: 'spitter', hp: 3, w: 0.8, h: 1.6, color: 0x5a6988, range: 7, charge: 0.6, speed: 9, cooldown: 1.6, variants: ['px_barn_a', 'px_barn_b', 'px_barn_c'], fly: false, cling: 'floor', sink: 2, word: 'Spat on' },   // sink: drawn two pixels into the ground it grows from (a playtest: it sat on the floor's edge, not in it)
   toad:     { ai: 'spitter', hp: 5, w: 0.9, h: 2.0, color: 0xc0cbdc, range: 10, charge: 0.9, speed: 9, cooldown: 2.0, lob: true, orb: 0xb8f060, variants: ['px_toad_b'], fly: false, cling: 'floor', word: 'Spat on' },
   burrower: { ai: 'burrower', hp: 2, w: 0.6, h: 1.1, color: 0xd0a070, wake: 7, plough: 5.5, rise: 0.45, up: 1.2, art: 'burrower', fly: false },
   // not creatures to fight (phase 9, the passages): the Bell Road's grey-threaded pilgrims walk their stretch of it and
@@ -82,7 +82,7 @@ export function spawnEnemies(scene, R){
   const orbMats = {}, orbMat = c => orbMats[c] || (orbMats[c] = new THREE.MeshBasicMaterial({ color: c }));
   return { list, orbGeo: new THREE.SphereGeometry(0.18, 8, 6), orbMat, scene, R };
 }
-const anim = (e, name0, frac, dy = 0, z = 0.03) => { if (!e.sprite) return; const A = e.meta.anims, name = (e.d.an && e.d.an[name0]) || name0; const n = A[name] ? name : Object.keys(A).find(k => k !== 'stand') || 'stand'; e.sprite.show(n, frac, e.x, (e.d.fly ? e.y - e.d.h * 0.7 : e.y) + dy, e.face, z, e.rot || 0);
+const anim = (e, name0, frac, dy = 0, z = 0.03) => { if (!e.sprite) return; const A = e.meta.anims, name = (e.d.an && e.d.an[name0]) || name0; const n = A[name] ? name : Object.keys(A).find(k => k !== 'stand') || 'stand'; e.sprite.show(n, frac, e.x, (e.d.fly ? e.y - e.d.h * 0.7 : e.y) + dy - (e.d.sink || 0) / 16, e.face, z, e.rot || 0);
   if (e.d.scale){ const s = e.d.scale, piv = (A.stand ? A.stand.h : 32) / (e.meta.ppu || 64) * 0.45; e.sprite.g.scale.setScalar(s); e.sprite.g.position.y += piv * (s - 1); } };   // drawn larger, its feet kept where they were
 
 // set a clinging creature against what it clings to, by its drawing (its sprite.json's box: the drawing's edges in
@@ -398,4 +398,14 @@ export function slamEnemies(E, P, radius, dmg, events){
     events.push({ type: 'hit', e, at: { x: e.x, y: e.y + e.d.h / 2 }, heavy: true });
     if (e.hp <= 0) killEnemy(e, events);
   }
+}
+
+// a keeper's hall is its own (build 81, from a playtest: creatures of the Spires came into the Wyrm's fight after him).
+// While the keeper stands, a creature that lives outside the hall and has come into it is put back where it lives.
+// What the keeper itself calls up lives in the hall, and stays. Returns how many were sent back
+export function keepOut(E, room){
+  const inside = (x, y) => x >= room.x0 && x < room.x1 && y >= room.y0 - 1 && y < room.y1; let n = 0;
+  for (const e of E.list){ if (!e.alive || !e.home || inside(e.home.x, e.home.y) || !inside(e.x, e.y)) continue;
+    e.x = e.home.x; e.y = e.home.y; e.vx = e.vy = 0; e.st = 'idle'; e.tm = 0; e.unseen = 0; n++; }
+  return n;
 }

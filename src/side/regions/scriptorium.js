@@ -24,8 +24,8 @@ function stacks(){
   const r = room(); walls(r); door(r, 'right', 12, 17); door(r, 'left', 2, 7); door(r, 'top', 32, 37);
   rect(r, 0, 2, 1, 7, VELLUM);                                     // the hall's door: vellum stretched over it
   rect(r, 28, 2, 37, 11);                                          // the landing inside the stair's door
-  rect(r, 22, 2, 27, 8); rect(r, 16, 2, 21, 5); rect(r, 8, 2, 11, 3);   // the heaps, down from it
-  mark(r, 'blot', 13, 2);
+  rect(r, 22, 2, 27, 8); rect(r, 16, 2, 21, 5); rect(r, 8, 2, 15, 3);   // the heaps, down from it: a stair of them (build 81: the lowest stopped short, and left a slot two tiles deep that the blot lay in and could not leave)
+  mark(r, 'blot', 12, 4);
   for (const [k, x, y] of [['spoils', 24, 9], ['spoils', 18, 6], ['spoils', 9, 4], ['spoils', 34, 12], ['inkpot', 30, 12], ['washline', 14, 15], ['washline', 24, 17]]) deco(r, k, x, y);
   mark(r, 'torch', 5, 9); mark(r, 'torch', 36, 16); mark(r, 'urn', 19, 6); mark(r, 'urn', 4, 2); mark(r, 'crystal', 32, 12);
   for (const x of [33, 36]) for (const y of [14, 18]) keep(r, x, y);   // under the chute's mouth

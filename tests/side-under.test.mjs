@@ -22,6 +22,9 @@ const WAYS = {
   'a leap and a slam, again and again': t => { const u = t % 1.2; if (t > 2 && u < 0.02) I.tap('jump'); I.hold('jump', t > 2 && u < 0.3); I.hold('down', t > 2 && u > 0.25); if (t > 2 && Math.abs(u - 0.4) < 0.01) I.tap('attack'); },
   'the ember slam while floating': (t, P) => { if (Math.abs(t - 2.2) < 0.006) M.startArt(P, 'slam'); },
   'the ember slam, then a leap': (t, P) => { if (Math.abs(t - 2.2) < 0.006) M.startArt(P, 'slam'); leap(t); },
+  // (build 81, from the second playtest: a slam begun in the first moment of a leap out of the water went to the floor)
+  ...Object.fromEntries([0.04, 0.08, 0.12, 0.18, 0.3].flatMap(gap => [['a leap, then a slam ' + gap + ' s after, swimming right', (t, P) => { const u = t - 2; I.hold('right', t > 2); if (t > 2 && u < 0.02) I.tap('jump'); I.hold('jump', t > 2 && u < 0.25); I.hold('down', t > 2 && u > gap - 0.03 && u < gap + 0.5); if (t > 2 && Math.abs(u - gap) < 0.006) I.tap('attack'); }],
+    ['a leap, then the ember slam ' + gap + ' s after', (t, P) => { const u = t - 2; I.hold('right', t > 2); if (t > 2 && u < 0.02) I.tap('jump'); I.hold('jump', t > 2 && u < 0.25); if (t > 2 && Math.abs(u - gap) < 0.006) M.startArt(P, 'slam'); }]])),
   'the ember slam from the air': (t, P) => { if (Math.abs(t - 0.05) < 0.006) M.startArt(P, 'slam'); },
 };
 // his body has room at (x, y): no rock in it

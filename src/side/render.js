@@ -218,7 +218,8 @@ export function makeRenderer(canvas){
   SAVED.motes = null; if (opts.carry){ SAVED.motes = {}; for (const o of motes){ const key = o.look || LEVEL_WAS; (SAVED.motes[key] = SAVED.motes[key] || []).push({ x: o.m.position.x + opts.shift.x, y: o.m.position.y + opts.shift.y, vx: o.vx, vy: o.vy, steady: o.steady, ph: o.ph, color: o.m.material.color.getHex() }); } ORG.x -= opts.shift.x; ORG.y -= opts.shift.y; }
   if (CUR){ scene.remove(CUR.back); scene.remove(CUR.play); if ((!LOW.on || CUR.n === LEVEL.index) && !STAGE.has(CUR.n)) STAGE.set(CUR.n, CUR); else dropSet(CUR); CUR = null; }   // set aside for walking back (or for this same region made again)
   for (const [k, S] of STAGE){ if (STAGE.size <= 2) break; if (k !== LEVEL.index && S.done){ STAGE.delete(k); dropSet(S); } }
-  for (const o of [...scene.children]){ if (o.userData && o.userData.keep) continue; scene.remove(o); o.traverse(m => { if (m.geometry) m.geometry.dispose(); const mt = m.material; if (mt){ if (mt.map && mt.map !== torchGlow && mt.map !== crystalGlow && !mt.map.kept) mt.map.dispose(); mt.dispose(); } }); }
+  for (const o of [...scene.children]){ if (o.userData && o.userData.keep){ if (opts.carry){ o.userData.keep = false; continue; } o.userData.keep = false; }   // kept once, for the walk across a join: a later way through the dark makes him again, and must not leave the old one standing
+    scene.remove(o); o.traverse(m => { if (m.geometry) m.geometry.dispose(); const mt = m.material; if (mt){ if (mt.map && mt.map !== torchGlow && mt.map !== crystalGlow && !mt.map.kept) mt.map.dispose(); mt.dispose(); } }); }
   LEVEL_WAS = LEVEL.theme;
   layers.length = exits.length = lights.length = flames.length = motes.length = pool.length = burning.length = veils.length = glints.length = fars.length = 0; for (const k in LOOKW) delete LOOKW[k];
   TM = THEMES[LEVEL.theme] || THEMES.roots; TM_NOW = TM;

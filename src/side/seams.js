@@ -44,6 +44,7 @@ function gate(){
   // Ordric's lamp-room, cut into the gate's own rock beyond the meltwater; the way up is over its roof
   ledge(r, 22, 27, 7); den(r, 28, 37, 2, 6, { open: 'L', back: 0 }); shaftUp(r, 30, 35, 14, 18);
   mark(r, 'spawn', 5, 2); mark(r, 'torch', 12, 8); mark(r, 'torch', 19, 8); mark(r, 'urn', 8, 2); mark(r, 'urn', 37, 2);
+  for (const y of [2, 4]) for (const x of [2, 4]) mark(r, 'keep', x, y);   // over the way up from the road (build 81: the wear rounded the corner into a lip over half the hatch, and it was nearly too tight to come up through)
   return r;
 }
 function road(){

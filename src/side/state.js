@@ -80,7 +80,7 @@ export const RELICS = {   // name: whose it was; line: what it does; lore: whose
   lodestone:   { name: 'Bell-ringer\'s Lodestone', line: 'Shards and embers fly to you from twice as far.', lore: 'Hung in the belfry, so the ringers knew where the summit was on a night with no light.' },
   featherfall: { name: 'Climber\'s Knot',          line: 'You take no damage from falling.',                          lore: 'Tied by one who sat down to rest. The rope is gone; the knot held.' },
   stormglass:  { name: 'Wright\'s Stormglass',     line: 'Your slam strikes with lightning: wider, and +1 damage.', lore: 'The Wrights\' first jar. It caught one bolt and kept it, which was the whole trouble.' },
-  seedheart:   { name: 'Gardener\'s Seed',         line: 'Healing a heart costs 7 embers instead of 10.',  lore: 'The gardeners kept back one seed from every sowing, in case. This was the last.' },
+  seedheart:   { name: 'Gardener\'s Seed',         line: 'Each drink from your flask heals 1 more heart.',  lore: 'The gardeners kept back one seed from every sowing, in case. This was the last.' },
   tally:       { name: 'Guild Tally',            line: 'Urns give 50% more shards.',                     lore: 'Every shift was chalked up and paid in shards. The last was never paid.' },
   stylus:      { name: 'Sexton\'s Stylus',       line: 'Each creature you kill gives 2 more embers.', lore: 'It scratched a mark for every one of his falls. Under them, in another hand, the whole count is struck through.' },
   blankleaf:   { name: 'Copyist\'s Blank Leaf',   line: 'After you rest at a pool, the first hit you take does no damage.', lore: 'The one page in the house that was never spoiled. Nothing was ever written on it.' },

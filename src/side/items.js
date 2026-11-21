@@ -60,7 +60,10 @@ const STATION = {
   wren: { name: "MIREL'S REST", col: 0xff8a40, w: 30, h: 14, at: 9, glow: [9, 8], fire: [9, 9], draw(g){
     for (const [x, y] of [[3, 11], [6, 12], [10, 12], [14, 11]]){ px(g, PAL.ink, x - 1, y - 1, 4, 3); px(g, PAL.mid, x, y - 1, 2, 2); px(g, PAL.light, x, y - 1, 2, 1); }
     px(g, PAL.wood0, 5, 10, 9, 2); px(g, PAL.wood1, 6, 10, 7, 1);
-    px(g, PAL.ink, 18, 9, 12, 5); px(g, PAL.moss1, 19, 10, 10, 3); px(g, PAL.moss2 || '#63c74d', 19, 10, 10, 1); px(g, PAL.red0, 26, 10, 3, 3); px(g, PAL.bone, 19, 12, 2, 1); } },
+    // her bedroll: a grey blanket, folded, its head end rolled (build 81: it was a green bar with a red end in a black
+    // frame, and read as a health bar)
+    px(g, PAL.ink, 19, 9, 10, 1); px(g, PAL.ink, 18, 10, 12, 4); px(g, PAL.dark, 19, 10, 10, 3); px(g, PAL.mid, 19, 10, 7, 1);
+    px(g, PAL.deep, 22, 11, 1, 2); px(g, PAL.deep, 25, 11, 1, 2); px(g, PAL.bone, 27, 10, 2, 2); px(g, PAL.light, 27, 12, 2, 1); } },
   // Corwen's: a folding desk, an open book on it, an ink pot, a candle, scrolls under it
   scribe: { name: "CORWEN'S DESK", col: 0xffd27a, w: 22, h: 24, at: 11, glow: [17, 6], draw(g){
     px(g, PAL.ink, 1, 11, 20, 3); px(g, PAL.wood1, 2, 12, 18, 1); px(g, PAL.wood3, 2, 11, 18, 1);

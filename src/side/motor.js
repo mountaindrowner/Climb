@@ -36,7 +36,7 @@ export const GRIP = { up: 4.4, down: 6.5, off: 6.6, again: 0.28 };
 // leap out of it from its top (how high), `out`: how long that leap is its own before the water can have him back
 export const SWIM = { in: 0.9, float: 1.5, speed: 5.2, top: 4.2, rise: 5.4, sink: 5.4, drift: 0.45, accel: 7, grip: 16, hop: 1.9, out: 0.34, wade: 0.62, bell: 1.25 };
 export const FLOW = { push: 6, grip: 40, fall: 9, carry: 1.2, air: 5 };   // running water: how fast a channel carries him (his run is 7.6), how hard it takes hold, how fast a fall of it bears him down
-export const GLIDE = { fall: 2.3, rise: 8.5, accel: 5, run: 0.88, cold: 0.62 }, AIRDASH = { time: 0.2, speed: 1.4 }, BLOOM = { height: 7 };
+export const GLIDE = { fall: 2.3, rise: 8.5, accel: 5, run: 0.88, cold: 0.62 }, AIRDASH = { time: 0.22, speed: 1.4 }, BLOOM = { height: 7 };
 
 // ---- tiles under, beside and over a box
 const tx = x => Math.floor(x / T), ty = y => Math.floor(y / T);
@@ -144,7 +144,7 @@ export function stepPlayer(P, dt){
   if (P.mantle){
     const M = P.mantle; M.t += dt * (SIDE.rope ? 2 : 1); const u = Math.min(1, M.t / M.dur), e = u * u * (3 - 2 * u);
     P.x = M.x0 + (M.x1 - M.x0) * Math.max(0, (u - 0.45) / 0.55); P.y = M.y0 + (M.y1 - M.y0) * Math.min(1, e * 1.25); P.vx = P.vy = 0;
-    if (u >= 1){ P.mantle = null; P.grounded = true; P.y = M.y1; P.airTop = P.y; P.landT = 0.12; ev(P, 'land', { drop: 0 }); }
+    if (u >= 1){ P.mantle = null; P.dive = null; P.grounded = true; P.y = M.y1; P.airTop = P.y; P.landT = 0.12; ev(P, 'land', { drop: 0 }); }
     return;
   }
 
@@ -165,8 +165,10 @@ export function stepPlayer(P, dt){
   if (consume('jump')){
     if (P.grounded && H.down && (support(P, P.x, P.y) === LEDGE || P.ride)){ P.drop = 0.25; P.dropping = true; P.grounded = false; P.y -= 0.03; ev(P, 'dropThrough'); }   // down + jump: through a ledge
     else if (P.swim){ if (P.depth < SWIM.float + 0.45 && !stunned){ P.swim = false; P.dive = null; P.hopT = SWIM.out; P.vy = launchSpeed(SWIM.hop, 0); P.launch = 0; P.jumpT = 0; P.airJumps = 0; P.airTop = P.y; ev(P, 'surface'); } }   // at the water's top: out of it
-    else if (!P.grounded && P.coyote <= 0 && !stunned && P.airJumps > 0 && !(P.vy <= 0 && heightAbove(P) < -P.vy * MV.buffer + 0.25)){
-      P.airJumps--; takeOff(P, true); P.flip = MV.flip; P.dive = null; P.glide = false; ev(P, 'doubleJump');
+    // (close over the ground a press is kept for the ground, so the next jump is a full one: but not at the end of a
+    // fall long enough to hurt, where the second jump is what he pressed it for)
+    else if (!P.grounded && P.coyote <= 0 && !stunned && P.airJumps > 0 && !(P.vy <= 0 && heightAbove(P) < -P.vy * MV.buffer + 0.25 && P.airTop - P.y + heightAbove(P) <= SIDE.fallSafe)){
+      P.airJumps--; takeOff(P, true); P.flip = MV.flip; P.dive = null; P.glide = false; P.airTop = P.y; ev(P, 'doubleJump');   // (the second jump breaks a fall: what he fell before it does not count)
     }
     else if (CAN.glide && !P.grounded && P.coyote <= 0 && !stunned && !P.dive && P.airJumps <= 0 && heightAbove(P) > 1){ P.glide = true; P.flip = 0; ev(P, 'glide'); }   // the jumps are spent: the scarf
     else P.jumpBuf = FEEL.buffer ? MV.buffer : 1e-3;
@@ -241,7 +243,11 @@ export function stepPlayer(P, dt){
     // deep water ends a slam, however it was begun (build 79, from a playtest). One begun while he floated was never
     // ended: it held him still in the water, and a leap out of it then became the slam again, seven metres straight
     // down, under water he could not yet go under and so under whatever the water was there to bar
-    if (wz && P.depth > SWIM.in && P.dive && P.hopT <= 0) P.dive = null;
+    // (build 81: one begun in the moment of a leap out of it was not ended, and an ended one kept its speed while the
+    // leap's moment lasted: to the floor, and under the Great Shaft's arch. Now it is ended whenever it is in the water,
+    // loses its speed with it, and without the wind the water turns him back up however he is in it)
+    if (wz && P.depth > SWIM.in && P.dive){ P.dive = null; if (P.vy < -6) P.vy = -6; }
+    if (wz && !CAN.glide && !P.grounded && P.depth > SWIM.float + 0.7 && P.vy < 2) P.vy = 2;
     if (P.swim && !was){ ev(P, 'splash', { v: -P.vy }); P.dive = null; P.glide = false; P.flip = 0; P.airJumps = 0; if (P.vy < -6) P.vy = -6; }
     if (P.swim){ P.airTop = P.y; P.airDash = 1;
       if (P.roll <= 0 && !stunned && !(P.atk && P.atk.phase !== 'rec' && swingOf(P, P.atk).dash)){ target = dir * (CAN.glide ? SWIM.speed : SWIM.top) * (SIDE.bell && CAN.glide ? SWIM.bell : 1) * IN.mag; accel = SWIM.grip; if (dir && dir !== P.face && !P.atk) P.face = dir; } }
@@ -405,7 +411,7 @@ function landed(P){
 // crouch, a rising cut. Each swing names its drawing and the moment in it the blade lands (hit, a fraction of the
 // drawing; hitEnd where a long cut stops): the wind-up plays up to that frame, the cut lands on it, the follow-through
 // plays out the rest
-export const BLADE = { name: 'Curved blade', reach: 1.9, combo: [
+export const BLADE = { name: 'Curved blade', reach: 2.1, combo: [
   { dmg: 1, wind: 0.21, active: 0.09, rec: 0.3, lunge: 0.8, anim: 'atk_slam_v3', hit: 7 / 11 },
   { dmg: 1, wind: 0.23, active: 0.09, rec: 0.3, lunge: 0.9, anim: 'atk_slam_px', hit: 9 / 13 },
   { dmg: 2, wind: 0.09, active: 0.26, rec: 0.3, lunge: 1.1, anim: 'atk_spin_px', hit: 2 / 13, hitEnd: 10 / 13 },   // the cut lasts the whole turn
@@ -416,7 +422,7 @@ export const BLADE = { name: 'Curved blade', reach: 1.9, combo: [
 // great overhead blow, which sends a wave forward along the ground (`wave`, main.js). It reaches further than the blade
 // and every blow breaks cracked stone (`digs`); so does its plunge. He cannot guard with it, it has no rising or
 // dashing cut, and in the air its swings land weakly (main.js). The Warden leaves it (main.js, the gift)
-export const SPADE = { name: 'Warden\'s spade', reach: 2.6, guard: false, digs: true, combo: [
+export const SPADE = { name: 'Warden\'s spade', reach: 2.85, guard: false, digs: true, combo: [
   { dmg: 2, wind: 0.3, active: 0.1, rec: 0.36, lunge: 0.5, anim: 'atk_spade1', hit: 8 / 12 },
   { dmg: 2, wind: 0.32, active: 0.1, rec: 0.38, lunge: 0.6, anim: 'atk_spade2', hit: 8 / 12 },
   { dmg: 4, wind: 0.42, active: 0.1, rec: 0.46, lunge: 0.5, anim: 'atk_spade', hit: 6 / 12, wave: true },
@@ -434,7 +440,7 @@ export const SIDE = { fallSafe: 9, feather: false, watching: false, leaf: false,
 export const ARTS = { cost: 10, slam: { time: 0.32 }, cleave: { time: 0.26, speed: 19 }, gust: { up: 14, time: 0.42, safe: 0.3 } };
 export function startArt(P, kind){
   P.atk = null; P.roll = 0; P.glide = false; P.blocking = false;
-  if (kind === 'slam' && !P.grounded && !P.swim && heightAbove(P) > 0.6){ P.dive = { t: 0, art: true }; P.vx = 0; P.vy = -MV.dive.speed * 1.2; P.flip = 0; return 'dive'; }
+  if (kind === 'slam' && !P.grounded && !P.swim && !P.mantle && !P.climbing && heightAbove(P) > 0.6){ P.dive = { t: 0, art: true }; P.vx = 0; P.vy = -MV.dive.speed * 1.2; P.flip = 0; return 'dive'; }
   if (kind === 'slam'){ P.art = { k: 'slam', t: 0, dur: ARTS.slam.time }; P.vx = 0; return 'slam'; }
   if (kind === 'cleave'){ P.art = { k: 'cleave', t: 0, dur: ARTS.cleave.time, dir: P.face, safe: true, from: P.x }; P.vy = Math.max(0, P.vy); return 'cleave'; }
   P.art = { k: 'gust', t: 0, dur: ARTS.gust.time, safe: true }; P.vy = ARTS.gust.up; P.grounded = false; P.coyote = 0; P.flip = 0; return 'gust';

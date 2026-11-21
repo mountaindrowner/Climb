@@ -13,7 +13,7 @@ import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION
 import { makeTeach, keyName, fill, INTRO, CARDS, drawIcon } from './teach.js';
 import { makeProps } from './props.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt, hurt, isRollInv } from './motor.js';
-import { width as textWidth } from './pixelfont.js';
+import { width as textWidth, width as pxWidth, text as pxText } from './pixelfont.js';
 const wrapText = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };
 const wrapFine = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t, 1, true) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };   // (the small print's widths)
 import { G, OPT, loadSave, store, storeOpt, wipe, TRY, fresh, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, THREADS_A_HEART, DIFF } from './state.js';
@@ -22,7 +22,7 @@ import { makeTalk, SCRIPT } from './talk.js';
 import { ANNALS, PEOPLE_PAGE } from './annals.js';
 import { makeRenderer, makeSprite, VIEW_H, makeSwingFx, LOW, MOOD } from './render.js';
 import { spawnFx, stepFx } from './fx.js';
-import { spawnEnemies, stepEnemies, strikeEnemies, slamEnemies, hitBox } from './enemies.js';
+import { spawnEnemies, stepEnemies, strikeEnemies, slamEnemies, hitBox, keepOut } from './enemies.js';
 import { KEEPERS } from './keepers.js';
 import { makeEntrance } from './entrance.js';
 import { makeStory, REGION_SPAN, storyImages } from './story.js';
@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 80, date: '21 NOV 2026', phase: 17, phases: 22, last: 'THE GLIMMER, SIDE-ON' };
+const VERSION = { build: 81, date: '21 NOV 2026', phase: 17, phases: 22, last: 'BUGS FROM THE PLAYTEST' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -71,10 +71,9 @@ const TALK = makeTalk();
 let NOTE = null, SCREEN = '', DIRTY = 0, NAMED = true;
 const TRAIL = [];   // where he has been since he last rose, to run back when he falls   // a card that waits for a press (something learned, a relic); which menu is up; the save wants writing
 const HUD = makeHud(hud);
-// embers: what he takes from what he kills. Ten grow a length of the scarf back (a heart); a full ten are kept until needed
-// embers: what fallen creatures and landed blows give him, three measures of ten. A measure mends a heart (when the
-// flask is dry: the flask key), or pays for an ember art (the art key: ARTS in motor.js). The Gardener's Seed: seven mend
-const EMBER = { n: 0, cap: 30, mend: 10 };
+// embers: what fallen creatures and landed blows give him, three measures of ten. A measure pays for an ember art (the
+// art key: ARTS in motor.js). They do not heal: the flask is the only way (build 81)
+const EMBER = { n: 0, cap: 30 };
 let FLIGHT = null, SLOW = 0, FLASH = 0, PAUSE = false, PLAYED = 0, PLACE = { name: '', t: 9 };
 let CHECK = null, BANNER = null, WON = false, DEATH = 0;
 const SPANS = REGION_DATA.map((R, n) => R.depth || REGION_SPAN[n]);   // each region's height on the mountain (the Deep's below the water: negative)
@@ -90,12 +89,11 @@ function learn(){
   SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); SIDE.boots = has('boots'); SIDE.calm = has('stillair'); SIDE.bell = has('shiftbell'); SIDE.rope = has('lastrope'); if (CAN.breaker && !G.lamp){ G.lamp = 1; G.lampNew = 1; } if (P){ P.flaskMax = maxFlask(); P.flask = Math.min(P.flask, P.flaskMax); const mh = maxHearts(); if (mh > P.maxHp) P.hp += mh - P.maxHp; P.maxHp = mh; P.hp = Math.min(P.hp, mh); }
   // (the yoke, the second place: worn or taken off; then the Gardener's Seed. This last statement has twice been found
   // inside a comment, doing nothing: builds 49 to 66, and 69 to 77. tests/side-swallowed.test.mjs now looks for that)
-  EMBER.mend = has('seedheart') ? 7 : 10;
 }
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
 const GLITTER = { lv: null, at: [] };   // the Vein: where its crystals are (they light the dark round them)
 const CALMS = { wait: 2.5, open: 4, near: 4.5, ease: 0.5 }, EYE = { door: null, p: 0, held: null };   // the Eye of the Storm (regions/eye.js CALMS says the same): the door of cloud he waits at, and how long he has waited
-const WAY = { was: false, said: new Map() };   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
+const WAY = { was: false, said: new Map(), fall: [] };   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
 // `walked`: he has walked in from the next region (cross): he and his scarf are as they were
 function setup(walked = false){
   RULE.upset = 0; RULE.unkept = !!(G.unkept && G.unkept[LEVEL.index]);   // the Keepers' Houses: everything in its place; and whether their keeper is broken (its own switch: the Gardens have two wing keepers, and the Lock's is `still`)
@@ -103,7 +101,7 @@ function setup(walked = false){
   RULE.hush = 0; RULE.open = 0; RULE.calmFree = false; EYE.door = EYE.held = null; EYE.p = 0;   // the Eye of the Storm: its doors of cloud shut
   RULE.sw = (G.sw && G.sw[LEVEL.index]) || 0; RULE.surge = 0; RULE.swFree = false;   // the Wreck of the Works: the lever as he left it
   RULE.litAll = false; RULE.lit = new Set((G.lit && G.lit[LEVEL.index]) || []);   // the Glacier Galleries: the fires he has lit here burn on
-  RULE.turned = false; RULE.down = !!G.cairnDown; WAY.was = false; WAY.said = new Map();   // the Pilgrims' Cairns: the way is whole as he comes in; his own cairn, once down, stays down
+  RULE.turned = false; RULE.down = !!G.cairnDown; WAY.was = false; WAY.said = new Map(); WAY.fall.length = 0;   // the Pilgrims' Cairns: the way is whole as he comes in; his own cairn, once down, stays down
   RULE.tide = 1; RULE.bore = 0;
   RULE.sat = !!G.seatedDown;   // the Glacier Galleries' Seated, once down
   RULE.ring = 0; RULE.still = !!(G.still && G.still[LEVEL.index]);   // the Bell-Foundry: nothing rings as he comes in; its Cracked Bell, once fallen, stays fallen
@@ -171,7 +169,10 @@ function ruleStep(dt){
 function wingStep(dt){
   if (!PROPS || !P || GO.st) return;
   // the Pilgrims' Cairns: he has turned round on the stones of the way, and they are gone (motor.js); or they are back
-  if (RULE.turned !== WAY.was){ WAY.was = RULE.turned; PROPS.show(); if (RULE.turned){ sfx.crack(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.12); for (const B of PROPS.ways) if (Math.hypot(B.x - P.x, B.y - P.y) < 14) fx.dust({ x: B.x, y: B.y }, 8, 2.5); if (!G.turnedOnce){ G.turnedOnce = 1; store(); banner('', 'You turned back, and the path fell away. Here, only go forward.', 3); } } }
+  // (build 81: each stone is seen to drop, tilting, and fade as it goes; they used to blink out)
+  for (let i = WAY.fall.length - 1; i >= 0; i--){ const F = WAY.fall[i]; if ((F.wait -= dt) > 0) continue; F.t += dt; F.vy -= 34 * dt; F.m.position.y += F.vy * dt; F.m.rotation.z += F.spin * dt; F.m.material.opacity = Math.max(0, 1 - F.t / 0.75); if (F.t > 0.75){ R.scene.remove(F.m); F.m.material.dispose(); WAY.fall.splice(i, 1); } }
+  if (RULE.turned !== WAY.was){ WAY.was = RULE.turned; PROPS.show(); if (RULE.turned){ sfx.crack(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.12); for (const B of PROPS.ways) if (Math.hypot(B.x - P.x, B.y - P.y) < 22){ const m = B.m.clone(); m.material = B.m.material.clone(); m.material.transparent = true; m.visible = true; R.scene.add(m); WAY.fall.push({ m, t: 0, vy: 0, wait: Math.abs(B.x - P.x) * 0.02, spin: (B.x < P.x ? 1 : -1) * (0.6 + Math.random()) }); }
+    for (const B of PROPS.ways) if (Math.hypot(B.x - P.x, B.y - P.y) < 14) fx.dust({ x: B.x, y: B.y }, 8, 2.5); if (!G.turnedOnce){ G.turnedOnce = 1; store(); banner('', 'You turned back, and the path fell away. Here, only go forward.', 3); } } }
   // the refectory's table, the first time he stands at it
   if (!G.refectory && P.grounded && LEVEL.theme === 'cloister') for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'tablehead' && Math.abs(m.x * T - P.x) < 6 && Math.abs(m.y * T - P.y) < 2.5){ G.refectory = 1; store(); banner('The refectory', 'The table is still laid for pilgrims. The bread has turned to stone.', 6); }
   // its stones' words, as he stands by one; and his own cairn, the first time he comes to it
@@ -283,6 +284,10 @@ const STORY = makeStory(hud, `assets/side/${HERO}`); STORY.note = VERSION_LINES;
 const MENU = document.createElement('div');
 MENU.style.cssText = 'position:absolute;left:0;right:0;top:56%;display:none;flex-direction:column;align-items:center;gap:10px;z-index:7;font:600 18px "Pixelify Sans",monospace;text-transform:uppercase;letter-spacing:1px';
 (document.getElementById('stage') || document.body).appendChild(MENU);
+// a number in the HUD's own pixel digits, as a small picture to set in a menu's button (the menus' typeface has a 2, a
+// 5 and an 8 too alike to tell apart at this size: a playtest read 120 as 180)
+const pixNum = (n, color = '#fff2d0', k = 2) => { const str = String(n), c = document.createElement('canvas'); c.width = pxWidth(str) + 1; c.height = 8; pxText(c.getContext('2d'), str, 0, 0, color, 1, 'left', '#181425');
+  c.style.cssText = `width:${c.width * k}px;height:${c.height * k}px;image-rendering:pixelated;vertical-align:-3px`; c.setAttribute('aria-label', str); return c; };
 const menuButton = (text, fn, small) => { const b = document.createElement('button'); b.textContent = text;
   b.style.cssText = `background:#181425;color:${small ? '#c0cbdc' : '#fff2d0'};border:2px solid ${small ? '#3a4466' : '#ead4aa'};border-radius:0;padding:${small ? '5px 12px' : '9px 22px'};cursor:pointer;font:inherit;font-size:${small ? 13 : 18}px;min-width:${small ? 0 : 240}px;box-shadow:3px 3px 0 #0b0810;letter-spacing:inherit;text-transform:inherit`;
   b.addEventListener('pointerdown', e => { e.stopPropagation(); e.preventDefault(); ac(); fn(); }); return b; };
@@ -394,6 +399,7 @@ function options(back){
     cyc('Flashes', 'flash', [0, 1], ['off', 'on']),
     cyc('Difficulty', 'diff', [0, 1, 2], DIFF.map((d, i) => d + [' (two hearts more)', '', ' (two hearts fewer)'][i]), () => { P.maxHp = maxHearts(); P.hp = Math.min(P.hp, P.maxHp); }),
     cyc('Phone mode', 'phone', ['auto', true, false], [phoneNow() && OPT.phone === 'auto' ? 'auto (on)' : 'auto', 'on', 'off'], () => { LOW.on = phoneNow(); banner('', 'phone mode ' + (LOW.on ? 'on' : 'off') + ': from the next region', 2.4); }),
+    cyc('Place', 'place', [false, true], ['hidden', 'shown (for notes)']),
     cyc('Rumble', 'rumble', [true, false], ['on', 'off'], () => { SET.rumble = OPT.rumble; saveSettings(); if (OPT.rumble) rumble(0.5, 0.5, 160); })]),
     menuButton('Back', back, true)], false, back); MENU.style.top = '34%';
 }
@@ -497,7 +503,9 @@ function shop(){
   SHOP = WARES().filter(w => w.cost !== undefined);
   const rows = [], grid = document.createElement('div'); grid.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:min(94vw,620px)';
   SHOP.forEach((w, i) => { const can = G.shards >= w.cost, b = menuButton(`${w.name} · ${w.cost}`, () => { MSEL = i; if (G.shards < w.cost){ sfx.block(); menuMark(); return; } G.shards -= w.cost; w.buy(); sfx.buy(); store(); shop(); }, true);
-    b.style.fontSize = '11px'; b.style.padding = '3px 7px'; if (!can) b.style.opacity = '0.5'; b.addEventListener('pointerenter', () => { if (MSEL !== i){ MSEL = i; menuMark(); } }); grid.appendChild(b); });
+    // (the price in the game's own pixel digits, in its own colour: in the menus' typeface a 2 and a 5 read as an 8, and 120 as 180)
+    b.textContent = ''; b.append(w.name + ' · '); b.appendChild(pixNum(w.cost, '#feae34'));
+    b.style.fontSize = '12px'; b.style.padding = '3px 7px'; if (!can) b.style.opacity = '0.5'; b.addEventListener('pointerenter', () => { if (MSEL !== i){ MSEL = i; menuMark(); } }); grid.appendChild(b); });
   if (SHOP.length) rows.push(grid);
   const leave = () => { SCREEN = ''; PAUSE = false; menuHide(); }; rows.push(menuButton('Leave', leave, true)); menuShow(rows, false, leave); MENU.style.top = 'auto'; MENU.style.bottom = '1.5%'; MSEL = Math.min(keep, Math.max(0, menuItems().length - 1)); menuMark();
 }
@@ -595,7 +603,11 @@ addEventListener('keydown', e => {
     const items = menuItems(); if (['ArrowDown', 'KeyS'].includes(e.code)){ MSEL = (MSEL + 1) % items.length; menuMark(); e.preventDefault(); return; } if (['ArrowUp', 'KeyW'].includes(e.code)){ MSEL = (MSEL + items.length - 1) % items.length; menuMark(); e.preventDefault(); return; }
     if (e.code === 'Enter' || e.code === 'Space'){ const b = items[MSEL]; if (b) b.dispatchEvent(new PointerEvent('pointerdown')); menuMark(); e.preventDefault(); return; }
   }
-  if ((e.code === 'Escape' || e.code === 'KeyP') && !STORY.active()){ pause(!PAUSE); return; }
+  // the menu key: Tab, P or Escape. In a screen that came from another it goes back one, not all the way out to play.
+  // (Tab because a browser keeps Escape for leaving full screen, which is how the game is played on its page)
+  if (e.code === 'Escape' || e.code === 'KeyP' || e.code === 'Tab'){ if (e.code === 'Tab') e.preventDefault(); if (e.repeat) return;
+    if (MENU.style.display !== 'none' && MENU.children.length && MENU.back){ MENU.back(); sfx.ui(); return; }
+    if (!STORY.active()){ pause(!PAUSE); return; } }
   if (e.code === 'KeyM' && !STORY.active() && !GO.st && !TALK.on && !NOTE){ if (SCREEN === 'map') pause(false); else mapScreen(); return; }
   if (STORY.active() && STORY.kind !== 'title') STORY.press();
 });
@@ -632,6 +644,8 @@ addEventListener('pointerdown', () => { if (TALK.on || NOTE) press(); else if (S
 let MUSIC = null, HEARD = false, MUTED = (() => { try { return localStorage.getItem('climb-side-mute') === '1'; } catch (e){ return false; } })();
 // the title says to press for sound until there has been a press; a phone lets sound start on a tap's end
 const hear = () => { HEARD = true; ac(); }; STORY.quiet = () => !HEARD; for (const ev of ['pointerdown', 'keydown', 'click', 'touchend']) addEventListener(ev, hear);
+document.addEventListener('fullscreenchange', () => { try { const kb = navigator.keyboard; if (kb && kb.lock){ if (document.fullscreenElement) kb.lock(['Escape']).catch(() => {}); else if (kb.unlock) kb.unlock(); } } catch (err){} });
+addEventListener('keydown', e => { if (e.code === 'F2'){ e.preventDefault(); OPT.place = !OPT.place; storeOpt(); banner('', OPT.place ? 'place shown: read it out with your notes' : 'place hidden', 2); } });
 addEventListener('keydown', e => { if (e.code === 'KeyN'){ MUTED = !MUTED; try { localStorage.setItem('climb-side-mute', MUTED ? '1' : '0'); } catch (err){} banner('', MUTED ? 'music off' : 'music on', 1.6); } });
 // a region with no music of its own has another's (musicOf: the Workings, the Roots')
 const alias = theme => { const R = REGION_DATA.find(q => q.theme === theme); return (R && R.musicOf) || theme; };
@@ -813,7 +827,7 @@ function frame(ts){
   endFrame();
   if (P.hp > 0 && !FLIGHT && !GO.st && (TRAILT -= dt) <= 0){ TRAILT = 0.05; const [an, fr] = heroPose(P, time); TRAIL.push({ x: P.x, y: P.y, face: P.face, an, fr });
     if (TRAIL.length > 2400) TRAIL.splice(0, 1200, ...TRAIL.slice(0, 1200).filter((_, i) => i % 2)); }   // a long way: the far end of it kept more thinly
-  if (!ENT.lead) stepEnemies(E, P, sdt, fx, evs); stepArts(sdt); ITEMS.step(sdt, time, P, evs);   // while a keeper's hall shuts and he cannot move, nothing else moves either
+  if (!ENT.lead) stepEnemies(E, P, sdt, fx, evs); if (BOSS && BOSS.room && BOSS.active() && BOSS.st !== 'dead') keepOut(E, BOSS.room); stepArts(sdt); ITEMS.step(sdt, time, P, evs);   // while a keeper's hall shuts and he cannot move, nothing else moves either
   for (const e of E.list) if (e.alive && !e.d.harmless && !(G.seen = G.seen || {})[e.type] && Math.abs(e.x - P.x) < 9 && Math.abs(e.y - P.y) < 5){ G.seen[e.type] = 1; DIRTY = DIRTY > 0 ? DIRTY : 2; }   // met: entered in the Annals
   { const RD = REGION_DATA[LEVEL.index]; if (RD.tick) RD.tick(sdt, time, TICK); }   // the region's own weather and workings (its file)
   if (BOSS) BOSS.step(P, ENT.lead ? 0 : sdt, fx, evs);   // held, while its hall shuts and the ground begins to go
@@ -942,7 +956,7 @@ const CARDQ = [], card = c => { CARDQ.push({ t: 0, ...c, how: (c.how || []).map(
 // once each: a system's card, the first time it matters
 const firstCard = id => { const T2 = (G.taught = G.taught || {}); if (T2['card_' + id]) return; T2['card_' + id] = 1; store(); card(CARDS[id]); };
 // the embers are shown, and talked of, once he has something to spend them on
-const embersKnown = () => CAN.breaker || CAN.dash || CAN.glide || has('seedheart');
+const embersKnown = () => CAN.breaker || CAN.dash || CAN.glide;
 // a card: the picture in a frame, what kind of thing it is, its name; what it does, large; how, with his keys; whose it
 // was, small and quiet; a last word (the knot). `modal`: over the game, darkened, waiting for a press; else on a page
 function drawCard(c, W, modal, top = 8){
@@ -1245,9 +1259,7 @@ function onEvent(e){
     case 'relic': { const r = RELICS[e.id]; if (!r || owns(e.id)) break; G.relics.push(e.id); const tied = wear(e.id, true); learn(); store(); sfx.relic();   // tied into the scarf, if a knot is free
       const knot = tied ? 'Equipped.' : 'Your relic slots are full. Rest at a pool to choose which you equip.';
       LATER.push({ t: 0.7, f: () => { card({ head: 'A RELIC', title: r.name, icon: e.id, does: r.line, foot: knot }); firstCard('knots'); } }); break; }
-    case 'flask': if (P.flask > 0 && P.hp < P.maxHp){ P.flask--; P.hp = Math.min(P.maxHp, P.hp + TUNE.player.flaskHeal); sfx.drink(); fx.ring({ x: P.x, y: P.y + 0.8 }, 0x5ce1c6); }
-      else if (P.hp < P.maxHp && EMBER.n >= EMBER.mend){ EMBER.n -= EMBER.mend; P.hp++; sfx.drink(); fx.ring({ x: P.x, y: P.y + 1.2 }, 0xff8060); R.glint(P.x, P.y + 1.2, 0xff8060, 0.9, 5, 0.5); fx.ember({ x: P.x, y: P.y + 1.2 }, 0); }   // the flask is dry: a measure of embers mends a heart
-      else if (P.hp < P.maxHp && !HINTED.mend && embersKnown()){ HINTED.mend = 1; banner('', 'With your flask empty, 10 embers heal one heart.', 2.8); }
+    case 'flask': if (P.flask > 0 && P.hp < P.maxHp){ P.flask--; P.hp = Math.min(P.maxHp, P.hp + TUNE.player.flaskHeal + (has('seedheart') ? 1 : 0)); sfx.drink(); fx.ring({ x: P.x, y: P.y + 0.8 }, 0x5ce1c6); }
       break;
     case 'art': art(e); break;
   }
@@ -1255,8 +1267,8 @@ function onEvent(e){
 // the lines of help at the foot of the screen, for what he is playing with. A controller's are its own buttons, as bound
 const PADN = { xbox: ['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT'], ps: ['CROSS', 'CIRCLE', 'SQUARE', 'TRIANGLE', 'L1', 'R1', 'L2', 'R2'] };
 const padKey = a => { const i = (SET.pad[a] || [])[0], N = PADN[DEVICE.kind === 'ps' ? 'ps' : 'xbox']; return i == null ? '-' : N[i] || 'B' + i; };
-const HINT = { keys: ['A D MOVE · SPACE JUMP, AGAIN IN THE AIR · SHIFT ROLL', 'CLICK ATTACK · RIGHT CLICK OR K BLOCK · CLICK IN A ROLL: DASH ATTACK', 'S + CLICK: RISING ATTACK. IN THE AIR: SLAM · S + SPACE: DROP THROUGH A PLANK', 'S: TALK, OPEN · M MAP · ESC PAUSE · Q: FLASK. EMPTY: 10 EMBERS HEAL', 'E: EMBER POWER, COSTS 10 (ALSO S + E, AND IN THE AIR)'], touch: ['TOUCH THE LEFT OF THE SCREEN AND DRAG TO MOVE', 'DRAG DOWN: CROUCH, TALK, OPEN · DOWN + A IN THE AIR: SLAM', 'EMBERS: A POWER, COSTS 10 (WITH DOWN, OR IN THE AIR) · FLASK: DRINK. EMPTY: 10 EMBERS HEAL'],
-  get pad(){ const k = padKey; return [`STICK MOVE · ${k('jump')} JUMP, AGAIN IN THE AIR · ${k('roll')} ROLL · ${k('attack')} ATTACK · ${k('block')} BLOCK`, `DOWN + ${k('attack')}: RISING ATTACK · DOWN + ${k('attack')} IN THE AIR: SLAM · ${k('flask')} DRINK`, `DOWN: TALK, OPEN · DOWN + ${k('jump')}: DROP THROUGH A PLANK · SELECT: MAP · START: PAUSE`, `${k('art')}: EMBER POWER, COSTS 10 (WITH DOWN, OR IN THE AIR) · ${k('flask')} WITH NONE LEFT: 10 EMBERS HEAL`]; } };
+const HINT = { keys: ['A D MOVE · SPACE JUMP, AGAIN IN THE AIR · SHIFT ROLL', 'CLICK ATTACK · RIGHT CLICK OR K BLOCK · CLICK IN A ROLL: DASH ATTACK', 'S + CLICK: RISING ATTACK. IN THE AIR: SLAM · S + SPACE: DROP THROUGH A PLANK', 'S: TALK, OPEN · M MAP · TAB MENU · Q: DRINK YOUR FLASK', 'E: EMBER POWER, COSTS 10 (ALSO S + E, AND IN THE AIR)'], touch: ['TOUCH THE LEFT OF THE SCREEN AND DRAG TO MOVE', 'DRAG DOWN: CROUCH, TALK, OPEN · DOWN + A IN THE AIR: SLAM', 'EMBERS: A POWER, COSTS 10 (WITH DOWN, OR IN THE AIR) · FLASK: DRINK'],
+  get pad(){ const k = padKey; return [`STICK MOVE · ${k('jump')} JUMP, AGAIN IN THE AIR · ${k('roll')} ROLL · ${k('attack')} ATTACK · ${k('block')} BLOCK`, `DOWN + ${k('attack')}: RISING ATTACK · DOWN + ${k('attack')} IN THE AIR: SLAM · ${k('flask')} DRINK`, `DOWN: TALK, OPEN · DOWN + ${k('jump')}: DROP THROUGH A PLANK · SELECT: MAP · START: PAUSE`, `${k('art')}: EMBER POWER, COSTS 10 (WITH DOWN, OR IN THE AIR)`]; } };
 const EPITHET = LEVELS.map(l => l.epithet);
 function drawHud(dt){
   // the HUD's own picture is 180 tall, and as wide as that makes the window: its pixels are square. (Until build 78 it
@@ -1285,6 +1297,8 @@ function drawHud(dt){
   { const L = TEACHER.shown(); if (L && !PAUSE && !TALK.on && !NOTE && !rising){ v.set(P.x, P.y, 0).project(R.camera); const sx = Math.round((v.x + 1) / 2 * W), sy = Math.round((1 - v.y) / 2 * 180);
     HUD.lesson(L.show.map(([a, word]) => [kname(a), word]), sx, sy > 150 ? sy - 52 : sy + 6, L.a, time); } }   // under him (over him, if he is low on the screen)
   HUD.label(TRY.on ? 'TRYING - NOT KEPT - ' + BUILD : BUILD);
+  // where he is, for telling someone exactly: the room's name and his tile in it (Options: Place, or the F2 key)
+  if (OPT.place){ const r = roomAt(P.x, P.y), s = r ? `${r.name.toUpperCase()} ${Math.floor(P.x / T) - r.tx0},${Math.floor(P.y / T) - r.ty0}` : `${Math.floor(P.x / T)},${Math.floor(P.y / T)}`; HUD.fine(`${LEVEL.index + 1} ${s}`, HUD.W - 3, 172 - 9, '#fee761', 'right'); }
   if (FLIGHT){ const u = FLIGHT.t / FLIGHT.dur; HUD.dark(0.16 + u * 0.3, '#cfe6ff'); HUD.g.globalAlpha = 0.35; for (let k = 0; k < 14; k++){ const y = (k * 37 + Math.floor(time * 60) * 13) % 180, x = (k * 71 + Math.floor(time * 60) * 29) % W; HUD.px('#ffffff', x, y, 18 + (k * 13) % 50, 1); } HUD.g.globalAlpha = 1; if (u > 0.82) HUD.dark((u - 0.82) / 0.18, '#ffffff'); }
   // a fall: the dark comes down after the drops have sunk, and lifts off him rising out of the water; the word over him
   if (DISS){ const t = DISS.t, k = t < DISS_T.dark ? 0 : t < DISS_T.raise ? (t - DISS_T.dark) / (DISS_T.raise - DISS_T.dark) : 1 - (t - DISS_T.raise) / (DISS_T.end - DISS_T.raise); if (k > 0) HUD.dark(Math.min(1, k), '#0b0810'); }
