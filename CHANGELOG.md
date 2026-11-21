@@ -2,7 +2,13 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The broken list (latest; build 78).** `docs/builds.md` has each one.
+**Under the water, and out of the walls (latest; build 79).**
+- **No slam gets him under deep water** before he has the Wyrm's wind. One begun while floating used to hold him still, and a leap out of the water then carried him seven metres down, under the barriers the water makes.
+- **In the Cloister:** no gargoyle's pedestal in a spike pit, none with its head in rock, and the plank by Mirel stops short of her.
+- **Eight other creatures** that began inside rock are moved. A check holds every level to all of this.
+- 446 checks. No save is moved.
+
+**The broken list (build 78).** `docs/builds.md` has each one.
 - **The Warden's barrier** shuts at its stage again (a stone step from build 76 had sent it to the bottom of the hole).
 - **Music comes back** after a keeper falls, once he leaves its hall.
 - **The Cloister's bell** is quieter, and as loud as its door is near. (The music itself was level.)

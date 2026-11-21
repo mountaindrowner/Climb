@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 78, date: '21 NOV 2026', phase: 17, phases: 22, last: 'THE BROKEN LIST' };
+const VERSION = { build: 79, date: '21 NOV 2026', phase: 17, phases: 22, last: 'UNDER THE WATER; OUT OF THE WALLS' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -1018,6 +1018,7 @@ const ART_GIFT = { slam: 'breaker', cleave: 'dash', gust: 'glide' }, WAVES = [];
 function art(e){
   const kind = e.down ? 'slam' : e.air ? 'gust' : 'cleave';
   if (!CAN[ART_GIFT[kind]]){ sfx.block(); if (!HINTED.artGift){ HINTED.artGift = 1; banner('', 'You do not have that power yet.', 2.4); } return; }
+  if (kind === 'slam' && P.swim){ sfx.block(); return; }   // no slam in deep water: it would spend the embers on nothing
   if (EMBER.n < ARTS.cost){ sfx.block(); fx.burst({ x: P.x, y: P.y + 1.3 }, 4, 0x5a6988); if (!HINTED.artCost){ HINTED.artCost = 1; banner('', 'You need 10 embers for that.', 2.4); } return; }
   EMBER.n -= ARTS.cost; const how = startArt(P, kind), at = { x: P.x, y: P.y + 1.2 };
   fx.ember(at, 0); R.glint(at.x, at.y, 0xff8060, 1.1, 6, 0.4); buzz(0.5, 0.4, 160);

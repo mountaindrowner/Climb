@@ -26,7 +26,7 @@ function aisle(){
   // at its east end the house's stair, up against the wall; from its head a step of the masonry under the hole in
   // the roof, and up into the niches
   stairs(r, 66, 2, 12, 1, 1); hung(r, 66, 71, 17, 74, 2);
-  mark(r, 'acolyte', 28, 2); mark(r, 'acolyte', 52, 2); mark(r, 'wisp', 36, 12); mark(r, 'wisp', 74, 16);
+  mark(r, 'acolyte', 28, 2); mark(r, 'acolyte', 52, 2); mark(r, 'wisp', 30, 12); mark(r, 'wisp', 62, 12);
   mark(r, 'urn', 9, 2); mark(r, 'urn', 41, 5); mark(r, 'urn', 60, 2); mark(r, 'crystal', 12, 2); mark(r, 'chest', 67, 4, { holds: 'shards' });
   mark(r, 'chest', 5, 2, { holds: 'thread' }); mark(r, 'crystal', 3, 2);   // just inside the door, lit: seen from the well's foot before the wall can be broken
   mark(r, 'torch', 58, 12);

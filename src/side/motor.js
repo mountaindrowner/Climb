@@ -164,7 +164,7 @@ export function stepPlayer(P, dt){
   // ---- presses
   if (consume('jump')){
     if (P.grounded && H.down && (support(P, P.x, P.y) === LEDGE || P.ride)){ P.drop = 0.25; P.dropping = true; P.grounded = false; P.y -= 0.03; ev(P, 'dropThrough'); }   // down + jump: through a ledge
-    else if (P.swim){ if (P.depth < SWIM.float + 0.45 && !stunned){ P.swim = false; P.hopT = SWIM.out; P.vy = launchSpeed(SWIM.hop, 0); P.launch = 0; P.jumpT = 0; P.airJumps = 0; P.airTop = P.y; ev(P, 'surface'); } }   // at the water's top: out of it
+    else if (P.swim){ if (P.depth < SWIM.float + 0.45 && !stunned){ P.swim = false; P.dive = null; P.hopT = SWIM.out; P.vy = launchSpeed(SWIM.hop, 0); P.launch = 0; P.jumpT = 0; P.airJumps = 0; P.airTop = P.y; ev(P, 'surface'); } }   // at the water's top: out of it
     else if (!P.grounded && P.coyote <= 0 && !stunned && P.airJumps > 0 && !(P.vy <= 0 && heightAbove(P) < -P.vy * MV.buffer + 0.25)){
       P.airJumps--; takeOff(P, true); P.flip = MV.flip; P.dive = null; P.glide = false; ev(P, 'doubleJump');
     }
@@ -185,7 +185,7 @@ export function stepPlayer(P, dt){
   if (consume('block')) P.blockAt = performance.now() / 1000;
   P.blocking = H.block && P.roll <= 0 && !stunned && !P.atk && weaponOf(P).guard !== false;
   if (P.roll <= 0 && !stunned && !P.dive && !P.art && P.plant <= 0 && consume('attack')){
-    if (FEEL.dive && !P.grounded && H.down && heightAbove(P) > MV.dive.min){ P.dive = { t: 0 }; P.atk = null; P.vx = 0; P.vy = -MV.dive.speed; P.flip = 0; ev(P, 'dive'); }
+    if (FEEL.dive && !P.grounded && !P.swim && H.down && heightAbove(P) > MV.dive.min){ P.dive = { t: 0 }; P.atk = null; P.vx = 0; P.vy = -MV.dive.speed; P.flip = 0; ev(P, 'dive'); }   // (never begun in deep water: see below)
     else if (!P.atk) startSwing(P, 0, P.grounded && H.down && weaponOf(P).rise ? 'rise' : null);   // from a crouch: the rising cut
     else P.atk.queued = true;
   }
@@ -238,6 +238,10 @@ export function stepPlayer(P, dt){
     const top = waterOver(P.x, P.y + SWIM.in) ?? waterOver(P.x, P.y + 0.05), wz = top != null, was = P.swim; P.depth = wz ? top - P.y : 0; P.wet = wz && P.depth > 0.3; P.under = wz && P.depth > BODY.stand - 0.2;
     if (wz && !CAN.glide && P.grounded && P.depth > SWIM.float + 0.2){ P.grounded = false; P.coyote = 0; P.crouch = false; }   // too deep to stand in: it lifts him off his feet
     P.swim = wz && P.depth > SWIM.in && !P.grounded && !P.mantle && P.hopT <= 0 && P.dashT <= 0;
+    // deep water ends a slam, however it was begun (build 79, from a playtest). One begun while he floated was never
+    // ended: it held him still in the water, and a leap out of it then became the slam again, seven metres straight
+    // down, under water he could not yet go under and so under whatever the water was there to bar
+    if (wz && P.depth > SWIM.in && P.dive && P.hopT <= 0) P.dive = null;
     if (P.swim && !was){ ev(P, 'splash', { v: -P.vy }); P.dive = null; P.glide = false; P.flip = 0; P.airJumps = 0; if (P.vy < -6) P.vy = -6; }
     if (P.swim){ P.airTop = P.y; P.airDash = 1;
       if (P.roll <= 0 && !stunned && !(P.atk && P.atk.phase !== 'rec' && swingOf(P, P.atk).dash)){ target = dir * (CAN.glide ? SWIM.speed : SWIM.top) * (SIDE.bell && CAN.glide ? SWIM.bell : 1) * IN.mag; accel = SWIM.grip; if (dir && dir !== P.face && !P.atk) P.face = dir; } }
@@ -430,7 +434,7 @@ export const SIDE = { fallSafe: 9, feather: false, watching: false, leaf: false,
 export const ARTS = { cost: 10, slam: { time: 0.32 }, cleave: { time: 0.26, speed: 19 }, gust: { up: 14, time: 0.42, safe: 0.3 } };
 export function startArt(P, kind){
   P.atk = null; P.roll = 0; P.glide = false; P.blocking = false;
-  if (kind === 'slam' && !P.grounded && heightAbove(P) > 0.6){ P.dive = { t: 0, art: true }; P.vx = 0; P.vy = -MV.dive.speed * 1.2; P.flip = 0; return 'dive'; }
+  if (kind === 'slam' && !P.grounded && !P.swim && heightAbove(P) > 0.6){ P.dive = { t: 0, art: true }; P.vx = 0; P.vy = -MV.dive.speed * 1.2; P.flip = 0; return 'dive'; }
   if (kind === 'slam'){ P.art = { k: 'slam', t: 0, dur: ARTS.slam.time }; P.vx = 0; return 'slam'; }
   if (kind === 'cleave'){ P.art = { k: 'cleave', t: 0, dur: ARTS.cleave.time, dir: P.face, safe: true, from: P.x }; P.vy = Math.max(0, P.vy); return 'cleave'; }
   P.art = { k: 'gust', t: 0, dur: ARTS.gust.time, safe: true }; P.vy = ARTS.gust.up; P.grounded = false; P.coyote = 0; P.flip = 0; return 'gust';

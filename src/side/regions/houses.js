@@ -58,8 +58,9 @@ function house(r, flip, moths){
   mark(r, 'torch', X(3), 6); mark(r, 'torch', X(36), 13); mark(r, 'torch', X(3), 19);
   return r;
 }
-function house1(){ const r = house(cave(), false, [[26, 13]]); mark(r, 'chest', 12, 17, { holds: 'shards' }); return r; }
-function house2(){ const r = house(cave(), false, [[18, 6], [26, 13], [14, 19]]); mark(r, 'urn', 6, 2); return r; }
+function house1(){ const r = house(cave(), false, [[26, 11]]); mark(r, 'chest', 12, 17, { holds: 'shards' }); return r; }
+// (a moth hangs three tiles over its mark: each is set low enough that that is under the floor above, not in it)
+function house2(){ const r = house(cave(), false, [[18, 4], [26, 11], [14, 17]]); mark(r, 'urn', 6, 2); return r; }
 function backway(){
   const r = cave(); inside(r); door(r, 'bottom', 30, 35); ledge(r, 30, 35, 1); door(r, 'left', 8, 13);
   rect(r, 2, 2, 12, 7); rect(r, 13, 2, 18, 4);                      // up to the door out

@@ -55,6 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 79 | 21 Nov 2026 | `COMMIT79` | The slam that got him under deep water; things standing in walls and spikes | **yes** | yes (now) |
 | 78 | 21 Nov 2026 | `522a77c` | The broken list from the playtest; four old faults found on the way | no | yes (now) |
 | 77 | 20 Nov 2026 | `a2cae7a` | From the playtest: the edge grab, roomier shafts, plain words, the goal said | **yes** | yes (now) |
 | 76 | 19 Nov 2026 | `a77ee13` | The map pass, pilot: the Roots in stone (84 planks to 17) | no | yes (now) |
@@ -94,6 +95,45 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 79: under the water, and out of the walls
+
+*Two things left from the playtest of 20 Nov: the slam that got under a barrier in the Deep, and the three faults in
+the Cloister's rooms.*
+
+- **The slam under the water: found and mended (a change to how he moves).** You placed it: deep water in the Deep,
+  before he can swim. Deep water bears him up until he has the Wyrm's wind; a slam from the air into it was already
+  ended at the surface. But a slam begun **while he floated** was never ended. Two things followed. He was held:
+  no moving, no rolling, no striking, for as long as he stayed in the water. And a leap out of the water (jump, at
+  its top) took him out of the water's hold for a third of a second, in which the slam carried on: seven metres
+  straight down, to the floor of the water. From there he could swim under the drowned arch at the foot of the
+  Great Shaft, or down the Workings' sump, both of which the water is there to bar.
+  Now: no slam begins in deep water, deep water ends one however it began, and the ember slam is refused there
+  before it spends anything.
+- **The Cloister's three faults:**
+  - **Two gargoyle pedestals stood in the nave's spike pits.** A pedestal is no longer set in or beside spikes.
+  - **One gargoyle sat with its head in an overhang** (the stair). A corbel now needs room for the creature on it.
+  - **The plank beside Mirel** (the belfry's first) ran to a tile and a half from her. It stops three tiles short.
+- **The same faults elsewhere, found by the new check:** four house-moths in the Gardens began inside the floor above
+  them; a flitter and two wisps in the Roots began in rock I put there in build 76; one of the Pump's Sunk lay half
+  in a wall. All moved.
+- **A check for all of it,** in every level: no creature begins with its body in rock, no pedestal or corbel is in
+  spikes, no gargoyle sits in rock, and no plank, rock or spikes is where a person stands.
+- **To try:**
+  1. In the Workings' cistern, before the Wyrm: slam, jump, slam again. Can you get under by any means?
+  2. Float and press slam. Can you still move afterwards?
+  3. The Cloister's nave: are the gargoyles on the walls, and nothing in the spike pits?
+  4. Mirel in the bell tower: is her space clear?
+- **Underneath:** `motor.js` (three lines at the dive and the swim); `level.js` (the gargoyles' perches);
+  `tests/side-under.test.mjs` (eleven ways of coming at every deep water, without the wind);
+  `tests/side-faults.test.mjs`.
+- **Save: not moved.**
+- **Checked:** 446 automated checks. The check for the slam fails on build 78's code and passes on this.
+- **Not checked:** not played by hand. I did not swim under the arch myself in a browser; the proof is his real
+  movement run in the checks, reaching the floor of the water before the fix and never under it after.
+- **Not found:** nothing else from the playtest's "tricky platform" remark, which you have since said was the
+  spacing in general.
+- **Cost:** nothing.
 
 ### Build 78: the broken list
 

@@ -158,7 +158,7 @@ function roost(){
   // up to the east door: a boulder, a shelf out of the west wall (a chest on it), a stalagmite, the door's own shelf
   pier(r, 20, 22, 5); pier(r, 15, 19, 9); shelf(r, 'L', 11, 8); shelf(r, 'R', 27, 13);
   rect(r, 6, 16, 9, 20); rect(r, 20, 19, 23, 20);                 // hanging rock
-  mark(r, 'flitter', 10, 14); mark(r, 'flitter', 30, 17); mark(r, 'torch', 3, 12); mark(r, 'torch', 34, 4); mark(r, 'crystal', 24, 2); mark(r, 'crystal', 35, 14);
+  mark(r, 'flitter', 13, 13); mark(r, 'flitter', 30, 17); mark(r, 'torch', 3, 12); mark(r, 'torch', 34, 4); mark(r, 'crystal', 24, 2); mark(r, 'crystal', 35, 14);
   mark(r, 'chest', 7, 9, { holds: 'shards' }); mark(r, 'urn', 30, 14);
   return r;
 }
@@ -223,7 +223,7 @@ function nave(){
 // three screens tall: ledges up past a door to the library, to a door onto the cloister walk; the bell's rope hangs above
 function belfry(){
   const r = room(1, 3); walls(r); door(r, 'left', 2, 7); door(r, 'left', 25, 30); door(r, 'left', 48, 53);
-  [[24, 32, 5], [10, 18, 9], [22, 30, 13], [30, 37, 17], [16, 24, 21], [2, 10, 24], [14, 22, 28], [26, 34, 32], [30, 37, 36], [18, 26, 40], [8, 16, 44], [2, 10, 47], [16, 24, 51], [28, 36, 55]]
+  [[22, 29, 5], [10, 18, 9], [22, 30, 13], [30, 37, 17], [16, 24, 21], [2, 10, 24], [14, 22, 28], [26, 34, 32], [30, 37, 36], [18, 26, 40], [8, 16, 44], [2, 10, 47], [16, 24, 51], [28, 36, 55]]
     .forEach(([a, b, y]) => ledge(r, a, b, y));
   rect(r, 31, 7, 37, 8); for (const x of [32, 35]) mark(r, 'keep', x, 3);   // under the first turn of the bell stair, at the tower's foot: Mirel's place, as far from the door as the tower goes
   mark(r, 'gargoyle', 20, 16); mark(r, 'gargoyle', 12, 36); mark(r, 'wisp', 33, 37); mark(r, 'wisp', 6, 12); mark(r, 'bell', 20, 64);
@@ -483,7 +483,10 @@ function core(n){
   { const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i];
     // never by one of the people (a playtest found a plinth through Ordric), and a plinth only on rock, never a plank
     const people = marks.filter(k => k.type === 'npc'), clear = (x, y) => people.every(k => Math.abs(k.x - x) >= 8 || Math.abs(k.y - y) >= 12);
-    const corbel = (x, py, far) => { for (let k = 1; k <= far; k++) for (const s of [-1, 1]){ const i = x + s * k; if (at(i, py) === ROCK && at(i, py + 1) === ROCK && at(i - s, py) !== ROCK && at(i - s, py + 1) !== ROCK && at(i - s, py + 2) !== ROCK && clear(i - s * 2, py)) return { s, i }; } return null; };
+    // (and room for the creature itself on its corbel: three tiles out from the wall, three up, clear of rock and of
+    // spikes. Build 79: one in the Cloister's stair sat with its head in an overhang; two plinths stood in spike pits)
+    const room = (i, s, py) => [1, 2, 3].every(c => [1, 2, 3].every(r => at(i - s * c, py + r) !== ROCK && at(i - s * c, py + r) !== SPIKES));
+    const corbel = (x, py, far) => { for (let k = 1; k <= far; k++) for (const s of [-1, 1]){ const i = x + s * k; if (at(i, py) === ROCK && at(i, py + 1) === ROCK && at(i - s, py) !== ROCK && at(i - s, py + 1) !== ROCK && at(i - s, py + 2) !== ROCK && clear(i - s * 2, py) && room(i, s, py)) return { s, i }; } return null; };
     for (const m of marks) if (m.type === 'gargoyle'){
       const py = m.y + 2; let best = null, row = py;
       // a corbel out of a wall: at its height, then a little above or below, then further across the room
@@ -493,6 +496,7 @@ function core(n){
       for (const dx of [0, 2, -2, 4, -4, 6, -6, 8, -8, 10, -10, 12, -12]){
         const x = m.x + dx; let j = m.y; while (j > 0 && at(x, j - 1) !== ROCK && at(x, j - 1) !== LEDGE) j--;
         if (at(x, j - 1) !== ROCK || at(x - 1, j - 1) !== ROCK || at(x + 1, j - 1) !== ROCK || !clear(x, j)) continue;   // its foot on rock, three wide
+        if ([-1, 0, 1].some(a => at(x + a, j) === SPIKES)) continue;   // and not in a pit of spikes
         m.perch = { x, y: Math.max(j + 4, Math.min(m.y + 2, j + 8)), side: 0, base: j }; break;
       }
     } }

@@ -93,7 +93,7 @@ function pumphouse(){
   rect(r, 70, 0, 75, 7, EMPTY); rect(r, 70, 6, 75, 7, STILLED); ledge(r, 70, 75, 3);
   water(r, 19, 2, 11, 21, { deep: true }); water(r, 30, 2, 40, 19, { key: 'tide', up: HALL.floor - 2 }); water(r, 70, HALL.floor, 8, 13, { key: 'tide' });
   mark(r, 'pump', HALL.pump, HALL.floor); mark(r, 'valve', 49, 9, { n: 0 }); mark(r, 'valve', 56, 14, { n: 1 }); mark(r, 'valve', 63, 18, { n: 2 });
-  mark(r, 'sunk', 31, 2, { drawn: true }); mark(r, 'sunk', 33, 2, { drawn: true });
+  mark(r, 'sunk', 31, 2, { drawn: true }); mark(r, 'sunk', 32, 2, { drawn: true });
   lamp(r, 40, 18); lamp(r, 67, 18); dl(r, 22, 12); dl(r, 28, 5);
   for (let x = 36; x <= 76; x += 4) for (const y of [10, 14, 18]) keep(r, x, y);
   for (const y of [5, 10, 15, 19]) for (const x of [20, 23, 25]) keep(r, x, y);
