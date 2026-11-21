@@ -15,6 +15,7 @@ import { makeProps } from './props.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt, hurt, isRollInv } from './motor.js';
 import { width as textWidth } from './pixelfont.js';
 const wrapText = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };
+const wrapFine = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t, 1, true) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };   // (the small print's widths)
 import { G, OPT, loadSave, store, storeOpt, wipe, TRY, fresh, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, THREADS_A_HEART, DIFF } from './state.js';
 import { makeItems } from './items.js';
 import { makeTalk, SCRIPT } from './talk.js';
@@ -34,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 77, date: '20 NOV 2026', phase: 17, phases: 22, last: 'PLAIN WORDS, AND THE GRAB' };
+const VERSION = { build: 78, date: '21 NOV 2026', phase: 17, phases: 22, last: 'THE BROKEN LIST' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -86,7 +87,10 @@ function learn(){
   const b = n => !!G.beat[n] || G.top > n || (DEV && LEVEL.index > n);
   CAN.breaker = b(0); CAN.dash = b(1); CAN.glide = b(2); CAN.grip = !!G.beat[TEACH.findIndex(t => t.can === 'grip')];
   if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the spade (a save from before has it now)
-  SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); SIDE.boots = has('boots'); SIDE.calm = has('stillair'); SIDE.bell = has('shiftbell'); SIDE.rope = has('lastrope'); if (CAN.breaker && !G.lamp){ G.lamp = 1; G.lampNew = 1; } if (P){ P.flaskMax = maxFlask(); P.flask = Math.min(P.flask, P.flaskMax); const mh = maxHearts(); if (mh > P.maxHp) P.hp += mh - P.maxHp; P.maxHp = mh; P.hp = Math.min(P.hp, mh); }   // (the yoke, the second place: worn or taken off) EMBER.mend = has('seedheart') ? 7 : 10;   // what he carries, worn (builds 49 to 66 had this line inside the comment above it: these did nothing)
+  SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); SIDE.boots = has('boots'); SIDE.calm = has('stillair'); SIDE.bell = has('shiftbell'); SIDE.rope = has('lastrope'); if (CAN.breaker && !G.lamp){ G.lamp = 1; G.lampNew = 1; } if (P){ P.flaskMax = maxFlask(); P.flask = Math.min(P.flask, P.flaskMax); const mh = maxHearts(); if (mh > P.maxHp) P.hp += mh - P.maxHp; P.maxHp = mh; P.hp = Math.min(P.hp, mh); }
+  // (the yoke, the second place: worn or taken off; then the Gardener's Seed. This last statement has twice been found
+  // inside a comment, doing nothing: builds 49 to 66, and 69 to 77. tests/side-swallowed.test.mjs now looks for that)
+  EMBER.mend = has('seedheart') ? 7 : 10;
 }
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
 const GLITTER = { lv: null, at: [] };   // the Vein: where its crystals are (they light the dark round them)
@@ -101,10 +105,11 @@ function setup(walked = false){
   RULE.litAll = false; RULE.lit = new Set((G.lit && G.lit[LEVEL.index]) || []);   // the Glacier Galleries: the fires he has lit here burn on
   RULE.turned = false; RULE.down = !!G.cairnDown; WAY.was = false; WAY.said = new Map();   // the Pilgrims' Cairns: the way is whole as he comes in; his own cairn, once down, stays down
   RULE.tide = 1; RULE.bore = 0;
+  RULE.sat = !!G.seatedDown;   // the Glacier Galleries' Seated, once down
   RULE.ring = 0; RULE.still = !!(G.still && G.still[LEVEL.index]);   // the Bell-Foundry: nothing rings as he comes in; its Cracked Bell, once fallen, stays fallen
   RULE.fallen = !!(G.beat[LEVEL.index] || G.top > LEVEL.index || !KEEPERS[LEVEL.theme]);   // has this region's keeper fallen: what it held is let go (level.js RULE)
   SWINGFX = makeSwingFx(R.scene); PROPS = makeProps(R.scene, R);
-  PROPS.toll = (shut, doors) => { const d = Math.min(...doors.map(B => Math.hypot(B.x - P.x, B.y - P.y))); if (d < 26){ sfx.bell(); if (d < 12) FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.08); } };   // the bell the doors turn on, heard when he is near one
+  PROPS.toll = (shut, doors) => { const d = Math.min(...doors.map(B => Math.hypot(B.x - P.x, B.y - P.y))); if (d < 26){ sfx.bell(0.14 + 0.32 * (1 - d / 26) ** 2); if (d < 12) FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.08); } };   // the bell the doors turn on, heard when he is near one
   for (const id of G.broke[LEVEL.index] || []) PROPS.breakId(id);   // the rock he broke here before stays broken
   ITEMS = makeItems(R.scene, R, LEVEL.index); learn(); swapButton();
   fx = spawnFx(R.scene); E = spawnEnemies(R.scene, R); if (!walked || !SCF) SCF = makeScarf(R.scene); FLIGHT = null;
@@ -578,7 +583,10 @@ function goalLines(){
 function pause(on){
   if (STORY.active() || GO.st || TALK.on || NOTE) return; if (SCREEN === 'shop' || SCREEN === 'knots' || SCREEN === 'under'){ SCREEN = ''; PAUSE = false; menuHide(); return; }
   PAUSE = on; SCREEN = on ? 'pause' : ''; if (!on){ menuHide(); return; } release();
-  menuShow([menuButton('Resume', () => pause(false)), menuButton('Map', mapScreen, true), menuButton('Inventory', carryScreen, true), menuButton('The Annals (lore)', () => annals(LEVEL.index), true), menuButton('Options', () => options(() => pause(true)), true), menuButton('Quit to title', () => { PAUSE = false; SCREEN = ''; title(); }, true)], false, () => pause(false));
+  // (one large button and a row of small ones: six in a column ran down over the keys written at the foot of the screen)
+  const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:min(94vw,640px)';
+  for (const b of [menuButton('Map', mapScreen, true), menuButton('Inventory', carryScreen, true), menuButton('The Annals (lore)', () => annals(LEVEL.index), true), menuButton('Options', () => options(() => pause(true)), true), menuButton('Quit to title', () => { PAUSE = false; SCREEN = ''; title(); }, true)]) row.appendChild(b);
+  menuShow([menuButton('Resume', () => pause(false)), row], false, () => pause(false));
 }
 addEventListener('keydown', e => {
   if (TALK.on || NOTE){ if (['Enter', 'Space', 'KeyE', 'KeyS', 'ArrowDown', 'KeyJ'].includes(e.code)) press(); return; }
@@ -630,7 +638,7 @@ const alias = theme => { const R = REGION_DATA.find(q => q.theme === theme); ret
 const SCORE = makeScore(), AMB = { hollow: 'cave', flooded: 'cave', shaft: 'wind', vein: 'cave', workings: 'cave', roots: 'cave', cloister: 'cave', spires: 'wind', tempest: 'storm', gardens: 'garden', firmament: 'wind' };
 function score(){
   if (!HEARD) return; const A = ac(); if (!A) return; if (!MUSIC) MUSIC = makeMusic(A, musicBus() || A.destination);
-  const k = STORY.kind, fight = BOSS && BOSS.active() && BOSS.st !== 'die', quiet = ENT.hush || (BOSS && (BOSS.st === 'die' || (BOSS.st === 'dead' && !WON)));
+  const k = STORY.kind, fight = BOSS && BOSS.active() && BOSS.st !== 'die', inHall = BOSS && BOSS.room && P.x >= BOSS.room.x0 && P.x < BOSS.room.x1 && P.y >= BOSS.room.y0 - 1 && P.y < BOSS.room.y1, quiet = ENT.hush || (BOSS && (BOSS.st === 'die' || (BOSS.st === 'dead' && !WON && inHall)));   // (a fallen keeper's hall is silent; the rest of its region has its music again. Until build 78 the whole region stayed silent until he left it)
   const here = R.look(), door = !fight && R.exits.find(x => x.on && x.next && Math.hypot(P.x - x.x, P.y - x.y) < 7);   // by an open way on, the next region can be heard
   const rec = k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? (LEVEL.index === CLIMB_TOP ? 'boss_final' : 'boss') : alias(here);
   const gen = k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? 'boss_' + LEVEL.theme : alias(here);
@@ -944,7 +952,8 @@ function drawCard(c, W, modal, top = 8){
   if (c.head){ HUD.fine(c.head, cx, y, '#8b9bb4', 'center'); y += 8; }
   const big = textWidth(c.title.toUpperCase(), 2) <= W - 24 ? 2 : 1; HUD.text(c.title.toUpperCase(), cx, y, '#fee761', big, 'center'); y += 7 * big + 5; HUD.rule(cx, y, 60, '#ead4aa'); y += 6;
   for (const ln of wrapText(c.does, W - 40)){ HUD.text(ln, cx, y, '#fff2d0', 1, 'center'); y += 10; }
-  for (const h of c.how || []){ y += 2; for (const ln of wrapText(h, W - 48)){ HUD.text(ln, cx, y, '#2ce8f5', 1, 'center'); y += 10; } }
+  y += 2; for (const h of c.how || []){ y += 1; for (const ln of wrapFine(h.toUpperCase(), W - 24)){ HUD.fine(ln, cx, y, '#2ce8f5', 'center'); y += 7; } }   // (the small print: with square pixels the larger letters are wider, and a card has to fit over its buttons)
+  if ((c.how || []).length) y += 2;
   if (c.lore){ y += 3; for (const ln of wrapText(c.lore.toUpperCase(), W - 30)){ HUD.fine(ln, cx, y, '#8b9bb4', 'center'); y += 7; } }
   if (c.foot){ y += 3; HUD.fine(c.foot.toUpperCase(), cx, y, '#c0cbdc', 'center'); y += 8; }
   if (modal && c.t > 0.7 && Math.floor(time * 2) % 2) HUD.text('PRESS TO CONTINUE', cx, Math.min(170, Math.max(150, y + 6)), '#8b9bb4', 1, 'center');
@@ -966,8 +975,9 @@ function carryScreen(){
 function drawCarry(W){
   HUD.dark(0.92, '#181425'); HUD.text('INVENTORY', W / 2, 4, '#fff2d0', 1, 'center');
   const spare = G.relics.length - G.worn.length;
-  HUD.fine(`${P.maxHp} HEARTS · ${G.threads % THREADS_A_HEART} OF ${THREADS_A_HEART} STRANDS TOWARD THE NEXT · FLASK ${P.flaskMax} · ${G.worn.length} OF ${knots()} RELIC SLOTS USED${spare > 0 ? ` · ${spare} NOT EQUIPPED` : ''}`, W / 2, 13, '#8b9bb4', 'center');
-  const c = CARRY[MSEL]; if (c) drawCard(c, W, false, 22);
+  HUD.fine(`${P.maxHp} HEARTS · ${G.threads % THREADS_A_HEART} OF ${THREADS_A_HEART} STRANDS TOWARD THE NEXT · FLASK ${P.flaskMax}`, W / 2, 13, '#8b9bb4', 'center');
+  HUD.fine(`${G.worn.length} OF ${knots()} RELIC SLOTS USED${spare > 0 ? ` · ${spare} NOT EQUIPPED` : ''}`, W / 2, 20, '#8b9bb4', 'center');
+  const c = CARRY[MSEL]; if (c) drawCard(c, W, false, 29);
 }
 // ---- a keeper's gift (decision 0.5): the thing gathers out of the fallen keeper, light drawn in to it; it hangs a
 // moment, then comes down to him; he reaches up and takes it to his chest (his `receive` drawing; he is held while he
@@ -1177,7 +1187,7 @@ function onEvent(e){
       if (e.e && e.e.type === 'housekeeper'){ RULE.unkept = true; (G.unkept = G.unkept || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.door(); sfx.crack(); FEEL_FX.shake = 0.5; SLOW = Math.max(SLOW, 0.9); fx.burst(e.at, 30, 0xfff2d0); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); banner('The Housekeeper is beaten', 'Nothing in these houses will be put back again.', 5.5); }
       if (e.e && e.e.type === 'lock'){ RULE.still = true; RULE.surge = 0; (G.still = G.still || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.door(); sfx.rumble(); sfx.splash(); FEEL_FX.shake = 0.7; SLOW = Math.max(SLOW, 0.9); fx.burst(e.at, 40, 0xbfe8ff); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); for (const B of PROPS.grates) fx.dust({ x: B.x, y: B.y }, 14, 3); banner('The Lock is open', 'The water runs freely now. Its keepers stand down.', 5.5); }
       if (e.e && e.e.type === 'jar'){ RULE.still = true; RULE.surge = 0; (G.still = G.still || {})[LEVEL.index] = 1; store(); PROPS.show(); sfx.glass(); sfx.thunder(); sfx.door(); FEEL_FX.shake = 0.7; SLOW = Math.max(SLOW, 0.9); FLASH = Math.max(FLASH, 0.4); fx.burst(e.at, 40, 0xbfe8ff); ITEMS.spill(e.e.x, e.e.y + 1.5, 30); for (const B of PROPS.grates) fx.dust({ x: B.x, y: B.y }, 14, 3); banner('The Jar is broken', 'The lightning it held has gone back to the storm.', 5.5); }
-      if (e.e && e.e.type === 'seated'){ G.seatedDown = 1; store(); banner('The Seated is beaten', 'The fire freed what the ice was holding.', 5); }
+      if (e.e && e.e.type === 'seated'){ G.seatedDown = 1; RULE.sat = true; store(); banner('The Seated is beaten', 'The fire freed what the ice was holding.', 5); }
       // a thing that is not a creature (his own cairn): it is knocked down, and that is all
       if (e.e && e.e.d.prop){ sfx.crack(); sfx.break(); fx.dust(e.at, 26, 4); fx.burst(e.at, 14, 0xc0cbdc); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.3); if (e.e.type === 'hiscairn'){ G.cairnDown = 1; RULE.down = true; store(); banner('It is down', 'The stone with your name on it lies with the others.', 5); } break; }
       // the Cracked Bell falls: the wing is still, for good. Nothing in it rings again; the shutters stay up; the grates lift
@@ -1217,7 +1227,9 @@ function onEvent(e){
     case 'bossPhase': sfx.roar(); FEEL_FX.shake = 0.6; banner(BOSS.name + ' rages', BOSS.rage); break;
     case 'bossDie': buzz(1, 0.9, 700); sfx.roar(); sfx.bossDie(); FEEL_FX.hitstop = 0.3; FEEL_FX.shake = 0.8; SLOW = 1.3; FLASH = 0.5; break;
     case 'bossDead': { ENT.open(); for (const x of R.exits) x.set(true); sfx.door();
-      RULE.fallen = true; for (const C of PROPS.release()) if (Math.hypot(C.x - P.x, C.y - P.y) < 30){ sfx.break(); fx.dust({ x: C.x, y: C.y - C.h / 2 }, 30, 5); fx.burst({ x: C.x, y: C.y }, 26, 0xc0cbdc); R.shock(C.x, C.y, true); }   // what it held is let go: the stone over the way out comes down banner(BOSS.name + ' falls', BOSS.fell); ITEMS.spill(BOSS.cx, BOSS.stageY + 2, 60);
+      RULE.fallen = true; for (const C of PROPS.release()) if (Math.hypot(C.x - P.x, C.y - P.y) < 30){ sfx.break(); fx.dust({ x: C.x, y: C.y - C.h / 2 }, 30, 5); fx.burst({ x: C.x, y: C.y }, 26, 0xc0cbdc); R.shock(C.x, C.y, true); }   // what it held is let go: the stone over the way out comes down
+      // (its banner and what it spills were inside that comment from build 56 to 77, and never happened)
+      banner(BOSS.name + ' is beaten', BOSS.fell, 5); ITEMS.spill(BOSS.cx, BOSS.stageY + 2, 60);
       // what it leaves him, the first time
       const n = LEVEL.index, t = TEACH[n];
       if (!G.beat[n]){ G.beat[n] = true; GIFTING = !!(t && t.name); if (t && t.heart){ G.hearts += t.heart; P.maxHp = maxHearts(); P.hp = P.maxHp; } if (t && t.flask){ G.flasks += t.flask; P.flaskMax = maxFlask(); P.flask = P.flaskMax; } learn(); store();
@@ -1242,11 +1254,14 @@ function onEvent(e){
 // the lines of help at the foot of the screen, for what he is playing with. A controller's are its own buttons, as bound
 const PADN = { xbox: ['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT'], ps: ['CROSS', 'CIRCLE', 'SQUARE', 'TRIANGLE', 'L1', 'R1', 'L2', 'R2'] };
 const padKey = a => { const i = (SET.pad[a] || [])[0], N = PADN[DEVICE.kind === 'ps' ? 'ps' : 'xbox']; return i == null ? '-' : N[i] || 'B' + i; };
-const HINT = { keys: ['A D MOVE · SPACE JUMP, AGAIN IN THE AIR · SHIFT ROLL', 'CLICK ATTACK · RIGHT CLICK OR K BLOCK · S + CLICK RISING ATTACK · CLICK IN A ROLL: DASH ATTACK', 'S + CLICK IN THE AIR: SLAM · S + SPACE: DROP THROUGH A PLANK · S: TALK, OPEN · M MAP · ESC PAUSE', 'E: EMBER POWER, COSTS 10 (S + E, OR IN THE AIR) · Q: FLASK. EMPTY: 10 EMBERS HEAL'], touch: ['TOUCH THE LEFT OF THE SCREEN AND DRAG TO MOVE', 'DRAG DOWN: CROUCH, TALK, OPEN · DOWN + A IN THE AIR: SLAM', 'EMBERS: A POWER, COSTS 10 (WITH DOWN, OR IN THE AIR) · FLASK: DRINK. EMPTY: 10 EMBERS HEAL'],
+const HINT = { keys: ['A D MOVE · SPACE JUMP, AGAIN IN THE AIR · SHIFT ROLL', 'CLICK ATTACK · RIGHT CLICK OR K BLOCK · CLICK IN A ROLL: DASH ATTACK', 'S + CLICK: RISING ATTACK. IN THE AIR: SLAM · S + SPACE: DROP THROUGH A PLANK', 'S: TALK, OPEN · M MAP · ESC PAUSE · Q: FLASK. EMPTY: 10 EMBERS HEAL', 'E: EMBER POWER, COSTS 10 (ALSO S + E, AND IN THE AIR)'], touch: ['TOUCH THE LEFT OF THE SCREEN AND DRAG TO MOVE', 'DRAG DOWN: CROUCH, TALK, OPEN · DOWN + A IN THE AIR: SLAM', 'EMBERS: A POWER, COSTS 10 (WITH DOWN, OR IN THE AIR) · FLASK: DRINK. EMPTY: 10 EMBERS HEAL'],
   get pad(){ const k = padKey; return [`STICK MOVE · ${k('jump')} JUMP, AGAIN IN THE AIR · ${k('roll')} ROLL · ${k('attack')} ATTACK · ${k('block')} BLOCK`, `DOWN + ${k('attack')}: RISING ATTACK · DOWN + ${k('attack')} IN THE AIR: SLAM · ${k('flask')} DRINK`, `DOWN: TALK, OPEN · DOWN + ${k('jump')}: DROP THROUGH A PLANK · SELECT: MAP · START: PAUSE`, `${k('art')}: EMBER POWER, COSTS 10 (WITH DOWN, OR IN THE AIR) · ${k('flask')} WITH NONE LEFT: 10 EMBERS HEAL`]; } };
 const EPITHET = LEVELS.map(l => l.epithet);
 function drawHud(dt){
-  HUD.begin(R.size().w); const W = HUD.W, v = new window.THREE.Vector3();
+  // the HUD's own picture is 180 tall, and as wide as that makes the window: its pixels are square. (Until build 78 it
+  // took the world's width, which grew each time the view was drawn back, to 440 by 180 on a 16:9 screen: everything
+  // in it was drawn 37% taller than wide. A playtest saw it in the portraits.) Never narrower than 288: a 16:10 screen
+  HUD.begin(Math.max(288, R.size().w * 180 / R.size().h)); const W = HUD.W, v = new window.THREE.Vector3();
   // a red ! over a creature winding up
   for (const e of E.list){ if (e.alive && e.noticeT > 0 && !(e.tellT > 0)){ e.noticeT -= dt; v.set(e.x, e.y + e.d.h + 0.7, 0).project(R.camera); HUD.tell(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180), '#fee761'); }
     if (!e.alive || !(e.tellT > 0)) continue; e.tellT -= dt; v.set(e.x, e.y + e.d.h + 0.7, 0).project(R.camera); HUD.tell(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180)); }
@@ -1258,7 +1273,8 @@ function drawHud(dt){
   if (!rising && !TALK.on && !FLIGHT){
     HUD.status(P, EMBER.n, EMBER.cap, P.flaskMax, time, ARTS.cost, embersKnown()); HUD.weapon(P.weapon === 'spade' ? 'spade' : 'blade', armed('spade') ? kname('swap') : null, drawIcon); PURSE = Math.max(0, PURSE - dt); HUD.purse(P, P.flaskMax, G.shards, PURSE, G.threads % THREADS_A_HEART, THREADS_A_HEART);
     const room = roomAt(P.x, P.y); if (room && !MAP.seen.has(room)){ MAP.seen.add(room); const k = LEVEL.rooms.indexOf(room), list = ((G.rooms = G.rooms || {})[LEVEL.index] = G.rooms[LEVEL.index] || []); if (k >= 0 && !list.includes(k)){ list.push(k); DIRTY = DIRTY > 0 ? DIRTY : 2; } }
-    const st = ITEMS.station(P), place = (room && room.sill ? '' : LEVEL.name + (room ? ' · ' : '')) + (room ? room.title || room.name : '') + (st ? ' · ' + st.station.name : '');   // beside one of the three: their station's name if (place !== PLACE.name){ PLACE.name = place; PLACE.t = 0; } PLACE.t += dt;
+    const st = ITEMS.station(P), place = (room && room.sill ? '' : LEVEL.name + (room ? ' · ' : '')) + (room ? room.title || room.name : '') + (st ? ' · ' + st.station.name : '');   // beside one of the three: their station's name
+    if (place !== PLACE.name){ PLACE.name = place; PLACE.t = 0; } PLACE.t += dt;
     HUD.place(place, PLACE.t < 3 ? 1 : Math.max(0.45, 1 - (PLACE.t - 3) * 0.5));
     HUD.boss((BOSS && BOSS.hud()) || miniHud(), dt);
     const dots = mapDots();
@@ -1290,10 +1306,10 @@ function drawHud(dt){
     const can = [CAN.breaker && 'THE WARDEN\'S SPADE', CAN.dash && 'THE TOLL\'S STEP', CAN.glide && 'THE WYRM\'S WIND'].filter(Boolean), found = Object.values(G.got).flat();
     // the goal first (build 77): what the whole game is for, and the next step from here
     { const [goal, next] = goalLines(); HUD.fine(goal, W / 2, 40, '#fee761', 'center'); HUD.fine(next, W / 2, 48, '#fff2d0', 'center'); }
-    HUD.text(`SHARDS ${G.shards}   ·   STRANDS ${G.threads}   ·   RELICS ${G.relics.length} OF ${Object.keys(RELICS).length}${G.falls ? `   ·   DEATHS ${G.falls}` : ''}`, W / 2, 58, '#c0cbdc', 1, 'center');
-    if (can.length) HUD.text(can.join('  ·  '), W / 2, 68, '#2ce8f5', 1, 'center');
+    HUD.fine(`SHARDS ${G.shards}  ·  STRANDS ${G.threads}  ·  RELICS ${G.relics.length} OF ${Object.keys(RELICS).length}${G.falls ? `  ·  DEATHS ${G.falls}` : ''}`, W / 2, 58, '#c0cbdc', 'center');
+    if (can.length) HUD.fine(can.join('  ·  '), W / 2, 67, '#2ce8f5', 'center');
     const worn = G.worn.filter(id => RELICS[id]), spare = G.relics.length - worn.length;   // what is equipped; what he only carries (what each does: the Inventory)
-    if (G.relics.length){ let ky = 78; HUD.fine(`${worn.length} OF ${knots()} RELIC SLOTS USED${spare ? `  ·  ${spare} NOT EQUIPPED: CHOOSE AT A POOL` : ''}`, W / 2, ky, '#8b9bb4', 'center');
+    if (G.relics.length){ let ky = 76; HUD.fine(`${worn.length} OF ${knots()} RELIC SLOTS USED${spare ? `  ·  ${spare} NOT EQUIPPED: CHOOSE AT A POOL` : ''}`, W / 2, ky, '#8b9bb4', 'center');
       for (const ln of wrapText(worn.map(id => RELICS[id].name.toUpperCase()).join('  ·  '), W - 60)){ ky += 8; HUD.fine(ln, W / 2, ky, '#fee761', 'center'); } }
     HUD.hint(HINT[DEVICE.kind === 'keys' ? 'keys' : DEVICE.kind === 'touch' ? 'touch' : 'pad'], 1); }
   if (GO.st) HUD.dark(GO.st === 'out' ? Math.min(1, GO.t / 0.6) : GO.st === 'in' ? Math.max(0, 1 - GO.t / 0.7) : 1);   // going up: dark between regions

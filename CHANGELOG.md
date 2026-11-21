@@ -2,7 +2,18 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**From the playtest: the edge grab, roomier shafts, plain words, the goal (latest; build 77).** `docs/words-sheet.md`, `docs/playtest-2026-11-20.md`.
+**The broken list (latest; build 78).** `docs/builds.md` has each one.
+- **The Warden's barrier** shuts at its stage again (a stone step from build 76 had sent it to the bottom of the hole).
+- **Music comes back** after a keeper falls, once he leaves its hall.
+- **The Cloister's bell** is quieter, and as loud as its door is near. (The music itself was level.)
+- **The HUD has square pixels.** It had been drawn 37% taller than wide: letters, portraits, icons, the map.
+- **Beaten stays beaten:** the Housekeeper, the Almanac, the Seated.
+- **The Cracked Bell,** once woken, swings by itself if left alone.
+- **His crouch with the spade** is the sword's crouch.
+- **Four things a stray note had switched off** are back: a fallen keeper's banner and shards, the Gardener's Seed, the Toll's reset, the place name brightening.
+- 431 checks. No save is moved.
+
+**From the playtest: the edge grab, roomier shafts, plain words, the goal (build 77).** `docs/words-sheet.md`, `docs/playtest-2026-11-20.md`.
 - **He takes an edge only on the way up,** pressing toward it. Coming down he never does.
 - **The Roots' shafts are roomier:** shelves five or six rows apart, four clear tiles between their lips.
 - **The game speaks to you.** About two hundred lines rewritten: hints, cards, abilities, relics, the shop, menus, the map, banners, the keepers, the intro and ending, and the people. Numbers and plain names for things (10 embers, relic slot, checkpoint pool).

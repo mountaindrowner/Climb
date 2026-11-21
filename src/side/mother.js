@@ -45,7 +45,7 @@ export function makeMother(scene, R){
   const room = LEVEL.rooms.find(r => r.name === 'bower'), mk = LEVEL.marks.find(m => m.type === 'boss');
   if (!room || !mk) return null;
   const stageY = mk.y * T, cx = (mk.x + 0.5) * T, xMin = room.x0 + 3.4, xMax = room.x1 - 3.4, root = { x: cx, y: stageY - 0.3 };
-  const B = { name: W.name, hint: 'When she opens, ride a bloom up and slam down on her heart.', rage: 'The whole garden rises with her.', fell: 'Mother Thorn is beaten. The garden is quiet.',
+  const B = { name: W.name, hint: 'When she opens, ride a bloom up and slam down on her heart.', rage: 'The whole garden rises with her.', fell: 'The garden is quiet.',
     st: 'dormant', tm: 0, hp: W.hp, phase: 1, flash: 0, cd: 1.2, room, stageY, cx, mode: 'idle', mt: 0, si: 0, side: 1,
     h: { x: cx, y: stageY + W.low, lean: 0 }, open: 0, heart: { x: cx, y: stageY }, spikes: [], pods: [], spores: [], loose: [], hitCd: 0, dim: 0 };
   const base = 'assets/side/mother/';

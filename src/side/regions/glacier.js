@@ -146,7 +146,8 @@ export const enemies = {
   // hall frees more of him: one, an arm (a long low sweep); two, he calls ice down from the roof where it is marked;
   // three, he gets up and comes. The more of him is free, the more a blow counts
   seated: { ai: 'seated', hp: 30, w: 1.2, h: 3.6, scale: 1.5, color: 0x8b9bb4, dmg: 2, art: 'px_seated', fly: false, word: 'Swept aside',
-    guard(e){ return !(e.lit > 0); }, onHit(e, dmg){ e.hp += dmg - dmg * SEATED.takes[Math.min(3, e.lit || 0)]; } },
+    guard(e){ return !(e.lit > 0); }, onHit(e, dmg){ e.hp += dmg - dmg * SEATED.takes[Math.min(3, e.lit || 0)]; },
+    spawn(e, c){ if (c.RULE.sat){ e.alive = false; if (e.stand) e.stand.visible = false; } } },   // once down, he stays down (build 78: he was back every visit)
 };
 export const ai = {
   brazier(e, P, dt, c){

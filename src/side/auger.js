@@ -69,7 +69,7 @@ export function makeAuger(scene, R){
   const deck = { kind: 'free', fx: cx, fy: -99, cx: 0, cy: 0, r: 0, ax: 0, ay: 0, period: 1, ph: 0, dir: 1, w: A.hullW - 0.4, x: cx, y: -99, px: cx, py: -99, at: -1 }; LEVEL.movers.push(deck);
 
   const B = { name: A.name, cx, room, ripples: [], get stageY(){ return tiers[B.tier || 0].y; },
-    rage: 'The floor is about to break.', fell: 'The Auger is beaten. It stops, for the first time in two hundred years.', hint: 'When its drill sticks in the floor, climb on its back and hit the collar.' };
+    rage: 'The floor is about to break.', fell: 'It stops, for the first time in two hundred years.', hint: 'When its drill sticks in the floor, climb on its back and hit the collar.' };
   B.active = () => B.st === 'rise' || B.st === 'fight' || B.st === 'die';
   B.hud = () => B.active() ? { name: A.name, frac: Math.max(0, B.hp / A.hp), phase: (B.tier || 0) + 1 } : null;
   B.reset = () => {

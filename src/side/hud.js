@@ -130,7 +130,10 @@ export function makeHud(hud){
     if (on && name && t > 0.5){ const a = Math.min(1, (t - 0.5) / 0.5); g.globalAlpha = a; text(g, name, H.W / 2, 122, C.cream, 3, 'center'); H.rule(Math.round(H.W / 2), 148, 80, C.bone); text(g, epithet, H.W / 2, 154, C.pale, 1, 'center'); g.globalAlpha = 1; }
   };
   H.tell = (sx, sy, col = C.red1) => { for (let y = -5; y <= 5; y++) for (let x = -5; x <= 5; x++) if (Math.hypot(x, y) < 5.2) px(Math.hypot(x, y) > 4 ? col : C.ink, sx + x, sy + y); px(col, sx, sy - 3, 1, 4); px(col, sx, sy + 2, 1, 1); };   // red: it is about to strike; yellow: it has seen him
-  H.hint = (lines, alpha) => { if (alpha <= 0) return; g.globalAlpha = alpha; lines.forEach((l, i) => fine(g, l, H.W / 2, 180 - 8 - (lines.length - 1 - i) * 7, C.pale, 'center')); g.globalAlpha = 1; };
+  // (a line too long for the picture is broken at one of its dots: build 78)
+  H.hint = (lines, alpha) => { if (alpha <= 0) return; const out = [];
+    for (const l of lines){ let cur = ''; for (const part of String(l).split(' · ')){ const t = cur ? cur + ' · ' + part : part; if (cur && width(t, 1, true) > H.W - 8){ out.push(cur); cur = part; } else cur = t; } if (cur) out.push(cur); }
+    g.globalAlpha = alpha; out.forEach((l, i) => fine(g, l, H.W / 2, 180 - 8 - (out.length - 1 - i) * 7, C.pale, 'center')); g.globalAlpha = 1; };
   // the edges of the picture closing in (a keeper's entrance): bands of its colour (ink; the Wyrm's, frost), thickest at the edge
   H.vignette = (a, col = C.ink) => { if (a <= 0) return; for (let k = 0; k < 12; k++){ g.globalAlpha = Math.min(1, a) * 0.5 * (1 - k / 12); const w = 4; px(col, k * w, 0, w, 180); px(col, H.W - (k + 1) * w, 0, w, 180); px(col, 0, k * 3, H.W, 3); px(col, 0, 180 - (k + 1) * 3, H.W, 3); } g.globalAlpha = 1; };
   // something huge passing over (the Wyrm, before it comes): a shadow across the top of the picture, f 0 to 1

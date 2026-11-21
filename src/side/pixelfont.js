@@ -50,6 +50,7 @@ function run(g, str, x, y, scale, small){
 // align: 'left' (x is its left), 'center', 'right'. shadow: the ink under it (false for none)
 export function text(g, str, x, y, color = '#ffffff', scale = 1, align = 'left', shadow = '#181425', small = false){
   const w = width(str, scale, small); x = Math.round(align === 'center' ? x - w / 2 : align === 'right' ? x - w : x); y = Math.round(y);
+  if (globalThis.__textOver && w > 0 && (x < 0 || x + w > g.canvas.width)) globalThis.__textOver.add(String(str));   // (a check's hook: text that runs off the picture)
   if (shadow){ g.fillStyle = shadow; run(g, str, x + scale, y + scale, scale, small); if (!small) run(g, str, x, y + scale, scale, small); }
   g.fillStyle = color; run(g, str, x, y, scale, small);
   return w;
@@ -59,6 +60,7 @@ export const LINE = 7;
 // the small print, on a dark plate of its own (a shadow would fill letters this small)
 export function fine(g, str, x, y, color = '#c0cbdc', align = 'left', plate = 0.55){
   const w = width(str, 1, true), x0 = Math.round(align === 'center' ? x - w / 2 : align === 'right' ? x - w : x);
+  if (globalThis.__textOver && w > 0 && (x0 < 0 || x0 + w > g.canvas.width)) globalThis.__textOver.add(String(str));
   if (plate){ const a = g.globalAlpha; g.globalAlpha = a * plate; g.fillStyle = '#181425'; g.fillRect(x0 - 2, Math.round(y) - 1, w + 4, 7); g.globalAlpha = a; }
   return text(g, str, x0, y, color, 1, 'left', false, true);
 }

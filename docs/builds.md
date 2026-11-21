@@ -55,6 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 78 | 21 Nov 2026 | `COMMIT78` | The broken list from the playtest; four old faults found on the way | no | yes (now) |
 | 77 | 20 Nov 2026 | `a2cae7a` | From the playtest: the edge grab, roomier shafts, plain words, the goal said | **yes** | yes (now) |
 | 76 | 19 Nov 2026 | `a77ee13` | The map pass, pilot: the Roots in stone (84 planks to 17) | no | yes (now) |
 | 75 | 19 Nov 2026 | `3a4aa64` | Try a place: any level, or a moment, from the title (for playtesting) | no | yes (now) |
@@ -93,6 +94,74 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 78: the broken list
+
+*The eight things the playtest of 20 Nov found broken (`docs/playtest-2026-11-20.md`, section 2). Each was looked
+for; what was found is below. Looking turned up four older faults nobody had reported.*
+
+**From the playtest**
+
+- **The Warden's barrier vanished mid-fight: mended.** Build 76 put a stone step in the hole up through its stage.
+  The code that places the seal took the step for the top of the shaft, and shut the hole at its bottom, out of
+  sight, with the hole open to fall into. The seal is at the stage again. A check now holds every keeper's hall to
+  this.
+- **The music stopped after a keeper fell and never came back: mended.** It was held silent from the keeper's death
+  until he walked out of the region's exit, however long he stayed. Now only the keeper's own hall is silent.
+- **The Cloister's music far too loud: it was the bell, not the music.** The recorded pieces measure within a decibel
+  and a half of each other. The Cloister's bell rang on every beat at nearly full volume wherever he was within
+  thirteen metres of one of its doors, about five decibels over the music, without end. It is now as loud as the
+  door is near: about half what it was at the door, a sixth at the edge of hearing.
+- **A keeper had to be fought again: two found and mended, yours not certain.** A beaten Housekeeper (the Gardens)
+  and a beaten Almanac (the Firmament) stood again on every visit, and so did the Seated (the Spires). All three now
+  stay beaten. I could not make the Warden or the Auger come back: through the Deep, home by the wall, a death, a
+  reload. If yours was after a death in the Auger's pit, that is as built: it and its floors are back until it is
+  beaten.
+- **The Cracked Bell "just sitting there": as built, and changed.** It only moved when struck, and only rang by
+  itself from half its strength. Woken and then left alone for five seconds with him in its hall, it now swings
+  toward him and rings.
+- **Portraits squished: it was the whole HUD.** Its picture kept a height of 180 while its width grew each time the
+  view was drawn back, to 440 by 180 on a 16:9 screen. Every letter, portrait, icon and the map was drawn 37% taller
+  than wide. It is 320 by 180 now: square. The letters are wider, so five places were refitted: the keys at the foot
+  of the pause screen (five shorter lines, and they wrap), the pause menu (one large button and a row of small ones;
+  six in a column ran over the keys), the count on the pause screen and the inventory's header (the small print),
+  and a card's "how" lines (the small print, in their own colour).
+- **His crouch with the spade: mended.** With the spade he only half crouched, six to eight pixels taller than with
+  the sword, which read as a different move and put his head through low roofs. The nine frames are remade from the
+  sword's crouch with the spade put in his hands. No art was bought.
+- **The crabs drawn at an angle: not done.** No creature is a crab. It is one of five drawn in a three-quarter
+  view; I need to know which before spending on a redraw.
+- **"A little jaggy": not found.** Nothing in the game's own timing changed or looked wrong. In the test browser
+  (no graphics card) the intro stalls for seconds at a time while the first region is built behind it; on a real
+  machine that may be a hitch. Noted, not mended.
+
+**Found on the way** (a note put in the middle of a line had made the code after it part of the note)
+
+- **A fallen keeper's banner and its shards never came,** from build 56 to 77. "The Warden is beaten. The way up is
+  open." and what it spills are back.
+- **The Gardener's Seed did nothing** (healing for 7 embers and not 10), from build 69 to 77. It did nothing from 49
+  to 66 for the same reason.
+- **The Toll began a second rise with the first's leftovers** (where it had rung, whether it had slammed).
+- **The place's name in the corner never brightened** when he came into a new room.
+- A check now reads every line of the game for a statement inside a comment.
+
+- **To try:**
+  1. The Warden: is the hole in its stage shut while you fight? When it falls, is there a banner, and shards?
+  2. After it falls, walk about the Roots. Does the music come back once you leave its hall?
+  3. The Cloister: is the bell bearable now? Too quiet?
+  4. Any text box: does the portrait look right? Do the wider letters read better or worse than the narrow ones?
+  5. The pause screen and the Inventory: does everything fit on your screen?
+  6. Crouch with the spade, and crouch-walk.
+  7. The Cracked Bell: hit it once and stand back.
+- **Underneath:** `seal.js` (new: where a hall shuts, apart from the drawing of it). `HUD.begin` takes the window's
+  shape. `sfx.bell(volume)`. A creature's `spawn` hook is called whether or not it draws itself. `RULE.sat`.
+- **No change to the motor. Save: not moved.**
+- **Checked:** 431 automated checks. In the test browser: every HUD screen at 16:9, 16:10, 4:3 and a phone's
+  shape, with a count of any text running off the picture (none); a save taken through the Deep and home; each
+  wing's keeper beaten and the level entered again.
+- **Not checked:** not played by hand. The bell's new loudness and the letters' new width are judged by eye and by
+  measurement, not by ear or by a player.
+- **Cost:** nothing.
 
 ### Build 77: from the playtest: the edge grab, roomier shafts, plain words, the goal
 

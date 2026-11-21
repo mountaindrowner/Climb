@@ -70,8 +70,11 @@ export function spawnEnemies(scene, R){
         // its drawing replaces the stand-in only once every strip of it is in: it never blinks out while they come
         let tries = 0; const swap = () => { if (sp.in() || ++tries > 400){ e.sprite = sp; sp.g.visible = e.alive; e.stand.visible = false; if (d.tint) sp.g.traverse(o => { if (o.material && o.material.color) o.material.color.setHex(d.tint); }); } else setTimeout(swap, 60); }; swap(); } else tryArt(names.slice(1)); }).catch(() => tryArt(names.slice(1))); };
     // one that draws itself (`own`: a region's ai makes its picture) has no drawing to fetch, and no stand-in
-    if (d.own){ e.stand.visible = false; if (d.spawn) d.spawn(e, { scene, lit: litMat, RULE, T }); } else
+    if (d.own) e.stand.visible = false; else
     tryArt(d.variants ? [d.variants[(m.x * 7 + m.y * 3) % d.variants.length]] : ART[m.type] || [d.art]);
+    // how it comes in, if it says (a wing's keeper that was beaten is not there again). Until build 78 only those that
+    // draw themselves were asked: the Housekeeper and the Almanac, which have drawings, stood again every visit
+    if (d.spawn) d.spawn(e, { scene, lit: litMat, RULE, T });
     if (d.cling === 'floor'){ const gy = ground(x, y + 0.3); if (gy > -Infinity){ e.y = e.home.y = gy; } }
     if (e.d.perch) e.home.face = e.face;
     list.push(e);

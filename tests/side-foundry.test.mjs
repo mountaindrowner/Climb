@@ -61,6 +61,13 @@ test('the Cracked Bell never strikes first; a blow rings it and sets it swinging
   e.hp -= 1; d.onHit(e, 1, { face: 1 }); const b = turn(e, { x: 2.2, y: 0, h: 2.4 }, RULE, 3); assert.ok(b.ev.some(v => v.type === 'ring' && v.big), 'it rings'); assert.ok(b.hurts.some(h => h[1] === 'Rung'), 'and its swing strikes what is in it');
   turn(e, { x: 30, y: 0, h: 2.4 }, RULE, 14); assert.ok(Math.abs(e.th) < 0.02 && RULE.ring === 0, 'left alone, it comes to rest in silence');
 });
+test('the Cracked Bell, woken and left alone, does not just hang there: it swings at him of itself and rings', () => {
+  const RULE = { ring: 0, still: false }, e = mk('crackedbell', 0, { mk: { top: 44 } }), P = { x: 8, y: 0, h: 2.4 };
+  assert.equal(turn(e, P, RULE, 8).ev.filter(v => v.type === 'ring').length, 0, 'never woken, it hangs quiet');
+  e.woke = true; const a = turn(e, P, RULE, FO.BELL.rouse + 1.5); assert.ok(a.ev.some(v => v.type === 'ring' && v.big), 'woken, it rings again by itself'); assert.ok(Math.abs(e.om) > 0 || Math.abs(e.th) > 0.05, 'and swings');
+  const far = mk('crackedbell', 0, { mk: { top: 44 }, woke: true }); assert.equal(turn(far, { x: 60, y: 0, h: 2.4 }, { ring: 0, still: false }, FO.BELL.rouse + 3).ev.filter(v => v.type === 'ring').length, 0, 'not for one who has left its hall');
+  const st = mk('crackedbell', 0, { mk: { top: 44 }, woke: true }); assert.equal(turn(st, P, { ring: 0, still: true }, FO.BELL.rouse + 3).ev.filter(v => v.type === 'ring').length, 0, 'and not once it is stilled');
+});
 test('the Cracked Bell, from half its strength: one blow and it tolls again by itself; then it stops', () => {
   const RULE = { ring: 0, still: false }, e = mk('crackedbell', 0, { mk: { top: 44 } }), d = FO.enemies.crackedbell, P = { x: 30, y: 0, h: 2.4 };
   turn(e, P, RULE, 0.1); e.hp = d.hp / 2; d.onHit(e, 1, { face: 1 }); const a = turn(e, P, RULE, 12), rings = a.ev.filter(v => v.type === 'ring').length;

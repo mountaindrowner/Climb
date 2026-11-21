@@ -120,7 +120,7 @@ const USE = {
   crack: ['crack', 0.7], slam: ['slam', 0.9], roar: ['roar', 1], spit: ['spit', 0.6], drink: ['drink', 0.7], creak: ['creak', 0.6], rumble: ['rumble', 0.7],
   whoosh: ['roll', 0.45, 1.1, 0.1], roll: ['roll', 0.55], dash: ['dash', 0.7], snap: ['thorn', 0.7], bossDie: ['boss_die', 1], talk: ['talk', 0.35, 1, 0.12, 0.03], ui: ['ui', 0.5],
   crackbell: big => ['bell', big ? 0.9 : 0.5, big ? 0.71 : 1.42, 0.04],   // the Bell-Foundry's iron: the house's bell, off its note
-  thunder: ['thunder', 0.9, 1, 0.1, 0.3], glass: ['glass', 0.3, 1, 0.03, 0.5], gust: ['gust', 0.5, 1, 0.08, 0.8], zap: ['zap', 0.6, 1, 0.1], bell: ['bell', 0.9, 1, 0.01],
+  thunder: ['thunder', 0.9, 1, 0.1, 0.3], glass: ['glass', 0.3, 1, 0.03, 0.5], gust: ['gust', 0.5, 1, 0.08, 0.8], zap: ['zap', 0.6, 1, 0.1], bell: (vol = 0.45) => ['bell', vol, 1, 0.01],   // (was 0.9, every beat of the Cloister's bell: it drowned the music. main.js gives it by how near the door is)
 };
 // any name can be called: the recording if it is loaded, else the synthesised sound, else nothing
 export const sfx = new Proxy(SYNTH, { get: (o, k) => (...a) => {

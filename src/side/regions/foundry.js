@@ -162,7 +162,7 @@ const texes = T3 => TEX || (TEX = {
 const ringOut = (c, e, big) => { if (c.RULE.still) return; c.events.push({ type: 'ring', e, at: { x: e.x, y: e.y }, big: !!big }); };
 const tint = (e, hex) => { if (e.sprite && e.tintNow !== hex){ e.tintNow = hex; e.sprite.g.traverse(o => { if (o.material && o.material.color) o.material.color.setHex(hex); }); } };
 // the Cracked Bell, as it is: its size, how it swings, how long it rings
-export const BELL = { H: 3.4, R: 1.3, rim: 1.1, w0: 1.7, damp: [0.3, 1.1], max: [0.4, 0.55], push: [0.22, 0.08], hurtAt: 2.6, toll: 0.24, ring: [3.6, 4.6] };
+export const BELL = { H: 3.4, R: 1.3, rim: 1.1, w0: 1.7, damp: [0.3, 1.1], max: [0.4, 0.55], push: [0.22, 0.08], hurtAt: 2.6, toll: 0.24, ring: [3.6, 4.6], rouse: 5 };   // rouse: woken and then left alone this long, it swings at him of itself
 
 export const enemies = {
   // a tongue: the clapper of a broken bell, hung by its chain. Still, it rings if it is touched (his blade, or his body
@@ -248,6 +248,10 @@ export const ai = {
     if (Math.abs(e.th) > max){ e.th = Math.sign(e.th) * max; if (e.th * e.om > 0) e.om = 0; }
     // from half its strength: at the end of each wide swing it tolls again by itself
     const sg = Math.sign(e.om); if (two && sg && e.lastSign && sg !== e.lastSign && Math.abs(e.th) > B.toll && e.cool <= 0){ ringOut(c, e, true); e.cool = 0.4; } if (sg) e.lastSign = sg;
+    // woken, it does not go back to hanging there (build 78, from a playtest: "he's just sitting there"): left unstruck
+    // and quiet for a while with him in its hall, it swings toward him of itself, and rings
+    e.idleT = e.woke && !two && !ringing && !R.still && Math.abs(e.om) < 0.3 ? (e.idleT || 0) + dt : 0;
+    if (e.idleT > B.rouse && Math.abs(P.x - e.piv.x) < 24 && Math.abs(P.y - (e.piv.y - arm)) < 16){ e.idleT = 0; e.om = (Math.sign(P.x - e.piv.x) || 1) * B.w0 * B.max[0]; ringOut(c, e, true); e.cool = 0.4; }
     const cx = e.piv.x + arm * Math.sin(e.th), cy = e.piv.y - arm * Math.cos(e.th), speed = Math.abs(e.om) * arm; e.x = cx; e.y = cy - B.H / 4; e.st = Math.abs(e.om) > 0.02 || Math.abs(e.th) > 0.01 ? 'swing' : 'idle';
     if (P.x + 0.34 > cx - B.R && P.x - 0.34 < cx + B.R && P.y + P.h > cy - B.H / 2 && P.y < cy + B.H / 2){
       if (speed > B.hurtAt){ if (!c.isRollInv(P)) c.hurt(P, 1, cx, d.word); }
