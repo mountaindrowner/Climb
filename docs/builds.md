@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 80 | 21 Nov 2026 | `COMMIT80` | The Glimmer redrawn side-on (the "crabs at an angle") | no | yes (now) |
+| 80 | 21 Nov 2026 | `526af11` | The Glimmer redrawn side-on (the "crabs at an angle") | no | yes (now) |
 | 79 | 21 Nov 2026 | `6e00f76` | The slam that got him under deep water; things standing in walls and spikes | **yes** | yes (now) |
 | 78 | 21 Nov 2026 | `522a77c` | The broken list from the playtest; four old faults found on the way | no | yes (now) |
 | 77 | 20 Nov 2026 | `a2cae7a` | From the playtest: the edge grab, roomier shafts, plain words, the goal said | **yes** | yes (now) |
