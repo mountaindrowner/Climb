@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 81 | 21 Nov 2026 | `bbde82a` | The second playtest's broken things: the copy of him, the menu key, falls, the Great Shaft's water, and small numbers | no | yes (now) |
+| 82 | 21 Nov 2026 | `COMMIT82` | The Deep shut; no maps sold or given; the window for everything gained, and keys drawn as keys | no | yes (now) |
+| 81 | 21 Nov 2026 | `bbde82a` | The second playtest's broken things: the copy of him, the menu key, falls, the Great Shaft's water, and small numbers | no | replaced by 82 |
 | 80 | 21 Nov 2026 | `526af11` | The Glimmer redrawn side-on (the "crabs at an angle") | no | replaced by 81 |
 | 79 | 21 Nov 2026 | `6e00f76` | The slam that got him under deep water; things standing in walls and spikes | **yes** | yes (now) |
 | 78 | 21 Nov 2026 | `522a77c` | The broken list from the playtest; four old faults found on the way | no | yes (now) |
@@ -97,6 +98,60 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 82: the Deep shut, and the window
+
+*Your decisions of 21 Nov (roadmap, phase 0, 0.12 to 0.20), and the first of the three builds of the screens sheet
+(`docs/screens-sheet.md`): the window and the keys. You said the sheet's look was right and asked for it to be more
+of the game's own world, with the ribbon kept.*
+
+**For the player**
+
+- **The Deep is shut (0.12).** The hatch at the Roots' pithead is nailed down: boards, two iron straps, the guild's
+  seal. Stand on it and the game says so. It is one switch (`DEEP.shut` in `level.js`); opening it later is that
+  switch, or something he does. A save that is already down there can still walk up and out. Try a place still
+  goes anywhere.
+- **No map is sold, and Corwen gives none (0.16).** The map is only what he has walked. Ordric's shop has no map
+  in it. A chart bought or given before this build no longer shows rooms he has not been in, or what is left to
+  find. (The Star Compass relic still shows what is left to find: that is what the relic is.) Unknown rooms as
+  cloud come with the map's own build.
+- **One window for everything gained.** A slab of the mountain's stone, his red ribbon tied across its head with
+  the knot and its two tails, the thing's picture in a niche, its name, what it does, how to use it, and the key
+  that closes it. It is the same window for an ability, a weapon, a relic, and the "how it works" cards.
+- **Keys are drawn as keys.** A pale cap with its letter in ink and a darker foot; the mouse as a mouse with the
+  button lit. In the window's lines, in the prompts over things, in the hints of the opening, beside the weapon,
+  and in the list of keys on the pause screen. A key is not written as a word in a sentence in any of those now.
+- **Flavour is in italics,** dimmer, in a second typeface, last in the window. A relic's window now shows its lore
+  that way. (A plain serif stands in until you choose a face.)
+- **The flask is explained,** the first time he is hurt with a drink left and nothing near: what a drink heals,
+  its key, and what fills it.
+- **"The Annals" on the pause screen is "Lore book".** The word was not understood.
+
+**Not in this build**
+
+- The HUD and its ember meter, the menu and the inventory (the sheet's build B); the shop as Ordric's sheet of
+  paper, and the map that uncovers (build C). The shop and the inventory still use the old card, with the new keys.
+- **Decided but not built:** abilities from minibosses and weapons from keepers (0.13), the hammer and more weapons
+  (0.14), three to five deaths a region (0.17), people who hint (0.18), wider regions (0.19). Each wants its sheet.
+
+- **Underneath:** `level.js` (`DEEP`, the pass marked `shut` and its hole filled), `main.js` (the hatch and its
+  line; `drawWindow`, `flavour`, `wrapRich`; keys in brackets from `keyed`; the flask's card; no chart in the shop or
+  from Corwen, and none read by the map), `hud.js` (`cap`, `capW`, `rich`, `richW`; the hints' band), `teach.js`
+  (`CARDS.flask`).
+- **Save: not moved.** `G.charts` is kept in the save and no longer read.
+- **Checked:** 458 checks pass (the whole suite once, with one failing: the shut hatch's marker was left inside rock; that mended and its file run again). In the test browser: the window for an ability, a relic and a card; the pause
+  screen's keys; the hatch and its line.
+- **Not checked:** not played by a person. Whether the window reads as "of the game" is yours to say: it is the
+  thing I can least judge. The flask's window opens in play at a moment I chose (hurt, a drink left, nothing within
+  nine metres); it may still feel like an interruption.
+
+**To try**
+
+1. Take the Warden's gift, or find a relic. Is the window the right look now? What would make it more the game's?
+2. Do the keys read as keys? Look at the pause screen's list, and at the prompt over Ordric.
+3. Read a relic's italic line. Is that the face, or do you want something older-looking?
+4. Walk onto the hatch at the pithead.
+5. Open the map after walking a few rooms: only those rooms should be there.
 
 ### Build 81: the second playtest's broken things
 

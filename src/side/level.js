@@ -422,6 +422,8 @@ const REGIONS = [
 export const LEVELS = REGIONS.map(r => ({ name: r.name, theme: r.theme, sub: r.sub || '', card: r.card || '', epithet: r.epithet || '' }));
 export const REGION_DATA = REGIONS;
 // the climb: the regions one above another (the Deep is off it); its top is the summit
+export const DEEP = { shut: true };   // is the Deep shut (decision 0.12)? One switch: opening it is this, set false (or, later, something he does)
+const SOLID_ROCK = 1;
 export const CLIMB_TOP = REGIONS.reduce((t, R, n) => R.deep ? t : n, 0);   // a region's own look, creatures and music, where its file has them (themeDef, deco, enemies, ai, songs)
 const QUIET = new Set(REGIONS.flatMap(r => r.quiet || []));   // a boss's stage stays flat (its blows run along it)
 
@@ -504,6 +506,10 @@ function core(n){
   // on a stand up from the floor under it (mount 'stand', base: the floor's row). One with neither is moved to the
   // nearest wall at its height, or stood on the floor below; one with nothing near is taken away
   mountTorches(tiles, W, H, marks);
+  // the Deep is shut (decision 0.12, 21 Nov 2026: he was there early in both playtests, and felt he should not be). A
+  // way down into it from the climb is stopped with rock, and its mark says so (main.js draws the hatch nailed down and
+  // does not take him through). The ways up out of it are left, for a save that is already down there
+  if (DEEP.shut && !R.deep) for (const m of marks) if (m.type === 'pass' && REGIONS[m.to] && REGIONS[m.to].deep){ m.shut = true; for (let y = m.y; y < m.y + 2; y++) for (let x = m.x; x < m.x + (m.w || 2); x++) tiles[y * W + x] = SOLID_ROCK; m.y += 2; m.h = 1; }   // (its mark is moved up onto the floor that is there now: no marker is left inside rock)
   return { index: n, name: R.name, theme: R.theme, sky: !!R.sky, deep: !!R.deep, W, H, tiles, marks, rooms, raw };
 }
 // every torch without a mount yet: put on a wall beside it or a stand under it (see core)

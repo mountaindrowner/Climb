@@ -2,7 +2,14 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The second playtest's broken things (latest; build 81).** `docs/builds.md` has each one.
+**The Deep shut, and the window (latest; build 82).**
+- **The Deep is shut** until it is opened later: its hatch at the pithead is nailed down.
+- **No map is sold or given.** The map is what he has walked.
+- **One window for everything gained,** in stone with his ribbon across it; **keys drawn as keys** in it, in prompts, in hints and on the pause screen; flavour in italics.
+- **The flask is explained** the first time it matters. "The Annals" in the menu is "Lore book".
+- 458 checks. No save is moved.
+
+**The second playtest's broken things (build 81).** `docs/builds.md` has each one.
 - **The copy of him** left standing at a way into the Deep is gone: his picture was kept across a join and never let go.
 - **Tab is the menu key** (P and Escape still work), and in a screen within a screen it goes back one.
 - **The second jump breaks a fall.** No damage for what he fell before it.

@@ -49,13 +49,26 @@ export function makeHud(hud){
     for (let k = 0; k < per; k++){ const tx = 16 + k * 4; px(C.ink, tx, 17, 3, 3); px(k < threads ? C.red1 : C.deep, tx, 17, 2, 2); }
   };
   // a key, drawn as a key: its name in a bone frame (x, y its top left); gives its width
-  H.cap = (x, y, label, col = C.cream) => { const w = width(label) + 4; px(C.bone, x, y, w, 9); px(C.ink, x + 1, y + 1, w - 2, 7); text(g, label, x + 2, y + 1, col, 1, 'left', null); return w; };
+  // (build 82: a pale cap with its letter in ink and a darker foot, so that it reads as a key to press and not as a
+  // word in a box; a mouse button is a mouse with that button lit. Asked for in both playtests: "R to switch does not
+  // stand out to me as a button")
+  const MOUSE = { 'CLICK': 0, 'RIGHT CLICK': 1, 'WHEEL': 2 };
+  H.capW = label => label in MOUSE ? 9 : width(label) + 4;
+  H.cap = (x, y, label) => { const mb = MOUSE[label];
+    if (mb != null){ px(C.ink, x, y, 9, 9); px(C.pale, x + 1, y, 7, 8); px(C.mid, x + 1, y + 8, 7, 1); px(C.ink, x + 1, y + 4, 7, 1); px(C.ink, x + 4, y, 1, 4); if (mb === 2) px(C.red1, x + 4, y + 1, 1, 2); else px(C.red1, mb === 0 ? x + 1 : x + 5, y, 3, 4); return 9; }
+    const w = width(label) + 4; px(C.pale, x, y, w, 8); px(C.white, x + 1, y, w - 2, 1); px(C.mid, x, y + 8, w, 1); px(C.ink, x, y, 1, 1); px(C.ink, x + w - 1, y, 1, 1); text(g, label, x + 2, y + 1, C.ink, 1, 'left', null); return w; };
+  // small print with keys in it: "[E] USES A POWER" draws the E as a key. x, y: where the words' top is (a key stands
+  // two pixels over that). richW: how wide it will be
+  const parts = s => String(s).split(/(\[[^\]]+\])/).filter(Boolean);
+  H.richW = s => parts(s).reduce((n, p) => n + (p[0] === '[' ? H.capW(p.slice(1, -1)) + 1 : width(p, 1, true) + 1), 0);
+  H.rich = (s, x, y, col = C.pale, align = 'left') => { const w = H.richW(s); let cx = Math.round(align === 'center' ? x - w / 2 : align === 'right' ? x - w : x);
+    for (const p of parts(s)){ if (p[0] === '[') cx += H.cap(cx, y - 2, p.slice(1, -1)) + 1; else { text(g, p, cx, y, col, 1, 'left', false, true); cx += width(p, 1, true) + 1; } } return w; };
   // over something he can use: the key, and what it does
-  H.prompt = (sx, sy, str, t, key) => { const kw = key ? width(key) + 4 + 4 : 0, w = kw + width(str) + 6, x = Math.round(sx - w / 2), y = Math.round(sy + Math.sin(t * 3) * 1.5);
+  H.prompt = (sx, sy, str, t, key) => { const kw = key ? H.capW(key) + 4 : 0, w = kw + width(str) + 6, x = Math.round(sx - w / 2), y = Math.round(sy + Math.sin(t * 3) * 1.5);
     px(C.ink, x, y, w, 13); px(C.bone, x, y, w, 1); px(C.bone, x, y + 12, w, 1); if (key) H.cap(x + 3, y + 2, key); text(g, str, x + 3 + kw, y + 3, C.cream, 1, 'left', null); px(C.ink, sx - 1, y + 13, 3, 1); px(C.ink, sx, y + 14, 1, 1); };
   // a hint (teach.js): keys and words on a dark plate, centred on sx; parts [[key, word]], a word '+' joins two keys
   H.lesson = (parts, sx, y, a, t) => { if (a <= 0) return; const gap = 10;
-    const wOf = ([k, w]) => (k ? width(k) + 4 + (w === '+' ? 2 : 4) : 0) + width(w), tw = parts.reduce((n, p, i) => n + wOf(p) + (i && parts[i - 1][1] !== '+' ? gap : 2), 0);
+    const wOf = ([k, w]) => (k ? H.capW(k) + (w === '+' ? 2 : 4) : 0) + width(w), tw = parts.reduce((n, p, i) => n + wOf(p) + (i && parts[i - 1][1] !== '+' ? gap : 2), 0);
     let x = Math.round(sx - tw / 2) ; g.globalAlpha = a * 0.7; px(C.ink, x - 4, y - 2, tw + 8, 13); g.globalAlpha = a; px(C.bone, x - 4, y - 2, tw + 8, 1);
     parts.forEach(([k, w], i) => { if (i) x += parts[i - 1][1] !== '+' ? gap : 2; if (k){ x += H.cap(x, y, k) + (w === '+' ? 2 : 4); } text(g, w, x, y + 1, w === '+' ? C.pale : C.cream, 1, 'left', null); x += width(w); });
     g.globalAlpha = 1; };
@@ -132,8 +145,8 @@ export function makeHud(hud){
   H.tell = (sx, sy, col = C.red1) => { for (let y = -5; y <= 5; y++) for (let x = -5; x <= 5; x++) if (Math.hypot(x, y) < 5.2) px(Math.hypot(x, y) > 4 ? col : C.ink, sx + x, sy + y); px(col, sx, sy - 3, 1, 4); px(col, sx, sy + 2, 1, 1); };   // red: it is about to strike; yellow: it has seen him
   // (a line too long for the picture is broken at one of its dots: build 78)
   H.hint = (lines, alpha) => { if (alpha <= 0) return; const out = [];
-    for (const l of lines){ let cur = ''; for (const part of String(l).split(' · ')){ const t = cur ? cur + ' · ' + part : part; if (cur && width(t, 1, true) > H.W - 8){ out.push(cur); cur = part; } else cur = t; } if (cur) out.push(cur); }
-    g.globalAlpha = alpha; out.forEach((l, i) => fine(g, l, H.W / 2, 180 - 8 - (out.length - 1 - i) * 7, C.pale, 'center')); g.globalAlpha = 1; };
+    for (const l of lines){ let cur = ''; for (const part of String(l).split(' · ')){ const t = cur ? cur + ' · ' + part : part; if (cur && H.richW(t) > H.W - 8){ out.push(cur); cur = part; } else cur = t; } if (cur) out.push(cur); }
+    g.globalAlpha = alpha * 0.6; px(C.ink, 0, 180 - 5 - out.length * 11, H.W, out.length * 11 + 5); g.globalAlpha = alpha; out.forEach((l, i) => H.rich(l, H.W / 2, 180 - 10 - (out.length - 1 - i) * 11, C.pale, 'center')); g.globalAlpha = 1; };
   // the edges of the picture closing in (a keeper's entrance): bands of its colour (ink; the Wyrm's, frost), thickest at the edge
   H.vignette = (a, col = C.ink) => { if (a <= 0) return; for (let k = 0; k < 12; k++){ g.globalAlpha = Math.min(1, a) * 0.5 * (1 - k / 12); const w = 4; px(col, k * w, 0, w, 180); px(col, H.W - (k + 1) * w, 0, w, 180); px(col, 0, k * 3, H.W, 3); px(col, 0, 180 - (k + 1) * 3, H.W, 3); } g.globalAlpha = 1; };
   // something huge passing over (the Wyrm, before it comes): a shadow across the top of the picture, f 0 to 1

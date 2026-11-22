@@ -54,6 +54,22 @@ per keeper, and **everything explained** to the player, plainly, the first time 
 | 0.10 | Art budget | **Spend what there is, keeping $0.20 back.** Anything that has to wait goes on the standing list (`docs/pixellab-wishlist.md`) for when the generations refill |
 | 0.11 | Difficulty | **Like Hollow Knight:** a few tries per keeper at Climber |
 
+**Decided 21 Nov 2026, after the second playtest** (`docs/playtest-2026-11-21.md`):
+
+| # | Question | Decided |
+|---|---|---|
+| 0.12 | The Deep | **Shut, for now.** It is opened later, at a point still to be chosen. (You were there early in both playtests and felt you should not be) |
+| 0.13 | What gives what | **Abilities from minibosses, weapons from keepers,** fitted to what is already built |
+| 0.14 | The heavy weapon | **A hammer (a sledge),** in place of the spade. **And more weapons** than two |
+| 0.15 | A fall | **Fall damage stays; the second jump resets it** (build 81) |
+| 0.16 | The map | **Only what he has walked.** No maps sold, and Corwen does not give one. Unknown rooms as cloud |
+| 0.17 | How hard | **Three to five deaths a region,** at least. Today it is none |
+| 0.18 | What people say | **Hints of what is to come, not how it works.** The windows teach the mechanics; the people point and suggest |
+| 0.19 | The size of a region | **Wider.** Each floor a far left, a far right and the main way between, so that he stays in a place for a while and it is a challenge to cross |
+| 0.20 | The screens | **The look of the sheet is right** (`docs/screens-sheet.md`), **made more of the game's world:** the ribbon kept, better pixel work, each screen themed to who or what it belongs to. "Annals" is not understood: the menu says something plainer |
+
+Still open: whether up on the keyboard stops being jump, so that up can look and strike upward (asked, not answered).
+
 **One question left, before phase 5:** if only the spade breaks stone, he must have it before the Ossuary's cracked
 wall, but the Sexton and his spade are inside the Ossuary. The Warden's gift today ("the Warden's weight") is exactly
 that his plunge breaks stone. The natural answer is that **what coalesces from the Warden is the heavy weapon**, and

@@ -109,6 +109,7 @@ export const INTRO = {
 
 // ---- the cards for the systems: when each first matters. `how` lines have the keys filled in ({action})
 export const CARDS = {
+  flask: { head: 'HOW IT WORKS', title: 'Your flask', icon: 'flask', does: 'A drink heals 2 hearts.', how: ['{flask} drinks one.', 'A checkpoint pool or a spring fills it again.'] },
   knots: { head: 'HOW IT WORKS', title: 'Relics', icon: 'knot', does: 'A relic only works while it is equipped.', how: ['You have a few relic slots: the knots in your scarf.', 'Rest at a pool to choose which relics you equip.'] },
   embers: { head: 'HOW IT WORKS', title: 'Embers', icon: 'embers', does: 'Every hit you land gives you one ember.', how: ['With 10 embers, {art} uses a power.'] },
   map: { head: 'HOW IT WORKS', title: 'The map', icon: 'map', does: 'The map shows every room you have entered.', how: ['Large blue mark: a checkpoint pool. Small blue mark: a spring that heals you.'] },

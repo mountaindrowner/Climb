@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 81, date: '21 NOV 2026', phase: 17, phases: 22, last: 'BUGS FROM THE PLAYTEST' };
+const VERSION = { build: 82, date: '21 NOV 2026', phase: 17, phases: 22, last: 'THE WINDOW, AND KEYS AS KEYS' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -93,7 +93,7 @@ function learn(){
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
 const GLITTER = { lv: null, at: [] };   // the Vein: where its crystals are (they light the dark round them)
 const CALMS = { wait: 2.5, open: 4, near: 4.5, ease: 0.5 }, EYE = { door: null, p: 0, held: null };   // the Eye of the Storm (regions/eye.js CALMS says the same): the door of cloud he waits at, and how long he has waited
-const WAY = { was: false, said: new Map(), fall: [] };   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
+const WAY = { was: false, said: new Map(), fall: [] }; let SHUTSAID = false;   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
 // `walked`: he has walked in from the next region (cross): he and his scarf are as they were
 function setup(walked = false){
   RULE.upset = 0; RULE.unkept = !!(G.unkept && G.unkept[LEVEL.index]);   // the Keepers' Houses: everything in its place; and whether their keeper is broken (its own switch: the Gardens have two wing keepers, and the Lock's is `still`)
@@ -110,6 +110,11 @@ function setup(walked = false){
   PROPS.toll = (shut, doors) => { const d = Math.min(...doors.map(B => Math.hypot(B.x - P.x, B.y - P.y))); if (d < 26){ sfx.bell(0.14 + 0.32 * (1 - d / 26) ** 2); if (d < 12) FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.08); } };   // the bell the doors turn on, heard when he is near one
   for (const id of G.broke[LEVEL.index] || []) PROPS.breakId(id);   // the rock he broke here before stays broken
   ITEMS = makeItems(R.scene, R, LEVEL.index); learn(); swapButton();
+  SHUTSAID = false; for (const m of LEVEL.marks) if (m.type === 'pass' && m.shut){ const w = (m.w || 2) * 8 + 8, c = document.createElement('canvas'); c.width = w; c.height = 6; const g = c.getContext('2d'), px = (col, x, y, ww, hh) => { g.fillStyle = col; g.fillRect(x, y, ww, hh); };
+    px('#181425', 0, 1, w, 5); for (let x = 1; x < w - 1; x += 8){ px('#5a3a34', x, 2, 7, 3); px('#733e39', x, 2, 7, 1); px('#3e2731', x + 6, 2, 1, 3); }   // the boards
+    for (const x of [6, w - 10]){ px('#181425', x - 1, 0, 6, 6); px('#5a6988', x, 1, 4, 4); px('#8b9bb4', x, 1, 4, 1); px('#181425', x + 1, 3, 1, 1); }   // the straps, a nail in each
+    { const x = (w >> 1) - 3; px('#181425', x - 1, 0, 8, 6); px('#a22633', x, 1, 6, 4); px('#e43b44', x + 1, 1, 4, 1); px('#feae34', x + 2, 2, 2, 2); }   // the seal
+    const tx = new THREE.CanvasTexture(c); tx.magFilter = tx.minFilter = THREE.NearestFilter; const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w / 16, 6 / 16), new THREE.MeshBasicMaterial({ map: tx, transparent: true, color: 0xb8b8c8 })); mesh.position.set((m.x + (m.w || 2) / 2) * T, m.y * T + 2 / 16, 0.02); R.scene.add(mesh); }
   fx = spawnFx(R.scene); E = spawnEnemies(R.scene, R); if (!walked || !SCF) SCF = makeScarf(R.scene); FLIGHT = null;
   BOSS = G.beat[LEVEL.index] || G.top > LEVEL.index ? null : (KEEPERS[LEVEL.theme] || (() => null))(R.scene, R);   // each region's keeper; one that has fallen stays fallen (he can walk back down through its hall)
   ENT = makeEntrance(R.scene, R, { fx: () => fx, sfx, shake: v => { FEEL_FX.shake = Math.max(FEEL_FX.shake, v); }, flash: v => { FLASH = Math.max(FLASH, Math.min(0.42, v)); }, buzz: (a, b, ms) => buzz(a, b, ms), slow: v => { SLOW = Math.max(SLOW, v); } });
@@ -127,7 +132,7 @@ function setup(walked = false){
   const c = document.createElement('canvas'); c.width = LEVEL.W; c.height = LEVEL.H; const g = c.getContext('2d'), img = g.createImageData(LEVEL.W, LEVEL.H);
   const COL = { 0: [46, 92, 128], 21: [46, 92, 128], 22: [46, 92, 128], 2: [196, 150, 92], 3: [255, 92, 132], 5: [120, 220, 240], 6: [120, 220, 240] };
   for (let j = 0; j < LEVEL.H; j++) for (let i = 0; i < LEVEL.W; i++){ const k = COL[LEVEL.tiles[j * LEVEL.W + i]]; if (k) img.data.set([...k, 255], ((LEVEL.H - 1 - j) * LEVEL.W + i) * 4); }
-  g.putImageData(img, 0, 0); MAP = { c, seen: new Set(G.charts.includes(LEVEL.index) ? LEVEL.rooms : ((G.rooms || {})[LEVEL.index] || []).map(k => LEVEL.rooms[k]).filter(Boolean)) };   // the rooms he has been in before are still on the map (he can walk back into a region)
+  g.putImageData(img, 0, 0); MAP = { c, seen: new Set(((G.rooms || {})[LEVEL.index] || []).map(k => LEVEL.rooms[k]).filter(Boolean)) };   // the rooms he has been in before are still on the map (he can walk back into a region)
 }
 setup();
 // into region n: the world is made again, he stands at its start with the hearts and flask he had
@@ -201,7 +206,10 @@ function wingStep(dt){
   // the dark and gives its own light is seen by it
   // the Deep is off the climb (build 77, from a playtest: a player went down it early and did not know if he was meant
   // to). At a way down into it from the climb, and the first time he is in it, the game says so
-  if (!G.deepWarn && P.grounded && !REGION_DATA[LEVEL.index].deep) for (const m of LEVEL.marks) if (m.type === 'pass' && REGION_DATA[m.to] && REGION_DATA[m.to].deep && Math.abs((m.x + (m.w || 2) / 2) * T - P.x) < 9 && P.y - m.y * T < 6 && P.y - m.y * T > -1 && !(BANNER && BANNER.t > 0)){ G.deepWarn = 1; store(); banner('A way down', 'This goes to the Deep, under the mountain. It is optional, and harder. The climb is the other way: up.', 8); }
+  if (!(G.taught || {}).card_flask && P.hp < P.maxHp && P.hp > 0 && P.flask > 0 && P.grounded && !(BOSS && BOSS.active() && BOSS.st !== 'dead') && !E.list.some(e => e.alive && !e.d.harmless && Math.hypot(e.x - P.x, e.y - P.y) < 9)) firstCard('flask');   // the flask, the first time he is hurt, has a drink, and nothing is near
+  // the Deep is shut (decision 0.12): standing on its hatch, he is told so, once a visit
+  if (!SHUTSAID && P.grounded) for (const m of LEVEL.marks) if (m.type === 'pass' && m.shut && Math.abs((m.x + (m.w || 2) / 2) * T - P.x) < (m.w || 2) * T / 2 + 0.3 && Math.abs(P.y - m.y * T) < 0.8 && !(BANNER && BANNER.t > 0)){ SHUTSAID = true; sfx.block(); banner('The way down is shut', 'The guild nailed this hatch down. It does not open yet.', 5); }
+  if (!G.deepWarn && P.grounded && !REGION_DATA[LEVEL.index].deep) for (const m of LEVEL.marks) if (m.type === 'pass' && !m.shut && REGION_DATA[m.to] && REGION_DATA[m.to].deep && Math.abs((m.x + (m.w || 2) / 2) * T - P.x) < 9 && P.y - m.y * T < 6 && P.y - m.y * T > -1 && !(BANNER && BANNER.t > 0)){ G.deepWarn = 1; store(); banner('A way down', 'This goes to the Deep, under the mountain. It is optional, and harder. The climb is the other way: up.', 8); }
   if (!G.deepTold && REGION_DATA[LEVEL.index].deep && P.grounded && !(BANNER && BANNER.t > 0)){ G.deepTold = 1; store(); banner('The Deep', 'You have left the climb. This place is optional. To go on with the climb, go back up.', 8); }
   // deep water, the first time: what it does with him (without the Wyrm's wind; and with it)
   if (P.swim && P.depth > 1.3){ if (!CAN.glide && !G.floatTold){ G.floatTold = 1; store(); banner('Deep water', 'You float, but you cannot dive yet. You need the Wyrm\'s wind.', 5.5); } else if (CAN.glide && !G.swimTold){ G.swimTold = 1; store(); banner('Swimming', 'Jump: swim up. Down: dive. Let go to float in place.', 7); } }
@@ -430,7 +438,7 @@ function mapDots(){
   const dots = SHRINES.filter(S => MAP.seen.has(S.room)).map(S => ({ x: S.x, y: S.y + 0.5, c: '#0099db', r: S.raise ? 1 : 0 }));   // the water: the raising pool larger
   if (BOSS && MAP.seen.has(BOSS.room)) dots.push({ x: BOSS.cx, y: BOSS.stageY + 1, c: BOSS.st === 'dead' ? '#5a6988' : '#e43b44', r: 1 });
   for (const N of ITEMS.people) if (MAP.seen.has(roomAt(N.x, N.y + 0.5))) dots.push({ x: N.x, y: N.y + 0.5, c: { lamplighter: '#feae34', wren: '#63c74d', scribe: '#2ce8f5' }[N.who] });   // the stations he has found
-  if (has('starcompass') || G.charts.includes(LEVEL.index)) for (const it of ITEMS.left().all) dots.push({ x: it.x, y: it.y + 0.5, c: '#f6757a', find: true });   // what is still to be found
+  if (has('starcompass')) for (const it of ITEMS.left().all) dots.push({ x: it.x, y: it.y + 0.5, c: '#f6757a', find: true });   // what is still to be found
   // Corwen's map (once he has been met): the ways he could not take, where he came to them. Grey while he lacks what
   // opens them; gold and beating once he has it, until he has been through
   if (corwenMet()) for (const C of PROPS.cracks){ if (C.gone || !(G.blocked[LEVEL.index] || []).includes(C.id)) continue; dots.push({ x: C.x, y: C.y, c: CAN.breaker ? '#fee761' : '#8b9bb4', r: 1, blink: CAN.breaker, way: CAN.breaker ? 'open' : 'shut' }); }
@@ -495,7 +503,7 @@ const WARES = () => [
   { icon: 'blade', name: G.edge ? 'Sharpen the sword again' : 'Sharpen the sword', does: G.edge ? 'Every sword hit does +1 damage.' : 'The last hit of each sword combo does +1 damage.', own: G.edge ? 'SHARPENED ONCE' : 'NOT SHARPENED YET', cost: [180, 380][G.edge], buy(){ G.edge++; } },
   { icon: 'heart', name: 'A red strand', does: 'A piece of a heart. Three strands make one new heart.', own: `${G.threads % THREADS_A_HEART} OF ${THREADS_A_HEART} STRANDS`, cost: G.boughtThread ? undefined : 150, buy(){ G.boughtThread = true; onEvent({ type: 'thread', at: { x: P.x, y: P.y + 1.2 } }); } },
   { icon: 'knot', name: 'Another relic slot', does: 'One more relic slot.', own: `${knots()} OF ${KNOTS.most} SLOTS`, cost: knots() < KNOTS.most ? KNOTS.cost[G.knots || 0] : undefined, buy(){ G.knots = (G.knots || 0) + 1; } },
-  { icon: 'map', name: 'A map of ' + LEVEL.name, does: 'Shows every room of this region on your map, and what is left to find.', own: '', cost: G.charts.includes(LEVEL.index) ? undefined : 40, buy(){ G.charts.push(LEVEL.index); for (const r of LEVEL.rooms) MAP.seen.add(r); } },
+  // (no map is sold, and Corwen gives none: decision 0.16, 21 Nov 2026. The map is what he has walked)
 ];
 let SHOP = [];
 function shop(){
@@ -593,8 +601,8 @@ function pause(on){
   PAUSE = on; SCREEN = on ? 'pause' : ''; if (!on){ menuHide(); return; } release();
   // (one large button and a row of small ones: six in a column ran down over the keys written at the foot of the screen)
   const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:min(94vw,640px)';
-  for (const b of [menuButton('Map', mapScreen, true), menuButton('Inventory', carryScreen, true), menuButton('The Annals (lore)', () => annals(LEVEL.index), true), menuButton('Options', () => options(() => pause(true)), true), menuButton('Quit to title', () => { PAUSE = false; SCREEN = ''; title(); }, true)]) row.appendChild(b);
-  menuShow([menuButton('Resume', () => pause(false)), row], false, () => pause(false));
+  for (const b of [menuButton('Map', mapScreen, true), menuButton('Inventory', carryScreen, true), menuButton('Lore book', () => annals(LEVEL.index), true), menuButton('Options', () => options(() => pause(true)), true), menuButton('Quit to title', () => { PAUSE = false; SCREEN = ''; title(); }, true)]) row.appendChild(b);
+  menuShow([menuButton('Resume', () => pause(false)), row], false, () => pause(false)); MENU.style.top = '40%';   // (higher: the keys at the foot are drawn as keys now, and take five taller lines)
 }
 addEventListener('keydown', e => {
   if (TALK.on || NOTE){ if (['Enter', 'Space', 'KeyE', 'KeyS', 'ArrowDown', 'KeyJ'].includes(e.code)) press(); return; }
@@ -835,7 +843,7 @@ function frame(ts){
   for (const e of P.events) onEvent(e);
   // a passage: walked into, he goes through it
   PASS.cool = Math.max(0, PASS.cool - dt);
-  if (!GO.st && PASS.cool <= 0 && P.hp > 0 && !FLIGHT) for (const m of LEVEL.marks) if (m.type === 'pass'){ const x0 = m.x * T, y0 = m.y * T, x1 = x0 + (m.w || 2) * T, y1 = y0 + (m.h || 2) * T, cy = P.y + 0.8;
+  if (!GO.st && PASS.cool <= 0 && P.hp > 0 && !FLIGHT) for (const m of LEVEL.marks) if (m.type === 'pass' && !m.shut){ const x0 = m.x * T, y0 = m.y * T, x1 = x0 + (m.w || 2) * T, y1 = y0 + (m.h || 2) * T, cy = P.y + 0.8;
     if (P.x >= x0 && P.x <= x1 && cy >= y0 && cy <= y1){ PASS.cool = 9; go(m.to, m.at); break; } }
   P.events.length = 0;
   for (const e of evs) onEvent(e);
@@ -951,7 +959,7 @@ function frame(ts){
 const HINTED = {}, LATER = []; let PURSE = 0, USE = null, TRAILT = 0;
 // ---- teaching (teach.js): hints when he struggles, and cards. A card is a page in the middle: a picture, a name, what
 // it does (plainly, large), how (with his keys), and whose it was (small); they wait their turn (CARDQ)
-const TEACHER = makeTeach(G, OPT, store), kname = a => keyName(a, DEVICE.kind, SET), keyed = str => fill(str, kname).replace(/^./, c => c.toUpperCase());
+const TEACHER = makeTeach(G, OPT, store), kname = a => keyName(a, DEVICE.kind, SET), keyed = str => fill(str, a => '[' + kname(a) + ']').replace(/^./, c => c.toUpperCase());   // a key's name goes in brackets: the HUD draws it as a key (hud.js rich)
 const CARDQ = [], card = c => { CARDQ.push({ t: 0, ...c, how: (c.how || []).map(keyed) }); };
 // once each: a system's card, the first time it matters
 const firstCard = id => { const T2 = (G.taught = G.taught || {}); if (T2['card_' + id]) return; T2['card_' + id] = 1; store(); card(CARDS[id]); };
@@ -959,14 +967,43 @@ const firstCard = id => { const T2 = (G.taught = G.taught || {}); if (T2['card_'
 const embersKnown = () => CAN.breaker || CAN.dash || CAN.glide;
 // a card: the picture in a frame, what kind of thing it is, its name; what it does, large; how, with his keys; whose it
 // was, small and quiet; a last word (the knot). `modal`: over the game, darkened, waiting for a press; else on a page
+// words set in a true italic, over the picture at the screen's own sharpness: flavour (docs/screens-sheet.md, rule 1:
+// the pixel letters are five pixels tall and cannot slant and stay readable). x, y, w in the HUD's own pixels
+const FLAV = document.createElement('div'); FLAV.style.cssText = 'position:absolute;display:none;pointer-events:none;z-index:6;font-style:italic;font-family:Georgia,"Times New Roman",serif;color:#b9a98a;text-align:center;line-height:1.25;text-shadow:0 1px 0 #181425'; (document.getElementById('stage') || document.body).appendChild(FLAV);
+const flavour = (str, cx, y, w, W) => { if (!str){ FLAV.style.display = 'none'; return; } const st = FLAV.parentNode, k = st.clientHeight / 180; if (FLAV.textContent !== str) FLAV.textContent = str; FLAV.style.display = 'block'; FLAV.style.left = (cx - w / 2) / W * 100 + '%'; FLAV.style.width = w / W * 100 + '%'; FLAV.style.top = y * k + 'px'; FLAV.style.fontSize = Math.max(11, 7.2 * k) + 'px'; };
+const wrapRich = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(/ (?![^\[]*\])/)){ const t = line ? line + ' ' + word : word; if (HUD.richW(t) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };
+// the window: one frame for everything gained (docs/screens-sheet.md, rule 3), in the game's own things. A slab of the
+// mountain's stone; his red ribbon tied across its head, saying what kind of thing this is; the thing's picture in a
+// niche; its name; what it does; how, each line with its key; a line of flavour; and the key that closes it
+function drawWindow(c, W){
+  HUD.dark(0.72); const px = HUD.px, cx = Math.round(W / 2), ww = 236, x = cx - ww / 2, tw = ww - 62;
+  const title = c.title.toUpperCase(), big = textWidth(title, 2) <= tw ? 2 : 1, does = wrapText(c.does, tw), hows = (c.how || []).flatMap(h => wrapRich(h.toUpperCase(), ww - 24)), lore = c.lore ? 2 : 0;
+  const headH = Math.max(40, 7 * big + 6 + does.length * 9), hh = 20 + headH + 8 + hows.length * 12 + (hows.length ? 4 : 0) + (lore ? 22 : 0) + (c.foot ? 10 : 0) + 16, y = Math.max(2, Math.round((180 - hh) / 2));
+  // the slab: a shadow under it, stone at its edge (lit from above), chipped corners
+  px('#0d0b12', x + 3, y + 4, ww, hh); px('#3a4466', x, y, ww, hh); px('#8b9bb4', x + 1, y, ww - 2, 1); px('#5a6988', x, y + 1, 1, hh - 2); px('#262b44', x + 1, y + hh - 1, ww - 2, 1); px('#181425', x + 2, y + 2, ww - 4, hh - 4);
+  for (const [a, b] of [[0, 0], [ww - 1, 0], [0, hh - 1], [ww - 1, hh - 1]]) px('#0d0b12', x + a, y + b, 1, 1); px('#181425', x + 1, y + 1, 2, 1); px('#181425', x + ww - 4, y + hh - 2, 3, 1); px('#262b44', x + 2, y + 2, ww - 4, 1);
+  // the ribbon: across the head, past both edges, its ends folded back; a knot near the left, its two tails hanging
+  const ry = y + 6; px('#68386c', x - 5, ry + 2, 5, 9); px('#68386c', x + ww, ry + 2, 5, 9); px('#181425', x - 5, ry + 11, 5, 1); px('#181425', x + ww, ry + 11, 5, 1);
+  px('#181425', x - 2, ry - 1, ww + 4, 13); px('#a22633', x - 1, ry, ww + 2, 11); px('#e43b44', x - 1, ry, ww + 2, 2); px('#f6757a', x - 1, ry, ww + 2, 1); px('#733e39', x - 1, ry + 9, ww + 2, 2);
+  { const kx = x + 12; px('#181425', kx + 1, ry + 11, 4, 12); px('#a22633', kx + 2, ry + 11, 2, 11); px('#181425', kx + 6, ry + 11, 4, 8); px('#a22633', kx + 7, ry + 11, 2, 7); px('#e43b44', kx + 2, ry + 11, 1, 10); px('#e43b44', kx + 7, ry + 11, 1, 6);
+    px('#181425', kx - 1, ry - 2, 13, 15); px('#be4a2f', kx, ry - 1, 11, 13); px('#e43b44', kx + 1, ry - 1, 9, 3); px('#f6757a', kx + 2, ry, 5, 1); px('#733e39', kx, ry + 9, 11, 3); px('#181425', kx + 5, ry + 3, 1, 5); }
+  HUD.fine((c.head || 'YOU GOT').toUpperCase(), x + 30, ry + 3, '#fff2d0', 'left', 0); if (c.from) HUD.fine(c.from.toUpperCase(), x + ww - 8, ry + 3, '#f6c9a8', 'right', 0);
+  // its picture, in a niche cut in the stone; its name and what it does beside it
+  let yy = y + 24; if (c.icon){ px('#0d0b12', x + 10, yy, 40, 40); px('#5a6988', x + 11, yy + 1, 38, 38); px('#ead4aa', x + 12, yy + 1, 36, 1); px('#262b44', x + 12, yy + 2, 36, 36); px('#181425', x + 12, yy + 2, 36, 2); drawIcon(px, c.icon, x + 14, yy + 5, 2); }
+  const tx = c.icon ? x + 58 : x + 12; HUD.text(title, tx, yy + 1, '#fee761', big, 'left'); let ty = yy + 7 * big + 6; for (const ln of does){ HUD.text(ln, tx, ty, '#fff2d0', 1, 'left'); ty += 9; }
+  yy += headH + 2; if (hows.length){ px('#3a4466', x + 10, yy, ww - 20, 1); yy += 6; for (const ln of hows){ HUD.rich(ln, x + 12, yy, '#c0cbdc'); yy += 12; } }
+  if (lore){ yy += 2; flavour(c.lore, cx, yy, ww - 28, W); yy += 20; } else flavour('');
+  if (c.foot){ HUD.fine(c.foot.toUpperCase(), x + 12, yy, '#8b9bb4', 'left', 0); yy += 10; }
+  if (c.t > 0.7){ const key = DEVICE.kind === 'touch' ? null : kname('jump'), lw = textWidth('OK', 1, true), kw = key ? HUD.capW(key) + 3 : 0; if (key) HUD.cap(x + ww - 12 - lw - kw, y + hh - 14, key); HUD.fine(key ? 'OK' : 'TAP', x + ww - 12 - (key ? lw : textWidth('TAP', 1, true)), y + hh - 12, Math.floor(time * 2) % 2 ? '#fff2d0' : '#8b9bb4', 'left', 0); }
+}
 function drawCard(c, W, modal, top = 8){
-  if (modal) HUD.dark(0.7);
+  if (modal) return drawWindow(c, W);
   const cx = Math.round(W / 2); let y = top;
   if (c.icon){ HUD.px('#181425', cx - 19, y, 38, 38); HUD.px('#ead4aa', cx - 18, y + 1, 36, 36); HUD.px('#262b44', cx - 17, y + 2, 34, 34); drawIcon(HUD.px, c.icon, cx - 16, y + 3, 2); y += 42; }
   if (c.head){ HUD.fine(c.head, cx, y, '#8b9bb4', 'center'); y += 8; }
   const big = textWidth(c.title.toUpperCase(), 2) <= W - 24 ? 2 : 1; HUD.text(c.title.toUpperCase(), cx, y, '#fee761', big, 'center'); y += 7 * big + 5; HUD.rule(cx, y, 60, '#ead4aa'); y += 6;
   for (const ln of wrapText(c.does, W - 40)){ HUD.text(ln, cx, y, '#fff2d0', 1, 'center'); y += 10; }
-  y += 2; for (const h of c.how || []){ y += 1; for (const ln of wrapFine(h.toUpperCase(), W - 24)){ HUD.fine(ln, cx, y, '#2ce8f5', 'center'); y += 7; } }   // (the small print: with square pixels the larger letters are wider, and a card has to fit over its buttons)
+  y += 2; for (const h of c.how || []){ y += 3; for (const ln of wrapRich(h.toUpperCase(), W - 24)){ HUD.rich(ln, cx, y, '#2ce8f5', 'center'); y += 11; } }   // (the small print: with square pixels the larger letters are wider, and a card has to fit over its buttons)
   if ((c.how || []).length) y += 2;
   if (c.lore){ y += 3; for (const ln of wrapText(c.lore.toUpperCase(), W - 30)){ HUD.fine(ln, cx, y, '#8b9bb4', 'center'); y += 7; } }
   if (c.foot){ y += 3; HUD.fine(c.foot.toUpperCase(), cx, y, '#c0cbdc', 'center'); y += 8; }
@@ -1076,8 +1113,6 @@ function talkTo(N){
   // a story beat he walked past (phase 8): the first time they speak here, they say what he missed of the last one
   if (n === 0 && (MEETINGS[LEVEL.index] || {})[N.who] === 'story') for (let q = LEVEL.index - 1; q >= 0; q--) if ((MEETINGS[q] || {})[N.who] === 'story'){
     const was = (SCRIPT[N.who] || [])[q]; if (!G.met[q + ':' + N.who] && was && was[0] !== INTRO[N.who]){ lines.unshift(was[0]); G.met[q + ':' + N.who] = 1; } break; }
-  // in a place of their own, a small reward: Corwen gives his chart of the region
-  if (N.extra && N.who === 'scribe' && !G.charts.includes(LEVEL.index)){ G.charts.push(LEVEL.index); for (const r of LEVEL.rooms) MAP.seen.add(r); lines.push('Take my map of this place. I drew it twice.'); }
   if (INTRO[N.who] && !Object.keys(G.met).some(m => m.endsWith(':' + N.who)) && !lines.includes(INTRO[N.who])) lines.unshift(INTRO[N.who]);   // the first meeting anywhere: who they are (teach.js)
   if (N.who === 'scribe'){ const L = ITEMS.left(), pl = (c, w) => `${c} ${w}${c === 1 ? '' : 's'}`; lines.push(L.threads + L.chests === 0 ? 'You have found everything in this region.' : `Still to find in this region: ${pl(L.threads, 'red strand')}, ${pl(L.chests, 'chest')}${L.relic ? ', and a relic behind a way that is still blocked' : ''}.`);
     if (G.lectern && !G.lecternSaid){ G.lecternSaid = 1; lines.push('You found the book they copy. Its first page is blank. No one has dared to write on it.'); } }
@@ -1258,7 +1293,7 @@ function onEvent(e){
       store(); break; }
     case 'relic': { const r = RELICS[e.id]; if (!r || owns(e.id)) break; G.relics.push(e.id); const tied = wear(e.id, true); learn(); store(); sfx.relic();   // tied into the scarf, if a knot is free
       const knot = tied ? 'Equipped.' : 'Your relic slots are full. Rest at a pool to choose which you equip.';
-      LATER.push({ t: 0.7, f: () => { card({ head: 'A RELIC', title: r.name, icon: e.id, does: r.line, foot: knot }); firstCard('knots'); } }); break; }
+      LATER.push({ t: 0.7, f: () => { card({ head: 'A RELIC', title: r.name, icon: e.id, does: r.line, foot: knot, lore: r.lore }); firstCard('knots'); } }); break; }
     case 'flask': if (P.flask > 0 && P.hp < P.maxHp){ P.flask--; P.hp = Math.min(P.maxHp, P.hp + TUNE.player.flaskHeal + (has('seedheart') ? 1 : 0)); sfx.drink(); fx.ring({ x: P.x, y: P.y + 0.8 }, 0x5ce1c6); }
       break;
     case 'art': art(e); break;
@@ -1267,8 +1302,8 @@ function onEvent(e){
 // the lines of help at the foot of the screen, for what he is playing with. A controller's are its own buttons, as bound
 const PADN = { xbox: ['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT'], ps: ['CROSS', 'CIRCLE', 'SQUARE', 'TRIANGLE', 'L1', 'R1', 'L2', 'R2'] };
 const padKey = a => { const i = (SET.pad[a] || [])[0], N = PADN[DEVICE.kind === 'ps' ? 'ps' : 'xbox']; return i == null ? '-' : N[i] || 'B' + i; };
-const HINT = { keys: ['A D MOVE · SPACE JUMP, AGAIN IN THE AIR · SHIFT ROLL', 'CLICK ATTACK · RIGHT CLICK OR K BLOCK · CLICK IN A ROLL: DASH ATTACK', 'S + CLICK: RISING ATTACK. IN THE AIR: SLAM · S + SPACE: DROP THROUGH A PLANK', 'S: TALK, OPEN · M MAP · TAB MENU · Q: DRINK YOUR FLASK', 'E: EMBER POWER, COSTS 10 (ALSO S + E, AND IN THE AIR)'], touch: ['TOUCH THE LEFT OF THE SCREEN AND DRAG TO MOVE', 'DRAG DOWN: CROUCH, TALK, OPEN · DOWN + A IN THE AIR: SLAM', 'EMBERS: A POWER, COSTS 10 (WITH DOWN, OR IN THE AIR) · FLASK: DRINK'],
-  get pad(){ const k = padKey; return [`STICK MOVE · ${k('jump')} JUMP, AGAIN IN THE AIR · ${k('roll')} ROLL · ${k('attack')} ATTACK · ${k('block')} BLOCK`, `DOWN + ${k('attack')}: RISING ATTACK · DOWN + ${k('attack')} IN THE AIR: SLAM · ${k('flask')} DRINK`, `DOWN: TALK, OPEN · DOWN + ${k('jump')}: DROP THROUGH A PLANK · SELECT: MAP · START: PAUSE`, `${k('art')}: EMBER POWER, COSTS 10 (WITH DOWN, OR IN THE AIR)`]; } };
+const HINT = { keys: ['[A] [D] MOVE · [SPACE] JUMP, AGAIN IN THE AIR · [SHIFT] ROLL', '[CLICK] ATTACK · [RIGHT CLICK] OR [K] BLOCK · [CLICK] IN A ROLL: DASH ATTACK', '[S] + [CLICK] RISING ATTACK. IN THE AIR: SLAM · [S] + [SPACE] DROP THROUGH A PLANK', '[S] TALK, OPEN · [M] MAP · [TAB] MENU · [Q] DRINK YOUR FLASK', '[E] EMBER POWER, COSTS 10 (ALSO [S] + [E], AND IN THE AIR)'], touch: ['TOUCH THE LEFT OF THE SCREEN AND DRAG TO MOVE', 'DRAG DOWN: CROUCH, TALK, OPEN · DOWN + A IN THE AIR: SLAM', 'EMBERS: A POWER, COSTS 10 (WITH DOWN, OR IN THE AIR) · FLASK: DRINK'],
+  get pad(){ const k = padKey; return [`STICK MOVE · [${k('jump')}] JUMP, AGAIN IN THE AIR · [${k('roll')}] ROLL · [${k('attack')}] ATTACK · [${k('block')}] BLOCK`, `DOWN + [${k('attack')}]: RISING ATTACK · DOWN + [${k('attack')}] IN THE AIR: SLAM · [${k('flask')}] DRINK`, `DOWN: TALK, OPEN · DOWN + [${k('jump')}]: DROP THROUGH A PLANK · SELECT: MAP · START: PAUSE`, `[${k('art')}]: EMBER POWER, COSTS 10 (WITH DOWN, OR IN THE AIR)`]; } };
 const EPITHET = LEVELS.map(l => l.epithet);
 function drawHud(dt){
   // the HUD's own picture is 180 tall, and as wide as that makes the window: its pixels are square. (Until build 78 it
@@ -1309,7 +1344,7 @@ function drawHud(dt){
   // over what he can use: the key for it
   if (USE && !PAUSE && !TALK.on && !NOTE){ v.set(USE.x, USE.y + (USE.type === 'npc' ? 2.6 : 1.5), 0).project(R.camera); HUD.prompt(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180), USE.type === 'npc' ? 'TALK' : USE.type === 'flame' ? (G.under ? 'THE WATER' : 'TIE KNOTS') : 'OPEN', time, kname('down')); }
   TALK.draw(HUD, dt, time);
-  if (NOTE) drawCard(NOTE, W, true);
+  if (NOTE) drawCard(NOTE, W, true); else flavour('');
   if (PAUSE && SCREEN === 'annals') drawAnnals(W);
   else if (PAUSE && SCREEN === 'map') drawMap();
   else if (PAUSE && SCREEN === 'shop') drawShop(W);
