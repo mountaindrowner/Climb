@@ -75,6 +75,10 @@ per keeper, and **everything explained** to the player, plainly, the first time 
 
 (The table above is continued by 0.21 to 0.23: answers given on 22 Nov.)
 
+**Where the gifts sheet stands (22 Nov, build 88):** step 1 built (86, the hammer; its drawings await a yes); step 2
+half built (87, the air dash from the Cracked Bell; the glide, the heart and the drink wait on what a keeper leaves
+until its weapon is made); step 3 built (88, harder); step 4 has its sheet (`docs/wyrm-sheet.md`).
+
 **One question left, before phase 5:** if only the spade breaks stone, he must have it before the Ossuary's cracked
 wall, but the Sexton and his spade are inside the Ossuary. The Warden's gift today ("the Warden's weight") is exactly
 that his plunge breaks stone. The natural answer is that **what coalesces from the Warden is the heavy weapon**, and

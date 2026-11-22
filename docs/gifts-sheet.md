@@ -12,6 +12,7 @@ across the way into the Spires. (The Spires' main way did not in fact need the d
 makes it so.) Still to move: the glide to the Seated, the heart and the drink to minibosses.
 **Step 3 is build 88:** one spring a region, prices up two thirds, two-heart blows, with the money measured
 (`docs/builds.md`). The numbers wait on your death counts.
+**Step 4's sheet is written:** `docs/wyrm-sheet.md`, for your word before the Wyrm is rebuilt.
 
 ## What you said
 
