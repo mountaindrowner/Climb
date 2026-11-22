@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 83 | 22 Nov 2026 | `COMMIT83` | The HUD (the ember bar, each part named once), the menu in tabs, the inventory as pictures | no | yes (now) |
+| 83 | 22 Nov 2026 | `53c787a` | The HUD (the ember bar, each part named once), the menu in tabs, the inventory as pictures | no | yes (now) |
 | 82 | 21 Nov 2026 | `bc8512a` | The Deep shut; no maps sold or given; the window for everything gained, and keys drawn as keys | no | replaced by 83 |
 | 81 | 21 Nov 2026 | `bbde82a` | The second playtest's broken things: the copy of him, the menu key, falls, the Great Shaft's water, and small numbers | no | replaced by 82 |
 | 80 | 21 Nov 2026 | `526af11` | The Glimmer redrawn side-on (the "crabs at an angle") | no | replaced by 81 |
