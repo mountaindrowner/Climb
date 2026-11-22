@@ -147,6 +147,7 @@ export const ICONS = {
   heart: ['..kkk...kkk', '.kssrk.kssrk', 'kssrrrkrrrrrk', 'ksrrrrrrrrrrk', 'krrrrrrrrrrRk', '.krrrrrrrrRk', '..krrrrrrRk', '...krrrrRk', '....krrRk', '.....kRk', '......k'],
   flask: ['.....kkk', '.....kpk', '.....kpk', '....kkpkk', '...kCCCCCk', '..kCwCCCCCk', '..kCCCCCCCk', '..kBBBBBBBk', '..kBBBBBBBk', '...kkkkkkk'],
   blade: ['..............kk', '.............kwk', '............kwpk', '...........kwpk', '..........kwpk', '.........kwpk', '........kwpk', '.......kwpk', '..kk..kwpk', '...kkkwpk', '....kykk', '...kWkk', '..kWk.kk', '.kWk', '.kk'],
+  hammer: ['', '.........kkkkkk', '........kllllllk', '........klmCCmlk', '........klmCBmlk', '........kmmmmmmk', '.......kWkkkkkk', '......kWk', '.....kWk', '....kWk', '...kWk', '..kWk', '.kWk', '.kk'],
   spade: ['...........kkkk', '...........kbbk', '............kk', '...........kWk', '..........kWk', '.........kWk', '........kWk', '...kkk.kWk', '..kpppkWk', '.kpllppk', '.kplmlpk', '.kpmllk', '..kkkk'],
   knot: ['', '', 'rrrrrrkkkrrrrrrr', 'RRRRRkYYYkRRRRRR', '.....kYcYk', '.....kYYYk', '......kkk', '.......rr', '......rR.r', '.....rR...r'],
   embers: ['.......k', '......kyk', '.....kyYyk', '....kyYcYyk', '...koyYcYyok', '...koyYYYyok', '....kooyook', '.....kkkkk', '', '.kkkk.kkkk.kkkk', '.kYYk.kYYk.kyok', '.kkkk.kkkk.kkkk'],

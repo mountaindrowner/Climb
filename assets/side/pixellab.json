@@ -700,6 +700,16 @@
     "action": "receiving a gift from above: he stands and looks up, raises both open hands high above his head to catch something small falling to him, closes his hands round it and draws it slowly down to his chest, his head bowing over it, the red scarf lifting gently, then stands still holding it to his chest",
     "frames": 12,
     "group": "bd638baa-bbec-412b-9cc9-13de5246c4b9"
+   },
+   "hammer_idle": {
+    "action": "standing at rest, breathing slowly, holding a heavy long-handled sledgehammer with a big square head of grey stone banded in iron, a faint blue glow at its core instead of a sword: both hands rest on top of the long wooden handle, the big square stone head planted in the ground beside his feet, the red scarf stirring",
+    "frames": 8,
+    "group": "e5457d96-0c60-4c18-8ba4-5a2a48b6c71d"
+   },
+   "atk_hammer": {
+    "action": "a heavy two-handed swing with a heavy long-handled sledgehammer with a big square head of grey stone banded in iron, a faint blue glow at its core instead of a sword: he heaves the hammer up and back over his shoulder with both hands on the long wooden handle, the big square stone head high behind him, then steps forward and brings the hammer down and across in a great arc, the stone head striking the ground in front of his feet, knees bent deep, the red scarf flying",
+    "frames": 12,
+    "group": "20d0781a-2be3-41c3-8f62-d8912cba16b2"
    }
   }
  },

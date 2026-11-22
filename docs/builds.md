@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 85 | 22 Nov 2026 | `39c2bf3` | Up: W and the up arrow look up and strike upward; Space alone jumps | **keys** | yes (now) |
+| 86 | 22 Nov 2026 | `COMMIT86` | The hammer in place of the spade: three times the sword's damage, a wide arc, it knocks creatures back | no | yes (now) |
+| 85 | 22 Nov 2026 | `39c2bf3` | Up: W and the up arrow look up and strike upward; Space alone jumps | **keys** | replaced by 86 |
 | 84 | 22 Nov 2026 | `f3778c9` | Ordric's shop as his own sheet of paper; unknown rooms as cloud on the map; every mark on the map named | no | replaced by 85 |
 | 83 | 22 Nov 2026 | `53c787a` | The HUD (the ember bar, each part named once), the menu in tabs, the inventory as pictures | no | replaced by 84 |
 | 82 | 21 Nov 2026 | `bc8512a` | The Deep shut; no maps sold or given; the window for everything gained, and keys drawn as keys | no | replaced by 83 |
@@ -101,6 +102,58 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 86: the hammer
+
+*Step 1 of the order in `docs/gifts-sheet.md`, which you approved on 22 Nov ("I think so... So keep going"). From the
+playtest: "I don't really have a reason to use the hammer. The sword is faster." and "more damage, an arc, a
+knockback".*
+
+**For the player**
+
+- **The Warden leaves a hammer, not a spade.** It is the same thing in his hands, with a new name and new numbers.
+  Anyone who had the spade has the hammer.
+- **It hits three times as hard as the sword.** Its three blows do 3, 3 and 6 (they did 2, 2 and 4; the sword's do
+  1, 1 and 2). A crawler falls to one blow; a red-robed acolyte to two.
+- **It knocks creatures back** about a metre and a half and stops them for a moment (0.4 of a second), so the next
+  blow lands before they can answer. A creature is stopped by a wall and is not pushed off a ledge. The large ones
+  (12 health and over), the ones that cling or perch, and keepers are not thrown.
+- **Its arc is wide:** a blow also finds what is just behind him (a little over a metre) and what is over his head.
+- **It is slower than it was,** by about a tenth: that is its cost, with not being able to block.
+- **The words:** "The Warden's Hammer" in its window, in the inventory and on the HUD (a hammer for its picture);
+  "sword or hammer" for the swap key; a cracked wall says "Hit it with the hammer."
+
+**For you to look at: the hammer's drawings** (`docs/hammer-candidates.png`)
+
+- **In this build he still holds what looks like the spade.** I had two drawings made as candidates, him standing with
+  the hammer and its great blow, and they are not in the game. If you like them I will have the other seven made
+  (running, in the air, crouching, the two lighter blows, the plunge) and put them in. If not, say what the hammer
+  should look like. The candidates have a head of grey stone banded in iron with a blue glow in it, after the Warden.
+
+**What is weaker than it should be**
+
+- **It looks like the spade** until the drawings are approved.
+- **The knockback is a jump, not a slide:** the creature is in its new place at once. It reads as a blow, but a short
+  slide would read better.
+- **Nobody has played it.** Three times the damage may be too much against the Roots' creatures; the numbers are in
+  one line (`SPADE` in `motor.js`).
+
+- **Underneath:** `motor.js` (`SPADE`: the name, the damage, `wide`, `knock`, `stagger`; its key in the code and its
+  drawings' names are still `spade`), `enemies.js` (`strikeEnemies` takes the heavy weapon: the arc and the throw),
+  `main.js`, `state.js`, `teach.js` (the hammer's picture), `ui/screens/settings.js`. New check:
+  `tests/side-hammer.test.mjs`.
+- **Save: not moved.**
+- **Checked:** 462 checks pass. In the test browser: the hammer's window, its picture on the HUD, and a blow on an
+  acolyte in the Ossuary (5 health to 2, thrown back against the step behind it, stopped for 0.4 of a second).
+
+**To try**
+
+1. Beat the Warden (or load a save that has): the window says "The Warden's Hammer".
+2. Press R to change to it. Hit a crawler: one blow. Hit an acolyte in the Ossuary: it is thrown back and stands
+   stunned.
+3. Stand between two creatures and swing: the one behind him is struck too.
+4. Is it now worth choosing over the sword, or is it too strong?
+5. Look at `docs/hammer-candidates.png` and say yes, no, or what to change.
 
 ### Build 85: up
 

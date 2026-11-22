@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Up (latest; build 85).** W and the up arrow no longer jump: Space does. Up looks up (the view lifts), and up with attack strikes upward, on the ground or in the air. Up also swims up and climbs. 460 checks.
+**The hammer (latest; build 86).** The Warden leaves a hammer, not a spade: three times the sword's damage, a wide arc that finds what is behind and over him, and a blow that knocks creatures back and stops them for a moment. Slower than it was; it still cannot block. Its drawings are candidates awaiting a yes (`docs/hammer-candidates.png`); in the game it still looks like the spade. 462 checks. No save is moved.
+
+**Up (build 85).** W and the up arrow no longer jump: Space does. Up looks up (the view lifts), and up with attack strikes upward, on the ground or in the air. Up also swims up and climbs. 460 checks.
 
 **The shop, and the map in cloud (build 84).**
 - **Ordric's shop is his own sheet of paper,** each thing a line on it; your shards apart; Ordric, what the thing does, and a word from him.

@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 85, date: '22 NOV 2026', phase: 17, phases: 22, last: 'UP: LOOK UP, STRIKE UPWARD' };
+const VERSION = { build: 86, date: '22 NOV 2026', phase: 17, phases: 22, last: 'THE HAMMER' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -351,7 +351,7 @@ const TRIES = () => { const deep = LEVELS.map((l, n) => n).filter(n => REGION_DA
   return [...LEVELS.map((l, n) => n).filter(n => !REGION_DATA[n].deep), ...deep].map(n => ({ n, name: LEVELS[n].name })); };
 const MOMENTS = () => { const at = name => LEVELS.findIndex(l => l.name === name), W = at('The Workings'), F = at('The Flooded Levels'), H = at('The Hollow');
   return [
-    { name: 'Deep water, before the Wyrm', n: W, gifts: 2, room: 'cistern', tx: 17, ty: 13, say: 'The cistern. You have the spade and the air dash, but not the glide.' },
+    { name: 'Deep water, before the Wyrm', n: W, gifts: 2, room: 'cistern', tx: 17, ty: 13, say: 'The cistern. You have the hammer and the air dash, but not the glide.' },
     { name: 'Deep water, with the wind', n: W, room: 'cistern', tx: 17, ty: 13, say: 'The cistern. The way down is in its floor, under the water.' },
     { name: 'The Pump', n: F, room: 'pumphouse', tx: 22, ty: 17, say: 'Go down the trunk, under the wall, and up into its hall.' },
     { name: 'The Auger', n: H, room: 'circles', tx: 44, ty: 4, say: 'Its hall is down the hole to the west.' },
@@ -471,7 +471,7 @@ function drawMap(){ const met = corwenMet(), dots = mapDots();
   if (met){ const n = LEVEL.index, falls = (G.fallsBy || {})[n] || 0, shut = dots.filter(d => d.way === 'shut').length, open = dots.filter(d => d.way === 'open').length, parts = [];
     parts.push(falls ? `YOU HAVE DIED HERE ${falls} TIME${falls === 1 ? '' : 'S'}` : 'YOU HAVE NOT DIED HERE');
     const sv = dots.filter(d => d.way === 'shut' && d.by === 'step').length, ov = dots.filter(d => d.way === 'open' && d.by === 'step').length, sc = shut - sv, oc = open - ov, ways = (k, w) => `${k} WAY${k === 1 ? '' : 'S'} ${w}`;
-    if (sc) parts.push(ways(sc, 'BLOCKED BY CRACKED STONE: NEEDS A HEAVY WEAPON')); if (sv) parts.push(ways(sv, 'BLOCKED BY VELLUM: NEEDS AN AIR DASH')); if (oc) parts.push(ways(oc, 'YOUR SPADE CAN OPEN NOW')); if (ov) parts.push(ways(ov, 'YOUR AIR DASH CAN OPEN NOW'));
+    if (sc) parts.push(ways(sc, 'BLOCKED BY CRACKED STONE: NEEDS A HEAVY WEAPON')); if (sv) parts.push(ways(sv, 'BLOCKED BY VELLUM: NEEDS AN AIR DASH')); if (oc) parts.push(ways(oc, 'YOUR HAMMER CAN OPEN NOW')); if (ov) parts.push(ways(ov, 'YOUR AIR DASH CAN OPEN NOW'));
     HUD.fine(parts.join('  ·  '), HUD.W / 2, 150 + (HUD.keyRows || 1) * 8, '#8b9bb4', 'center');
     if ((G.sealed || {})[n]){ HUD.seal(HUD.W - 43, 36); HUD.fine('REGION', HUD.W - 43, 48, '#fee761', 'center'); HUD.fine('COMPLETE', HUD.W - 43, 55, '#fee761', 'center'); HUD.fine('EVERYTHING', HUD.W - 43, 66, '#c0cbdc', 'center'); HUD.fine('HERE IS FOUND', HUD.W - 43, 73, '#c0cbdc', 'center'); }
     return; }
@@ -1051,7 +1051,7 @@ let CARRY = [];
 const carryCards = () => [
   ...TEACH.filter(t => t.can && t.can !== 'breaker' && CAN[t.can]).map(t => ({ head: 'AN ABILITY', title: t.name, icon: t.icon, does: t.does, how: [...t.how, ...(t.more || [])] })),
   { head: 'A WEAPON' + (P.weapon !== 'spade' ? ' · IN USE' : ''), title: 'The sword', icon: 'blade', does: 'Fast three-hit combos. You can block with it. It cannot break stone.', how: ['{attack}: attack. {block}: block.'] },
-  ...(armed('spade') ? [{ head: 'A WEAPON' + (P.weapon === 'spade' ? ' · IN USE' : ''), title: TEACH[0].name, icon: 'spade', does: TEACH[0].does, how: [...TEACH[0].how, ...(TEACH[0].more || [])] }] : []),
+  ...(armed('spade') ? [{ head: 'A WEAPON' + (P.weapon === 'spade' ? ' · IN USE' : ''), title: TEACH[0].name, icon: 'hammer', does: TEACH[0].does, how: [...TEACH[0].how, ...(TEACH[0].more || [])] }] : []),
   ...G.relics.filter(id => RELICS[id]).map(id => ({ head: has(id) ? 'A RELIC · EQUIPPED' : 'A RELIC · NOT EQUIPPED', title: RELICS[id].name, icon: id, does: RELICS[id].line, lore: RELICS[id].lore })),
 ].map(c => ({ ...c, how: (c.how || []).map(keyed) }));
 // (build 83, docs/screens-sheet.md: his things as pictures in a grid on the left, under three headings; the one
@@ -1145,7 +1145,7 @@ function stepArts(dt){
 function breakRock(x, y, r, dig = false){
   if (!PROPS.nearCrack(x, y, Math.max(r, 1.3))) return;
   // only the spade breaks stone (decision 0.3): the blade rings off it, and he is told what it wants
-  if (!dig){ if (!HINTED.crack){ HINTED.crack = 1; sfx.block(); banner('', armed('spade') ? 'Cracked stone. Hit it with the spade.' : 'Cracked stone. You cannot break it yet: come back with a heavier weapon.', 3); } return; }
+  if (!dig){ if (!HINTED.crack){ HINTED.crack = 1; sfx.block(); banner('', armed('spade') ? 'Cracked stone. Hit it with the hammer.' : 'Cracked stone. You cannot break it yet: come back with a heavier weapon.', 3); } return; }
   if (!PROPS.nearCrack(x, y, r)) return;
   for (const C of PROPS.breakAt(x, y, r)){
     sfx.break(); fx.dust({ x: C.x, y: C.y - C.h / 2 }, 30, 5); fx.burst({ x: C.x, y: C.y }, 26, 0xc0cbdc); R.shock(C.x, C.y, true); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.4);
@@ -1232,7 +1232,7 @@ function onEvent(e){
       // the dash cut strikes all along where he dashed
       const from = e.sw.dash && P.dashFrom != null ? { ...P, x: P.dashFrom } : P, reach = weaponOf(P).reach + (e.sw.dash && P.dashFrom != null ? Math.abs(P.x - P.dashFrom) : 0);
       const digs = !!weaponOf(P).digs, dmg = digs ? (P.grounded ? e.sw.dmg : Math.max(1, e.sw.dmg - 2)) + (big && has('whetstone') ? 1 : 0) : e.sw.dmg + (big && has('whetstone') ? 1 : 0) + (G.edge >= 2 || (G.edge && big) ? 1 : 0), out = [];   // the whetstone; the blade's tempering; the spade weak in the air
-      strikeEnemies(E, from, reach, dmg, out, !!(P.atk && P.atk.up)); if (BOSS) BOSS.strike(from, reach, dmg, out); ITEMS.strike(from, reach, out);
+      strikeEnemies(E, from, reach, dmg, out, !!(P.atk && P.atk.up), weaponOf(P).knock ? weaponOf(P) : null); if (BOSS) BOSS.strike(from, reach, dmg, out); ITEMS.strike(from, reach, out);
       breakRock(P.x + P.face * (digs ? 1.8 : 1.2), P.y + (digs ? 0.6 : 1.2), digs ? 1.5 : 1.3, digs);   // the spade digs where it lands; the blade rings off
       if (e.sw.wave && P.grounded){ waves(P.x + P.face * 1.6, P.y, [P.face], 0.38); sfx.slam(); R.shock(P.x + P.face * 1.8, P.y + 0.3, true); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.3); }   // its last blow runs on along the ground, a little way
       for (const o of out) onEvent(o); break; }
@@ -1240,7 +1240,7 @@ function onEvent(e){
       buzz(e.heavy ? 0.35 : 0.15, e.heavy ? 0.5 : 0.3, e.heavy ? 90 : 50); sfx.hit(); fx.burst(e.at, e.heavy ? 18 : 12, 0xffe0a8); R.glint(e.at.x, e.at.y, 0xffe0a8, e.heavy ? 0.9 : 0.6, 3.5, 0.16); FEEL_FX.hitstop = e.heavy ? 0.09 : 0.05; FEEL_FX.shake = Math.max(FEEL_FX.shake, e.heavy ? 0.18 : 0.1); break;
     case 'swap': {   // blade and spade, if he has the spade
       const to = P.weapon === 'spade' ? 'blade' : 'spade'; if (!armed(to)){ if (!HINTED.swap){ HINTED.swap = 1; banner('', 'You only have the sword.', 2.2); } break; }
-      P.weapon = G.wield = to; store(); sfx.whoosh(); fx.ring({ x: P.x, y: P.y + 1.1 }, to === 'spade' ? 0xc0cbdc : 0xffd27a); banner('', to === 'spade' ? 'the spade' : 'the blade', 1.4); break; }
+      P.weapon = G.wield = to; store(); sfx.whoosh(); fx.ring({ x: P.x, y: P.y + 1.1 }, to === 'spade' ? 0xc0cbdc : 0xffd27a); banner('', to === 'spade' ? 'the hammer' : 'the sword', 1.4); break; }
     // iron has been touched in the Bell-Foundry (regions/foundry.js): it rings, a while; the shutters come down
     case 'ring': { if (RULE.still) break; const was = RULE.ring > 0, d = Math.hypot(e.at.x - P.x, e.at.y - P.y); RULE.ring = Math.max(RULE.ring, RING[e.big ? 1 : 0]);
       sfx.crackbell(!!e.big); if (e.big) sfx.clang(); fx.ring(e.at, 0xfeae34); if (e.big) fx.ring(e.at, 0xffffff); R.shock(e.at.x, e.at.y, !!e.big); R.glint(e.at.x, e.at.y, 0xfeae34, e.big ? 1.2 : 0.7, e.big ? 9 : 5, 0.3); FEEL_FX.shake = Math.max(FEEL_FX.shake, e.big ? 0.3 : d < 10 ? 0.12 : 0.05);
@@ -1377,7 +1377,7 @@ function drawHud(dt){
   if (BOSS && BOSS.st === 'fight' && !BOSS.shown && !ENT.title){ BOSS.shown = true; banner('', BOSS.hint, 3.5); }   // once it is up: how it is hurt
   if (!rising && !TALK.on && !FLIGHT){
     const onKeys = DEVICE.kind !== 'touch';
-    HUD.status(P, EMBER.n, EMBER.cap, P.flaskMax, time, ARTS.cost, embersKnown(), { art: onKeys ? kname('art') : null }); HUD.weapon(P.weapon === 'spade' ? 'spade' : 'blade', armed('spade') ? kname('swap') : null, drawIcon); PURSE = Math.max(0, PURSE - dt);
+    HUD.status(P, EMBER.n, EMBER.cap, P.flaskMax, time, ARTS.cost, embersKnown(), { art: onKeys ? kname('art') : null }); HUD.weapon(P.weapon === 'spade' ? 'hammer' : 'blade', armed('spade') ? kname('swap') : null, drawIcon); PURSE = Math.max(0, PURSE - dt);
     HUD.purse(P, P.flaskMax, G.shards, PURSE, G.threads % THREADS_A_HEART, THREADS_A_HEART, onKeys && P.hp < P.maxHp && P.flask > 0 ? kname('flask') : null);   // the flask's key stands by it while a drink would help
     hudTips(dt);
     const room = roomAt(P.x, P.y); if (room && !MAP.seen.has(room)){ MAP.seen.add(room); const k = LEVEL.rooms.indexOf(room), list = ((G.rooms = G.rooms || {})[LEVEL.index] = G.rooms[LEVEL.index] || []); if (k >= 0 && !list.includes(k)){ list.push(k); DIRTY = DIRTY > 0 ? DIRTY : 2; } }

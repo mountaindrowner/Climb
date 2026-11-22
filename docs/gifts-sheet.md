@@ -2,7 +2,11 @@
 
 *Step 4 of the order agreed after the playtest of 21 Nov 2026. A written sheet, for your word before anything is
 built. It turns three of your decisions into a plan: abilities from minibosses and weapons from keepers (0.13), a
-hammer and more weapons (0.14), and three to five deaths a region (0.17). Nothing here is built.*
+hammer and more weapons (0.14), and three to five deaths a region (0.17). Nothing here was built when it was written.*
+
+**Approved 22 Nov 2026** ("I think so"), with this added: weapons, skills and the like are given after challenges,
+great challenges for great things, and puzzles (missing today) come near the end. Recorded as decisions 0.22 and
+0.23. **Step 1, the hammer, is build 86** (its drawings await your yes: `docs/hammer-candidates.png`).
 
 ## What you said
 

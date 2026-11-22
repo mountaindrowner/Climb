@@ -70,7 +70,10 @@ per keeper, and **everything explained** to the player, plainly, the first time 
 
 | 0.21 | Up | **W and the up arrow are not jump.** Up looks up, and up with attack strikes upward (22 Nov; build 85) |
 
-(The table above is continued by 0.21: it was the one question left open on 21 Nov.)
+| 0.22 | Gifts | **The table of who gives what is approved** (`docs/gifts-sheet.md`; 22 Nov): weapons from keepers, abilities from minibosses, the dash from the Cracked Bell and the glide from the Seated. **Weapons, skills and the like are given after challenges: great challenges for great things** |
+| 0.23 | Puzzles | **The game is missing puzzles.** They come near the end (phase 22), and a puzzle is one of the challenges a gift can stand behind |
+
+(The table above is continued by 0.21 to 0.23: answers given on 22 Nov.)
 
 **One question left, before phase 5:** if only the spade breaks stone, he must have it before the Ossuary's cracked
 wall, but the Sexton and his spade are inside the Ossuary. The Warden's gift today ("the Warden's weight") is exactly
