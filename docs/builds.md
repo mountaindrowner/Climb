@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 85 | 22 Nov 2026 | `COMMIT85` | Up: W and the up arrow look up and strike upward; Space alone jumps | **keys** | yes (now) |
+| 85 | 22 Nov 2026 | `39c2bf3` | Up: W and the up arrow look up and strike upward; Space alone jumps | **keys** | yes (now) |
 | 84 | 22 Nov 2026 | `f3778c9` | Ordric's shop as his own sheet of paper; unknown rooms as cloud on the map; every mark on the map named | no | replaced by 85 |
 | 83 | 22 Nov 2026 | `53c787a` | The HUD (the ember bar, each part named once), the menu in tabs, the inventory as pictures | no | replaced by 84 |
 | 82 | 21 Nov 2026 | `bc8512a` | The Deep shut; no maps sold or given; the window for everything gained, and keys drawn as keys | no | replaced by 83 |
