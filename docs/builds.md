@@ -278,6 +278,8 @@ knockback".*
 
 **For you to look at: the hammer's drawings** (`docs/hammer-candidates.png`)
 
+- **(22 Nov: turned down. The two did not match each other. The hammer's look is settled first, as one picture, in
+  step 2 of `docs/weapons-sheet.md`.)**
 - **In this build he still holds what looks like the spade.** I had two drawings made as candidates, him standing with
   the hammer and its great blow, and they are not in the game. If you like them I will have the other seven made
   (running, in the air, crouching, the two lighter blows, the plunge) and put them in. If not, say what the hammer

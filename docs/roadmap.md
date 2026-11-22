@@ -73,11 +73,15 @@ per keeper, and **everything explained** to the player, plainly, the first time 
 | 0.22 | Gifts | **The table of who gives what is approved** (`docs/gifts-sheet.md`; 22 Nov): weapons from keepers, abilities from minibosses, the dash from the Cracked Bell and the glide from the Seated. **Weapons, skills and the like are given after challenges: great challenges for great things** |
 | 0.23 | Puzzles | **The game is missing puzzles.** They come near the end (phase 22), and a puzzle is one of the challenges a gift can stand behind |
 
-(The table above is continued by 0.21 to 0.23: answers given on 22 Nov.)
+| 0.24 | The weapons | **Made in steps, each with your yes:** which weapons; what each looks like; its drawings; then into the game. **The gamut of kinds.** **The weapon is the same in every frame,** and he holds it in every drawing where it shows (`docs/weapons-sheet.md`). The hammer's two candidate drawings are turned down: they did not match each other |
+| 0.25 | What a keeper leaves, besides | **Worth considering, not for now:** something only a keeper gives (a soul, or what fits the story), spent on one great change to him |
+
+(The table above is continued by 0.21 to 0.25: answers given on 22 Nov.)
 
 **Where the gifts sheet stands (22 Nov, build 88):** step 1 built (86, the hammer; its drawings await a yes); step 2
 half built (87, the air dash from the Cracked Bell; the glide, the heart and the drink wait on what a keeper leaves
-until its weapon is made); step 3 built (88, harder); step 4 has its sheet (`docs/wyrm-sheet.md`).
+until its weapon is made); step 3 built (88, harder); step 4 has its sheet (`docs/wyrm-sheet.md`). **After build 88 you put the weapons first** (0.24): `docs/weapons-sheet.md`,
+step 1, awaits your yes. The rest of the gifts sheet waits behind it.
 
 **One question left, before phase 5:** if only the spade breaks stone, he must have it before the Ossuary's cracked
 wall, but the Sexton and his spade are inside the Ossuary. The Warden's gift today ("the Warden's weight") is exactly
