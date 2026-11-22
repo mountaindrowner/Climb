@@ -1,0 +1,56 @@
+{
+ "hero": "d7a74957-c00a-4100-869a-2dc1c65c80e2",
+ "note": "States of the hero (PixelLab /create-character-state): him holding each weapon. The one chosen for a weapon is the character every drawing of that weapon is made from.",
+ "choices": {
+  "The Hammer A": {
+   "state": "hammer_band",
+   "character_id": "cd6073b4-2d62-4f57-9cfa-ada788ae32cd",
+   "edit": "he holds a heavy long-handled sledgehammer in both hands instead of the curved blade: a big square head of grey stone with one dark iron band across its middle, a long wooden haft. No sword."
+  },
+  "The Hammer B": {
+   "state": "hammer_glow",
+   "character_id": "6f3f613a-b034-4b82-b82a-bb6059356579",
+   "edit": "he holds a heavy long-handled sledgehammer in both hands instead of the curved blade: a big square head of pale rough stone that glows blue from within, thin cracks of bright blue light across it, a long wooden haft. No sword."
+  },
+  "The Clapper A": {
+   "state": "clapper_a",
+   "character_id": "2dbe1c3d-427c-4263-b5ad-2d1520236375",
+   "edit": "he holds a flail instead of the curved blade: a heavy dark bronze bell clapper, a long teardrop of metal, hanging from his hand on a length of thick pale rope. No sword."
+  },
+  "The Clapper B": {
+   "state": "clapper_b",
+   "character_id": "bb628629-d55f-4edb-a57b-f918b27b1f81",
+   "edit": "he holds a flail instead of the curved blade: a short wooden handle, a dark iron chain, and at the end of the chain a heavy bronze bell tongue like a club head. No sword."
+  },
+  "The Tooth A": {
+   "state": "tooth_a",
+   "character_id": "e74c391b-8ad7-4271-851a-120de2712dfe",
+   "edit": "he holds a long spear upright in both hands instead of the curved blade: the whole spear is one long spike of pale blue ice like a great fang, as tall as he is. No sword."
+  },
+  "The Tooth B": {
+   "state": "tooth_b",
+   "character_id": "128e3d35-b027-4e0f-9800-5184686faebd",
+   "edit": "he holds a long spear upright in both hands instead of the curved blade: a dark wooden shaft, and bound to its tip with red cord a great white curved fang of a beast, rimed with frost. No sword."
+  },
+  "The Bow A": {
+   "state": "bow_c",
+   "character_id": "c4c10e70-5123-4f83-ba68-b3aea2064a1c",
+   "edit": "he holds a tall dark storm bow in his forward hand instead of the curved blade: the bow is black with pale blue glowing tips, and its string is a bright glowing blue-white line of lightning, clearly visible; a quiver on his back. No sword."
+  },
+  "The Bow B": {
+   "state": "bow_b",
+   "character_id": "5e616e51-0018-4128-9c5f-b27edfba8c86",
+   "edit": "he holds a tall plain wooden longbow in his forward hand instead of the curved blade, its grip wrapped in red cord, a quiver of pale arrows on his back. No sword."
+  },
+  "The Thorns A": {
+   "state": "thorns_d",
+   "character_id": "65813fd1-971e-42da-9db4-2af332f5d2df",
+   "edit": "he holds two hooked short swords instead of the curved blade, one in each hand, both pointing forward and clearly visible: pale bone-white blades shaped like big rose thorns with dark red grips. No sword."
+  },
+  "The Thorns B": {
+   "state": "thorns_b",
+   "character_id": "79ad0a6d-cdd7-4909-9b24-e1f77106e0a2",
+   "edit": "he holds two short straight daggers, one in each hand, instead of the curved blade: black iron blades shaped like rose thorns, grips wrapped in red. No sword."
+  }
+ }
+}

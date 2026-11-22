@@ -80,8 +80,9 @@ per keeper, and **everything explained** to the player, plainly, the first time 
 
 **Where the gifts sheet stands (22 Nov, build 88):** step 1 built (86, the hammer; its drawings await a yes); step 2
 half built (87, the air dash from the Cracked Bell; the glide, the heart and the drink wait on what a keeper leaves
-until its weapon is made); step 3 built (88, harder); step 4 has its sheet (`docs/wyrm-sheet.md`). **After build 88 you put the weapons first** (0.24): `docs/weapons-sheet.md`,
-step 1, awaits your yes. The rest of the gifts sheet waits behind it.
+until its weapon is made); step 3 built (88, harder); step 4 has its sheet (`docs/wyrm-sheet.md`). **After build 88 you put the weapons first** (0.24): `docs/weapons-sheet.md`.
+Step 1 is settled (the six, a bow in place of the fork, the hammer first, the weapon on his back when his hands are busy);
+step 2, what each looks like, awaits your pick (`docs/weapon-looks.png`). The rest of the gifts sheet waits behind it.
 
 **One question left, before phase 5:** if only the spade breaks stone, he must have it before the Ossuary's cracked
 wall, but the Sexton and his spade are inside the Ossuary. The Warden's gift today ("the Warden's weight") is exactly

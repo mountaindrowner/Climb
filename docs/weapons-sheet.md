@@ -5,6 +5,14 @@ character and the weapon in every frame that's necessary... hit the gamut of dif
 approvals first... first, what weapons do we want, and then what do they look like, and then the animation for
 each." This sheet is the first of those steps. Nothing here is built or drawn.*
 
+## Where this stands
+
+- **Step 1 is settled** (22 Nov): the six, with **a bow in place of the fork**; the hammer first; the weapon on his
+  back while he climbs, hangs and swims. ("I'm still hoping to expand the spaces and bosses. But for now, we're
+  good.")
+- **Step 2 is with you:** `docs/weapon-looks.png`, two choices for each of the five new weapons. See "Step 2" at the
+  foot of this sheet.
+
 ## The steps, and where you say yes
 
 | Step | What you get | Then |
@@ -44,7 +52,7 @@ each is whole, with its own blows, its own strength and its own weakness).
 | 2 | **The hammer** (built, build 86) | The Warden | Heavy | Slow, three times the damage, a wide arc, knocks creatures back |
 | 3 | **The clapper** | The Toll | A flail: reach, in arcs | The bell's tongue on its rope. Swung, it reaches twice as far as the sword, over and round things |
 | 4 | **The tooth** | The Wyrm | A spear: reach, in a line | A long spike of its ice. Thrusts straight and far; pointed down in the air, he bounces off what it hits |
-| 5 | **The fork** | The Thunderhead | Thrown: across the room | A rod that throws a bolt. The only weapon that hits what he cannot walk to |
+| 5 | **The bow** (it was the fork: your word, 22 Nov) | The Thunderhead | Shot: across the room | A bow from the storm. The only weapon that hits what he cannot walk to |
 | 6 | **The thorns** | Mother Thorn | A pair: fast and close | Two short blades. Five cuts where the sword makes three, ending in a burst |
 
 ### Each one's blows
@@ -53,28 +61,28 @@ each is whole, with its own blows, its own strength and its own weakness).
 |---|---|---|---|---|
 | **The clapper** | 1: a long swing out and back. 2: over his head and down in front. 3: he whirls it round him, both sides at once | The whirl | Longest reach of anything in his hand; hits what is above a ledge or behind a shield; a hit rings and stops small creatures for a breath | Slow to come back; nothing within a metre of him; cannot block |
 | **The tooth** | 1: a thrust. 2: a longer thrust. 3: a lunge that carries him forward through small creatures | Point down: strikes below him and bounces him up | Reach in a straight line; the up-strike is the longest; the bounce crosses spikes and pits | Narrow: it misses what is a little above or below the line; cannot block |
-| **The fork** | Each press throws a bolt, level, the width of a room. Held: a slower bolt that goes through and jumps to what is near | A bolt, level or (with up) straight up | Range | Each bolt spends a little of his embers; with none, it is a weak jab at arm's length. So it is paired with another weapon that earns them |
+| **The bow** | Each press looses an arrow, level, the width of a room. Held: he draws further, and the arrow goes through what it hits | An arrow, level or (with up) straight up | Range | Slow to draw; weak against what is on top of him. Whether an arrow costs anything (embers, or a quiver that fills at water) is still to settle |
 | **The thorns** | Five quick cuts; the fifth bursts for three times a cut | A flurry as he falls | The fastest; best against one thing that can be stood beside | The shortest reach; one damage a cut; cannot block |
 
 ### The gamut
 
-| | Sword | Hammer | Clapper | Tooth | Fork | Thorns |
+| | Sword | Hammer | Clapper | Tooth | Bow | Thorns |
 |---|---|---|---|---|---|---|
 | Speed | quick | slow | slow | middling | middling | fastest |
 | Reach | 2 m | 3 m | 4.5 m, in an arc | 3.5 m, in a line | a room | 1.5 m |
-| Damage a blow (first numbers) | 1, 1, 2 | 3, 3, 6 | 2, 2, 3 | 2, 2, 3 | 2 a bolt | 1 x 4, then 3 |
+| Damage a blow (first numbers) | 1, 1, 2 | 3, 3, 6 | 2, 2, 3 | 2, 2, 3 | 2 an arrow | 1 x 4, then 3 |
 | Defence | blocks, parries | knocks back | keeps things away | keeps things away | distance | none |
 | What it is for | anything | crowds on the ground, armour | things above, behind cover | chargers, things over a gap | flyers, things out of reach | one strong thing |
 
 **Kinds left out,** if you would rather have one of these in place of one above: a shield (the defensive one; the
-sword does that today), a bow (the fork is the thrown one), fists, a scythe, a great two-handed sword (near the
+sword does that today), fists, a scythe, a great two-handed sword (near the
 hammer). And the Deep is shut, but its keeper, the Auger, could one day leave a seventh: a drill that winds up while
 held.
 
 ### A use in the world for each (for later, with the map pass)
 
 The hammer breaks cracked stone. The others could each open something too: the clapper rings a bell from a
-distance (the Cloister's doors open on a bell's beat), the tooth's bounce crosses spikes, the fork lights a far lamp
+distance (the Cloister's doors open on a bell's beat), the tooth's bounce crosses spikes, the bow lights a far lamp
 or throws a far lever, the thorns cut briar. I would not build these until the weapons themselves are right.
 
 ## What it costs
@@ -96,4 +104,25 @@ cold...), and at the pool he can give one of them back to the water for one last
 2. **The fork spending embers:** is a weapon that leans on another the right idea, or should it stand alone?
 3. **The weapon on his back while he climbs, hangs and swims:** yes?
 4. **The order to make them in.** I would go: the hammer's look and set first (it is in the game already), then the
-   tooth, the clapper, the thorns, the fork.
+   tooth, the clapper, the thorns, the bow.
+
+## Step 2: what each looks like (`docs/weapon-looks.png`)
+
+**How they were made, and why they will match.** Each picture is our own hero, changed by the art service to hold
+that weapon and saved as a state of him (`docs/weapon-looks.json` has each one's id). The picture you pick for a
+weapon becomes the thing every drawing of that weapon is made from: he is holding it in the first frame of every
+strip, so nothing has to invent it again. That is the difference from the two hammer drawings you turned down.
+
+| Weapon | A | B | What I would say of them |
+|---|---|---|---|
+| **The hammer** | Grey stone, an iron band across it | Pale stone | A reads at once and sits well in his hands. B is a pale block: the blue glow I asked for did not come |
+| **The clapper** | On a rope | On a chain, with a handle | Both are small. B reads more as a weapon; A is truer to "the bell's tongue on its rope" |
+| **The tooth** | One spike of ice | A fang bound to a shaft with red cord | Both read well. A is the Wyrm's ice; B has his red in it |
+| **The bow** | A storm bow: dark, with a string of light | Plain wood, a red grip, a quiver | A belongs to the Thunderhead. B is the plainer, clearer bow |
+| **The thorns** | A pair of bone hooks | A pair in black iron | A reads as two. B is hard to see at this size. Green thorns, which I asked for twice, came out as one blade each time |
+
+- **They are the standing picture only.** How each is swung is step 3.
+- **Any of them can be tried again** with other words: say what to change (bigger, another colour, held another way).
+- **Cost so far:** 13 pictures, 130 generations. About 8,800 are left.
+
+**For you:** A or B for each, or "again, but..." for any.
