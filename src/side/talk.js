@@ -83,5 +83,6 @@ export function makeTalk(){
     wrap(L.slice(0, Math.floor(S.n)), bw - 54).slice(0, 4).forEach((ln, k) => text(g, ln, x + 46, y + 15 + k * 8, C.cream, 1, 'left', null));
     if (S.n >= L.length && Math.floor(t * 3) % 2) for (let k = 0; k < 3; k++) H.px(C.cream, x + bw - 10 + k, y + bh - 8 + k, 5 - k * 2, 1);   // more: a mark that blinks
   };
+  S.face = face;   // (the shop's page shows whose shop it is)
   return S;
 }

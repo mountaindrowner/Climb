@@ -2,7 +2,13 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The HUD, the menu, the inventory (latest; build 83).**
+**The shop, and the map in cloud (latest; build 84).**
+- **Ordric's shop is his own sheet of paper,** each thing a line on it; your shards apart; Ordric, what the thing does, and a word from him.
+- **Rooms you know of and have not been in are cloud** on the map and the corner map.
+- **Every mark on the map is named** in its key, in plain words.
+- 458 checks. No save is moved.
+
+**The HUD, the menu, the inventory (build 83).**
 - **The ember bar:** a flame and three parts; a full part glows and its key stands beside it.
 - **Each part of the HUD is named once,** with a gold frame, the first time it appears. Red strands are pieces of ribbon, shown once he has one.
 - **The pause screen is tabs,** with his goal across the top and what he has on the right. The keys have a tab of their own.

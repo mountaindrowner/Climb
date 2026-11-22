@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 83, date: '22 NOV 2026', phase: 17, phases: 22, last: 'THE HUD, MENU AND INVENTORY' };
+const VERSION = { build: 84, date: '22 NOV 2026', phase: 17, phases: 22, last: 'THE SHOP, AND THE MAP IN CLOUD' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -303,7 +303,7 @@ const menuLabel = text => { const d = document.createElement('div'); d.textConte
 // the keys in a menu: up and down move, Enter or Space picks
 let MSEL = 0;
 const menuItems = () => [...MENU.querySelectorAll('button')];
-const menuMark = () => menuItems().forEach((b, i) => { const on = i === MSEL; if (b.dataset.edge == null) b.dataset.edge = b.style.borderColor; b.style.outline = 'none'; b.style.borderColor = on ? '#fff2d0' : b.dataset.edge; b.style.boxShadow = on ? 'inset 5px 0 0 #e43b44, inset 6px 0 0 #a22633, 3px 3px 0 #0b0810' : '3px 3px 0 #0b0810'; b.style.color = on ? '#fff2d0' : (b.dataset.ink || (b.dataset.ink = b.style.color)); });   // the chosen one wears a piece of his ribbon down its left edge
+const menuMark = () => menuItems().forEach((b, i) => { const on = i === MSEL; if (b.dataset.ghost) return; if (b.dataset.edge == null) b.dataset.edge = b.style.borderColor; b.style.outline = 'none'; b.style.borderColor = on ? '#fff2d0' : b.dataset.edge; b.style.boxShadow = on ? 'inset 5px 0 0 #e43b44, inset 6px 0 0 #a22633, 3px 3px 0 #0b0810' : '3px 3px 0 #0b0810'; b.style.color = on ? '#fff2d0' : (b.dataset.ink || (b.dataset.ink = b.style.color)); });   // the chosen one wears a piece of his ribbon down its left edge
 const menuShow = (rows, left = false, back = null) => { MENU.back = back; MENU.innerHTML = ''; MENU.style.bottom = ''; MENU.style.gap = '10px'; MENU.style.width = ''; MENU.style.right = '0'; MENU.style.display = 'flex'; MENU.style.alignItems = left ? 'flex-start' : 'center'; MENU.style.paddingLeft = left ? '4%' : '0'; MENU.style.top = left ? '36%' : '56%'; for (const r of rows) if (r) MENU.appendChild(r); MSEL = 0; menuMark(); };
 const menuHide = () => { MENU.style.display = 'none'; MENU.innerHTML = ''; MENU.back = null; release(); };   // and nothing pressed in it carries into play
 function begin(){   // from the start: the fall, then he gets up at the bottom
@@ -453,13 +453,26 @@ function mapScreen(){
   SCREEN = 'map'; PAUSE = true; release(); const T2 = (G.taught = G.taught || {}); T2.mapN = (T2.mapN || 0) + 1; store();
   menuShow([menuButton('Back', () => pause(true), true)], false, () => pause(true)); MENU.style.top = 'auto'; MENU.style.bottom = '1.5%'; MSEL = 0; menuMark();
 }
+// the rooms he has not been in but knows are there: each has a way into it from a room he has been in (open tiles
+// on both sides of the wall they share; cracked stone is not a way until it is broken). Drawn as cloud (decision 0.16)
+const CLOUD = { key: '', list: [] };
+function clouds(){
+  const key = LEVEL.index + ':' + MAP.seen.size + ':' + ((G.broke[LEVEL.index] || []).length); if (CLOUD.key === key) return CLOUD.list;
+  const open = (x, y) => { const v = tileAt(x, y); return v !== 1 && v !== 4; }, out = [];
+  for (const r of LEVEL.rooms){ if (r.ghost || MAP.seen.has(r)) continue; let known = false;
+    for (const s of MAP.seen){ if (known) break;
+      if (s.tx1 === r.tx0 || r.tx1 === s.tx0){ const x = s.tx1 === r.tx0 ? r.tx0 : s.tx0; for (let y = Math.max(s.ty0, r.ty0); y < Math.min(s.ty1, r.ty1); y++) if (open(x - 1, y) && open(x, y)){ known = true; break; } }
+      if (!known && (s.ty1 === r.ty0 || r.ty1 === s.ty0)){ const y = s.ty1 === r.ty0 ? r.ty0 : s.ty0; for (let x = Math.max(s.tx0, r.tx0); x < Math.min(s.tx1, r.tx1); x++) if (open(x, y - 1) && open(x, y)){ known = true; break; } } }
+    if (known) out.push(r); }
+  CLOUD.key = key; CLOUD.list = out; return out;
+}
 function drawMap(){ const met = corwenMet(), dots = mapDots();
-  HUD.fullmap(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, roomAt(P.x, P.y), T, dots, time, met ? "Corwen's map · " + LEVEL.name : LEVEL.name);
+  HUD.fullmap(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, roomAt(P.x, P.y), T, dots, time, LEVEL.name, clouds(), (x, y, w, h) => slab(x, y, w, h, 'The map', LEVEL.name));
   if (met){ const n = LEVEL.index, falls = (G.fallsBy || {})[n] || 0, shut = dots.filter(d => d.way === 'shut').length, open = dots.filter(d => d.way === 'open').length, parts = [];
-    parts.push(falls ? `DIED HERE ${falls} TIME${falls === 1 ? '' : 'S'}` : 'NO DEATHS HERE');
+    parts.push(falls ? `YOU HAVE DIED HERE ${falls} TIME${falls === 1 ? '' : 'S'}` : 'YOU HAVE NOT DIED HERE');
     const sv = dots.filter(d => d.way === 'shut' && d.by === 'step').length, ov = dots.filter(d => d.way === 'open' && d.by === 'step').length, sc = shut - sv, oc = open - ov, ways = (k, w) => `${k} WAY${k === 1 ? '' : 'S'} ${w}`;
     if (sc) parts.push(ways(sc, 'BLOCKED BY CRACKED STONE: NEEDS A HEAVY WEAPON')); if (sv) parts.push(ways(sv, 'BLOCKED BY VELLUM: NEEDS AN AIR DASH')); if (oc) parts.push(ways(oc, 'YOUR SPADE CAN OPEN NOW')); if (ov) parts.push(ways(ov, 'YOUR AIR DASH CAN OPEN NOW'));
-    HUD.fine(parts.join('  ·  '), HUD.W / 2, 156, '#c0cbdc', 'center');
+    HUD.fine(parts.join('  ·  '), HUD.W / 2, 150 + (HUD.keyRows || 1) * 8, '#8b9bb4', 'center');
     if ((G.sealed || {})[n]){ HUD.seal(HUD.W - 43, 36); HUD.fine('REGION', HUD.W - 43, 48, '#fee761', 'center'); HUD.fine('COMPLETE', HUD.W - 43, 55, '#fee761', 'center'); HUD.fine('EVERYTHING', HUD.W - 43, 66, '#c0cbdc', 'center'); HUD.fine('HERE IS FOUND', HUD.W - 43, 73, '#c0cbdc', 'center'); }
     return; }
   if (((G.taught || {}).mapN || 0) <= 3 && OPT.hints !== false){ let y = 50; for (const para of [CARDS.map.does, ...CARDS.map.how[0].split(/(?<=\.)\s+/)]){ let line = ''; for (const w of para.toUpperCase().split(' ')){ if (line && (line + ' ' + w).length > 17){ HUD.fine(line, HUD.W - 43, y, '#c0cbdc', 'center'); y += 7; line = w; } else line = line ? line + ' ' + w : w; } HUD.fine(line, HUD.W - 43, y, '#c0cbdc', 'center'); y += 12; } } }   // what the marks are, the first few times
@@ -500,32 +513,48 @@ function drawAnnals(W){
 }
 // the Lamplighter's wares, for shards
 const WARES = () => [
-  { icon: 'flask', name: 'A bigger flask', does: 'Your flask holds one more drink.', own: `YOU HAVE ${maxFlask()} DRINKS`, cost: [120, 260][G.flasks], buy(){ G.flasks++; P.flaskMax = maxFlask(); P.flask = P.flaskMax; } },
-  { icon: 'blade', name: G.edge ? 'Sharpen the sword again' : 'Sharpen the sword', does: G.edge ? 'Every sword hit does +1 damage.' : 'The last hit of each sword combo does +1 damage.', own: G.edge ? 'SHARPENED ONCE' : 'NOT SHARPENED YET', cost: [180, 380][G.edge], buy(){ G.edge++; } },
-  { icon: 'heart', name: 'A red strand', does: 'A piece of a heart. Three strands make one new heart.', own: `${G.threads % THREADS_A_HEART} OF ${THREADS_A_HEART} STRANDS`, cost: G.boughtThread ? undefined : 150, buy(){ G.boughtThread = true; onEvent({ type: 'thread', at: { x: P.x, y: P.y + 1.2 } }); } },
-  { icon: 'knot', name: 'Another relic slot', does: 'One more relic slot.', own: `${knots()} OF ${KNOTS.most} SLOTS`, cost: knots() < KNOTS.most ? KNOTS.cost[G.knots || 0] : undefined, buy(){ G.knots = (G.knots || 0) + 1; } },
+  { icon: 'flask', name: 'A bigger flask', does: 'Your flask holds one more drink.', own: `YOU HAVE ${maxFlask()} DRINKS`, say: 'One more mouthful, for a longer road.', cost: [120, 260][G.flasks], buy(){ G.flasks++; P.flaskMax = maxFlask(); P.flask = P.flaskMax; } },
+  { icon: 'blade', name: G.edge ? 'Sharpen the sword again' : 'Sharpen the sword', does: G.edge ? 'Every sword hit does +1 damage.' : 'The last hit of each sword combo does +1 damage.', own: G.edge ? 'SHARPENED ONCE' : 'NOT SHARPENED YET', say: 'An edge remembers its work.', cost: [180, 380][G.edge], buy(){ G.edge++; } },
+  { icon: 'heart', name: 'A red strand', does: 'A piece of a heart. Three strands make one new heart.', own: `${G.threads % THREADS_A_HEART} OF ${THREADS_A_HEART} STRANDS`, say: 'I found it on the stair. It is yours more than mine.', cost: G.boughtThread ? undefined : 150, buy(){ G.boughtThread = true; onEvent({ type: 'thread', at: { x: P.x, y: P.y + 1.2 } }); } },
+  { icon: 'knot', name: 'Another relic slot', does: 'One more relic slot.', own: `${knots()} OF ${KNOTS.most} SLOTS`, say: 'Another knot in the scarf. Tie what you find to it.', cost: knots() < KNOTS.most ? KNOTS.cost[G.knots || 0] : undefined, buy(){ G.knots = (G.knots || 0) + 1; } },
   // (no map is sold, and Corwen gives none: decision 0.16, 21 Nov 2026. The map is what he has walked)
 ];
 let SHOP = [];
+// (build 84, docs/screens-sheet.md: the shop is Ordric's own sheet of paper, pinned up. Each thing a line on it: its
+// picture, its name, what he has of it, its price. His shards apart, large. Ordric, what the thing does, and a word
+// from him about it. The lines are buttons with nothing drawn on them, laid over the paper, so every way of
+// choosing still works; the paper itself is drawn by drawShop)
+const SHEET = W => { const x = 12, y = 6, pw = Math.round(W * 0.52), ph = 152; return { x, y, pw, ph, row: i => y + 46 + i * 24, rx: x + pw + 10 }; };
 function shop(){
-  SCREEN = 'shop'; PAUSE = true; release(); const keep = MSEL;
+  SCREEN = 'shop'; PAUSE = true; release(); const keep = MSEL, W = HUD.W, S0 = SHEET(W);
   SHOP = WARES().filter(w => w.cost !== undefined);
-  const rows = [], grid = document.createElement('div'); grid.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:min(94vw,620px)';
-  SHOP.forEach((w, i) => { const can = G.shards >= w.cost, b = menuButton(`${w.name} · ${w.cost}`, () => { MSEL = i; if (G.shards < w.cost){ sfx.block(); menuMark(); return; } G.shards -= w.cost; w.buy(); sfx.buy(); store(); shop(); }, true);
-    // (the price in the game's own pixel digits, in its own colour: in the menus' typeface a 2 and a 5 read as an 8, and 120 as 180)
-    b.textContent = ''; b.append(w.name + ' · '); b.appendChild(pixNum(w.cost, '#feae34'));
-    b.style.fontSize = '12px'; b.style.padding = '3px 7px'; if (!can) b.style.opacity = '0.5'; b.addEventListener('pointerenter', () => { if (MSEL !== i){ MSEL = i; menuMark(); } }); grid.appendChild(b); });
-  if (SHOP.length) rows.push(grid);
-  const leave = () => { SCREEN = ''; PAUSE = false; menuHide(); }; rows.push(menuButton('Leave', leave, true)); menuShow(rows, false, leave); MENU.style.top = 'auto'; MENU.style.bottom = '1.5%'; MSEL = Math.min(keep, Math.max(0, menuItems().length - 1)); menuMark();
+  const rows = SHOP.map((w, i) => { const b = menuButton('', () => { MSEL = i; if (G.shards < w.cost){ sfx.block(); menuMark(); return; } G.shards -= w.cost; w.buy(); sfx.buy(); store(); shop(); }, true);
+    b.dataset.ghost = '1'; b.setAttribute('aria-label', `${w.name}, ${w.cost} shards`); b.style.cssText = `position:absolute;left:${(S0.x + 4) / W * 100}%;top:${(S0.row(i) - 1) / 180 * 100}%;width:${(S0.pw - 8) / W * 100}%;height:${22 / 180 * 100}%;background:transparent;border:none;box-shadow:none;padding:0;cursor:pointer;outline:none`;
+    b.addEventListener('pointerenter', () => { if (MSEL !== i){ MSEL = i; menuMark(); } }); return b; });
+  const leave = () => { SCREEN = ''; PAUSE = false; menuHide(); }, lb = menuButton('Leave', leave, true); lb.style.cssText += `;position:absolute;left:${S0.rx / W * 100}%;top:${152 / 180 * 100}%`; rows.push(lb);
+  menuShow(rows, false, leave); MENU.style.top = '0'; MENU.style.bottom = '0'; MSEL = Math.min(keep, Math.max(0, menuItems().length - 1)); menuMark();
 }
-// the shop's page: what he has to spend; the thing picked, as a card (its picture, what it does, its price, what he has of it)
 function drawShop(W){
-  HUD.dark(0.92, '#181425'); HUD.text('ORDRIC\'S SHOP', W / 2, 4, '#feae34', 1, 'center'); HUD.fine(`YOU HAVE ${G.shards} SHARDS`, W / 2, 13, '#c0cbdc', 'center');
-  const w = SHOP[MSEL];
-  if (!SHOP.length){ HUD.text('Ordric has nothing more to sell.', W / 2, 70, '#fff2d0', 1, 'center'); HUD.fine('YOU HAVE BOUGHT EVERYTHING.', W / 2, 82, '#8b9bb4', 'center'); return; }
-  if (!w) return; const can = G.shards >= w.cost;
-  drawCard({ icon: w.icon, head: can ? `${w.cost} SHARDS` : `${w.cost} SHARDS · HE HAS ${G.shards}`, title: w.name, does: w.does, foot: w.own }, W, false, 22);
-  if (!can) HUD.fine('NOT ENOUGH SHARDS YET', W / 2, 140, '#f6757a', 'center');
+  HUD.dark(0.9, '#181425'); const px = HUD.px, { x, y, pw, ph, row, rx } = SHEET(W), INK = '#3e2731', BROWN = '#733e39', PALE = '#a8977a';
+  // the sheet: bone paper, a lit top edge, a worn right edge, a torn foot, and the pin that holds it
+  px('#0d0b12', x + 3, y + 4, pw, ph); px('#ead4aa', x, y, pw, ph); px('#f3e2bd', x + 1, y + 1, pw - 2, 1); px('#d9c08f', x + pw - 2, y + 2, 2, ph - 4); px('#d9c08f', x, y + ph - 3, pw, 3);
+  for (let i = 0; i < pw; i += 5) px('#181425', x + i, y + ph - ((i / 5) % 3 === 0 ? 3 : (i / 5) % 3 === 1 ? 1 : 2), 3, 3);
+  { const cx = x + Math.round(pw / 2); px('#181425', cx - 4, y - 3, 8, 9); px('#a22633', cx - 3, y - 2, 6, 7); px('#e43b44', cx - 3, y - 2, 6, 2); px('#f6757a', cx - 2, y - 2, 2, 1); px('#733e39', cx - 3, y + 3, 6, 2); }
+  HUD.text('ORDRIC', x + 10, y + 12, INK, 2, 'left', false); HUD.fine('LAMPS, FLASKS, WHAT YOU NEED', x + 10, y + 30, BROWN, 'left', 0); px(BROWN, x + 10, y + 39, pw - 20, 1); px('#d9c08f', x + 10, y + 40, pw - 20, 1);
+  if (!SHOP.length){ HUD.text('NOTHING MORE TO SELL.', x + 10, y + 56, INK, 1, 'left', false); HUD.fine('YOU HAVE BOUGHT EVERYTHING.', x + 10, y + 68, BROWN, 'left', 0); }
+  SHOP.forEach((w, i) => { const ry = row(i), on = i === MSEL, can = G.shards >= w.cost;
+    if (on){ px('#f8ecd0', x + 6, ry - 1, pw - 12, 22); px('#d9c08f', x + 6, ry + 20, pw - 12, 1); px('#181425', x + 2, ry, 5, 20); px('#a22633', x + 3, ry + 1, 3, 18); px('#e43b44', x + 3, ry + 1, 1, 18); }
+    HUD.g.globalAlpha = can ? 1 : 0.45; drawIcon(px, w.icon, x + 10, ry + 2, 1); HUD.g.globalAlpha = 1;
+    HUD.fine(w.name.toUpperCase(), x + 30, ry + 3, can ? INK : PALE, 'left', 0); HUD.fine(w.own, x + 30, ry + 12, can ? BROWN : PALE, 'left', 0);
+    const cw = textWidth(String(w.cost)); HUD.text(String(w.cost), x + pw - 10 - cw, ry + 6, can ? '#a22633' : PALE, 1, 'left', false); px(can ? '#124e89' : PALE, x + pw - 17 - cw, ry + 8, 3, 5); px(can ? '#0099db' : PALE, x + pw - 18 - cw, ry + 9, 5, 3); });
+  if (SHOP.some(w => G.shards < w.cost)) HUD.fine('PALE: YOU CANNOT PAY FOR IT YET', x + 10, y + ph - 13, PALE, 'left', 0);
+  // his shards, apart and large
+  const rw = W - rx - 8; slab(rx, 6, rw, 42, 'Your shards'); px('#181425', rx + 11, 25, 9, 13); px('#2ce8f5', rx + 14, 26, 3, 11); px('#0099db', rx + 12, 29, 7, 5); px('#ffffff', rx + 15, 26, 1, 4); HUD.text(String(G.shards), rx + 26, 25, '#fff2d0', 2, 'left');
+  // Ordric: what the thing chosen does, and a word from him about it
+  const w = SHOP[MSEL]; slab(rx, 54, rw, 94, 'Ordric');
+  { const f = TALK.face && TALK.face('lamplighter'); px('#5a6988', rx + 9, 73, 26, 26); px('#262b44', rx + 10, 74, 24, 24); if (f){ HUD.g.imageSmoothingEnabled = false; HUD.g.drawImage(f.im, f.x, f.y, f.s, f.s, rx + 10, 74, 24, 24); } }
+  if (w){ HUD.fine(w.name.toUpperCase(), rx + 40, 77, '#fee761', 'left', 0); HUD.rich(`[${kname('jump')}] BUY`, rx + 40, 89, G.shards >= w.cost ? '#c0cbdc' : '#5a6988'); let yy = 104; for (const ln of wrapFine(w.does.toUpperCase(), rw - 20)){ HUD.fine(ln, rx + 10, yy, '#fff2d0', 'left', 0); yy += 8; } flavour(w.say || '', rx + rw / 2, yy + 3, rw - 14, W); }
+  else { HUD.fine('COME BACK WHEN', rx + 40, 80, '#c0cbdc', 'left', 0); HUD.fine('YOU NEED A LAMP LIT.', rx + 40, 88, '#c0cbdc', 'left', 0); flavour(''); }
 }
 // the knots: at a flame, he chooses which relics he wears. Each is a knot in his scarf; he can carry more than he can
 // wear. The one picked is tied or untied; with every knot tied, one must be untied first
@@ -1355,7 +1384,7 @@ function drawHud(dt){
     HUD.place(place, PLACE.t < 3 ? 1 : Math.max(0.45, 1 - (PLACE.t - 3) * 0.5));
     HUD.boss((BOSS && BOSS.hud()) || miniHud(), dt);
     const dots = mapDots();
-    HUD.map(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, room, T, dots, heightHere(), SPANS, LEVEL.index, time, P);
+    HUD.map(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, room, T, dots, heightHere(), SPANS, LEVEL.index, time, P, clouds());
   }
   if (BANNER && !TALK.on && !NOTE && !(PAUSE && SCREEN && SCREEN !== 'pause')){ BANNER.t -= dt; HUD.banner(BANNER.a, BANNER.b, Math.max(0, Math.min(1, BANNER.t, (BANNER.life - BANNER.t) * 3))); if (BANNER.t <= 0) BANNER = null; }
   { const L = TEACHER.shown(); if (L && !PAUSE && !TALK.on && !NOTE && !rising){ v.set(P.x, P.y, 0).project(R.camera); const sx = Math.round((v.x + 1) / 2 * W), sy = Math.round((1 - v.y) / 2 * 180);
@@ -1373,7 +1402,7 @@ function drawHud(dt){
   // over what he can use: the key for it
   if (USE && !PAUSE && !TALK.on && !NOTE){ v.set(USE.x, USE.y + (USE.type === 'npc' ? 2.6 : 1.5), 0).project(R.camera); HUD.prompt(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180), USE.type === 'npc' ? 'TALK' : USE.type === 'flame' ? (G.under ? 'THE WATER' : 'TIE KNOTS') : 'OPEN', time, kname('down')); }
   TALK.draw(HUD, dt, time);
-  if (NOTE) drawCard(NOTE, W, true); else if (!(PAUSE && SCREEN === 'carry')) flavour('');
+  if (NOTE) drawCard(NOTE, W, true); else if (!(PAUSE && (SCREEN === 'carry' || SCREEN === 'shop'))) flavour('');
   if (PAUSE && SCREEN === 'annals') drawAnnals(W);
   else if (PAUSE && SCREEN === 'map') drawMap();
   else if (PAUSE && SCREEN === 'shop') drawShop(W);

@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 83 | 22 Nov 2026 | `53c787a` | The HUD (the ember bar, each part named once), the menu in tabs, the inventory as pictures | no | yes (now) |
+| 84 | 22 Nov 2026 | `COMMIT84` | Ordric's shop as his own sheet of paper; unknown rooms as cloud on the map; every mark on the map named | no | yes (now) |
+| 83 | 22 Nov 2026 | `53c787a` | The HUD (the ember bar, each part named once), the menu in tabs, the inventory as pictures | no | replaced by 84 |
 | 82 | 21 Nov 2026 | `bc8512a` | The Deep shut; no maps sold or given; the window for everything gained, and keys drawn as keys | no | replaced by 83 |
 | 81 | 21 Nov 2026 | `bbde82a` | The second playtest's broken things: the copy of him, the menu key, falls, the Great Shaft's water, and small numbers | no | replaced by 82 |
 | 80 | 21 Nov 2026 | `526af11` | The Glimmer redrawn side-on (the "crabs at an angle") | no | replaced by 81 |
@@ -99,6 +100,52 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 84: the shop, and the map in cloud
+
+*The last of the three builds of the screens sheet (`docs/screens-sheet.md`).*
+
+**For the player**
+
+- **Ordric's shop is his own sheet of paper, pinned up.** His name at its head in ink. Each thing he sells is a line
+  on it: its picture, its name, what you have of it now, its price. The chosen line is lit, with a piece of the
+  ribbon at its edge. What you cannot pay for is pale, and the sheet says so. This was "it should feel like a shop",
+  and your own idea for him: "a leaf or a sheet of paper".
+- **Your shards stand apart, large,** on a slab of their own.
+- **Ordric is there:** his portrait, the name of the thing chosen, the key that buys it, what it does, and a word
+  from him about it in italics. ("One more mouthful, for a longer road.") His words are flavour; what the thing does
+  is said plainly above them.
+- **The map shows where you have not been.** A room you have not entered, but that has a way into it from a room you
+  have, is drawn as cloud: on the full map and on the corner map. Cracked stone is not a way until it is broken, so
+  a hidden room stays hidden. This is the fog you asked for, on the map.
+- **Every mark on the map is named in its key,** in plain words, on two rows where one will not hold it. The cloud is
+  "not been there yet". The grey mark is "a way still shut". The gold mark that beats is "a way you can open now":
+  that was the flashing you asked about. "No deaths here" is "You have not died here".
+- **The map is on a slab** like the other screens, the region's name on the ribbon.
+
+**Not done**
+
+- **Corwen's and Hob's own menus** (an open book, a tally board). Neither sells anything today, so there is nothing
+  to put on them yet. They come when those two have something to offer.
+- **Cloud over hidden rooms in the world itself.** You said that by the Roots' well you could see a hidden room to
+  your right and wanted it clouded. That is the game's own picture, not the map, and is not in this build.
+- **The Lore book and Options** still have their old look.
+
+- **Underneath:** `main.js` (`SHEET`, `shop` and `drawShop` rebuilt, each ware's `say`; `clouds`; `drawMap` on a
+  slab), `hud.js` (`cloudFill`; cloud in `map` and `fullmap`; the key in rows), `talk.js` (`face` shared).
+- **Save: not moved.**
+- **Checked:** 458 checks pass. In the test browser: the shop at 960 by 540 and 640 by 360; a thing bought with
+  a key and another with a click; a thing he cannot pay for refused; Tab leaves. The map after walking three rooms:
+  those rooms, two rooms in cloud, the key.
+- **Not checked:** not played by a person. The shop on a touch screen. The map's key with every kind of mark on it at
+  once (it needs Corwen met, a way shut and a way open in the same region).
+
+**To try**
+
+1. Go to Ordric. Does it feel like a shop now? Is the sheet his?
+2. Buy something. Try to buy what you cannot pay for.
+3. Walk a few rooms and press M. Is the cloud clear: somewhere you know of and have not been?
+4. Read the map's key. Is any mark still unexplained?
 
 ### Build 83: the HUD, the menu, the inventory
 

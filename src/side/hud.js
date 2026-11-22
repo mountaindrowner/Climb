@@ -102,11 +102,15 @@ export function makeHud(hud){
   // the map (each room once he has been in it) and how high on the mountain he is, top right
   // the map in the corner: the rooms he has been in, at one scale whatever the size of the region (a pixel for two
   // tiles), centred on him and scrolling with him; `at` is where he is in the world
-  H.map = (mapCanvas, LW, LH, seen, room, T, dots, height, span, index, t, at) => {
+  // cloud: a room he has not been in, but knows is there (a way into it from a room he has been in). A dither of the
+  // map's own dark, so that it is plainly not a room and plainly not nothing
+  let CLOUDP = null; const cloudFill = (x, y, w, h) => { if (!CLOUDP){ const c = document.createElement('canvas'); c.width = c.height = 2; const q = c.getContext('2d'); q.fillStyle = C.dark; q.fillRect(0, 0, 1, 1); q.fillRect(1, 1, 1, 1); CLOUDP = g.createPattern(c, 'repeat'); } g.fillStyle = CLOUDP; g.fillRect(x, y, w, h); px(C.dark, x, y, w, 1); px(C.dark, x, y, 1, h); };
+  H.map = (mapCanvas, LW, LH, seen, room, T, dots, height, span, index, t, at, cloud = []) => {
     const k = 0.5, mw = 64, mh = 50, mx = H.W - mw - 16, my = 6;
     const ox = Math.round(mx + mw / 2 - (at ? at.x / T : LW / 2) * k), oy = Math.round(my + mh / 2 - (LH - (at ? at.y / T : LH / 2)) * k);
     px(C.ink, mx - 2, my - 2, mw + 4, mh + 4); px(C.deep, mx - 1, my - 1, mw + 2, mh + 2); px(C.ink, mx, my, mw, mh);
     g.save(); g.beginPath(); g.rect(mx, my, mw, mh); g.clip();
+    for (const r of cloud){ const sx = r.x0 / T, sy = LH - r.y1 / T, sw = (r.x1 - r.x0) / T, sh = (r.y1 - r.y0) / T; cloudFill(ox + Math.round(sx * k), oy + Math.round(sy * k), Math.round(sw * k), Math.round(sh * k)); }
     for (const r of seen){ const sx = r.x0 / T, sy = LH - r.y1 / T, sw = (r.x1 - r.x0) / T, sh = (r.y1 - r.y0) / T; g.globalAlpha = r === room ? 1 : 0.6; g.drawImage(mapCanvas, sx, sy, sw, sh, ox + Math.round(sx * k), oy + Math.round(sy * k), Math.round(sw * k), Math.round(sh * k)); }
     g.globalAlpha = 1;
     for (const d of dots) if (!d.blink || Math.floor(t * 3) % 2 === 0) px(d.c, ox + Math.round(d.x / T * k) - (d.r || 0), oy + Math.round((LH - d.y / T) * k) - (d.r || 0), 1 + (d.r || 0) * 2, 1 + (d.r || 0) * 2);
@@ -120,22 +124,30 @@ export function makeHud(hud){
   };
   // the whole map (from the pause): the region fitted to the picture, the rooms he has been in, the room he is in
   // outlined, and what is marked on it, with a key
-  H.fullmap = (mapCanvas, LW, LH, seen, room, T, dots, t, name) => {
+  H.fullmap = (mapCanvas, LW, LH, seen, room, T, dots, t, name, cloud = [], frame = null) => {
     H.dark(0.86);
-    text(g, name.toUpperCase(), H.W / 2, 8, C.cream, 1, 'center'); H.rule(Math.round(H.W / 2), 18, 50, C.bone);
-    const k = Math.min((H.W - 40) / LW, 116 / LH, 2), mw = Math.round(LW * k), mh = Math.round(LH * k), mx = Math.round((H.W - mw) / 2), my = 24 + Math.round((116 - mh) / 2);
+    if (frame) frame(6, 3, H.W - 12, 142); else { text(g, name.toUpperCase(), H.W / 2, 8, C.cream, 1, 'center'); H.rule(Math.round(H.W / 2), 18, 50, C.bone); }
+    const top = frame ? 22 : 24, room0 = frame ? 118 : 116;
+    const k = Math.min((H.W - 40) / LW, room0 / LH, 2), mw = Math.round(LW * k), mh = Math.round(LH * k), mx = Math.round((H.W - mw) / 2), my = top + Math.round((room0 - mh) / 2);
     px(C.ink, mx - 2, my - 2, mw + 4, mh + 4); px(C.deep, mx - 1, my - 1, mw + 2, mh + 2); px(C.ink, mx, my, mw, mh);
+    g.save(); g.beginPath(); g.rect(mx, my, mw, mh); g.clip();
+    for (const r of cloud){ const sx = r.x0 / T, sy = LH - r.y1 / T, sw = (r.x1 - r.x0) / T, sh = (r.y1 - r.y0) / T; cloudFill(mx + Math.round(sx * k), my + Math.round(sy * k), Math.round(sw * k), Math.round(sh * k)); }
+    g.restore();
     for (const r of seen){ const sx = r.x0 / T, sy = LH - r.y1 / T, sw = (r.x1 - r.x0) / T, sh = (r.y1 - r.y0) / T; g.globalAlpha = r === room ? 1 : 0.75; g.drawImage(mapCanvas, sx, sy, sw, sh, mx + Math.round(sx * k), my + Math.round(sy * k), Math.round(sw * k), Math.round(sh * k)); }
     g.globalAlpha = 1;
     if (room){ const x0 = mx + Math.round(room.x0 / T * k), y0 = my + Math.round((LH - room.y1 / T) * k), w = Math.round((room.x1 - room.x0) / T * k), h = Math.round((room.y1 - room.y0) / T * k);
       px(C.cream, x0 - 1, y0 - 1, w + 2, 1); px(C.cream, x0 - 1, y0 + h, w + 2, 1); px(C.cream, x0 - 1, y0, 1, h); px(C.cream, x0 + w, y0, 1, h); }
     for (const d of dots) if (!d.blink || Math.floor(t * 3) % 2 === 0){ const r = d.blink ? 1 : 1; px(C.ink, mx + Math.round(d.x / T * k) - r - 1, my + Math.round((LH - d.y / T) * k) - r - 1, r * 2 + 3, r * 2 + 3); px(d.c, mx + Math.round(d.x / T * k) - r, my + Math.round((LH - d.y / T) * k) - r, r * 2 + 1, r * 2 + 1); }
-    // the key
-    const KEY = [['#ffffff', 'HIM'], ['#0099db', 'WATER'], ['#feae34', 'ORDRIC'], ['#63c74d', 'MIREL'], ['#2ce8f5', 'CORWEN'], ['#e43b44', 'KEEPER']];
-    if (dots.some(d => d.way === 'shut')) KEY.push(['#8b9bb4', 'SHUT']); if (dots.some(d => d.way === 'open')) KEY.push(['#fee761', 'OPEN NOW']); else if (dots.some(d => d.way === 'quick')) KEY.push(['#fee761', 'QUICK WAY']);
-    if (dots.some(d => d.find)) KEY.push(['#f6757a', 'UNFOUND']);
-    let kx = Math.round(H.W / 2 - KEY.reduce((a, [, s]) => a + width(s) + 12, 0) / 2);
-    for (const [c, s] of KEY){ px(C.ink, kx - 1, 147, 5, 5); px(c, kx, 148, 3, 3); text(g, s, kx + 6, 146, C.pale, 1, 'left'); kx += width(s) + 12; }
+    // the key: every mark on the map, named (build 84: the beating gold mark and the cloud were not explained, and a
+    // playtest asked what the flashing was). Two rows where one will not hold it
+    const KEY = [['#ffffff', 'YOU'], ['#0099db', 'WATER'], ['#feae34', 'ORDRIC'], ['#63c74d', 'MIREL'], ['#2ce8f5', 'CORWEN'], ['#e43b44', 'KEEPER']];
+    if (cloud.length) KEY.push(['cloud', 'NOT BEEN THERE YET']);
+    if (dots.some(d => d.way === 'shut')) KEY.push(['#8b9bb4', 'A WAY STILL SHUT']); if (dots.some(d => d.way === 'open')) KEY.push(['#fee761', 'BEATING: A WAY YOU CAN OPEN NOW']); else if (dots.some(d => d.way === 'quick')) KEY.push(['#fee761', 'A QUICK WAY']);
+    if (dots.some(d => d.find)) KEY.push(['#f6757a', 'NOT FOUND YET']);
+    const wOf = ([, s]) => width(s, 1, true) + 12, rows = [[]]; for (const e of KEY){ const r = rows[rows.length - 1]; if (r.length && r.reduce((a, q) => a + wOf(q), 0) + wOf(e) > H.W - 24) rows.push([e]); else r.push(e); }
+    rows.forEach((r, j) => { let kx = Math.round(H.W / 2 - r.reduce((a, q) => a + wOf(q), 0) / 2); const ky = (frame ? 148 : 146) + j * 8;
+      for (const [c, str] of r){ px(C.ink, kx - 1, ky, 5, 5); if (c === 'cloud') cloudFill(kx, ky + 1, 3, 3); else px(c, kx, ky + 1, 3, 3); text(g, str, kx + 6, ky, C.pale, 1, 'left', false, true); kx += wOf([c, str]); } });
+    H.keyRows = rows.length;
   };
   // words that come up in the middle: a name large, a line under it
   H.banner = (a, b, alpha) => {
