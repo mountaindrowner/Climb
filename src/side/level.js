@@ -286,6 +286,7 @@ function brow(){ const r = room(); rect(r, 0, 13, r.w - 1, r.h - 1); rect(r, 0, 
   return r; }
 function mouth(){
   const r = room(); rect(r, 0, 0, r.w - 1, r.h - 1); rect(r, 2, 2, 37, 20, EMPTY); door(r, 'right', 2, 7);
+  r.asks = 'dash'; rect(r, 38, 2, 39, 7, VELLUM);   // (build 87; `asks`: this room's pane is on the climb itself, not at a wing's door) thin ice has grown across the way up into the Spires: the Cracked Bell's step breaks it. The Bell-Foundry is part of the climb now (decision 0.13)
   rect(r, 2, 2, 4, 3); ledge(r, 12, 18, 6);
   mark(r, 'spawn', 7, 2); mark(r, 'torch', 5, 8); mark(r, 'torch', 30, 7); mark(r, 'crystal', 22, 2); mark(r, 'crystal', 15, 7);
   mark(r, 'npc', 28, 2, { who: 'scribe' }); mark(r, 'urn', 33, 2); mark(r, 'urn', 35, 2);
@@ -459,7 +460,7 @@ function core(n){
     const r = make(), ox = cx * ROOM.w, oy = cy * ROOM.h;
     for (let y = 0; y < r.h; y++) for (let x = 0; x < r.w; x++) tiles[(oy + y) * W + ox + x] = r.tiles[y][x];
     for (const m of r.marks) marks.push({ ...m, x: ox + m.x, y: oy + m.y });
-    if (!r.filler) rooms.push({ name: make.name, title: r.title || '', gate: r.gate || '', open: !!r.open, ...(r.after ? { after: true } : {}), ...(r.needs ? { needs: r.needs } : {}), x0: ox * T, y0: oy * T, x1: (ox + r.w) * T, y1: (oy + r.h) * T, tx0: ox, ty0: oy, tx1: ox + r.w, ty1: oy + r.h });
+    if (!r.filler) rooms.push({ name: make.name, title: r.title || '', gate: r.gate || '', open: !!r.open, ...(r.after ? { after: true } : {}), ...(r.needs ? { needs: r.needs } : {}), ...(r.asks ? { asks: r.asks } : {}), x0: ox * T, y0: oy * T, x1: (ox + r.w) * T, y1: (oy + r.h) * T, tx0: ox, ty0: oy, tx1: ox + r.w, ty1: oy + r.h });
   }
   if (SEAM){   // he comes in at the seam's foot (the region's own start is let go); a hole up into the first room, boarded
     let first = true; for (let k = marks.length - 1; k >= 0; k--) if (marks[k].type === 'spawn'){ if (marks.slice(0, k).some(m => m.type === 'spawn')) marks.splice(k, 1); }

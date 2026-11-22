@@ -6,7 +6,7 @@
 // and the shards themselves: they scatter, lie where they fall, and come to him when he is near.
 //   makeItems(scene, R, n) -> { step(dt, t, P, evs), strike(from, reach, evs), slam(P, radius, evs), near(P), left(), list, people }
 // Events pushed for the game to act on: shard { v }, thread, relic { id }, chest, urn, each with `at`.
-import { T, LEVEL, tileAt, ROCK, LEDGE } from './level.js';
+import { T, LEVEL, tileAt, ROCK, LEDGE, RULE } from './level.js';
 import { PPU, PAL, makeSprite } from './render.js';
 import { took, take, has } from './state.js';
 import { PEOPLE } from './talk.js';
@@ -20,6 +20,28 @@ function urnTex(){
   const c = cnv(9, 11), g = c.getContext('2d'), half = [1, 2, 2, 3, 3, 3, 3, 2, 2, 1, 2];
   half.forEach((h, k) => { px(g, PAL.ink, 4 - h - 1, k, h * 2 + 3); px(g, k === 4 ? PAL.fire2 : k === 0 || k === 10 ? PAL.wood3 : PAL.rust, 4 - h, k, h * 2 + 1); px(g, PAL.wood3, 4 - h, k); if (h > 1) px(g, PAL.wood1, 4 + h, k); });
   return texOf(c);
+}
+// a wing's prize chest (build 87; "it should come out of a special chest"), shut and open, side by side (26 x 20 each):
+// larger than any other, banded in gold, and tied shut with a ribbon of his own red. It holds what the wing's keeper
+// guarded, and it cannot be opened while that keeper stands (`prize`: the rule that says it has fallen)
+function prizeTex(){
+  const c = cnv(52, 20), g = c.getContext('2d');
+  for (const o of [0, 26]){
+    px(g, PAL.ink, o + 1, 9, 24, 11); px(g, PAL.wood1, o + 2, 10, 22, 9); px(g, PAL.wood3, o + 2, 10, 22, 1); px(g, PAL.wood0, o + 2, 18, 22, 1);
+    for (const bx of [3, 12, 21]) px(g, PAL.fire3, o + bx, 10, 2, 9);
+    if (!o){   // shut: a domed lid; the ribbon round it, knotted at the front, its tails hanging
+      px(g, PAL.ink, 1, 3, 24, 7); px(g, PAL.ink, 3, 1, 20, 2); px(g, PAL.wood1, 2, 4, 22, 5); px(g, PAL.wood1, 4, 2, 18, 2); px(g, PAL.wood3, 4, 2, 18, 1);
+      for (const bx of [3, 21]) px(g, PAL.fire3, bx, 4, 2, 5); px(g, PAL.fire3, 12, 2, 2, 7);
+      px(g, PAL.red0, 2, 13, 22, 2); px(g, PAL.red1, 2, 13, 22, 1);
+      px(g, PAL.ink, 10, 11, 6, 6); px(g, PAL.red1, 11, 12, 4, 4); px(g, PAL.red0, 11, 15, 4, 1);
+      px(g, PAL.red1, 9, 16, 2, 3); px(g, PAL.red1, 15, 16, 2, 3); px(g, PAL.red0, 9, 18, 2, 1); px(g, PAL.red0, 15, 18, 2, 1);
+    } else {   // open: the lid thrown back, light in it, the ribbon on the floor
+      px(g, PAL.ink, o + 1, 0, 24, 5); px(g, PAL.wood1, o + 2, 1, 22, 3); px(g, PAL.wood3, o + 2, 1, 22, 1); for (const bx of [3, 12, 21]) px(g, PAL.fire3, o + bx, 1, 2, 3);
+      px(g, PAL.ink, o + 2, 5, 22, 5); px(g, PAL.fire3, o + 4, 6, 18, 2); px(g, PAL.white, o + 7, 6, 12, 1); px(g, PAL.fire2, o + 4, 8, 18, 1);
+      px(g, PAL.red1, o + 3, 19, 6, 1); px(g, PAL.red0, o + 8, 19, 3, 1);
+    }
+  }
+  const t = texOf(c); t.repeat.set(0.5, 1); return t;
 }
 // a chest, shut and open, side by side (18 x 14 each)
 function chestTex(rich){
@@ -87,9 +109,9 @@ export function makeItems(scene, R, n){
     const x = (mk.x + 0.5) * T, y = mk.y * T, id = mk.type[0] + mk.x + ',' + mk.y;
     if (mk.type === 'urn'){ if (took(n, id)) continue; const m = flat(ut, 9, 11); m.position.set(x, y, 0.025); list.push({ type: 'urn', id, x, y, m, w: 0.4, h: 0.7 }); }
     else if (mk.type === 'chest'){
-      const rich = /^relic|^thread/.test(mk.holds || ''), tex = chestTex(rich), open = took(n, id), m = flat(tex, 18, 14); m.position.set(x, y, 0.025); if (open) tex.offset.x = 0.5;
-      const gl = rich && !open ? halo(0xffd27a, 2.2, 0.3) : null; if (gl) gl.position.set(x, y + 0.5, 0.02);
-      list.push({ type: 'chest', id, x, y, m, tex, gl, open, holds: mk.holds || 'shards', w: 0.6, h: 0.85 });
+      const prize = /^gift:/.test(mk.holds || ''), rich = prize || /^relic|^thread/.test(mk.holds || ''), tex = prize ? prizeTex() : chestTex(rich), open = took(n, id), m = prize ? flat(tex, 26, 20) : flat(tex, 18, 14); m.position.set(x, y, 0.025); if (open) tex.offset.x = 0.5;
+      const gl = rich && !open ? halo(prize ? 0xfee761 : 0xffd27a, prize ? 3.4 : 2.2, 0.3) : null; if (gl) gl.position.set(x, y + (prize ? 0.7 : 0.5), 0.02);
+      list.push({ type: 'chest', id, x, y, m, tex, gl, open, holds: mk.holds || 'shards', prize: prize ? mk.prize || 'still' : null, w: prize ? 0.85 : 0.6, h: prize ? 1.2 : 0.85 });
     }
     else if (mk.type === 'thread'){ if (took(n, id)) continue; const m = flat(tt, 9, 13), gl = halo(0xff5040, 1.6, 0.45); m.position.set(x, y + 0.5, 0.04); gl.position.set(x, y + 0.9, 0.03); list.push({ type: 'thread', id, x, y, m, gl, ph: rnd() * 6 }); }
     else if (mk.type === 'npc'){
@@ -122,9 +144,10 @@ export function makeItems(scene, R, n){
   const give = (it, evs) => {
     const at = { x: it.x, y: it.y + 0.6 };
     if (it.type === 'urn'){ it.gone = true; scene.remove(it.m); take(n, it.id); spill(it.x, it.y, Math.round((3 + Math.floor(rnd() * 4)) * (has('tally') ? 1.5 : 1))); evs.push({ type: 'urn', at }); }
+    else if (it.type === 'chest' && !it.open && it.prize && !RULE[it.prize]){ evs.push({ type: 'held', at }); }   // a wing's prize: held shut while its keeper stands
     else if (it.type === 'chest' && !it.open){ it.open = true; it.tex.offset.x = 0.5; if (it.gl){ scene.remove(it.gl); it.gl = null; } take(n, it.id); it.t = 0;
       evs.push({ type: 'chest', at });
-      if (it.holds.startsWith('relic:')) evs.push({ type: 'relic', id: it.holds.slice(6), at }); else if (it.holds === 'thread') evs.push({ type: 'thread', at }); else spill(it.x, it.y + 0.4, 26 + Math.floor(rnd() * 12)); }
+      if (it.holds.startsWith('gift:')) evs.push({ type: 'gift', id: it.holds.slice(5), at }); else if (it.holds.startsWith('relic:')) evs.push({ type: 'relic', id: it.holds.slice(6), at }); else if (it.holds === 'thread') evs.push({ type: 'thread', at }); else spill(it.x, it.y + 0.4, 26 + Math.floor(rnd() * 12)); }
   };
   const I = { list, people, spill };
   I.step = (dt, t, P, evs) => {
@@ -132,7 +155,7 @@ export function makeItems(scene, R, n){
       if (it.gone) continue;
       if (it.type === 'thread'){ it.m.position.y = it.y + 0.5 + Math.sin(t * 2 + it.ph) * 0.12; it.gl.material.opacity = 0.35 + Math.sin(t * 3 + it.ph) * 0.12; if (P.hp > 0 && Math.abs(P.x - it.x) < 0.7 && P.y < it.y + 1.6 && P.y + P.h > it.y + 0.3){ it.gone = true; scene.remove(it.m); scene.remove(it.gl); take(n, it.id); evs.push({ type: 'thread', at: { x: it.x, y: it.y + 0.8 } }); } }
       else if (it.type === 'urn' && P.roll > 0 && Math.abs(P.x - it.x) < 0.55 && Math.abs(P.y - it.y) < 0.6) give(it, evs);   // rolled through
-      else if (it.type === 'chest' && it.gl) it.gl.material.opacity = 0.26 + Math.sin(t * 2.4) * 0.08;
+      else if (it.type === 'chest' && it.gl) it.gl.material.opacity = it.prize ? (RULE[it.prize] ? 0.42 + Math.sin(t * 2.4) * 0.14 : 0) : 0.26 + Math.sin(t * 2.4) * 0.08;   // a prize glows once it can be opened
     }
     for (const N of people){
       // the station's light, kept up while it is near (the fire flickers; the lamp and the candle are steadier)

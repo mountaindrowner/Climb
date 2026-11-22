@@ -13,14 +13,14 @@ import { clock } from './browser.mjs';
 const { LEVEL, LEVELS, loadLevel, T, PHASE, REGION_DATA, RULE, waterAt } = await import('../../src/side/level.js');
 const M = await import('../../src/side/motor.js');
 const I = await import('../../src/core/input.js');
-const { TEACH } = await import('../../src/side/state.js');
+const { TEACH, ABILITY, ARRIVES } = await import('../../src/side/state.js');
 const H120 = 1 / 120;
 PHASE.all = true;   // star-glass is waited for: here it is always there
 export { LEVELS, loadLevel, LEVEL, T };
 
-export const GIFTS = TEACH.map(t => t.can).filter(Boolean);                        // ['breaker', 'dash', 'glide']
-export const giftName = c => (TEACH.find(t => t.can === c) || { name: c }).name;
-export const arrival = N => REGION_DATA[N] && REGION_DATA[N].deep ? [...(REGION_DATA[N].needs || [])] : TEACH.slice(0, N).map(t => t.can).filter(Boolean);   // (needs: a section of the Deep he cannot come into without a gift: the Flooded Levels, the Wyrm's wind)
+export const GIFTS = [...Object.keys(ARRIVES), ...TEACH.map(t => t.can).filter(c => c && !(c in ARRIVES))];   // ['breaker', 'dash', 'glide', 'grip'] (build 87: the order he comes by them, state.js ARRIVES; the dash is no keeper's now)
+export const giftName = c => (ABILITY[c] || TEACH.find(t => t.can === c) || { name: c }).name;
+export const arrival = N => REGION_DATA[N] && REGION_DATA[N].deep ? [...(REGION_DATA[N].needs || [])] : Object.keys(ARRIVES).filter(c => ARRIVES[c] <= N);   // (needs: a section of the Deep he cannot come into without a gift: the Flooded Levels, the Wyrm's wind)
 
 let W = 0;
 // one input program from where he stands; returns where he came to rest, by tile (grounded, not hurt). Places are kept

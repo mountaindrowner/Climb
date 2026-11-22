@@ -15,7 +15,7 @@
 //   G.seen, G.slain, G.keepers: what he has met, killed, and which keepers he has faced (Corwen's Annals, annals.js)
 import { TUNE } from '../config/tuning.js';
 const KEY = 'climb-side', OKEY = 'climb-side-opts';
-const blank = () => ({ seamed: 1, level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], worn: [], knots: 0, arms: [], wield: 'blade', got: {}, broke: {}, met: {}, charts: [], began: false, falls: 0, seen: {}, slain: {}, keepers: {}, blocked: {}, fallsBy: {}, sealed: {}, rooms: {}, joined: 1, winged: 4 });
+const blank = () => ({ can: {}, seamed: 1, level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], worn: [], knots: 0, arms: [], wield: 'blade', got: {}, broke: {}, met: {}, charts: [], began: false, falls: 0, seen: {}, slain: {}, keepers: {}, blocked: {}, fallsBy: {}, sealed: {}, rooms: {}, joined: 1, winged: 4 });
 export const G = blank();
 export const OPT = { music: 0.7, sfx: 1, voice: 0.8, text: 'normal', shake: 1, flash: 1, diff: 1, synth: false, rumble: true, phone: 'auto', hints: true };   // hints: the opening's help when he struggles (teach.js)   // phone: 'auto' (by the device), true, false   // diff: 0 story, 1 climber, 2 summit
 const read = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e){ return null; } };
@@ -46,7 +46,10 @@ function joined(S){
   for (const n of Object.keys(JOIN_MOVED)){ const [dx, dy] = JOIN_MOVED[n], mv = id => { const m = /^([a-z]?)(-?\d+),(-?\d+)$/.exec(id); return m ? m[1] + (+m[2] + dx) + ',' + (+m[3] + dy) : id; };
     for (const k of ['got', 'broke', 'blocked']) if (S[k] && S[k][n]) S[k][n] = S[k][n].map(mv); }
 }
-export function loadSave(){ const s = read(KEY); Object.assign(G, blank()); if (s && typeof s === 'object'){ seamed(s); joined(s); winged(s); knotted(s); Object.assign(G, s); G.top = Math.max(G.top || 0, G.level || 0); G.began = true; } const o = read(OKEY); if (o) Object.assign(OPT, o); return G; }
+// (build 87) what he can do is no longer read off which keepers have fallen: the air dash is the Cracked Bell's. A save
+// from before keeps what it had
+function gifted(S){ if (S.can) return; const b = n => !!(S.beat && S.beat[n]) || (S.top || 0) > n; S.can = {}; if (b(1)) S.can.dash = 1; if (b(2)) S.can.glide = 1; }
+export function loadSave(){ const s = read(KEY); Object.assign(G, blank()); if (s && typeof s === 'object'){ seamed(s); joined(s); winged(s); knotted(s); gifted(s); Object.assign(G, s); G.top = Math.max(G.top || 0, G.level || 0); G.began = true; } const o = read(OKEY); if (o) Object.assign(OPT, o); return G; }
 // trying a place from the title (main.js tryStart): what happens then is not his save. It is written beside it, and his
 // own is not touched
 export const TRY = { on: false };
@@ -99,9 +102,18 @@ export const RELICS = {   // name: whose it was; line: what it does; lore: whose
   starcompass: { name: 'Astronomer\'s Compass',    line: 'Your map shows what is left to find.',       lore: 'It does not point north. It points at the star that is missing.' },
 };
 // what each keeper leaves him, by region: `does`, plainly; `how`, with the keys ({action}, teach.js fill); `icon`, its picture
+// What a wing's keeper guards (build 87; decision 0.13: abilities from minibosses, weapons from keepers). It is in a
+// chest of its own kind that opens when the keeper of the wing has fallen (items.js: `holds: 'gift:dash'`), and it is
+// his from then on: G.can
+export const ABILITY = {
+  dash: { can: 'dash', icon: 'dash', name: 'The Bell\'s Step', does: 'An air dash. You fly level and fast, once per jump.', how: ['{roll} in the air: dash.', 'A dash breaks thin ice and tears vellum: the pale sheets across some ways.'], more: ['With 10 embers, {art}: rush through everything in front of you.'] },
+};
+// by which region of the climb he has each thing he can do, if he has done what the way there asks (a place tried from
+// the title, and the tests' "what he arrives with")
+export const ARRIVES = { breaker: 1, dash: 2, glide: 3 };
 export const TEACH = [
   { can: 'breaker', icon: 'hammer', name: 'The Warden\'s Hammer', does: 'A heavy weapon. Slow, triple damage, and it knocks creatures back. It breaks cracked stone. It cannot block.', how: ['{swap}: switch between sword and hammer.', 'In the air, {down} + {attack}: slam down. It breaks cracked floors.'], more: ['Its third hit sends a wave along the ground.', 'With 10 embers, {down} + {art}: a shockwave along the floor, both ways.'] },
-  { can: 'dash',    icon: 'dash',    name: 'The Toll\'s Step',     does: 'An air dash. You fly level and fast, once per jump.', how: ['{roll} in the air: dash.', 'A dash tears through vellum: the pale sheets across some doorways.'], more: ['With 10 embers, {art}: rush through everything in front of you.'] },
+  { heart: 1,       icon: 'heart',   name: 'The Toll\'s Heart',    does: 'You have one more heart.', how: [] },   // (until its weapon is made: docs/gifts-sheet.md. The air dash it used to leave is the Cracked Bell's: ABILITY)
   { can: 'glide',   icon: 'glide',   name: 'The Wyrm\'s Wind',     does: 'You can glide. Rising air lifts you. In deep water you can dive.', how: ['In the air with no jumps left: hold {jump} to glide.', 'In deep water: {jump} to swim up, {down} to dive.'], more: ['With 10 embers, {art} in the air: a gust throws back everything near you.'] },
   { heart: 1,       icon: 'heart',   name: 'The Thunderhead\'s Heart', does: 'You have one more heart.', how: [] },
   { flask: 1,       icon: 'flask',   name: 'Mother Thorn\'s Dew',    does: 'Your flask holds one more drink.', how: [] },

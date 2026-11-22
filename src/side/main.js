@@ -16,7 +16,7 @@ import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE
 import { width as textWidth, width as pxWidth, text as pxText } from './pixelfont.js';
 const wrapText = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };
 const wrapFine = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t, 1, true) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };   // (the small print's widths)
-import { G, OPT, loadSave, store, storeOpt, wipe, TRY, fresh, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, THREADS_A_HEART, DIFF } from './state.js';
+import { G, OPT, loadSave, store, storeOpt, wipe, TRY, fresh, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, ABILITY, ARRIVES, THREADS_A_HEART, DIFF } from './state.js';
 import { makeItems } from './items.js';
 import { makeTalk, SCRIPT } from './talk.js';
 import { ANNALS, PEOPLE_PAGE } from './annals.js';
@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 86, date: '22 NOV 2026', phase: 17, phases: 22, last: 'THE HAMMER' };
+const VERSION = { build: 87, date: '22 NOV 2026', phase: 17, phases: 22, last: 'THE CRACKED BELL ROLLS' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -84,7 +84,7 @@ const SUB = LEVELS.map(l => l.sub), CARD = LEVELS.map(l => l.card);   // under a
 // what he can do, from what he has beaten and what he carries
 function learn(){
   const b = n => !!G.beat[n] || G.top > n || (DEV && LEVEL.index > n);
-  CAN.breaker = b(0); CAN.dash = b(1); CAN.glide = b(2); CAN.grip = !!G.beat[TEACH.findIndex(t => t.can === 'grip')];
+  const got = c => !!(G.can && G.can[c]) || (DEV && LEVEL.index >= ARRIVES[c]); CAN.breaker = b(0); CAN.dash = got('dash'); CAN.glide = got('glide');   // (build 87: the dash and the glide are his when he is given them, G.can; not when a keeper has fallen) CAN.grip = !!G.beat[TEACH.findIndex(t => t.can === 'grip')];
   if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the spade (a save from before has it now)
   SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); SIDE.boots = has('boots'); SIDE.calm = has('stillair'); SIDE.bell = has('shiftbell'); SIDE.rope = has('lastrope'); if (CAN.breaker && !G.lamp){ G.lamp = 1; G.lampNew = 1; } if (P){ P.flaskMax = maxFlask(); P.flask = Math.min(P.flask, P.flaskMax); const mh = maxHearts(); if (mh > P.maxHp) P.hp += mh - P.maxHp; P.maxHp = mh; P.hp = Math.min(P.hp, mh); }
   // (the yoke, the second place: worn or taken off; then the Gardener's Seed. This last statement has twice been found
@@ -367,7 +367,7 @@ function tryMenu(){
 function tryStart(t){
   if (!TRY.on){ TRYING.snap = JSON.stringify(G); TRY.on = true; }
   const n = t.n, deep = !!REGION_DATA[n].deep, gifts = t.gifts != null ? t.gifts : deep ? CLIMB_TOP : n;   // how many of the climb's keepers have fallen
-  fresh(); for (let k = 0; k < gifts; k++){ G.beat[k] = true; const g = TEACH[k]; if (g && g.heart) G.hearts += g.heart; if (g && g.flask) G.flasks += g.flask; }
+  fresh(); for (let k = 0; k < gifts; k++){ G.beat[k] = true; const g = TEACH[k]; if (g && g.heart) G.hearts += g.heart; if (g && g.flask) G.flasks += g.flask; } for (const c of Object.keys(ARRIVES)) if (gifts >= ARRIVES[c]) G.can[c] = 1;
   for (const k of t.beat || []) G.beat[k] = true;
   G.top = deep ? Math.max(0, gifts) : n; G.level = n; G.began = true; G.shards = 150; G.lampNew = 0;
   if (deep && (REGION_DATA[n].depth || [0, 0])[1] < -2) G.under = 1;   // below the Flooded Levels he has been through its chapel
@@ -428,6 +428,7 @@ function noteWays(dt){
   if ((WAYT -= dt) > 0) return; WAYT = 0.4; sealPage();
   const B = (G.blocked = G.blocked || {}), mine = (B[LEVEL.index] = B[LEVEL.index] || []);
   if (!CAN.dash) for (const S of PROPS.sheets) if (!S.gone && !mine.includes(S.id) && P.x > S.x0 - 5 && P.x < S.x1 + 5 && P.y + 1.2 > S.y0 - 2.5 && P.y + 1.2 < S.y1 + 2.5){ mine.push(S.id); DIRTY = DIRTY > 0 ? DIRTY : 2; }   // vellum, come to without the Toll's step
+  if (!CAN.dash && !HINTED.sheet && P) for (const S of PROPS.sheets) if (!S.gone && P.x > S.x0 - 1.6 && P.x < S.x1 + 1.6 && P.y + 1.2 > S.y0 && P.y + 1.2 < S.y1){ HINTED.sheet = 1; sfx.block(); banner('', LEVEL.theme === 'spires' ? 'Thin ice. It wants speed, not weight.' : 'Vellum, stretched tight. It wants speed.', 4); LATER.push({ t: 20, f: () => { HINTED.sheet = 0; } }); break; }   // a way he cannot open yet says so (the playtest of 21 Nov, T5)
   if (CAN.breaker) return;
   for (const C of PROPS.cracks) if (!C.gone && !mine.includes(C.id) && Math.abs(C.x - P.x) < C.w / 2 + 4 && Math.abs(C.y - (P.y + 1.2)) < C.h / 2 + 2.5){ mine.push(C.id); DIRTY = DIRTY > 0 ? DIRTY : 2; }
 }
@@ -471,7 +472,7 @@ function drawMap(){ const met = corwenMet(), dots = mapDots();
   if (met){ const n = LEVEL.index, falls = (G.fallsBy || {})[n] || 0, shut = dots.filter(d => d.way === 'shut').length, open = dots.filter(d => d.way === 'open').length, parts = [];
     parts.push(falls ? `YOU HAVE DIED HERE ${falls} TIME${falls === 1 ? '' : 'S'}` : 'YOU HAVE NOT DIED HERE');
     const sv = dots.filter(d => d.way === 'shut' && d.by === 'step').length, ov = dots.filter(d => d.way === 'open' && d.by === 'step').length, sc = shut - sv, oc = open - ov, ways = (k, w) => `${k} WAY${k === 1 ? '' : 'S'} ${w}`;
-    if (sc) parts.push(ways(sc, 'BLOCKED BY CRACKED STONE: NEEDS A HEAVY WEAPON')); if (sv) parts.push(ways(sv, 'BLOCKED BY VELLUM: NEEDS AN AIR DASH')); if (oc) parts.push(ways(oc, 'YOUR HAMMER CAN OPEN NOW')); if (ov) parts.push(ways(ov, 'YOUR AIR DASH CAN OPEN NOW'));
+    if (sc) parts.push(ways(sc, 'BLOCKED BY CRACKED STONE: NEEDS A HEAVY WEAPON')); if (sv) parts.push(ways(sv, 'BLOCKED BY ICE OR VELLUM: NEEDS AN AIR DASH')); if (oc) parts.push(ways(oc, 'YOUR HAMMER CAN OPEN NOW')); if (ov) parts.push(ways(ov, 'YOUR AIR DASH CAN OPEN NOW'));
     HUD.fine(parts.join('  ·  '), HUD.W / 2, 150 + (HUD.keyRows || 1) * 8, '#8b9bb4', 'center');
     if ((G.sealed || {})[n]){ HUD.seal(HUD.W - 43, 36); HUD.fine('REGION', HUD.W - 43, 48, '#fee761', 'center'); HUD.fine('COMPLETE', HUD.W - 43, 55, '#fee761', 'center'); HUD.fine('EVERYTHING', HUD.W - 43, 66, '#c0cbdc', 'center'); HUD.fine('HERE IS FOUND', HUD.W - 43, 73, '#c0cbdc', 'center'); }
     return; }
@@ -1049,7 +1050,7 @@ function drawCard(c, W, modal, top = 8){
 // ---- what he carries (from the pause): his gifts, weapons and relics, each a button; the one picked shows its card
 let CARRY = [];
 const carryCards = () => [
-  ...TEACH.filter(t => t.can && t.can !== 'breaker' && CAN[t.can]).map(t => ({ head: 'AN ABILITY', title: t.name, icon: t.icon, does: t.does, how: [...t.how, ...(t.more || [])] })),
+  ...[...Object.values(ABILITY), ...TEACH].filter(t => t.can && t.can !== 'breaker' && CAN[t.can]).map(t => ({ head: 'AN ABILITY', title: t.name, icon: t.icon, does: t.does, how: [...t.how, ...(t.more || [])] })),
   { head: 'A WEAPON' + (P.weapon !== 'spade' ? ' · IN USE' : ''), title: 'The sword', icon: 'blade', does: 'Fast three-hit combos. You can block with it. It cannot break stone.', how: ['{attack}: attack. {block}: block.'] },
   ...(armed('spade') ? [{ head: 'A WEAPON' + (P.weapon === 'spade' ? ' · IN USE' : ''), title: TEACH[0].name, icon: 'hammer', does: TEACH[0].does, how: [...TEACH[0].how, ...(TEACH[0].more || [])] }] : []),
   ...G.relics.filter(id => RELICS[id]).map(id => ({ head: has(id) ? 'A RELIC · EQUIPPED' : 'A RELIC · NOT EQUIPPED', title: RELICS[id].name, icon: id, does: RELICS[id].line, lore: RELICS[id].lore })),
@@ -1080,11 +1081,11 @@ function drawCarry(W){
 // moment, then comes down to him; he reaches up and takes it to his chest (his `receive` drawing; he is held while he
 // does); then its card. GIFT: { t, st: gather | hang | come | take, x, y, m (its picture), teach }
 let GIFT = null, RECEIVE = 0; const RECEIVE_T = 1.3;
-function giftStart(t){
+function giftStart(t, from = null){   // from: out of a chest (a wing's prize), not out of a keeper
   const c = document.createElement('canvas'); c.width = c.height = 16; const g = c.getContext('2d'); drawIcon((col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(x, y, w, h); }, t.icon, 0, 0, 1);
   const tex = new THREE.CanvasTexture(c); tex.magFilter = tex.minFilter = THREE.NearestFilter; tex.generateMipmaps = false;
   const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0, depthTest: false, depthWrite: false }));
-  const x = BOSS ? BOSS.cx : P.x, y = (BOSS ? BOSS.stageY : P.y) + 3.2; m.position.set(x, y, 0.07); m.renderOrder = 50; R.scene.add(m);
+  const x = from ? from.x : BOSS ? BOSS.cx : P.x, y = from ? from.y + 2.4 : (BOSS ? BOSS.stageY : P.y) + 3.2; m.position.set(x, y, 0.07); m.renderOrder = 50; R.scene.add(m);
   GIFT = { t: 0, st: 'gather', x, y, y0: y, m, teach: t }; sfx.relic && sfx.relic();
 }
 // he has left before it reached him (a way on, the title): it is his all the same, and its card comes
@@ -1162,6 +1163,7 @@ function talkTo(N){
   if (INTRO[N.who] && !Object.keys(G.met).some(m => m.endsWith(':' + N.who)) && !lines.includes(INTRO[N.who])) lines.unshift(INTRO[N.who]);   // the first meeting anywhere: who they are (teach.js)
   if (N.who === 'scribe'){ const L = ITEMS.left(), pl = (c, w) => `${c} ${w}${c === 1 ? '' : 's'}`; lines.push(L.threads + L.chests === 0 ? 'You have found everything in this region.' : `Still to find in this region: ${pl(L.threads, 'red strand')}, ${pl(L.chests, 'chest')}${L.relic ? ', and a relic behind a way that is still blocked' : ''}.`);
     if (G.lectern && !G.lecternSaid){ G.lecternSaid = 1; lines.push('You found the book they copy. Its first page is blank. No one has dared to write on it.'); } }
+  if (N.who === 'lamplighter' && LEVEL.index === 2 && !CAN.dash) lines.splice(Math.max(0, lines.length - 1), 0, 'Ice has grown across the way above. Weight will not break it.', 'The founders, east of the bell tower below, cast a thing that could. They threw it down in their pit.');   // (build 87: the way to the Spires wants the Cracked Bell's gift. A hint of where, not of how: decision 0.18)
   if (N.who === 'wren' && LEVEL.index === 2 && G.lit && (G.lit[2] || []).length && !G.satSaid){ G.satSaid = 1; lines.push('I sat down in the galleries once, to rest. I got up. I do not know yet which was harder.'); }
   if (N.who === 'wren' && G.still && G.still[1] && !G.stillSaid){ G.stillSaid = 1; lines.push('The cracked bell has stopped. I kept my count by it. Now I keep it myself.'); }
   G.met[k] = n + 1; store(); release(); sfx.ui(); TALK.start(N.who, lines, N.who === 'lamplighter' ? shop : null, N.art);
@@ -1328,7 +1330,7 @@ function onEvent(e){
       banner(BOSS.name + ' is beaten', BOSS.fell, 5); ITEMS.spill(BOSS.cx, BOSS.stageY + 2, 60);
       // what it leaves him, the first time
       const n = LEVEL.index, t = TEACH[n];
-      if (!G.beat[n]){ G.beat[n] = true; GIFTING = !!(t && t.name); if (t && t.heart){ G.hearts += t.heart; P.maxHp = maxHearts(); P.hp = P.maxHp; } if (t && t.flask){ G.flasks += t.flask; P.flaskMax = maxFlask(); P.flask = P.flaskMax; } learn(); store();
+      if (!G.beat[n]){ G.beat[n] = true; GIFTING = !!(t && t.name); if (t && t.can) (G.can = G.can || {})[t.can] = 1; if (t && t.heart){ G.hearts += t.heart; P.maxHp = maxHearts(); P.hp = P.maxHp; } if (t && t.flask){ G.flasks += t.flask; P.flaskMax = maxFlask(); P.flask = P.flaskMax; } learn(); store();
         if (t && t.name){ LATER.push({ t: 2.4, f: () => giftStart(t) }); } }   // what it leaves gathers out of it, and comes to him (decision 0.5)
       break; }
     case 'shard': G.shards += e.v; sfx.shard(); PURSE = 2.5; DIRTY = DIRTY > 0 ? DIRTY : 2; break;
@@ -1337,6 +1339,10 @@ function onEvent(e){
     case 'thread': { G.threads++; sfx.thread(); fx.ring(e.at, 0xff5040); fx.burst(e.at, 18, 0xe43b44); R.glint(e.at.x, e.at.y, 0xff5040, 1, 5, 0.5); const k = G.threads % THREADS_A_HEART;
       if (k === 0){ const m = maxHearts(); if (m > P.maxHp){ P.maxHp = m; P.hp = m; } banner('New heart', 'Three red strands make a heart. You have one more.', 4); } else banner('A red strand', `${k} of ${THREADS_A_HEART}. Three make a new heart.`, 3.4);
       store(); break; }
+    // a wing's prize, out of its chest (build 87): the ability gathers over the chest and comes to him, as a keeper's
+    // gift does. It is his from the moment the chest is open. One who had it already (a save from before) finds shards
+    case 'gift': { const A = ABILITY[e.id]; if (!A) break; if (G.can[e.id]){ ITEMS.spill(e.at.x, e.at.y, 60); break; } G.can[e.id] = 1; GIFTING = true; store(); learn(); sfx.relic && sfx.relic(); LATER.push({ t: 0.6, f: () => giftStart(A, e.at) }); break; }
+    case 'held': if (!HINTED.held){ HINTED.held = 1; sfx.block(); banner('', 'Held shut. Its guardian still stands.', 3.5); LATER.push({ t: 6, f: () => { HINTED.held = 0; } }); } break;
     case 'relic': { const r = RELICS[e.id]; if (!r || owns(e.id)) break; G.relics.push(e.id); const tied = wear(e.id, true); learn(); store(); sfx.relic();   // tied into the scarf, if a knot is free
       const knot = tied ? 'Equipped.' : 'Your relic slots are full. Rest at a pool to choose which you equip.';
       LATER.push({ t: 0.7, f: () => { card({ head: 'A RELIC', title: r.name, icon: e.id, does: r.line, foot: knot, lore: r.lore }); firstCard('knots'); } }); break; }

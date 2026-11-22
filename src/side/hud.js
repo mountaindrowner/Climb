@@ -93,8 +93,8 @@ export function makeHud(hud){
   // the boss's bar: its name, its health, and behind that what it has just lost, running down after
   H.boss = (b, dt) => {
     if (!b){ H.bossLag = 1; return; }
-    H.bossLag = Math.max(b.frac, H.bossLag - dt * 0.35); const w = Math.min(170, H.W - 150), x = Math.round((H.W - w) / 2), y = 16;
-    text(g, b.name, H.W / 2, 5, C.cream, 1, 'center');
+    H.bossLag = Math.max(b.frac, H.bossLag - dt * 0.35); const w = Math.min(170, H.W - 150), x = Math.round((H.W - w) / 2), y = 160;   // at the foot of the picture, over where a hint goes (build 87: at the top its name lay over his shards and its bar ran under the map)
+    g.globalAlpha = 0.55; px(C.ink, x - 12, y - 14, w + 24, 22); g.globalAlpha = 1; text(g, b.name, H.W / 2, y - 11, C.cream, 1, 'center');
     px(C.ink, x - 2, y - 2, w + 4, 8); px(C.deep, x, y, w, 4); px(C.white, x, y, Math.round(w * H.bossLag), 4); px(b.phase === 2 ? C.fire1 : C.red1, x, y, Math.round(w * b.frac), 4); px(b.phase === 2 ? C.fire3 : '#f6757a', x, y, Math.round(w * b.frac), 1);
     px(b.phase === 2 ? C.fire2 : C.pale, x + Math.round(w / 2), y - 1, 1, 6);   // the mark at half: where it turns
     for (const sx of [x - 5, x + w + 4]) for (let k = 0; k < 3; k++){ px(C.bone, sx - k, y - 1 + k, 1 + k * 2, 1); px(C.bone, sx - k, y + 4 - k, 1 + k * 2, 1); }

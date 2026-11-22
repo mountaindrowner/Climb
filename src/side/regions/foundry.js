@@ -94,7 +94,8 @@ function bellrope(){
   for (const y of [5, 9, 13, 17, 21]) ledge(r, 4, 9, y);           // the rungs
   rect(r, 18, 2, 26, 2);                                           // a low step, where what was kept here is kept
   mark(r, 'chest', 22, 3, { holds: 'relic:felt' });
-  for (const [k, x, y] of [['rope', 6, 20], ['tongues', 30, 2], ['ingots', 14, 2]]) deco(r, k, x, y);
+  mark(r, 'chest', 30, 2, { holds: 'gift:dash', prize: 'still' });   // the wing's prize (build 87): what the Bell was cast to hold, and never did
+  for (const [k, x, y] of [['rope', 6, 20], ['tongues', 36, 2], ['ingots', 14, 2]]) deco(r, k, x, y);
   mark(r, 'torch', 12, 9); mark(r, 'torch', 34, 9); mark(r, 'crystal', 19, 3); mark(r, 'urn', 34, 2);
   return r;
 }
@@ -161,8 +162,14 @@ const texes = T3 => TEX || (TEX = {
 });
 const ringOut = (c, e, big) => { if (c.RULE.still) return; c.events.push({ type: 'ring', e, at: { x: e.x, y: e.y }, big: !!big }); };
 const tint = (e, hex) => { if (e.sprite && e.tintNow !== hex){ e.tintNow = hex; e.sprite.g.traverse(o => { if (o.material && o.material.color) o.material.color.setHex(hex); }); } };
-// the Cracked Bell, as it is: its size, how it swings, how long it rings
-export const BELL = { H: 3.4, R: 1.3, rim: 1.1, w0: 1.7, damp: [0.3, 1.1], max: [0.4, 0.55], push: [0.22, 0.08], hurtAt: 2.6, toll: 0.24, ring: [3.6, 4.6], rouse: 5 };   // rouse: woken and then left alone this long, it swings at him of itself
+// the Cracked Bell, as it is (build 87: it no longer hangs and waits to be struck. It was cast wrong, cut down and left
+// in the pit, and it rolls). a, b: half its width and its height (it tumbles as an egg does, on those); wake: how near
+// he comes before it stirs; aim: how long it rocks back before it comes (whole, and from half its strength); spent: how
+// long it lies still once it has struck the wall, which is when it can be hurt at leisure; passes: how many times it
+// crosses the pit before it lies still
+export const BELL = { H: 3.4, R: 1.3, a: 1.3, b: 1.6, ring: [3.6, 4.6], wake: 13, tall: 7, rouse: 0.9, aim: [0.75, 0.5], speed: [9.5, 12.5], accel: 30, hit: [1.05, 2.1], spent: [2.2, 1.6], passes: [1, 2], dmg: 1, rest: 1.72 };
+// how high its middle is over the floor, turned this far (an egg's, not a wheel's: it lumbers)
+export const bellMid = rot => Math.sqrt((BELL.a * Math.sin(rot)) ** 2 + (BELL.b * Math.cos(rot)) ** 2);
 
 export const enemies = {
   // a tongue: the clapper of a broken bell, hung by its chain. Still, it rings if it is touched (his blade, or his body
@@ -173,32 +180,39 @@ export const enemies = {
   // and burns to touch. In silence it goes cold where it stands
   slag: { ai: 'slag', hp: 2, w: 0.8, h: 1.2, color: 0x3e2731, chase: 3.1, hear: 24, art: 'px_slag', fly: false, word: 'Seared',
     guard(e){ return e.st === 'idle'; }, onHit(e, dmg){ if (e.st === 'idle') e.hp = Math.min(e.d.hp, e.hp + dmg); } },
-  // the Cracked Bell: the wing's keeper, a sister to the Toll, hung in the pit. It never strikes first. Every blow it
-  // takes, it rings, and swings; from half its strength, while it swings widely it tolls again by itself
-  crackedbell: { ai: 'crackedbell', own: true, hp: 20, w: BELL.R, h: BELL.H * 0.75, color: 0x5a6988, fly: true, word: 'Rung', name: 'The Cracked Bell',
-    // a blow sends it the way it is already going (or, hanging still, away from him); from half its strength every blow
-    // sets it swinging widely
-    onHit(e, dmg, P){ const two = e.hp <= e.d.hp / 2, dir = Math.abs(e.om || 0) > 0.05 ? Math.sign(e.om) : Math.sign((P && P.face) || 1); e.om = (e.om || 0) + dir * (BELL.push[0] + BELL.push[1] * dmg);
-      if (two && Math.abs(e.om) < BELL.w0 * BELL.max[0]) e.om = dir * BELL.w0 * BELL.max[0]; e.rung = true; e.woke = true; },
+  // the Cracked Bell: the wing's keeper, a sister to the Toll that was cast wrong and thrown down in the pit. It lies
+  // there until he comes near; then it rocks back (the warning) and rolls at him, the width of the pit, and strikes the
+  // wall, and rings (what hears a ring wakes), and lies spent a while: that is when to hit it. Rolling, a blow glances
+  // off it. From half its strength it comes back off the wall once before it lies still
+  crackedbell: { ai: 'crackedbell', own: true, hp: 16, w: BELL.R, h: 2.55, color: 0x5a6988, fly: true, word: 'Run down', name: 'The Cracked Bell',
+    guard(e){ return e.st === 'roll'; },
+    onHit(e){ e.woke = true; },
     onKill(e){ e.fell = true; lay(e); },
-    spawn(e, c){ if (c.RULE.still){ e.alive = false; e.fell = true; hang(e, c.T); drawBell(e, c.scene, c.lit); lay(e); } } },   // one that has fallen lies where it fell
+    spawn(e, c){ if (c.RULE.still){ e.alive = false; e.fell = true; setDown(e, c); drawBell(e, c.scene, c.lit); lay(e); } } },   // one that has fallen lies where it fell
 };
-// where the Bell hangs: from the pit's roof over its mark, its rim BELL.rim over the floor
-function hang(e, T){ const floor = e.home.y - 1.6, top = floor + (((e.mk && e.mk.top) || 44) - 2) * T; e.floor = floor; e.piv = { x: e.home.x, y: top }; e.L = top - floor - BELL.rim - BELL.H; e.th = 0; e.om = e.om || 0; e.cool = 0; e.lastSign = 0; }
-// its picture: the Toll's own pieces (its sister), smaller, gone green, the eyes dark; a crack down it
+// where the Bell lies: on the pit's floor under its mark, and how far it can roll either way (to the walls of its room)
+function setDown(e, c){
+  const T = c.T || 0.5, floor = e.home.y - 1.6, top = floor + (((e.mk && e.mk.top) || 44) - 2) * T, solid = c.solidAt || (() => false);
+  const room = (c.rooms || []).find(r => e.home.x >= r.x0 && e.home.x < r.x1 && e.home.y >= r.y0 && e.home.y < r.y1), x0 = room ? room.x0 + 2 * T : e.home.x - 30, x1 = room ? room.x1 - 2 * T : e.home.x + 30;
+  let lo = e.home.x, hi = e.home.x; while (lo - T > x0 && !solid(lo - T, floor + 1)) lo -= T; while (hi + T < x1 && !solid(hi + T, floor + 1)) hi += T;
+  e.floor = floor; e.piv = { x: e.home.x, y: top }; e.lo = lo + BELL.a; e.hi = hi - BELL.a; e.bx = e.home.x; e.rot = BELL.rest; e.v = 0; e.dir = 1; e.pass = 0;
+}
+// its picture: the Toll's own pieces (its sister), smaller, gone green, the eyes dark; a crack down it. The chain it
+// was cut from still hangs from the pit's roof
 function drawBell(e, scene, lit){
   const T3 = three(); if (!T3 || !lit || e.g) return;
-  const B = BELL, X = texes(T3), g = new T3.Group(), L = new T3.TextureLoader(), px = n => { const t = L.load(`assets/side/toll/${n}.png`); t.magFilter = t.minFilter = T3.NearestFilter; t.generateMipmaps = false; return t; }, s = B.H / 5.5, arm = e.L + B.H / 2;
-  const chainT = px('chain'); chainT.wrapT = T3.RepeatWrapping; chainT.repeat.y = e.L / 2; const chain = new T3.Mesh(new T3.PlaneGeometry(0.5, 1), new T3.MeshBasicMaterial({ map: chainT, transparent: true, alphaTest: 0.5, color: 0x9a9aa8 })); chain.scale.y = e.L + 0.4; chain.position.y = -(e.L + 0.4) / 2;
-  const bell = new T3.Mesh(new T3.PlaneGeometry(90 / 16 * s, 88 / 16 * s), lit({ map: px('bell'), normalMap: px('bell_n'), transparent: true, alphaTest: 0.5, color: 0x8aa094 })); bell.position.set(0, -arm, 0.001);
+  const B = BELL, X = texes(T3), g = new T3.Group(), L = new T3.TextureLoader(), px = n => { const t = L.load(`assets/side/toll/${n}.png`); t.magFilter = t.minFilter = T3.NearestFilter; t.generateMipmaps = false; return t; }, s = B.H / 5.5, len = 5;
+  const chainT = px('chain'); chainT.wrapT = T3.RepeatWrapping; chainT.repeat.y = len / 2; const chain = new T3.Mesh(new T3.PlaneGeometry(0.5, 1), new T3.MeshBasicMaterial({ map: chainT, transparent: true, alphaTest: 0.5, color: 0x9a9aa8 })); chain.scale.y = len; chain.position.set(e.piv.x, e.piv.y - len / 2, -0.21); scene.add(chain);
+  const bell = new T3.Mesh(new T3.PlaneGeometry(90 / 16 * s, 88 / 16 * s), lit({ map: px('bell'), normalMap: px('bell_n'), transparent: true, alphaTest: 0.5, color: 0x8aa094 })); bell.position.set(0, 0, 0.001);
   const crack = plane(T3, 24 / 16 * 1.1, 40 / 16 * 1.1, X.crack); crack.position.set(0.25, 0.1, 0.002); bell.add(crack);
   const glow = new T3.Mesh(new T3.PlaneGeometry(2.2, 3.6), new T3.MeshBasicMaterial({ map: X.crack, transparent: true, opacity: 0, depthWrite: false, blending: T3.AdditiveBlending, color: 0xff7a30 })); glow.position.set(0.25, 0.1, 0.003); bell.add(glow);
-  g.add(chain); g.add(bell); g.position.set(e.piv.x, e.piv.y, -0.2); scene.add(g); e.g = g; e.parts = { bell, crack, chain, glow };
+  g.add(bell); g.position.set(e.bx, e.floor + bellMid(e.rot), -0.2); g.rotation.z = e.rot; scene.add(g); e.g = g; e.parts = { bell, crack, chain, glow };
 }
-// the Bell, fallen: it lies on the pit's floor on its side, its chain hanging empty
+// the Bell, fallen: it lies on the pit's floor on its side where it stopped, and its crack is dark
 export function lay(e){
   if (!e.g || e.floor == null) return;
-  e.g.rotation.z = 0; if (e.parts){ const { bell, crack, chain, glow } = e.parts; bell.position.set(0.4, -(e.piv.y - e.floor) + BELL.R + 0.1, 0); bell.rotation.z = 1.72; crack.visible = false; if (glow) glow.visible = false; chain.scale.y = (e.L * 0.55); chain.position.y = -(e.L * 0.55) / 2; if (chain.material.map) chain.material.map.repeat.y = e.L * 0.55 * 2; }
+  const n = Math.round((e.rot - BELL.rest) / Math.PI); e.rot = BELL.rest + n * Math.PI; e.g.rotation.z = e.rot; e.g.position.set(e.bx, e.floor + bellMid(e.rot), -0.2);
+  if (e.parts){ const { crack, glow } = e.parts; crack.visible = false; if (glow) glow.visible = false; }
 }
 export const ai = {
   clapper(e, P, dt, c){
@@ -238,25 +252,35 @@ export const ai = {
   },
   crackedbell(e, P, dt, c){
     const R = c.RULE, d = e.d, B = BELL;
-    if (!e.piv) hang(e, c.T);
-    const two = e.hp <= d.hp / 2, ringing = R.ring > 0 && !R.still, arm = e.L + B.H / 2;
+    if (e.floor == null) setDown(e, c);
+    const two = e.hp <= d.hp / 2, k = two ? 1 : 0, near = P.y > e.floor - 2 && P.y < e.floor + B.tall && P.x > e.lo - B.a - 1 && P.x < e.hi + B.a + 1;
     if (two && !e.two){ e.two = true; c.events.push({ type: 'tell', e }); }
-    e.cool = Math.max(0, e.cool - dt);
-    if (e.rung){ e.rung = false; ringOut(c, e, true); e.cool = 0.4; }
-    // it swings as a weight on a chain does: pushed by each blow, dying away (slowly while it rings, soon in silence)
-    const max = B.max[two ? 1 : 0]; e.om += (-B.w0 * B.w0 * e.th - B.damp[ringing ? 0 : 1] * e.om) * dt; e.th += e.om * dt;
-    if (Math.abs(e.th) > max){ e.th = Math.sign(e.th) * max; if (e.th * e.om > 0) e.om = 0; }
-    // from half its strength: at the end of each wide swing it tolls again by itself
-    const sg = Math.sign(e.om); if (two && sg && e.lastSign && sg !== e.lastSign && Math.abs(e.th) > B.toll && e.cool <= 0){ ringOut(c, e, true); e.cool = 0.4; } if (sg) e.lastSign = sg;
-    // woken, it does not go back to hanging there (build 78, from a playtest: "he's just sitting there"): left unstruck
-    // and quiet for a while with him in its hall, it swings toward him of itself, and rings
-    e.idleT = e.woke && !two && !ringing && !R.still && Math.abs(e.om) < 0.3 ? (e.idleT || 0) + dt : 0;
-    if (e.idleT > B.rouse && Math.abs(P.x - e.piv.x) < 24 && Math.abs(P.y - (e.piv.y - arm)) < 16){ e.idleT = 0; e.om = (Math.sign(P.x - e.piv.x) || 1) * B.w0 * B.max[0]; ringOut(c, e, true); e.cool = 0.4; }
-    const cx = e.piv.x + arm * Math.sin(e.th), cy = e.piv.y - arm * Math.cos(e.th), speed = Math.abs(e.om) * arm; e.x = cx; e.y = cy - B.H / 4; e.st = Math.abs(e.om) > 0.02 || Math.abs(e.th) > 0.01 ? 'swing' : 'idle';
-    if (P.x + 0.34 > cx - B.R && P.x - 0.34 < cx + B.R && P.y + P.h > cy - B.H / 2 && P.y < cy + B.H / 2){
-      if (speed > B.hurtAt){ if (!c.isRollInv(P)) c.hurt(P, 1, cx, d.word); }
-      else if (!ringing && e.cool <= 0 && !R.still){ e.woke = true; ringOut(c, e, false); e.cool = 1.2; e.om += (Math.sign(cx - P.x) || 1) * 0.05; } }   // walked into: it rings, softly
+    const lying = () => { const n = Math.round((e.rot - B.rest) / Math.PI), to = B.rest + n * Math.PI; e.rot += (to - e.rot) * Math.min(1, dt * 9); };
+    const aim = () => { e.dir = Math.sign(P.x - e.bx) || e.dir || 1; if ((e.dir > 0 ? e.hi - e.bx : e.bx - e.lo) < 2) e.dir = -e.dir; e.ax = e.bx; e.r0 = e.rot; e.pass = 0; e.v = 0; c.go('aim'); c.events.push({ type: 'tell', e }); };
+    if (R.still) lying();
+    // asleep where it was thrown down, until he comes near or strikes it
+    else if (e.st === 'idle'){ lying(); if (e.woke || (near && Math.abs(P.x - e.bx) < B.wake)){ e.woke = true; c.go('rouse'); c.events.push({ type: 'notice', e }); } }   // (it does not ring as it wakes: only the wall rings it. A ring at the start woke the slag at his feet before he knew what the room was)
+    // it stirs: a shudder, dying away
+    else if (e.st === 'rouse'){ const n = Math.round((e.rot - B.rest) / Math.PI); e.rot = B.rest + n * Math.PI + Math.sin(e.tm * 18) * 0.14 * Math.max(0, 1 - e.tm / B.rouse); if (e.tm >= B.rouse) aim(); }
+    // the warning: it rocks back, away from where it is going, and its crack burns
+    else if (e.st === 'aim'){ const u = Math.min(1, e.tm / B.aim[k]), back = Math.sin(u * Math.PI / 2); e.rot = e.r0 + e.dir * 0.42 * back; e.bx = Math.max(e.lo, Math.min(e.hi, e.ax - e.dir * 0.35 * back)); if (u >= 1) c.go('roll'); }
+    // it comes: the width of the pit, to the wall
+    else if (e.st === 'roll'){
+      e.v = Math.min(B.speed[k], e.v + B.accel * dt); e.bx += e.dir * e.v * dt; e.rot -= e.dir * e.v / ((B.a + B.b) / 2) * dt;
+      const end = e.dir > 0 ? e.hi : e.lo;
+      if ((e.bx - end) * e.dir >= 0){ e.bx = end; e.pass++; ringOut(c, e, true); c.events.push({ type: 'thud', at: { x: e.bx + e.dir * B.a, y: e.floor + 1.2 } });
+        if (e.pass < B.passes[k]){ e.dir = -e.dir; e.v *= 0.5; } else { e.v = 0; c.go('spent'); } }
+      // (what it runs down is what is in front of its middle, and lower than a second jump takes him: one who stood striking
+      // it as it set off behind him was hurt by it leaving, and a second jump cleared it by one frame)
+      else if ((P.x - e.bx) * e.dir > -0.3 && Math.abs(P.x - e.bx) < B.hit[0] + 0.34 && P.y < e.floor + B.hit[1] && P.y + (P.h || 2.4) > e.floor && !c.isRollInv(P)) c.hurt(P, B.dmg, e.bx - e.dir, d.word);
+    }
+    // spent: it lies where it stopped. Then it comes again, or, if he has left its pit, it sleeps
+    else if (e.st === 'spent'){ lying(); if (e.tm >= B.spent[k]){ if (near) aim(); else { e.woke = false; c.go('idle'); } } }
+    else c.go('idle');
+    e.x = e.bx; e.y = e.floor + 0.2;
     drawBell(e, c.E.scene, c.lit); if (!e.g) return;
-    e.g.rotation.z = e.th; const m = e.parts.bell.material; if (m.emissive) m.emissive.setHex(e.flash > 0 ? 0x707070 : 0); e.parts.glow.material.opacity = two ? 0.35 + 0.25 * Math.sin(e.age * 9) : ringing ? 0.12 : 0;
+    e.g.position.set(e.bx, e.floor + bellMid(e.rot), -0.2); e.g.rotation.z = e.rot;
+    const m = e.parts.bell.material; if (m.emissive) m.emissive.setHex(e.flash > 0 ? 0x707070 : 0);
+    e.parts.glow.material.opacity = R.still ? 0 : e.st === 'aim' ? 0.45 + 0.45 * Math.sin(e.tm * 26) : e.st === 'roll' ? 0.6 : two && e.st !== 'idle' ? 0.2 + 0.12 * Math.sin(e.age * 6) : 0;
   },
 };

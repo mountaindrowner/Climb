@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 86 | 22 Nov 2026 | `de8d329` | The hammer in place of the spade: three times the sword's damage, a wide arc, it knocks creatures back | no | yes (now) |
+| 87 | 22 Nov 2026 | `COMMIT87` | The Cracked Bell rolls; the air dash is its prize, in a chest of its own; thin ice across the way into the Spires | **save** (kept) | yes (now) |
+| 86 | 22 Nov 2026 | `de8d329` | The hammer in place of the spade: three times the sword's damage, a wide arc, it knocks creatures back | no | replaced by 87 |
 | 85 | 22 Nov 2026 | `39c2bf3` | Up: W and the up arrow look up and strike upward; Space alone jumps | **keys** | replaced by 86 |
 | 84 | 22 Nov 2026 | `f3778c9` | Ordric's shop as his own sheet of paper; unknown rooms as cloud on the map; every mark on the map named | no | replaced by 85 |
 | 83 | 22 Nov 2026 | `53c787a` | The HUD (the ember bar, each part named once), the menu in tabs, the inventory as pictures | no | replaced by 84 |
@@ -102,6 +103,75 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 87: the Cracked Bell rolls, and the air dash is its prize
+
+*Step 2 of the order in `docs/gifts-sheet.md`, the first half: "abilities from minibosses". From the playtest, on the
+Cracked Bell: "I don't know what he's supposed to do... he's just there taking hits", and your idea, "a broken,
+rejected bell that rolls". And: "Whenever I get an item, I should feel like I deserved it. Should come out of a special
+chest."*
+
+**For the player**
+
+- **The Cracked Bell is a fight now** (`docs/cracked-bell-fight.png`). It no longer hangs and waits to be struck. It
+  was cast wrong and thrown down in the founders' pit, and it lies there until he comes near. Then:
+  1. **It warns:** it rocks back and its crack burns (three quarters of a second).
+  2. **It rolls at him,** the width of the pit. A second jump clears it; so does a roll through it; so does a gallery.
+     A blow glances off it while it rolls.
+  3. **It strikes the wall and rings.** As before, what hears a ring wakes: the slag on the floor comes for him.
+  4. **It lies spent** for about two seconds. That is when to hit it. Then it comes again.
+  - From half its health it is faster and **comes back off the wall once** before it lies still.
+  - Its health is 16 (it was 20): four openings with the sword, two with the hammer.
+- **It guards the air dash.** Past the grate that lifts when it falls is **a prize chest**: larger than any other,
+  banded in gold, tied shut with a ribbon of his red. Opening it, the air dash gathers over it and comes to him, as a
+  keeper's gift does. The chest cannot be opened while the Bell stands ("Held shut. Its guardian still stands.").
+- **The air dash is "The Bell's Step"** (it was "The Toll's Step").
+- **The Toll no longer gives the air dash. It leaves a heart,** until its weapon is made (see below).
+- **Thin ice has grown across the way up into the Spires,** at the top of the Bell Road. The air dash breaks it. So
+  the Bell-Foundry is part of the climb: hammer, then the Foundry, then the Spires.
+  - Coming to it without the dash: "Thin ice. It wants speed, not weight." The Lamplighter, at the gate just below,
+    says where to look: "The founders, east of the bell tower below, cast a thing that could. They threw it down in
+    their pit."
+- **A keeper's name and health bar are at the foot of the screen.** At the top the name lay over his shards and the
+  bar ran under the map.
+
+**For you to settle**
+
+1. **What should the Toll leave until the clapper is made?** I chose a heart, so that a keeper never leaves nothing.
+   It makes the game a little easier, which is against what you asked; it could be a red strand, a relic slot, or
+   nothing but the way on.
+2. **Is the Bell fair?** One jump does not clear it: it takes the second jump or a roll. Say if that is too much to
+   ask of someone who has only just reached the Cloister.
+
+**What is weaker than it should be**
+
+- **The Bell is drawn with the Toll's own pieces,** tumbling. It has no drawing of its own for rolling.
+- **The slag is not rethought.** Three lumps wake at every wall strike. That may be too much with the Bell coming
+  again two seconds later, or it may be the fight. Nobody has played it.
+- **The glide, the heart and the drink have not moved yet.** The Wyrm still gives the glide. That is the next build.
+- **The way back down** from the ice to the Foundry is the way he came up: the Bell Road, the Cloister, east of the
+  tower. There is no shortcut.
+
+- **Underneath:** `regions/foundry.js` (`BELL`, `bellMid`, the Bell's turn, `setDown`), `state.js` (`ABILITY`,
+  `ARRIVES`, `G.can`, `gifted`), `items.js` (`prizeTex`; `holds: 'gift:dash'`, `prize`), `main.js` (`learn`; the
+  `gift` and `held` events; `giftStart` out of a chest), `level.js` (the mouth `asks` for the dash), `hud.js` (the
+  keeper's bar), `talk` lines in `main.js`. Checks: `tests/side-gifts.test.mjs` (new), the Bell's in
+  `tests/side-foundry.test.mjs` (rewritten), `tests/helpers/reach.mjs`.
+- **Save: kept, and changed.** What he can do is now held in the save by itself (`can`). A save from before keeps
+  the dash if its Toll had fallen, and the glide if its Wyrm had.
+- **Checked:** 466 checks pass. In the test browser: the Bell fought by a script that jumps its roll and strikes
+  it while it lies spent (no heart lost to the roll; a sword combo takes a quarter of its health); the prize chest
+  shut, then open, and the window; the ice at the Spires' mouth stopping him without the dash and broken with it.
+
+**To try**
+
+1. A new game, or a save that has not beaten the Toll. Beat the Warden, take the hammer east of the bell tower into
+   the Foundry, and go down to the pit.
+2. Fight the Bell. Can you read what it is about to do? Is the two seconds enough?
+3. Go through the lifted grate and open the big chest.
+4. Beat the Toll, climb the Bell Road, and dash through the ice.
+5. Try it the other way: beat the Toll first and climb to the ice without the dash. Do the line there and the
+   Lamplighter send you to the Foundry?
 
 ### Build 86: the hammer
 

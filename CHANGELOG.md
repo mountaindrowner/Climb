@@ -2,7 +2,13 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The hammer (latest; build 86).** The Warden leaves a hammer, not a spade: three times the sword's damage, a wide arc that finds what is behind and over him, and a blow that knocks creatures back and stops them for a moment. Slower than it was; it still cannot block. Its drawings are candidates awaiting a yes (`docs/hammer-candidates.png`); in the game it still looks like the spade. 462 checks. No save is moved.
+**The Cracked Bell rolls, and keeps the air dash (latest; build 87).**
+- **The Cracked Bell is a fight:** it warns, rolls the width of its pit, rings off the wall (which wakes the slag), and lies spent, which is when to hit it. Health 16.
+- **The air dash is its prize,** in a chest of its own kind that opens when it has fallen. The Toll leaves a heart until its weapon is made.
+- **Thin ice across the way into the Spires:** the air dash breaks it, so the Bell-Foundry is part of the climb.
+- A keeper's name and bar are at the foot of the screen. 466 checks. Saves are kept: one from before keeps the dash it had.
+
+**The hammer (build 86).** The Warden leaves a hammer, not a spade: three times the sword's damage, a wide arc that finds what is behind and over him, and a blow that knocks creatures back and stops them for a moment. Slower than it was; it still cannot block. Its drawings are candidates awaiting a yes (`docs/hammer-candidates.png`); in the game it still looks like the spade. 462 checks. No save is moved.
 
 **Up (build 85).** W and the up arrow no longer jump: Space does. Up looks up (the view lifts), and up with attack strikes upward, on the ground or in the air. Up also swims up and climbs. 460 checks.
 

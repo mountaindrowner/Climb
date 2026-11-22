@@ -7,6 +7,9 @@ hammer and more weapons (0.14), and three to five deaths a region (0.17). Nothin
 **Approved 22 Nov 2026** ("I think so"), with this added: weapons, skills and the like are given after challenges,
 great challenges for great things, and puzzles (missing today) come near the end. Recorded as decisions 0.22 and
 0.23. **Step 1, the hammer, is build 86** (its drawings await your yes: `docs/hammer-candidates.png`).
+**Step 2, first half, is build 87:** the Cracked Bell rebuilt, the air dash its prize in a chest of its own, thin ice
+across the way into the Spires. (The Spires' main way did not in fact need the dash, as this sheet said it did; the ice
+makes it so.) Still to move: the glide to the Seated, the heart and the drink to minibosses.
 
 ## What you said
 
