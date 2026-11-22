@@ -55,7 +55,7 @@ test('a cairn is only stones while he looks at it; with his back to it, it comes
 });
 test('the Turned stands in the way of what comes up at him, and sends it down; behind him he does nothing; walked away from, he lets it go', () => {
   const e = mk('turned', 0), up = { x: 2.2, y: 0, h: 2.4, face: -1, vx: -3 }, a = turn(e, up, 2.5);
-  assert.ok(a.ev.some(v => v.type === 'tell'), 'a warning'); assert.deepEqual(a.hurts[0], [1, 'Sent down']); assert.ok(up.vx > 8, 'thrown back down the slope'); assert.ok(up.x >= CA.enemies.turned.bar - 0.01, 'and never past him on his feet');
+  assert.ok(a.ev.some(v => v.type === 'tell'), 'a warning'); assert.deepEqual(a.hurts[0], [2, 'Sent down']); assert.ok(up.vx > 8, 'thrown back down the slope'); assert.ok(up.x >= CA.enemies.turned.bar - 0.01, 'and never past him on his feet');
   const behind = mk('turned', 0), b = turn(behind, { x: -2, y: 0, h: 2.4, face: 1, vx: 0 }, 4); assert.equal(b.hurts.length, 0); assert.equal(behind.st, 'idle');
   const hp = behind.hp; CA.enemies.turned.onHit(behind, 1, { x: -2 }); assert.equal(behind.hp, hp - 1, 'a blow from behind counts for more');
   const away = mk('turned', 0), c = turn(away, { x: 6, y: 0, h: 2.4, face: 1, vx: 2 }, 4); assert.equal(c.hurts.length, 0, 'going down, back to him: nothing');

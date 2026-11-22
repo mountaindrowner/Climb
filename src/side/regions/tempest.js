@@ -197,7 +197,7 @@ const deco = (px, PAL) => ({
 // the squall turns his cut from the front, until it has thrust or is caught turning
 const squallGuard = (e, P) => Math.sign(P.x - e.x) === e.face && (e.st === 'idle' || e.st === 'march' || e.st === 'windup');
 const enemies = {
-  squall: { ai: 'squall', hp: 5, w: 0.6, h: 1.8, color: 0x5a6988, wake: 8, reach: 2.4, chase: 1.5, windup: 0.62, thrust: 0.2, recover: 1.0, stun: 0.45, turn: 0.6, art: 'px_squall', fly: false, word: 'Run through',
+  squall: { ai: 'squall', heavy: 2, hp: 5, w: 0.6, h: 1.8, color: 0x5a6988, wake: 8, reach: 2.4, chase: 1.5, windup: 0.62, thrust: 0.2, recover: 1.0, stun: 0.45, turn: 0.6, art: 'px_squall', fly: false, word: 'Run through',
     guard: squallGuard, onHit(e){ if (e.st === 'march' || e.st === 'idle'){ e.st = 'stunned'; e.tm = 0; e.stun = 0.4; } } },
   nimbus: { ai: 'nimbus', hp: 2, w: 0.6, h: 0.9, color: 0x8b9bb4, wake: 9, drift: 2.9, hang: 4.4, charge: 0.85, strike: 0.22, rest: 1.1, cooldown: 1.5, art: 'px_nimbus', fly: true, word: 'Struck by lightning',
     onHit(e){ if (e.st === 'charge'){ e.st = 'rest'; e.tm = 0; e.warn = false; } } },

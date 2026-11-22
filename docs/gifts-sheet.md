@@ -10,6 +10,8 @@ great challenges for great things, and puzzles (missing today) come near the end
 **Step 2, first half, is build 87:** the Cracked Bell rebuilt, the air dash its prize in a chest of its own, thin ice
 across the way into the Spires. (The Spires' main way did not in fact need the dash, as this sheet said it did; the ice
 makes it so.) Still to move: the glide to the Seated, the heart and the drink to minibosses.
+**Step 3 is build 88:** one spring a region, prices up two thirds, two-heart blows, with the money measured
+(`docs/builds.md`). The numbers wait on your death counts.
 
 ## What you said
 

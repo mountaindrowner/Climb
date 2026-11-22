@@ -46,7 +46,9 @@ const DEF = {
   sexton:   { ai: 'crawler', hp: 18, w: 0.8, h: 3.0, color: 0x6b3f2a, wake: 9, reach: 3.0, chase: 1.9, windup: 0.8, lunge: 0.26, lungeDist: 2.8, recover: 0.9, stun: 0.5, hitR: 1.6, dmg: 2, art: 'px_sexton', fly: false, word: 'Buried' },
   gargoyle: { ai: 'flitter', hp: 3, w: 0.55, h: 0.9, color: 0x8b9bb4, wake: 6, circle: 1.5, dive: 0.6, commit: 0.34, leave: 1.0, perch: true, art: 'px_gargoyle', fly: true, word: 'Clawed' },
   wisp:     { ai: 'spitter', hp: 2, w: 0.45, h: 0.8, color: 0xf77622, range: 9, charge: 0.8, speed: 9, cooldown: 2.4, burst: 2, hover: true, orb: 0xfeae34, an: { charge: 'cast', idle: 'float' }, art: 'px_wisp', fly: true, word: 'Burned' },
-  yeti:     { ai: 'thrower', hp: 6, w: 0.7, h: 1.8, color: 0xc0cbdc, wake: 10, range: 9, keep: 4.5, chase: 1.7, windup: 0.7, recover: 0.7, cooldown: 1.9, stun: 0.45, orb: 0x2ce8f5, an: { attack: 'throw' }, art: 'px_yeti', fly: false, word: 'Struck by ice' },
+  // (build 88, decision 0.17: the larger creatures' blows cost two hearts. `dmg` where the blow reads it; `heavy` on one
+  // with a turn of its own, regions/*.js: every blow of its body costs at least that. What they throw still costs one)
+  yeti:     { ai: 'thrower', dmg: 2, hp: 6, w: 0.7, h: 1.8, color: 0xc0cbdc, wake: 10, range: 9, keep: 4.5, chase: 1.7, windup: 0.7, recover: 0.7, cooldown: 1.9, stun: 0.45, orb: 0x2ce8f5, an: { attack: 'throw' }, art: 'px_yeti', fly: false, word: 'Struck by ice' },
   harpy:    { ai: 'flitter', hp: 1, w: 0.5, h: 0.7, color: 0xffffff, wake: 9, circle: 0.8, dive: 0.45, commit: 0.24, leave: 0.6, dives: 2, art: 'px_harpy', fly: true, word: 'Raked' },
   wraith:   { ai: 'wraith', hp: 3, w: 0.5, h: 1.2, color: 0x2ce8f5, glow: 0x103040, wake: 8, chase: 2.3, windup: 0.5, rush: 0.28, rushSpeed: 10, recover: 1.0, an: { fly: 'float', dive: 'slash' }, art: 'px_wraith', fly: true, word: 'Frozen' },
 };
@@ -274,7 +276,7 @@ export function stepEnemies(E, P, dt, fx, events){
       else if (e.st === 'windup'){ e.face = Math.sign(dx) || e.face; if (e.tm >= e.d.windup){ shoot(E, e, P, true); events.push({ type: 'spit', e }); go('recover'); e.cd = e.d.cooldown; } }
       else if (e.st === 'swat'){
         if (e.tm >= 0.42 && !e.hit){ e.hit = true; if (Math.abs(P.x - e.x) < 1.7 && (P.x - e.x) * e.face > -0.3 && P.y < e.y + 1.6 && P.y > e.y - 0.8 && !isRollInv(P)){
-          if (P.blocking && P.face === -e.face){ e.flash = 0.08; events.push({ type: 'block', at: { x: P.x + P.face * 0.5, y: P.y + 1.2 }, mine: true, e }); } else hurt(P, 1, e.x, 'Swatted'); } }
+          if (P.blocking && P.face === -e.face){ e.flash = 0.08; events.push({ type: 'block', at: { x: P.x + P.face * 0.5, y: P.y + 1.2 }, mine: true, e }); } else hurt(P, e.d.dmg || 1, e.x, 'Swatted'); } }
         if (e.tm >= 0.6){ go('recover'); e.hit = false; }
       }
       else if (e.st === 'recover'){ if (e.tm >= e.d.recover) go('stalk'); }
@@ -337,8 +339,8 @@ export function stepEnemies(E, P, dt, fx, events){
       // anim(e, name, frac, dy, z), shoot(E, e, P, lob), hurt(P, n, fromX, word), isRollInv(P), ground(x, y), solidAt(x, y),
       // kill(e, events), tileAt, T; hit(x0, y0, x1, y1, word, fromX): hurts him if his body is in that box and he is not
       // rolling through (true if it did)
-      CUSTOM[ai](e, P, dt, { go, dx, dy, dist, events, fx, E, anim, shoot, hurt, isRollInv, ground, solidAt, kill: killEnemy, tileAt, T, RULE, lit: litMat, rooms: LEVEL.rooms, marks: LEVEL.marks, flows: LEVEL.flows, waterAt, SIDE,
-        hit: (x0, y0, x1, y1, word, fromX) => P.x + 0.34 > x0 && P.x - 0.34 < x1 && P.y + P.h > y0 && P.y < y1 && !isRollInv(P) && hurt(P, 1, fromX == null ? (x0 + x1) / 2 : fromX, word || e.d.word || 'Struck') });
+      CUSTOM[ai](e, P, dt, { go, dx, dy, dist, events, fx, E, anim, shoot, hurt: e.d.heavy ? (Q, n, x, w) => hurt(Q, Math.max(n, e.d.heavy), x, w) : hurt, isRollInv, ground, solidAt, kill: killEnemy, tileAt, T, RULE, lit: litMat, rooms: LEVEL.rooms, marks: LEVEL.marks, flows: LEVEL.flows, waterAt, SIDE,
+        hit: (x0, y0, x1, y1, word, fromX) => P.x + 0.34 > x0 && P.x - 0.34 < x1 && P.y + P.h > y0 && P.y < y1 && !isRollInv(P) && hurt(P, e.d.heavy || 1, fromX == null ? (x0 + x1) / 2 : fromX, word || e.d.word || 'Struck') });
     }
     // what it threw, in flight: a glob or a bolt goes straight, a chunk of ice falls in its arc
     // a shot flies until it meets rock or a plank (or is far out of sight)

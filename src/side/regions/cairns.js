@@ -148,7 +148,7 @@ export const enemies = {
   // the Turned: the wing's elite. A climber who turned back, standing on the slope facing downhill. He strikes only at
   // what comes up at him: a shove that sends it back down, and his staff brought down, which sends a rush of stones
   // down the slope. Behind him he does nothing. Walk away from him and he lets it go
-  turned: { ai: 'turned', hp: 24, w: 0.8, h: 3.4, color: 0x5a6988, wake: 12, reach: 3.0, windup: 0.5, bar: 0.9, dmg: 1, wave: 9, waveLife: 1.5, art: 'px_turned', fly: false, word: 'Sent down',
+  turned: { ai: 'turned', hp: 24, w: 0.8, h: 3.4, color: 0x5a6988, wake: 12, reach: 3.0, windup: 0.5, bar: 0.9, dmg: 2, wave: 9, waveLife: 1.5, art: 'px_turned', fly: false, word: 'Sent down',
     onHit(e, dmg, P){ if (P && (P.x - e.x) * e.dirn < 0) e.hp -= 1; } },   // a blow from behind counts for more: he does not turn
   // his own cairn, from before he fell: not a creature. It stands until he knocks it down (main.js says what it is)
   hiscairn: { ai: 'hiscairn', own: true, prop: true, rag: true, hp: 3, w: 0.7, h: 2.1, color: 0x8b9bb4, fly: false,

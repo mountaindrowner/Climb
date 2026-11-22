@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 87, date: '22 NOV 2026', phase: 17, phases: 22, last: 'THE CRACKED BELL ROLLS' };
+const VERSION = { build: 88, date: '22 NOV 2026', phase: 17, phases: 22, last: 'HARDER: SPRINGS, PRICES, HEAVY BLOWS' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -514,9 +514,11 @@ function drawAnnals(W){
 }
 // the Lamplighter's wares, for shards
 const WARES = () => [
-  { icon: 'flask', name: 'A bigger flask', does: 'Your flask holds one more drink.', own: `YOU HAVE ${maxFlask()} DRINKS`, say: 'One more mouthful, for a longer road.', cost: [120, 260][G.flasks], buy(){ G.flasks++; P.flaskMax = maxFlask(); P.flask = P.flaskMax; } },
-  { icon: 'blade', name: G.edge ? 'Sharpen the sword again' : 'Sharpen the sword', does: G.edge ? 'Every sword hit does +1 damage.' : 'The last hit of each sword combo does +1 damage.', own: G.edge ? 'SHARPENED ONCE' : 'NOT SHARPENED YET', say: 'An edge remembers its work.', cost: [180, 380][G.edge], buy(){ G.edge++; } },
-  { icon: 'heart', name: 'A red strand', does: 'A piece of a heart. Three strands make one new heart.', own: `${G.threads % THREADS_A_HEART} OF ${THREADS_A_HEART} STRANDS`, say: 'I found it on the stair. It is yours more than mine.', cost: G.boughtThread ? undefined : 150, buy(){ G.boughtThread = true; onEvent({ type: 'thread', at: { x: P.x, y: P.y + 1.2 } }); } },
+  // (build 88, docs/gifts-sheet.md: every price up by about two thirds. A region pays about 500 to 700 shards to one
+  // who finds everything in it, wings and all, and about 350 on its main way; so a region buys one thing, not three)
+  { icon: 'flask', name: 'A bigger flask', does: 'Your flask holds one more drink.', own: `YOU HAVE ${maxFlask()} DRINKS`, say: 'One more mouthful, for a longer road.', cost: [200, 430][G.flasks], buy(){ G.flasks++; P.flaskMax = maxFlask(); P.flask = P.flaskMax; } },
+  { icon: 'blade', name: G.edge ? 'Sharpen the sword again' : 'Sharpen the sword', does: G.edge ? 'Every sword hit does +1 damage.' : 'The last hit of each sword combo does +1 damage.', own: G.edge ? 'SHARPENED ONCE' : 'NOT SHARPENED YET', say: 'An edge remembers its work.', cost: [300, 630][G.edge], buy(){ G.edge++; } },
+  { icon: 'heart', name: 'A red strand', does: 'A piece of a heart. Three strands make one new heart.', own: `${G.threads % THREADS_A_HEART} OF ${THREADS_A_HEART} STRANDS`, say: 'I found it on the stair. It is yours more than mine.', cost: G.boughtThread ? undefined : 250, buy(){ G.boughtThread = true; onEvent({ type: 'thread', at: { x: P.x, y: P.y + 1.2 } }); } },
   { icon: 'knot', name: 'Another relic slot', does: 'One more relic slot.', own: `${knots()} OF ${KNOTS.most} SLOTS`, say: 'Another knot in the scarf. Tie what you find to it.', cost: knots() < KNOTS.most ? KNOTS.cost[G.knots || 0] : undefined, buy(){ G.knots = (G.knots || 0) + 1; } },
   // (no map is sold, and Corwen gives none: decision 0.16, 21 Nov 2026. The map is what he has walked)
 ];

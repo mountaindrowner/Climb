@@ -277,7 +277,7 @@ export function makeFallen(scene, R){
     for (let i = B.waves.length - 1; i >= 0; i--){
       const w = B.waves[i]; w.go += D.leap.wave * dt; w.x += w.dir * D.leap.wave * dt; const k = 1 - w.go / D.leap.waveLen;
       w.m.position.set(w.x, stageY + 0.55, 0.4); w.m.material.opacity = Math.max(0, k) * 0.9; w.m.scale.set(1, 0.6 + 0.5 * k, 1); if (Math.random() < 0.8) fx.dust({ x: w.x, y: stageY }, 1, 2.2);
-      if (!w.hit && Math.abs(P.x - w.x) < 0.55 && P.y < stageY + 0.75 && P.y > stageY - 1 && !isRollInv(P) && P.hp > 0){ if (hurt(P, 1, w.x - w.dir, 'Thrown down')) w.hit = true; }
+      if (!w.hit && Math.abs(P.x - w.x) < 0.55 && P.y < stageY + 0.75 && P.y > stageY - 1 && !isRollInv(P) && P.hp > 0){ if (hurt(P, 2, w.x - w.dir, 'Thrown down')) w.hit = true; }
       if (k <= 0 || w.x < room.x0 + 2 || w.x > room.x1 - 2){ scene.remove(w.m); w.m.material.dispose(); B.waves.splice(i, 1); }
     }
     // star-shards: a mark on the floor and a thread of light down to it, then the shard

@@ -143,7 +143,8 @@ export function makeItems(scene, R, n){
     Object.assign(s, { on: true, x, y: y + 0.3, vx: Math.cos(a) * (2 + rnd() * 3), vy: Math.sin(a) * (4 + rnd() * 3), v, t: 0, rest: false }); s.m.visible = true; s.m.material.color.setHex(v > 1 ? 0xfee761 : 0x2ce8f5); s.m.scale.setScalar(v > 1 ? 1.4 : 1); } };
   const give = (it, evs) => {
     const at = { x: it.x, y: it.y + 0.6 };
-    if (it.type === 'urn'){ it.gone = true; scene.remove(it.m); take(n, it.id); spill(it.x, it.y, Math.round((3 + Math.floor(rnd() * 4)) * (has('tally') ? 1.5 : 1))); evs.push({ type: 'urn', at }); }
+    // an urn: two to four shards (build 88: it was three to six; "I feel like I have so much cash")
+    if (it.type === 'urn'){ it.gone = true; scene.remove(it.m); take(n, it.id); spill(it.x, it.y, Math.round((2 + Math.floor(rnd() * 3)) * (has('tally') ? 1.5 : 1))); evs.push({ type: 'urn', at }); }
     else if (it.type === 'chest' && !it.open && it.prize && !RULE[it.prize]){ evs.push({ type: 'held', at }); }   // a wing's prize: held shut while its keeper stands
     else if (it.type === 'chest' && !it.open){ it.open = true; it.tex.offset.x = 0.5; if (it.gl){ scene.remove(it.gl); it.gl = null; } take(n, it.id); it.t = 0;
       evs.push({ type: 'chest', at });

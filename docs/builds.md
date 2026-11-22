@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 87 | 22 Nov 2026 | `aaa2472` | The Cracked Bell rolls; the air dash is its prize, in a chest of its own; thin ice across the way into the Spires | **save** (kept) | yes (now) |
+| 88 | 22 Nov 2026 | `COMMIT88` | Harder: one spring a region, prices up two thirds, urns pay less, the larger creatures' and the keepers' great blows cost two hearts | no | yes (now) |
+| 87 | 22 Nov 2026 | `aaa2472` | The Cracked Bell rolls; the air dash is its prize, in a chest of its own; thin ice across the way into the Spires | **save** (kept) | replaced by 88 |
 | 86 | 22 Nov 2026 | `de8d329` | The hammer in place of the spade: three times the sword's damage, a wide arc, it knocks creatures back | no | replaced by 87 |
 | 85 | 22 Nov 2026 | `39c2bf3` | Up: W and the up arrow look up and strike upward; Space alone jumps | **keys** | replaced by 86 |
 | 84 | 22 Nov 2026 | `f3778c9` | Ordric's shop as his own sheet of paper; unknown rooms as cloud on the map; every mark on the map named | no | replaced by 85 |
@@ -103,6 +104,88 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 88: harder
+
+*Step 3 of the order in `docs/gifts-sheet.md` (done before the second half of step 2, which waits on a question in
+build 87's entry). Decision 0.17: "So far I haven't died at all... I need to be able to die. I need to feel the risk.
+At least 3 to 5." And: "I feel like I have so much cash. It's just kind of being handed to me." Three cheap changes,
+to be steered by your death counts (the game counts deaths by region).*
+
+**For the player**
+
+- **One spring a region.** There were two or three. The one in the middle of each region is kept; the checkpoint
+  pool at the foot of each region is as it was. No wing has a spring now.
+
+  | Region | The spring kept | Taken away |
+  |---|---|---|
+  | The Roots | the grotto | the Ossuary's |
+  | The Cloister | the library | the cloister's |
+  | The Spires | the hollow | the Bell Road's; the eyrie's, just under the Wyrm |
+  | The Tempest | the watch | the last hut's; the masthead's |
+  | The Gardens | the orangery | the sundial's |
+  | The Firmament | the archive | the vigil's |
+
+- **Ordric's prices are up by about two thirds, and an urn pays two to four shards** (it was three to six).
+
+  | Ordric sells | Was | Now |
+  |---|---|---|
+  | A bigger flask (first, second) | 120, 260 | 200, 430 |
+  | Sharpen the sword (first, second) | 180, 380 | 300, 630 |
+  | A red strand | 150 | 250 |
+  | A relic slot (first to third) | 120, 240, 400 | 200, 400, 660 |
+  | Everything he has | 1,850 | 3,070 |
+
+- **Blows that cost two hearts.** The larger creatures: the yeti's swat, the squall, the sluicer, the sentinel; the
+  Turned's bar. Each keeper's great blow: the Warden's crush, the Toll's drop, the Fallen's throw (the Wyrm's, the
+  Thunderhead's and Mother Thorn's already did). What is thrown or spat still costs one.
+
+**The money, measured** (as promised on the sheet: the numbers before the change)
+
+What a region pays to one who finds every urn and chest and kills everything once, with the urns as they were. A
+creature pays one shard and one for each point of its health, to five; a keeper 60; a wing's keeper 30.
+
+| Region | Its main way | Its wings | The region | Running total |
+|---|---|---|---|---|
+| The Roots | 323 | 147 | 470 | 470 |
+| The Cloister | 381 | 321 | 702 | 1,172 |
+| The Spires | 347 | 221 | 568 | 1,740 |
+| The Tempest | 415 | 205 | 620 | 2,360 |
+| The Gardens | 408 | 347 | 755 | 3,115 |
+| The Firmament | 384 | 118 | 502 | 3,617 |
+
+- **Why you owned everything by the Tempest:** at the top of the Spires the running total was 1,740, and everything
+  Ordric sells came to 1,850. Creatures come back when he rests, so there was more than that.
+- **After this build:** the urns pay about 40 less a region, so the whole climb pays about 3,400, against 3,070 for
+  everything. The first of each thing costs 200 to 300: a region buys one or two. The last of each costs 430 to 660:
+  a region buys one.
+- **Not changed:** what chests, creatures and keepers pay. Creatures still come back at a rest, so shards can still
+  be farmed. Say if that should stop.
+
+**What is weaker than it should be**
+
+- **None of this has been played.** These are first numbers. Tell me your deaths in each region after a run and I
+  will move them.
+- **The places where a spring was** are not redressed. Nothing is left standing there, but a room built round a
+  spring (the eyrie, the vigil) has lost its reason.
+- **The Wyrm has no spring under it now.** With the long climb back from the pool, that fight may be the one that
+  is too hard. It is also the keeper to be rebuilt first (step 4).
+- **The hearts given away are not cut.** The Toll leaves one (build 87), and the Thunderhead still does.
+
+- **Underneath:** `level.js` (`SPRING`, in `finish`), `main.js` and `state.js` (the prices), `items.js` (the urn),
+  `enemies.js` (`dmg` on the yeti; `heavy`, read where a creature with a turn of its own hurts him),
+  `regions/tempest.js`, `aqueducts.js`, `firmament.js`, `cairns.js`, `boss.js`, `toll.js`, `fallen.js`. New check:
+  `tests/side-hard.test.mjs`.
+- **Save: not moved.** A spring he had found that is gone is simply not there.
+- **Checked:** 469 checks pass. In the test browser: the Spires with one spring; a yeti's swat taking two hearts
+  of six; Ordric's sheet with the new prices.
+
+**To try**
+
+1. Play a region you know and count your deaths. That number is what this build is for.
+2. Is one spring enough? Did you run out of flask?
+3. At Ordric: can you afford one thing a region, and do you have to choose?
+4. A yeti in the Spires, a squall in the Tempest: do two hearts feel like a real blow, or unfair?
 
 ### Build 87: the Cracked Bell rolls, and the air dash is its prize
 

@@ -204,7 +204,7 @@ const deco = (px, PAL) => {
 //             fires along that line. The beam does not follow: step off the line, or roll through it
 //   mote      a small star that comes for him, slowly, through anything. One cut puts it out; touched, it bursts
 const enemies = {
-  sentinel: { ai: 'sentinel', hp: 7, w: 0.7, h: 3.0, color: 0xfeae34, wake: 9, reach: 2.9, chase: 1.5, windup: 0.72, swing: 0.2, recover: 0.95, stun: 1.0, art: 'px_sentinel', fly: false, word: 'Cloven',
+  sentinel: { ai: 'sentinel', heavy: 2, hp: 7, w: 0.7, h: 3.0, color: 0xfeae34, wake: 9, reach: 2.9, chase: 1.5, windup: 0.72, swing: 0.2, recover: 0.95, stun: 1.0, art: 'px_sentinel', fly: false, word: 'Cloven',
     onHit(e, dmg, P, slam){ if (!slam) e.x -= P.face * 0.3;                       // it is not pushed about
       if ((dmg >= 2 || slam) && e.st !== 'stunned'){ e.st = 'stunned'; e.tm = 0; e.stunT = slam ? 1.2 : 0.9; } } },
   oculus: { ai: 'oculus', hp: 2, w: 0.5, h: 1.4, color: 0x2ce8f5, glow: 0x081828, wake: 11, range: 11, charge: 1.05, lock: 0.38, fire: 0.5, cooldown: 2.3, art: 'px_oculus', fly: true, word: 'Seared',

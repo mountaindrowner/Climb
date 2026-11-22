@@ -61,7 +61,7 @@ export function wipe(){ Object.assign(G, blank()); try { localStorage.removeItem
 // a relic works only while it is tied into the scarf; he can carry more than he can wear, and chooses at a flame
 export const has = id => (G.worn || []).includes(id);
 export const owns = id => G.relics.includes(id);
-export const KNOTS = { base: 2, most: 5, cost: [120, 240, 400] };   // two to start; Ordric ties the rest, for shards
+export const KNOTS = { base: 2, most: 5, cost: [200, 400, 660] };   // two to start; Ordric ties the rest, for shards
 export const knots = () => Math.min(KNOTS.most, KNOTS.base + (G.knots || 0));
 // tie (or untie) a relic he carries: false when there is no knot free, or he does not carry it
 export function wear(id, on = !has(id)){

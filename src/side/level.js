@@ -649,7 +649,12 @@ function build(n){
   return finish({ ...C, W, H, tiles, raw, marks, rooms, joins, X0, Y0 });
 }
 // what the motor asks about every step: the flowers' tiles, and the rising air (in world units)
+// One spring a region (build 88; decision 0.17, and "fewer springs" from the playtest of 21 Nov): on the climb, the one in
+// the middle of the region is kept, by the room it is in. The checkpoint pool at the foot of each region is not a
+// spring and stays. A wing has none. The sections of the Deep keep what they have (they are shut, and not yet retuned)
+export const SPRING = ['grotto', 'library', 'hollow', 'watch', 'orangery', 'archive'];
 function finish(L){
+  if (SPRING[L.index]) for (let k = L.marks.length - 1; k >= 0; k--){ const m = L.marks[k]; if (m.type !== 'shrine') continue; const r = L.rooms.find(q => m.x >= q.tx0 && m.x < q.tx1 && m.y >= q.ty0 && m.y < q.ty1); if (!r || r.name !== SPRING[L.index]) L.marks.splice(k, 1); }
   const pads = new Map(), updrafts = [], gusts = [], flows = [], movers = [], waters = [];
   for (const m of L.marks){
     if (m.type === 'bloom') for (let a = -1; a <= 1; a++) pads.set(m.y * L.W + m.x + a, m);

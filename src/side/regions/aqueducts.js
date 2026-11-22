@@ -146,7 +146,7 @@ export const enemies = {
   wheel: { ai: 'wheel', own: true, prop: true, hp: 99, w: 0.6, h: 1.4, color: 0xd77643, fly: false, guard(e){ e.struck = true; return true; }, onHit(e){ e.hp = e.d.hp; e.struck = true; } },
   // a keeper of the sluices: a stone servant of the house. It walks its landing. A wheel that is not as the house left
   // it, it goes to, and puts back. What stands in its way it strikes down, slowly. It can be broken
-  sluicer: { ai: 'sluicer', hp: 6, w: 0.8, h: 1.9, color: 0x8b9bb4, speed: 1.8, hurry: 3.0, turn: 1.3, wind: 0.6, rest: 0.9, reach: 1.7, art: 'px_sluicer', fly: false, word: 'Struck down' },
+  sluicer: { ai: 'sluicer', heavy: 2, hp: 6, w: 0.8, h: 1.9, color: 0x8b9bb4, speed: 1.8, hurry: 3.0, turn: 1.3, wind: 0.6, rest: 0.9, reach: 1.7, art: 'px_sluicer', fly: false, word: 'Struck down' },
   // a water-strider: it lives on running water, and on running water it is fast. With its water stopped it sits where it was left
   strider: { ai: 'strider', hp: 2, w: 0.9, h: 0.6, color: 0x2ce8f5, speed: 6.5, dart: 10, art: 'px_strider', fly: false, word: 'Stung' },
   // the Lock: the wing's keeper. The great gate between the channel and the head. It opens by thirds, as it is struck;

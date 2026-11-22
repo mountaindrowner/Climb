@@ -2,7 +2,13 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Cracked Bell rolls, and keeps the air dash (latest; build 87).**
+**Harder (latest; build 88).**
+- **One spring a region,** the one in its middle. The checkpoint pools are as they were.
+- **Ordric's prices up by about two thirds;** an urn pays two to four shards. `docs/builds.md` has what each region pays.
+- **Two hearts** for the larger creatures' blows (yeti, squall, sluicer, sentinel, the Turned) and each keeper's great blow.
+- 469 checks. No save is moved.
+
+**The Cracked Bell rolls, and keeps the air dash (build 87).**
 - **The Cracked Bell is a fight:** it warns, rolls the width of its pit, rings off the wall (which wakes the slag), and lies spent, which is when to hit it. Health 16.
 - **The air dash is its prize,** in a chest of its own kind that opens when it has fallen. The Toll leaves a heart until its weapon is made.
 - **Thin ice across the way into the Spires:** the air dash breaks it, so the Bell-Foundry is part of the climb.

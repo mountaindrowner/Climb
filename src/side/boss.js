@@ -199,7 +199,7 @@ export function makeWarden(scene, R){
         const t = Math.min(1, a.tm / W.slam.drop); a.p.y = a.from.y + (stageY + W.fistR - a.from.y) * t * t; warn = 1;
         if (t >= 1){
           events.push({ type: 'bossSlam', at: { x: a.p.x, y: stageY } });
-          if (Math.abs(P.x - a.p.x) < W.slam.reach && P.y < stageY + 2.2 && P.y > stageY - 1) hurt(P, 1, a.p.x, 'Crushed');
+          if (Math.abs(P.x - a.p.x) < W.slam.reach && P.y < stageY + 2.2 && P.y > stageY - 1) hurt(P, 2, a.p.x, 'Crushed');
           if (B.phase === 2) for (const dir of [-1, 1]){ const m = new THREE.Mesh(rippleGeo, rippleMat); scene.add(m); B.ripples.push({ x: a.p.x + dir * 1.4, dir, t: 0, m, hit: false }); }
           go(a, 'rest');
         }

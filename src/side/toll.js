@@ -214,7 +214,7 @@ export function makeToll(scene, R){
         const t = Math.min(1, B.mt / W.slam.drop); B.ang = 0; B.len = B.l0 + (lenFor(0) - B.l0) * t * t; warnA = 1; warnX = B.px;
         if (t >= 1){
           events.push({ type: 'bossSlam', at: { x: B.px, y: stageY } });
-          if (Math.abs(P.x - B.px) < W.slam.reach && P.y < stageY + 2.6 && P.y > stageY - 1 && !isRollInv(P)) hurt(P, 1, B.px, 'Crushed');
+          if (Math.abs(P.x - B.px) < W.slam.reach && P.y < stageY + 2.6 && P.y > stageY - 1 && !isRollInv(P)) hurt(P, 2, B.px, 'Crushed');
           if (B.phase === 2) for (const dir of [-1, 1]){ const m = new THREE.Mesh(rippleGeo, rippleMat); scene.add(m); B.ripples.push({ x: B.px + dir * 2.8, dir, t: 0, m, hit: false }); }
           go('rest');
         }
