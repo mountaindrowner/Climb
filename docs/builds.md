@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 82 | 21 Nov 2026 | `bc8512a` | The Deep shut; no maps sold or given; the window for everything gained, and keys drawn as keys | no | yes (now) |
+| 83 | 22 Nov 2026 | `COMMIT83` | The HUD (the ember bar, each part named once), the menu in tabs, the inventory as pictures | no | yes (now) |
+| 82 | 21 Nov 2026 | `bc8512a` | The Deep shut; no maps sold or given; the window for everything gained, and keys drawn as keys | no | replaced by 83 |
 | 81 | 21 Nov 2026 | `bbde82a` | The second playtest's broken things: the copy of him, the menu key, falls, the Great Shaft's water, and small numbers | no | replaced by 82 |
 | 80 | 21 Nov 2026 | `526af11` | The Glimmer redrawn side-on (the "crabs at an angle") | no | replaced by 81 |
 | 79 | 21 Nov 2026 | `6e00f76` | The slam that got him under deep water; things standing in walls and spikes | **yes** | yes (now) |
@@ -98,6 +99,60 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 83: the HUD, the menu, the inventory
+
+*The second of the three builds of the screens sheet (`docs/screens-sheet.md`), in the style build 82 began: the
+mountain's stone, and his red ribbon tied across the head of every panel.*
+
+**For the player**
+
+- **The ember bar.** A flame at the head of a bar in three parts, a part to a power. A part that is filling is
+  orange. A full part is bright, with a light running along it, and **the key that spends it stands beside the bar
+  for as long as there is a part to spend.** It was three thin yellow lines ("three yellow bars, I don't know what
+  those are for").
+- **The flask's key stands by the flask while a drink would help:** when he is hurt and has one.
+- **Red strands are pieces of his ribbon,** after the ember bar, and are not drawn until he has found one. They were
+  three empty squares from the start ("I don't know what that's worth").
+- **Each part of the HUD is named once,** the first time it is there to see: a gold frame round the part, blinking,
+  and its name on a plate under the HUD. Hearts, the flask, embers, shards, red strands. One at a time, six seconds,
+  never over a window, a talk or a keeper. Turning hints off turns these off.
+- **The pause screen is tabs.** Down the left: Resume, Map, Inventory, Lore book, Keys, Options, Quit. Across the
+  top, his goal and the next step, on a slab. On the right, what he has, each with its picture and a number: hearts,
+  drinks, shards, strands, ember powers ready, relic slots, deaths. No sentence anywhere on it.
+- **The keys have a tab of their own.** They were five lines across the foot of the pause screen.
+- **The chosen button wears a piece of his ribbon** down its left edge. It was a yellow outline. This is every menu,
+  the title's too.
+- **The inventory is pictures.** On the left, his abilities, weapons and relics as pictures in a grid under those
+  three headings; a relic he owns but has not equipped is dim. On the right, the chosen one in the same window as
+  when he got it, flavour and all. Along the foot, the knots of his ribbon: one for each relic slot, tied where a
+  relic is equipped.
+
+**Not in this build**
+
+- The shop as Ordric's sheet of paper, and the map that shows unknown rooms as cloud (the sheet's build C).
+- The Lore book and Options are as they were, reached from their tabs.
+- A picture for every relic is already there (each has its 16-pixel icon). **Better pixel work on them** is art, and
+  wants its own pass with the generations you have.
+
+- **Underneath:** `hud.js` (`status` and `purse` redrawn; `point`), `main.js` (`slab`, `drawWindow` in a pane,
+  `hudTips`, `keysScreen`, `carryScreen` and `drawCarry` rebuilt, the pause's tabs and its drawing, `menuMark`).
+- **Save: not moved.** Which HUD parts have been named is kept in the save (`taught.hud_*`).
+- **Checked:** 458 checks pass. (One line of the pause screen's drawing was trimmed after that run: a row that ran
+  off the foot. No check covers that drawing; it was looked at again.) In the test browser, at 960 by 540 and at the
+  itch page's own 640 by 360: the HUD with a full ember part, the flask's key, a strand, and the pointers; the pause;
+  the inventory with an ability, two weapons and two relics. The keys tab at 960 by 540 only.
+- **Not checked:** not played by a person. Not looked at on a phone, where the tab column is tightest. In the
+  inventory's small cells the ribbon on the chosen one covers the left of its picture. A controller's stick moves through the inventory's grid in one line, not by
+  rows.
+
+**To try**
+
+1. Start a new climb. Watch the top left for the first minute: do the gold frames explain the HUD, or get in the way?
+2. Take hits until the ember bar fills a part. Is it clear that a part is ready, and which key spends it?
+3. Press Tab. Is this the "very nice UI"? What is still wrong with it?
+4. Open the Inventory and move through it. Then the Keys tab.
+5. Is the ribbon on the chosen button enough to see which one is chosen?
 
 ### Build 82: the Deep shut, and the window
 

@@ -2,7 +2,14 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Deep shut, and the window (latest; build 82).**
+**The HUD, the menu, the inventory (latest; build 83).**
+- **The ember bar:** a flame and three parts; a full part glows and its key stands beside it.
+- **Each part of the HUD is named once,** with a gold frame, the first time it appears. Red strands are pieces of ribbon, shown once he has one.
+- **The pause screen is tabs,** with his goal across the top and what he has on the right. The keys have a tab of their own.
+- **The inventory is pictures** in a grid, the chosen thing in its window, the ribbon's knots for relic slots.
+- 458 checks. No save is moved.
+
+**The Deep shut, and the window (build 82).**
 - **The Deep is shut** until it is opened later: its hatch at the pithead is nailed down.
 - **No map is sold or given.** The map is what he has walked.
 - **One window for everything gained,** in stone with his ribbon across it; **keys drawn as keys** in it, in prompts, in hints and on the pause screen; flavour in italics.

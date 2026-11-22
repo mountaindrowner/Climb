@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 82, date: '21 NOV 2026', phase: 17, phases: 22, last: 'THE WINDOW, AND KEYS AS KEYS' };
+const VERSION = { build: 83, date: '22 NOV 2026', phase: 17, phases: 22, last: 'THE HUD, MENU AND INVENTORY' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -303,8 +303,8 @@ const menuLabel = text => { const d = document.createElement('div'); d.textConte
 // the keys in a menu: up and down move, Enter or Space picks
 let MSEL = 0;
 const menuItems = () => [...MENU.querySelectorAll('button')];
-const menuMark = () => menuItems().forEach((b, i) => { b.style.outline = i === MSEL ? '2px solid #fee761' : 'none'; b.style.outlineOffset = '2px'; });
-const menuShow = (rows, left = false, back = null) => { MENU.back = back; MENU.innerHTML = ''; MENU.style.bottom = ''; MENU.style.display = 'flex'; MENU.style.alignItems = left ? 'flex-start' : 'center'; MENU.style.paddingLeft = left ? '4%' : '0'; MENU.style.top = left ? '36%' : '56%'; for (const r of rows) if (r) MENU.appendChild(r); MSEL = 0; menuMark(); };
+const menuMark = () => menuItems().forEach((b, i) => { const on = i === MSEL; if (b.dataset.edge == null) b.dataset.edge = b.style.borderColor; b.style.outline = 'none'; b.style.borderColor = on ? '#fff2d0' : b.dataset.edge; b.style.boxShadow = on ? 'inset 5px 0 0 #e43b44, inset 6px 0 0 #a22633, 3px 3px 0 #0b0810' : '3px 3px 0 #0b0810'; b.style.color = on ? '#fff2d0' : (b.dataset.ink || (b.dataset.ink = b.style.color)); });   // the chosen one wears a piece of his ribbon down its left edge
+const menuShow = (rows, left = false, back = null) => { MENU.back = back; MENU.innerHTML = ''; MENU.style.bottom = ''; MENU.style.gap = '10px'; MENU.style.width = ''; MENU.style.right = '0'; MENU.style.display = 'flex'; MENU.style.alignItems = left ? 'flex-start' : 'center'; MENU.style.paddingLeft = left ? '4%' : '0'; MENU.style.top = left ? '36%' : '56%'; for (const r of rows) if (r) MENU.appendChild(r); MSEL = 0; menuMark(); };
 const menuHide = () => { MENU.style.display = 'none'; MENU.innerHTML = ''; MENU.back = null; release(); };   // and nothing pressed in it carries into play
 function begin(){   // from the start: the fall, then he gets up at the bottom
   // a first climb finds the Roots already made (they were made behind the title, as they are at the first): made again
@@ -448,6 +448,7 @@ function mapDots(){
   return dots;
 }
 // the whole map, from the pause (or M, or Select)
+function keysScreen(){ SCREEN = 'keys'; PAUSE = true; release(); menuShow([menuButton('Back', () => pause(true), true)], false, () => pause(true)); MENU.style.top = 'auto'; MENU.style.bottom = '1.5%'; MSEL = 0; menuMark(); }
 function mapScreen(){
   SCREEN = 'map'; PAUSE = true; release(); const T2 = (G.taught = G.taught || {}); T2.mapN = (T2.mapN || 0) + 1; store();
   menuShow([menuButton('Back', () => pause(true), true)], false, () => pause(true)); MENU.style.top = 'auto'; MENU.style.bottom = '1.5%'; MSEL = 0; menuMark();
@@ -599,10 +600,10 @@ function goalLines(){
 function pause(on){
   if (STORY.active() || GO.st || TALK.on || NOTE) return; if (SCREEN === 'shop' || SCREEN === 'knots' || SCREEN === 'under'){ SCREEN = ''; PAUSE = false; menuHide(); return; }
   PAUSE = on; SCREEN = on ? 'pause' : ''; if (!on){ menuHide(); return; } release();
-  // (one large button and a row of small ones: six in a column ran down over the keys written at the foot of the screen)
-  const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:min(94vw,640px)';
-  for (const b of [menuButton('Map', mapScreen, true), menuButton('Inventory', carryScreen, true), menuButton('Lore book', () => annals(LEVEL.index), true), menuButton('Options', () => options(() => pause(true)), true), menuButton('Quit to title', () => { PAUSE = false; SCREEN = ''; title(); }, true)]) row.appendChild(b);
-  menuShow([menuButton('Resume', () => pause(false)), row], false, () => pause(false)); MENU.style.top = '40%';   // (higher: the keys at the foot are drawn as keys now, and take five taller lines)
+  // (build 83, docs/screens-sheet.md: tabs down the left, the goal across the top, what he has on the right, and
+  // the list of keys on a tab of its own. It was a column of text over a row of buttons over five lines of keys)
+  const tabs = [['Resume', () => pause(false)], ['Map', mapScreen], ['Inventory', carryScreen], ['Lore book', () => annals(LEVEL.index)], ['Keys', keysScreen], ['Options', () => options(() => pause(true))], ['Quit to title', () => { PAUSE = false; SCREEN = ''; title(); }]];
+  menuShow(tabs.map(([name, fn]) => { const b = menuButton(name, fn, true); b.style.minWidth = '128px'; b.style.textAlign = 'left'; b.style.padding = '4px 12px 4px 14px'; return b; }), true, () => pause(false)); MENU.style.top = '31%'; MENU.style.gap = '5px';
 }
 addEventListener('keydown', e => {
   if (TALK.on || NOTE){ if (['Enter', 'Space', 'KeyE', 'KeyS', 'ArrowDown', 'KeyJ'].includes(e.code)) press(); return; }
@@ -972,13 +973,9 @@ const embersKnown = () => CAN.breaker || CAN.dash || CAN.glide;
 const FLAV = document.createElement('div'); FLAV.style.cssText = 'position:absolute;display:none;pointer-events:none;z-index:6;font-style:italic;font-family:Georgia,"Times New Roman",serif;color:#b9a98a;text-align:center;line-height:1.25;text-shadow:0 1px 0 #181425'; (document.getElementById('stage') || document.body).appendChild(FLAV);
 const flavour = (str, cx, y, w, W) => { if (!str){ FLAV.style.display = 'none'; return; } const st = FLAV.parentNode, k = st.clientHeight / 180; if (FLAV.textContent !== str) FLAV.textContent = str; FLAV.style.display = 'block'; FLAV.style.left = (cx - w / 2) / W * 100 + '%'; FLAV.style.width = w / W * 100 + '%'; FLAV.style.top = y * k + 'px'; FLAV.style.fontSize = Math.max(11, 7.2 * k) + 'px'; };
 const wrapRich = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(/ (?![^\[]*\])/)){ const t = line ? line + ' ' + word : word; if (HUD.richW(t) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };
-// the window: one frame for everything gained (docs/screens-sheet.md, rule 3), in the game's own things. A slab of the
-// mountain's stone; his red ribbon tied across its head, saying what kind of thing this is; the thing's picture in a
-// niche; its name; what it does; how, each line with its key; a line of flavour; and the key that closes it
-function drawWindow(c, W){
-  HUD.dark(0.72); const px = HUD.px, cx = Math.round(W / 2), ww = 236, x = cx - ww / 2, tw = ww - 62;
-  const title = c.title.toUpperCase(), big = textWidth(title, 2) <= tw ? 2 : 1, does = wrapText(c.does, tw), hows = (c.how || []).flatMap(h => wrapRich(h.toUpperCase(), ww - 24)), lore = c.lore ? 2 : 0;
-  const headH = Math.max(40, 7 * big + 6 + does.length * 9), hh = 20 + headH + 8 + hows.length * 12 + (hows.length ? 4 : 0) + (lore ? 22 : 0) + (c.foot ? 10 : 0) + 16, y = Math.max(2, Math.round((180 - hh) / 2));
+// the slab every screen is cut from (build 83): the mountain's stone, his red ribbon tied across its head with the
+// knot and its two tails, and on the ribbon what this is (and, to the right, where it is from)
+function slab(x, y, ww, hh, head, from){ const px = HUD.px;
   // the slab: a shadow under it, stone at its edge (lit from above), chipped corners
   px('#0d0b12', x + 3, y + 4, ww, hh); px('#3a4466', x, y, ww, hh); px('#8b9bb4', x + 1, y, ww - 2, 1); px('#5a6988', x, y + 1, 1, hh - 2); px('#262b44', x + 1, y + hh - 1, ww - 2, 1); px('#181425', x + 2, y + 2, ww - 4, hh - 4);
   for (const [a, b] of [[0, 0], [ww - 1, 0], [0, hh - 1], [ww - 1, hh - 1]]) px('#0d0b12', x + a, y + b, 1, 1); px('#181425', x + 1, y + 1, 2, 1); px('#181425', x + ww - 4, y + hh - 2, 3, 1); px('#262b44', x + 2, y + 2, ww - 4, 1);
@@ -987,14 +984,23 @@ function drawWindow(c, W){
   px('#181425', x - 2, ry - 1, ww + 4, 13); px('#a22633', x - 1, ry, ww + 2, 11); px('#e43b44', x - 1, ry, ww + 2, 2); px('#f6757a', x - 1, ry, ww + 2, 1); px('#733e39', x - 1, ry + 9, ww + 2, 2);
   { const kx = x + 12; px('#181425', kx + 1, ry + 11, 4, 12); px('#a22633', kx + 2, ry + 11, 2, 11); px('#181425', kx + 6, ry + 11, 4, 8); px('#a22633', kx + 7, ry + 11, 2, 7); px('#e43b44', kx + 2, ry + 11, 1, 10); px('#e43b44', kx + 7, ry + 11, 1, 6);
     px('#181425', kx - 1, ry - 2, 13, 15); px('#be4a2f', kx, ry - 1, 11, 13); px('#e43b44', kx + 1, ry - 1, 9, 3); px('#f6757a', kx + 2, ry, 5, 1); px('#733e39', kx, ry + 9, 11, 3); px('#181425', kx + 5, ry + 3, 1, 5); }
-  HUD.fine((c.head || 'YOU GOT').toUpperCase(), x + 30, ry + 3, '#fff2d0', 'left', 0); if (c.from) HUD.fine(c.from.toUpperCase(), x + ww - 8, ry + 3, '#f6c9a8', 'right', 0);
+  HUD.fine(String(head || '').toUpperCase(), x + 30, ry + 3, '#fff2d0', 'left', 0); if (from) HUD.fine(String(from).toUpperCase(), x + ww - 8, ry + 3, '#f6c9a8', 'right', 0);
+}
+// the window: one frame for everything gained (docs/screens-sheet.md, rule 3), in the game's own things. A slab of the
+// mountain's stone; his red ribbon tied across its head, saying what kind of thing this is; the thing's picture in a
+// niche; its name; what it does; how, each line with its key; a line of flavour; and the key that closes it
+function drawWindow(c, W, at = null){   // at: { x, y, w } sets it in a pane of a screen, not over play (no dark behind it, no key to close it)
+  if (!at) HUD.dark(0.72); const px = HUD.px, ww = at ? at.w : 236, x = at ? at.x : Math.round(W / 2) - ww / 2, cx = x + ww / 2, tw = ww - 62;
+  const title = c.title.toUpperCase(), big = textWidth(title, 2) <= tw ? 2 : 1, does = wrapText(c.does, tw), hows = (c.how || []).flatMap(h => wrapRich(h.toUpperCase(), ww - 24)), lore = c.lore ? 2 : 0;
+  const headH = Math.max(40, 7 * big + 6 + does.length * 9), hh = 20 + headH + 8 + hows.length * 12 + (hows.length ? 4 : 0) + (lore ? 22 : 0) + (c.foot ? 10 : 0) + (at ? 6 : 16), y = at ? at.y : Math.max(2, Math.round((180 - hh) / 2));
+  slab(x, y, ww, hh, c.head || 'YOU GOT', c.from);
   // its picture, in a niche cut in the stone; its name and what it does beside it
   let yy = y + 24; if (c.icon){ px('#0d0b12', x + 10, yy, 40, 40); px('#5a6988', x + 11, yy + 1, 38, 38); px('#ead4aa', x + 12, yy + 1, 36, 1); px('#262b44', x + 12, yy + 2, 36, 36); px('#181425', x + 12, yy + 2, 36, 2); drawIcon(px, c.icon, x + 14, yy + 5, 2); }
   const tx = c.icon ? x + 58 : x + 12; HUD.text(title, tx, yy + 1, '#fee761', big, 'left'); let ty = yy + 7 * big + 6; for (const ln of does){ HUD.text(ln, tx, ty, '#fff2d0', 1, 'left'); ty += 9; }
   yy += headH + 2; if (hows.length){ px('#3a4466', x + 10, yy, ww - 20, 1); yy += 6; for (const ln of hows){ HUD.rich(ln, x + 12, yy, '#c0cbdc'); yy += 12; } }
   if (lore){ yy += 2; flavour(c.lore, cx, yy, ww - 28, W); yy += 20; } else flavour('');
   if (c.foot){ HUD.fine(c.foot.toUpperCase(), x + 12, yy, '#8b9bb4', 'left', 0); yy += 10; }
-  if (c.t > 0.7){ const key = DEVICE.kind === 'touch' ? null : kname('jump'), lw = textWidth('OK', 1, true), kw = key ? HUD.capW(key) + 3 : 0; if (key) HUD.cap(x + ww - 12 - lw - kw, y + hh - 14, key); HUD.fine(key ? 'OK' : 'TAP', x + ww - 12 - (key ? lw : textWidth('TAP', 1, true)), y + hh - 12, Math.floor(time * 2) % 2 ? '#fff2d0' : '#8b9bb4', 'left', 0); }
+  if (!at && c.t > 0.7){ const key = DEVICE.kind === 'touch' ? null : kname('jump'), lw = textWidth('OK', 1, true), kw = key ? HUD.capW(key) + 3 : 0; if (key) HUD.cap(x + ww - 12 - lw - kw, y + hh - 14, key); HUD.fine(key ? 'OK' : 'TAP', x + ww - 12 - (key ? lw : textWidth('TAP', 1, true)), y + hh - 12, Math.floor(time * 2) % 2 ? '#fff2d0' : '#8b9bb4', 'left', 0); }
 }
 function drawCard(c, W, modal, top = 8){
   if (modal) return drawWindow(c, W);
@@ -1017,18 +1023,27 @@ const carryCards = () => [
   ...(armed('spade') ? [{ head: 'A WEAPON' + (P.weapon === 'spade' ? ' · IN USE' : ''), title: TEACH[0].name, icon: 'spade', does: TEACH[0].does, how: [...TEACH[0].how, ...(TEACH[0].more || [])] }] : []),
   ...G.relics.filter(id => RELICS[id]).map(id => ({ head: has(id) ? 'A RELIC · EQUIPPED' : 'A RELIC · NOT EQUIPPED', title: RELICS[id].name, icon: id, does: RELICS[id].line, lore: RELICS[id].lore })),
 ].map(c => ({ ...c, how: (c.how || []).map(keyed) }));
+// (build 83, docs/screens-sheet.md: his things as pictures in a grid on the left, under three headings; the one
+// chosen in the window on the right; the knots of his ribbon along the foot. It was a row of names under a card)
 function carryScreen(){
   SCREEN = 'carry'; PAUSE = true; release(); const keep = MSEL; CARRY = carryCards();
-  const grid = document.createElement('div'); grid.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:min(94vw,600px)';
-  CARRY.forEach((c, i) => { const b = menuButton(c.title, () => { MSEL = i; menuMark(); sfx.ui(); }, true); b.style.fontSize = '11px'; b.style.padding = '3px 7px'; b.addEventListener('pointerenter', () => { if (MSEL !== i){ MSEL = i; menuMark(); } }); grid.appendChild(b); });
-  menuShow([grid, menuButton('Back', () => pause(true), true)], false, () => pause(true)); MENU.style.top = 'auto'; MENU.style.bottom = '1.5%'; MSEL = Math.min(keep, CARRY.length - 1); menuMark();
+  const col = document.createElement('div'); col.style.cssText = 'display:flex;flex-direction:column;gap:3px;width:100%';
+  let n = 0; for (const [label, test] of [['Abilities', c => /ABILITY/.test(c.head)], ['Weapons', c => /WEAPON/.test(c.head)], ['Relics', c => /RELIC/.test(c.head)]]){
+    const items = CARRY.map((c, i) => [c, i]).filter(([c]) => test(c)); const lab = menuLabel(label); lab.style.cssText += ';font-size:11px;color:#feae34;margin:3px 0 0'; col.appendChild(lab);
+    const grid = document.createElement('div'); grid.style.cssText = 'display:grid;grid-template-columns:repeat(5,1fr);gap:4px'; col.appendChild(grid);
+    if (!items.length){ const none = menuLabel('none yet'); none.style.cssText += ';font-size:10px;color:#5a6988;grid-column:1 / -1;margin:0'; grid.appendChild(none); }
+    for (const [c, i] of items){ const b = menuButton('', () => { MSEL = b.k; menuMark(); sfx.ui(); }, true); b.k = n++; b.setAttribute('aria-label', c.title); b.title = c.title; b.style.padding = '2px'; b.style.minWidth = '0'; b.style.lineHeight = '0'; b.dataset.card = i;
+      const cv = document.createElement('canvas'); cv.width = cv.height = 16; const g = cv.getContext('2d'); drawIcon((cl, x, y, w, h) => { g.fillStyle = cl; g.fillRect(x, y, w, h); }, c.icon, 0, 0, 1); cv.style.cssText = 'width:100%;image-rendering:pixelated;display:block;opacity:' + (/NOT EQUIPPED/.test(c.head) ? '0.55' : '1'); b.appendChild(cv);
+      b.addEventListener('pointerenter', () => { if (MSEL !== b.k){ MSEL = b.k; menuMark(); } }); grid.appendChild(b); } }
+  const back = menuButton('Back', () => pause(true), true); back.style.marginTop = '6px'; back.style.alignSelf = 'flex-start';
+  menuShow([col, back], true, () => pause(true)); MENU.style.top = '19%'; MENU.style.paddingLeft = '4.5%'; MENU.style.width = '33%'; MENU.style.right = 'auto'; MSEL = Math.min(keep, Math.max(0, n - 1)); menuMark();
 }
 function drawCarry(W){
-  HUD.dark(0.92, '#181425'); HUD.text('INVENTORY', W / 2, 4, '#fff2d0', 1, 'center');
-  const spare = G.relics.length - G.worn.length;
-  HUD.fine(`${P.maxHp} HEARTS · ${G.threads % THREADS_A_HEART} OF ${THREADS_A_HEART} STRANDS TOWARD THE NEXT · FLASK ${P.flaskMax}`, W / 2, 13, '#8b9bb4', 'center');
-  HUD.fine(`${G.worn.length} OF ${knots()} RELIC SLOTS USED${spare > 0 ? ` · ${spare} NOT EQUIPPED` : ''}`, W / 2, 20, '#8b9bb4', 'center');
-  const c = CARRY[MSEL]; if (c) drawCard(c, W, false, 29);
+  HUD.dark(0.9, '#181425'); const lw = Math.round(W * 0.38); slab(6, 5, lw, 156, 'What you carry');
+  const items = menuItems(), b = items[MSEL], c = b && b.dataset.card != null ? CARRY[+b.dataset.card] : null;
+  if (c) drawWindow(c, W, { x: lw + 12, y: 5, w: W - lw - 18 }); else flavour('');
+  // the knots of his ribbon: one for each relic slot, tied where a relic is equipped
+  if (G.relics.length){ const n = knots(), worn = G.worn.filter(id => RELICS[id]).length, x0 = lw + 16, y = 150; HUD.fine(`${worn} OF ${n} RELIC SLOTS USED`, x0 + n * 16 + 4, y, '#c0cbdc', 'left', 0); HUD.fine('CHOOSE AT A POOL', x0 + n * 16 + 4, y + 8, '#8b9bb4', 'left', 0); for (let k = 0; k < n; k++){ if (k < worn) drawIcon(HUD.px, 'knot', x0 + k * 16, y - 3, 1); else { HUD.px('#a22633', x0 + k * 16, y + 4, 14, 2); HUD.px('#3a4466', x0 + k * 16 + 5, y + 2, 4, 6); } } }
 }
 // ---- a keeper's gift (decision 0.5): the thing gathers out of the fallen keeper, light drawn in to it; it hangs a
 // moment, then comes down to him; he reaches up and takes it to his chest (his `receive` drawing; he is held while he
@@ -1305,6 +1320,17 @@ const padKey = a => { const i = (SET.pad[a] || [])[0], N = PADN[DEVICE.kind === 
 const HINT = { keys: ['[A] [D] MOVE · [SPACE] JUMP, AGAIN IN THE AIR · [SHIFT] ROLL', '[CLICK] ATTACK · [RIGHT CLICK] OR [K] BLOCK · [CLICK] IN A ROLL: DASH ATTACK', '[S] + [CLICK] RISING ATTACK. IN THE AIR: SLAM · [S] + [SPACE] DROP THROUGH A PLANK', '[S] TALK, OPEN · [M] MAP · [TAB] MENU · [Q] DRINK YOUR FLASK', '[E] EMBER POWER, COSTS 10 (ALSO [S] + [E], AND IN THE AIR)'], touch: ['TOUCH THE LEFT OF THE SCREEN AND DRAG TO MOVE', 'DRAG DOWN: CROUCH, TALK, OPEN · DOWN + A IN THE AIR: SLAM', 'EMBERS: A POWER, COSTS 10 (WITH DOWN, OR IN THE AIR) · FLASK: DRINK'],
   get pad(){ const k = padKey; return [`STICK MOVE · [${k('jump')}] JUMP, AGAIN IN THE AIR · [${k('roll')}] ROLL · [${k('attack')}] ATTACK · [${k('block')}] BLOCK`, `DOWN + [${k('attack')}]: RISING ATTACK · DOWN + [${k('attack')}] IN THE AIR: SLAM · [${k('flask')}] DRINK`, `DOWN: TALK, OPEN · DOWN + [${k('jump')}]: DROP THROUGH A PLANK · SELECT: MAP · START: PAUSE`, `[${k('art')}]: EMBER POWER, COSTS 10 (WITH DOWN, OR IN THE AIR)`]; } };
 const EPITHET = LEVELS.map(l => l.epithet);
+// each part of the HUD is pointed out once, the first time it is there to see (docs/screens-sheet.md, rule 4: nothing
+// is on the screen that has not been explained). One at a time, for a few seconds, and never over a card or a talk
+const TIPS = [['hearts', () => true, () => [16, 6, P.maxHp * 8, 6], 'YOUR HEARTS'], ['flask', () => P.flaskMax > 0, () => [HUD.flaskAt, 5, P.flaskMax * 8 - 2, 8], 'YOUR FLASK: EACH ONE IS A DRINK'], ['embers', () => embersKnown(), () => [16, 14, (HUD.emberEnd || 70) - 18, 7], 'EMBERS: A FULL PART PAYS FOR A POWER'],
+  ['shards', () => G.shards > 0, () => [HUD.shardAt - 2, 5, 10 + textWidth(String(G.shards)), 8], 'SHARDS: MONEY'], ['strands', () => G.threads % THREADS_A_HEART > 0, () => [(HUD.strandAt || 40) - 1, 15, THREADS_A_HEART * 6, 6], `RED STRANDS: ${THREADS_A_HEART} MAKE A HEART`]];
+let TIP = null;
+function hudTips(dt){
+  if (PAUSE || NOTE || TALK.on || GO.st || STORY.active() || OPT.hints === false || (BOSS && BOSS.active() && BOSS.st !== 'dead')) return;
+  const T2 = (G.taught = G.taught || {});
+  if (!TIP){ if (PLAYED < 2.5) return; const next = TIPS.find(t => !T2['hud_' + t[0]] && t[1]()); if (!next) return; T2['hud_' + next[0]] = 1; store(); TIP = { tip: next, t: 0 }; }
+  TIP.t += dt; const a = Math.max(0, Math.min(1, TIP.t / 0.3, (6 - TIP.t) / 0.6)), [x, y, w, h] = TIP.tip[2](); HUD.point(x, y, w, h, TIP.tip[3], a, TIP.t); if (TIP.t > 6) TIP = null;
+}
 function drawHud(dt){
   // the HUD's own picture is 180 tall, and as wide as that makes the window: its pixels are square. (Until build 78 it
   // took the world's width, which grew each time the view was drawn back, to 440 by 180 on a 16:9 screen: everything
@@ -1319,7 +1345,10 @@ function drawHud(dt){
   HUD.title(ENT.title);
   if (BOSS && BOSS.st === 'fight' && !BOSS.shown && !ENT.title){ BOSS.shown = true; banner('', BOSS.hint, 3.5); }   // once it is up: how it is hurt
   if (!rising && !TALK.on && !FLIGHT){
-    HUD.status(P, EMBER.n, EMBER.cap, P.flaskMax, time, ARTS.cost, embersKnown()); HUD.weapon(P.weapon === 'spade' ? 'spade' : 'blade', armed('spade') ? kname('swap') : null, drawIcon); PURSE = Math.max(0, PURSE - dt); HUD.purse(P, P.flaskMax, G.shards, PURSE, G.threads % THREADS_A_HEART, THREADS_A_HEART);
+    const onKeys = DEVICE.kind !== 'touch';
+    HUD.status(P, EMBER.n, EMBER.cap, P.flaskMax, time, ARTS.cost, embersKnown(), { art: onKeys ? kname('art') : null }); HUD.weapon(P.weapon === 'spade' ? 'spade' : 'blade', armed('spade') ? kname('swap') : null, drawIcon); PURSE = Math.max(0, PURSE - dt);
+    HUD.purse(P, P.flaskMax, G.shards, PURSE, G.threads % THREADS_A_HEART, THREADS_A_HEART, onKeys && P.hp < P.maxHp && P.flask > 0 ? kname('flask') : null);   // the flask's key stands by it while a drink would help
+    hudTips(dt);
     const room = roomAt(P.x, P.y); if (room && !MAP.seen.has(room)){ MAP.seen.add(room); const k = LEVEL.rooms.indexOf(room), list = ((G.rooms = G.rooms || {})[LEVEL.index] = G.rooms[LEVEL.index] || []); if (k >= 0 && !list.includes(k)){ list.push(k); DIRTY = DIRTY > 0 ? DIRTY : 2; } }
     const st = ITEMS.station(P), place = (room && room.sill ? '' : LEVEL.name + (room ? ' · ' : '')) + (room ? room.title || room.name : '') + (st ? ' · ' + st.station.name : '');   // beside one of the three: their station's name
     if (place !== PLACE.name){ PLACE.name = place; PLACE.t = 0; } PLACE.t += dt;
@@ -1344,24 +1373,35 @@ function drawHud(dt){
   // over what he can use: the key for it
   if (USE && !PAUSE && !TALK.on && !NOTE){ v.set(USE.x, USE.y + (USE.type === 'npc' ? 2.6 : 1.5), 0).project(R.camera); HUD.prompt(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180), USE.type === 'npc' ? 'TALK' : USE.type === 'flame' ? (G.under ? 'THE WATER' : 'TIE KNOTS') : 'OPEN', time, kname('down')); }
   TALK.draw(HUD, dt, time);
-  if (NOTE) drawCard(NOTE, W, true); else flavour('');
+  if (NOTE) drawCard(NOTE, W, true); else if (!(PAUSE && SCREEN === 'carry')) flavour('');
   if (PAUSE && SCREEN === 'annals') drawAnnals(W);
   else if (PAUSE && SCREEN === 'map') drawMap();
   else if (PAUSE && SCREEN === 'shop') drawShop(W);
   else if (PAUSE && SCREEN === 'knots') drawKnots(W);
   else if (PAUSE && SCREEN === 'under') drawUnder(W);
   else if (PAUSE && SCREEN === 'carry') drawCarry(W);
-  else if (PAUSE){ HUD.dark(0.66); HUD.version(VERSION_LINES, 0.85, W / 2, 'center', 1); HUD.text('PAUSED', W / 2, 14, '#fff2d0', 2, 'center'); HUD.rule(Math.round(W / 2), 34, 60, '#ead4aa');
-    // what he carries
-    const can = [CAN.breaker && 'THE WARDEN\'S SPADE', CAN.dash && 'THE TOLL\'S STEP', CAN.glide && 'THE WYRM\'S WIND'].filter(Boolean), found = Object.values(G.got).flat();
-    // the goal first (build 77): what the whole game is for, and the next step from here
-    { const [goal, next] = goalLines(); HUD.fine(goal, W / 2, 40, '#fee761', 'center'); HUD.fine(next, W / 2, 48, '#fff2d0', 'center'); }
-    HUD.fine(`SHARDS ${G.shards}  ·  STRANDS ${G.threads}  ·  RELICS ${G.relics.length} OF ${Object.keys(RELICS).length}${G.falls ? `  ·  DEATHS ${G.falls}` : ''}`, W / 2, 58, '#c0cbdc', 'center');
-    if (can.length) HUD.fine(can.join('  ·  '), W / 2, 67, '#2ce8f5', 'center');
-    const worn = G.worn.filter(id => RELICS[id]), spare = G.relics.length - worn.length;   // what is equipped; what he only carries (what each does: the Inventory)
-    if (G.relics.length){ let ky = 76; HUD.fine(`${worn.length} OF ${knots()} RELIC SLOTS USED${spare ? `  ·  ${spare} NOT EQUIPPED: CHOOSE AT A POOL` : ''}`, W / 2, ky, '#8b9bb4', 'center');
-      for (const ln of wrapText(worn.map(id => RELICS[id].name.toUpperCase()).join('  ·  '), W - 60)){ ky += 8; HUD.fine(ln, W / 2, ky, '#fee761', 'center'); } }
-    HUD.hint(HINT[DEVICE.kind === 'keys' ? 'keys' : DEVICE.kind === 'touch' ? 'touch' : 'pad'], 1); }
+  else if (PAUSE && SCREEN === 'keys'){ HUD.dark(0.82); const lines = []; for (const l of HINT[DEVICE.kind === 'keys' ? 'keys' : DEVICE.kind === 'touch' ? 'touch' : 'pad']){ let cur = ''; for (const part of String(l).split(' · ')){ const t = cur ? cur + ' · ' + part : part; if (cur && HUD.richW(t) > 270){ lines.push(cur); cur = part; } else cur = t; } if (cur) lines.push(cur); }
+    const hh = 30 + lines.length * 13, x = Math.round(W / 2) - 150, y = Math.max(4, Math.round((160 - hh) / 2)); slab(x, y, 300, hh, 'The keys'); lines.forEach((l, i) => HUD.rich(l, x + 14, y + 26 + i * 13, '#c0cbdc')); }
+  else if (PAUSE){ HUD.dark(0.72);
+    // his goal, across the top: what the whole game is for, and the next step from here
+    const nl = wrapFine(goalLines()[1], W - 64); { const [goal] = goalLines(); slab(8, 5, W - 16, 30 + nl.length * 9, 'Your goal', LEVEL.name); HUD.fine(goal, 38, 24, '#fee761', 'left', 0); nl.forEach((l, i) => HUD.fine(l, 38, 33 + i * 9, '#fff2d0', 'left', 0)); }   // (clear of the ribbon's tails; the next step on two lines where it is long)
+    // what he has, on the right: each with its own picture, and no sentence anywhere
+    { const x = 104, w = W - x - 8, worn = G.worn.filter(id => RELICS[id]), spare = G.relics.length - worn.length, rows = [];
+      rows.push(['heart', `${P.hp} OF ${P.maxHp} HEARTS`]); rows.push(['flask', `${P.flask} OF ${P.flaskMax} DRINKS IN YOUR FLASK`]); rows.push(['shard', `${G.shards} SHARDS`]);
+      if (G.threads) rows.push(['strand', `${G.threads % THREADS_A_HEART} OF ${THREADS_A_HEART} RED STRANDS TOWARD A HEART`]);
+      if (embersKnown()) rows.push(['embers', `${Math.floor(EMBER.n / ARTS.cost)} EMBER POWER${Math.floor(EMBER.n / ARTS.cost) === 1 ? '' : 'S'} READY`]);
+      if (G.relics.length) rows.push(['knot', `${worn.length} OF ${knots()} RELIC SLOTS USED${spare ? ` · ${spare} NOT EQUIPPED` : ''}`]);
+      rows.push(['skull', G.falls ? `DIED ${G.falls} TIME${G.falls === 1 ? '' : 'S'}` : 'NO DEATHS YET']);
+      const hh = 26 + rows.length * 11; const y0 = 44 + nl.length * 9; slab(x, y0, w, hh, 'What you have');
+      rows.forEach(([ic, str], i) => { const yy = y0 + 21 + i * 11, px = HUD.px;
+        if (ic === 'heart'){ px('#181425', x + 12, yy - 1, 9, 7); px('#e43b44', x + 13, yy, 7, 4); px('#f6757a', x + 13, yy, 7, 1); px('#a22633', x + 13, yy + 3, 7, 1); }
+        else if (ic === 'shard'){ px('#2ce8f5', x + 15, yy - 1, 3, 6); px('#0099db', x + 14, yy + 1, 5, 2); px('#ffffff', x + 16, yy - 1, 1, 2); }
+        else if (ic === 'strand'){ px('#181425', x + 13, yy - 1, 7, 7); px('#e43b44', x + 14, yy, 5, 5); px('#f6757a', x + 14, yy, 5, 1); }
+        else if (ic === 'skull'){ px('#c0cbdc', x + 14, yy - 1, 5, 4); px('#c0cbdc', x + 15, yy + 3, 3, 2); px('#181425', x + 15, yy + 1, 1, 1); px('#181425', x + 17, yy + 1, 1, 1); }
+        else { HUD.g.save(); HUD.g.beginPath(); HUD.g.rect(x + 9, yy - 3, 16, 11); HUD.g.clip(); drawIcon(px, ic, x + 9, yy - 6, 1); HUD.g.restore(); }
+        HUD.fine(str, x + 30, yy, '#c0cbdc', 'left', 0); });
+      }
+    HUD.version(VERSION_LINES.slice(0, 1), 0.5, 8, 'left', 170); }
   if (GO.st) HUD.dark(GO.st === 'out' ? Math.min(1, GO.t / 0.6) : GO.st === 'in' ? Math.max(0, 1 - GO.t / 0.7) : 1);   // going up: dark between regions
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;

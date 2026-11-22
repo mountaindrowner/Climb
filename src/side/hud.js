@@ -22,7 +22,7 @@ export function makeHud(hud){
   H.rule = (cx, y, half, col) => { px(col, cx - half, y, half - 4, 1); px(col, cx + 5, y, half - 4, 1); for (let k = 0; k < 3; k++){ px(col, cx - k, y - 2 + k, 1 + k * 2, 1); px(col, cx - k, y + 2 - k, 1 + k * 2, 1); } };
 
   // his life, embers and flask, top left
-  H.status = (P, embers, emberMax, flaskMax, t, measure = emberMax, showEmbers = true) => {
+  H.status = (P, embers, emberMax, flaskMax, t, measure = emberMax, showEmbers = true, keys = {}) => {
     for (let r = 0; r < MASK.length; r++) for (let c = 0; c < 7; c++) if (MASK[r][c] === '#') px(r >= 2 && r <= 3 && (c === 1 || c === 5) ? C.ink : C.white, 6 + c, 5 + r);
     px(C.ink, 5, 5, 1, 7); px(C.ink, 13, 5, 1, 7); px(C.ink, 6, 4, 7, 1); px(C.ink, 7, 13, 5, 1); px(C.ink, 7, 7, 1, 2); px(C.ink, 11, 7, 1, 2);
     const x0 = 16;
@@ -30,23 +30,32 @@ export function makeHud(hud){
       const x = x0 + i * 8, on = i < P.hp, last = i === P.hp - 1, low = P.hp <= 1 && on && Math.floor(t * 5) % 2;
       px(C.ink, x, 6, 8, 6); px(on ? (low ? C.fire2 : C.red1) : C.deep, x, 7, 7, 4); if (on){ px(low ? C.fire3 : C.rose || '#f6757a', x, 7, 7, 1); px(C.red0, x, 10, 7, 1); if (last){ px(C.ink, x + 6, 7, 1, 1); px(C.ink, x + 6, 10, 1, 1); } }
     }
-    // the embers: a measure to a segment; a full one glints (it will pay for an art, or mend a heart)
+    // the embers (build 83, docs/screens-sheet.md): a flame at the head of a bar in parts, a part to a power. A part
+    // filling is orange; a full one is bright and a light runs along it; and the key that spends it stands beside the
+    // bar for as long as there is a part to spend. (It was three thin yellow lines that nobody could read)
     if (showEmbers){   // hidden until he has something to spend them on (teach.js)
-    const segs = Math.max(1, Math.round(emberMax / measure)), bw = Math.max(P.maxHp * 8 - 1, segs * 14), sw = Math.floor((bw - (segs - 1) * 2) / segs);
-    px(C.ink, x0 - 1, 13, bw + 2, 4);
-    for (let k = 0; k < segs; k++){ const sx = x0 + k * (sw + 2), have = Math.max(0, Math.min(1, (embers - k * measure) / measure)); px(C.deep, sx, 14, sw, 2);
-      if (have > 0) px(have >= 1 ? C.fire3 : C.fire2, sx, 14, Math.max(1, Math.round(sw * have)), 2); if (have >= 1) px(C.cream, sx + Math.floor((t * 6 + k * 3) % sw), 14, 1, 1); }
-    }
+      const segs = Math.max(1, Math.round(emberMax / measure)), sw = 15, gx = x0 + 8, full = Math.floor(embers / measure);
+      px(C.ink, x0, 14, 6, 7); px(C.fire1 || '#f77622', x0 + 1, 16, 4, 4); px(C.fire2, x0 + 2, 15, 2, 4); px(C.fire3, x0 + 2, 17 + (Math.floor(t * 6) % 2), 2, 2); px(C.fire2, x0 + 2 + (Math.floor(t * 4) % 2), 14, 1, 1);
+      px(C.ink, gx - 1, 15, segs * (sw + 1) + 1, 6);
+      for (let k = 0; k < segs; k++){ const sx = gx + k * (sw + 1), have = Math.max(0, Math.min(1, (embers - k * measure) / measure)); px(C.deep, sx, 16, sw, 4);
+        if (have >= 1){ px(C.fire3, sx, 16, sw, 4); px(C.cream, sx, 16, sw, 1); px(C.fire2, sx, 19, sw, 1); px(C.white, sx + Math.floor((t * 14 + k * 5) % sw), 16, 2, 4); }
+        else if (have > 0){ const w = Math.max(1, Math.round(sw * have)); px(C.fire1 || '#f77622', sx, 16, w, 4); px(C.fire2, sx, 16, w, 1); } }
+      H.emberEnd = gx + segs * (sw + 1) + 2;
+      if (full > 0 && keys.art) H.cap(H.emberEnd + 1, 13, keys.art);
+    } else H.emberEnd = x0;
     let fx = x0 + P.maxHp * 8 + 5;
     for (let i = 0; i < flaskMax; i++){ const on = i < P.flask, x = fx + i * 8;
       px(C.ink, x + 1, 5, 3, 2); px(C.ink, x, 7, 5, 6); px(C.light, x + 2, 5, 1, 2); px(on ? C.cyan : C.deep, x + 1, 8, 3, 4); if (on){ px(C.white, x + 1, 8, 1, 1); px(C.blue, x + 1, 11, 3, 1); } }
+    H.flaskAt = fx; H.flaskEnd = fx + flaskMax * 8;
   };
   // what he has gathered, after the flask: shards (the number comes forward when it changes) and the threads toward a heart
-  H.purse = (P, flaskMax, shards, pop, threads, per) => {
-    const x = 16 + P.maxHp * 8 + 5 + flaskMax * 8 + 5;
+  H.purse = (P, flaskMax, shards, pop, threads, per, flaskKey = null) => {
+    let x = 16 + P.maxHp * 8 + 5 + flaskMax * 8 + 3; if (flaskKey) x += H.cap(x, 4, flaskKey) + 4; else x += 2;
+    H.shardAt = x;
     for (let k = 0; k < 3; k++){ px(C.ink, x + 2 - k - 1, 6 + k, k * 2 + 3, 1); px(C.ink, x + 2 - k - 1, 11 - k, k * 2 + 3, 1); } for (let k = 0; k < 3; k++){ px(k ? C.cyan : C.white, x + 2 - k, 6 + k + 0, k * 2 + 1, 1); px(C.blue, x + 2 - k, 11 - k, k * 2 + 1, 1); }
     g.globalAlpha = pop > 0 ? 1 : 0.75; text(g, String(shards), x + 8, 6, pop > 0 ? C.cream : C.pale, 1, 'left'); g.globalAlpha = 1;
-    for (let k = 0; k < per; k++){ const tx = 16 + k * 4; px(C.ink, tx, 17, 3, 3); px(k < threads ? C.red1 : C.deep, tx, 17, 2, 2); }
+    // red strands toward the next heart: pieces of his ribbon, after the embers' bar; not drawn until he has found one
+    H.strandAt = null; if (threads > 0){ const sx0 = Math.max(H.emberEnd || 16, 16) + 16; H.strandAt = sx0; for (let k = 0; k < per; k++){ const tx = sx0 + k * 6, on = k < threads; px(C.ink, tx - 1, 15, 6, 6); px(on ? C.red1 : C.deep, tx, 16, 4, 4); if (on){ px(C.rose || '#f6757a', tx, 16, 4, 1); px(C.red0, tx, 19, 4, 1); } } }
   };
   // a key, drawn as a key: its name in a bone frame (x, y its top left); gives its width
   // (build 82: a pale cap with its letter in ink and a darker foot, so that it reads as a key to press and not as a
@@ -75,6 +84,10 @@ export function makeHud(hud){
   // the weapon in his hand, under his life; with two, the key that swaps them
   H.weapon = (icon, key, draw) => { const x = 5, y = 30; px(C.ink, x, y, 18, 18); px(C.deep, x + 1, y + 1, 16, 16); draw(px, icon, x + 1, y + 1, 1);
     if (key){ const w = H.cap(x + 21, y + 5, key); fine(g, 'SWAP', x + 21 + w + 3, y + 7, C.pale, 'left'); } };
+  // a part of the HUD pointed out, the first time it appears: a gold frame round the part itself, blinking, and its
+  // name on a gold-edged plate under the HUD's block, where nothing else is drawn
+  H.point = (x, y, w, h, str, a, t = 0) => { if (a <= 0) return; g.globalAlpha = a * (Math.floor(t * 3) % 2 ? 1 : 0.55); px(C.fire3, x - 2, y - 2, w + 4, 1); px(C.fire3, x - 2, y + h + 1, w + 4, 1); px(C.fire3, x - 2, y - 2, 1, h + 4); px(C.fire3, x + w + 1, y - 2, 1, h + 4);
+    g.globalAlpha = a; const tw = width(str, 1, true); px(C.ink, 5, 51, tw + 8, 11); px(C.fire2, 5, 51, tw + 8, 1); px(C.fire2, 5, 61, tw + 8, 1); text(g, str, 9, 54, C.fire3, 1, 'left', false, true); g.globalAlpha = 1; };
   H.fine = (...a) => fine(g, ...a);
   H.place = (name, alpha) => { g.globalAlpha = alpha; fine(g, name, 6, 23, C.pale); g.globalAlpha = 1; };
   // the boss's bar: its name, its health, and behind that what it has just lost, running down after

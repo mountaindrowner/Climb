@@ -57,6 +57,10 @@ they are mock-ups: nothing in them is in the game yet.*
 
 ## In what order
 
+> **Built so far:** A is build 82 (the window, the keys, the flask's teaching); B is build 83 (the HUD, the menu, the
+> inventory). C is to come. You asked for it to be more of the game's own world: every panel is the mountain's stone
+> with his ribbon tied across its head, and the chosen button wears a piece of the ribbon.
+
 Three builds, each played before the next.
 
 | Build | What |
