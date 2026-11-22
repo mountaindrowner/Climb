@@ -1307,5 +1307,111 @@
    }
   },
   "note": "a draft, not used: the folder is not kept"
+ },
+ "hero_hammer": {
+  "id": "6f3f613a-b034-4b82-b82a-bb6059356579",
+  "description": "the hero (mask_tall_c), a state of him: he holds a heavy long-handled sledgehammer in both hands instead of the curved blade: a big square head of pale rough stone that glows blue from within, thin cracks of bright blue light across it, a long wooden haft. No sword.",
+  "state": "hammer_glow",
+  "anims": {
+   "hm_hurt": {
+    "action": "struck hard from the front: his head snaps back and he flinches, staggering half a step backward with his knees buckling, still gripping the heavy long-handled sledgehammer with the big pale stone head, then steadies",
+    "frames": 8,
+    "group": "a9e4079b-9e6f-4ef5-a543-9432fcad480c"
+   },
+   "hm_atk2b": {
+    "action": "one heavy rising blow with the heavy long-handled sledgehammer with the big pale stone head in three beats. First, quickly: he drops into a crouch with the pale stone head low on the ground in front of his feet. Second: he drives up with his legs and swings the hammer head up in front of him in a fast rising arc from the ground to high above his head. Third: he stands stretched tall with the hammer high overhead, then lowers it",
+    "frames": 12,
+    "group": "93d51c99-ecd4-4dd5-9d40-c4ea5aeb6a65"
+   },
+   "hm_idle": {
+    "action": "standing at rest and breathing slowly, holding the heavy long-handled sledgehammer with the big pale stone head level in both hands as he stands: only his chest and shoulders rise and fall, the red scarf stirs a little, the hammer stays still",
+    "frames": 8,
+    "group": "2943c6ab-806f-4403-a4f8-e7bda6dfb94b"
+   },
+   "hm_atk1b": {
+    "action": "one heavy sideways blow with the heavy long-handled sledgehammer with the big pale stone head in three beats. First, quickly: he twists his hips and shoulders back and draws the hammer behind him. Second: he steps forward and swings the pale stone head level across in front of him in one wide fast arc at chest height. Third: the hammer carries on round past him and its head drops to the ground on his far side as he recovers his balance",
+    "frames": 12,
+    "group": "841c28e3-4eb8-443d-b509-2c1c91909c35"
+   },
+   "hm_plunge2": {
+    "action": "falling fast straight down through empty air, feet off the ground, his body upright and his legs trailing above, the heavy long-handled sledgehammer with the big pale stone head held vertical below him in both hands with its pale stone head pointing straight down beneath his feet like a pile-driver, his coat and red scarf streaming straight up",
+    "frames": 8,
+    "group": "bac9effa-48ad-44b0-8368-7a46f5227d51"
+   },
+   "hm_atk1": {
+    "action": "a heavy sideways sweep with the heavy long-handled sledgehammer with the big pale stone head: he plants his feet wide and twists his whole body back with both hands on the haft and the pale stone head behind him, then swings it level across in front of him in one wide arc and follows through, the red scarf whipping",
+    "frames": 12,
+    "group": "1bcb544d-f4a1-41a6-b146-6ad913b5ad0d"
+   },
+   "hm_air": {
+    "action": "in mid-air at the top of a jump and then falling: his knees drawn up and bent, the heavy long-handled sledgehammer with the big pale stone head held in both hands across his body with its head high by his shoulder, his coat and red scarf lifting",
+    "frames": 8,
+    "group": "e7cd0911-d139-4812-9177-22737db4963f"
+   },
+   "hm_crouch": {
+    "action": "crouching low and holding still: he bends his knees deep and sinks his hips until he is half his height, the heavy long-handled sledgehammer with the big pale stone head held low across his knees in both hands",
+    "frames": 8,
+    "group": "1114ffba-a819-4136-a186-5556c2058ba9"
+   },
+   "hm_atk3": {
+    "action": "a crushing overhead blow with the heavy long-handled sledgehammer with the big pale stone head: he heaves it up and back over his shoulder with both hands, his body arched, then brings the pale stone head down with his whole weight onto the ground in front of his feet, bending his knees, and holds it there",
+    "frames": 12,
+    "group": "df66679c-4e77-487f-92be-746d61866a67"
+   },
+   "hm_plunge": {
+    "action": "falling straight down through the air with the heavy long-handled sledgehammer with the big pale stone head held head-down beneath him in both hands, driving its pale stone head down below his feet, his coat and red scarf streaming upward",
+    "frames": 8,
+    "group": "3f74ecc5-6718-473e-8f0a-70136367aec2"
+   },
+   "hm_roll": {
+    "action": "a fast combat roll: he dives forward, tucks into a tight ball around the heavy long-handled sledgehammer with the big pale stone head hugged to his chest and rolls over his shoulder along the ground, coming up on his feet",
+    "frames": 12,
+    "group": "dad01000-ffa6-42f3-a09e-0a44ea1d5b8c"
+   },
+   "hm_run": {
+    "action": "running fast, carrying the heavy long-handled sledgehammer with the big pale stone head in both hands slanted across his body, its head up by his forward shoulder, leaning into the run with long strides, the red scarf streaming behind",
+    "frames": 8,
+    "group": "eaee01b0-0f9b-4ca4-920a-b227e2492993"
+   },
+   "hm_atk2": {
+    "action": "a heavy rising swing with the heavy long-handled sledgehammer with the big pale stone head: he crouches with the pale stone head down near the ground behind him, then heaves it up and forward in a rising arc with his whole body until it is high in front of him, and lets it carry over his shoulder",
+    "frames": 12,
+    "group": "7b1be6d1-c1ca-4467-9f13-330030c66ac5"
+   },
+   "hm_land": {
+    "action": "landing from a high jump: he drops onto both feet, his knees bending deep and his body sinking low, the head of the heavy long-handled sledgehammer with the big pale stone head thumping down on the ground in front of him, then he straightens up",
+    "frames": 8,
+    "group": "c2587e47-eb3b-43a7-a3e0-e6599ecb74e7"
+   },
+   "hm_crouch_walk": {
+    "action": "a duck walk, squatting all the way down and taking small careful steps forward, the heavy long-handled sledgehammer with the big pale stone head held low across his knees in both hands with its head forward",
+    "frames": 8,
+    "group": "6fea77c2-7525-4c17-bb28-b3342b1d429c"
+   }
+  }
+ },
+ "hero_clapper": {
+  "id": "bb628629-d55f-4edb-a57b-f918b27b1f81",
+  "description": "the hero (mask_tall_c), a state of him: he holds a flail instead of the curved blade: a short wooden handle, a dark iron chain, and at the end of the chain a heavy bronze bell tongue like a club head. No sword.",
+  "state": "clapper_b",
+  "anims": {}
+ },
+ "hero_tooth": {
+  "id": "128e3d35-b027-4e0f-9800-5184686faebd",
+  "description": "the hero (mask_tall_c), a state of him: he holds a long spear upright in both hands instead of the curved blade: a dark wooden shaft, and bound to its tip with red cord a great white curved fang of a beast, rimed with frost. No sword.",
+  "state": "tooth_b",
+  "anims": {}
+ },
+ "hero_bow": {
+  "id": "c4c10e70-5123-4f83-ba68-b3aea2064a1c",
+  "description": "the hero (mask_tall_c), a state of him: he holds a tall dark storm bow in his forward hand instead of the curved blade: the bow is black with pale blue glowing tips, and its string is a bright glowing blue-white line of lightning, clearly visible; a quiver on his back. No sword.",
+  "state": "bow_c",
+  "anims": {}
+ },
+ "hero_thorns": {
+  "id": "65813fd1-971e-42da-9db4-2af332f5d2df",
+  "description": "the hero (mask_tall_c), a state of him: he holds two hooked short swords instead of the curved blade, one in each hand, both pointing forward and clearly visible: pale bone-white blades shaped like big rose thorns with dark red grips. No sword.",
+  "state": "thorns_d",
+  "anims": {}
  }
 }

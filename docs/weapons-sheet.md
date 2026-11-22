@@ -10,8 +10,10 @@ each." This sheet is the first of those steps. Nothing here is built or drawn.*
 - **Step 1 is settled** (22 Nov): the six, with **a bow in place of the fork**; the hammer first; the weapon on his
   back while he climbs, hangs and swims. ("I'm still hoping to expand the spaces and bosses. But for now, we're
   good.")
-- **Step 2 is with you:** `docs/weapon-looks.png`, two choices for each of the five new weapons. See "Step 2" at the
-  foot of this sheet.
+- **Step 2 is settled** (22 Nov): the hammer **B** (pale stone), the clapper **B** (on a chain, with a handle), the
+  tooth **B** (a fang bound to a shaft), the bow **A** (the storm bow), the thorns **A** (a pair of bone hooks).
+- **Step 3, the hammer's drawings, is with you:** `docs/hammer-set.gif` (moving) and `docs/hammer-set.png` (every
+  frame). See "Step 3" at the foot of this sheet.
 
 ## The steps, and where you say yes
 
@@ -126,3 +128,31 @@ strip, so nothing has to invent it again. That is the difference from the two ha
 - **Cost so far:** 13 pictures, 130 generations. About 8,800 are left.
 
 **For you:** A or B for each, or "again, but..." for any.
+
+## Step 3: the hammer's drawings (`docs/hammer-set.gif`, `docs/hammer-set.png`)
+
+Made from the picture you picked (the pale stone hammer). The strips themselves are in `docs/weapons/hammer/`; none
+is in the game yet.
+
+| Drawing | How it came out |
+|---|---|
+| Standing | Good. He breathes; the hammer is still |
+| Running | Good. The hammer is carried level |
+| In the air | Good. The hammer goes up over his shoulder |
+| Landing | Good enough. He sinks; the hammer does not strike the ground as I asked |
+| Crouched, crouch walk | Good |
+| Roll | Good. He tumbles round the hammer |
+| Hurt | Good enough. He flinches toward us more than back |
+| Blow 1, sideways | **Two tries; neither is quite right.** The first is nearly all wind-up, the swing in its last two frames. In the second he swings right round and ends with his back to what he hit |
+| Blow 2, rising | Good enough. A long crouch, then the hammer goes up overhead |
+| Blow 3, overhead | Good. Up over his shoulder, down onto the ground, held there |
+| Plunge | **Not right, twice.** He will not leave the ground: both tries show him standing and leaning. I would use "in the air" for the fall and the end of blow 3 for the landing, as the game does now |
+| Getting up | Not made. The stock pose the sword's was made from is refused for a changed hero |
+
+- **The hammer is the same hammer in every frame of every strip.** That was what was wrong before.
+- **Every strip begins with the standing picture,** then moves into the action. Those first frames are cut when a
+  strip goes into the game; the moving sheet shows them cut.
+- **Cost:** 15 strips. About 8,750 generations are left.
+
+**For you:** yes to the set as it is (with the plunge borrowed as above)? Which blow 1, or another try at it? Anything
+to send back?
