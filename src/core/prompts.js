@@ -9,10 +9,10 @@ const listeners = new Set();
 export const onDeviceChange = f => listeners.add(f);
 export function setDevice(kind){ if (DEVICE.kind === kind) return; DEVICE.kind = kind; for (const f of listeners) f(kind); }
 
-const TOUCH = { left: '◀', right: '▶', down: '▼', jump: '▲', attack: 'A', block: 'B', roll: '⟳', flask: 'flask' };
+const TOUCH = { left: '◀', right: '▶', down: '▼', up: '△', jump: '▲', attack: 'A', block: 'B', roll: '⟳', flask: 'flask' };
 const XBOX = ['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT', 'View', 'Menu', 'LS', 'RS', '↑', '↓', '←', '→'];
 const PS = ['✕', '○', '□', '△', 'L1', 'R1', 'L2', 'R2', 'Share', 'Options', 'L3', 'R3', '↑', '↓', '←', '→'];
-const STICK = { left: '←', right: '→', down: '↓' };
+const STICK = { left: '←', right: '→', down: '↓', up: '↑' };
 const NAMED = { Space: 'Space', ArrowLeft: '←', ArrowRight: '→', ArrowUp: '↑', ArrowDown: '↓', ShiftLeft: 'Shift', ShiftRight: 'Shift',
   ControlLeft: 'Ctrl', ControlRight: 'Ctrl', AltLeft: 'Alt', AltRight: 'Alt', Enter: 'Enter', Tab: 'Tab', Backspace: 'Bksp',
   Mouse0: 'LMB', Mouse1: 'MMB', Mouse2: 'RMB', Mouse3: 'Mouse 4', Mouse4: 'Mouse 5',

@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 84, date: '22 NOV 2026', phase: 17, phases: 22, last: 'THE SHOP, AND THE MAP IN CLOUD' };
+const VERSION = { build: 85, date: '22 NOV 2026', phase: 17, phases: 22, last: 'UP: LOOK UP, STRIKE UPWARD' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -93,7 +93,7 @@ function learn(){
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
 const GLITTER = { lv: null, at: [] };   // the Vein: where its crystals are (they light the dark round them)
 const CALMS = { wait: 2.5, open: 4, near: 4.5, ease: 0.5 }, EYE = { door: null, p: 0, held: null };   // the Eye of the Storm (regions/eye.js CALMS says the same): the door of cloud he waits at, and how long he has waited
-const WAY = { was: false, said: new Map(), fall: [] }; let SHUTSAID = false;   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
+const WAY = { was: false, said: new Map(), fall: [] }; let SHUTSAID = false, LOOKT = 0;   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
 // `walked`: he has walked in from the next region (cross): he and his scarf are as they were
 function setup(walked = false){
   RULE.upset = 0; RULE.unkept = !!(G.unkept && G.unkept[LEVEL.index]);   // the Keepers' Houses: everything in its place; and whether their keeper is broken (its own switch: the Gardens have two wing keepers, and the Lock's is `still`)
@@ -928,7 +928,9 @@ function frame(ts){
   const fight = BOSS && BOSS.active();
   CAM.zoom = 1;   // flat pixels are never scaled: the arena is framed by where the camera keeps
   CAM.lead += (P.face * 2.4 - CAM.lead) * Math.min(1, dt * 2.2);
-  let wantX = P.x + CAM.lead, wantY = P.y + 1.8 + (P.grounded ? 0 : Math.min(0, P.vy) * 0.08);
+  // up held, standing still: he looks up, and the view goes up with his eyes (decided 22 Nov 2026)
+  LOOKT = IN.held.up && P.grounded && Math.abs(P.vx) < 0.6 && !P.atk && P.hp > 0 && !TALK.on ? LOOKT + dt : 0;
+  let wantX = P.x + CAM.lead, wantY = P.y + 1.8 + (P.grounded ? 0 : Math.min(0, P.vy) * 0.08) + (LOOKT > 0.3 ? 3.4 : 0);
   if (FLIGHT){ wantX = FLIGHT.x; wantY = FLIGHT.y + 0.6; }   // the view goes back with him
   if (fight) wantY = Math.max(wantY, BOSS.stageY + 4.6);   // the stage near the bottom, the Warden's head near the top
   if (ENT.cam){ wantX = ENT.cam.x; wantY = ENT.cam.y; }   // the entrance: to the slab coming down, then to where it will rise
@@ -1224,13 +1226,13 @@ function onEvent(e){
       // the blow: the swoosh of light, the air bending round it, the floor kicked up, a thump, the view nudged
       const big = e.finisher, tilt = { atk_spade: -0.9, atk_slam_v3: -0.7, atk_slam_px: -0.7, atk_rise_px: 1.0, atk_spin_px: 0.1, atk_dash_px: 0.25 }[e.sw.anim] || 0;
       sfx.swing(big); if (!SWINGFX.has(e.sw.anim)) fx.crescent({ x: P.x + P.face * 1.15, y: P.y + 1.25 }, P.face, big, tilt);   // the combo's cuts have their own drawn effect
-      R.glint(P.x + P.face * 1.3, P.y + 1.3, big ? 0xffd27a : 0xbfe8ff, big ? 0.9 : 0.6, 4.5, 0.22); R.shock(P.x + P.face * 1.3, P.y + 1.2, big);
+      { const upw = !!(P.atk && P.atk.up), gx = upw ? P.x + P.face * 0.3 : P.x + P.face * 1.3, gy = upw ? P.y + 2.9 : P.y + 1.3; R.glint(gx, gy, big ? 0xffd27a : 0xbfe8ff, big ? 0.9 : 0.6, 4.5, 0.22); R.shock(gx, gy - 0.1, big); }
       if (P.grounded) fx.kick(at, -P.face, big ? 12 : 7, big ? 3 : 2.2);
       FEEL_FX.shake = Math.max(FEEL_FX.shake, big ? 0.14 : 0.07); FEEL_FX.kick = P.face * (big ? 0.22 : 0.12);
       // the dash cut strikes all along where he dashed
       const from = e.sw.dash && P.dashFrom != null ? { ...P, x: P.dashFrom } : P, reach = weaponOf(P).reach + (e.sw.dash && P.dashFrom != null ? Math.abs(P.x - P.dashFrom) : 0);
       const digs = !!weaponOf(P).digs, dmg = digs ? (P.grounded ? e.sw.dmg : Math.max(1, e.sw.dmg - 2)) + (big && has('whetstone') ? 1 : 0) : e.sw.dmg + (big && has('whetstone') ? 1 : 0) + (G.edge >= 2 || (G.edge && big) ? 1 : 0), out = [];   // the whetstone; the blade's tempering; the spade weak in the air
-      strikeEnemies(E, from, reach, dmg, out); if (BOSS) BOSS.strike(from, reach, dmg, out); ITEMS.strike(from, reach, out);
+      strikeEnemies(E, from, reach, dmg, out, !!(P.atk && P.atk.up)); if (BOSS) BOSS.strike(from, reach, dmg, out); ITEMS.strike(from, reach, out);
       breakRock(P.x + P.face * (digs ? 1.8 : 1.2), P.y + (digs ? 0.6 : 1.2), digs ? 1.5 : 1.3, digs);   // the spade digs where it lands; the blade rings off
       if (e.sw.wave && P.grounded){ waves(P.x + P.face * 1.6, P.y, [P.face], 0.38); sfx.slam(); R.shock(P.x + P.face * 1.8, P.y + 0.3, true); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.3); }   // its last blow runs on along the ground, a little way
       for (const o of out) onEvent(o); break; }
@@ -1346,8 +1348,8 @@ function onEvent(e){
 // the lines of help at the foot of the screen, for what he is playing with. A controller's are its own buttons, as bound
 const PADN = { xbox: ['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT'], ps: ['CROSS', 'CIRCLE', 'SQUARE', 'TRIANGLE', 'L1', 'R1', 'L2', 'R2'] };
 const padKey = a => { const i = (SET.pad[a] || [])[0], N = PADN[DEVICE.kind === 'ps' ? 'ps' : 'xbox']; return i == null ? '-' : N[i] || 'B' + i; };
-const HINT = { keys: ['[A] [D] MOVE · [SPACE] JUMP, AGAIN IN THE AIR · [SHIFT] ROLL', '[CLICK] ATTACK · [RIGHT CLICK] OR [K] BLOCK · [CLICK] IN A ROLL: DASH ATTACK', '[S] + [CLICK] RISING ATTACK. IN THE AIR: SLAM · [S] + [SPACE] DROP THROUGH A PLANK', '[S] TALK, OPEN · [M] MAP · [TAB] MENU · [Q] DRINK YOUR FLASK', '[E] EMBER POWER, COSTS 10 (ALSO [S] + [E], AND IN THE AIR)'], touch: ['TOUCH THE LEFT OF THE SCREEN AND DRAG TO MOVE', 'DRAG DOWN: CROUCH, TALK, OPEN · DOWN + A IN THE AIR: SLAM', 'EMBERS: A POWER, COSTS 10 (WITH DOWN, OR IN THE AIR) · FLASK: DRINK'],
-  get pad(){ const k = padKey; return [`STICK MOVE · [${k('jump')}] JUMP, AGAIN IN THE AIR · [${k('roll')}] ROLL · [${k('attack')}] ATTACK · [${k('block')}] BLOCK`, `DOWN + [${k('attack')}]: RISING ATTACK · DOWN + [${k('attack')}] IN THE AIR: SLAM · [${k('flask')}] DRINK`, `DOWN: TALK, OPEN · DOWN + [${k('jump')}]: DROP THROUGH A PLANK · SELECT: MAP · START: PAUSE`, `[${k('art')}]: EMBER POWER, COSTS 10 (WITH DOWN, OR IN THE AIR)`]; } };
+const HINT = { keys: ['[A] [D] MOVE · [SPACE] JUMP, AGAIN IN THE AIR · [SHIFT] ROLL', '[CLICK] ATTACK · [RIGHT CLICK] OR [K] BLOCK · [CLICK] IN A ROLL: DASH ATTACK', '[W] LOOK UP · [W] + [CLICK] STRIKE UPWARD · [S] + [CLICK] RISING ATTACK. IN THE AIR: SLAM', '[S] + [SPACE] DROP THROUGH A PLANK', '[S] TALK, OPEN · [M] MAP · [TAB] MENU · [Q] DRINK YOUR FLASK', '[E] EMBER POWER, COSTS 10 (ALSO [S] + [E], AND IN THE AIR)'], touch: ['TOUCH THE LEFT OF THE SCREEN AND DRAG TO MOVE', 'DRAG DOWN: CROUCH, TALK, OPEN · DOWN + A IN THE AIR: SLAM', 'DRAG UP: LOOK UP · UP + A: STRIKE UPWARD', 'EMBERS: A POWER, COSTS 10 (WITH DOWN, OR IN THE AIR) · FLASK: DRINK'],
+  get pad(){ const k = padKey; return [`STICK MOVE · [${k('jump')}] JUMP, AGAIN IN THE AIR · [${k('roll')}] ROLL · [${k('attack')}] ATTACK · [${k('block')}] BLOCK`, `UP: LOOK UP · UP + [${k('attack')}]: STRIKE UPWARD`, `DOWN + [${k('attack')}]: RISING ATTACK · DOWN + [${k('attack')}] IN THE AIR: SLAM · [${k('flask')}] DRINK`, `DOWN: TALK, OPEN · DOWN + [${k('jump')}]: DROP THROUGH A PLANK · SELECT: MAP · START: PAUSE`, `[${k('art')}]: EMBER POWER, COSTS 10 (WITH DOWN, OR IN THE AIR)`]; } };
 const EPITHET = LEVELS.map(l => l.epithet);
 // each part of the HUD is pointed out once, the first time it is there to see (docs/screens-sheet.md, rule 4: nothing
 // is on the screen that has not been explained). One at a time, for a few seconds, and never over a card or a talk

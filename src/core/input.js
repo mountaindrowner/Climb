@@ -8,7 +8,7 @@ import { ac } from '../audio/sfx.js';
 import { SET } from './settings.js';
 import { setDevice } from './prompts.js';
 
-export const ACTIONS = ['left', 'right', 'down', 'jump', 'attack', 'block', 'roll', 'flask', 'art', 'swap'];
+export const ACTIONS = ['left', 'right', 'down', 'up', 'jump', 'attack', 'block', 'roll', 'flask', 'art', 'swap'];
 // mag: how hard he is asked to move, 0..1 (a stick pushed part way walks; keys and the d-pad are always 1)
 export const IN = { held: Object.fromEntries(ACTIONS.map(a => [a, false])), pressed: new Set(), at: {}, mag: 1 };
 // The input queue (Dead Cells keeps presses; so does the developer's own game-feel demo, deepnight/gamefeel, MIT): a press
@@ -123,7 +123,7 @@ export function pollPads(){
     if (edge(0)){ ac(); pick(); }
     if (edge(1)) back();
   } else {
-    const dirs = { left: ax < -0.35 || btn(14), right: ax > 0.35 || btn(15), down: ay > 0.55 || btn(13) };
+    const dirs = { left: ax < -0.35 || btn(14), right: ax > 0.35 || btn(15), down: ay > 0.55 || btn(13), up: ay < -0.55 || btn(12) };
     gpMag = btn(14) || btn(15) ? 1 : clamp01((Math.abs(ax) - 0.25) / 0.6, 0.3);   // the stick part way: a walk
     for (const a of ACTIONS){
       const v = a in dirs ? dirs[a] : (SET.pad[a] || []).some(btn);
@@ -166,12 +166,12 @@ export function bindInput(){
         const r = stick.getBoundingClientRect(); dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2); dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
         if (knob) knob.style.transform = `translate(${Math.max(-1, Math.min(1, dx)) * 36}%, ${Math.max(-1, Math.min(1, dy)) * 30}%)`;
       }
-      padHeld.left = dx < -0.2; padHeld.right = dx > 0.2; padHeld.down = dy > (float ? 0.6 : 0.38);
+      padHeld.left = dx < -0.2; padHeld.right = dx > 0.2; padHeld.down = dy > (float ? 0.6 : 0.38); padHeld.up = dy < -(float ? 0.6 : 0.38);
       padMag = clamp01((Math.abs(dx) - 0.2) / 0.5, 0.3);
-      ['left', 'right', 'down'].forEach(sync);
-      stick.dataset.dir = (padHeld.left ? 'l' : padHeld.right ? 'r' : '') + (padHeld.down ? 'd' : '');
+      ['left', 'right', 'down', 'up'].forEach(sync);
+      stick.dataset.dir = (padHeld.left ? 'l' : padHeld.right ? 'r' : '') + (padHeld.down ? 'd' : padHeld.up ? 'u' : '');
     };
-    const end = () => { id = null; padHeld.left = padHeld.right = padHeld.down = false; ['left', 'right', 'down'].forEach(sync); if (knob) knob.style.transform = ''; stick.dataset.dir = ''; if (thumb) thumb.classList.remove('on'); };
+    const end = () => { id = null; padHeld.left = padHeld.right = padHeld.down = padHeld.up = false; ['left', 'right', 'down', 'up'].forEach(sync); if (knob) knob.style.transform = ''; stick.dataset.dir = ''; if (thumb) thumb.classList.remove('on'); };
     stick.addEventListener('pointerdown', e => { if (id !== null) return; e.preventDefault(); ac(); setDevice('touch'); id = e.pointerId; stick.setPointerCapture?.(id); ox = e.clientX; oy = e.clientY; if (float && thumb) thumb.classList.add('on'); read(e); });
     stick.addEventListener('pointermove', e => { if (e.pointerId === id) read(e); });
     stick.addEventListener('pointerup', e => { if (e.pointerId === id) end(); });

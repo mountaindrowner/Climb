@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The shop, and the map in cloud (latest; build 84).**
+**Up (latest; build 85).** W and the up arrow no longer jump: Space does. Up looks up (the view lifts), and up with attack strikes upward, on the ground or in the air. Up also swims up and climbs. 460 checks.
+
+**The shop, and the map in cloud (build 84).**
 - **Ordric's shop is his own sheet of paper,** each thing a line on it; your shards apart; Ordric, what the thing does, and a word from him.
 - **Rooms you know of and have not been in are cloud** on the map and the corner map.
 - **Every mark on the map is named** in its key, in plain words.

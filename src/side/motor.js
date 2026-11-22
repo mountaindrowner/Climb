@@ -157,7 +157,7 @@ export function stepPlayer(P, dt){
       if (stunned || P.hp <= 0 || !CAN.grip || !roughBeside(P, d)) P.cling = null;
       else if (consume('jump')){ P.cling = null; P.clingCd = GRIP.again; P.grounded = false; takeOff(P, false); P.vx = -d * GRIP.off; P.face = -d; P.airJumps = FEEL.doubleJump ? 1 : 0; ev(P, 'jump'); }
       else if (toward === -d){ P.cling = null; P.clingCd = GRIP.again; P.grounded = false; }
-      else { const want = H.down ? -GRIP.down : toward === d ? GRIP.up : 0; P.vx = 0; P.vy = want; P.face = d; P.glide = false; P.flip = 0; P.airTop = P.y; P.airDash = 1; P.airJumps = FEEL.doubleJump ? 1 : 0; P.climbing = want;
+      else { const want = H.down ? -GRIP.down : toward === d || H.up ? GRIP.up : 0; P.vx = 0; P.vy = want; P.face = d; P.glide = false; P.flip = 0; P.airTop = P.y; P.airDash = 1; P.airJumps = FEEL.doubleJump ? 1 : 0; P.climbing = want;
         if (want){ P.grounded = false; moveY(P, want * dt, P.y); if (P.grounded && want < 0) P.cling = null; }
         if (P.cling && want > 0){ tryMantle(P, d); if (P.mantle) P.cling = null; }
         if (P.cling){ P.climbT = (P.climbT || 0) + Math.abs(want) * dt; if (want && Math.floor(P.climbT * 1.4) !== Math.floor((P.climbT - Math.abs(want) * dt) * 1.4)) ev(P, 'step'); return; } } } }
@@ -188,7 +188,7 @@ export function stepPlayer(P, dt){
   P.blocking = H.block && P.roll <= 0 && !stunned && !P.atk && weaponOf(P).guard !== false;
   if (P.roll <= 0 && !stunned && !P.dive && !P.art && P.plant <= 0 && consume('attack')){
     if (FEEL.dive && !P.grounded && !P.swim && H.down && heightAbove(P) > MV.dive.min){ P.dive = { t: 0 }; P.atk = null; P.vx = 0; P.vy = -MV.dive.speed; P.flip = 0; ev(P, 'dive'); }   // (never begun in deep water: see below)
-    else if (!P.atk) startSwing(P, 0, P.grounded && H.down && weaponOf(P).rise ? 'rise' : null);   // from a crouch: the rising cut
+    else if (!P.atk) startSwing(P, 0, ((P.grounded && H.down) || H.up) && weaponOf(P).rise ? 'rise' : null);   // from a crouch: the rising cut. With up held, on the ground or in the air: the same cut, struck upward (P.atk.up)
     else P.atk.queued = true;
   }
   if (consume('flask')) ev(P, 'flask');
@@ -271,7 +271,7 @@ export function stepPlayer(P, dt){
   if (!P.glide && up && !up.cold && H.jump && !P.dive && !stunned && P.roll <= 0 && P.vy < 4 && !P.swim){ P.glide = true; ev(P, 'glide'); }
   if (P.swim){
     // the water has him. With the wind he goes where he means to; without it he is borne up to its top and kept there
-    let want = CAN.glide ? (H.jump ? SWIM.rise : H.down ? -SWIM.sink : -SWIM.drift) : SWIM.rise;
+    let want = CAN.glide ? (H.jump || H.up ? SWIM.rise : H.down ? -SWIM.sink : -SWIM.drift) : SWIM.rise;
     if (want > 0 && P.depth <= SWIM.float) want = (SWIM.float - P.depth) * -6;   // at its top: held there, bobbing
     if (stunned) want = Math.min(want, 0);
     P.vy += (want - P.vy) * Math.min(1, dt * SWIM.accel); P.glide = false;
@@ -449,5 +449,5 @@ export function startArt(P, kind){
 export const HOOKS = { aim: null };
 function startSwing(P, i, special = null){
   if (FEEL.aim && HOOKS.aim && !IN.held.left && !IN.held.right){ const d = HOOKS.aim(P); if (d) P.face = d; }
-  P.atk = { i, t: 0, phase: 'wind', queued: false, special };
+  P.atk = { i, t: 0, phase: 'wind', queued: false, special, up: !!IN.held.up };   // up: struck upward (main.js gives it a box over him, not in front)
 }

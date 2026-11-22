@@ -15,12 +15,12 @@ const KEYN = { Space: 'SPACE', Mouse0: 'CLICK', Mouse1: 'WHEEL', Mouse2: 'RIGHT 
   ArrowLeft: 'LEFT', ArrowRight: 'RIGHT', ArrowUp: 'UP', ArrowDown: 'DOWN', Enter: 'ENTER', Tab: 'TAB', Escape: 'ESC', Backspace: 'BACK' };
 export const codeName = c => KEYN[c] || String(c).replace(/^Key|^Digit|^Numpad/, '').toUpperCase();
 export const PADN = { xbox: ['A', 'B', 'X', 'Y', 'LB', 'RB', 'LT', 'RT'], ps: ['CROSS', 'CIRCLE', 'SQUARE', 'TRIANGLE', 'L1', 'R1', 'L2', 'R2'] };
-const TOUCH = { move: 'DRAG', left: 'DRAG', right: 'DRAG', down: 'DRAG DOWN', jump: 'JUMP', attack: 'A', block: 'B', roll: 'ROLL', flask: 'FLASK', art: 'EMBERS', swap: 'SWAP' };
+const TOUCH = { move: 'DRAG', left: 'DRAG', right: 'DRAG', down: 'DRAG DOWN', up: 'DRAG UP', jump: 'JUMP', attack: 'A', block: 'B', roll: 'ROLL', flask: 'FLASK', art: 'EMBERS', swap: 'SWAP' };
 export function keyName(action, kind, set){
   if (kind === 'touch') return TOUCH[action] || action.toUpperCase();
   if (kind === 'keys'){ const first = a => codeName(((set && set.keys && set.keys[a]) || [])[0] || '-');
     return action === 'move' ? first('left') + ' ' + first('right') : first(action); }
-  if (action === 'move') return 'STICK'; if (action === 'down') return 'DOWN';   // a controller: the stick, as for menus
+  if (action === 'move') return 'STICK'; if (action === 'down') return 'DOWN'; if (action === 'up') return 'UP';   // a controller: the stick, as for menus
   const i = ((set && set.pad && set.pad[action]) || [])[0], N = PADN[kind === 'ps' ? 'ps' : 'xbox'];
   return i == null ? '-' : N[i] || 'B' + i;
 }

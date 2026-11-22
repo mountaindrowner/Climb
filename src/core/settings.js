@@ -8,8 +8,8 @@ const KEY = 'the-climb-settings';
 // (0 A/✕, 1 B/○, 2 X/□, 3 Y/△, 4 LB/L1, 5 RB/R1, 6 LT/L2, 7 RT/R2, 10 LS/L3); moving is always the left stick and the d-pad.
 export const DEFAULTS = {
   keys: {
-    left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'], down: ['KeyS', 'ArrowDown'],
-    jump: ['Space', 'KeyW', 'ArrowUp'], attack: ['Mouse0', 'KeyJ'], block: ['Mouse2', 'KeyK'],
+    left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'], down: ['KeyS', 'ArrowDown'], up: ['KeyW', 'ArrowUp'],   // up: he looks up, and strikes upward (decided 22 Nov 2026: W was a second jump key)
+    jump: ['Space'], attack: ['Mouse0', 'KeyJ'], block: ['Mouse2', 'KeyK'],
     roll: ['ShiftLeft', 'KeyC', 'KeyL'], flask: ['KeyQ', 'KeyF'], art: ['KeyE', 'Mouse1', 'KeyI'],   // art: the ember arts
     swap: ['KeyR', 'KeyU'],   // blade and spade
   },
@@ -18,7 +18,7 @@ export const DEFAULTS = {
   volume: 0.8, shake: 1, rumble: true,
   v: 2,             // 2: the mouse layout (attack and block on the buttons)
 };
-export const REBINDABLE = ['left', 'right', 'down', 'jump', 'attack', 'block', 'roll', 'flask', 'art', 'swap'];   // no sprint since 0.28: he always runs fast, as in Dead Cells
+export const REBINDABLE = ['left', 'right', 'down', 'up', 'jump', 'attack', 'block', 'roll', 'flask', 'art', 'swap'];   // no sprint since 0.28: he always runs fast, as in Dead Cells
 export const PAD_REBINDABLE = ['jump', 'attack', 'block', 'roll', 'flask', 'art', 'swap'];
 const clone = o => JSON.parse(JSON.stringify(o));
 

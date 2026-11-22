@@ -68,7 +68,9 @@ per keeper, and **everything explained** to the player, plainly, the first time 
 | 0.19 | The size of a region | **Wider.** Each floor a far left, a far right and the main way between, so that he stays in a place for a while and it is a challenge to cross |
 | 0.20 | The screens | **The look of the sheet is right** (`docs/screens-sheet.md`), **made more of the game's world:** the ribbon kept, better pixel work, each screen themed to who or what it belongs to. "Annals" is not understood: the menu says something plainer |
 
-Still open: whether up on the keyboard stops being jump, so that up can look and strike upward (asked, not answered).
+| 0.21 | Up | **W and the up arrow are not jump.** Up looks up, and up with attack strikes upward (22 Nov; build 85) |
+
+(The table above is continued by 0.21: it was the one question left open on 21 Nov.)
 
 **One question left, before phase 5:** if only the spade breaks stone, he must have it before the Ossuary's cracked
 wall, but the Sexton and his spade are inside the Ossuary. The Warden's gift today ("the Warden's weight") is exactly

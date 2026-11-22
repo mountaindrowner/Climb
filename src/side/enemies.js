@@ -358,12 +358,12 @@ export function stepEnemies(E, P, dt, fx, events){
 }
 function killEnemy(e, events){ e.alive = false; e.dead = 0; if (e.d.onKill) e.d.onKill(e); events.push({ type: 'kill', e, at: { x: e.x, y: e.y + e.d.h / 2 } }); if (e.sprite) e.sprite.g.visible = false; e.stand.visible = false; }
 // a sword cut: everything in front of the blade, within its reach and his height
-export function strikeEnemies(E, P, reach, dmg, events){
+export function strikeEnemies(E, P, reach, dmg, events, up = false){   // up: struck upward: what is over him, not what is in front
   let any = false;
   for (const e of E.list){
     if (!e.alive || e.d.harmless || (e.d.ai === 'burrower' && !(e.st === 'rise' || e.st === 'up'))) continue;
     const ahead = (e.x - P.x) * P.face, top = e.y + e.d.h, bottom = e.d.fly ? e.y - e.d.h / 2 : e.y;
-    if (ahead < -0.4 || ahead > reach + e.d.w || top < P.y - 0.2 || bottom > P.y + 2.7) continue;
+    if (up ? (Math.abs(e.x - P.x) > 1.0 + e.d.w / 2 || bottom > P.y + 2.2 + reach || top < P.y + 1.0) : (ahead < -0.4 || ahead > reach + e.d.w || top < P.y - 0.2 || bottom > P.y + 2.7)) continue;
     if (e.d.guard && e.d.guard(e, P)){ events.push({ type: 'block', at: { x: e.x - P.face * e.d.w, y: e.y + e.d.h * 0.6 } }); any = true; continue; }   // it turns the blow
     any = true; e.hp -= dmg; e.flash = 0.12; if (WALK[e.d.ai] && RESTING.has(e.st)){ e.st = WALK[e.d.ai]; e.tm = 0; e.unseen = 0; } if (e.d.onHit) e.d.onHit(e, dmg, P);
     if ((e.d.ai === 'crawler' && (e.st === 'windup' || e.st === 'chase')) || (e.d.ai === 'thrower' && e.st !== 'stunned')){ e.st = 'stunned'; e.tm = 0; e.stun = e.d.ai === 'thrower' ? 0.4 : 0.5; }

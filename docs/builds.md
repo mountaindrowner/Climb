@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 84 | 22 Nov 2026 | `f3778c9` | Ordric's shop as his own sheet of paper; unknown rooms as cloud on the map; every mark on the map named | no | yes (now) |
+| 85 | 22 Nov 2026 | `COMMIT85` | Up: W and the up arrow look up and strike upward; Space alone jumps | **keys** | yes (now) |
+| 84 | 22 Nov 2026 | `f3778c9` | Ordric's shop as his own sheet of paper; unknown rooms as cloud on the map; every mark on the map named | no | replaced by 85 |
 | 83 | 22 Nov 2026 | `53c787a` | The HUD (the ember bar, each part named once), the menu in tabs, the inventory as pictures | no | replaced by 84 |
 | 82 | 21 Nov 2026 | `bc8512a` | The Deep shut; no maps sold or given; the window for everything gained, and keys drawn as keys | no | replaced by 83 |
 | 81 | 21 Nov 2026 | `bbde82a` | The second playtest's broken things: the copy of him, the menu key, falls, the Great Shaft's water, and small numbers | no | replaced by 82 |
@@ -100,6 +101,48 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 85: up
+
+*Your answer of 22 Nov to the one decision left open: "Yes about the W on keyboard." (The playtest: "If I press up,
+I'd like him to look up. And then if I swipe, he swipes up.")*
+
+**For the player (a change to the keys)**
+
+- **W and the up arrow no longer jump. Space jumps.** They were a second and third jump key.
+- **Up looks up.** Hold it standing still and, after a third of a second, the view goes up three and a half
+  metres. Let go and it comes back. It does nothing while he is moving, striking or talking.
+- **Up and attack strikes upward.** On the ground or in the air, it is the rising cut, and it finds what is over
+  him and not what is in front: a metre either side of him, from his chest up to the weapon's reach over his head.
+  The cut's flash is drawn over him. With the heavy weapon, which has no rising cut, it is its ordinary swing, struck
+  upward.
+- **Up also swims up** (as jump does) once he can dive, **and climbs** rough rock with the grip.
+- **On a controller,** up is the stick or the d-pad pushed up. **On a touch screen,** a drag upward.
+- The keys' tab says: W look up; W and attack, strike upward. Down and attack is still the rising attack.
+
+**What is weaker than it should be**
+
+- **He has no drawing for looking up.** The view moves; he stands as he was. That wants art.
+- **Keepers are still struck as before,** by what is in front of him. An upward strike finds creatures and nothing
+  else yet: not a keeper's parts overhead, not a chest or an urn over him.
+- **The rising cut is slow to come** (over a quarter of a second). In the air that may feel late. It is one number.
+
+- **Underneath:** `core/settings.js` (`up`; `jump` is Space), `core/input.js` (the action, the stick, the touch
+  drag), `motor.js` (`P.atk.up`; up swims and climbs), `enemies.js` (`strikeEnemies` with `up`), `main.js` (the
+  look; the hints), `teach.js`. New check: `tests/side-up.test.mjs`.
+- **Save: not moved. Keys:** anyone who had changed their keys keeps them, except that W and the up arrow are taken
+  from whatever had them and given to up.
+- **Checked:** 460 checks pass (the whole suite once with one failing: the old prompt table had no entry for up; that added and its file run again). In the test browser, on this build and on build 84 side by side: Space jumps on
+  both; W jumped on 84 and does not now. W held lifts the view and letting go returns it. W and J starts the rising
+  cut, marked as struck upward.
+- **Not checked:** not played by a person, and this is all feel: how far the view goes, how long before it goes,
+  how wide the upward strike is. A controller and a touch screen were not tried.
+
+**To try**
+
+1. Stand still and hold W. Is three and a half metres the right amount, and a third of a second the right wait?
+2. Jump under something that flies and strike with W held. Does it hit what you meant?
+3. Does anything now feel missing with W not jumping? (Climbing a ladder of planks, say.)
 
 ### Build 84: the shop, and the map in cloud
 
