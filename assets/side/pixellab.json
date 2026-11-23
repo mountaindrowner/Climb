@@ -1400,7 +1400,93 @@
   "id": "128e3d35-b027-4e0f-9800-5184686faebd",
   "description": "the hero (mask_tall_c), a state of him: he holds a long spear upright in both hands instead of the curved blade: a dark wooden shaft, and bound to its tip with red cord a great white curved fang of a beast, rimed with frost. No sword.",
   "state": "tooth_b",
-  "anims": {}
+  "anims": {
+   "tt_down2": {
+    "action": "in mid-air, falling: he turns the long spear with the great white fang bound to its tip with red cord in both hands until it points straight down beneath him, the white fang below his boots, and falls like that with his knees tucked up and his coat and red scarf streaming upward",
+    "frames": 8,
+    "group": "2085450d-4ade-4bec-8e86-62edcce7389e"
+   },
+   "tt_down3": {
+    "action": "in mid-air, falling: he turns the long spear with the great white fang bound to its tip with red cord in both hands until it points straight down beneath him, the great white fang below his boots, and falls like that with his knees tucked up and his coat and red scarf streaming upward",
+    "frames": 8,
+    "group": "05f2341f-c22f-4694-b5b1-09eaa9a26d5c"
+   },
+   "tt_idle": {
+    "action": "standing at rest and breathing slowly, holding the long spear with the great white fang bound to its tip with red cord upright in his forward hand, its butt on the ground: only his chest and shoulders rise and fall, the red scarf stirs a little, the spear stays still",
+    "frames": 8,
+    "group": "f412470b-bfc2-4fb4-954c-1d1c0a615b25"
+   },
+   "tt_atk1": {
+    "action": "one quick spear thrust in three beats with the long spear with the great white fang bound to its tip with red cord. First, quickly: he draws the spear back level at his hip with both hands, the fang pointing forward. Second: he steps forward and drives the spear straight out level in front of him to the full reach of his arms. Third: he pulls it back to his hip and stands ready",
+    "frames": 12,
+    "group": "106f55db-e7cb-49bb-bc5c-99091af6b35b"
+   },
+   "tt_air": {
+    "action": "in mid-air at the top of a jump and then falling: his knees drawn up and bent, the long spear with the great white fang bound to its tip with red cord held level in one hand at his side with the fang pointing forward, his coat and red scarf lifting",
+    "frames": 8,
+    "group": "036729c0-e9b0-45f9-89f0-06c3112ff608"
+   },
+   "tt_crouch": {
+    "action": "crouching low and holding still: he bends his knees deep and sinks his hips until he is half his height, the long spear with the great white fang bound to its tip with red cord held level and low in both hands, the fang pointing forward",
+    "frames": 8,
+    "group": "22e696e9-0fd8-49c6-8883-758605633d5b"
+   },
+   "tt_up": {
+    "action": "one spear thrust straight up with the long spear with the great white fang bound to its tip with red cord: he bends his knees, then drives the spear straight up above his head with both hands until the fang is high over him, then lowers it",
+    "frames": 12,
+    "group": "d3626e93-3a7d-4d65-b67f-81950f4772f6"
+   },
+   "tt_atk2c": {
+    "action": "one long standing spear thrust in three beats with the long spear with the great white fang bound to its tip with red cord. First: he steps back and draws the spear back level at his shoulder in both hands. Second: he takes one long step forward, staying upright, and drives the spear straight out level to the full reach of both arms, the great white fang at its tip far out in front of him. Third: he holds the reach an instant, the white fang still at the tip of the spear, then steps back upright",
+    "frames": 12,
+    "group": "d4495e39-f739-422f-97b7-4e3c80b40471"
+   },
+   "tt_atk3": {
+    "action": "a charging spear lunge in three beats with the long spear with the great white fang bound to its tip with red cord. First: he crouches with the spear couched level under his arm. Second: he runs forward three fast strides with the spear held out level in front of him like a lance. Third: he skids to a stop with the spear still out, then draws it back",
+    "frames": 12,
+    "group": "0a442074-1490-4236-9299-6fda74e1b72c"
+   },
+   "tt_down": {
+    "action": "falling straight down through empty air with the long spear with the great white fang bound to its tip with red cord held vertical in both hands, the fang pointing straight down below his feet, his knees tucked up, his coat and red scarf streaming straight up",
+    "frames": 8,
+    "group": "464f64c1-3152-4139-b62d-421cd441d20f"
+   },
+   "tt_roll": {
+    "action": "a fast combat roll: he dives forward, tucks into a tight ball with the long spear with the great white fang bound to its tip with red cord held close along his body and rolls over his shoulder along the ground, coming up on his feet",
+    "frames": 12,
+    "group": "0fdef7a9-be7d-481e-a9e3-0603588ad1eb"
+   },
+   "tt_atk2b": {
+    "action": "one long two-handed spear thrust in three beats with the long spear with the great white fang bound to its tip with red cord. First: he leans back on his rear leg and draws the spear far back, level at his shoulder. Second: he lunges deep onto his front knee and drives the spear straight out level, both arms at full stretch, the white fang far in front of him and clearly in view. Third: he holds the long reach an instant, then recovers upright",
+    "frames": 12,
+    "group": "e4bdf6c0-7a1e-48d5-b8d9-23526fddd241"
+   },
+   "tt_run": {
+    "action": "running fast, carrying the long spear with the great white fang bound to its tip with red cord level at his side in one hand with the fang pointing forward, leaning into the run with long strides, the red scarf streaming behind",
+    "frames": 8,
+    "group": "1eda0526-960b-4b6c-a97f-11d459f45a49"
+   },
+   "tt_atk2": {
+    "action": "one long two-handed spear thrust in three beats with the long spear with the great white fang bound to its tip with red cord. First: he leans back on his rear leg and draws the spear far back, level at his shoulder. Second: he lunges deep onto his front knee and drives the spear straight out level, both arms at full stretch, the fang far in front of him. Third: he holds the long reach an instant, then recovers upright",
+    "frames": 12,
+    "group": "934cc584-b448-4ae4-b053-350bf557d19e"
+   },
+   "tt_land": {
+    "action": "landing from a high jump: he drops onto both feet, his knees bending deep and his body sinking low, the long spear with the great white fang bound to its tip with red cord held level in one hand, then he straightens up",
+    "frames": 8,
+    "group": "0cabf0f7-fb90-4022-95b0-3f611c46710d"
+   },
+   "tt_crouch_walk": {
+    "action": "a duck walk, squatting all the way down and taking small careful steps forward, the long spear with the great white fang bound to its tip with red cord held level and low in both hands with the fang pointing forward",
+    "frames": 8,
+    "group": "75689eb3-791d-4229-9ff6-85aede420d9f"
+   },
+   "tt_hurt": {
+    "action": "struck hard from the front: his head snaps back and he flinches, staggering half a step backward with his knees buckling, still gripping the long spear with the great white fang bound to its tip with red cord, then steadies",
+    "frames": 8,
+    "group": "55e9cea0-6948-4ef1-9e14-2ee8d662828a"
+   }
+  }
  },
  "hero_bow": {
   "id": "c4c10e70-5123-4f83-ba68-b3aea2064a1c",

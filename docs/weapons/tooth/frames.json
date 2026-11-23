@@ -1,0 +1,22 @@
+{
+ "frames": {
+  "tt_idle": 9,
+  "tt_run": 9,
+  "tt_air": 9,
+  "tt_land": 9,
+  "tt_crouch": 9,
+  "tt_crouch_walk": 9,
+  "tt_roll": 13,
+  "tt_hurt": 9,
+  "tt_atk1": 13,
+  "tt_atk2": 13,
+  "tt_atk2b": 13,
+  "tt_atk2c": 13,
+  "tt_atk3": 13,
+  "tt_up": 13,
+  "tt_down": 9,
+  "tt_down2": 9,
+  "tt_down3": 9
+ },
+ "note": "frames in each strip as made; a strip's frame is its width over this"
+}

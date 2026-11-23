@@ -13,7 +13,8 @@ each." This sheet is the first of those steps. Nothing here is built or drawn.*
 - **Step 2 is settled** (22 Nov): the hammer **B** (pale stone), the clapper **B** (on a chain, with a handle), the
   tooth **B** (a fang bound to a shaft), the bow **A** (the storm bow), the thorns **A** (a pair of bone hooks).
 - **The hammer is done** (23 Nov): its set approved ("Good to go", the second blow 1) and **in the game, build 89**.
-- **Next: the tooth's drawings** (step 3), from the fang-on-a-shaft picture.
+- **Step 3, the tooth's drawings, is with you:** `docs/tooth-set.gif` (moving) and `docs/tooth-set.png` (every frame).
+  See "Step 3: the tooth's drawings" at the foot of this sheet.
 
 ## The steps, and where you say yes
 
@@ -156,3 +157,26 @@ is in the game yet.
 
 **For you:** yes to the set as it is (with the plunge borrowed as above)? Which blow 1, or another try at it? Anything
 to send back?
+
+## Step 3: the tooth's drawings (`docs/tooth-set.gif`, `docs/tooth-set.png`)
+
+Made from the picture you picked (a fang bound to a shaft with red cord). The strips are in `docs/weapons/tooth/`;
+none is in the game.
+
+| Drawing | How it came out |
+|---|---|
+| Standing, running, in the air, landing, crouched, crouch walk | Good. The spear is carried level when he moves, upright when he stands |
+| Roll, hurt | Good |
+| Blow 1, a thrust | Good enough. Level at his hip and out; the reach is modest |
+| Blow 2, a long thrust | Good, on the third try. In the first two he knelt and the fang vanished from the tip; those are thrown away |
+| Blow 3, the charge | Good. The spear couched like a lance, three strides |
+| Upward thrust | Good. Straight up over his head |
+| Downward strike, in the air | Good enough, on the third try. He turns the spear point-down beneath him; it points down and forward, not straight down |
+
+- **What made the last two work:** a strip can now begin from a picture of my choosing. The long thrust begins with
+  him stood further over, so the reach has room; the downward strike begins from the "in the air" drawing, so he is
+  already off the ground. **The hammer's plunge, which would not leave the ground, can be made the same way.**
+- **Not made:** getting up (as with the hammer).
+- **Cost:** 17 strips. About 8,650 generations are left.
+
+**For you:** yes to the set? Anything to send back? And shall I make the hammer a plunge of its own this way?

@@ -54,6 +54,10 @@ def animate(name, anim, action, frames=8, mode='v3'):
     else: body['action_description'] = action
     if mode in ('v3', 'pixminimax') or (mode == 'skeleton-v3' and 'action_description' in body): body['frame_count'] = int(frames)
     if PALETTE and mode != 'template': body['target_palette'] = {'colors': PALETTE, 'name': 'Endesga 32'}
+    # START=<png>: the strip begins from this picture, not the character's standing one (a move that starts in the air;
+    # or him stood further over on the canvas, so a long reach is not cut off by its edge)
+    if os.environ.get('START'):
+        import base64; body['custom_start_frame'] = {'type': 'base64', 'base64': base64.b64encode(open(os.environ['START'], 'rb').read()).decode(), 'format': 'png'}
     r = call('POST', '/characters/animations', body)
     c['anims'][anim] = {'action': action, 'frames': int(frames), 'group': r.get('animation_group_id')}; save_book(b)
     for j in r['background_job_ids']: wait(j, f'{name} {anim}')
