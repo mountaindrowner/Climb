@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Harder (latest; build 88).**
+**The hammer, drawn (latest; build 89).** He holds the pale stone hammer picked on 22 Nov, the same in every frame, in every move where a weapon shows: eleven new drawings made from one picture of him holding it. The spade's drawings are gone. The plunge is borrowed from the overhead blow. 469 checks. No save is moved.
+
+**Harder (build 88).**
 - **One spring a region,** the one in its middle. The checkpoint pools are as they were.
 - **Ordric's prices up by about two thirds;** an urn pays two to four shards. `docs/builds.md` has what each region pays.
 - **Two hearts** for the larger creatures' blows (yeti, squall, sluicer, sentinel, the Turned) and each keeper's great blow.

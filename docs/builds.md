@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 88 | 22 Nov 2026 | `0514ae3` | Harder: one spring a region, prices up two thirds, urns pay less, the larger creatures' and the keepers' great blows cost two hearts | no | yes (now) |
+| 89 | 23 Nov 2026 | `COMMIT89` | The hammer drawn: a whole set of his drawings holding it, made from the one picture picked | no | yes (now) |
+| 88 | 22 Nov 2026 | `0514ae3` | Harder: one spring a region, prices up two thirds, urns pay less, the larger creatures' and the keepers' great blows cost two hearts | no | replaced by 89 |
 | 87 | 22 Nov 2026 | `aaa2472` | The Cracked Bell rolls; the air dash is its prize, in a chest of its own; thin ice across the way into the Spires | **save** (kept) | replaced by 88 |
 | 86 | 22 Nov 2026 | `de8d329` | The hammer in place of the spade: three times the sword's damage, a wide arc, it knocks creatures back | no | replaced by 87 |
 | 85 | 22 Nov 2026 | `39c2bf3` | Up: W and the up arrow look up and strike upward; Space alone jumps | **keys** | replaced by 86 |
@@ -104,6 +105,45 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 89: the hammer, drawn
+
+*Step 4 of `docs/weapons-sheet.md` for the first weapon. Your words: the look, "B, pale stone. I think that's cooler
+for the hammer"; the set, "Good to go"; blow 1, "Second blow"; anything to send back, "Nope all good".*
+
+**For the player**
+
+- **He holds the hammer.** Until now, with the Warden's weapon in hand, he was drawn with a spade. Now it is the pale
+  stone hammer you picked, and it is the same hammer in every frame (`docs/hammer-in-game.png`).
+- **He holds it in every move where a weapon shows:** standing, running, in the air, landing, crouched, crouch-walking,
+  rolling, being hurt, and its three blows. With the spade he had nine drawings; in the roll, the landing and when
+  hurt he was drawn with the sword.
+- **Its three blows are new drawings:** a sideways blow (the second of the two tries), a rising blow out of a crouch,
+  and the overhead blow that ends on the ground.
+- **The plunge is borrowed,** as agreed: he falls with the hammer raised over his shoulder (two frames of the overhead
+  blow) and lands with that blow's end.
+
+**What is weaker than it should be**
+
+- **Getting up after a fall, taking a gift, climbing and hanging** still show his sword drawings. Getting up could
+  not be made (the stock pose is refused for a changed hero); the others are to be the weapon on his back, drawn once
+  for every weapon, and are not made yet.
+- **The sideways blow turns him right round.** In the game its last frames are cut, so he does not end with his back
+  to what he hit, but he recovers quickly out of a half turn.
+- **Nobody has played it.** The blows land on new frames; a blow may look early or late against its hit.
+
+- **Underneath:** `assets/side/mask_tall_c/hm_*.png` (11 strips and their normal maps; the nine `spade_` strips are
+  gone), `tools/weapon-strips.py` (new: picks the frames of each approved strip and stands him in the same place in
+  all of them), `tools/pixellab-state.py` and `tools/pixellab-strips.py` (a state of the hero; its strips),
+  `main.js` (`heroPose`: `held`), `motor.js` (the blows' drawings and the frame each lands on).
+- **Save: not moved.**
+- **Checked:** 469 checks pass. In the test browser: every move photographed with the hammer in hand.
+
+**To try**
+
+1. With the hammer in hand (R), stand, run, jump, crouch, roll. Is it the same hammer throughout?
+2. The three blows on a creature: does each look as if it lands when the creature is hit?
+3. Jump twice and plunge (down and attack in the air): does the borrowed fall read?
 
 ### Build 88: harder
 

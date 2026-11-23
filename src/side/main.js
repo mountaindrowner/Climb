@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 88, date: '22 NOV 2026', phase: 17, phases: 22, last: 'HARDER: SPRINGS, PRICES, HEAVY BLOWS' };
+const VERSION = { build: 89, date: '23 NOV 2026', phase: 17, phases: 22, last: 'THE HAMMER, DRAWN' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -766,10 +766,12 @@ const PLUNGE_LAND = 0.5; let PLUNGE_T = 0;   // how long the plunge's landing pl
 // which of his animations, and how far into it (and, for a climb, to place it by where it ends)
 function heroPose(P, t){
   const A = hero.meta ? hero.meta.anims : {}, has = n => !!A[n], pick = k => MOVES[k].find(has);
-  const held = n => P.weapon === 'spade' && has('spade_' + n) ? 'spade_' + n : n;   // with the spade in hand, its own drawing where there is one
+  // with the hammer in hand, its own drawing where there is one (build 89: a whole set, `hm_`, made from one picture of
+  // him holding it, docs/weapons-sheet.md; until then nine drawings of the spade it used to be)
+  const held = n => P.weapon === 'spade' && has('hm_' + n) ? 'hm_' + n : n;
   if (WAKE > 0 && has('getup')) return ['getup', Math.min(0.999, Math.max(0, 1 - WAKE / 1.4))];   // where he fell: up off the ground
   if (RECEIVE > 0 && has('receive')) return ['receive', Math.min(0.999, 1 - RECEIVE / RECEIVE_T)];   // taking a keeper's gift
-  if (P.art){ if (P.art.k === 'slam' && P.weapon === 'spade' && has('atk_spade')) return ['atk_spade', (6 + Math.min(5.99, P.art.t / P.art.dur * 6)) / 12];   // the slam, with the spade: its great blow
+  if (P.art){ if (P.art.k === 'slam' && P.weapon === 'spade' && has('hm_atk3')) return ['hm_atk3', (6 + Math.min(5.99, P.art.t / P.art.dur * 6)) / 12];   // the slam, with the hammer: its great blow
     const name = { cleave: 'atk_dash_px', gust: 'atk_rise_px', slam: 'plunge_land' }[P.art.k]; if (has(name)) return [name, Math.min(0.999, P.art.t / P.art.dur)]; }   // an ember art
   if (P.mantle && pick('climb')){
     const name = pick('climb'), C = CLIMB[name] || A[name].climb, M = P.mantle;   // climb_own carries its table (tools/compose-climb.py)
@@ -780,14 +782,16 @@ function heroPose(P, t){
     }
     return [name, Math.min(0.999, 0.15 + 0.85 * M.t / M.dur), 'last'];   // its first frames are him standing: from the reach up
   }
-  if (P.hp <= 0 && has('hurt')) return ['hurt', 0.999];
-  if (P.hurtT > 0 && has('hurt')) return ['hurt', 1 - P.hurtT / MV.hurtStun];
-  if (P.roll > 0 && pick('roll')) return [pick('roll'), 1 - P.roll / MV.roll.time];
+  if (P.hp <= 0 && has('hurt')) return [held('hurt'), 0.999];
+  if (P.hurtT > 0 && has('hurt')) return [held('hurt'), 1 - P.hurtT / MV.hurtStun];
+  if (P.roll > 0 && pick('roll')) return [held('roll') !== 'roll' ? held('roll') : pick('roll'), 1 - P.roll / MV.roll.time];
   if (P.flip > 0 && !P.grounded && pick('flip')) return [pick('flip'), Math.min(0.999, 0.08 + 0.92 * (1 - P.flip / MV.flip))];   // the double jump's somersault, drawn
   // the plunge: the blade turned point-down (two frames), then the dive held, the cape streaming; drawn by his boots, so
   // the blade reaches below his feet
-  if (P.dive && P.weapon === 'spade' && has('spade_plunge')){ const n = A.spade_plunge.frames; return ['spade_plunge', ((Math.floor((P.dive.t || 0) * 12) % n) + 0.5) / n]; }
-  if (P.grounded && PLUNGE_T > 0 && P.weapon === 'spade' && has('atk_spade') && !(Math.abs(P.vx) > 1.5 && P.plant <= 0)) return ['atk_spade', (6 + Math.min(5.99, (1 - PLUNGE_T / PLUNGE_LAND) * 6)) / 12];   // its landing: the spade driven in
+  // the hammer's plunge (no drawing of its own would leave the ground, twice): he falls with it raised over his
+  // shoulder, two frames of its great blow, and lands with the blow's end
+  if (P.dive && P.weapon === 'spade' && has('hm_atk3')) return ['hm_atk3', (3 + (Math.floor((P.dive.t || 0) * 10) % 2) + 0.5) / 12];
+  if (P.grounded && PLUNGE_T > 0 && P.weapon === 'spade' && has('hm_atk3') && !(Math.abs(P.vx) > 1.5 && P.plant <= 0)) return ['hm_atk3', (7 + Math.min(4.99, (1 - PLUNGE_T / PLUNGE_LAND) * 5)) / 12];   // its landing: the hammer driven in
   if (P.dive && has('plunge_fall')){ const t = P.dive.t || 0, f = t < 0.12 ? Math.floor(t / 0.12 * 2) : 2 + Math.floor((t - 0.12) * 12) % 6; return ['plunge_fall', (f + 0.5) / 8, { foot: 46 }]; }
   if (P.dive && has('plunge')) return ['plunge', 0.6];
   // its landing: the blade driven in, a deep crouch, up again (its last eight frames); cut short if he moves off
@@ -814,11 +818,11 @@ function heroPose(P, t){
     if (has('fall')) return ['fall', t * 2];
     if (has('jump')) return ['jump', 0.8];
   }
-  if (P.grounded && landT > 0 && pick('land') && !(Math.abs(P.vx) > 1.5 && landT < LAND_T - 0.08)) return [pick('land'), Math.min(0.999, 0.2 + 0.8 * (1 - landT / LAND_T))];   // from the moment his feet meet the floor
+  if (P.grounded && landT > 0 && pick('land') && !(Math.abs(P.vx) > 1.5 && landT < LAND_T - 0.08)) return held('land') !== 'land' ? [held('land'), Math.min(0.999, 1 - landT / LAND_T)] : [pick('land'), Math.min(0.999, 0.2 + 0.8 * (1 - landT / LAND_T))];   // from the moment his feet meet the floor
   // crouched: down into it (its first frames, then held); moving, the low shuffle, by how far he has gone
   if (P.grounded && P.crouch){ if (Math.abs(P.vx) > 0.3 && has(held('crouch_walk'))) return [held('crouch_walk'), (P.dist || 0) / 1.6]; if (has(held('crouch'))) return [held('crouch'), Math.min(0.999, CROUCH_T / 0.16)]; }
   if (P.grounded && Math.abs(P.vx) > 0.3){ const run = held(has('sprint') ? 'sprint' : 'run'); if (has(run)) return [run, (P.dist || 0) / 2.6]; }
-  if (P.weapon === 'spade' && has('spade_idle')) return ['spade_idle', t / 1.6];   // leaning on the spade
+  if (held('idle') !== 'idle') return [held('idle'), t / 1.6];   // standing with the hammer
   if (has('idle')) return ['idle', t / 1.4];
   return ['stand', 0];
 }
@@ -1228,7 +1232,7 @@ function onEvent(e){
     case 'bloom': sfx.bloom(); PROPS.bounce(e.m); fx.puff(at, 14, 3); fx.burst({ x: P.x, y: P.y + 0.3 }, 10, 0xf6757a); R.glint(P.x, P.y + 0.5, 0xfeae34, 0.7, 4, 0.3); break;
     case 'strike': {
       // the blow: the swoosh of light, the air bending round it, the floor kicked up, a thump, the view nudged
-      const big = e.finisher, tilt = { atk_spade: -0.9, atk_slam_v3: -0.7, atk_slam_px: -0.7, atk_rise_px: 1.0, atk_spin_px: 0.1, atk_dash_px: 0.25 }[e.sw.anim] || 0;
+      const big = e.finisher, tilt = { hm_atk3: -0.9, hm_atk2: 0.9, atk_spade: -0.9, atk_slam_v3: -0.7, atk_slam_px: -0.7, atk_rise_px: 1.0, atk_spin_px: 0.1, atk_dash_px: 0.25 }[e.sw.anim] || 0;
       sfx.swing(big); if (!SWINGFX.has(e.sw.anim)) fx.crescent({ x: P.x + P.face * 1.15, y: P.y + 1.25 }, P.face, big, tilt);   // the combo's cuts have their own drawn effect
       { const upw = !!(P.atk && P.atk.up), gx = upw ? P.x + P.face * 0.3 : P.x + P.face * 1.3, gy = upw ? P.y + 2.9 : P.y + 1.3; R.glint(gx, gy, big ? 0xffd27a : 0xbfe8ff, big ? 0.9 : 0.6, 4.5, 0.22); R.shock(gx, gy - 0.1, big); }
       if (P.grounded) fx.kick(at, -P.face, big ? 12 : 7, big ? 3 : 2.2);

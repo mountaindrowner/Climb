@@ -12,8 +12,8 @@ each." This sheet is the first of those steps. Nothing here is built or drawn.*
   good.")
 - **Step 2 is settled** (22 Nov): the hammer **B** (pale stone), the clapper **B** (on a chain, with a handle), the
   tooth **B** (a fang bound to a shaft), the bow **A** (the storm bow), the thorns **A** (a pair of bone hooks).
-- **Step 3, the hammer's drawings, is with you:** `docs/hammer-set.gif` (moving) and `docs/hammer-set.png` (every
-  frame). See "Step 3" at the foot of this sheet.
+- **The hammer is done** (23 Nov): its set approved ("Good to go", the second blow 1) and **in the game, build 89**.
+- **Next: the tooth's drawings** (step 3), from the fang-on-a-shaft picture.
 
 ## The steps, and where you say yes
 

@@ -427,9 +427,9 @@ export const BLADE = { name: 'Curved blade', reach: 2.1, combo: [
 // blade's, in a wide arc (a little behind him and over him: enemies.js), and knocks what it hits back and stops it for
 // a breath: that is the reason to choose it. It is slow, it cannot block, and it is weak in the air (main.js)
 export const SPADE = { name: 'Warden\'s hammer', reach: 2.85, guard: false, digs: true, wide: true, knock: 1.4, stagger: 0.4, combo: [
-  { dmg: 3, wind: 0.32, active: 0.1, rec: 0.38, lunge: 0.5, anim: 'atk_spade1', hit: 8 / 12 },
-  { dmg: 3, wind: 0.34, active: 0.1, rec: 0.4, lunge: 0.6, anim: 'atk_spade2', hit: 8 / 12 },
-  { dmg: 6, wind: 0.46, active: 0.1, rec: 0.5, lunge: 0.5, anim: 'atk_spade', hit: 6 / 12, wave: true },
+  { dmg: 3, wind: 0.32, active: 0.1, rec: 0.38, lunge: 0.5, anim: 'hm_atk1', hit: 6 / 8 },
+  { dmg: 3, wind: 0.34, active: 0.1, rec: 0.4, lunge: 0.6, anim: 'hm_atk2', hit: 4 / 8 },
+  { dmg: 6, wind: 0.46, active: 0.1, rec: 0.5, lunge: 0.5, anim: 'hm_atk3', hit: 7 / 12, wave: true },
 ] };
 export const weaponOf = P => P.weapon === 'blade' ? BLADE : P.weapon === 'spade' ? SPADE : WEAPONS[P.weapon];
 export const swingOf = (P, A) => A.special ? weaponOf(P)[A.special] : weaponOf(P).combo[A.i];

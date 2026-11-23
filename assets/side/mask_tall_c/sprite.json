@@ -476,26 +476,6 @@
    "cxLast": 29.0,
    "n": 1
   },
-  "spade_idle": {
-   "frames": 8,
-   "w": 64,
-   "h": 64,
-   "foot": 52,
-   "cx": 35.0,
-   "footLast": 52,
-   "cxLast": 35.0,
-   "n": 1
-  },
-  "atk_spade": {
-   "frames": 12,
-   "w": 64,
-   "h": 64,
-   "foot": 52,
-   "cx": 35.0,
-   "footLast": 52,
-   "cxLast": 35.0,
-   "n": 1
-  },
   "air": {
    "frames": 7,
    "w": 64,
@@ -526,76 +506,6 @@
    "cxLast": 35.0,
    "n": 1
   },
-  "spade_run": {
-   "frames": 7,
-   "w": 64,
-   "h": 64,
-   "foot": 52,
-   "cx": 35.0,
-   "footLast": 52,
-   "cxLast": 35.0,
-   "n": 1
-  },
-  "spade_air": {
-   "frames": 8,
-   "w": 64,
-   "h": 64,
-   "foot": 52,
-   "cx": 35.0,
-   "footLast": 52,
-   "cxLast": 35.0,
-   "n": 1
-  },
-  "spade_crouch": {
-   "frames": 3,
-   "w": 64,
-   "h": 64,
-   "foot": 52,
-   "cx": 35.0,
-   "footLast": 52,
-   "cxLast": 35.0,
-   "n": 1
-  },
-  "spade_crouch_walk": {
-   "frames": 6,
-   "w": 64,
-   "h": 64,
-   "foot": 52,
-   "cx": 35.0,
-   "footLast": 52,
-   "cxLast": 35.0,
-   "n": 1
-  },
-  "atk_spade1": {
-   "frames": 12,
-   "w": 64,
-   "h": 64,
-   "foot": 52,
-   "cx": 35.0,
-   "footLast": 52,
-   "cxLast": 35.0,
-   "n": 1
-  },
-  "atk_spade2": {
-   "frames": 12,
-   "w": 64,
-   "h": 64,
-   "foot": 52,
-   "cx": 35.0,
-   "footLast": 52,
-   "cxLast": 35.0,
-   "n": 1
-  },
-  "spade_plunge": {
-   "frames": 6,
-   "w": 64,
-   "h": 64,
-   "foot": 52,
-   "cx": 35.0,
-   "footLast": 52,
-   "cxLast": 35.0,
-   "n": 1
-  },
   "receive": {
    "frames": 12,
    "w": 64,
@@ -604,6 +514,116 @@
    "cx": 35.0,
    "footLast": 52,
    "cxLast": 35.0,
+   "n": 1
+  },
+  "hm_idle": {
+   "frames": 8,
+   "w": 68,
+   "h": 68,
+   "foot": 54,
+   "cx": 34.0,
+   "footLast": 54,
+   "cxLast": 34.0,
+   "n": 1
+  },
+  "hm_run": {
+   "frames": 7,
+   "w": 68,
+   "h": 68,
+   "foot": 54,
+   "cx": 34.0,
+   "footLast": 54,
+   "cxLast": 34.0,
+   "n": 1
+  },
+  "hm_air": {
+   "frames": 5,
+   "w": 68,
+   "h": 68,
+   "foot": 54,
+   "cx": 34.0,
+   "footLast": 54,
+   "cxLast": 34.0,
+   "n": 1
+  },
+  "hm_land": {
+   "frames": 6,
+   "w": 68,
+   "h": 68,
+   "foot": 54,
+   "cx": 34.0,
+   "footLast": 54,
+   "cxLast": 34.0,
+   "n": 1
+  },
+  "hm_crouch": {
+   "frames": 5,
+   "w": 68,
+   "h": 68,
+   "foot": 54,
+   "cx": 34.0,
+   "footLast": 54,
+   "cxLast": 34.0,
+   "n": 1
+  },
+  "hm_crouch_walk": {
+   "frames": 5,
+   "w": 68,
+   "h": 68,
+   "foot": 54,
+   "cx": 34.0,
+   "footLast": 54,
+   "cxLast": 34.0,
+   "n": 1
+  },
+  "hm_roll": {
+   "frames": 12,
+   "w": 68,
+   "h": 68,
+   "foot": 54,
+   "cx": 34.0,
+   "footLast": 54,
+   "cxLast": 34.0,
+   "n": 1
+  },
+  "hm_hurt": {
+   "frames": 8,
+   "w": 68,
+   "h": 68,
+   "foot": 54,
+   "cx": 34.0,
+   "footLast": 54,
+   "cxLast": 34.0,
+   "n": 1
+  },
+  "hm_atk1": {
+   "frames": 8,
+   "w": 68,
+   "h": 68,
+   "foot": 54,
+   "cx": 34.0,
+   "footLast": 54,
+   "cxLast": 34.0,
+   "n": 1
+  },
+  "hm_atk2": {
+   "frames": 8,
+   "w": 68,
+   "h": 68,
+   "foot": 54,
+   "cx": 34.0,
+   "footLast": 54,
+   "cxLast": 34.0,
+   "n": 1
+  },
+  "hm_atk3": {
+   "frames": 12,
+   "w": 68,
+   "h": 68,
+   "foot": 54,
+   "cx": 34.0,
+   "footLast": 54,
+   "cxLast": 34.0,
    "n": 1
   }
  }
