@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 91 | 23 Nov 2026 | `COMMIT91` | The Wyrm's tooth, a spear; the Wyrm leaves it; the glide is the Seated's, in a prize chest; weapons go round on the swap key | **save** (kept) | yes (now) |
+| 91 | 23 Nov 2026 | `3ff8816` | The Wyrm's tooth, a spear; the Wyrm leaves it; the glide is the Seated's, in a prize chest; weapons go round on the swap key | **save** (kept) | yes (now) |
 | 90 | 23 Nov 2026 | `bd14458` | The hammer's plunge: a drawing of its own, he rides it down | no | replaced by 91 |
 | 89 | 23 Nov 2026 | `6ff3654` | The hammer drawn: a whole set of his drawings holding it, made from the one picture picked | no | replaced by 90 |
 | 88 | 22 Nov 2026 | `0514ae3` | Harder: one spring a region, prices up two thirds, urns pay less, the larger creatures' and the keepers' great blows cost two hearts | no | replaced by 89 |
