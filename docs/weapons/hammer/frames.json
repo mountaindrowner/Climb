@@ -1,22 +1,22 @@
 {
  "frames": {
-  "hm_land": 9,
-  "hm_hurt": 9,
-  "hm_crouch": 9,
-  "hm_plunge2": 9,
   "hm_idle": 9,
-  "hm_plunge4": 9,
-  "hm_atk3": 13,
-  "hm_atk2": 13,
   "hm_run": 9,
-  "hm_atk1b": 13,
-  "hm_atk1": 13,
-  "hm_roll": 13,
-  "hm_plunge3": 9,
   "hm_air": 9,
-  "hm_atk2b": 13,
+  "hm_land": 9,
+  "hm_crouch": 9,
   "hm_crouch_walk": 9,
-  "hm_plunge": 9
+  "hm_roll": 13,
+  "hm_hurt": 9,
+  "hm_atk1": 13,
+  "hm_atk1b": 13,
+  "hm_atk2": 13,
+  "hm_atk2b": 13,
+  "hm_atk3": 13,
+  "hm_plunge": 9,
+  "hm_plunge2": 9,
+  "hm_plunge3": 9,
+  "hm_plunge4": 9
  },
  "note": "frames in each strip as made"
 }

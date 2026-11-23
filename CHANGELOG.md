@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The hammer, drawn (latest; build 89).** He holds the pale stone hammer picked on 22 Nov, the same in every frame, in every move where a weapon shows: eleven new drawings made from one picture of him holding it. The spade's drawings are gone. The plunge is borrowed from the overhead blow. 469 checks. No save is moved.
+**The hammer's plunge (latest; build 90).** A drawing of its own: he rides the hammer down, its stone head under his boots. 469 checks. No save is moved.
+
+**The hammer, drawn (build 89).** He holds the pale stone hammer picked on 22 Nov, the same in every frame, in every move where a weapon shows: eleven new drawings made from one picture of him holding it. The spade's drawings are gone. The plunge is borrowed from the overhead blow. 469 checks. No save is moved.
 
 **Harder (build 88).**
 - **One spring a region,** the one in its middle. The checkpoint pools are as they were.

@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 89 | 23 Nov 2026 | `6ff3654` | The hammer drawn: a whole set of his drawings holding it, made from the one picture picked | no | yes (now) |
+| 90 | 23 Nov 2026 | `COMMIT90` | The hammer's plunge: a drawing of its own, he rides it down | no | yes (now) |
+| 89 | 23 Nov 2026 | `6ff3654` | The hammer drawn: a whole set of his drawings holding it, made from the one picture picked | no | replaced by 90 |
 | 88 | 22 Nov 2026 | `0514ae3` | Harder: one spring a region, prices up two thirds, urns pay less, the larger creatures' and the keepers' great blows cost two hearts | no | replaced by 89 |
 | 87 | 22 Nov 2026 | `aaa2472` | The Cracked Bell rolls; the air dash is its prize, in a chest of its own; thin ice across the way into the Spires | **save** (kept) | replaced by 88 |
 | 86 | 22 Nov 2026 | `de8d329` | The hammer in place of the spade: three times the sword's damage, a wide arc, it knocks creatures back | no | replaced by 87 |
@@ -105,6 +106,32 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 90: the hammer's plunge
+
+*Your word, 23 Nov: "Sure about number 2, the plunge for hammer." In build 89 the plunge borrowed two frames of the
+overhead blow, because no drawing of it would leave the ground.*
+
+**For the player**
+
+- **The hammer's plunge is its own drawing** (`docs/hammer-plunge.png`): in the air, down and attack, and he rides
+  the hammer down, its stone head under his boots. It still lands with the end of the overhead blow.
+
+**What is weaker than it should be**
+
+- **The stone head is drawn wider and flatter** in the plunge than when he stands: it is seen end-on.
+- **He is drawn a little above where he is, and the head a little below,** so close over a floor the head dips into
+  it for an instant before the landing. The sword's plunge does the same with its blade.
+
+- **Underneath:** `assets/side/mask_tall_c/hm_plunge.png` and its normal map; `tools/weapon-strips.py` (a strip on a
+  canvas of its own, placed by hand); `tools/pixellab.py` (`START=`: a strip begun from a picture of my choosing,
+  which is what got him off the ground); `main.js` (`heroPose`).
+- **Save: not moved.**
+- **Checked:** 469 checks pass. In the test browser: a second jump, the plunge, and the landing, photographed.
+
+**To try**
+
+1. With the hammer, jump twice and press down and attack. Does it read as one move, fall and blow?
 
 ### Build 89: the hammer, drawn
 

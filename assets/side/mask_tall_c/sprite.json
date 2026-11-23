@@ -625,6 +625,16 @@
    "footLast": 54,
    "cxLast": 34.0,
    "n": 1
+  },
+  "hm_plunge": {
+   "frames": 5,
+   "w": 96,
+   "h": 132,
+   "foot": 88,
+   "cx": 54.5,
+   "footLast": 88,
+   "cxLast": 54.5,
+   "n": 1
   }
  }
 }

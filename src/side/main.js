@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 89, date: '23 NOV 2026', phase: 17, phases: 22, last: 'THE HAMMER, DRAWN' };
+const VERSION = { build: 90, date: '23 NOV 2026', phase: 17, phases: 22, last: 'THE HAMMER\'S PLUNGE' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -788,9 +788,9 @@ function heroPose(P, t){
   if (P.flip > 0 && !P.grounded && pick('flip')) return [pick('flip'), Math.min(0.999, 0.08 + 0.92 * (1 - P.flip / MV.flip))];   // the double jump's somersault, drawn
   // the plunge: the blade turned point-down (two frames), then the dive held, the cape streaming; drawn by his boots, so
   // the blade reaches below his feet
-  // the hammer's plunge (no drawing of its own would leave the ground, twice): he falls with it raised over his
-  // shoulder, two frames of its great blow, and lands with the blow's end
-  if (P.dive && P.weapon === 'spade' && has('hm_atk3')) return ['hm_atk3', (3 + (Math.floor((P.dive.t || 0) * 10) % 2) + 0.5) / 12];
+  // the hammer's plunge: he rides it down, its stone head under his boots (build 90: a drawing of its own, begun from
+  // the "in the air" one; until then it borrowed two frames of the great blow). It lands with that blow's end
+  if (P.dive && P.weapon === 'spade' && has('hm_plunge')){ const n = A.hm_plunge.frames; return ['hm_plunge', ((Math.floor((P.dive.t || 0) * 10) % n) + 0.5) / n]; }
   if (P.grounded && PLUNGE_T > 0 && P.weapon === 'spade' && has('hm_atk3') && !(Math.abs(P.vx) > 1.5 && P.plant <= 0)) return ['hm_atk3', (7 + Math.min(4.99, (1 - PLUNGE_T / PLUNGE_LAND) * 5)) / 12];   // its landing: the hammer driven in
   if (P.dive && has('plunge_fall')){ const t = P.dive.t || 0, f = t < 0.12 ? Math.floor(t / 0.12 * 2) : 2 + Math.floor((t - 0.12) * 12) % 6; return ['plunge_fall', (f + 0.5) / 8, { foot: 46 }]; }
   if (P.dive && has('plunge')) return ['plunge', 0.6];

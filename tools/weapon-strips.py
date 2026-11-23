@@ -14,7 +14,11 @@ SETS = {'hammer': {
   'hm_crouch': ('hm_crouch', range(1, 6)), 'hm_crouch_walk': ('hm_crouch_walk', range(4, 9)), 'hm_roll': ('hm_roll', range(1, 13)), 'hm_hurt': ('hm_hurt', range(1, 9)),
   'hm_atk1': ('hm_atk1b', range(2, 10)),                       # the second try (his word, 23 Nov): the blow lands on its seventh frame kept
   'hm_atk2': ('hm_atk2b', [2, 4, 6, 8, 9, 10, 11, 12]),        # the long crouch thinned: it lands on the fifth
-  'hm_atk3': ('hm_atk3', range(1, 13)) }}                      # twelve, as the spade's great blow was: it lands on the eighth
+  'hm_atk3': ('hm_atk3', range(1, 13)),                        # twelve, as the spade's great blow was: it lands on the eighth
+  # its plunge (build 90): he rides the hammer down. Begun from the "in the air" drawing on a taller canvas, so it is
+  # placed by hand: his boots are at row 80 and the shaft at column 54; he is drawn a little over where he is, the
+  # stone head a little under
+  'hm_plunge': ('hm_plunge3', range(4, 9), {'foot': 88, 'cx': 54.5}) }}
 def snap(im):
     pal = [tuple(int(c[i:i + 2], 16) for i in (1, 3, 5)) for c in PAL]; px = im.load(); cache = {}
     for y in range(im.height):
@@ -32,9 +36,11 @@ def feet(f):
     return bot + 1, (cols[0] + cols[-1] + 1) / 2
 def main(which):
     src = os.path.join(ROOT, 'docs', 'weapons', which); sp = os.path.join(HERO, 'sprite.json'); meta = json.load(open(sp))
-    for name, (strip, keep) in SETS[which].items():
-        im = Image.open(os.path.join(src, strip + '.png')).convert('RGBA'); h = im.height; w = h; n = im.width // w
-        fr = [snap(im.crop((i * w, 0, i * w + w, h))) for i in range(n)]; foot, cx = feet(fr[0])   # the standing picture every strip begins with: where he stands on its canvas (a roll leaves that place and comes back to it)
+    made = json.load(open(os.path.join(src, 'frames.json')))['frames'] if os.path.exists(os.path.join(src, 'frames.json')) else {}
+    for name, (strip, keep, *more) in SETS[which].items():
+        im = Image.open(os.path.join(src, strip + '.png')).convert('RGBA'); h = im.height; n = made.get(strip) or im.width // h; w = im.width // n   # (a strip begun from a picture of its own has that picture's canvas, not a square one)
+        fr = [snap(im.crop((i * w, 0, i * w + w, h))) for i in range(n)]; foot, cx = feet(fr[0])
+        if more: foot, cx = more[0].get('foot', foot), more[0].get('cx', cx)   # the standing picture every strip begins with: where he stands on its canvas (a roll leaves that place and comes back to it)
         out = Image.new('RGBA', (w * len(keep), h))
         for k, i in enumerate(keep): out.paste(fr[i], (k * w, 0))
         out.save(os.path.join(HERO, name + '.png'))
