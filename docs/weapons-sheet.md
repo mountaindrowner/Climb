@@ -247,7 +247,7 @@ is in the game.
 - **The arrows will be drawn by the game,** flying across the room. Where a strip paints an arrow or a flash far from
   him, that part is cut when it goes in, so there are not two.
 - **Not made:** getting up (as with the others).
-- **Cost:** 15 strips, about 160 generations. About 8,250 are left.
+- **Cost:** 15 strips. About 8,390 generations are left.
 - **Still to settle, from step 1:** whether an arrow costs anything. I would make it cost nothing, with the bow
   weak up close (a shot needs a moment to draw), so it stands on its own like the others.
 
