@@ -180,3 +180,19 @@ none is in the game.
 - **Cost:** 17 strips, about 190 generations. About 8,560 are left.
 
 **For you:** yes to the set? Anything to send back? And shall I make the hammer a plunge of its own this way?
+
+### The tooth's drawings, second round (23 Nov)
+
+Your word: blow 1 and blow 3 clip the tip of the spear; the downward and the upward strike "do not look very
+impressive"; and yes to a plunge of its own for the hammer. All five remade (`docs/tooth-remade.png`; the moving
+sheet, `docs/tooth-set.gif`, now shows the set with them in).
+
+| Drawing | What changed |
+|---|---|
+| Blow 1, a thrust | Drawn on a canvas twice as wide, him stood at its left: the whole spear is in, fang and all, at full reach |
+| Blow 3, the charge | The same: the lance and its fang in view through the whole run |
+| Upward thrust | He drops into a crouch and explodes upward, the spear driven a body's length over his head |
+| Downward strike | A dive: he turns over in the air and comes down head first behind the spear, the fang leading, his scarf streaming up |
+| The hammer's plunge | Its own at last: he rides the hammer down, its stone head below his boots |
+
+**For you:** yes to these five?

@@ -1387,6 +1387,16 @@
     "action": "a duck walk, squatting all the way down and taking small careful steps forward, the heavy long-handled sledgehammer with the big pale stone head held low across his knees in both hands with its head forward",
     "frames": 8,
     "group": "6fea77c2-7525-4c17-bb28-b3342b1d429c"
+   },
+   "hm_plunge4": {
+    "action": "falling straight down through the air with the heavy long-handled sledgehammer with the big pale stone head held vertical beneath him in both hands like a pile-driver, the big pale stone head lowest, below his boots, his knees tucked up and his coat and red scarf streaming straight up, holding that pose as he falls",
+    "frames": 8,
+    "group": "7b24dfa9-bdd9-4105-93ed-e9e7a166f379"
+   },
+   "hm_plunge3": {
+    "action": "in mid-air, a falling hammer blow: he swings the heavy long-handled sledgehammer with the big pale stone head up over his head with both hands and then drives it straight down beneath him as he falls, his body curled over it, knees tucked up, the big pale stone head pointing straight down below his boots, his coat and red scarf streaming straight up",
+    "frames": 8,
+    "group": "791f38a9-1c19-466d-89e4-992a00bc4240"
    }
   }
  },
@@ -1485,6 +1495,36 @@
     "action": "struck hard from the front: his head snaps back and he flinches, staggering half a step backward with his knees buckling, still gripping the long spear with the great white fang bound to its tip with red cord, then steadies",
     "frames": 8,
     "group": "55e9cea0-6948-4ef1-9e14-2ee8d662828a"
+   },
+   "tt_down4": {
+    "action": "in mid-air, a diving spear strike: he raises the long spear with the great white fang bound to its tip with red cord over his head in both hands, turns it point-down, and plunges straight down with his whole body behind it, arms straight, the spear vertical beneath him with the great white fang pointing straight down far below his boots, his legs trailing behind and above him, his coat and red scarf streaming straight up",
+    "frames": 8,
+    "group": "eb36c4de-0537-4e82-8a42-00c18d54b5cd"
+   },
+   "tt_atk3b": {
+    "action": "a charging spear lunge in three beats with the long spear with the great white fang bound to its tip with red cord. First: he crouches with the spear couched level under his arm, the white fang pointing forward. Second: he runs forward three fast strides with the spear held out level in front of him like a lance, the white fang at its tip clearly in view. Third: he skids to a stop with the spear still out, then draws it back",
+    "frames": 12,
+    "group": "f939370b-ed29-4c7c-8be3-782b37795beb"
+   },
+   "tt_up2": {
+    "action": "a mighty upward spear thrust in three beats with the long spear with the great white fang bound to its tip with red cord. First: he drops into a deep crouch with the spear held upright in both hands, coiled like a spring. Second: he explodes upward onto his toes, his whole body stretching tall, and drives the spear straight up high above his head with both arms at full stretch, the great white fang far overhead, his coat and red scarf flaring out. Third: he holds the stretch an instant, then sinks back down",
+    "frames": 12,
+    "group": "6bec8290-c96a-472d-89e9-7d475ca39916"
+   },
+   "tt_atk1b": {
+    "action": "one quick spear thrust in three beats with the long spear with the great white fang bound to its tip with red cord. First, quickly: he draws the spear back level at his hip in both hands, the white fang pointing forward. Second: he steps forward and drives the spear straight out level in front of him to the full reach of his arms, the white fang at its tip far out in front and clearly in view. Third: he pulls it back to his hip and stands ready",
+    "frames": 12,
+    "group": "892ad177-6635-4058-9b27-3821adf55c19"
+   },
+   "tt_down5": {
+    "action": "falling fast through the air head-first in a dive: his body turns upside down, both hands gripping the long spear with the great white fang bound to its tip with red cord and driving it straight down ahead of him like a harpoon, the great white fang leading the fall, his legs high above him, his coat and red scarf streaming upward behind",
+    "frames": 8,
+    "group": "6760c41d-0cfa-468b-91ef-f016991554c1"
+   },
+   "tt_up3": {
+    "action": "a leaping upward spear thrust with the long spear with the great white fang bound to its tip with red cord: he crouches low, then springs up off the ground, thrusting the spear straight up over his head with both hands, his body one straight line from his toes to the great white fang far above him, his coat and red scarf whipping, then lands back in a crouch",
+    "frames": 12,
+    "group": "9f2b18ca-9067-4779-af8d-9d728fe80ca8"
    }
   }
  },

@@ -16,7 +16,13 @@
   "tt_up": 13,
   "tt_down": 9,
   "tt_down2": 9,
-  "tt_down3": 9
+  "tt_down3": 9,
+  "tt_atk1b": 13,
+  "tt_atk3b": 13,
+  "tt_up2": 13,
+  "tt_up3": 13,
+  "tt_down4": 9,
+  "tt_down5": 9
  },
  "note": "frames in each strip as made; a strip's frame is its width over this"
 }
