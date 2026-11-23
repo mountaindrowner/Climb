@@ -65,6 +65,7 @@ function seated(){
   const r = cave(2, 1); door(r, 'top', 10, 15); for (const y of [21, 17, 13, 9, 5]) ledge(r, 10, 15, y); door(r, 'left', 2, 7);
   mark(r, 'seated', 68, 2, { dir: -1 });
   for (const x of [30, 44, 58]) mark(r, 'brazier', x, 2);          // each one lit frees more of him
+  mark(r, 'chest', 71, 2, { holds: 'gift:glide', prize: 'sat' });   // the wing's prize (build 91): the wind he kept, in sight behind him, shut while he sits
   rect(r, 73, 2, 77, 7, MELT); mark(r, 'chest', 75, 2, { holds: 'relic:flint' });   // behind him, in the last fire's ice: under his arm
   for (const [k, x, y] of [['pack', 22, 2], ['bedroll', 50, 2]]) deco(r, k, x, y);
   mark(r, 'torch', 6, 10); mark(r, 'torch', 36, 12); mark(r, 'torch', 62, 14); mark(r, 'crystal', 20, 2);

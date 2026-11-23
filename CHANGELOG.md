@@ -2,7 +2,13 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The hammer's plunge (latest; build 90).** A drawing of its own: he rides the hammer down, its stone head under his boots. 469 checks. No save is moved.
+**The Wyrm's tooth (latest; build 91).**
+- **The Wyrm leaves the tooth,** a spear: a thrust, a longer thrust, a charge that carries him through what is small; up and attack thrusts straight up; in the air, down and attack dives on it and bounces him off creatures and spikes.
+- **The swap key goes round** sword, hammer, tooth.
+- **The glide is the Seated's,** in a prize chest behind him; the Tempest needs it.
+- 474 checks. Saves are kept: one whose Wyrm had fallen keeps the glide and gains the tooth.
+
+**The hammer's plunge (build 90).** A drawing of its own: he rides the hammer down, its stone head under his boots. 469 checks. No save is moved.
 
 **The hammer, drawn (build 89).** He holds the pale stone hammer picked on 22 Nov, the same in every frame, in every move where a weapon shows: eleven new drawings made from one picture of him holding it. The spade's drawings are gone. The plunge is borrowed from the overhead blow. 469 checks. No save is moved.
 

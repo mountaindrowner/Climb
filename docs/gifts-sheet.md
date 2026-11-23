@@ -9,7 +9,8 @@ great challenges for great things, and puzzles (missing today) come near the end
 0.23. **Step 1, the hammer, is build 86** (its drawings await your yes: `docs/hammer-candidates.png`).
 **Step 2, first half, is build 87:** the Cracked Bell rebuilt, the air dash its prize in a chest of its own, thin ice
 across the way into the Spires. (The Spires' main way did not in fact need the dash, as this sheet said it did; the ice
-makes it so.) Still to move: the glide to the Seated, the heart and the drink to minibosses.
+makes it so.) Still to move: the heart and the drink to minibosses. (The glide moved to the Seated in build 91, and the Wyrm leaves
+the tooth.)
 **Step 3 is build 88:** one spring a region, prices up two thirds, two-heart blows, with the money measured
 (`docs/builds.md`). The numbers wait on your death counts.
 **Step 4's sheet is written:** `docs/wyrm-sheet.md`, for your word before the Wyrm is rebuilt.

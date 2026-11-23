@@ -365,7 +365,7 @@ export function strikeEnemies(E, P, reach, dmg, events, up = false, heavy = null
   for (const e of E.list){
     if (!e.alive || e.d.harmless || (e.d.ai === 'burrower' && !(e.st === 'rise' || e.st === 'up'))) continue;
     const ahead = (e.x - P.x) * P.face, top = e.y + e.d.h, bottom = e.d.fly ? e.y - e.d.h / 2 : e.y;
-    if (up ? (Math.abs(e.x - P.x) > 1.0 + e.d.w / 2 || bottom > P.y + 2.2 + reach || top < P.y + 1.0) : (ahead < (heavy && heavy.wide ? -1.2 : -0.4) || ahead > reach + e.d.w || top < P.y - 0.2 || bottom > P.y + (heavy && heavy.wide ? 3.4 : 2.7))) continue;
+    if (up ? (Math.abs(e.x - P.x) > 1.0 + e.d.w / 2 || bottom > P.y + 2.2 + reach || top < P.y + 1.0) : (ahead < (heavy && heavy.wide ? -1.2 : -0.4) || ahead > reach + e.d.w || top < P.y + (heavy && heavy.narrow ? 0.5 : -0.2) || bottom > P.y + (heavy && heavy.wide ? 3.4 : heavy && heavy.narrow ? 2.1 : 2.7))) continue;   // (narrow: the tooth, a line at his chest: it misses what is low at his feet or over his head)
     if (e.d.guard && e.d.guard(e, P)){ events.push({ type: 'block', at: { x: e.x - P.face * e.d.w, y: e.y + e.d.h * 0.6 } }); any = true; continue; }   // it turns the blow
     // the hammer: what is small enough is knocked back along the ground (or through the air), as far as there is room
     // and floor, and stands stopped a breath. Not the wings' elites, nor what clings or is not a body

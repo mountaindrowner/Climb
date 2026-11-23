@@ -89,10 +89,10 @@ export function makeTeach(G, OPT, store){
       case 'strike': T.done('cut'); break;
       case 'roll': if (S.cur && S.cur.id === 'crouch') T.done('crouch'); break;
       case 'dropThrough': T.done('drop'); break;
-      case 'hurt': if (e.msg === 'Spikes') T.want('jump'); else if (!(P && P.weapon === 'spade')) T.want('block'); break;
+      case 'hurt': if (e.msg === 'Spikes') T.want('jump'); else if (!(P && P.weapon && P.weapon !== 'blade')) T.want('block'); break;
       case 'block': if (e.mine){ T.done('block'); S.guardSeen = true; } break;   // his guard (not a creature turning his blow)
       case 'parry': T.done('block'); T.done('parry'); break;
-      case 'tell': if (S.guardSeen && !T.known('parry') && !(P && P.weapon === 'spade')) T.want('parry'); break;
+      case 'tell': if (S.guardSeen && !T.known('parry') && !(P && P.weapon && P.weapon !== 'blade')) T.want('parry'); break;
     }
   };
   // what is up now, and how much of it: { id, show, a }
@@ -148,6 +148,7 @@ export const ICONS = {
   flask: ['.....kkk', '.....kpk', '.....kpk', '....kkpkk', '...kCCCCCk', '..kCwCCCCCk', '..kCCCCCCCk', '..kBBBBBBBk', '..kBBBBBBBk', '...kkkkkkk'],
   blade: ['..............kk', '.............kwk', '............kwpk', '...........kwpk', '..........kwpk', '.........kwpk', '........kwpk', '.......kwpk', '..kk..kwpk', '...kkkwpk', '....kykk', '...kWkk', '..kWk.kk', '.kWk', '.kk'],
   hammer: ['', '.........kkkkkk', '........kllllllk', '........klmCCmlk', '........klmCBmlk', '........kmmmmmmk', '.......kWkkkkkk', '......kWk', '.....kWk', '....kWk', '...kWk', '..kWk', '.kWk', '.kk'],
+  tooth: ['..............kk', '.............kwk', '............kwwk', '...........kwwk', '...........kwk', '..........krrk', '.........kWrk', '........kWk', '.......kWk', '......kWk', '.....kWk', '....kWk', '...kWk', '..kWk', '.kk'],
   spade: ['...........kkkk', '...........kbbk', '............kk', '...........kWk', '..........kWk', '.........kWk', '........kWk', '...kkk.kWk', '..kpppkWk', '.kpllppk', '.kplmlpk', '.kpmllk', '..kkkk'],
   knot: ['', '', 'rrrrrrkkkrrrrrrr', 'RRRRRkYYYkRRRRRR', '.....kYcYk', '.....kYYYk', '......kkk', '.......rr', '......rR.r', '.....rR...r'],
   embers: ['.......k', '......kyk', '.....kyYyk', '....kyYcYyk', '...koyYcYyok', '...koyYYYyok', '....kooyook', '.....kkkkk', '', '.kkkk.kkkk.kkkk', '.kYYk.kYYk.kyok', '.kkkk.kkkk.kkkk'],

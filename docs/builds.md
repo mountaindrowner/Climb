@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 90 | 23 Nov 2026 | `bd14458` | The hammer's plunge: a drawing of its own, he rides it down | no | yes (now) |
+| 91 | 23 Nov 2026 | `COMMIT91` | The Wyrm's tooth, a spear; the Wyrm leaves it; the glide is the Seated's, in a prize chest; weapons go round on the swap key | **save** (kept) | yes (now) |
+| 90 | 23 Nov 2026 | `bd14458` | The hammer's plunge: a drawing of its own, he rides it down | no | replaced by 91 |
 | 89 | 23 Nov 2026 | `6ff3654` | The hammer drawn: a whole set of his drawings holding it, made from the one picture picked | no | replaced by 90 |
 | 88 | 22 Nov 2026 | `0514ae3` | Harder: one spring a region, prices up two thirds, urns pay less, the larger creatures' and the keepers' great blows cost two hearts | no | replaced by 89 |
 | 87 | 22 Nov 2026 | `aaa2472` | The Cracked Bell rolls; the air dash is its prize, in a chest of its own; thin ice across the way into the Spires | **save** (kept) | replaced by 88 |
@@ -106,6 +107,58 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 91: the Wyrm's tooth
+
+*The second weapon a keeper leaves (`docs/weapons-sheet.md`). Its drawings were approved on 23 Nov ("Good to go"),
+with the four you sent back remade. And the glide moves to the Seated, as in the gifts table you approved on 22 Nov.*
+
+**For the player**
+
+- **The Wyrm leaves the tooth:** a long spear, the great fang bound to its shaft with red cord
+  (`docs/tooth-in-game.png`).
+  - **Three blows:** a thrust (3.5 metres), a longer thrust (4.3), and a charge that carries him about five metres
+    forward and strikes everything it passes through.
+  - **Up and attack:** a thrust straight up, as long as the longer thrust.
+  - **In the air, down and attack:** he dives head first behind the spear. If it meets a creature or spikes it does
+    3 damage and **throws him back up**, with his second jump and his dash to use again. On bare floor he lands as
+    from any plunge.
+  - **Narrow:** it strikes along a line at his chest. It misses what is low at his feet or over his head, where the
+    sword's cut would find it. It cannot block.
+- **The swap key goes round the weapons he has:** sword, hammer, tooth, sword. Its name in the keys is "Change
+  weapon". The weapon's picture on the HUD is the one in his hand.
+- **The glide is the Seated's,** in a prize chest behind him in the Glacier Galleries, held shut while he sits. So
+  the Galleries are part of the climb: the Tempest cannot be crossed without the glide.
+  - The Lamplighter in the Tempest says where to look, if he comes without it. And no line says "the Wyrm's wind"
+    any more.
+
+**What is weaker than it should be**
+
+- **The tooth's charge has no cut of light drawn with it,** and no thrust does: a spark at the point is all. It reads,
+  but plainly.
+- **The bounce does not yet work on a keeper's parts,** only on creatures and spikes. A keeper under him is struck as
+  by any plunge.
+- **His sword drawings still show** when he gets up, takes a gift, climbs or hangs, as with the hammer.
+- **The Toll still leaves a heart.** That waits on your answer about what a keeper leaves until its weapon is made.
+- **Nobody has played it.** The numbers (reach, damage, the charge's five metres, the bounce's height) are first ones.
+
+- **Underneath:** `motor.js` (`TOOTH`, `ARMS`: every weapon he can carry with its drawings' prefix, picture and name;
+  `pogo`), `main.js` (`toothStep`: the dive's bounce and the charge's strikes; the swap round; the HUD, the inventory
+  and the gift read the weapon, not "is it the spade?"), `enemies.js` (`narrow`), `state.js` (`TEACH[2]` the tooth,
+  `ABILITY.glide`), `teach.js` (the tooth's picture), `regions/glacier.js` (the prize chest), `talk.js`,
+  `tools/weapon-strips.py` (the tooth's frames). New check: `tests/side-tooth.test.mjs`.
+- **Save: kept.** A save whose Wyrm had fallen keeps its glide and gains the tooth.
+- **Checked:** 474 checks pass. In the test browser: every move with the tooth; the three blows chained (the
+  charge carried him 5.1 metres); a dive onto an acolyte (5 health to 2, thrown back up, the second jump given back);
+  the swap round; the Seated's chest held shut, then giving the glide.
+
+**To try**
+
+1. Beat the Wyrm (or try the Tempest from the title), press R until the tooth is in hand.
+2. Hit something three metres off with the first thrust. Then something low at your feet: it should miss.
+3. Hold up and attack under a flying creature.
+4. Jump over a creature or a row of spikes, then down and attack: does the bounce feel good, and can you chain it?
+5. In the Glacier Galleries, beat the Seated and open the chest behind him.
 
 ### Build 90: the hammer's plunge
 

@@ -107,14 +107,15 @@ export const RELICS = {   // name: whose it was; line: what it does; lore: whose
 // his from then on: G.can
 export const ABILITY = {
   dash: { can: 'dash', icon: 'dash', name: 'The Bell\'s Step', does: 'An air dash. You fly level and fast, once per jump.', how: ['{roll} in the air: dash.', 'A dash breaks thin ice and tears vellum: the pale sheets across some ways.'], more: ['With 10 embers, {art}: rush through everything in front of you.'] },
+  glide: { can: 'glide', icon: 'glide', name: 'The Seated\'s Wind', does: 'You can glide. Rising air lifts you. In deep water you can dive.', how: ['In the air with no jumps left: hold {jump} to glide.', 'In deep water: {jump} to swim up, {down} to dive.'], more: ['With 10 embers, {art} in the air: a gust throws back everything near you.'] },
 };
 // by which region of the climb he has each thing he can do, if he has done what the way there asks (a place tried from
 // the title, and the tests' "what he arrives with")
 export const ARRIVES = { breaker: 1, dash: 2, glide: 3 };
 export const TEACH = [
-  { can: 'breaker', icon: 'hammer', name: 'The Warden\'s Hammer', does: 'A heavy weapon. Slow, triple damage, and it knocks creatures back. It breaks cracked stone. It cannot block.', how: ['{swap}: switch between sword and hammer.', 'In the air, {down} + {attack}: slam down. It breaks cracked floors.'], more: ['Its third hit sends a wave along the ground.', 'With 10 embers, {down} + {art}: a shockwave along the floor, both ways.'] },
+  { can: 'breaker', arm: 'spade', icon: 'hammer', name: 'The Warden\'s Hammer', does: 'A heavy weapon. Slow, triple damage, and it knocks creatures back. It breaks cracked stone. It cannot block.', how: ['{swap}: change weapon.', 'In the air, {down} + {attack}: slam down. It breaks cracked floors.'], more: ['Its third hit sends a wave along the ground.', 'With 10 embers, {down} + {art}: a shockwave along the floor, both ways.'] },
   { heart: 1,       icon: 'heart',   name: 'The Toll\'s Heart',    does: 'You have one more heart.', how: [] },   // (until its weapon is made: docs/gifts-sheet.md. The air dash it used to leave is the Cracked Bell's: ABILITY)
-  { can: 'glide',   icon: 'glide',   name: 'The Wyrm\'s Wind',     does: 'You can glide. Rising air lifts you. In deep water you can dive.', how: ['In the air with no jumps left: hold {jump} to glide.', 'In deep water: {jump} to swim up, {down} to dive.'], more: ['With 10 embers, {art} in the air: a gust throws back everything near you.'] },
+  { arm: 'tooth', icon: 'tooth', name: 'The Wyrm\'s Tooth', does: 'A long spear. It reaches far in a straight line, and straight up. It cannot block.', how: ['{swap}: change weapon.', '{up} + {attack}: thrust upward.', 'In the air, {down} + {attack}: dive on it. It bounces off creatures and spikes.'], more: ['Its third blow is a charge: it carries you through what is small.'] },   // (build 91: the glide it used to leave is the Seated's: ABILITY)
   { heart: 1,       icon: 'heart',   name: 'The Thunderhead\'s Heart', does: 'You have one more heart.', how: [] },
   { flask: 1,       icon: 'flask',   name: 'Mother Thorn\'s Dew',    does: 'Your flask holds one more drink.', how: [] },
   { name: '', how: [] },

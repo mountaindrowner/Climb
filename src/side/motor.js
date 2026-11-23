@@ -5,7 +5,6 @@
 // walls and ceilings, one-way ledges (dropped through with down + jump), steps climbed as you walk, low tunnels you
 // crouch or roll through, spikes. Position: x is his middle, y his feet, both in world units, y up.
 import { TUNE } from '../config/tuning.js';
-import { WEAPONS } from '../config/weapons.js';
 import { IN, consume, pending } from '../core/input.js';
 import { FEEL } from '../config/feel.js';
 import { T, ROCK, LEDGE, SPIKES, LEVEL, tileAt, updraftAt, gustAt, flowAt, moversNow, liveAt, RULE, facedAt, waterOver, roughAt } from './level.js';
@@ -431,7 +430,24 @@ export const SPADE = { name: 'Warden\'s hammer', reach: 2.85, guard: false, digs
   { dmg: 3, wind: 0.34, active: 0.1, rec: 0.4, lunge: 0.6, anim: 'hm_atk2', hit: 4 / 8 },
   { dmg: 6, wind: 0.46, active: 0.1, rec: 0.5, lunge: 0.5, anim: 'hm_atk3', hit: 7 / 12, wave: true },
 ] };
-export const weaponOf = P => P.weapon === 'blade' ? BLADE : P.weapon === 'spade' ? SPADE : WEAPONS[P.weapon];
+// The Wyrm's tooth (build 91; docs/weapons-sheet.md): a spear, a great fang bound to a shaft. Reach in a line: a thrust,
+// a longer thrust, and a charge that carries him forward through what is small (`pierce`: it strikes all the way along,
+// main.js). With up, or from a crouch, a thrust straight up, the longest reach he has. In the air, down and attack is a
+// dive on it, and it bounces him off what it meets: a creature, or spikes (`pogo`). It is narrow (`narrow`: it misses
+// what is a little over or under its line, enemies.js), and it cannot block
+export const TOOTH = { name: 'Wyrm\'s tooth', reach: 3.5, guard: false, narrow: true, pogo: true, combo: [
+  { dmg: 2, wind: 0.16, active: 0.1, rec: 0.3, lunge: 0.5, anim: 'tt_atk1', hit: 4 / 10 },
+  { dmg: 2, wind: 0.24, active: 0.1, rec: 0.34, lunge: 0.9, reach: 4.3, anim: 'tt_atk2', hit: 5 / 11 },
+  { dmg: 3, wind: 0.16, active: 0.3, rec: 0.36, lunge: 0, dash: 10, pierce: true, anim: 'tt_atk3', hit: 4 / 12, hitEnd: 11 / 12 },
+], rise: { dmg: 3, wind: 0.2, active: 0.12, rec: 0.36, lunge: 0, reach: 4.3, anim: 'tt_up', hit: 5 / 12 } };
+export const POGO = { height: 3.4, dmg: 3 };   // how high the dive on the tooth throws him back up, and what it does to what it lands on
+// every weapon he can carry (build 91: there were two, and the code asked "is it the spade?" everywhere). `pre`: the
+// front of the names of his drawings with it in hand; `icon`: its picture; `title`: what the swap says
+export const ARMS = { blade: BLADE, spade: SPADE, tooth: TOOTH };
+Object.assign(BLADE, { id: 'blade', pre: '', icon: 'blade', title: 'the sword' }); Object.assign(SPADE, { id: 'spade', pre: 'hm_', icon: 'hammer', title: 'the hammer' }); Object.assign(TOOTH, { id: 'tooth', pre: 'tt_', icon: 'tooth', title: 'the tooth' });
+export const weaponOf = P => ARMS[P.weapon] || BLADE;
+// the tooth's dive has met something: he is thrown back up, with his second jump and his dash to use again
+export function pogo(P){ P.dive = null; P.atk = null; P.plant = 0; P.vy = launchSpeed(POGO.height, MV.launch.ground); P.launch = MV.launch.ground; P.jumpT = 0; P.grounded = false; P.bounce = true; P.flip = 0; P.airTop = P.y; P.airJumps = FEEL.doubleJump ? 1 : 0; P.airDash = 1; ev(P, 'pogo'); }
 export const swingOf = (P, A) => A.special ? weaponOf(P)[A.special] : weaponOf(P).combo[A.i];
 export const SIDE = { fallSafe: 9, feather: false, watching: false, leaf: false, stone: false, boots: false, calm: false, hour: false, bell: false, rope: false, tally: false };   // calm: a Breath of the Eye is worn: under the glide he sinks more slowly
 //   // boots: the Wright's Boots are worn: live iron does not shock him

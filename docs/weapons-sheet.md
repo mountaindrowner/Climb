@@ -196,3 +196,6 @@ sheet, `docs/tooth-set.gif`, now shows the set with them in).
 | The hammer's plunge | Its own at last: he rides the hammer down, its stone head below his boots |
 
 **For you:** yes to these five?
+
+**The tooth is done** (23 Nov): its set approved ("Good to go") and **in the game, build 91**, with the swap key going
+round every weapon he has. Next: the clapper's drawings, from the bell tongue on a chain.

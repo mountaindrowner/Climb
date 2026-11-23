@@ -3,7 +3,7 @@
 # hero (tools/pixellab-state.py, tools/pixellab-strips.py) and each begins with the standing picture: here the frames
 # wanted are picked, held to the palette, and given the place of his feet so they line up with his other drawings.
 # It adds to assets/side/<hero>/sprite.json and touches nothing else there (pixellab.py pull rewrites the whole folder).
-#   python3 tools/weapon-strips.py hammer
+#   python3 tools/weapon-strips.py hammer | tooth
 import json, os, sys
 from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.normpath(os.path.join(HERE, '..'))
@@ -18,7 +18,17 @@ SETS = {'hammer': {
   # its plunge (build 90): he rides the hammer down. Begun from the "in the air" drawing on a taller canvas, so it is
   # placed by hand: his boots are at row 80 and the shaft at column 54; he is drawn a little over where he is, the
   # stone head a little under
-  'hm_plunge': ('hm_plunge3', range(4, 9), {'foot': 88, 'cx': 54.5}) }}
+  'hm_plunge': ('hm_plunge3', range(4, 9), {'foot': 88, 'cx': 54.5}) },
+ # the Wyrm's tooth (build 91; approved 23 Nov, its thrusts, its upward and its downward strike in their second round)
+ 'tooth': {
+  'tt_idle': ('tt_idle', range(1, 9)), 'tt_run': ('tt_run', range(2, 9)), 'tt_air': ('tt_air', range(3, 9)), 'tt_land': ('tt_land', [4, 5, 6, 8, 1]),
+  'tt_crouch': ('tt_crouch', range(1, 6)), 'tt_crouch_walk': ('tt_crouch_walk', range(4, 9)), 'tt_roll': ('tt_roll', range(1, 13)), 'tt_hurt': ('tt_hurt', range(1, 9)),
+  'tt_atk1': ('tt_atk1b', range(2, 12)),          # ten: the thrust is out on the fifth
+  'tt_atk2': ('tt_atk2c', range(1, 12)),          # eleven: out on the sixth
+  'tt_atk3': ('tt_atk3b', range(1, 13)),          # twelve: the charge runs from the fifth to the eleventh
+  'tt_up': ('tt_up2', range(1, 13)),              # twelve: up on the sixth
+  # the dive: head first behind the spear. His body is drawn where he is; the spear reaches two and a half metres under him
+  'tt_plunge': ('tt_down4', range(3, 9), {'foot': 70, 'cx': 50}) }}
 def snap(im):
     pal = [tuple(int(c[i:i + 2], 16) for i in (1, 3, 5)) for c in PAL]; px = im.load(); cache = {}
     for y in range(im.height):

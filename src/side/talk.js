@@ -36,7 +36,7 @@ export const SCRIPT = {
     ['You fell from the top. The water brought you back. It always will.', 'The way up is through these caves. The Warden guards the top of them.', INTRO.lamplighter],   // who he is (teach.js): said the first time he is met, wherever that is
     ['This house rang its bell for the flame. The bell still rings.', 'Some doors here only open on the bell\'s beat. Wait for it.', 'The Toll hangs in the chapel at the top. Shards, if you have them.'],
     ['The pass is above us. The Wyrm coils on it.', 'On the open faces the wind pushes you down. Climb between gusts.', 'Shards, if you have them.'],
-    ['You have the Wyrm\'s wind. Hold jump in the air to glide.', 'Rising air will carry you up. I never could ride it. I always wanted to do the carrying.', 'Shards, if you have them.'],
+    ['The storm is above us. The Thunderhead turns in the middle of it.', 'Rising air will carry you up. I never could ride it. I always wanted to do the carrying.', 'Shards, if you have them.'],
     ['Sun. I had forgotten it has a smell.', 'Mother Thorn grows at the top of this garden. The summit is past her.', 'Shards, if you have them.'],
     ['This is my last lamp. The summit is just above us.', 'What waits there looks like you. It holds a lamp, and will not put it down.', 'Go up. You are expected.'],
   ],

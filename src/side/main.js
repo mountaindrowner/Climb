@@ -9,10 +9,10 @@ import { sfx, ac, musicBus, ambience, setMix, MIX, warm, manifestReady, say, bea
 import { voiceOf } from '../audio/voice.js';
 import { makeScore } from '../audio/score.js';
 import '../ui/feel.js';
-import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE, MEETINGS, SILL, prepare, RULE } from './level.js';
+import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE, MEETINGS, SILL, prepare, RULE, SPIKES } from './level.js';
 import { makeTeach, keyName, fill, INTRO, CARDS, drawIcon } from './teach.js';
 import { makeProps } from './props.js';
-import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt, hurt, isRollInv } from './motor.js';
+import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt, hurt, isRollInv, ARMS, POGO, pogo } from './motor.js';
 import { width as textWidth, width as pxWidth, text as pxText } from './pixelfont.js';
 const wrapText = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };
 const wrapFine = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t, 1, true) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };   // (the small print's widths)
@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 90, date: '23 NOV 2026', phase: 17, phases: 22, last: 'THE HAMMER\'S PLUNGE' };
+const VERSION = { build: 91, date: '23 NOV 2026', phase: 17, phases: 22, last: 'THE WYRM\'S TOOTH' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -51,7 +51,7 @@ const DEV = /[?&]level=/.test(location.search);   // straight into a region by i
 let GIFTING = false;   // a keeper's gift is on its way to him: it is his when he takes it (giftStep)
 const armed = id => id === 'blade' || (G.arms || []).includes(id);
 // the touch button for blade and spade: there once he has the spade
-function swapButton(){ const b = document.getElementById('swapbtn'); if (b) b.style.display = armed('spade') ? '' : 'none'; }
+function swapButton(){ const b = document.getElementById('swapbtn'); if (b) b.style.display = (G.arms || []).length ? '' : 'none'; }
 // the embers button, on a phone: only once he has something to spend them on
 let ARTBTN = null; function artButton(){ ARTBTN = ARTBTN || document.querySelector('.btn.art'); const want = embersKnown() ? '' : 'none'; if (ARTBTN && ARTBTN.style.display !== want) ARTBTN.style.display = want; }
 const born = (x, y) => { const p = newPlayer(x, y); p.weapon = armed(G.wield) ? G.wield : 'blade'; p.maxHp = maxHearts(); p.hp = p.maxHp; p.flaskMax = maxFlask(); p.flask = p.flaskMax; return p; };
@@ -85,7 +85,8 @@ const SUB = LEVELS.map(l => l.sub), CARD = LEVELS.map(l => l.card);   // under a
 function learn(){
   const b = n => !!G.beat[n] || G.top > n || (DEV && LEVEL.index > n);
   const got = c => !!(G.can && G.can[c]) || (DEV && LEVEL.index >= ARRIVES[c]); CAN.breaker = b(0); CAN.dash = got('dash'); CAN.glide = got('glide');   // (build 87: the dash and the glide are his when he is given them, G.can; not when a keeper has fallen) CAN.grip = !!G.beat[TEACH.findIndex(t => t.can === 'grip')];
-  if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the spade (a save from before has it now)
+  if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the hammer (a save from before has it now)
+  if ((b(2) || (DEV && LEVEL.index > 2)) && !armed('tooth') && !GIFTING){ (G.arms = G.arms || []).push('tooth'); swapButton(); }   // the Wyrm's is the tooth (build 91; a save whose Wyrm had fallen has it now)
   SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); SIDE.boots = has('boots'); SIDE.calm = has('stillair'); SIDE.bell = has('shiftbell'); SIDE.rope = has('lastrope'); if (CAN.breaker && !G.lamp){ G.lamp = 1; G.lampNew = 1; } if (P){ P.flaskMax = maxFlask(); P.flask = Math.min(P.flask, P.flaskMax); const mh = maxHearts(); if (mh > P.maxHp) P.hp += mh - P.maxHp; P.maxHp = mh; P.hp = Math.min(P.hp, mh); }
   // (the yoke, the second place: worn or taken off; then the Gardener's Seed. This last statement has twice been found
   // inside a comment, doing nothing: builds 49 to 66, and 69 to 77. tests/side-swallowed.test.mjs now looks for that)
@@ -212,7 +213,7 @@ function wingStep(dt){
   if (!G.deepWarn && P.grounded && !REGION_DATA[LEVEL.index].deep) for (const m of LEVEL.marks) if (m.type === 'pass' && !m.shut && REGION_DATA[m.to] && REGION_DATA[m.to].deep && Math.abs((m.x + (m.w || 2) / 2) * T - P.x) < 9 && P.y - m.y * T < 6 && P.y - m.y * T > -1 && !(BANNER && BANNER.t > 0)){ G.deepWarn = 1; store(); banner('A way down', 'This goes to the Deep, under the mountain. It is optional, and harder. The climb is the other way: up.', 8); }
   if (!G.deepTold && REGION_DATA[LEVEL.index].deep && P.grounded && !(BANNER && BANNER.t > 0)){ G.deepTold = 1; store(); banner('The Deep', 'You have left the climb. This place is optional. To go on with the climb, go back up.', 8); }
   // deep water, the first time: what it does with him (without the Wyrm's wind; and with it)
-  if (P.swim && P.depth > 1.3){ if (!CAN.glide && !G.floatTold){ G.floatTold = 1; store(); banner('Deep water', 'You float, but you cannot dive yet. You need the Wyrm\'s wind.', 5.5); } else if (CAN.glide && !G.swimTold){ G.swimTold = 1; store(); banner('Swimming', 'Jump: swim up. Down: dive. Let go to float in place.', 7); } }
+  if (P.swim && P.depth > 1.3){ if (!CAN.glide && !G.floatTold){ G.floatTold = 1; store(); banner('Deep water', 'You float, but you cannot dive yet. That takes a wind to carry you.', 5.5); } else if (CAN.glide && !G.swimTold){ G.swimTold = 1; store(); banner('Swimming', 'Jump: swim up. Down: dive. Let go to float in place.', 7); } }
   { const dark = !!REGION_DATA[LEVEL.index].dark;
     if (dark && G.lamp) R.glint(P.x, P.y + 1.4, P.under ? 0xd8ffd0 : 0xffe2b0, 1.25, (has('lampstone') ? 11.5 : 8.5) * (P.under ? 0.8 : 1), 0);   // (under the water it reaches a little less far, and goes green)
     if (G.lamp && PROPS.glamps.length) for (const Q of PROPS.glamps) if (!RULE.lit.has(Q.id) && Math.abs(Q.x - P.x) < 1.5 && Q.y > P.y - 0.5 && Q.y < P.y + 5.5){ RULE.lit.add(Q.id); (G.lit = G.lit || {})[LEVEL.index] = [...RULE.lit]; store(); sfx.relic(); fx.burst({ x: Q.x, y: Q.y }, 14, 0xffd9a0); R.glint(Q.x, Q.y, 0xffffff, 1.2, 7, 0.5);
@@ -768,10 +769,11 @@ function heroPose(P, t){
   const A = hero.meta ? hero.meta.anims : {}, has = n => !!A[n], pick = k => MOVES[k].find(has);
   // with the hammer in hand, its own drawing where there is one (build 89: a whole set, `hm_`, made from one picture of
   // him holding it, docs/weapons-sheet.md; until then nine drawings of the spade it used to be)
-  const held = n => P.weapon === 'spade' && has('hm_' + n) ? 'hm_' + n : n;
+  const pre = weaponOf(P).pre, held = n => pre && has(pre + n) ? pre + n : n;   // (build 91: by the weapon's own prefix, motor.js ARMS)
   if (WAKE > 0 && has('getup')) return ['getup', Math.min(0.999, Math.max(0, 1 - WAKE / 1.4))];   // where he fell: up off the ground
   if (RECEIVE > 0 && has('receive')) return ['receive', Math.min(0.999, 1 - RECEIVE / RECEIVE_T)];   // taking a keeper's gift
   if (P.art){ if (P.art.k === 'slam' && P.weapon === 'spade' && has('hm_atk3')) return ['hm_atk3', (6 + Math.min(5.99, P.art.t / P.art.dur * 6)) / 12];   // the slam, with the hammer: its great blow
+    if (P.weapon === 'tooth'){ const u = Math.min(0.999, P.art.t / P.art.dur), a = { cleave: ['tt_atk3', (4 + u * 7) / 12], gust: ['tt_up', (5 + u * 6) / 12], slam: ['tt_land', u] }[P.art.k]; if (a && has(a[0])) return a; }   // the arts, with the tooth: its charge, its upward thrust, a landing
     const name = { cleave: 'atk_dash_px', gust: 'atk_rise_px', slam: 'plunge_land' }[P.art.k]; if (has(name)) return [name, Math.min(0.999, P.art.t / P.art.dur)]; }   // an ember art
   if (P.mantle && pick('climb')){
     const name = pick('climb'), C = CLIMB[name] || A[name].climb, M = P.mantle;   // climb_own carries its table (tools/compose-climb.py)
@@ -790,6 +792,8 @@ function heroPose(P, t){
   // the blade reaches below his feet
   // the hammer's plunge: he rides it down, its stone head under his boots (build 90: a drawing of its own, begun from
   // the "in the air" one; until then it borrowed two frames of the great blow). It lands with that blow's end
+  if (P.dive && P.weapon === 'tooth' && has('tt_plunge')){ const n = A.tt_plunge.frames; return ['tt_plunge', ((Math.floor((P.dive.t || 0) * 10) % n) + 0.5) / n]; }   // the tooth's dive: head first behind the spear
+  if (P.grounded && PLUNGE_T > 0 && P.weapon === 'tooth' && has('tt_land') && !(Math.abs(P.vx) > 1.5 && P.plant <= 0)) return ['tt_land', Math.min(0.999, 1 - PLUNGE_T / PLUNGE_LAND)];
   if (P.dive && P.weapon === 'spade' && has('hm_plunge')){ const n = A.hm_plunge.frames; return ['hm_plunge', ((Math.floor((P.dive.t || 0) * 10) % n) + 0.5) / n]; }
   if (P.grounded && PLUNGE_T > 0 && P.weapon === 'spade' && has('hm_atk3') && !(Math.abs(P.vx) > 1.5 && P.plant <= 0)) return ['hm_atk3', (7 + Math.min(4.99, (1 - PLUNGE_T / PLUNGE_LAND) * 5)) / 12];   // its landing: the hammer driven in
   if (P.dive && has('plunge_fall')){ const t = P.dive.t || 0, f = t < 0.12 ? Math.floor(t / 0.12 * 2) : 2 + Math.floor((t - 0.12) * 12) % 6; return ['plunge_fall', (f + 0.5) / 8, { foot: 46 }]; }
@@ -868,7 +872,7 @@ function frame(ts){
   if (!USE && P.hp > 0 && P.grounded && !FLIGHT && !GO.st && WAKE <= 0 && (G.relics.length || G.under)){ const S = SHRINES.find(S => Math.abs(P.x - S.x) < S.half && Math.abs(P.y - S.y) < 1.5); if (S) USE = { type: 'flame', x: S.x, y: S.y, S }; }   // at a flame: the knots
   if (USE && IN.pressed.has('down')){ IN.pressed.delete('down'); if (USE.type === 'npc') talkTo(USE); else if (USE.type === 'flame'){ ATWATER = USE.S; knotMenu(); } else ITEMS.open(USE, evs); }
   const h = 1 / 120;
-  while (acc >= h){ const x0 = P.x; if (DEATH <= 0 && !FLIGHT && !DISS && !UNDER && !GO.st && WAKE <= 0 && RECEIVE <= 0 && !ENT.lead) stepPlayer(P, h); else if (ENT.lead){ P.vx = 0; if (ENT.face) P.face = ENT.face; if (ENT.brace && !P.blocking){ P.blocking = true; P.blockAt = performance.now() / 1000; } } P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
+  while (acc >= h){ const x0 = P.x; if (DEATH <= 0 && !FLIGHT && !DISS && !UNDER && !GO.st && WAKE <= 0 && RECEIVE <= 0 && !ENT.lead) { stepPlayer(P, h); toothStep(); } else if (ENT.lead){ P.vx = 0; if (ENT.face) P.face = ENT.face; if (ENT.brace && !P.blocking){ P.blocking = true; P.blockAt = performance.now() / 1000; } } P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
   endFrame();
   if (P.hp > 0 && !FLIGHT && !GO.st && (TRAILT -= dt) <= 0){ TRAILT = 0.05; const [an, fr] = heroPose(P, time); TRAIL.push({ x: P.x, y: P.y, face: P.face, an, fr });
     if (TRAIL.length > 2400) TRAIL.splice(0, 1200, ...TRAIL.slice(0, 1200).filter((_, i) => i % 2)); }   // a long way: the far end of it kept more thinly
@@ -1057,8 +1061,8 @@ function drawCard(c, W, modal, top = 8){
 let CARRY = [];
 const carryCards = () => [
   ...[...Object.values(ABILITY), ...TEACH].filter(t => t.can && t.can !== 'breaker' && CAN[t.can]).map(t => ({ head: 'AN ABILITY', title: t.name, icon: t.icon, does: t.does, how: [...t.how, ...(t.more || [])] })),
-  { head: 'A WEAPON' + (P.weapon !== 'spade' ? ' · IN USE' : ''), title: 'The sword', icon: 'blade', does: 'Fast three-hit combos. You can block with it. It cannot break stone.', how: ['{attack}: attack. {block}: block.'] },
-  ...(armed('spade') ? [{ head: 'A WEAPON' + (P.weapon === 'spade' ? ' · IN USE' : ''), title: TEACH[0].name, icon: 'hammer', does: TEACH[0].does, how: [...TEACH[0].how, ...(TEACH[0].more || [])] }] : []),
+  { head: 'A WEAPON' + (P.weapon === 'blade' ? ' · IN USE' : ''), title: 'The sword', icon: 'blade', does: 'Fast three-hit combos. You can block with it. It cannot break stone.', how: ['{attack}: attack. {block}: block.'] },
+  ...(G.arms || []).map(id => TEACH.find(t => t.arm === id)).filter(Boolean).map(t => ({ head: 'A WEAPON' + (P.weapon === t.arm ? ' · IN USE' : ''), title: t.name, icon: t.icon, does: t.does, how: [...t.how, ...(t.more || [])] })),
   ...G.relics.filter(id => RELICS[id]).map(id => ({ head: has(id) ? 'A RELIC · EQUIPPED' : 'A RELIC · NOT EQUIPPED', title: RELICS[id].name, icon: id, does: RELICS[id].line, lore: RELICS[id].lore })),
 ].map(c => ({ ...c, how: (c.how || []).map(keyed) }));
 // (build 83, docs/screens-sheet.md: his things as pictures in a grid on the left, under three headings; the one
@@ -1096,7 +1100,7 @@ function giftStart(t, from = null){   // from: out of a chest (a wing's prize), 
 }
 // he has left before it reached him (a way on, the title): it is his all the same, and its card comes
 function giftEnd(){ if (GIFTING){ GIFTING = false; learn(); } RECEIVE = 0; if (!GIFT) return; const t = GIFT.teach; R.scene.remove(GIFT.m); GIFT.m.material.map.dispose(); GIFT.m.material.dispose(); GIFT.m.geometry.dispose(); GIFT = null;
-  if (t.can === 'breaker'){ P.weapon = G.wield = 'spade'; } store(); card({ head: t.can ? 'NEW ABILITY' : 'YOU GOT', title: t.name, icon: t.icon, does: t.does, how: t.how }); if (t.can) firstCard('embers'); }
+  if (t.arm){ if (!armed(t.arm)) (G.arms = G.arms || []).push(t.arm); P.weapon = G.wield = t.arm; swapButton(); } store(); card({ head: t.can ? 'NEW ABILITY' : 'YOU GOT', title: t.name, icon: t.icon, does: t.does, how: t.how }); if (t.can) firstCard('embers'); }
 function giftStep(dt){
   const Gf = GIFT; if (!Gf) return; Gf.t += dt; const at = { x: Gf.x, y: Gf.y };
   if (Gf.st === 'gather'){ const u = Math.min(1, Gf.t / 1.5); Gf.m.material.opacity = u; Gf.m.scale.setScalar(0.4 + 0.9 * u);
@@ -1110,9 +1114,24 @@ function giftStep(dt){
     Gf.x = P.x + P.face * 0.1; Gf.y = P.y + (u < 0.35 ? 3.1 - u / 0.35 * 0.45 : 2.65 - (u - 0.35) / 0.65 * 1.0); Gf.m.scale.setScalar(1.3 - 0.5 * u); Gf.m.material.opacity = u < 0.7 ? 1 : Math.max(0, 1 - (u - 0.7) / 0.3);
     if (u >= 1){ const t = Gf.teach; R.scene.remove(Gf.m); Gf.m.material.map.dispose(); Gf.m.material.dispose(); Gf.m.geometry.dispose(); GIFT = null;
       fx.ring({ x: P.x, y: P.y + 1.5 }, 0xfee761); fx.burst({ x: P.x, y: P.y + 1.5 }, 24, 0xfee761); R.glint(P.x, P.y + 1.5, 0xfee761, 1.3, 7, 0.6); sfx.ability();
-      GIFTING = false; learn(); if (t.can === 'breaker'){ P.weapon = G.wield = 'spade'; store(); }   // the spade: in his hand, for the wall in front of him
+      GIFTING = false; learn(); if (t.arm){ if (!armed(t.arm)) (G.arms = G.arms || []).push(t.arm); P.weapon = G.wield = t.arm; swapButton(); store(); }   // a weapon: in his hand at once (the hammer, for the wall in front of him)
       card({ head: t.can ? 'NEW ABILITY' : 'YOU GOT', title: t.name, icon: t.icon, does: t.does, how: t.how }); if (t.can) firstCard('embers'); } }
   if (GIFT){ Gf.m.position.x = Gf.x; Gf.m.position.y = Gf.y; if (Math.floor(Gf.t * 10) !== Math.floor((Gf.t - dt) * 10)) R.glint(Gf.x, Gf.y, 0xfee761, 0.5, 3, 0.15); }
+}
+// ---- the tooth (build 91). Two of its moves strike as they go, not at one moment:
+//   the dive   what is under the spear's point, a creature or spikes, and he is thrown back up off it (motor.js pogo)
+//   the charge everything it passes through, once each
+function toothStep(){
+  if (!P || !E || P.weapon !== 'tooth' || P.hp <= 0) return;
+  if (P.dive && !P.dive.art){
+    const out = [], seen = new Set(); hitBox(E, P.x - 0.75, P.x + 0.75, P.y - 2.0, P.y + 0.4, POGO.dmg + (G.edge ? 1 : 0), out, seen, P.x);
+    let spikes = false; for (const dy of [0.3, 0.8, 1.3]) for (const dx of [-0.3, 0.3]) if (tileAt(Math.floor((P.x + dx) / T), Math.floor((P.y - dy) / T)) === SPIKES) spikes = true;
+    const boss = BOSS && BOSS.slam && BOSS.active && BOSS.active() ? BOSS.slam({ ...P, y: P.y - 1.2 }, 0.9, POGO.dmg, out) : false;   // a keeper under him: as a plunge lands on it
+    if (seen.size || spikes || boss){ pogo(P); for (const o of out) onEvent(o); }
+  }
+  const A = P.atk, sw = A && swingOf(P, A);
+  if (A && sw && sw.pierce && A.phase === 'active'){ A.seen = A.seen || new Set(); const out = [], x0 = Math.min(P.x, P.x + P.face * (weaponOf(P).reach)), x1 = Math.max(P.x, P.x + P.face * weaponOf(P).reach);
+    hitBox(E, x0, x1, P.y + 0.5, P.y + 2.1, sw.dmg + (has('whetstone') ? 1 : 0), out, A.seen, P.x - P.face); for (const o of out) onEvent(o); }
 }
 const onPlank = P => { const j = Math.floor((P.y - 0.02) / T); for (const x of [P.x - BODY.hw + 0.01, P.x + BODY.hw - 0.01]) if (tileAt(Math.floor(x / T), j) === LEDGE) return true; return false; };
 // ---- the ember arts. Which: down = the slam (the Warden's weight), in the air = the gust (the Wyrm's wind), else the
@@ -1133,7 +1152,7 @@ function art(e){
     fx.ring({ x: P.x, y: P.y + 1 }, 0xc0f4ff); fx.burst({ x: P.x, y: P.y + 1 }, 24, 0xc0cbdc); R.shock(P.x, P.y + 1, false); }
 }
 // the slam's blow, run out along the floor both ways: it strikes what it reaches, breaks cracked stone, stops at a wall
-function waves(x, y, dirs = [-1, 1], life = 0.8){ const dig = P.weapon === 'spade'; for (const dir of dirs) WAVES.push({ x: x + dir * 0.6, y, dir, t: 0, life, dig, seen: new Set(), boss: false }); }
+function waves(x, y, dirs = [-1, 1], life = 0.8){ const dig = !!weaponOf(P).digs; for (const dir of dirs) WAVES.push({ x: x + dir * 0.6, y, dir, t: 0, life, dig, seen: new Set(), boss: false }); }
 function stepArts(dt){
   const out = [];
   if (P.art && P.art.k === 'cleave'){ const a = P.art;   // all that he rushes through
@@ -1169,6 +1188,7 @@ function talkTo(N){
   if (INTRO[N.who] && !Object.keys(G.met).some(m => m.endsWith(':' + N.who)) && !lines.includes(INTRO[N.who])) lines.unshift(INTRO[N.who]);   // the first meeting anywhere: who they are (teach.js)
   if (N.who === 'scribe'){ const L = ITEMS.left(), pl = (c, w) => `${c} ${w}${c === 1 ? '' : 's'}`; lines.push(L.threads + L.chests === 0 ? 'You have found everything in this region.' : `Still to find in this region: ${pl(L.threads, 'red strand')}, ${pl(L.chests, 'chest')}${L.relic ? ', and a relic behind a way that is still blocked' : ''}.`);
     if (G.lectern && !G.lecternSaid){ G.lecternSaid = 1; lines.push('You found the book they copy. Its first page is blank. No one has dared to write on it.'); } }
+  if (N.who === 'lamplighter' && LEVEL.index === 3 && !CAN.glide) lines.splice(Math.max(0, lines.length - 1), 0, 'The air up here would carry a man who could spread himself on it. You cannot yet.', 'One who sat down in the ice of the Spires kept such a wind. East of the horn, past thin ice.');   // (build 91: the glide is the Seated's)
   if (N.who === 'lamplighter' && LEVEL.index === 2 && !CAN.dash) lines.splice(Math.max(0, lines.length - 1), 0, 'Ice has grown across the way above. Weight will not break it.', 'The founders, east of the bell tower below, cast a thing that could. They threw it down in their pit.');   // (build 87: the way to the Spires wants the Cracked Bell's gift. A hint of where, not of how: decision 0.18)
   if (N.who === 'wren' && LEVEL.index === 2 && G.lit && (G.lit[2] || []).length && !G.satSaid){ G.satSaid = 1; lines.push('I sat down in the galleries once, to rest. I got up. I do not know yet which was harder.'); }
   if (N.who === 'wren' && G.still && G.still[1] && !G.stillSaid){ G.stillSaid = 1; lines.push('The cracked bell has stopped. I kept my count by it. Now I keep it myself.'); }
@@ -1221,34 +1241,36 @@ function onEvent(e){
     case 'surface': sfx.splash(); fx.burst({ x: P.x, y: P.y + 1.4 }, 10, 0xdff4ff); break;
     case 'land': sfx.step(); fx.puff(at, e.hard ? 20 : 8, e.hard ? 3.2 : 2); if (e.hard) FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.12); if (e.hard || (e.drop || 0) > 0.8 || FX2.flipped){ landT = LAND_T; } FX2.flipped = false; break;
     case 'slam': { if (e.art) waves(P.x, P.y); PLUNGE_T = PLUNGE_LAND; landT = 0; sfx.slam(); fx.puff(at, 24, 3.6); R.shock(P.x, P.y + 0.3, true); fx.ring(at, 0xffd27a);
-      buzz(0.55, 0.45, 150); const storm = has('stormglass'), spade = P.weapon === 'spade', rad = MV.dive.radius * (storm ? 1.5 : 1) * (spade ? 0.8 : 1), dmg = MV.dive.dmg + (storm ? 1 : 0) + (G.edge && !spade ? 1 : 0), out = [];   // the spade's plunge: narrower, and it breaks what is under him
+      buzz(0.55, 0.45, 150); const storm = has('stormglass'), spade = P.weapon === 'spade', rad = MV.dive.radius * (storm ? 1.5 : 1) * (spade ? 0.8 : P.weapon === 'tooth' ? 0.5 : 1), dmg = MV.dive.dmg + (storm ? 1 : 0) + (G.edge && !spade ? 1 : 0), out = [];   // the spade's plunge: narrower, and it breaks what is under him
       if (storm){ sfx.thunder(); R.glint(P.x, P.y + 1, 0xcfe6ff, 1.4, 8, 0.25); FLASH = Math.max(FLASH, 0.1); for (let k = 0; k < 14; k++) fx.burst({ x: P.x + (Math.random() - 0.5) * 0.5, y: P.y + k * 0.7 }, 3, 0xcfe6ff); }
       slamEnemies(E, P, rad, dmg, out); if (BOSS) BOSS.slam(P, rad, dmg, out); ITEMS.slam(P, rad, out); breakRock(P.x, P.y + 0.2, 1.5, spade); for (const o of out) onEvent(o); break; }
     case 'roll': sfx.whoosh(); fx.kick(at, -P.rollDir, 10, 2.6); break;
     case 'dashCut': sfx.dash(); fx.kick(at, -P.face, 14, 3.4); FX2.ghostT = 0; break;
     case 'dive': sfx.whoosh(); break;
+    case 'pogo': sfx.parry(); sfx.jump(); fx.ring({ x: P.x, y: P.y - 0.4 }, 0xdff4ff); fx.burst({ x: P.x, y: P.y - 0.6 }, 12, 0xdff4ff); R.glint(P.x, P.y - 0.5, 0xdff4ff, 0.9, 4.5, 0.25); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.12); FEEL_FX.hitstop = 0.05; PLUNGE_T = 0; break;
     case 'glide': sfx.glide(); if (LEVEL.updrafts.some(u => P.x >= u.x0 && P.x < u.x1 && P.y + 1 >= u.y0 && P.y + 1 < u.y1)) sfx.gust(); break;
     case 'airDash': sfx.dash(); fx.ring({ x: P.x, y: P.y + 1 }, 0xffd27a); FX2.dashGhost = 0.2; break;
     case 'bloom': sfx.bloom(); PROPS.bounce(e.m); fx.puff(at, 14, 3); fx.burst({ x: P.x, y: P.y + 0.3 }, 10, 0xf6757a); R.glint(P.x, P.y + 0.5, 0xfeae34, 0.7, 4, 0.3); break;
     case 'strike': {
       // the blow: the swoosh of light, the air bending round it, the floor kicked up, a thump, the view nudged
-      const big = e.finisher, tilt = { hm_atk3: -0.9, hm_atk2: 0.9, atk_spade: -0.9, atk_slam_v3: -0.7, atk_slam_px: -0.7, atk_rise_px: 1.0, atk_spin_px: 0.1, atk_dash_px: 0.25 }[e.sw.anim] || 0;
-      sfx.swing(big); if (!SWINGFX.has(e.sw.anim)) fx.crescent({ x: P.x + P.face * 1.15, y: P.y + 1.25 }, P.face, big, tilt);   // the combo's cuts have their own drawn effect
+      const big = e.finisher, thrust = !!weaponOf(P).narrow, tilt = { hm_atk3: -0.9, hm_atk2: 0.9, atk_spade: -0.9, atk_slam_v3: -0.7, atk_slam_px: -0.7, atk_rise_px: 1.0, atk_spin_px: 0.1, atk_dash_px: 0.25 }[e.sw.anim] || 0;
+      sfx.swing(big); if (!SWINGFX.has(e.sw.anim) && !thrust) fx.crescent({ x: P.x + P.face * 1.15, y: P.y + 1.25 }, P.face, big, tilt);   // the combo's cuts have their own drawn effect
       { const upw = !!(P.atk && P.atk.up), gx = upw ? P.x + P.face * 0.3 : P.x + P.face * 1.3, gy = upw ? P.y + 2.9 : P.y + 1.3; R.glint(gx, gy, big ? 0xffd27a : 0xbfe8ff, big ? 0.9 : 0.6, 4.5, 0.22); R.shock(gx, gy - 0.1, big); }
       if (P.grounded) fx.kick(at, -P.face, big ? 12 : 7, big ? 3 : 2.2);
       FEEL_FX.shake = Math.max(FEEL_FX.shake, big ? 0.14 : 0.07); FEEL_FX.kick = P.face * (big ? 0.22 : 0.12);
       // the dash cut strikes all along where he dashed
-      const from = e.sw.dash && P.dashFrom != null ? { ...P, x: P.dashFrom } : P, reach = weaponOf(P).reach + (e.sw.dash && P.dashFrom != null ? Math.abs(P.x - P.dashFrom) : 0);
+      const along = e.sw.dash && !e.sw.pierce && P.dashFrom != null, from = along ? { ...P, x: P.dashFrom } : P, reach = (e.sw.reach || weaponOf(P).reach) + (along ? Math.abs(P.x - P.dashFrom) : 0);   // (a thrust has its own reach; the tooth's charge strikes as it goes, toothStep)
+      if (thrust && !(P.atk && P.atk.up)){ R.glint(P.x + P.face * reach, P.y + 1.3, 0xdff4ff, 0.8, 4, 0.2); fx.burst({ x: P.x + P.face * reach, y: P.y + 1.3 }, 5, 0xdff4ff); } if (thrust && P.atk && P.atk.up){ R.glint(P.x, P.y + 2.4 + reach, 0xdff4ff, 0.8, 4, 0.2); }
       const digs = !!weaponOf(P).digs, dmg = digs ? (P.grounded ? e.sw.dmg : Math.max(1, e.sw.dmg - 2)) + (big && has('whetstone') ? 1 : 0) : e.sw.dmg + (big && has('whetstone') ? 1 : 0) + (G.edge >= 2 || (G.edge && big) ? 1 : 0), out = [];   // the whetstone; the blade's tempering; the spade weak in the air
-      strikeEnemies(E, from, reach, dmg, out, !!(P.atk && P.atk.up), weaponOf(P).knock ? weaponOf(P) : null); if (BOSS) BOSS.strike(from, reach, dmg, out); ITEMS.strike(from, reach, out);
+      strikeEnemies(E, from, reach, dmg, out, !!(P.atk && P.atk.up), weaponOf(P).knock || weaponOf(P).narrow ? weaponOf(P) : null); if (BOSS) BOSS.strike(from, reach, dmg, out); ITEMS.strike(from, reach, out);
       breakRock(P.x + P.face * (digs ? 1.8 : 1.2), P.y + (digs ? 0.6 : 1.2), digs ? 1.5 : 1.3, digs);   // the spade digs where it lands; the blade rings off
       if (e.sw.wave && P.grounded){ waves(P.x + P.face * 1.6, P.y, [P.face], 0.38); sfx.slam(); R.shock(P.x + P.face * 1.8, P.y + 0.3, true); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.3); }   // its last blow runs on along the ground, a little way
       for (const o of out) onEvent(o); break; }
     case 'hit': if (!e.art) EMBER.n = Math.min(EMBER.cap, EMBER.n + (has('flint') ? 2 : 1));   // a landed blow gives an ember (not an art's)
       buzz(e.heavy ? 0.35 : 0.15, e.heavy ? 0.5 : 0.3, e.heavy ? 90 : 50); sfx.hit(); fx.burst(e.at, e.heavy ? 18 : 12, 0xffe0a8); R.glint(e.at.x, e.at.y, 0xffe0a8, e.heavy ? 0.9 : 0.6, 3.5, 0.16); FEEL_FX.hitstop = e.heavy ? 0.09 : 0.05; FEEL_FX.shake = Math.max(FEEL_FX.shake, e.heavy ? 0.18 : 0.1); break;
-    case 'swap': {   // blade and spade, if he has the spade
-      const to = P.weapon === 'spade' ? 'blade' : 'spade'; if (!armed(to)){ if (!HINTED.swap){ HINTED.swap = 1; banner('', 'You only have the sword.', 2.2); } break; }
-      P.weapon = G.wield = to; store(); sfx.whoosh(); fx.ring({ x: P.x, y: P.y + 1.1 }, to === 'spade' ? 0xc0cbdc : 0xffd27a); banner('', to === 'spade' ? 'the hammer' : 'the sword', 1.4); break; }
+    case 'swap': {   // round the weapons he has: the sword, then each a keeper has left him, in the order he got them
+      const order = ['blade', ...(G.arms || [])], to = order[(Math.max(0, order.indexOf(P.weapon)) + 1) % order.length]; if (order.length < 2){ if (!HINTED.swap){ HINTED.swap = 1; banner('', 'You only have the sword.', 2.2); } break; }
+      P.weapon = G.wield = to; P.atk = null; store(); sfx.whoosh(); fx.ring({ x: P.x, y: P.y + 1.1 }, { blade: 0xffd27a, spade: 0xc0cbdc, tooth: 0xdff4ff }[to] || 0xffd27a); banner('', ARMS[to].title, 1.4); break; }
     // iron has been touched in the Bell-Foundry (regions/foundry.js): it rings, a while; the shutters come down
     case 'ring': { if (RULE.still) break; const was = RULE.ring > 0, d = Math.hypot(e.at.x - P.x, e.at.y - P.y); RULE.ring = Math.max(RULE.ring, RING[e.big ? 1 : 0]);
       sfx.crackbell(!!e.big); if (e.big) sfx.clang(); fx.ring(e.at, 0xfeae34); if (e.big) fx.ring(e.at, 0xffffff); R.shock(e.at.x, e.at.y, !!e.big); R.glint(e.at.x, e.at.y, 0xfeae34, e.big ? 1.2 : 0.7, e.big ? 9 : 5, 0.3); FEEL_FX.shake = Math.max(FEEL_FX.shake, e.big ? 0.3 : d < 10 ? 0.12 : 0.05);
@@ -1389,7 +1411,7 @@ function drawHud(dt){
   if (BOSS && BOSS.st === 'fight' && !BOSS.shown && !ENT.title){ BOSS.shown = true; banner('', BOSS.hint, 3.5); }   // once it is up: how it is hurt
   if (!rising && !TALK.on && !FLIGHT){
     const onKeys = DEVICE.kind !== 'touch';
-    HUD.status(P, EMBER.n, EMBER.cap, P.flaskMax, time, ARTS.cost, embersKnown(), { art: onKeys ? kname('art') : null }); HUD.weapon(P.weapon === 'spade' ? 'hammer' : 'blade', armed('spade') ? kname('swap') : null, drawIcon); PURSE = Math.max(0, PURSE - dt);
+    HUD.status(P, EMBER.n, EMBER.cap, P.flaskMax, time, ARTS.cost, embersKnown(), { art: onKeys ? kname('art') : null }); HUD.weapon(weaponOf(P).icon, (G.arms || []).length ? kname('swap') : null, drawIcon); PURSE = Math.max(0, PURSE - dt);
     HUD.purse(P, P.flaskMax, G.shards, PURSE, G.threads % THREADS_A_HEART, THREADS_A_HEART, onKeys && P.hp < P.maxHp && P.flask > 0 ? kname('flask') : null);   // the flask's key stands by it while a drink would help
     hudTips(dt);
     const room = roomAt(P.x, P.y); if (room && !MAP.seen.has(room)){ MAP.seen.add(room); const k = LEVEL.rooms.indexOf(room), list = ((G.rooms = G.rooms || {})[LEVEL.index] = G.rooms[LEVEL.index] || []); if (k >= 0 && !list.includes(k)){ list.push(k); DIRTY = DIRTY > 0 ? DIRTY : 2; } }
