@@ -1,0 +1,21 @@
+{
+ "frames": {
+  "th_idle": 9,
+  "th_run": 9,
+  "th_jump": 13,
+  "th_land": 9,
+  "th_crouch": 9,
+  "th_crouch_walk": 9,
+  "th_hurt": 9,
+  "th_roll": 13,
+  "th_atk1": 13,
+  "th_atk2": 13,
+  "th_atk3": 13,
+  "th_up": 13,
+  "th_plunge": 9,
+  "th_plunge2": 9,
+  "th_plunge3": 9,
+  "th_plunge4": 9
+ },
+ "note": "frames in each strip as made"
+}

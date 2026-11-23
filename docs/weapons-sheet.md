@@ -254,3 +254,23 @@ is in the game.
 **For you:** yes to the set? Anything to send back? And arrows free, or not?
 
 **The bow is done** (23 Nov): its set approved, arrows free, and **in the game, build 93**. Last: the thorns' drawings.
+
+## Step 3: the thorns' drawings (`docs/thorns-set.gif`, `docs/thorns-set.png`)
+
+Made from the picture you picked (a pair of bone hooks). The strips are in `docs/weapons/thorns/`; none is in the
+game. The last of the six.
+
+| Drawing | How it came out |
+|---|---|
+| Standing, running, landing, crouched, crouch walk, roll | Good. A hooked blade in each hand, the same two throughout |
+| Hurt | Good: he throws both arms wide |
+| In the air | Good. He springs up and hangs, blades out |
+| Cuts 1 and 2, cuts 3 and 4 | Good. Two crossing cuts each, with a sweep of bone-coloured light painted on the cut |
+| The burst | Good. He gathers, flurries both blades, and ends with both thrust forward |
+| Rising double cut | Good. A crouch, then both blades up over his head in a crossing arc |
+| Plunge | Good, on the fourth try: he drops upright with both blades point-down beside his boots. (The first turned the hooks into long straight spikes; the second just landed; the third spread his arms wide) |
+
+- **Not made:** getting up (as with the others).
+- About 8,330 generations are left.
+
+**For you:** yes to the set? Anything to send back?

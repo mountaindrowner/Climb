@@ -1690,6 +1690,87 @@
   "id": "65813fd1-971e-42da-9db4-2af332f5d2df",
   "description": "the hero (mask_tall_c), a state of him: he holds two hooked short swords instead of the curved blade, one in each hand, both pointing forward and clearly visible: pale bone-white blades shaped like big rose thorns with dark red grips. No sword.",
   "state": "thorns_d",
-  "anims": {}
+  "anims": {
+   "th_plunge4": {
+    "action": "a falling double stab: still high in the air and dropping, he brings his two short hooked bone-white blades, each only as long as his forearm and curved like a rose thorn, with dark red grips together and stabs both short curved points straight down below his boots, then holds that pose as he falls, the blades staying short and curved, his coat and red scarf streaming straight up",
+    "frames": 8,
+    "group": "9980f80e-f088-4dbe-8646-7a5a007e984e"
+   },
+   "th_idle": {
+    "action": "standing at rest and breathing slowly, holding the two hooked short blades, one in each hand, pale bone-white blades shaped like big rose thorns with dark red grips low at his sides, points forward: only his chest and shoulders rise and fall, the red scarf stirs a little",
+    "frames": 8,
+    "group": "3a574f4f-654a-4573-8510-cc6abd7a2a35"
+   },
+   "th_atk1": {
+    "action": "two fast slashes in quick succession with the two hooked short blades, one in each hand, pale bone-white blades shaped like big rose thorns with dark red grips: first the front blade cuts forward and down across in front of him, then at once the back blade cuts forward and up across in front of him, crossing the first, his body twisting with each cut, then he settles",
+    "frames": 12,
+    "group": "b8084d43-43d6-43b2-af20-be4b9721eb88"
+   },
+   "th_crouch": {
+    "action": "crouching low and holding still: he bends his knees deep and sinks his hips until he is half his height, holding the two hooked short blades, one in each hand, pale bone-white blades shaped like big rose thorns with dark red grips crossed low in front of him",
+    "frames": 8,
+    "group": "35a90ed4-eba2-4af3-aeca-8cade60e4410"
+   },
+   "th_hurt": {
+    "action": "struck hard from the front: his head snaps back and he flinches, staggering half a step backward with his knees buckling, still gripping the two hooked short blades, one in each hand, pale bone-white blades shaped like big rose thorns with dark red grips, then steadies",
+    "frames": 8,
+    "group": "11cd745f-add7-4260-8221-604fb6cf9c9f"
+   },
+   "th_up": {
+    "action": "a rising double slash with the two hooked short blades, one in each hand, pale bone-white blades shaped like big rose thorns with dark red grips: he crouches low with both blades down, then springs up onto his toes and slashes both blades up over his head in a crossing arc, then lands back on his feet",
+    "frames": 12,
+    "group": "f65e182a-5d23-45bb-b62a-33ce60b8013a"
+   },
+   "th_plunge": {
+    "action": "in mid-air, a diving strike: he raises the two hooked short blades, one in each hand, pale bone-white blades shaped like big rose thorns with dark red grips over his head, turns both points down, and drops straight down driving both blades down beneath him together, the bone-white points below his boots, his knees tucked, his coat and red scarf streaming straight up",
+    "frames": 8,
+    "group": "18214115-d1a3-40d3-bce8-3e34c66fb1ac"
+   },
+   "th_plunge2": {
+    "action": "falling straight down through the air in a crouched ball, holding the two hooked short blades, one in each hand, pale bone-white blades shaped like big rose thorns with dark red grips point-down below him, one each side of his boots, ready to strike what is beneath him, his coat and red scarf streaming straight up",
+    "frames": 8,
+    "group": "f10be110-e9a0-496c-aa2b-a9f8f530e9f0"
+   },
+   "th_plunge3": {
+    "action": "in mid-air, falling fast straight down: he holds his two short hooked bone-white blades, each only as long as his forearm and curved like a rose thorn, with dark red grips in reverse grip, both curved points hooked downward just below his knees, his knees tucked up and his elbows out, the blades staying short and curved, his coat and red scarf streaming straight up above him",
+    "frames": 8,
+    "group": "496be482-1386-4fd9-a48c-cdc7e331c724"
+   },
+   "th_atk3": {
+    "action": "a burst attack with the two hooked short blades, one in each hand, pale bone-white blades shaped like big rose thorns with dark red grips in three beats. First: he crosses both blades in front of his chest and crouches, gathering. Second: he lunges forward and flurries both blades in a rapid storm of crossing cuts in front of him. Third: he ends with both blades thrust forward together, then settles",
+    "frames": 12,
+    "group": "04684b22-65f8-4ad6-8651-36ae63dc0413"
+   },
+   "th_jump": {
+    "action": "a jump: he bends his knees and springs high up off the ground, rising well above where he stood, his knees drawn up under him, holding the two hooked short blades, one in each hand, pale bone-white blades shaped like big rose thorns with dark red grips out to his sides, his coat and red scarf lifting, then he hangs at the top of the jump with his feet off the ground",
+    "frames": 12,
+    "group": "c7c84b1c-de79-47ee-9bd2-26b9e9a6be85"
+   },
+   "th_roll": {
+    "action": "a fast combat roll: he dives forward, tucks into a tight ball with the two hooked short blades, one in each hand, pale bone-white blades shaped like big rose thorns with dark red grips held close to his chest and rolls over his shoulder along the ground, coming up on his feet",
+    "frames": 12,
+    "group": "352d41ed-8c49-433d-a8fb-3aa98a8a82ab"
+   },
+   "th_run": {
+    "action": "running fast and low, holding the two hooked short blades, one in each hand, pale bone-white blades shaped like big rose thorns with dark red grips out at his sides, points forward, leaning into the run with long strides, the red scarf streaming behind",
+    "frames": 8,
+    "group": "6115e54a-b08c-47c9-b519-b30501a12d35"
+   },
+   "th_atk2": {
+    "action": "two more fast slashes with the two hooked short blades, one in each hand, pale bone-white blades shaped like big rose thorns with dark red grips: he steps forward and cuts the front blade across level in front of him, then spins the back blade round in a backhand cut level in front of him, the red scarf whipping, then he settles",
+    "frames": 12,
+    "group": "aa975735-6230-4fbf-bcfd-13c60d5c3619"
+   },
+   "th_land": {
+    "action": "landing from a high jump: he drops onto both feet, his knees bending deep and his body sinking low, holding the two hooked short blades, one in each hand, pale bone-white blades shaped like big rose thorns with dark red grips out to his sides, then he straightens up",
+    "frames": 8,
+    "group": "bf6f6d49-f867-43e6-9ae7-92d5ac176f33"
+   },
+   "th_crouch_walk": {
+    "action": "a duck walk, squatting all the way down and taking small careful steps forward, holding the two hooked short blades, one in each hand, pale bone-white blades shaped like big rose thorns with dark red grips crossed low in front of him",
+    "frames": 8,
+    "group": "010b6cb2-5acd-48ce-822e-51265cabcc0e"
+   }
+  }
  }
 }
