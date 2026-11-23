@@ -1,0 +1,20 @@
+{
+ "frames": {
+  "bw_idle": 9,
+  "bw_run": 9,
+  "bw_jump": 13,
+  "bw_land": 9,
+  "bw_crouch": 9,
+  "bw_crouch_walk": 9,
+  "bw_hurt": 9,
+  "bw_roll": 13,
+  "bw_atk1": 13,
+  "bw_atk2": 13,
+  "bw_atk2b": 13,
+  "bw_atk3": 13,
+  "bw_up": 13,
+  "bw_up2": 13,
+  "bw_down": 9
+ },
+ "note": "frames in each strip as made"
+}

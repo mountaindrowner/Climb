@@ -1608,7 +1608,83 @@
   "id": "c4c10e70-5123-4f83-ba68-b3aea2064a1c",
   "description": "the hero (mask_tall_c), a state of him: he holds a tall dark storm bow in his forward hand instead of the curved blade: the bow is black with pale blue glowing tips, and its string is a bright glowing blue-white line of lightning, clearly visible; a quiver on his back. No sword.",
   "state": "bow_c",
-  "anims": {}
+  "anims": {
+   "bw_down": {
+    "action": "in mid-air, falling: he turns the tall dark storm bow with pale blue glowing tips and a bright glowing blue-white string of lightning to point straight down beneath him, draws the glowing string up to his chest and looses a glowing arrow straight down below his boots with a flash of light, his coat and red scarf streaming upward",
+    "frames": 8,
+    "group": "71db1b91-9062-42e5-83da-c6e16b6e1463"
+   },
+   "bw_idle": {
+    "action": "standing at rest and breathing slowly, holding the tall dark storm bow with pale blue glowing tips and a bright glowing blue-white string of lightning upright in his forward hand: only his chest and shoulders rise and fall, the red scarf stirs a little, the bow stays still and its string glows",
+    "frames": 8,
+    "group": "a5dd67c4-221e-45f1-a2e9-7fd98389d701"
+   },
+   "bw_atk1": {
+    "action": "one quick bow shot in three beats with the tall dark storm bow with pale blue glowing tips and a bright glowing blue-white string of lightning. First, quickly: he raises the bow level in front of him and nocks a glowing arrow. Second: he draws the glowing string back to his cheek, the bow held at arm's length pointing straight ahead. Third: he looses, the string snaps forward with a flash of light, and he lowers the bow",
+    "frames": 12,
+    "group": "bf3ef312-932d-43ce-b1b1-12aaf8915b6d"
+   },
+   "bw_crouch": {
+    "action": "crouching low and holding still: he bends his knees deep and sinks his hips until he is half his height, holding the tall dark storm bow with pale blue glowing tips and a bright glowing blue-white string of lightning upright in front of him",
+    "frames": 8,
+    "group": "bea41861-7a68-4398-82b6-4da7fd80d2bc"
+   },
+   "bw_hurt": {
+    "action": "struck hard from the front: his head snaps back and he flinches, staggering half a step backward with his knees buckling, still gripping the tall dark storm bow with pale blue glowing tips and a bright glowing blue-white string of lightning, then steadies",
+    "frames": 8,
+    "group": "9c789252-996d-435d-8ca9-cba2cfa70128"
+   },
+   "bw_up": {
+    "action": "one bow shot straight up in three beats with the tall dark storm bow with pale blue glowing tips and a bright glowing blue-white string of lightning. First: he turns the bow to point straight up over his head and nocks a glowing arrow. Second: he draws the glowing string down to his chest, the bow held high pointing at the sky. Third: he looses upward with a flash of light and lowers the bow",
+    "frames": 12,
+    "group": "3f6def19-3b5e-4178-a15f-e7a37bd52a2c"
+   },
+   "bw_atk2b": {
+    "action": "a kneeling bow shot in three beats with the tall dark storm bow with pale blue glowing tips and a bright glowing blue-white string of lightning. First: he drops quickly onto one knee, raising the bow level in front of him. Second: kneeling, he draws the glowing string back to his cheek, the bow at arm's length pointing straight ahead. Third: he looses straight ahead with a flash of light, then rises back to his feet",
+    "frames": 12,
+    "group": "0e219874-06fb-4f24-9414-514ba15bd86b"
+   },
+   "bw_up2": {
+    "action": "standing, he raises the tall dark storm bow with pale blue glowing tips and a bright glowing blue-white string of lightning above his head and points it straight up at the sky, the bow held level overhead with his arm stretched up, draws the glowing string down toward his chest, and looses a glowing arrow straight up into the air with a flash of light, then lowers the bow",
+    "frames": 12,
+    "group": "379943b3-429f-4e20-a6ed-1e5da3100fb9"
+   },
+   "bw_atk3": {
+    "action": "a powerful full-draw bow shot in three beats with the tall dark storm bow with pale blue glowing tips and a bright glowing blue-white string of lightning. First: he plants his feet wide and lowers his stance, raising the bow. Second: he draws the crackling string all the way back past his ear, the whole bow bending deep and glowing brighter, held an instant. Third: he looses with a great flash of lightning and is pushed half a step back by it",
+    "frames": 12,
+    "group": "0709312a-c2f5-455d-9c47-60d831579931"
+   },
+   "bw_jump": {
+    "action": "a jump: he bends his knees and springs high up off the ground, rising well above where he stood, his knees drawn up under him, holding the tall dark storm bow with pale blue glowing tips and a bright glowing blue-white string of lightning in his forward hand, his coat and red scarf lifting, then he hangs at the top of the jump with his feet off the ground",
+    "frames": 12,
+    "group": "74e61a69-92ba-40dd-b7ab-e04fb2c37779"
+   },
+   "bw_roll": {
+    "action": "a fast combat roll: he dives forward, tucks into a tight ball with the tall dark storm bow with pale blue glowing tips and a bright glowing blue-white string of lightning held to his chest and rolls over his shoulder along the ground, coming up on his feet",
+    "frames": 12,
+    "group": "146d57b4-a7ee-48a1-b14d-1f5de0e1d745"
+   },
+   "bw_run": {
+    "action": "running fast, holding the tall dark storm bow with pale blue glowing tips and a bright glowing blue-white string of lightning low in his forward hand, leaning into the run with long strides, the red scarf streaming behind",
+    "frames": 8,
+    "group": "e9a2c7e7-d0a9-4441-8983-7289616f222c"
+   },
+   "bw_atk2": {
+    "action": "a second quick bow shot in three beats with the tall dark storm bow with pale blue glowing tips and a bright glowing blue-white string of lightning. First: he steps back on one foot and swings the bow up level. Second: he draws the glowing string to his cheek in one smooth pull. Third: he looses straight ahead with a flash of light, the bow kicking in his hand",
+    "frames": 12,
+    "group": "a5b7ed1e-e493-434e-8de3-3d0cec0a49a8"
+   },
+   "bw_land": {
+    "action": "landing from a high jump: he drops onto both feet, his knees bending deep and his body sinking low, holding the tall dark storm bow with pale blue glowing tips and a bright glowing blue-white string of lightning out to his side, then he straightens up",
+    "frames": 8,
+    "group": "8362fae7-f589-442d-883f-c5a6cac4f77a"
+   },
+   "bw_crouch_walk": {
+    "action": "a duck walk, squatting all the way down and taking small careful steps forward, holding the tall dark storm bow with pale blue glowing tips and a bright glowing blue-white string of lightning upright and low in front of him",
+    "frames": 8,
+    "group": "2b3f92bf-8c25-48b2-8ed1-8de4445f6380"
+   }
+  }
  },
  "hero_thorns": {
   "id": "65813fd1-971e-42da-9db4-2af332f5d2df",

@@ -227,3 +227,28 @@ either side, so the chain at full length is never cut off; the jump begun on a t
 **The clapper is done** (23 Nov): its set approved, plunge A, and **in the game, build 92**; the Toll leaves it, not a
 heart ("don't worry about number 3 because we're finishing the weapons"). Next: the storm bow's drawings, then the
 thorns'.
+
+## Step 3: the storm bow's drawings (`docs/bow-set.gif`, `docs/bow-set.png`)
+
+Made from the picture you picked (the storm bow, a string of lightning). The strips are in `docs/weapons/bow/`; none
+is in the game.
+
+| Drawing | How it came out |
+|---|---|
+| Standing, running, landing, crouch walk, hurt, roll | Good. The bow is the same dark bow with its glowing string throughout |
+| Crouched | Good, with its last two frames cut (lightning flashed on in them for no reason) |
+| In the air | Good. He springs up and hangs, knees drawn in |
+| Shot 1, quick | Good. Raise, draw to the cheek, loose, a flash |
+| Shot 2, kneeling | Good, on the second try (the first held the bow like a sword halfway through) |
+| Shot 3, full draw | Good. A deep draw, the string crackling, a great flash as it goes |
+| Upward shot | Good enough, on the second try (the first shot sideways). He aims the arrow straight up, but holds the bow at his chest rather than lifting it overhead |
+| Downward shot, in the air | Good. He turns the bow down and a bolt goes straight below him |
+
+- **The arrows will be drawn by the game,** flying across the room. Where a strip paints an arrow or a flash far from
+  him, that part is cut when it goes in, so there are not two.
+- **Not made:** getting up (as with the others).
+- **Cost:** 15 strips, about 160 generations. About 8,250 are left.
+- **Still to settle, from step 1:** whether an arrow costs anything. I would make it cost nothing, with the bow
+  weak up close (a shot needs a moment to draw), so it stands on its own like the others.
+
+**For you:** yes to the set? Anything to send back? And arrows free, or not?
