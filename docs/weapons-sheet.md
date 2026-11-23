@@ -177,6 +177,6 @@ none is in the game.
   him stood further over, so the reach has room; the downward strike begins from the "in the air" drawing, so he is
   already off the ground. **The hammer's plunge, which would not leave the ground, can be made the same way.**
 - **Not made:** getting up (as with the hammer).
-- **Cost:** 17 strips. About 8,650 generations are left.
+- **Cost:** 17 strips, about 190 generations. About 8,560 are left.
 
 **For you:** yes to the set? Anything to send back? And shall I make the hammer a plunge of its own this way?
