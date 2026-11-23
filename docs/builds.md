@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 89 | 23 Nov 2026 | `COMMIT89` | The hammer drawn: a whole set of his drawings holding it, made from the one picture picked | no | yes (now) |
+| 89 | 23 Nov 2026 | `6ff3654` | The hammer drawn: a whole set of his drawings holding it, made from the one picture picked | no | yes (now) |
 | 88 | 22 Nov 2026 | `0514ae3` | Harder: one spring a region, prices up two thirds, urns pay less, the larger creatures' and the keepers' great blows cost two hearts | no | replaced by 89 |
 | 87 | 22 Nov 2026 | `aaa2472` | The Cracked Bell rolls; the air dash is its prize, in a chest of its own; thin ice across the way into the Spires | **save** (kept) | replaced by 88 |
 | 86 | 22 Nov 2026 | `de8d329` | The hammer in place of the spade: three times the sword's damage, a wide arc, it knocks creatures back | no | replaced by 87 |
