@@ -1404,7 +1404,83 @@
   "id": "bb628629-d55f-4edb-a57b-f918b27b1f81",
   "description": "the hero (mask_tall_c), a state of him: he holds a flail instead of the curved blade: a short wooden handle, a dark iron chain, and at the end of the chain a heavy bronze bell tongue like a club head. No sword.",
   "state": "clapper_b",
-  "anims": {}
+  "anims": {
+   "cl_plunge2": {
+    "action": "falling straight down through the air, his body upright, holding the handle of the flail: a short wooden handle in his hand, a dark iron chain, and at its end a heavy bronze bell tongue like a club head in both hands above his head while the heavy bronze head hangs straight down on its chain far below his boots, leading the fall, his coat and red scarf streaming straight up",
+    "frames": 8,
+    "group": "5c074f56-9b1b-44aa-b439-f9afb9311236"
+   },
+   "cl_plunge": {
+    "action": "in mid-air, a falling flail blow: he whirls the flail: a short wooden handle in his hand, a dark iron chain, and at its end a heavy bronze bell tongue like a club head once over his head and then hurls the bronze head straight down beneath him, the chain stretched straight down below his boots, and drops after it, his knees tucked up, his coat and red scarf streaming straight up",
+    "frames": 8,
+    "group": "3c70870f-cc96-4536-a365-01980f0afc07"
+   },
+   "cl_jump": {
+    "action": "a jump: he bends his knees and springs high up off the ground, rising well above where he stood, his knees drawn up under him and his free arm out for balance, holding the flail: a short wooden handle in his hand, a dark iron chain, and at its end a heavy bronze bell tongue like a club head out to his side with the bronze head swinging below him, his coat and red scarf lifting, then he hangs at the top of the jump with his feet off the ground",
+    "frames": 12,
+    "group": "e9901cb7-7a69-4f28-b9ba-e1a868ddebc2"
+   },
+   "cl_idle": {
+    "action": "standing at rest and breathing slowly, holding the flail: a short wooden handle in his hand, a dark iron chain, and at its end a heavy bronze bell tongue like a club head, the bronze head hanging still on its chain by his leg: only his chest and shoulders rise and fall, the red scarf stirs a little",
+    "frames": 8,
+    "group": "45d0b6dc-015b-4e3f-827a-bbacdd302e7c"
+   },
+   "cl_atk1": {
+    "action": "one long flail swing in three beats with the flail: a short wooden handle in his hand, a dark iron chain, and at its end a heavy bronze bell tongue like a club head. First: he draws the handle back behind his hip, the chain trailing. Second: he whips his arm forward and the bronze head flies out level in front of him at the full length of the chain, far out ahead. Third: the head swings back round to him and he catches the chain short",
+    "frames": 12,
+    "group": "40e8a6a0-6dab-4db4-befc-36c8b9c94e37"
+   },
+   "cl_crouch": {
+    "action": "crouching low and holding still: he bends his knees deep and sinks his hips until he is half his height, holding the flail: a short wooden handle in his hand, a dark iron chain, and at its end a heavy bronze bell tongue like a club head low, the bronze head resting on the ground in front of him",
+    "frames": 8,
+    "group": "e11ddbde-76de-4352-9ab7-8fb863909ba7"
+   },
+   "cl_hurt": {
+    "action": "struck hard from the front: his head snaps back and he flinches, staggering half a step backward with his knees buckling, still gripping the flail: a short wooden handle in his hand, a dark iron chain, and at its end a heavy bronze bell tongue like a club head, the bronze head swinging, then steadies",
+    "frames": 8,
+    "group": "179142fa-7d7b-4e2a-ac86-967cdbf95779"
+   },
+   "cl_up": {
+    "action": "one flail swing straight up in three beats with the flail: a short wooden handle in his hand, a dark iron chain, and at its end a heavy bronze bell tongue like a club head. First: he lowers the handle and lets the bronze head hang. Second: he whips it up in a fast arc until the chain stands straight up over his head and the bronze head is high above him. Third: it falls back and he catches it",
+    "frames": 12,
+    "group": "cbb580cf-1ff8-4eac-871b-fec9bea0144e"
+   },
+   "cl_atk3": {
+    "action": "a whirling flail attack in three beats with the flail: a short wooden handle in his hand, a dark iron chain, and at its end a heavy bronze bell tongue like a club head. First: he plants his feet and starts the bronze head circling over his head. Second: he whirls it round him in two full fast circles at the length of the chain, sweeping in front of him and behind him. Third: he lets it slow and drops it to his side",
+    "frames": 12,
+    "group": "0f83f7fe-d5b7-4628-9a8d-b8df712ffaa9"
+   },
+   "cl_air": {
+    "action": "in mid-air at the top of a jump and then falling: his knees drawn up and bent, holding the flail: a short wooden handle in his hand, a dark iron chain, and at its end a heavy bronze bell tongue like a club head out to his side, the bronze head swinging below him on its chain, his coat and red scarf lifting",
+    "frames": 8,
+    "group": "bbd4f11d-d85f-4939-9dda-932ef57c32f6"
+   },
+   "cl_roll": {
+    "action": "a fast combat roll: he dives forward, tucks into a tight ball with the flail: a short wooden handle in his hand, a dark iron chain, and at its end a heavy bronze bell tongue like a club head and its chain held to his chest, and rolls over his shoulder along the ground, coming up on his feet",
+    "frames": 12,
+    "group": "093f276e-d7cb-4b96-bb49-96af9db2405b"
+   },
+   "cl_run": {
+    "action": "running fast, holding the flail: a short wooden handle in his hand, a dark iron chain, and at its end a heavy bronze bell tongue like a club head low at his side, the bronze head bouncing and swinging on its chain behind him, leaning into the run with long strides, the red scarf streaming behind",
+    "frames": 8,
+    "group": "7b4e5d10-3c95-4a8b-982e-2f52ce5e88fa"
+   },
+   "cl_atk2": {
+    "action": "one heavy overhead flail blow in three beats with the flail: a short wooden handle in his hand, a dark iron chain, and at its end a heavy bronze bell tongue like a club head. First: he swings the bronze head up and round behind him over his shoulder. Second: he brings it over his head and slams it down onto the ground far out in front of him, the chain at full stretch. Third: he hauls it back in",
+    "frames": 12,
+    "group": "c86e7485-f2de-4dd3-ab5e-ad0ea3a065dd"
+   },
+   "cl_land": {
+    "action": "landing from a high jump: he drops onto both feet, his knees bending deep and his body sinking low, holding the flail: a short wooden handle in his hand, a dark iron chain, and at its end a heavy bronze bell tongue like a club head, the bronze head swinging forward on its chain, then he straightens up",
+    "frames": 8,
+    "group": "126d3d67-2fef-45b6-a32a-768ea6bb15a9"
+   },
+   "cl_crouch_walk": {
+    "action": "a duck walk, squatting all the way down and taking small careful steps forward, holding the flail: a short wooden handle in his hand, a dark iron chain, and at its end a heavy bronze bell tongue like a club head low, the bronze head dragging on its chain beside him",
+    "frames": 8,
+    "group": "13855fed-b314-4182-8762-60cc8e232246"
+   }
+  }
  },
  "hero_tooth": {
   "id": "128e3d35-b027-4e0f-9800-5184686faebd",

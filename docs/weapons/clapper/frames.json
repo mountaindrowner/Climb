@@ -1,0 +1,20 @@
+{
+ "frames": {
+  "cl_idle": 9,
+  "cl_run": 9,
+  "cl_air": 9,
+  "cl_jump": 13,
+  "cl_land": 9,
+  "cl_crouch": 9,
+  "cl_crouch_walk": 9,
+  "cl_hurt": 9,
+  "cl_roll": 13,
+  "cl_atk1": 13,
+  "cl_atk2": 13,
+  "cl_atk3": 13,
+  "cl_up": 13,
+  "cl_plunge": 9,
+  "cl_plunge2": 9
+ },
+ "note": "frames in each strip as made"
+}

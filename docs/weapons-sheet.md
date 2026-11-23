@@ -199,3 +199,27 @@ sheet, `docs/tooth-set.gif`, now shows the set with them in).
 
 **The tooth is done** (23 Nov): its set approved ("Good to go") and **in the game, build 91**, with the swap key going
 round every weapon he has. Next: the clapper's drawings, from the bell tongue on a chain.
+
+## Step 3: the clapper's drawings (`docs/clapper-set.gif`, `docs/clapper-set.png`)
+
+Made from the picture you picked (the bell tongue on a chain, with a handle). The strips are in
+`docs/weapons/clapper/`; none is in the game. Made with what the tooth taught: the three swings on a canvas with room
+either side, so the chain at full length is never cut off; the jump begun on a tall canvas, so he leaves the ground.
+
+| Drawing | How it came out |
+|---|---|
+| Standing, running, crouched, crouch walk, roll, hurt | Good. The head hangs and swings on its chain as he moves |
+| In the air | Good, on the second try (in the first he never left the ground): a spring up, knees drawn in, the head swinging below |
+| Landing | Good |
+| Blow 1, a long swing | Good. Back behind him, then out level at the chain's full length |
+| Blow 2, overhead | Good. Up over his shoulder and down onto the ground far in front |
+| Blow 3, the whirl | Good enough. Round in front of him and behind; the head is small at full spin |
+| Upward swing | Good. The chain stands straight up over him |
+| Plunge | **Two tries, for you to choose.** A: he casts the chain straight down, but it stretches to four metres. B: the head hangs below him and leads the fall, but it grows larger than it is in his hand |
+
+- **The bell head is small** in every drawing, as in the picture you picked. That is the look; it reads, but it is
+  not a big weapon on screen.
+- **Not made:** getting up (as with the others).
+- **Cost:** 15 strips, about 160 generations.
+
+**For you:** yes to the set? Plunge A or B, or another try? Anything to send back?
