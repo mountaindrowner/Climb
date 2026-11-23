@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 93 | 23 Nov 2026 | `6484af5` | The Thunderhead's storm bow: free arrows across the room; the third goes through; shots up, and down from the air | no | yes (now) |
+| 94 | 23 Nov 2026 | `COMMIT94` | Mother Thorn's thorns: five fast cuts and a burst. The six weapons are done | no | yes (now) |
+| 93 | 23 Nov 2026 | `6484af5` | The Thunderhead's storm bow: free arrows across the room; the third goes through; shots up, and down from the air | no | replaced by 94 |
 | 92 | 23 Nov 2026 | `9e3a209` | The Toll's clapper, a flail: the longest reach, a blow that rings creatures to a stop; the Toll leaves it, not a heart | no | replaced by 93 |
 | 91 | 23 Nov 2026 | `3ff8816` | The Wyrm's tooth, a spear; the Wyrm leaves it; the glide is the Seated's, in a prize chest; weapons go round on the swap key | **save** (kept) | replaced by 92 |
 | 90 | 23 Nov 2026 | `bd14458` | The hammer's plunge: a drawing of its own, he rides it down | no | replaced by 91 |
@@ -109,6 +110,54 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 94: the thorns, and the six weapons done
+
+*The last weapon a keeper leaves (`docs/weapons-sheet.md`). Your word, 23 Nov: "Yes." With it, every keeper of the
+climb leaves a weapon, each drawn from one picture you picked and approved frame by frame.*
+
+**For the player**
+
+- **Mother Thorn leaves the thorns** (`docs/thorns-in-game.png`): a pair of hooked bone blades, one in each hand.
+  - **The fastest weapon and the shortest:** a metre and a half.
+  - **Five cuts where the sword makes three:** two quick cuts, two more, then a burst (1, 1, 1, 1, 3: seven damage
+    against the sword's four). Break off a blow and its second cut does not come.
+  - **Up and attack:** a rising double cut. **In the air, down and attack:** he drops with both points down.
+  - They cannot block.
+
+**The six, as they stand**
+
+| Weapon | From | What it is for |
+|---|---|---|
+| Sword | He starts with it | Anything. The only one that blocks and parries |
+| Hammer | The Warden | Crowds and armour: three times the damage, knocks back, breaks cracked stone |
+| Clapper | The Toll | The longest reach, in arcs; rings small creatures to a stop |
+| Tooth | The Wyrm | Reach in a line; straight up; bounces off what is under it |
+| Storm bow | The Thunderhead | Across the room, for free; slow to draw |
+| Thorns | Mother Thorn | One thing at close quarters, fast |
+
+**What is weaker than it should be**
+
+- **A new game has two hearts and one drink fewer by the top than it had in build 86:** the Toll, the Thunderhead and
+  Mother Thorn leave weapons now. That is harder, as decision 0.17 asks. The gifts table puts a heart and a drink
+  behind minibosses in the Tempest and the Gardens; that is the next step of the gifts sheet, not done yet.
+- **A save that beat Mother Thorn before keeps its extra drink,** and gains the thorns.
+- **No weapon yet has drawings for getting up, climbing or hanging:** his sword shows. The weapon on his back for
+  those (agreed 22 Nov) is still to be drawn, once.
+- **Nobody has played any of the six together.**
+
+- **Underneath:** `motor.js` (`THORNS`: `hits`, `gap`), `main.js` (a blow with two cuts strikes again), `state.js`
+  (`TEACH[4]`), `teach.js`, `tools/weapon-strips.py`. Checks in `tests/side-tooth.test.mjs`, including that every
+  keeper of the climb leaves a weapon.
+- **Save: not moved.**
+- **Checked:** 477 checks pass. In the test browser: every move with the thorns; a five-cut combo on a crawler,
+  every cut landing.
+
+**To try**
+
+1. Beat Mother Thorn (or try the Firmament from the title): you can carry all six. Press R to go round them.
+2. The thorns against one creature, close in. Then against three: they are not for that.
+3. Which weapon do you reach for, and which never?
 
 ### Build 93: the storm bow
 

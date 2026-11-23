@@ -274,3 +274,6 @@ game. The last of the six.
 - About 8,370 generations are left.
 
 **For you:** yes to the set? Anything to send back?
+
+**The thorns are done** (23 Nov) and **in the game, build 94. The six weapons are finished.** Left: the weapon on his back
+for climbing, hanging and getting up (drawn once), and what playing them says.

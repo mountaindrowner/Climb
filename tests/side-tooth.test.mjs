@@ -12,12 +12,12 @@ const { strikeEnemies } = await import('../src/side/enemies.js');
 const meta = JSON.parse(readFileSync(new URL('../assets/side/mask_tall_c/sprite.json', import.meta.url), 'utf8'));
 const src = f => readFileSync(new URL('../src/side/' + f, import.meta.url), 'utf8');
 test('a round of weapons: each with its drawings\' prefix, its picture and its name; the weapon in hand is one of them', () => {
-  assert.deepEqual(Object.keys(M.ARMS), ['blade', 'spade', 'clapper', 'tooth', 'bow']);
+  assert.deepEqual(Object.keys(M.ARMS), ['blade', 'spade', 'clapper', 'tooth', 'bow', 'thorns']);
   for (const [id, W] of Object.entries(M.ARMS)){ assert.equal(W.id, id); assert.ok(TE.ICONS[W.icon], `a picture for ${id}`); assert.ok(W.title); assert.equal(M.weaponOf({ weapon: id }), W); assert.ok(W.combo.length === 3); }
   assert.equal(M.weaponOf({ weapon: 'nothing' }), M.BLADE, 'an unknown one is the sword');
-  for (const W of [M.SPADE, M.TOOTH, M.CLAPPER]) for (const n of ['idle', 'run', 'air', 'land', 'crouch', 'crouch_walk', 'roll', 'hurt', 'plunge']) assert.ok(meta.anims[W.pre + n] && meta.anims[W.pre + n].n, `${W.id}: his drawing ${n}`);
+  for (const W of [M.SPADE, M.TOOTH, M.CLAPPER, M.THORNS]) for (const n of ['idle', 'run', 'air', 'land', 'crouch', 'crouch_walk', 'roll', 'hurt', 'plunge']) assert.ok(meta.anims[W.pre + n] && meta.anims[W.pre + n].n, `${W.id}: his drawing ${n}`);
   for (const W of [M.BOW]) for (const n of ['idle', 'run', 'air', 'land', 'crouch', 'crouch_walk', 'roll', 'hurt']) assert.ok(meta.anims[W.pre + n] && meta.anims[W.pre + n].n, `bow: his drawing ${n}`);
-  for (const W of [M.SPADE, M.TOOTH, M.CLAPPER, M.BOW]) for (const sw of [...W.combo, ...(W.rise ? [W.rise] : []), ...(W.down ? [W.down] : [])]){ const A = meta.anims[sw.anim]; assert.ok(A, sw.anim); assert.ok(sw.hit > 0 && sw.hit < 1); assert.ok(Math.abs(sw.hit * A.frames - Math.round(sw.hit * A.frames)) < 1e-9, `${sw.anim}: the blow lands on a frame of its own strip`); }
+  for (const W of [M.SPADE, M.TOOTH, M.CLAPPER, M.BOW, M.THORNS]) for (const sw of [...W.combo, ...(W.rise ? [W.rise] : []), ...(W.down ? [W.down] : [])]){ const A = meta.anims[sw.anim]; assert.ok(A, sw.anim); assert.ok(sw.hit > 0 && sw.hit < 1); assert.ok(Math.abs(sw.hit * A.frames - Math.round(sw.hit * A.frames)) < 1e-9, `${sw.anim}: the blow lands on a frame of its own strip`); }
   const m = src('main.js'); assert.ok(!/P\.weapon === 'spade' \? 'hammer' : 'blade'/.test(m)); assert.ok(m.includes("const order = ['blade', ...(G.arms || [])]"), 'the swap goes round what he has');
 });
 test('the tooth: the longest reach, in a line; a thrust up; no guard; slower to come than the sword, quicker than the hammer', () => {
@@ -70,4 +70,13 @@ test('the bow: it shoots, and its arrows cost nothing; each shot is drawn before
   const mo = src('motor.js'); assert.ok(mo.includes("H.down && weaponOf(P).down && !P.atk) startSwing(P, 0, 'down')"), 'in the air, down and attack shoots down'); assert.ok(mo.includes('!weaponOf(P).shoots){'), 'and is no plunge');
   const t = ST.TEACH[3]; assert.equal(t.arm, 'bow'); assert.ok(!t.heart); for (const l of [t.does, ...t.how, ...(t.more || [])]) assert.ok(l.length <= 110, l);
   assert.ok(m.includes("!armed('bow') && !GIFTING"), 'a save whose Thunderhead had fallen gains it');
+});
+test('the thorns: the fastest and the shortest; five cuts where the sword makes three, then a burst; no guard; Mother Thorn leaves them', () => {
+  const T = M.THORNS; assert.ok(T.reach < M.BLADE.reach); assert.equal(T.guard, false);
+  const cuts = T.combo.reduce((a, s) => a + (s.hits || 1), 0); assert.equal(cuts, 5, 'five cuts');
+  assert.ok(T.combo.slice(0, 2).every((s, k) => s.wind < M.BLADE.combo[k].wind && s.dmg === 1), 'each quicker than the sword\'s, one a cut');
+  assert.ok(T.combo[2].dmg >= 3, 'the burst'); assert.ok(T.combo.every(s => !s.hits || (s.gap * (s.hits - 1) < s.active + s.rec)), 'the second cut comes before the blow is over');
+  const m = src('main.js'); assert.ok(m.includes("if (e.sw.hits > 1 && !e.again)"), 'the second cut is struck'); assert.ok(m.includes("!armed('thorns') && !GIFTING"), 'a save whose Mother Thorn had fallen gains them');
+  const t = ST.TEACH[4]; assert.equal(t.arm, 'thorns'); assert.ok(!t.flask); for (const l of [t.does, ...t.how, ...(t.more || [])]) assert.ok(l.length <= 110, l);
+  assert.deepEqual(ST.TEACH.filter(k => k.arm).map(k => k.arm), ['spade', 'clapper', 'tooth', 'bow', 'thorns'], 'every keeper of the climb leaves a weapon');
 });

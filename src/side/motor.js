@@ -464,8 +464,16 @@ export const BOW = { name: 'Thunderhead\'s bow', reach: 0, guard: false, shoots:
   { dmg: 3, wind: 0.5, active: 0.06, rec: 0.32, lunge: 0, pierce: true, anim: 'bw_atk3', hit: 9 / 10 },
 ], rise: { dmg: 2, wind: 0.32, active: 0.06, rec: 0.28, lunge: 0, anim: 'bw_up', hit: 7 / 9 },
   down: { dmg: 2, wind: 0.2, active: 0.06, rec: 0.22, lunge: 0, anim: 'bw_down', hit: 5 / 6 } };
-export const ARMS = { blade: BLADE, spade: SPADE, clapper: CLAPPER, tooth: TOOTH, bow: BOW };
-Object.assign(BLADE, { id: 'blade', pre: '', icon: 'blade', title: 'the sword' }); Object.assign(SPADE, { id: 'spade', pre: 'hm_', icon: 'hammer', title: 'the hammer' }); Object.assign(TOOTH, { id: 'tooth', pre: 'tt_', icon: 'tooth', title: 'the tooth' }); Object.assign(CLAPPER, { id: 'clapper', pre: 'cl_', icon: 'clapper', title: 'the clapper' }); Object.assign(BOW, { id: 'bow', pre: 'bw_', icon: 'bow', title: 'the bow' });
+// Mother Thorn's thorns (build 94): a pair of hooked bone blades, one in each hand. The fastest weapon and the
+// shortest. Each of the first two blows is two cuts (`hits`, `gap`: main.js strikes again), so a combo is five cuts
+// where the sword's is three, ending in a burst. No block
+export const THORNS = { name: 'Mother Thorn\'s thorns', reach: 1.5, guard: false, combo: [
+  { dmg: 1, hits: 2, gap: 0.1, wind: 0.07, active: 0.16, rec: 0.16, lunge: 0.6, anim: 'th_atk1', hit: 1 / 12, hitEnd: 6 / 12 },
+  { dmg: 1, hits: 2, gap: 0.1, wind: 0.08, active: 0.16, rec: 0.16, lunge: 0.6, anim: 'th_atk2', hit: 3 / 12, hitEnd: 6 / 12 },
+  { dmg: 3, wind: 0.16, active: 0.1, rec: 0.3, lunge: 1.1, anim: 'th_atk3', hit: 7 / 12 },
+], rise: { dmg: 1, hits: 2, gap: 0.1, wind: 0.1, active: 0.14, rec: 0.24, lunge: 0, reach: 2.2, anim: 'th_up', hit: 4 / 11 } };
+export const ARMS = { blade: BLADE, spade: SPADE, clapper: CLAPPER, tooth: TOOTH, bow: BOW, thorns: THORNS };
+Object.assign(BLADE, { id: 'blade', pre: '', icon: 'blade', title: 'the sword' }); Object.assign(SPADE, { id: 'spade', pre: 'hm_', icon: 'hammer', title: 'the hammer' }); Object.assign(TOOTH, { id: 'tooth', pre: 'tt_', icon: 'tooth', title: 'the tooth' }); Object.assign(CLAPPER, { id: 'clapper', pre: 'cl_', icon: 'clapper', title: 'the clapper' }); Object.assign(BOW, { id: 'bow', pre: 'bw_', icon: 'bow', title: 'the bow' }); Object.assign(THORNS, { id: 'thorns', pre: 'th_', icon: 'thorns', title: 'the thorns' });
 export const weaponOf = P => ARMS[P.weapon] || BLADE;
 // the tooth's dive has met something: he is thrown back up, with his second jump and his dash to use again
 export function pogo(P){ P.dive = null; P.atk = null; P.plant = 0; P.vy = launchSpeed(POGO.height, MV.launch.ground); P.launch = MV.launch.ground; P.jumpT = 0; P.grounded = false; P.bounce = true; P.flip = 0; P.airTop = P.y; P.airJumps = FEEL.doubleJump ? 1 : 0; P.airDash = 1; ev(P, 'pogo'); }

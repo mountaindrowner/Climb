@@ -49,7 +49,17 @@ SETS = {'hammer': {
   'bw_atk2': ('bw_atk2b', range(1, 11)),         # ten: kneeling, loosed on the last
   'bw_atk3': ('bw_atk3', range(1, 11)),          # ten: the full draw, loosed on the last (its painted flash left out; the game makes its own)
   'bw_up': ('bw_up2', range(1, 10)),             # nine: the arrow aimed straight up, loosed on the eighth
-  'bw_down': ('bw_down', range(0, 6), {'foot': 76, 'cx': 55}) }}   # six, in the air: the bow turned down, loosed on the last
+  'bw_down': ('bw_down', range(0, 6), {'foot': 76, 'cx': 55}) },   # six, in the air: the bow turned down, loosed on the last
+ # Mother Thorn's thorns (build 94; approved 23 Nov): the last of the six
+ 'thorns': {
+  'th_idle': ('th_idle', range(1, 9)), 'th_run': ('th_run', range(2, 9)), 'th_land': ('th_land', range(3, 9)),
+  'th_crouch': ('th_crouch', range(1, 9)), 'th_crouch_walk': ('th_crouch_walk', range(3, 9)), 'th_roll': ('th_roll', range(1, 13)), 'th_hurt': ('th_hurt', range(1, 9)),
+  'th_air': ('th_jump', range(5, 13), {'foot': 62, 'cx': 36}),
+  'th_atk1': ('th_atk1', range(1, 13)),          # two cuts: the second and the sixth
+  'th_atk2': ('th_atk2', range(1, 13)),          # two cuts: the fourth and the sixth
+  'th_atk3': ('th_atk3', range(1, 13)),          # the burst: the flurry, then both blades thrust on the eighth
+  'th_up': ('th_up', range(2, 13)),              # eleven: both blades up over him on the fifth
+  'th_plunge': ('th_plunge4', range(4, 9), {'foot': 122, 'cx': 52}) }}   # the fourth try: upright, both points down by his boots
 def snap(im):
     pal = [tuple(int(c[i:i + 2], 16) for i in (1, 3, 5)) for c in PAL]; px = im.load(); cache = {}
     for y in range(im.height):

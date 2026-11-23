@@ -85,6 +85,11 @@ Step 1 is settled (the six, a bow in place of the fork, the hammer first, the we
 step 2 is settled (hammer B, clapper B, tooth B, bow A, thorns A: `docs/weapon-looks.json`); step 3, the hammer's drawings,
 awaits your yes (`docs/hammer-set.gif`). The rest of the gifts sheet waits behind it.
 
+**23 Nov, build 94: the six weapons are done** (builds 89 to 94: the hammer drawn, the tooth, the clapper, the bow, the
+thorns). Every keeper of the climb leaves a weapon; the air dash is the Cracked Bell's and the glide the Seated's.
+Still open from the gifts sheet: a heart and a drink behind minibosses (the Tempest, the Gardens), the Wyrm rebuilt
+(`docs/wyrm-sheet.md`), and the other keepers after it. Then the map pass.
+
 **One question left, before phase 5:** if only the spade breaks stone, he must have it before the Ossuary's cracked
 wall, but the Sexton and his spade are inside the Ossuary. The Warden's gift today ("the Warden's weight") is exactly
 that his plunge breaks stone. The natural answer is that **what coalesces from the Warden is the heavy weapon**, and

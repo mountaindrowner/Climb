@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The storm bow (latest; build 93).** The Thunderhead leaves a storm bow: free arrows of lightning across the room; three shots, the third going through everything; a shot up, and a shot down from the air. Slow to draw; no block. 476 checks. No save is moved.
+**The thorns, and the six weapons done (latest; build 94).** Mother Thorn leaves the thorns: a pair of hooked blades, five fast cuts then a burst; the shortest reach; no block. Every keeper of the climb now leaves a weapon. 477 checks. No save is moved.
+
+**The storm bow (build 93).** The Thunderhead leaves a storm bow: free arrows of lightning across the room; three shots, the third going through everything; a shot up, and a shot down from the air. Slow to draw; no block. 476 checks. No save is moved.
 
 **The Toll's clapper (build 92).** The Toll leaves the clapper, a flail on a chain: the longest reach, in arcs; a whirl that finds what is behind; a blow that rings small creatures to a stop; nothing within a metre; no block. 475 checks. No save is moved.
 
