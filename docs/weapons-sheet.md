@@ -271,6 +271,6 @@ game. The last of the six.
 | Plunge | Good, on the fourth try: he drops upright with both blades point-down beside his boots. (The first turned the hooks into long straight spikes; the second just landed; the third spread his arms wide) |
 
 - **Not made:** getting up (as with the others).
-- About 8,330 generations are left.
+- About 8,370 generations are left.
 
 **For you:** yes to the set? Anything to send back?
