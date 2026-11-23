@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 92 | 23 Nov 2026 | `9e3a209` | The Toll's clapper, a flail: the longest reach, a blow that rings creatures to a stop; the Toll leaves it, not a heart | no | yes (now) |
+| 93 | 23 Nov 2026 | `COMMIT93` | The Thunderhead's storm bow: free arrows across the room; the third goes through; shots up, and down from the air | no | yes (now) |
+| 92 | 23 Nov 2026 | `9e3a209` | The Toll's clapper, a flail: the longest reach, a blow that rings creatures to a stop; the Toll leaves it, not a heart | no | replaced by 93 |
 | 91 | 23 Nov 2026 | `3ff8816` | The Wyrm's tooth, a spear; the Wyrm leaves it; the glide is the Seated's, in a prize chest; weapons go round on the swap key | **save** (kept) | replaced by 92 |
 | 90 | 23 Nov 2026 | `bd14458` | The hammer's plunge: a drawing of its own, he rides it down | no | replaced by 91 |
 | 89 | 23 Nov 2026 | `6ff3654` | The hammer drawn: a whole set of his drawings holding it, made from the one picture picked | no | replaced by 90 |
@@ -108,6 +109,46 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 93: the storm bow
+
+*The fourth weapon a keeper leaves (`docs/weapons-sheet.md`). Your word, 23 Nov: "Yes to bow", and on the arrows,
+"Make them free."*
+
+**For the player**
+
+- **The Thunderhead leaves the storm bow** (`docs/bow-in-game.png`), not a heart.
+  - **Its arrows are streaks of lightning that cross the room:** thirty metres a second, twenty-four metres at most.
+    They cost nothing. Each strikes the first thing it meets, breaks an urn, finds a keeper's parts, and stops at rock.
+  - **Three shots:** a quick one, a kneeling one, and a full draw whose arrow goes **through everything** in its way.
+  - **Up and attack:** a shot straight up. **In the air, down and attack:** a shot straight down, and its kick holds him
+    up a moment. There is no plunge with the bow.
+  - **What it pays is time:** each shot is drawn before it goes (the full draw half a second), so with something on
+    top of him it is the slowest weapon he has. It cannot block.
+  - An arrow flies at knee-to-chest height, low enough for a crawler; crouched, he shoots lower still.
+
+**What is weaker than it should be**
+
+- **A save that beat the Thunderhead before this build keeps the heart it was given,** and gains the bow. A new game
+  has two hearts fewer by the Tempest than it did in build 86 (the Toll's and the Thunderhead's), as decision 0.17
+  asks; the heart in the gifts table for a Tempest miniboss is not placed yet.
+- **The shots are drawn with a flash of their own painted in;** where it was far too big in play (the quick shot and
+  the full draw) that frame is left out.
+- **Nobody has played it.**
+
+- **Underneath:** `motor.js` (`BOW`: `shoots`; in the air, down and attack is a shot, not a plunge), `main.js`
+  (`loose`, `arrowsStep`: the arrows; cleared when a region is entered), `state.js` (`TEACH[3]`), `teach.js` (its
+  picture), `tools/weapon-strips.py`. Checks in `tests/side-tooth.test.mjs`.
+- **Save: not moved.**
+- **Checked:** 476 checks pass. In the test browser: every shot, an arrow in flight, a shot up, a shot down from
+  the air; an arrow across eight metres of corridor into a crawler (3 health to 1); an arrow stopped by a stone step.
+
+**To try**
+
+1. Beat the Thunderhead (or try the Gardens from the title), press R until the bow is in hand.
+2. Shoot something across a room. Then let something walk up to you and try again.
+3. The third shot down a line of creatures.
+4. Stand under a flier and shoot up; jump over something and shoot down.
 
 ### Build 92: the Toll's clapper
 

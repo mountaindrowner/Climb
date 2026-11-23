@@ -12,7 +12,7 @@ import '../ui/feel.js';
 import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE, MEETINGS, SILL, prepare, RULE, SPIKES } from './level.js';
 import { makeTeach, keyName, fill, INTRO, CARDS, drawIcon } from './teach.js';
 import { makeProps } from './props.js';
-import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt, hurt, isRollInv, ARMS, POGO, pogo } from './motor.js';
+import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt, hurt, isRollInv, ARMS, POGO, pogo, BOW } from './motor.js';
 import { width as textWidth, width as pxWidth, text as pxText } from './pixelfont.js';
 const wrapText = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };
 const wrapFine = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t, 1, true) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };   // (the small print's widths)
@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 92, date: '23 NOV 2026', phase: 17, phases: 22, last: 'THE TOLL\'S CLAPPER' };
+const VERSION = { build: 93, date: '23 NOV 2026', phase: 17, phases: 22, last: 'THE STORM BOW' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -87,6 +87,7 @@ function learn(){
   const got = c => !!(G.can && G.can[c]) || (DEV && LEVEL.index >= ARRIVES[c]); CAN.breaker = b(0); CAN.dash = got('dash'); CAN.glide = got('glide');   // (build 87: the dash and the glide are his when he is given them, G.can; not when a keeper has fallen) CAN.grip = !!G.beat[TEACH.findIndex(t => t.can === 'grip')];
   if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the hammer (a save from before has it now)
   if ((b(1) || (DEV && LEVEL.index > 1)) && !armed('clapper') && !GIFTING){ (G.arms = G.arms || []).push('clapper'); swapButton(); }   // the Toll's is the clapper (build 92; a save whose Toll had fallen has it now)
+  if ((b(3) || (DEV && LEVEL.index > 3)) && !armed('bow') && !GIFTING){ (G.arms = G.arms || []).push('bow'); swapButton(); }   // the Thunderhead's is the bow (build 93)
   if ((b(2) || (DEV && LEVEL.index > 2)) && !armed('tooth') && !GIFTING){ (G.arms = G.arms || []).push('tooth'); swapButton(); }   // the Wyrm's is the tooth (build 91; a save whose Wyrm had fallen has it now)
   SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); SIDE.boots = has('boots'); SIDE.calm = has('stillair'); SIDE.bell = has('shiftbell'); SIDE.rope = has('lastrope'); if (CAN.breaker && !G.lamp){ G.lamp = 1; G.lampNew = 1; } if (P){ P.flaskMax = maxFlask(); P.flask = Math.min(P.flask, P.flaskMax); const mh = maxHearts(); if (mh > P.maxHp) P.hp += mh - P.maxHp; P.maxHp = mh; P.hp = Math.min(P.hp, mh); }
   // (the yoke, the second place: worn or taken off; then the Gardener's Seed. This last statement has twice been found
@@ -141,6 +142,7 @@ setup();
 const ENTERED = [];
 // `at`: where he comes in, by name (an arrive mark: a passage's other end); else the region's start
 function enter(n, at){
+  ARROWS.length = 0;   // (the scene is made new: the arrows in flight go with it)
   ENT.reset();   // a hall shut behind him is open again before he goes (its tiles are the region's own)
   const t0 = performance.now(); loadLevel(n); for (const J of Object.values(LEVEL.joins || {})) prepare(J.to); loadLevel(n); const t1 = performance.now(); R.load(); const t2 = performance.now();   // and the regions it joins, made now, in the dark, for walking into
   if (hero.meta) hero.sprite = makeSprite(R.scene, `assets/side/${hero.name}`, hero.meta);
@@ -775,6 +777,7 @@ function heroPose(P, t){
   if (RECEIVE > 0 && has('receive')) return ['receive', Math.min(0.999, 1 - RECEIVE / RECEIVE_T)];   // taking a keeper's gift
   if (P.art){ if (P.art.k === 'slam' && P.weapon === 'spade' && has('hm_atk3')) return ['hm_atk3', (6 + Math.min(5.99, P.art.t / P.art.dur * 6)) / 12];   // the slam, with the hammer: its great blow
     if (P.weapon === 'tooth'){ const u = Math.min(0.999, P.art.t / P.art.dur), a = { cleave: ['tt_atk3', (4 + u * 7) / 12], gust: ['tt_up', (5 + u * 6) / 12], slam: ['tt_land', u] }[P.art.k]; if (a && has(a[0])) return a; }
+    if (P.weapon === 'bow'){ const u = Math.min(0.999, P.art.t / P.art.dur), a = { cleave: ['bw_atk1', (7 + u * 2.9) / 10], gust: ['bw_up', (6 + u * 2.9) / 9], slam: ['bw_land', u] }[P.art.k]; if (a && has(a[0])) return a; }
     if (P.weapon === 'clapper'){ const u = Math.min(0.999, P.art.t / P.art.dur), a = { cleave: ['cl_atk1', (5 + u * 6) / 12], gust: ['cl_up', (6 + u * 5) / 12], slam: ['cl_atk2', (4 + u * 7) / 12] }[P.art.k]; if (a && has(a[0])) return a; }   // the arts, with the tooth: its charge, its upward thrust, a landing
     const name = { cleave: 'atk_dash_px', gust: 'atk_rise_px', slam: 'plunge_land' }[P.art.k]; if (has(name)) return [name, Math.min(0.999, P.art.t / P.art.dur)]; }   // an ember art
   if (P.mantle && pick('climb')){
@@ -876,7 +879,7 @@ function frame(ts){
   if (!USE && P.hp > 0 && P.grounded && !FLIGHT && !GO.st && WAKE <= 0 && (G.relics.length || G.under)){ const S = SHRINES.find(S => Math.abs(P.x - S.x) < S.half && Math.abs(P.y - S.y) < 1.5); if (S) USE = { type: 'flame', x: S.x, y: S.y, S }; }   // at a flame: the knots
   if (USE && IN.pressed.has('down')){ IN.pressed.delete('down'); if (USE.type === 'npc') talkTo(USE); else if (USE.type === 'flame'){ ATWATER = USE.S; knotMenu(); } else ITEMS.open(USE, evs); }
   const h = 1 / 120;
-  while (acc >= h){ const x0 = P.x; if (DEATH <= 0 && !FLIGHT && !DISS && !UNDER && !GO.st && WAKE <= 0 && RECEIVE <= 0 && !ENT.lead) { stepPlayer(P, h); toothStep(); } else if (ENT.lead){ P.vx = 0; if (ENT.face) P.face = ENT.face; if (ENT.brace && !P.blocking){ P.blocking = true; P.blockAt = performance.now() / 1000; } } P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
+  while (acc >= h){ const x0 = P.x; if (DEATH <= 0 && !FLIGHT && !DISS && !UNDER && !GO.st && WAKE <= 0 && RECEIVE <= 0 && !ENT.lead) { stepPlayer(P, h); toothStep(); arrowsStep(h); } else if (ENT.lead){ P.vx = 0; if (ENT.face) P.face = ENT.face; if (ENT.brace && !P.blocking){ P.blocking = true; P.blockAt = performance.now() / 1000; } } P.dist = (P.dist || 0) + Math.abs(P.x - x0); acc -= h; }
   endFrame();
   if (P.hp > 0 && !FLIGHT && !GO.st && (TRAILT -= dt) <= 0){ TRAILT = 0.05; const [an, fr] = heroPose(P, time); TRAIL.push({ x: P.x, y: P.y, face: P.face, an, fr });
     if (TRAIL.length > 2400) TRAIL.splice(0, 1200, ...TRAIL.slice(0, 1200).filter((_, i) => i % 2)); }   // a long way: the far end of it kept more thinly
@@ -1137,6 +1140,41 @@ function toothStep(){
   if (A && sw && sw.pierce && A.phase === 'active'){ A.seen = A.seen || new Set(); const out = [], x0 = Math.min(P.x, P.x + P.face * (weaponOf(P).reach)), x1 = Math.max(P.x, P.x + P.face * weaponOf(P).reach);
     hitBox(E, x0, x1, P.y + 0.5, P.y + 2.1, sw.dmg + (has('whetstone') ? 1 : 0), out, A.seen, P.x - P.face); for (const o of out) onEvent(o); }
 }
+// ---- the bow's arrows (build 93): a streak of lightning, the width of a room. Each strikes the first thing it meets
+// (the third shot, all it passes through), breaks an urn, finds a keeper's parts; it stops at rock. They cost nothing
+const ARROWS = []; let ARROW_TEX = null;
+function arrowMesh(){
+  if (!ARROW_TEX){ const c = document.createElement('canvas'); c.width = 16; c.height = 3; const g = c.getContext('2d'); g.fillStyle = '#0099db'; g.fillRect(0, 1, 13, 1); g.fillStyle = '#2ce8f5'; g.fillRect(3, 0, 10, 3); g.fillStyle = '#ffffff'; g.fillRect(11, 0, 5, 3); g.fillRect(6, 1, 10, 1);
+    ARROW_TEX = new THREE.CanvasTexture(c); ARROW_TEX.magFilter = ARROW_TEX.minFilter = THREE.NearestFilter; ARROW_TEX.generateMipmaps = false; }
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.3), new THREE.MeshBasicMaterial({ map: ARROW_TEX, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); m.renderOrder = 40; R.scene.add(m); return m;
+}
+function loose(sw){
+  const down = sw === BOW.down, up = !down && (sw === BOW.rise || !!(P.atk && P.atk.up)), dir = P.face || 1, sp = BOW.speed;
+  const a = { x: P.x + (up || down ? dir * 0.25 : dir * 0.9), y: P.y + (up ? 2.7 : down ? -0.1 : P.crouch ? 0.5 : 1.05),   // (level: low enough to find a crawler, 0.8 tall; crouched, lower still)
+    vx: up || down ? 0 : dir * sp, vy: up ? sp : down ? -sp : 0, dmg: sw.dmg + (has('whetstone') && sw.pierce ? 1 : 0) + (G.edge >= 2 ? 1 : 0), pierce: !!sw.pierce, seen: new Set(), left: BOW.range, m: arrowMesh() };
+  a.m.rotation.z = up ? Math.PI / 2 : down ? -Math.PI / 2 : dir > 0 ? 0 : Math.PI; ARROWS.push(a);
+  sfx.swing(!!sw.pierce); sfx.crackle && sfx.crackle(); fx.ring({ x: a.x, y: a.y }, 0x2ce8f5); R.glint(a.x, a.y, 0xdff4ff, sw.pierce ? 1.1 : 0.7, 4.5, 0.2); if (sw.pierce){ FLASH = Math.max(FLASH, 0.12); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.1); }
+  if (down) P.vy = Math.max(P.vy, 5);   // the shot's kick holds him up a moment
+}
+function arrowsStep(dt){
+  for (let i = ARROWS.length - 1; i >= 0; i--){
+    const a = ARROWS[i], st = Math.abs(a.vx || a.vy) * dt, n = Math.max(1, Math.ceil(st / 0.3)); let done = false;
+    for (let k = 0; k < n && !done; k++){
+      a.x += a.vx * dt / n; a.y += a.vy * dt / n; a.left -= st / n;
+      const out = [], vert = !a.vx, before = a.seen.size;
+      hitBox(E, a.x - (vert ? 0.35 : 0.5), a.x + (vert ? 0.35 : 0.5), a.y - (vert ? 0.6 : 0.5), a.y + (vert ? 0.6 : 0.5), a.dmg, out, a.seen, a.x - Math.sign(a.vx || 0));
+      const dir = Math.sign(a.vx) || P.face || 1, from = { x: a.x - dir * 0.4, y: a.y - 1.3, face: dir, grounded: true };
+      if (!vert && BOSS && BOSS.strike && !a.boss){ const o2 = []; BOSS.strike(from, 0.8, a.dmg, o2); if (o2.length){ a.boss = true; out.push(...o2); } }
+      if (!vert) ITEMS.strike(from, 0.8, out);
+      for (const o of out) onEvent(o);
+      if (a.seen.size > before || a.boss){ fx.burst({ x: a.x, y: a.y }, 8, 0x2ce8f5); if (!a.pierce) done = true; }
+      if (solidAt(a.x + (a.vx ? Math.sign(a.vx) * 0.6 : 0), a.y + (a.vy ? Math.sign(a.vy) * 0.6 : 0))){ fx.burst({ x: a.x, y: a.y }, 6, 0xdff4ff); fx.dust({ x: a.x, y: a.y }, 4, 1.5); done = true; }
+      if (a.left <= 0) done = true;
+    }
+    if (done){ R.scene.remove(a.m); a.m.geometry.dispose(); a.m.material.dispose(); ARROWS.splice(i, 1); }
+    else a.m.position.set(a.x, a.y, 0.08);
+  }
+}
 const onPlank = P => { const j = Math.floor((P.y - 0.02) / T); for (const x of [P.x - BODY.hw + 0.01, P.x + BODY.hw - 0.01]) if (tileAt(Math.floor(x / T), j) === LEDGE) return true; return false; };
 // ---- the ember arts. Which: down = the slam (the Warden's weight), in the air = the gust (the Wyrm's wind), else the
 // cleave (the Toll's step); each needs its gift and a measure of embers. Their blows are hitBox's (enemies.js): once a
@@ -1257,6 +1295,7 @@ function onEvent(e){
     case 'airDash': sfx.dash(); fx.ring({ x: P.x, y: P.y + 1 }, 0xffd27a); FX2.dashGhost = 0.2; break;
     case 'bloom': sfx.bloom(); PROPS.bounce(e.m); fx.puff(at, 14, 3); fx.burst({ x: P.x, y: P.y + 0.3 }, 10, 0xf6757a); R.glint(P.x, P.y + 0.5, 0xfeae34, 0.7, 4, 0.3); break;
     case 'strike': {
+      if (weaponOf(P).shoots){ loose(e.sw); break; }   // the bow: an arrow, not a blow
       // the blow: the swoosh of light, the air bending round it, the floor kicked up, a thump, the view nudged
       const big = e.finisher, thrust = !!weaponOf(P).narrow || !!weaponOf(P).ring, tilt = { hm_atk3: -0.9, hm_atk2: 0.9, atk_spade: -0.9, atk_slam_v3: -0.7, atk_slam_px: -0.7, atk_rise_px: 1.0, atk_spin_px: 0.1, atk_dash_px: 0.25 }[e.sw.anim] || 0;
       sfx.swing(big); if (!SWINGFX.has(e.sw.anim) && !thrust) fx.crescent({ x: P.x + P.face * 1.15, y: P.y + 1.25 }, P.face, big, tilt);   // the combo's cuts have their own drawn effect
@@ -1275,7 +1314,7 @@ function onEvent(e){
       buzz(e.heavy ? 0.35 : 0.15, e.heavy ? 0.5 : 0.3, e.heavy ? 90 : 50); sfx.hit(); fx.burst(e.at, e.heavy ? 18 : 12, 0xffe0a8); R.glint(e.at.x, e.at.y, 0xffe0a8, e.heavy ? 0.9 : 0.6, 3.5, 0.16); FEEL_FX.hitstop = e.heavy ? 0.09 : 0.05; FEEL_FX.shake = Math.max(FEEL_FX.shake, e.heavy ? 0.18 : 0.1); break;
     case 'swap': {   // round the weapons he has: the sword, then each a keeper has left him, in the order he got them
       const order = ['blade', ...(G.arms || [])], to = order[(Math.max(0, order.indexOf(P.weapon)) + 1) % order.length]; if (order.length < 2){ if (!HINTED.swap){ HINTED.swap = 1; banner('', 'You only have the sword.', 2.2); } break; }
-      P.weapon = G.wield = to; P.atk = null; store(); sfx.whoosh(); fx.ring({ x: P.x, y: P.y + 1.1 }, { blade: 0xffd27a, spade: 0xc0cbdc, clapper: 0xfeae34, tooth: 0xdff4ff }[to] || 0xffd27a); banner('', ARMS[to].title, 1.4); break; }
+      P.weapon = G.wield = to; P.atk = null; store(); sfx.whoosh(); fx.ring({ x: P.x, y: P.y + 1.1 }, { blade: 0xffd27a, spade: 0xc0cbdc, clapper: 0xfeae34, tooth: 0xdff4ff, bow: 0x2ce8f5 }[to] || 0xffd27a); banner('', ARMS[to].title, 1.4); break; }
     // iron has been touched in the Bell-Foundry (regions/foundry.js): it rings, a while; the shutters come down
     case 'ring': { if (RULE.still) break; const was = RULE.ring > 0, d = Math.hypot(e.at.x - P.x, e.at.y - P.y); RULE.ring = Math.max(RULE.ring, RING[e.big ? 1 : 0]);
       sfx.crackbell(!!e.big); if (e.big) sfx.clang(); fx.ring(e.at, 0xfeae34); if (e.big) fx.ring(e.at, 0xffffff); R.shock(e.at.x, e.at.y, !!e.big); R.glint(e.at.x, e.at.y, 0xfeae34, e.big ? 1.2 : 0.7, e.big ? 9 : 5, 0.3); FEEL_FX.shake = Math.max(FEEL_FX.shake, e.big ? 0.3 : d < 10 ? 0.12 : 0.05);
@@ -1476,7 +1515,7 @@ function drawHud(dt){
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { knotMenu, tryMenu, tryStart, TRIES, MOMENTS, TRY, waterMenu, goUnder, waterList, get under(){ return UNDER; }, set atWater(v){ ATWATER = v; }, get shrines(){ return SHRINES; }, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, RULE, VERSION, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { get arrows(){ return ARROWS; }, knotMenu, tryMenu, tryStart, TRIES, MOMENTS, TRY, waterMenu, goUnder, waterList, get under(){ return UNDER; }, set atWater(v){ ATWATER = v; }, get shrines(){ return SHRINES; }, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, RULE, VERSION, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

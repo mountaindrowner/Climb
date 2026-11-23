@@ -252,3 +252,5 @@ is in the game.
   weak up close (a shot needs a moment to draw), so it stands on its own like the others.
 
 **For you:** yes to the set? Anything to send back? And arrows free, or not?
+
+**The bow is done** (23 Nov): its set approved, arrows free, and **in the game, build 93**. Last: the thorns' drawings.

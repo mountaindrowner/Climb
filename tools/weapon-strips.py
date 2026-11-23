@@ -38,7 +38,18 @@ SETS = {'hammer': {
   'cl_atk2': ('cl_atk2', range(1, 13)),          # down in front on the sixth
   'cl_atk3': ('cl_atk3', range(1, 13)),          # the whirl, from the fourth to the tenth
   'cl_up': ('cl_up', range(1, 13)),              # straight up on the eighth
-  'cl_plunge': ('cl_plunge', range(2, 9), {'foot': 80, 'cx': 45}) }}   # A: the whirl over his head, then the chain cast straight down
+  'cl_plunge': ('cl_plunge', range(2, 9), {'foot': 80, 'cx': 45}) },   # A: the whirl over his head, then the chain cast straight down
+ # the Thunderhead's storm bow (build 93; approved 23 Nov). The arrows are the game's own: where a strip paints one far
+ # from him, that frame is left out
+ 'bow': {
+  'bw_idle': ('bw_idle', range(1, 9)), 'bw_run': ('bw_run', range(2, 9)), 'bw_land': ('bw_land', range(3, 9)),
+  'bw_crouch': ('bw_crouch', range(1, 7)), 'bw_crouch_walk': ('bw_crouch_walk', range(3, 9)), 'bw_roll': ('bw_roll', range(1, 13)), 'bw_hurt': ('bw_hurt', range(1, 9)),
+  'bw_air': ('bw_jump', range(5, 13), {'foot': 61, 'cx': 44}),
+  'bw_atk1': ('bw_atk1', range(1, 11)),          # ten: loosed on the last (the painted flash after it is left out: too big in play)
+  'bw_atk2': ('bw_atk2b', range(1, 11)),         # ten: kneeling, loosed on the last
+  'bw_atk3': ('bw_atk3', range(1, 11)),          # ten: the full draw, loosed on the last (its painted flash left out; the game makes its own)
+  'bw_up': ('bw_up2', range(1, 10)),             # nine: the arrow aimed straight up, loosed on the eighth
+  'bw_down': ('bw_down', range(0, 6), {'foot': 76, 'cx': 55}) }}   # six, in the air: the bow turned down, loosed on the last
 def snap(im):
     pal = [tuple(int(c[i:i + 2], 16) for i in (1, 3, 5)) for c in PAL]; px = im.load(); cache = {}
     for y in range(im.height):

@@ -149,6 +149,7 @@ export const ICONS = {
   blade: ['..............kk', '.............kwk', '............kwpk', '...........kwpk', '..........kwpk', '.........kwpk', '........kwpk', '.......kwpk', '..kk..kwpk', '...kkkwpk', '....kykk', '...kWkk', '..kWk.kk', '.kWk', '.kk'],
   hammer: ['', '.........kkkkkk', '........kllllllk', '........klmCCmlk', '........klmCBmlk', '........kmmmmmmk', '.......kWkkkkkk', '......kWk', '.....kWk', '....kWk', '...kWk', '..kWk', '.kWk', '.kk'],
   clapper: ['', '..kk', '.kWWk', '..kWk', '...kk', '....k.k', '.....k.k', '......k.k', '.......kkk', '......kyyYk', '.....kyyyyYk', '.....kyyyyYk', '......kyyYk', '.......kkk'],
+  bow: ['.......kk', '......kCk.k', '.....kCk..kW', '....kCk...kW', '....kCk..kW', '...kCk..kW.', '...kCk.kW..', '...kCkkW...', '...kCk.kW..', '...kCk..kW.', '....kCk..kW', '....kCk...kW', '.....kCk..kW', '......kCk.k', '.......kk'],
   tooth: ['..............kk', '.............kwk', '............kwwk', '...........kwwk', '...........kwk', '..........krrk', '.........kWrk', '........kWk', '.......kWk', '......kWk', '.....kWk', '....kWk', '...kWk', '..kWk', '.kk'],
   spade: ['...........kkkk', '...........kbbk', '............kk', '...........kWk', '..........kWk', '.........kWk', '........kWk', '...kkk.kWk', '..kpppkWk', '.kpllppk', '.kplmlpk', '.kpmllk', '..kkkk'],
   knot: ['', '', 'rrrrrrkkkrrrrrrr', 'RRRRRkYYYkRRRRRR', '.....kYcYk', '.....kYYYk', '......kkk', '.......rr', '......rR.r', '.....rR...r'],

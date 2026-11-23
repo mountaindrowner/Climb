@@ -186,8 +186,9 @@ export function stepPlayer(P, dt){
   if (consume('block')) P.blockAt = performance.now() / 1000;
   P.blocking = H.block && P.roll <= 0 && !stunned && !P.atk && weaponOf(P).guard !== false;
   if (P.roll <= 0 && !stunned && !P.dive && !P.art && P.plant <= 0 && consume('attack')){
-    if (FEEL.dive && !P.grounded && !P.swim && H.down && heightAbove(P) > MV.dive.min){ P.dive = { t: 0 }; P.atk = null; P.vx = 0; P.vy = -MV.dive.speed; P.flip = 0; ev(P, 'dive'); }   // (never begun in deep water: see below)
-    else if (!P.atk) startSwing(P, 0, ((P.grounded && H.down) || H.up) && weaponOf(P).rise ? 'rise' : null);   // from a crouch: the rising cut. With up held, on the ground or in the air: the same cut, struck upward (P.atk.up)
+    if (!P.grounded && !P.swim && H.down && weaponOf(P).down && !P.atk) startSwing(P, 0, 'down');   // the bow: a shot straight down, not a plunge
+    else if (FEEL.dive && !P.grounded && !P.swim && H.down && heightAbove(P) > MV.dive.min && !weaponOf(P).shoots){ P.dive = { t: 0 }; P.atk = null; P.vx = 0; P.vy = -MV.dive.speed; P.flip = 0; ev(P, 'dive'); }   // (never begun in deep water: see below)
+    else if (!P.atk) startSwing(P, 0, ((P.grounded && H.down && !weaponOf(P).shoots) || H.up) && weaponOf(P).rise ? 'rise' : null);   // from a crouch: the rising cut. With up held, on the ground or in the air: the same cut, struck upward (P.atk.up)
     else P.atk.queued = true;
   }
   if (consume('flask')) ev(P, 'flask');
@@ -452,8 +453,19 @@ export const CLAPPER = { name: 'Toll\'s clapper', reach: 4.5, guard: false, near
 ], rise: { dmg: 2, wind: 0.28, active: 0.12, rec: 0.4, lunge: 0, reach: 4.2, anim: 'cl_up', hit: 7 / 12 } };   // how high the dive on the tooth throws him back up, and what it does to what it lands on
 // every weapon he can carry (build 91: there were two, and the code asked "is it the spade?" everywhere). `pre`: the
 // front of the names of his drawings with it in hand; `icon`: its picture; `title`: what the swap says
-export const ARMS = { blade: BLADE, spade: SPADE, clapper: CLAPPER, tooth: TOOTH };
-Object.assign(BLADE, { id: 'blade', pre: '', icon: 'blade', title: 'the sword' }); Object.assign(SPADE, { id: 'spade', pre: 'hm_', icon: 'hammer', title: 'the hammer' }); Object.assign(TOOTH, { id: 'tooth', pre: 'tt_', icon: 'tooth', title: 'the tooth' }); Object.assign(CLAPPER, { id: 'clapper', pre: 'cl_', icon: 'clapper', title: 'the clapper' });
+// The Thunderhead's storm bow (build 93): a string of lightning. It shoots (`shoots`: main.js looses an arrow when a
+// shot's moment comes, and the arrow flies across the room). Its arrows cost nothing (your word, 23 Nov): what it pays is
+// time, each shot drawn before it goes, so it is weak with something on top of him. The third shot goes through what it
+// meets (`pierce`). With up: a shot straight up. In the air, down and attack: a shot straight down, and its kick holds him
+// up a little. It cannot block
+export const BOW = { name: 'Thunderhead\'s bow', reach: 0, guard: false, shoots: true, speed: 30, range: 24, combo: [
+  { dmg: 2, wind: 0.3, active: 0.06, rec: 0.22, lunge: 0, anim: 'bw_atk1', hit: 9 / 10 },
+  { dmg: 2, wind: 0.32, active: 0.06, rec: 0.24, lunge: 0, anim: 'bw_atk2', hit: 9 / 10 },
+  { dmg: 3, wind: 0.5, active: 0.06, rec: 0.32, lunge: 0, pierce: true, anim: 'bw_atk3', hit: 9 / 10 },
+], rise: { dmg: 2, wind: 0.32, active: 0.06, rec: 0.28, lunge: 0, anim: 'bw_up', hit: 7 / 9 },
+  down: { dmg: 2, wind: 0.2, active: 0.06, rec: 0.22, lunge: 0, anim: 'bw_down', hit: 5 / 6 } };
+export const ARMS = { blade: BLADE, spade: SPADE, clapper: CLAPPER, tooth: TOOTH, bow: BOW };
+Object.assign(BLADE, { id: 'blade', pre: '', icon: 'blade', title: 'the sword' }); Object.assign(SPADE, { id: 'spade', pre: 'hm_', icon: 'hammer', title: 'the hammer' }); Object.assign(TOOTH, { id: 'tooth', pre: 'tt_', icon: 'tooth', title: 'the tooth' }); Object.assign(CLAPPER, { id: 'clapper', pre: 'cl_', icon: 'clapper', title: 'the clapper' }); Object.assign(BOW, { id: 'bow', pre: 'bw_', icon: 'bow', title: 'the bow' });
 export const weaponOf = P => ARMS[P.weapon] || BLADE;
 // the tooth's dive has met something: he is thrown back up, with his second jump and his dash to use again
 export function pogo(P){ P.dive = null; P.atk = null; P.plant = 0; P.vy = launchSpeed(POGO.height, MV.launch.ground); P.launch = MV.launch.ground; P.jumpT = 0; P.grounded = false; P.bounce = true; P.flip = 0; P.airTop = P.y; P.airJumps = FEEL.doubleJump ? 1 : 0; P.airDash = 1; ev(P, 'pogo'); }

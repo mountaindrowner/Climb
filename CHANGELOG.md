@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Toll's clapper (latest; build 92).** The Toll leaves the clapper, a flail on a chain: the longest reach, in arcs; a whirl that finds what is behind; a blow that rings small creatures to a stop; nothing within a metre; no block. 475 checks. No save is moved.
+**The storm bow (latest; build 93).** The Thunderhead leaves a storm bow: free arrows of lightning across the room; three shots, the third going through everything; a shot up, and a shot down from the air. Slow to draw; no block. 476 checks. No save is moved.
+
+**The Toll's clapper (build 92).** The Toll leaves the clapper, a flail on a chain: the longest reach, in arcs; a whirl that finds what is behind; a blow that rings small creatures to a stop; nothing within a metre; no block. 475 checks. No save is moved.
 
 **The Wyrm's tooth (build 91).**
 - **The Wyrm leaves the tooth,** a spear: a thrust, a longer thrust, a charge that carries him through what is small; up and attack thrusts straight up; in the air, down and attack dives on it and bounces him off creatures and spikes.
