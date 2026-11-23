@@ -8,9 +8,9 @@ const R = await import('./helpers/reach.mjs');
 const ST = await import('../src/side/state.js');
 const TE = await import('../src/side/teach.js');
 const room = (L, n) => L.rooms.find(r => r.name === n);
-test('the air dash is an ability with its picture and its words, and it is no keeper\'s; the Toll leaves a heart until its weapon is made', () => {
+test('the air dash is an ability with its picture and its words, and it is no keeper\'s; the Toll leaves its weapon', () => {
   const A = ST.ABILITY.dash; assert.ok(A && A.can === 'dash' && A.name && A.does && A.how.length); assert.ok(TE.ICONS[A.icon]);
-  assert.ok(!ST.TEACH.some(t => t.can === 'dash'), 'no keeper leaves it'); assert.equal(ST.TEACH[1].heart, 1); assert.ok(ST.TEACH[1].name);
+  assert.ok(!ST.TEACH.some(t => t.can === 'dash'), 'no keeper leaves it'); assert.equal(ST.TEACH[1].arm, 'clapper', 'the Toll leaves its weapon (build 92; a heart until then)'); assert.ok(ST.TEACH[1].name);
   assert.deepEqual(Object.keys(ST.ARRIVES), ['breaker', 'dash', 'glide']); assert.deepEqual(R.arrival(2), ['breaker', 'dash']); assert.deepEqual(R.arrival(1), ['breaker']);
   for (const l of [A.does, ...A.how, ...(A.more || [])]) assert.ok(l.length <= 110, l);
 });

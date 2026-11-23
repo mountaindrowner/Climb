@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 91, date: '23 NOV 2026', phase: 17, phases: 22, last: 'THE WYRM\'S TOOTH' };
+const VERSION = { build: 92, date: '23 NOV 2026', phase: 17, phases: 22, last: 'THE TOLL\'S CLAPPER' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -86,6 +86,7 @@ function learn(){
   const b = n => !!G.beat[n] || G.top > n || (DEV && LEVEL.index > n);
   const got = c => !!(G.can && G.can[c]) || (DEV && LEVEL.index >= ARRIVES[c]); CAN.breaker = b(0); CAN.dash = got('dash'); CAN.glide = got('glide');   // (build 87: the dash and the glide are his when he is given them, G.can; not when a keeper has fallen) CAN.grip = !!G.beat[TEACH.findIndex(t => t.can === 'grip')];
   if (CAN.breaker && !armed('spade') && !GIFTING){ (G.arms = G.arms || []).push('spade'); swapButton(); }   // the Warden's gift is the hammer (a save from before has it now)
+  if ((b(1) || (DEV && LEVEL.index > 1)) && !armed('clapper') && !GIFTING){ (G.arms = G.arms || []).push('clapper'); swapButton(); }   // the Toll's is the clapper (build 92; a save whose Toll had fallen has it now)
   if ((b(2) || (DEV && LEVEL.index > 2)) && !armed('tooth') && !GIFTING){ (G.arms = G.arms || []).push('tooth'); swapButton(); }   // the Wyrm's is the tooth (build 91; a save whose Wyrm had fallen has it now)
   SIDE.feather = has('featherfall'); SIDE.stone = has('turnstone'); SIDE.boots = has('boots'); SIDE.calm = has('stillair'); SIDE.bell = has('shiftbell'); SIDE.rope = has('lastrope'); if (CAN.breaker && !G.lamp){ G.lamp = 1; G.lampNew = 1; } if (P){ P.flaskMax = maxFlask(); P.flask = Math.min(P.flask, P.flaskMax); const mh = maxHearts(); if (mh > P.maxHp) P.hp += mh - P.maxHp; P.maxHp = mh; P.hp = Math.min(P.hp, mh); }
   // (the yoke, the second place: worn or taken off; then the Gardener's Seed. This last statement has twice been found
@@ -773,7 +774,8 @@ function heroPose(P, t){
   if (WAKE > 0 && has('getup')) return ['getup', Math.min(0.999, Math.max(0, 1 - WAKE / 1.4))];   // where he fell: up off the ground
   if (RECEIVE > 0 && has('receive')) return ['receive', Math.min(0.999, 1 - RECEIVE / RECEIVE_T)];   // taking a keeper's gift
   if (P.art){ if (P.art.k === 'slam' && P.weapon === 'spade' && has('hm_atk3')) return ['hm_atk3', (6 + Math.min(5.99, P.art.t / P.art.dur * 6)) / 12];   // the slam, with the hammer: its great blow
-    if (P.weapon === 'tooth'){ const u = Math.min(0.999, P.art.t / P.art.dur), a = { cleave: ['tt_atk3', (4 + u * 7) / 12], gust: ['tt_up', (5 + u * 6) / 12], slam: ['tt_land', u] }[P.art.k]; if (a && has(a[0])) return a; }   // the arts, with the tooth: its charge, its upward thrust, a landing
+    if (P.weapon === 'tooth'){ const u = Math.min(0.999, P.art.t / P.art.dur), a = { cleave: ['tt_atk3', (4 + u * 7) / 12], gust: ['tt_up', (5 + u * 6) / 12], slam: ['tt_land', u] }[P.art.k]; if (a && has(a[0])) return a; }
+    if (P.weapon === 'clapper'){ const u = Math.min(0.999, P.art.t / P.art.dur), a = { cleave: ['cl_atk1', (5 + u * 6) / 12], gust: ['cl_up', (6 + u * 5) / 12], slam: ['cl_atk2', (4 + u * 7) / 12] }[P.art.k]; if (a && has(a[0])) return a; }   // the arts, with the tooth: its charge, its upward thrust, a landing
     const name = { cleave: 'atk_dash_px', gust: 'atk_rise_px', slam: 'plunge_land' }[P.art.k]; if (has(name)) return [name, Math.min(0.999, P.art.t / P.art.dur)]; }   // an ember art
   if (P.mantle && pick('climb')){
     const name = pick('climb'), C = CLIMB[name] || A[name].climb, M = P.mantle;   // climb_own carries its table (tools/compose-climb.py)
@@ -792,6 +794,8 @@ function heroPose(P, t){
   // the blade reaches below his feet
   // the hammer's plunge: he rides it down, its stone head under his boots (build 90: a drawing of its own, begun from
   // the "in the air" one; until then it borrowed two frames of the great blow). It lands with that blow's end
+  if (P.dive && P.weapon === 'clapper' && has('cl_plunge')){ const n = A.cl_plunge.frames; return ['cl_plunge', (Math.min(n - 1, Math.floor((P.dive.t || 0) * 14)) + 0.5) / n]; }   // the clapper's: a whirl over his head, then the chain cast down, held
+  if (P.grounded && PLUNGE_T > 0 && P.weapon === 'clapper' && has('cl_atk2') && !(Math.abs(P.vx) > 1.5 && P.plant <= 0)) return ['cl_atk2', (6 + Math.min(4.99, (1 - PLUNGE_T / PLUNGE_LAND) * 5)) / 12];   // landing: its head on the ground in front of him
   if (P.dive && P.weapon === 'tooth' && has('tt_plunge')){ const n = A.tt_plunge.frames; return ['tt_plunge', ((Math.floor((P.dive.t || 0) * 10) % n) + 0.5) / n]; }   // the tooth's dive: head first behind the spear
   if (P.grounded && PLUNGE_T > 0 && P.weapon === 'tooth' && has('tt_land') && !(Math.abs(P.vx) > 1.5 && P.plant <= 0)) return ['tt_land', Math.min(0.999, 1 - PLUNGE_T / PLUNGE_LAND)];
   if (P.dive && P.weapon === 'spade' && has('hm_plunge')){ const n = A.hm_plunge.frames; return ['hm_plunge', ((Math.floor((P.dive.t || 0) * 10) % n) + 0.5) / n]; }
@@ -1241,19 +1245,20 @@ function onEvent(e){
     case 'surface': sfx.splash(); fx.burst({ x: P.x, y: P.y + 1.4 }, 10, 0xdff4ff); break;
     case 'land': sfx.step(); fx.puff(at, e.hard ? 20 : 8, e.hard ? 3.2 : 2); if (e.hard) FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.12); if (e.hard || (e.drop || 0) > 0.8 || FX2.flipped){ landT = LAND_T; } FX2.flipped = false; break;
     case 'slam': { if (e.art) waves(P.x, P.y); PLUNGE_T = PLUNGE_LAND; landT = 0; sfx.slam(); fx.puff(at, 24, 3.6); R.shock(P.x, P.y + 0.3, true); fx.ring(at, 0xffd27a);
-      buzz(0.55, 0.45, 150); const storm = has('stormglass'), spade = P.weapon === 'spade', rad = MV.dive.radius * (storm ? 1.5 : 1) * (spade ? 0.8 : P.weapon === 'tooth' ? 0.5 : 1), dmg = MV.dive.dmg + (storm ? 1 : 0) + (G.edge && !spade ? 1 : 0), out = [];   // the spade's plunge: narrower, and it breaks what is under him
+      buzz(0.55, 0.45, 150); const storm = has('stormglass'), spade = P.weapon === 'spade', rad = MV.dive.radius * (storm ? 1.5 : 1) * (spade ? 0.8 : P.weapon === 'tooth' ? 0.5 : P.weapon === 'clapper' ? 1.5 : 1), dmg = MV.dive.dmg + (storm ? 1 : 0) + (G.edge && !spade ? 1 : 0), out = [];   // the spade's plunge: narrower, and it breaks what is under him
       if (storm){ sfx.thunder(); R.glint(P.x, P.y + 1, 0xcfe6ff, 1.4, 8, 0.25); FLASH = Math.max(FLASH, 0.1); for (let k = 0; k < 14; k++) fx.burst({ x: P.x + (Math.random() - 0.5) * 0.5, y: P.y + k * 0.7 }, 3, 0xcfe6ff); }
       slamEnemies(E, P, rad, dmg, out); if (BOSS) BOSS.slam(P, rad, dmg, out); ITEMS.slam(P, rad, out); breakRock(P.x, P.y + 0.2, 1.5, spade); for (const o of out) onEvent(o); break; }
     case 'roll': sfx.whoosh(); fx.kick(at, -P.rollDir, 10, 2.6); break;
     case 'dashCut': sfx.dash(); fx.kick(at, -P.face, 14, 3.4); FX2.ghostT = 0; break;
     case 'dive': sfx.whoosh(); break;
+    case 'rang': sfx.chime ? sfx.chime() : sfx.clang(); fx.ring(e.at, 0xfeae34); break;
     case 'pogo': sfx.parry(); sfx.jump(); fx.ring({ x: P.x, y: P.y - 0.4 }, 0xdff4ff); fx.burst({ x: P.x, y: P.y - 0.6 }, 12, 0xdff4ff); R.glint(P.x, P.y - 0.5, 0xdff4ff, 0.9, 4.5, 0.25); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.12); FEEL_FX.hitstop = 0.05; PLUNGE_T = 0; break;
     case 'glide': sfx.glide(); if (LEVEL.updrafts.some(u => P.x >= u.x0 && P.x < u.x1 && P.y + 1 >= u.y0 && P.y + 1 < u.y1)) sfx.gust(); break;
     case 'airDash': sfx.dash(); fx.ring({ x: P.x, y: P.y + 1 }, 0xffd27a); FX2.dashGhost = 0.2; break;
     case 'bloom': sfx.bloom(); PROPS.bounce(e.m); fx.puff(at, 14, 3); fx.burst({ x: P.x, y: P.y + 0.3 }, 10, 0xf6757a); R.glint(P.x, P.y + 0.5, 0xfeae34, 0.7, 4, 0.3); break;
     case 'strike': {
       // the blow: the swoosh of light, the air bending round it, the floor kicked up, a thump, the view nudged
-      const big = e.finisher, thrust = !!weaponOf(P).narrow, tilt = { hm_atk3: -0.9, hm_atk2: 0.9, atk_spade: -0.9, atk_slam_v3: -0.7, atk_slam_px: -0.7, atk_rise_px: 1.0, atk_spin_px: 0.1, atk_dash_px: 0.25 }[e.sw.anim] || 0;
+      const big = e.finisher, thrust = !!weaponOf(P).narrow || !!weaponOf(P).ring, tilt = { hm_atk3: -0.9, hm_atk2: 0.9, atk_spade: -0.9, atk_slam_v3: -0.7, atk_slam_px: -0.7, atk_rise_px: 1.0, atk_spin_px: 0.1, atk_dash_px: 0.25 }[e.sw.anim] || 0;
       sfx.swing(big); if (!SWINGFX.has(e.sw.anim) && !thrust) fx.crescent({ x: P.x + P.face * 1.15, y: P.y + 1.25 }, P.face, big, tilt);   // the combo's cuts have their own drawn effect
       { const upw = !!(P.atk && P.atk.up), gx = upw ? P.x + P.face * 0.3 : P.x + P.face * 1.3, gy = upw ? P.y + 2.9 : P.y + 1.3; R.glint(gx, gy, big ? 0xffd27a : 0xbfe8ff, big ? 0.9 : 0.6, 4.5, 0.22); R.shock(gx, gy - 0.1, big); }
       if (P.grounded) fx.kick(at, -P.face, big ? 12 : 7, big ? 3 : 2.2);
@@ -1262,7 +1267,7 @@ function onEvent(e){
       const along = e.sw.dash && !e.sw.pierce && P.dashFrom != null, from = along ? { ...P, x: P.dashFrom } : P, reach = (e.sw.reach || weaponOf(P).reach) + (along ? Math.abs(P.x - P.dashFrom) : 0);   // (a thrust has its own reach; the tooth's charge strikes as it goes, toothStep)
       if (thrust && !(P.atk && P.atk.up)){ R.glint(P.x + P.face * reach, P.y + 1.3, 0xdff4ff, 0.8, 4, 0.2); fx.burst({ x: P.x + P.face * reach, y: P.y + 1.3 }, 5, 0xdff4ff); } if (thrust && P.atk && P.atk.up){ R.glint(P.x, P.y + 2.4 + reach, 0xdff4ff, 0.8, 4, 0.2); }
       const digs = !!weaponOf(P).digs, dmg = digs ? (P.grounded ? e.sw.dmg : Math.max(1, e.sw.dmg - 2)) + (big && has('whetstone') ? 1 : 0) : e.sw.dmg + (big && has('whetstone') ? 1 : 0) + (G.edge >= 2 || (G.edge && big) ? 1 : 0), out = [];   // the whetstone; the blade's tempering; the spade weak in the air
-      strikeEnemies(E, from, reach, dmg, out, !!(P.atk && P.atk.up), weaponOf(P).knock || weaponOf(P).narrow ? weaponOf(P) : null); if (BOSS) BOSS.strike(from, reach, dmg, out); ITEMS.strike(from, reach, out);
+      strikeEnemies(E, from, reach, dmg, out, !!(P.atk && P.atk.up), P.weapon !== 'blade' ? { ...weaponOf(P), round: !!e.sw.round } : null); if (BOSS) BOSS.strike(from, reach, dmg, out); ITEMS.strike(from, reach, out);
       breakRock(P.x + P.face * (digs ? 1.8 : 1.2), P.y + (digs ? 0.6 : 1.2), digs ? 1.5 : 1.3, digs);   // the spade digs where it lands; the blade rings off
       if (e.sw.wave && P.grounded){ waves(P.x + P.face * 1.6, P.y, [P.face], 0.38); sfx.slam(); R.shock(P.x + P.face * 1.8, P.y + 0.3, true); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.3); }   // its last blow runs on along the ground, a little way
       for (const o of out) onEvent(o); break; }
@@ -1270,7 +1275,7 @@ function onEvent(e){
       buzz(e.heavy ? 0.35 : 0.15, e.heavy ? 0.5 : 0.3, e.heavy ? 90 : 50); sfx.hit(); fx.burst(e.at, e.heavy ? 18 : 12, 0xffe0a8); R.glint(e.at.x, e.at.y, 0xffe0a8, e.heavy ? 0.9 : 0.6, 3.5, 0.16); FEEL_FX.hitstop = e.heavy ? 0.09 : 0.05; FEEL_FX.shake = Math.max(FEEL_FX.shake, e.heavy ? 0.18 : 0.1); break;
     case 'swap': {   // round the weapons he has: the sword, then each a keeper has left him, in the order he got them
       const order = ['blade', ...(G.arms || [])], to = order[(Math.max(0, order.indexOf(P.weapon)) + 1) % order.length]; if (order.length < 2){ if (!HINTED.swap){ HINTED.swap = 1; banner('', 'You only have the sword.', 2.2); } break; }
-      P.weapon = G.wield = to; P.atk = null; store(); sfx.whoosh(); fx.ring({ x: P.x, y: P.y + 1.1 }, { blade: 0xffd27a, spade: 0xc0cbdc, tooth: 0xdff4ff }[to] || 0xffd27a); banner('', ARMS[to].title, 1.4); break; }
+      P.weapon = G.wield = to; P.atk = null; store(); sfx.whoosh(); fx.ring({ x: P.x, y: P.y + 1.1 }, { blade: 0xffd27a, spade: 0xc0cbdc, clapper: 0xfeae34, tooth: 0xdff4ff }[to] || 0xffd27a); banner('', ARMS[to].title, 1.4); break; }
     // iron has been touched in the Bell-Foundry (regions/foundry.js): it rings, a while; the shutters come down
     case 'ring': { if (RULE.still) break; const was = RULE.ring > 0, d = Math.hypot(e.at.x - P.x, e.at.y - P.y); RULE.ring = Math.max(RULE.ring, RING[e.big ? 1 : 0]);
       sfx.crackbell(!!e.big); if (e.big) sfx.clang(); fx.ring(e.at, 0xfeae34); if (e.big) fx.ring(e.at, 0xffffff); R.shock(e.at.x, e.at.y, !!e.big); R.glint(e.at.x, e.at.y, 0xfeae34, e.big ? 1.2 : 0.7, e.big ? 9 : 5, 0.3); FEEL_FX.shake = Math.max(FEEL_FX.shake, e.big ? 0.3 : d < 10 ? 0.12 : 0.05);

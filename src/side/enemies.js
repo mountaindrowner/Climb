@@ -365,13 +365,15 @@ export function strikeEnemies(E, P, reach, dmg, events, up = false, heavy = null
   for (const e of E.list){
     if (!e.alive || e.d.harmless || (e.d.ai === 'burrower' && !(e.st === 'rise' || e.st === 'up'))) continue;
     const ahead = (e.x - P.x) * P.face, top = e.y + e.d.h, bottom = e.d.fly ? e.y - e.d.h / 2 : e.y;
-    if (up ? (Math.abs(e.x - P.x) > 1.0 + e.d.w / 2 || bottom > P.y + 2.2 + reach || top < P.y + 1.0) : (ahead < (heavy && heavy.wide ? -1.2 : -0.4) || ahead > reach + e.d.w || top < P.y + (heavy && heavy.narrow ? 0.5 : -0.2) || bottom > P.y + (heavy && heavy.wide ? 3.4 : heavy && heavy.narrow ? 2.1 : 2.7))) continue;   // (narrow: the tooth, a line at his chest: it misses what is low at his feet or over his head)
+    if (heavy && heavy.near && !up && Math.abs(e.x - P.x) - e.d.w / 2 < heavy.near) continue;   // the clapper: nothing close to him
+    if (up ? (Math.abs(e.x - P.x) > 1.0 + e.d.w / 2 || bottom > P.y + 2.2 + reach || top < P.y + 1.0) : (ahead < (heavy && heavy.round ? -reach - e.d.w : heavy && heavy.wide ? -1.2 : -0.4) || ahead > reach + e.d.w || top < P.y + (heavy && heavy.narrow ? 0.5 : -0.2) || bottom > P.y + (heavy && heavy.wide ? 3.4 : heavy && heavy.narrow ? 2.1 : 2.7))) continue;   // (narrow: the tooth, a line at his chest: it misses what is low at his feet or over his head)
     if (e.d.guard && e.d.guard(e, P)){ events.push({ type: 'block', at: { x: e.x - P.face * e.d.w, y: e.y + e.d.h * 0.6 } }); any = true; continue; }   // it turns the blow
     // the hammer: what is small enough is knocked back along the ground (or through the air), as far as there is room
     // and floor, and stands stopped a breath. Not the wings' elites, nor what clings or is not a body
     if (heavy && heavy.knock && (e.d.hp || 0) < 12 && !e.d.cling && !e.d.own && !e.d.perch){ const dir = P.face || 1; let moved = 0;
       while (moved < heavy.knock){ const nx = e.x + dir * 0.1; if (solidAt(nx + dir * e.d.w / 2, e.y + (e.d.fly ? 0 : 0.3)) || (!e.d.fly && !solidAt(nx, e.y - 0.2))) break; e.x = nx; moved += 0.1; }
       e.vx = 0; e.stilled = Math.max(e.stilled || 0, heavy.stagger || 0); }
+    if (heavy && heavy.ring && (e.d.hp || 0) < 12 && !e.d.own){ e.stilled = Math.max(e.stilled || 0, heavy.ring); events.push({ type: 'rang', at: { x: e.x, y: e.y + e.d.h * 0.6 } }); }   // the clapper's blow rings: what is small stands stopped a breath
     any = true; e.hp -= dmg; e.flash = 0.12; if (WALK[e.d.ai] && RESTING.has(e.st)){ e.st = WALK[e.d.ai]; e.tm = 0; e.unseen = 0; } if (e.d.onHit) e.d.onHit(e, dmg, P);
     if ((e.d.ai === 'crawler' && (e.st === 'windup' || e.st === 'chase')) || (e.d.ai === 'thrower' && e.st !== 'stunned')){ e.st = 'stunned'; e.tm = 0; e.stun = e.d.ai === 'thrower' ? 0.4 : 0.5; }
     if (e.d.ai === 'wraith' && e.st !== 'rush'){ e.st = 'spent'; e.tm = Math.max(0, e.d.recover - 0.5); }

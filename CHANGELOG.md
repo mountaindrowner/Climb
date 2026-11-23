@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Wyrm's tooth (latest; build 91).**
+**The Toll's clapper (latest; build 92).** The Toll leaves the clapper, a flail on a chain: the longest reach, in arcs; a whirl that finds what is behind; a blow that rings small creatures to a stop; nothing within a metre; no block. 475 checks. No save is moved.
+
+**The Wyrm's tooth (build 91).**
 - **The Wyrm leaves the tooth,** a spear: a thrust, a longer thrust, a charge that carries him through what is small; up and attack thrusts straight up; in the air, down and attack dives on it and bounces him off creatures and spikes.
 - **The swap key goes round** sword, hammer, tooth.
 - **The glide is the Seated's,** in a prize chest behind him; the Tempest needs it.

@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 91 | 23 Nov 2026 | `3ff8816` | The Wyrm's tooth, a spear; the Wyrm leaves it; the glide is the Seated's, in a prize chest; weapons go round on the swap key | **save** (kept) | yes (now) |
+| 92 | 23 Nov 2026 | `COMMIT92` | The Toll's clapper, a flail: the longest reach, a blow that rings creatures to a stop; the Toll leaves it, not a heart | no | yes (now) |
+| 91 | 23 Nov 2026 | `3ff8816` | The Wyrm's tooth, a spear; the Wyrm leaves it; the glide is the Seated's, in a prize chest; weapons go round on the swap key | **save** (kept) | replaced by 92 |
 | 90 | 23 Nov 2026 | `bd14458` | The hammer's plunge: a drawing of its own, he rides it down | no | replaced by 91 |
 | 89 | 23 Nov 2026 | `6ff3654` | The hammer drawn: a whole set of his drawings holding it, made from the one picture picked | no | replaced by 90 |
 | 88 | 22 Nov 2026 | `0514ae3` | Harder: one spring a region, prices up two thirds, urns pay less, the larger creatures' and the keepers' great blows cost two hearts | no | replaced by 89 |
@@ -107,6 +108,46 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 92: the Toll's clapper
+
+*The third weapon a keeper leaves (`docs/weapons-sheet.md`). Your word, 23 Nov: "Yeah, we're set. Plunge A." And on
+what a keeper leaves until its weapon is made: "don't worry about number 3 because we're finishing the weapons." So
+the Toll leaves the clapper now, not a heart.*
+
+**For the player**
+
+- **The Toll leaves the clapper:** the bell's tongue on a chain, with a handle (`docs/clapper-in-game.png`).
+  - **The longest reach of anything in his hand,** four and a half metres, in arcs: a long swing out and back, a blow
+    over his head and down onto the ground in front, and a whirl round him that finds what is behind him too.
+  - **A blow rings:** a creature it hits (not a large one) stands stopped for most of a second.
+  - **Up and attack:** the chain swung straight up over him.
+  - **In the air, down and attack:** he whirls it over his head and casts the chain straight down (plunge A). It lands
+    wider than the other weapons' plunges.
+  - **Nothing within a metre of him:** a creature at his feet is not struck. It is slow to come back, and it cannot
+    block.
+- **The swap key goes round** sword, then each weapon in the order he was given it.
+
+**What is weaker than it should be**
+
+- **The bell head is small,** as in the picture picked. It reads, but it is not a big weapon on screen.
+- **No arc of light is drawn with a swing,** only a spark where the head is and a ring on what it strikes.
+- **A save that beat the Toll in builds 87 to 91 keeps the heart it was given then,** and gains the clapper.
+- **Nobody has played it.**
+
+- **Underneath:** `motor.js` (`CLAPPER`, in `ARMS`), `enemies.js` (`near`, `round`, `ring`: a `rang` event),
+  `main.js` (its plunge and landing drawings; its ember arts' drawings; a save whose Toll had fallen gains it),
+  `state.js` (`TEACH[1]`), `teach.js` (its picture), `tools/weapon-strips.py`. Checks in `tests/side-tooth.test.mjs`.
+- **Save: not moved.**
+- **Checked:** 475 checks pass. In the test browser: every move with the clapper; an acolyte struck from four
+  metres (5 health to 3, stopped 0.7 of a second); the same acolyte at his feet, not struck.
+
+**To try**
+
+1. Beat the Toll (or try the Spires from the title), press R until the clapper is in hand.
+2. Strike something from as far as you can. Then walk up to it and strike again: it should miss.
+3. The third blow with creatures on both sides of you.
+4. Jump twice and plunge onto a group.
 
 ### Build 91: the Wyrm's tooth
 

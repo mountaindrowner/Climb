@@ -440,11 +440,20 @@ export const TOOTH = { name: 'Wyrm\'s tooth', reach: 3.5, guard: false, narrow: 
   { dmg: 2, wind: 0.24, active: 0.1, rec: 0.34, lunge: 0.9, reach: 4.3, anim: 'tt_atk2', hit: 5 / 11 },
   { dmg: 3, wind: 0.16, active: 0.3, rec: 0.36, lunge: 0, dash: 10, pierce: true, anim: 'tt_atk3', hit: 4 / 12, hitEnd: 11 / 12 },
 ], rise: { dmg: 3, wind: 0.2, active: 0.12, rec: 0.36, lunge: 0, reach: 4.3, anim: 'tt_up', hit: 5 / 12 } };
-export const POGO = { height: 3.4, dmg: 3 };   // how high the dive on the tooth throws him back up, and what it does to what it lands on
+export const POGO = { height: 3.4, dmg: 3 };
+// The Toll's clapper (build 92): the bell's tongue on a chain, a flail. The longest reach he has, in arcs: out and
+// back, overhead and down in front, and a whirl round him that finds what is behind as well (`round`). Nothing within a
+// metre of him (`near`). A blow rings: what is small is stopped where it stands a breath (`ring`). Slow to come back,
+// and it cannot block
+export const CLAPPER = { name: 'Toll\'s clapper', reach: 4.5, guard: false, near: 1.0, ring: 0.7, combo: [
+  { dmg: 2, wind: 0.3, active: 0.12, rec: 0.42, lunge: 0.3, anim: 'cl_atk1', hit: 6 / 12 },
+  { dmg: 2, wind: 0.34, active: 0.1, rec: 0.46, lunge: 0.4, anim: 'cl_atk2', hit: 5 / 12 },
+  { dmg: 3, wind: 0.18, active: 0.36, rec: 0.42, lunge: 0, round: true, reach: 3.6, anim: 'cl_atk3', hit: 3 / 12, hitEnd: 9 / 12 },
+], rise: { dmg: 2, wind: 0.28, active: 0.12, rec: 0.4, lunge: 0, reach: 4.2, anim: 'cl_up', hit: 7 / 12 } };   // how high the dive on the tooth throws him back up, and what it does to what it lands on
 // every weapon he can carry (build 91: there were two, and the code asked "is it the spade?" everywhere). `pre`: the
 // front of the names of his drawings with it in hand; `icon`: its picture; `title`: what the swap says
-export const ARMS = { blade: BLADE, spade: SPADE, tooth: TOOTH };
-Object.assign(BLADE, { id: 'blade', pre: '', icon: 'blade', title: 'the sword' }); Object.assign(SPADE, { id: 'spade', pre: 'hm_', icon: 'hammer', title: 'the hammer' }); Object.assign(TOOTH, { id: 'tooth', pre: 'tt_', icon: 'tooth', title: 'the tooth' });
+export const ARMS = { blade: BLADE, spade: SPADE, clapper: CLAPPER, tooth: TOOTH };
+Object.assign(BLADE, { id: 'blade', pre: '', icon: 'blade', title: 'the sword' }); Object.assign(SPADE, { id: 'spade', pre: 'hm_', icon: 'hammer', title: 'the hammer' }); Object.assign(TOOTH, { id: 'tooth', pre: 'tt_', icon: 'tooth', title: 'the tooth' }); Object.assign(CLAPPER, { id: 'clapper', pre: 'cl_', icon: 'clapper', title: 'the clapper' });
 export const weaponOf = P => ARMS[P.weapon] || BLADE;
 // the tooth's dive has met something: he is thrown back up, with his second jump and his dash to use again
 export function pogo(P){ P.dive = null; P.atk = null; P.plant = 0; P.vy = launchSpeed(POGO.height, MV.launch.ground); P.launch = MV.launch.ground; P.jumpT = 0; P.grounded = false; P.bounce = true; P.flip = 0; P.airTop = P.y; P.airJumps = FEEL.doubleJump ? 1 : 0; P.airDash = 1; ev(P, 'pogo'); }

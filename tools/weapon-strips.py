@@ -3,7 +3,7 @@
 # hero (tools/pixellab-state.py, tools/pixellab-strips.py) and each begins with the standing picture: here the frames
 # wanted are picked, held to the palette, and given the place of his feet so they line up with his other drawings.
 # It adds to assets/side/<hero>/sprite.json and touches nothing else there (pixellab.py pull rewrites the whole folder).
-#   python3 tools/weapon-strips.py hammer | tooth
+#   python3 tools/weapon-strips.py hammer | tooth | clapper
 import json, os, sys
 from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.normpath(os.path.join(HERE, '..'))
@@ -28,7 +28,17 @@ SETS = {'hammer': {
   'tt_atk3': ('tt_atk3b', range(1, 13)),          # twelve: the charge runs from the fifth to the eleventh
   'tt_up': ('tt_up2', range(1, 13)),              # twelve: up on the sixth
   # the dive: head first behind the spear. His body is drawn where he is; the spear reaches two and a half metres under him
-  'tt_plunge': ('tt_down4', range(3, 9), {'foot': 70, 'cx': 50}) }}
+  'tt_plunge': ('tt_down4', range(3, 9), {'foot': 70, 'cx': 50}) },
+ # the Toll's clapper (build 92; approved 23 Nov, "Yeah, we're set. Plunge A")
+ 'clapper': {
+  'cl_idle': ('cl_idle', range(1, 9)), 'cl_run': ('cl_run', range(2, 9)), 'cl_land': ('cl_land', range(3, 9)),
+  'cl_crouch': ('cl_crouch', range(1, 6)), 'cl_crouch_walk': ('cl_crouch_walk', range(3, 9)), 'cl_roll': ('cl_roll', range(1, 13)), 'cl_hurt': ('cl_hurt', range(1, 9)),
+  'cl_air': ('cl_jump', range(5, 13), {'foot': 56, 'cx': 40}),        # the jump that left the ground, from where his feet are off it
+  'cl_atk1': ('cl_atk1', range(1, 13)),          # twelve: the head out at full length on the seventh
+  'cl_atk2': ('cl_atk2', range(1, 13)),          # down in front on the sixth
+  'cl_atk3': ('cl_atk3', range(1, 13)),          # the whirl, from the fourth to the tenth
+  'cl_up': ('cl_up', range(1, 13)),              # straight up on the eighth
+  'cl_plunge': ('cl_plunge', range(2, 9), {'foot': 80, 'cx': 45}) }}   # A: the whirl over his head, then the chain cast straight down
 def snap(im):
     pal = [tuple(int(c[i:i + 2], 16) for i in (1, 3, 5)) for c in PAL]; px = im.load(); cache = {}
     for y in range(im.height):

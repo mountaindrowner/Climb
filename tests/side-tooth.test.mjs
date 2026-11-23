@@ -12,11 +12,11 @@ const { strikeEnemies } = await import('../src/side/enemies.js');
 const meta = JSON.parse(readFileSync(new URL('../assets/side/mask_tall_c/sprite.json', import.meta.url), 'utf8'));
 const src = f => readFileSync(new URL('../src/side/' + f, import.meta.url), 'utf8');
 test('a round of weapons: each with its drawings\' prefix, its picture and its name; the weapon in hand is one of them', () => {
-  assert.deepEqual(Object.keys(M.ARMS), ['blade', 'spade', 'tooth']);
+  assert.deepEqual(Object.keys(M.ARMS), ['blade', 'spade', 'clapper', 'tooth']);
   for (const [id, W] of Object.entries(M.ARMS)){ assert.equal(W.id, id); assert.ok(TE.ICONS[W.icon], `a picture for ${id}`); assert.ok(W.title); assert.equal(M.weaponOf({ weapon: id }), W); assert.ok(W.combo.length === 3); }
   assert.equal(M.weaponOf({ weapon: 'nothing' }), M.BLADE, 'an unknown one is the sword');
-  for (const W of [M.SPADE, M.TOOTH]) for (const n of ['idle', 'run', 'air', 'land', 'crouch', 'crouch_walk', 'roll', 'hurt', 'plunge']) assert.ok(meta.anims[W.pre + n] && meta.anims[W.pre + n].n, `${W.id}: his drawing ${n}`);
-  for (const W of [M.SPADE, M.TOOTH]) for (const sw of [...W.combo, ...(W.rise ? [W.rise] : [])]){ const A = meta.anims[sw.anim]; assert.ok(A, sw.anim); assert.ok(sw.hit > 0 && sw.hit < 1); assert.ok(Math.abs(sw.hit * A.frames - Math.round(sw.hit * A.frames)) < 1e-9, `${sw.anim}: the blow lands on a frame of its own strip`); }
+  for (const W of [M.SPADE, M.TOOTH, M.CLAPPER]) for (const n of ['idle', 'run', 'air', 'land', 'crouch', 'crouch_walk', 'roll', 'hurt', 'plunge']) assert.ok(meta.anims[W.pre + n] && meta.anims[W.pre + n].n, `${W.id}: his drawing ${n}`);
+  for (const W of [M.SPADE, M.TOOTH, M.CLAPPER]) for (const sw of [...W.combo, ...(W.rise ? [W.rise] : [])]){ const A = meta.anims[sw.anim]; assert.ok(A, sw.anim); assert.ok(sw.hit > 0 && sw.hit < 1); assert.ok(Math.abs(sw.hit * A.frames - Math.round(sw.hit * A.frames)) < 1e-9, `${sw.anim}: the blow lands on a frame of its own strip`); }
   const m = src('main.js'); assert.ok(!/P\.weapon === 'spade' \? 'hammer' : 'blade'/.test(m)); assert.ok(m.includes("const order = ['blade', ...(G.arms || [])]"), 'the swap goes round what he has');
 });
 test('the tooth: the longest reach, in a line; a thrust up; no guard; slower to come than the sword, quicker than the hammer', () => {
@@ -48,4 +48,16 @@ test('the Wyrm leaves the tooth; the glide is the Seated\'s, in a prize chest be
   const none = R.graph(3, ['breaker', 'dash']), g = R.goalOf(R.LEVEL.marks), near = R.nearGoal(g); let got = false; for (const k of none.seen){ const i = k % none.W, j = (k - i) / none.W; if (near(i, j)){ got = true; break; } } assert.ok(!got, 'the Tempest is not crossed without it');
   globalThis.localStorage.getItem = k => k === 'climb-side' ? JSON.stringify({ level: 3, top: 3, beat: [true, true, true] }) : null; const G = ST.loadSave(); globalThis.localStorage.getItem = () => null; assert.equal(G.can.glide, 1);
   assert.ok(src('main.js').includes("if ((b(2) || (DEV && LEVEL.index > 2)) && !armed('tooth') && !GIFTING)"), 'and gains the tooth');
+});
+test('the clapper: the longest reach, in arcs; nothing within a metre; a blow rings what is small to a stop; its whirl finds what is behind', () => {
+  const C = M.CLAPPER; assert.ok(C.reach > M.TOOTH.reach); assert.equal(C.guard, false); assert.ok(C.near >= 1 && C.ring > 0);
+  assert.ok(C.combo[2].round, 'the third is the whirl'); assert.ok(C.combo[0].rec > M.BLADE.combo[0].rec && C.combo[0].wind > M.TOOTH.combo[0].wind, 'slow');
+  const mk = (x, y, hp = 9, own = false) => ({ alive: true, d: { ai: 'none', w: 0.8, h: 1.2, fly: true, hp, own }, x, y, hp, st: 'idle', flash: 0, home: { x, y } });
+  const P = { x: 10, y: 5, face: 1 }, close = mk(10.9, 6), far = mk(14, 6), behind = mk(7.5, 6), big = mk(13, 6, 20), ev = [];
+  strikeEnemies({ list: [close, far, behind, big] }, P, C.reach, 2, ev, false, { ...C, round: false });
+  assert.equal(close.hp, 9, 'up close: missed'); assert.ok(far.hp < 9, 'four metres off: struck'); assert.equal(behind.hp, 9, 'behind: not by a swing');
+  assert.ok(far.stilled >= C.ring, 'it rings to a stop'); assert.ok(!(big.stilled > 0), 'not what is large'); assert.ok(ev.some(v => v.type === 'rang'));
+  const b2 = mk(7.5, 6); strikeEnemies({ list: [b2] }, P, C.combo[2].reach, 3, [], false, { ...C, round: true }); assert.ok(b2.hp < 9, 'the whirl finds what is behind');
+  const t = ST.TEACH[1]; assert.equal(t.arm, 'clapper'); assert.ok(!t.heart, 'the Toll leaves its weapon now, not a heart'); for (const l of [t.does, ...t.how, ...(t.more || [])]) assert.ok(l.length <= 110, l);
+  assert.ok(src('main.js').includes("!armed('clapper') && !GIFTING"), 'a save whose Toll had fallen gains it');
 });

@@ -223,3 +223,7 @@ either side, so the chain at full length is never cut off; the jump begun on a t
 - **Cost:** 15 strips, about 160 generations.
 
 **For you:** yes to the set? Plunge A or B, or another try? Anything to send back?
+
+**The clapper is done** (23 Nov): its set approved, plunge A, and **in the game, build 92**; the Toll leaves it, not a
+heart ("don't worry about number 3 because we're finishing the weapons"). Next: the storm bow's drawings, then the
+thorns'.
