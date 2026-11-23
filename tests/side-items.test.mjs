@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { LEVELS, loadLevel, ROCK, LEDGE, REGION_DATA } from '../src/side/level.js';
-import { RELICS, TEACH, ABILITY } from '../src/side/state.js';
+import { RELICS, TEACH, ABILITY, BOON } from '../src/side/state.js';
 import { SCRIPT, PEOPLE } from '../src/side/talk.js';
 
 const relics = [];
@@ -20,7 +20,7 @@ for (let N = 0; N < LEVELS.length; N++){
     const deep = !marks.some(m => m.type === 'exit');   // the Deep has its own people (Hob); the climb has the three
     if (!REGION_DATA[N].empty && !REGION_DATA[N].alone)   // (nobody is in the Great Shaft, and no one to speak to in the Hollow: Hob does not go down that far)
     for (const who of Object.keys(PEOPLE).filter(w => (w === 'hob') === deep)){ assert.equal(marks.filter(m => m.type === 'npc' && m.who === who).length, 1, `${who} once`); assert.ok((SCRIPT[who][N] || []).length, `${who} has something to say here`); }
-    for (const m of chests) assert.ok(!m.holds || m.holds === 'shards' || m.holds === 'thread' || /^relic:/.test(m.holds) || (/^gift:/.test(m.holds) && ABILITY[m.holds.slice(5)] && wingOf(m)), `a chest holds ${m.holds}`);   // (a wing's prize: an ability, in a wing)
+    for (const m of chests) assert.ok(!m.holds || m.holds === 'shards' || m.holds === 'thread' || /^relic:/.test(m.holds) || (/^gift:/.test(m.holds) && (ABILITY[m.holds.slice(5)] || BOON[m.holds.slice(5)]) && wingOf(m)), `a chest holds ${m.holds}`);   // (a wing's prize: an ability, in a wing)
   });
   test(`${NAME}: every urn, chest and person stands on something, with room over it`, () => {
     for (const m of marks.filter(m => ['urn', 'chest', 'npc'].includes(m.type))){

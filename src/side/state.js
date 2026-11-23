@@ -109,6 +109,12 @@ export const ABILITY = {
   dash: { can: 'dash', icon: 'dash', name: 'The Bell\'s Step', does: 'An air dash. You fly level and fast, once per jump.', how: ['{roll} in the air: dash.', 'A dash breaks thin ice and tears vellum: the pale sheets across some ways.'], more: ['With 10 embers, {art}: rush through everything in front of you.'] },
   glide: { can: 'glide', icon: 'glide', name: 'The Seated\'s Wind', does: 'You can glide. Rising air lifts you. In deep water you can dive.', how: ['In the air with no jumps left: hold {jump} to glide.', 'In deep water: {jump} to swim up, {down} to dive.'], more: ['With 10 embers, {art} in the air: a gust throws back everything near you.'] },
 };
+// What a wing's keeper guards that is not a skill (build 95; the gifts table, approved 22 Nov): a heart behind the
+// Tempest's Jar, a drink behind the Gardens' Lock. In a prize chest, as an ability is: `holds: 'gift:heart'`
+export const BOON = {
+  heart: { boon: 'heart', icon: 'heart', name: 'A Heart Kept by the Jar', does: 'You have one more heart.', how: [] },
+  drink: { boon: 'drink', icon: 'flask', name: 'A Drink Kept by the Lock', does: 'Your flask holds one more drink.', how: [] },
+};
 // by which region of the climb he has each thing he can do, if he has done what the way there asks (a place tried from
 // the title, and the tests' "what he arrives with")
 export const ARRIVES = { breaker: 1, dash: 2, glide: 3 };

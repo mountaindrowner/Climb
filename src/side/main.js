@@ -16,7 +16,7 @@ import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE
 import { width as textWidth, width as pxWidth, text as pxText } from './pixelfont.js';
 const wrapText = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };
 const wrapFine = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t, 1, true) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };   // (the small print's widths)
-import { G, OPT, loadSave, store, storeOpt, wipe, TRY, fresh, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, ABILITY, ARRIVES, THREADS_A_HEART, DIFF } from './state.js';
+import { G, OPT, loadSave, store, storeOpt, wipe, TRY, fresh, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, ABILITY, ARRIVES, BOON, THREADS_A_HEART, DIFF } from './state.js';
 import { makeItems } from './items.js';
 import { makeTalk, SCRIPT } from './talk.js';
 import { ANNALS, PEOPLE_PAGE } from './annals.js';
@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 94, date: '23 NOV 2026', phase: 17, phases: 22, last: 'THE THORNS: SIX WEAPONS' };
+const VERSION = { build: 95, date: '23 NOV 2026', phase: 17, phases: 22, last: 'A HEART AND A DRINK, KEPT' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -1418,7 +1418,8 @@ function onEvent(e){
       store(); break; }
     // a wing's prize, out of its chest (build 87): the ability gathers over the chest and comes to him, as a keeper's
     // gift does. It is his from the moment the chest is open. One who had it already (a save from before) finds shards
-    case 'gift': { const A = ABILITY[e.id]; if (!A) break; if (G.can[e.id]){ ITEMS.spill(e.at.x, e.at.y, 60); break; } G.can[e.id] = 1; GIFTING = true; store(); learn(); sfx.relic && sfx.relic(); LATER.push({ t: 0.6, f: () => giftStart(A, e.at) }); break; }
+    case 'gift': { const B = BOON[e.id]; if (B){ if (B.boon === 'heart'){ G.hearts += 1; P.maxHp = maxHearts(); P.hp = P.maxHp; } else { G.flasks += 1; P.flaskMax = maxFlask(); P.flask = P.flaskMax; } GIFTING = true; store(); sfx.relic && sfx.relic(); LATER.push({ t: 0.6, f: () => giftStart(B, e.at) }); break; }   // a heart, a drink (build 95): his at once, the chest is opened once
+      const A = ABILITY[e.id]; if (!A) break; if (G.can[e.id]){ ITEMS.spill(e.at.x, e.at.y, 60); break; } G.can[e.id] = 1; GIFTING = true; store(); learn(); sfx.relic && sfx.relic(); LATER.push({ t: 0.6, f: () => giftStart(A, e.at) }); break; }
     case 'held': if (!HINTED.held){ HINTED.held = 1; sfx.block(); banner('', 'Held shut. Its guardian still stands.', 3.5); LATER.push({ t: 6, f: () => { HINTED.held = 0; } }); } break;
     case 'relic': { const r = RELICS[e.id]; if (!r || owns(e.id)) break; G.relics.push(e.id); const tied = wear(e.id, true); learn(); store(); sfx.relic();   // tied into the scarf, if a knot is free
       const knot = tied ? 'Equipped.' : 'Your relic slots are full. Rest at a pool to choose which you equip.';

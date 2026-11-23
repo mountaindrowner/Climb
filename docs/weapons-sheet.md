@@ -277,3 +277,23 @@ game. The last of the six.
 
 **The thorns are done** (23 Nov) and **in the game, build 94. The six weapons are finished.** Left: the weapon on his back
 for climbing, hanging and getting up (drawn once), and what playing them says.
+
+## The weapon on his back (`docs/weapon-on-back.png`)
+
+Agreed on 22 Nov: where both hands are busy (climbing, hanging from an edge, getting up, taking a gift) the weapon is on
+his back. Step 2 for it: one picture of him with each weapon slung, hands empty, made the same way as the looks (a state
+of the hero; the ids are in `docs/weapon-looks.json`, under `on_back`).
+
+| Weapon | How it came out |
+|---|---|
+| Sword | Its sheath over his shoulder, the hilt showing |
+| Hammer | The pale stone head above his shoulder, the haft down his back |
+| Clapper | The handle over his shoulder, the bell head at his hip |
+| Tooth | The spear slanting across his back, the fang behind his head |
+| Storm bow | The bow upright on his back, its glowing tip above his shoulder, a quiver |
+| Thorns | Two hilts over his shoulder; the faintest of the six |
+
+**Then, step 3:** from each, his climb onto an edge, his climb up rough rock, getting up, and taking a gift: four strips
+a weapon, twenty-four in all. Today those show him with the sword in hand, whatever he carries.
+
+**For you:** yes to the six, or which to try again?

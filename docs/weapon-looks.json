@@ -64,5 +64,13 @@
   "The Tooth B": "hero_tooth",
   "The Bow A": "hero_bow",
   "The Thorns A": "hero_thorns"
+ },
+ "on_back": {
+  "back_blade": "9cd0aad3-0374-4292-aa98-6b6f63457d33",
+  "back_hammer": "384b5ebf-3a46-4264-b146-f1f6bb820f92",
+  "back_clapper": "c7cc6ec1-459d-499f-a8c5-a8e987af6522",
+  "back_tooth": "9d113c5e-bc27-4702-88be-1815f06f2087",
+  "back_bow": "6d10e279-7331-4073-b593-3d48549fcb65",
+  "back_thorns": "5163db0b-009c-4bff-abae-cb2bc7b7e5a1"
  }
 }

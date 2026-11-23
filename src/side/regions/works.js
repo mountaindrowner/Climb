@@ -57,6 +57,7 @@ function jarhouse(){
   rect(r, 22, 0, 37, 1, EMPTY); rect(r, 22, 0, 37, 0, SPIKES); A(r, 22, 37, 1);   // iron either side of the Jar: its own half to the west
   rect(r, 43, 0, 58, 1, EMPTY); rect(r, 43, 0, 58, 0, SPIKES); B(r, 43, 58, 1);
   mark(r, 'jar', 40, 2, { half: 0 }); mark(r, 'lever', 14, 2); mark(r, 'lever', 64, 2);
+  mark(r, 'chest', 69, 2, { holds: 'gift:heart', prize: 'still' });   // the wing's prize (build 95): a heart, shut while the Jar holds its lightning
   for (const [k, x, y] of [['drum', 6, 2], ['wreck', 10, 2]]) deco(r, k, x, y);
   mark(r, 'torch', 4, 10); mark(r, 'torch', 30, 14); mark(r, 'torch', 50, 14); mark(r, 'torch', 76, 10);
   for (const x of [3, 5, 74, 76]) keep(r, x, 3);

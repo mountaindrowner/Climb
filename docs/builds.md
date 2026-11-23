@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 94 | 23 Nov 2026 | `1e890d4` | Mother Thorn's thorns: five fast cuts and a burst. The six weapons are done | no | yes (now) |
+| 95 | 23 Nov 2026 | `COMMIT95` | A heart behind the Tempest's Jar, a drink behind the Gardens' Lock, each in a prize chest | no | yes (now) |
+| 94 | 23 Nov 2026 | `1e890d4` | Mother Thorn's thorns: five fast cuts and a burst. The six weapons are done | no | replaced by 95 |
 | 93 | 23 Nov 2026 | `6484af5` | The Thunderhead's storm bow: free arrows across the room; the third goes through; shots up, and down from the air | no | replaced by 94 |
 | 92 | 23 Nov 2026 | `9e3a209` | The Toll's clapper, a flail: the longest reach, a blow that rings creatures to a stop; the Toll leaves it, not a heart | no | replaced by 93 |
 | 91 | 23 Nov 2026 | `3ff8816` | The Wyrm's tooth, a spear; the Wyrm leaves it; the glide is the Seated's, in a prize chest; weapons go round on the swap key | **save** (kept) | replaced by 92 |
@@ -110,6 +111,39 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 95: a heart and a drink, kept
+
+*Your word, 23 Nov: "Lets do 1 and 2." This is 2: the gifts table you approved on 22 Nov puts a heart behind a
+miniboss in the Tempest and a drink behind one in the Gardens, now that the Thunderhead and Mother Thorn leave
+weapons instead. (1, the weapon on his back, is at the drawings stage: `docs/weapon-on-back.png`.)*
+
+**For the player**
+
+- **A heart behind the Jar,** in the Wreck of the Works: a prize chest at the east end of its hall, past its iron,
+  held shut while the Jar holds its lightning (`docs/heart-chest.png`).
+- **A drink behind the Lock,** in the Aqueducts: a prize chest by the Lock, between its piers and its gate, held shut
+  while the Lock holds.
+- Each is given as a keeper's gift is: it gathers over the chest and comes to him, and its window says what it is.
+- So a new game ends the climb with one heart and no drink fewer than in build 86, and the two it gets back are
+  earned from minibosses.
+
+**What is weaker than it should be**
+
+- **A save that already beat the Jar or the Lock** can open its chest at once: their being down is what opens it.
+- **The other wings' prizes** (relics) are still in plain chests in rooms past their keepers; only the abilities and
+  these two are in prize chests.
+
+- **Underneath:** `state.js` (`BOON`), `main.js` (the `gift` event gives a heart or a drink), `regions/works.js`,
+  `regions/aqueducts.js`. Checks in `tests/side-gifts.test.mjs`.
+- **Save: not moved.**
+- **Checked:** 478 checks pass. In the test browser: the Jar's chest held shut while the Jar stands, then opened:
+  five hearts to six.
+
+**To try**
+
+1. Beat the Jar in the Wreck of the Works, then go east past its iron to the chest.
+2. Beat the Lock in the Aqueducts and open the chest beside it.
 
 ### Build 94: the thorns, and the six weapons done
 

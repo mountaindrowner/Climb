@@ -61,6 +61,7 @@ function lock(){
   rect(r, 14, 2, 16, 4); rect(r, 23, 2, 25, 4);                    // two piers to stand on, over the water
   flow(r, 10, 2, 24, 3, 'w', 'surge');                              // what the Lock lets go runs the length of the floor
   mark(r, 'lock', 32, 2);
+  mark(r, 'chest', 28, 2, { holds: 'gift:drink', prize: 'still' });   // the wing's prize (build 95): a drink, by the Lock, shut while it holds
   mark(r, 'torch', 4, 10); mark(r, 'torch', 20, 12); mark(r, 'urn', 11, 2);
   for (const x of [31, 33]) keep(r, x, 3); for (const x of [13, 17, 22, 26]) for (const y of [2, 4]) keep(r, x, y); for (const x of [14, 16, 23, 25]) keep(r, x, 5);
   return r;

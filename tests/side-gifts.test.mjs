@@ -38,3 +38,12 @@ test('a save from before keeps what it had; a new one has nothing until it is gi
   assert.deepEqual(load({ level: 2, top: 2, beat: [true, true], can: {} }).can, {}, 'a save of this build is left as it is');
   ST.fresh(); assert.deepEqual(ST.G.can, {});
 });
+test('a heart behind the Tempest\'s Jar and a drink behind the Gardens\' Lock, each in a prize chest he can stand at once it has fallen (build 95)', () => {
+  assert.equal(ST.BOON.heart.boon, 'heart'); assert.equal(ST.BOON.drink.boon, 'drink');
+  for (const [N, holds, roomName] of [[3, 'gift:heart', 'jarhouse'], [4, 'gift:drink', 'lock']]){
+    const g = R.graph(N, [...R.arrival(N), 'still']), L = { ...R.LEVEL }, ch = L.marks.filter(m => m.type === 'chest' && m.holds === holds);
+    assert.equal(ch.length, 1, holds); const m = ch[0], r = L.rooms.find(q => m.x >= q.tx0 && m.x < q.tx1 && m.y >= q.ty0 && m.y < q.ty1);
+    assert.equal(r.name, roomName); assert.equal(m.prize, 'still', 'it opens when the wing is still');
+    let near = false; for (const k of g.seen){ const i = k % g.W, j = (k - i) / g.W; if (Math.abs(i - m.x) < 3 && Math.abs(j - m.y) < 2){ near = true; break; } } assert.ok(near, `${holds}: he can stand at it`);
+  }
+});

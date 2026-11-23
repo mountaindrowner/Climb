@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The thorns, and the six weapons done (latest; build 94).** Mother Thorn leaves the thorns: a pair of hooked blades, five fast cuts then a burst; the shortest reach; no block. Every keeper of the climb now leaves a weapon. 477 checks. No save is moved.
+**A heart and a drink, kept (latest; build 95).** A heart in a prize chest behind the Tempest's Jar, a drink behind the Gardens' Lock. 478 checks. No save is moved.
+
+**The thorns, and the six weapons done (build 94).** Mother Thorn leaves the thorns: a pair of hooked blades, five fast cuts then a burst; the shortest reach; no block. Every keeper of the climb now leaves a weapon. 477 checks. No save is moved.
 
 **The storm bow (build 93).** The Thunderhead leaves a storm bow: free arrows of lightning across the room; three shots, the third going through everything; a shot up, and a shot down from the air. Slow to draw; no block. 476 checks. No save is moved.
 
