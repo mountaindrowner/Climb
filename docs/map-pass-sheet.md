@@ -258,3 +258,43 @@ eyrie's west wall over the windgap's door is one). I note it rather than hide it
   one shut the way onto it.
 - **The wear swells between nearby rock.** The teeth's sill, needle and lip became one mass until the air between them
   was marked to keep.
+
+## The Tempest, room by room (build 103)
+
+*Your word, 24 Nov: "Next", after the Spires. The Tempest, its two wings (the Wreck of the Works, the Eye of the
+Storm) and its passage (the Last Hut). `docs/tempest-map-pass.png` is the region before and after;
+`docs/tempest-map-pass-rooms.png`, six rooms in the game.*
+
+**72 planks became 50, in 51 screens: under one a screen.** 29 were bare in the air; none is now. Of the 50: 26 rungs
+(wall to wall, in a flue or a hole's mouth), 15 steps off a wall (among them the crossing's four planks bolted to its
+pillars, and the anchorage's deck), 7 stagings with ground under them, and 2 boards of the gantry's broken bridge.
+Nine pieces of rock in the air became seven.
+
+| Room | Before | After |
+|---|---|---|
+| The Last Hut | A loft of planks in the air, a hatch over the cellar | Shelves out of the hut's walls, one side and the other (the bunk shelf, two more, the top one at the east wall where Corwen's nook is through it); from it a rung, and a ladder between stone sides to the door. The floor is open over the cellar's rung |
+| The lee slope | Five steps in the air between the terraces | The terraces reach out to four tiles from each other; one step on the last terrace up to the head |
+| The path | Rungs over the lamp-room's roof | Between stone sides, a row up; the step by Ordric's lamp-room a step of the scree, its mouth left open |
+| The landing | A plank in the air at the top of the first rising air | A shelf of the east wall |
+| The rigging | A scaffold's plank; a plank in the air under the anchorage | A block of the ground; a lip of the cliff under the anchorage, the way down from it |
+| The anchorage | A deck of planks hung between two stubs of rock, both in the air, and a plank over it | A stub of the mountain's face and a deck of planks out from it; the thread at the deck's end. Through the planks by the stub, down onto the cliff's lip |
+| The watch | As the Spires' hollow was | A block of the floor; the rungs under the hole against a stone side |
+| The masthead | Five planks up to the hole | A block of the floor, a shelf of the east wall, and two rungs straight up under the hole (the roof comes down to it: only straight up reaches it) |
+| The cranes, the still | Rungs in the air up to the hole | The same rungs between stone sides |
+
+**The seven pieces of rock still in the air**, each said plainly:
+
+- **The crossing's three pillars** stand over the old deck, and he walks under them along it. Down to the deck, they
+  would cut it into bays, two of them with no way up.
+- **The stacks' first pillar.** He walks under its foot in the rigging.
+- **The cranes' floor and its two stone piers,** with the yard's post hanging under them. They are held by the iron
+  decks between them (the Wreck's iron, solid while its keeper stands); the check counts only bare rock.
+
+**What I learned:**
+
+- **A box with a plank floor over rising air is a trap.** The roof I first gave the anchorage held its far half, and
+  shut him in: the air under the planks only carries him back up.
+- **The way down from a deck must be under its planks, not its rock.**
+- **A mouth of one tile is no mouth.** A step beside the lamp-room left its mouth a tile wide; it is two.
+- **The rock check has a blind side.** It looks only at pieces under 400 tiles, and only at bare rock (not iron or a
+  keeper's seal). Both are noted where they matter rather than changed.

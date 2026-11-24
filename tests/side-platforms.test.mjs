@@ -12,7 +12,7 @@ const BUDGET = {
   'The Roots':          [17, 2, 0, true],
   'The Cloister':       [49, 10, 2, true],     // (build 101, its pass: 122 planks became 49. The two pieces of rock in the air are the pit's tongues' brackets: each tongue swings from the first rock over it)
   'The Spires':         [90, 28, 3, 'reasons'],   // (build 102, its pass: 116 planks became 90 and every one has a reason, but it is NOT under one a screen (56): what is left is ladders in the towers' clefts and two rope bridges. The three pieces of rock in the air are walls over doorways and the rock adrift that holds a thread: docs/map-pass-sheet.md, "The Spires, room by room")
-  'The Tempest':        [72, 43, 9],
+  'The Tempest':        [50, 9, 7, true],   // (build 103, its pass: 72 planks became 50, in 51 screens; bare in the air, 29 became none. The seven pieces of rock in the air are named in docs/map-pass-sheet.md, "The Tempest, room by room")
   'The Gardens':        [117, 85, 8],
   'The Firmament':      [70, 50, 0],
   'The Workings':       [47, 44, 0],
@@ -22,13 +22,14 @@ const BUDGET = {
   'The Hollow':         [13, 10, 0],
 };
 // a rope bridge: boards along one row, no gap between one and the next wider than three tiles, its two ends on rock
-// (rock beside the end board, or right under it). Each board of it is held, by the rope, from the rock at the ends
+// (rock beside the end board, no more than three tiles off along the row, or right under it). Each board of it is
+// held, by the rope, from the rock at the ends
 function bridged(all, p, tiles, W){
   const row = all.filter(q => q.y === p.y).sort((a, b) => a.x0 - b.x0), k = row.indexOf(p);
   let a = k, b = k; while (a > 0 && row[a].x0 - row[a - 1].x1 - 1 <= 3) a--; while (b < row.length - 1 && row[b + 1].x0 - row[b].x1 - 1 <= 3) b++;
   if (a === b) return false;
-  const rock = i => tiles[p.y * W + i] === 1, under = i => tiles[(p.y - 1) * W + i] === 1;
-  const left = row[a].kind !== 'free' && rock(row[a].x0 - 1) || under(row[a].x0), right = row[b].kind !== 'free' && rock(row[b].x1 + 1) || under(row[b].x1);
+  const rock = i => tiles[p.y * W + i] === 1, under = i => tiles[(p.y - 1) * W + i] === 1, near = (i, d) => [1, 2, 3, 4].some(k => rock(i + d * k));
+  const left = near(row[a].x0, -1) || under(row[a].x0), right = near(row[b].x1, 1) || under(row[b].x1);
   return left && right;
 }
 // one board in the air, by design and approved: the Wyrm's slab over the broken pass (docs/wyrm-sheet.md)

@@ -12,7 +12,7 @@
 //   crossing  pillar to pillar over the drop, each taller than the last; the old deck far below catches a fall
 //   masthead  the last shelter, a shrine, the way up
 //   gale      the top of the storm, where the Thunderhead is
-import { room, rect, walls, door, ledge, mark, open, cave, EMPTY, SPIKES, CRACKED } from '../rooms.js';
+import { room, rect, walls, door, ledge, mark, open, cave, shelf, stone, keepOver, flue as sides, EMPTY, SPIKES, CRACKED } from '../rooms.js';
 
 // rising air, and the space it needs kept: the wear on the rock (level.js, organic) keeps clear of markers, so a column
 // of air is given a ladder of them (type 'keep', which nothing draws), up past its top to where he bobs
@@ -31,7 +31,7 @@ function cap(){ return filler(r => { rect(r, 0, 0, 30, 5); rect(r, 0, 6, 20, 10)
 function landing(){
   const r = cave(); door(r, 'right', 2, 7);
   rect(r, 2, 2, 4, 3);
-  ledge(r, 29, 35, 11);                                           // a shelf: the first rising air goes up to it
+  shelf(r, 'R', 29, 11); keepOver(r, 25, 37, 11);                 // a shelf of the east wall: the first rising air goes up to it (a plank in the air until the map pass)
   air(r, 24, 2, 5, 10);
   mark(r, 'spawn', 7, 2); mark(r, 'npc', 13, 2, { who: 'scribe' }); mark(r, 'chest', 33, 12, { holds: 'shards' });
   mark(r, 'urn', 18, 2); mark(r, 'urn', 20, 2);
@@ -44,7 +44,8 @@ function rigging(){
   rect(r, 22, 0, 29, 1, EMPTY); rect(r, 22, 0, 29, 0, SPIKES);    // a crevasse: a long jump, or a short glide
   rect(r, 8, 2, 10, 3);
   rect(r, 50, 8, 53, 22); rect(r, 70, 2, 79, 22);                 // the first pillar (he walks under its foot), and the great fin
-  ledge(r, 34, 40, 6); ledge(r, 17, 21, 12);                      // what is left of a scaffold; a plank under the anchorage (a way down from it)
+  stone(r, 34, 40, 6);                                            // a block of the ground (a scaffold's plank until the map pass)
+  rect(r, 4, 12, 9, 12); for (const x of [5, 8]) mark(r, 'keep', x, 14);   // a lip of the cliff under the anchorage, the way down from it (a plank in the air until the map pass)
   air(r, 12, 2, 5, 26);                     // up to the anchorage
   air(r, 64, 2, 5, 24);                     // up the fin, to the stacks
   mark(r, 'squall', 44, 2); mark(r, 'nimbus', 57, 7); mark(r, 'spark', 32, 13); mark(r, 'spark', 38, 10);
@@ -55,10 +56,12 @@ function rigging(){
 function anchorage(){
   const r = open();
   rect(r, 0, 0, 3, 22);                                           // the mountain's face
-  rect(r, 6, 3, 7, 7); rect(r, 31, 3, 32, 7); ledge(r, 8, 30, 3);   // a deck hung between two stubs of rock
-  ledge(r, 24, 28, 9);
+  // a stub of rock out of the mountain's face, and from it a deck of planks out over the drop (until the map pass the
+  // deck hung between two stubs, and they hung in the air with it). The thread is caught at its end; the way down is
+  // through the planks by the stub, onto a lip of the cliff below (rigging)
+  rect(r, 4, 3, 7, 7); ledge(r, 8, 30, 3);
   mark(r, 'squall', 20, 4); mark(r, 'nimbus', 14, 8);
-  mark(r, 'chest', 10, 4, { holds: 'shards' }); mark(r, 'thread', 26, 10); mark(r, 'torch', 29, 5);
+  mark(r, 'chest', 10, 4, { holds: 'shards' }); mark(r, 'thread', 28, 4); mark(r, 'torch', 29, 5);
   return r;
 }
 // two screens tall: the fin on the right, a pillar on the left, planks between, and air to ride up each
@@ -88,7 +91,7 @@ function gantry(){
 function watch(){
   const r = cave(); door(r, 'right', 2, 7); door(r, 'top', 8, 14);
   rect(r, 21, 2, 31, 2); rect(r, 23, 3, 29, 3);                   // the shrine's step
-  [[10, 16, 5], [16, 22, 9], [10, 16, 13], [8, 14, 17], [8, 14, 21]].forEach(([a, b, y]) => ledge(r, a, b, y));
+  stone(r, 10, 16, 5); [[16, 22, 9], [8, 14, 13], [8, 14, 17], [8, 14, 21]].forEach(([a, b, y]) => ledge(r, a, b, y)); rect(r, 7, 13, 7, 20);   // (since the map pass: the step a block of the shrine's floor, the rungs under the hole against a stone side)
   mark(r, 'shrine', 26, 4); mark(r, 'npc', 34, 2, { who: 'lamplighter' }); mark(r, 'urn', 5, 2);
   mark(r, 'torch', 34, 9); mark(r, 'torch', 5, 9); mark(r, 'torch', 26, 14); mark(r, 'crystal', 36, 2); mark(r, 'crystal', 4, 2);
   return r;
@@ -134,9 +137,11 @@ function crossing(){
 function masthead(){
   const r = cave(); door(r, 'bottom', 30, 36); ledge(r, 30, 36, 1); door(r, 'top', 30, 36);
   rect(r, 8, 2, 18, 2); rect(r, 10, 3, 16, 3);                    // the shrine's step
-  [[22, 28, 5], [30, 36, 9], [24, 30, 13], [30, 36, 17], [30, 36, 21]].forEach(([a, b, y]) => ledge(r, a, b, y));
+  // (the map pass, build 103: a block of the floor, a shelf of the east wall, and from it two rungs straight up under
+  // the hole, the higher between stone sides: the roof comes down to the hole, so only straight up reaches it)
+  stone(r, 22, 28, 5); shelf(r, 'R', 30, 9, 1); keepOver(r, 26, 37, 9); ledge(r, 30, 36, 14); ledge(r, 30, 36, 18); sides(r, 30, 36, 15, 20);
   mark(r, 'shrine', 13, 4); mark(r, 'urn', 5, 2); mark(r, 'urn', 21, 2);
-  mark(r, 'torch', 5, 9); mark(r, 'torch', 20, 9); mark(r, 'torch', 34, 6); mark(r, 'torch', 26, 16); mark(r, 'crystal', 3, 2); mark(r, 'crystal', 24, 2);
+  mark(r, 'torch', 5, 9); mark(r, 'torch', 20, 9); mark(r, 'torch', 34, 6); mark(r, 'torch', 26, 16); mark(r, 'crystal', 3, 2); mark(r, 'crystal', 24, 6);
   return r;
 }
 // the top of the storm: a long bare stage of slate, a horn of rock at either end, and the cloud over it

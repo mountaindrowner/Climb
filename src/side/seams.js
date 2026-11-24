@@ -4,7 +4,7 @@
 // hole cut through the floor at `link` (tile columns of the first room, boarded over) lets him up into the region.
 // title: what the place line says there. By region index: 1 the Crypt Stair (into the Cloister), 2 the Bell Road (the
 // Spires), 3 the Last Hut (the Tempest), 4 the Breach (the Gardens), 5 the Long Stair (the Firmament).
-import { room, put, rect, walls, door, ledge, mark, stairs, den, shelf, pier, corbel, keepOver, flue, EMPTY, ROCK, LEDGE, SPIKES, CRACKED } from './rooms.js';
+import { room, put, rect, walls, door, ledge, mark, stairs, den, shelf, pier, corbel, keepOver, flue, stone, EMPTY, ROCK, LEDGE, SPIKES, CRACKED } from './rooms.js';
 
 // the way up to a hole in the roof: ledges stacked in the hole's own columns, a jump apart (from beside it, the hole's
 // rock edge is in the way of a jump), from row y0 to just under the roof
@@ -71,22 +71,25 @@ function road(){
 function path(){
   const r = room(); walls(r); door(r, 'top', 30, 35);
   rect(r, 20, 2, 39, 9);                                           // the scree, banked against the hut's foot
-  den(r, 20, 29, 2, 6, { open: 'L', back: 0 }); ledge(r, 16, 19, 5);   // Ordric's lamp-room, dug into the scree out of the rain; the path goes up over it
-  shaftUp(r, 30, 35, 14, 18);
+  den(r, 20, 29, 2, 6, { open: 'L', back: 0 }); stone(r, 16, 17, 5); keepOver(r, 20, 37, 9);   // Ordric's lamp-room, dug into the scree out of the rain; the path goes up over it (from a step of the scree since the map pass, its mouth left open beside it; the scree's top kept from the wear's humps)
+  shaftUp(r, 30, 35, 15, 19); flue(r, 30, 35, 15, 20);         // (since the map pass, the rungs between stone sides, five rows of air over the lamp-room's roof)
   rect(r, 8, 1, 15, 1, EMPTY); mark(r, 'pool', 8, 1, { w: 8, look: 'pipe' });   // rain off the scree, caught by the climbers' pipe: the Tempest's raising water
-  mark(r, 'spawn', 5, 2); mark(r, 'crystal', 18, 2);   // no creature in the water's room: Ordric keeps his lamps on the scree's first step
+  mark(r, 'spawn', 5, 2); mark(r, 'crystal', 18, 6);   // no creature in the water's room: Ordric keeps his lamps on the scree's first step
   return r;
 }
 function hut(){
   const r = room(1, 2); walls(r); door(r, 'bottom', 30, 35); ledge(r, 30, 35, 1);
-  rect(r, 2, 2, 39, 3); rect(r, 30, 2, 35, 3, EMPTY); rect(r, 30, 3, 35, 3, LEDGE);   // the hut's floor, over the cellar he came up through
-  ledge(r, 4, 10, 8); ledge(r, 4, 10, 12);                        // the bunks
+  rect(r, 2, 2, 39, 3); rect(r, 30, 2, 35, 3, EMPTY);           // the hut's floor, open over the cellar he came up through (a hatch of planks in it until the map pass)
   mark(r, 'shrine', 18, 4);                                       // the hut's roof lets the water through, into a bowl (a leak)
-  for (const [x0, x1, y] of [[22, 28, 9], [12, 18, 14], [22, 28, 19], [12, 18, 24]]){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); }   // the ladder up the loft, to the door
-  ledge(r, 20, 28, 28); shaftUp(r, 29, 35, 31, 43);
-  ledge(r, 32, 37, 26); mark(r, 'keep', 35, 28);                  // a ledge off the top of the loft, at the wall: Corwen's nook is through it (level.js nooks)
-  mark(r, 'torch', 14, 9); mark(r, 'torch', 34, 12); mark(r, 'torch', 30, 32);
-  mark(r, 'urn', 6, 13); mark(r, 'urn', 26, 4); mark(r, 'chest', 6, 9, { holds: 'shards' });
+  // (the map pass, build 103: the loft was planks in the air. Now shelves out of the hut's walls, one side and the
+  // other: the bunk shelf, two more, and the top one at the east wall, where Corwen's nook is through it (level.js
+  // nooks); from it a rung, and a ladder between stone sides up to the door)
+  const SH = [['L', 17, 9, 1], ['R', 22, 15, 1], ['L', 17, 21, 1], ['R', 22, 26, 2]];
+  for (const [side, x, y, t] of SH) shelf(r, side, x, y, t);
+  for (const [side, x, y] of SH) keepOver(r, side === 'L' ? 2 : x - 4, side === 'L' ? x + 4 : 37, y);
+  shaftUp(r, 29, 35, 31, 43); flue(r, 29, 35, 32, 43);
+  mark(r, 'torch', 14, 12); mark(r, 'torch', 34, 12); mark(r, 'torch', 30, 33);
+  mark(r, 'urn', 9, 10); mark(r, 'urn', 26, 4); mark(r, 'chest', 6, 10, { holds: 'shards' });
   return r;
 }
 
@@ -214,8 +217,9 @@ function bellroad(){
 function leeslope(){
   const r = room(1, 2); walls(r); door(r, 'left', 14, 19); door(r, 'top', 30, 35);
   rect(r, 2, 2, 37, 13);
-  rect(r, 22, 14, 37, 17); rect(r, 2, 21, 14, 22); rect(r, 24, 25, 37, 26); rect(r, 2, 29, 14, 30);   // the terraces, east and west by turns
-  steps(r, [[16, 20, 19], [17, 21, 24], [17, 21, 28], [17, 20, 31], [23, 26, 32]]);
+  rect(r, 22, 14, 37, 17); rect(r, 2, 21, 17, 22); rect(r, 22, 25, 37, 26); rect(r, 2, 29, 17, 30);   // the terraces, east and west by turns (since the map pass, each reaching out to four tiles from the next: no steps between)
+  for (const [x0, x1, y] of [[2, 21, 22], [22, 28, 26], [2, 21, 30]]) keepOver(r, x0, x1, y);
+  steps(r, [[23, 26, 32]]);                                        // a step on the last terrace, up to the head
   headR(r);
   deco(r, 'cairn', 30, 18); deco(r, 'cairn', 6, 31); deco(r, 'pack', 10, 23); deco(r, 'pack', 33, 27); deco(r, 'rope', 21, 14); deco(r, 'rope', 15, 23);
   mark(r, 'wraith', 20, 36); mark(r, 'torch', 36, 21); mark(r, 'crystal', 4, 23); mark(r, 'urn', 35, 18);

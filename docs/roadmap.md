@@ -457,7 +457,9 @@ then dresses the new shapes. One level a build, each held to a budget by a check
 - **The Spires (build 102).** Done, short of the measure: 116 planks to 90 in 56 screens, every one with a reason
   (ladders in the towers' clefts, two rope bridges, the Wyrm's slab). Under one a screen needs the clefts widened for
   stone stairs, or a ladder counted as one thing: the player's call (`docs/map-pass-sheet.md`, the Spires room by room).
-- **Then, in order:** the Tempest, the Gardens, the Firmament, the Workings, the Vein, the Flooded Levels,
+- **The Tempest (build 103).** Done: 72 planks to 50 in 51 screens, none bare in the air; nine pieces of rock in the air
+  to seven, each named (`docs/map-pass-sheet.md`, the Tempest room by room).
+- **Then, in order:** the Gardens, the Firmament, the Workings, the Vein, the Flooded Levels,
   the Great Shaft, the Hollow.
 - **Phase 18's rough rock** (faces in every region) is cut into the same walls, so it is laid out with each level's
   pass and switched on in phase 18.

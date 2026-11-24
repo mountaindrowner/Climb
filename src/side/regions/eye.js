@@ -11,7 +11,7 @@
 // Its rule (rooms.js CALM; level.js RULE.hush, RULE.open). It is quiet here, and nothing moves while he moves. The Hush
 // move only while he stands still. A door of cloud opens only to one who has stood still before it, long enough; then
 // it is open a little while. So he must wait, and what is in the room comes for him while he does.
-import { room, rect, door, ledge, mark, cave, EMPTY, ROCK, CALM } from '../rooms.js';
+import { room, rect, door, ledge, mark, cave, flue, EMPTY, ROCK, CALM } from '../rooms.js';
 
 const TITLE = 'THE EYE OF THE STORM';
 const named = (fn, gate = 'glide') => { const f = () => { const r = fn(); r.title = TITLE; r.gate = gate; r.look = 'eye'; return r; }; Object.defineProperty(f, 'name', { value: fn.name }); return f; };
@@ -30,7 +30,7 @@ function wall(){
   return r;
 }
 function stilla(){
-  const r = cave(2, 1); door(r, 'left', 12, 17); door(r, 'top', 70, 75); for (const y of [5, 9, 13, 17, 21]) ledge(r, 70, 75, y);
+  const r = cave(2, 1); door(r, 'left', 12, 17); door(r, 'top', 70, 75); for (const y of [5, 9, 13, 17, 21]) ledge(r, 70, 75, y); flue(r, 70, 75, 9, 20);   // (its rungs between stone sides since the map pass)
   rect(r, 2, 2, 12, 11); rect(r, 13, 2, 16, 7); rect(r, 17, 2, 19, 4);   // in from the wall's top, and down to the still's floor
   cloudDoor(r, 40);
   mark(r, 'hush', 26, 3); mark(r, 'hush', 56, 3); mark(r, 'hush', 66, 7);   // the first hangs by the way to the door: he walks past it, and it lets him

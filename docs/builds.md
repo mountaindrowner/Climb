@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 102 | 24 Nov 2026 | `e0d0745` | The Spires' map pass: 116 planks to 90, each with a reason; not under one a screen (ladders in the clefts, the rope bridges) | no | yes (now) |
+| 103 | 24 Nov 2026 | `COMMITNN` | The Tempest's map pass: 72 planks to 50 in 51 screens, none bare in the air | no | yes (now) |
+| 102 | 24 Nov 2026 | `e0d0745` | The Spires' map pass: 116 planks to 90, each with a reason; not under one a screen (ladders in the clefts, the rope bridges) | no | replaced by 103 |
 | 101 | 24 Nov 2026 | `125baa0` | The Cloister's map pass: its height from its own stone, 122 planks to 49, none in the air | no | replaced by 102 |
 | 100 | 24 Nov 2026 | `e96cf7f` | The Wyrm's faces: its mouth shuts, it winces when hit, is dazed when stuck, angry from half health, and glows as it draws breath | no | replaced by 101 |
 | 99 | 24 Nov 2026 | `3a809c1` | The Wyrm's new look (head drawn by PixelLab), seen on its far peak before the summit, and a sound for every piece of its ice | no | replaced by 100 |
@@ -118,6 +119,48 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 103: the Tempest in stone (its map pass)
+
+*Your word, 24 Nov: "Next", after the Spires. The map pass for the Tempest, its two wings and the Last Hut.*
+
+**For the player**
+
+- **The Tempest climbs on its own stone** (`docs/tempest-map-pass.png`, before and after;
+  `docs/tempest-map-pass-rooms.png`). 72 planks became 50, in 51 screens, and none is bare in the air.
+  - **The Last Hut:** its loft is shelves out of the hut's walls, side by side up to the door; the cellar's hatch is
+    an open hole onto its rung.
+  - **The lee slope:** the terraces reach each other; no steps between them.
+  - **The landing, the masthead, the watch:** a shelf of the wall, blocks of the floor, ladders against stone.
+  - **The anchorage:** a stub of the mountain's face with a deck of planks out from it. The way down is through the
+    planks by the stub, onto a new lip of the cliff below.
+  - **Ladders** in the path, the cranes and the still have stone sides.
+- **Everything found is where it was,** or a step from it: the anchorage's thread is at the deck's end; the hut's
+  chest and urn are on the bunk shelf; a crystal is on the masthead's block and one on the path's step.
+
+**What is weaker than it should be**
+
+- **Seven pieces of rock still hang in the air:** the crossing's three pillars over the old deck, the stacks' first
+  pillar, and the cranes' floor and piers, held by the Wreck's iron (see the sheet).
+- **The anchorage's way down is a drop of fourteen tiles** onto the cliff's lip, as it was onto the plank.
+- **Not played by a person.** Every place is reached in the checks, by the real motor and by the map check.
+
+- **Underneath:** `src/side/seams.js` (the path, the hut, the lee slope), `src/side/regions/tempest.js` (landing,
+  rigging, anchorage, watch, masthead), `src/side/regions/works.js` (the cranes), `src/side/regions/eye.js` (the
+  still). `tests/side-platforms.test.mjs` holds the Tempest to its pass (under one a screen, a reason for each); a
+  rope bridge may end within three tiles of rock (the gantry's). `tests/side-walk.test.mjs`: the door to Corwen's nook
+  is a tile wider in its list.
+- **Save: not moved.**
+- **Checked:** 494 checks pass, the whole suite at once. Before it, the Tempest's own checks found five faults on the
+  way, each fixed: the anchorage first shut him in, then had its way down under rock; the path's step closed the
+  lamp-room's mouth; a wear hump cut off the path's ladder; the masthead's last jump crossed the roof. In the test
+  browser: the hut, the lee slope, the masthead, the anchorage, the landing, the watch.
+
+**To try**
+
+1. Try a place: the Tempest. Climb the Last Hut's loft, and the lee slope.
+2. Ride the rising air up to the anchorage, take the thread, and get back down.
+3. Climb the masthead to the Thunderhead's stage.
 
 ### Build 102: the Spires in stone (its map pass)
 

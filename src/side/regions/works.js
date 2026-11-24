@@ -9,7 +9,7 @@
 // Its rule (rooms.js IRON_A, IRON_B; level.js RULE.sw): the current is always in one half of the iron. To stand on that
 // half is to be shocked. A lever (struck) sends it to the other half: every deck, every coil. Nothing turns it off but
 // breaking the Jar; then all of it is dead for good (RULE.still), and the grates lift.
-import { room, rect, door, ledge, mark, cave, EMPTY, ROCK, SPIKES, STILLED, IRON_A, IRON_B } from '../rooms.js';
+import { room, rect, door, ledge, mark, cave, flue, EMPTY, ROCK, SPIKES, STILLED, IRON_A, IRON_B } from '../rooms.js';
 
 const TITLE = 'THE WRECK OF THE WORKS';
 const named = (fn, more = {}) => { const f = () => { const r = fn(); r.title = TITLE; Object.assign(r, more); return r; }; Object.defineProperty(f, 'name', { value: fn.name }); return f; };
@@ -41,7 +41,7 @@ function coils(){
   return r;
 }
 function cranes(){
-  const r = cave(2, 1); door(r, 'left', 2, 7); door(r, 'top', 70, 75); for (const y of [5, 9, 13, 17, 21]) ledge(r, 70, 75, y);   // in from the coils; up to the jar-house at the far end
+  const r = cave(2, 1); door(r, 'left', 2, 7); door(r, 'top', 70, 75); for (const y of [5, 9, 13, 17, 21]) ledge(r, 70, 75, y); flue(r, 70, 75, 9, 20);   // in from the coils; up to the jar-house at the far end (its rungs between stone sides since the map pass)
   rect(r, 15, 0, 64, 1, EMPTY); rect(r, 15, 0, 64, 0, SPIKES);     // the drop under the decks
   A(r, 15, 30, 1); rect(r, 31, 0, 34, 1); B(r, 35, 50, 1); rect(r, 51, 0, 54, 1); A(r, 55, 64, 1);   // three spans, a pier of stone between each
   mark(r, 'lever', 10, 2); mark(r, 'lever', 33, 2); mark(r, 'lever', 52, 2);
