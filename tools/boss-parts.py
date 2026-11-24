@@ -195,8 +195,11 @@ def tail():
 
 def build():
     save('toll', 'bell', bell()); save('toll', 'clapper', clapper()); save('toll', 'beam', beam()); save('toll', 'chain', chain())
-    save('wyrm', 'head', head()); save('wyrm', 'jaw', jaw()); save('wyrm', 'tail', tail())
-    for n, d in (('ring_l', 30), ('ring_m', 24), ('ring_s', 18)): save('wyrm', n, ring(d, True, d))
+    # (the Wyrm's pieces are no longer made here: since build 99 they are look B of docs/wyrm-sheet.md, its head drawn
+    # by PixelLab and its body by tools/wyrm-parts.py; this script would draw over them. WYRM=old to make the old ones)
+    if os.environ.get('WYRM') == 'old':
+        save('wyrm', 'head', head()); save('wyrm', 'jaw', jaw()); save('wyrm', 'tail', tail())
+        for n, d in (('ring_l', 30), ('ring_m', 24), ('ring_s', 18)): save('wyrm', n, ring(d, True, d))
 def sheet(path):
     g = lambda f, n: Image.open(os.path.join(ROOT, f, n + '.png')).convert('RGBA')
     im = Image.new('RGBA', (330, 150), P['ink'])

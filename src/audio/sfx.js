@@ -43,11 +43,14 @@ export function setMix(k, v){ MIX[k] = v; const b = k === 'sfx' ? SFX : k === 'v
 // the voices: one syllable of a speaker's mumble (voice.js), on their own bus
 export function say(V, syl){ if (AC && VOX && AC.state === 'running') utter(AC, VOX, V, syl); }
 // a recording, if there is one: false if not (the caller falls back). vol, rate; jitter: how far its pitch may stray
-function sample(name, vol = 1, rate = 1, jitter = 0.05, gap = 0.04){
+// pan: where it is, -1 left to 1 right; or [from, to, seconds], going across (build 99: the Wyrm going by)
+function sample(name, vol = 1, rate = 1, jitter = 0.05, gap = 0.04, pan = 0){
   const buf = BANK[name]; if (!buf || !AC) return false;
   const now = AC.currentTime; if (now - (LAST[name] || -9) < gap) return true; LAST[name] = now;   // not the same sound twice in a moment
   const s = AC.createBufferSource(), g = AC.createGain(); s.buffer = buf; s.playbackRate.value = rate * (1 + (Math.random() * 2 - 1) * jitter); g.gain.value = vol;
-  s.connect(g).connect(SFX); s.start(now); return true;
+  if (pan && AC.createStereoPanner){ const sp = AC.createStereoPanner(), [a, b, d] = Array.isArray(pan) ? pan : [pan, pan, 0]; sp.pan.setValueAtTime(a, now); if (d) sp.pan.linearRampToValueAtTime(b, now + d); s.connect(g).connect(sp).connect(SFX); }
+  else s.connect(g).connect(SFX);
+  s.start(now); return true;
 }
 // an ambience: a recording that goes round under everything, one at a time, faded between
 let ambNow = '', ambNode = null;
@@ -110,6 +113,13 @@ const SYNTH = {
   dash(){ noise(0.24, 0.12, 2800); tone(260, 0.18, 'sawtooth', 0.035, -180); },
   crackbell(big){ tone(big ? 196 : 392, big ? 0.9 : 0.5, 'triangle', 0.1, -8); tone(big ? 277 : 554, 0.5, 'square', 0.025, -14); noise(0.1, 0.04, 3000); },
   snap(){ noise(0.08, 0.1, 3200); tone(300, 0.08, 'square', 0.05, -150); },
+  // the Rime Wyrm's ice (build 99; the recordings are tools/ice-sounds.py's)
+  iceInhale(){ noise(0.8, 0.04, 3000); },
+  iceBreath(){ noise(2.6, 0.08, 2600); noise(2.6, 0.06, 260); },
+  iceSpit(){ noise(0.05, 0.06, 4000); tone(2093, 0.22, 'sine', 0.05, -160); },
+  iceCrack(){ noise(0.12, 0.1, 2400); tone(4200, 0.08, 'sine', 0.03, -600); },
+  iceRise(){ noise(0.35, 0.07, 900); tone(2640, 0.1, 'sine', 0.03, 0); },
+  wingRush(){ noise(1.2, 0.09, 700); },
 };
 // which recording a name asks for, and how: a name, or [name, vol, rate, jitter], or a function of the call's arguments.
 // A name not here asks for the recording of the same name.
@@ -117,6 +127,8 @@ const USE = {
   step: ['step', 0.3, 1, 0.14, 0.09], creep: ['step', 0.12, 0.9, 0.1], jump: ['jump', 0.5], land: ['land', 0.5], slash: ['swing', 0.6],
   swing: big => big ? ['swing_big', 0.8] : ['swing', 0.6, 1, 0.08], hit: ['hit', 0.75, 1, 0.08], impact: heavy => ['impact', heavy ? 1 : 0.7], clang: ['block', 0.7, 1.2],
   parry: ['parry', 0.8], block: ['block', 0.7], hurt: ['hurt', 0.8], gold: ['shard', 0.5, 1, 0.1], shard: ['shard', 0.45, 1, 0.12, 0.05], ember: ['ember', 0.4, 1, 0.15, 0.05],
+  iceInhale: ['ice_inhale', 0.7, 1, 0.03], iceBreath: ['ice_breath', 0.85, 1, 0.03], iceSpit: ['ice_spit', 0.6, 1, 0.08, 0.05], iceCrack: ['ice_crack', 0.75, 1, 0.1, 0.05], iceRise: ['ice_rise', 0.55, 1, 0.1, 0.06],
+  wingRush: (dir = 0, secs = 1.4, vol = 0.9) => ['wing_rush', vol, 1, 0.04, 0.3, dir ? [0.9 * dir, -0.9 * dir, secs] : 0],   // dir: from the right (1) or the left (-1), going across
   crack: ['crack', 0.7], slam: ['slam', 0.9], roar: ['roar', 1], spit: ['spit', 0.6], drink: ['drink', 0.7], creak: ['creak', 0.6], rumble: ['rumble', 0.7],
   whoosh: ['roll', 0.45, 1.1, 0.1], roll: ['roll', 0.55], dash: ['dash', 0.7], snap: ['thorn', 0.7], bossDie: ['boss_die', 1], talk: ['talk', 0.35, 1, 0.12, 0.03], ui: ['ui', 0.5],
   crackbell: big => ['bell', big ? 0.9 : 0.5, big ? 0.71 : 1.42, 0.04],   // the Bell-Foundry's iron: the house's bell, off its note
@@ -124,8 +136,8 @@ const USE = {
 };
 // any name can be called: the recording if it is loaded, else the synthesised sound, else nothing
 export const sfx = new Proxy(SYNTH, { get: (o, k) => (...a) => {
-  const u = typeof USE[k] === 'function' ? USE[k](...a) : USE[k] || k, [name, vol, rate, jit, gap] = Array.isArray(u) ? u : [u, 0.7];
-  if (!sample(name, vol, rate, jit, gap) && o[k]) o[k](...a);
+  const u = typeof USE[k] === 'function' ? USE[k](...a) : USE[k] || k, [name, vol, rate, jit, gap, pan] = Array.isArray(u) ? u : [u, 0.7];
+  if (!sample(name, vol, rate, jit, gap, pan) && o[k]) o[k](...a);
 } });
 export function buzz(ms){ try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} }
 

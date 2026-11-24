@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 98 | 24 Nov 2026 | `0484c9a` | A dev tool: try any place with all six weapons | no | yes (now) |
+| 99 | 24 Nov 2026 | `COMMITNN` | The Wyrm's new look (head drawn by PixelLab), seen on its far peak before the summit, and a sound for every piece of its ice | no | yes (now) |
+| 98 | 24 Nov 2026 | `0484c9a` | A dev tool: try any place with all six weapons | no | replaced by 99 |
 | 97 | 24 Nov 2026 | `314972f` | The Rime Wyrm rebuilt: the broken pass (three levels, the gap of cloud) and five attacks, each taking one level from him | no | replaced by 98 |
 | 96 | 24 Nov 2026 | `a21b0de` | The weapon on his back: when he climbs onto an edge, gets up or takes a gift, whatever he carries is slung behind him | no | replaced by 97 |
 | 95 | 23 Nov 2026 | `d659a60` | A heart behind the Tempest's Jar, a drink behind the Gardens' Lock, each in a prize chest | no | replaced by 96 |
@@ -114,6 +115,46 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 99: the Wyrm from the far peak
+
+*Your word, 24 Nov: "Second is great": look B of the pieces (`docs/wyrm-looks.png`). With it the rest of
+`docs/wyrm-sheet.md`: its coming from the far peak, and its sounds. The sheet is done.*
+
+**For the player**
+
+- **Its new look** (`docs/wyrm-new-look.png`): the horned, frilled head PixelLab drew, with a jaw that opens and
+  shuts; a body of long scaled rings with a ridge of ice along the back; a tail ending in a scythe of ice. All a quarter
+  larger than its pictures, so its head is bigger than he is. Its head is a little larger to hit and to be hit by.
+- **It is seen before the fight** (`docs/wyrm-peak.png`). From the eyrie and the span, the last rooms before the
+  summit, it lies coiled on a far peak high in the sky, and lifts its head when he comes into view.
+- **Its coming starts from that peak:** it cries, leaves the peak with its coil unwinding behind it, and crosses the
+  sky toward him, growing, for three seconds (it was a second and a half), then comes in past him as before.
+- **Every piece of its ice has a sound:** its in-breath; the breath, a long hiss of wind and grit; a shard leaving its
+  jaw, a glassy ring; a shard landing, a crack and splinters; spikes grinding up out of the ground; and its wings, a
+  rush of air that goes across the room from the side it comes in by to the side it leaves by.
+
+**What is weaker than it should be**
+
+- **The peak is only where the sky shows:** it is drawn high in the middle of the view, which is open sky in the
+  eyrie and the span from where he walks; stand at the far ends of the eyrie and the rock may hide it.
+- **The sounds are made by rule** (noise and tones, `tools/ice-sounds.py`), not recorded. Say if any is wrong.
+- **Still not fought by hand.**
+
+- **Underneath:** `assets/side/wyrm/` (look B and their normal maps, from `docs/wyrm-looks/b/`),
+  `src/side/wyrm.js` (`K`, `jawAt`, `HEAD_C`/`EYE`/`MOUTH`; `PERCH`, the coil and the crag; `RISE` and its tracks a
+  second and a half later; the sounds), `src/audio/sfx.js` (six sounds, and a sound that moves across: `pan`),
+  `tools/ice-sounds.py` (new), `tools/wyrm-parts.py` (new), `tools/boss-parts.py` (no longer draws the Wyrm),
+  `assets/audio/sfx/` and its manifest (six recordings). Three checks in `tests/side-wyrm.test.mjs`.
+- **Save: not moved.**
+- **Checked:** 490 checks pass. In the test browser: on its peak from the eyrie (it lifted its head) and the span;
+  its coming from the summit, from the peak to the roar; the frost, a plunge into the slab and the shards in the new look.
+
+**To try**
+
+1. Climb through the eyrie and the span and look up for it on its peak.
+2. Step onto the summit and watch it come.
+3. Fight it with the sound on, and say whether each sound is right.
 
 ### Build 98: all six weapons, to try
 

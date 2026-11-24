@@ -243,6 +243,30 @@
   "zap": {
    "f": "sfx/zap.wav",
    "s": 0.56
+  },
+  "ice_inhale": {
+   "f": "sfx/ice_inhale.wav",
+   "s": 0.8
+  },
+  "ice_breath": {
+   "f": "sfx/ice_breath.wav",
+   "s": 2.9
+  },
+  "ice_spit": {
+   "f": "sfx/ice_spit.wav",
+   "s": 0.5
+  },
+  "ice_crack": {
+   "f": "sfx/ice_crack.wav",
+   "s": 0.6
+  },
+  "ice_rise": {
+   "f": "sfx/ice_rise.wav",
+   "s": 0.5
+  },
+  "wing_rush": {
+   "f": "sfx/wing_rush.wav",
+   "s": 1.6
   }
  }
 }

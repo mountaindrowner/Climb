@@ -17,16 +17,18 @@
 //            arcs away to one side. Stay off the gap's edges
 // From half health the wind blows along the pass between its attacks, toward the gap; and a breath is followed at once
 // by a pass. // It wakes when he stands on the summit, and starts over if he dies. Only its head can hurt him or be hurt.
-// Its coming (the rise, after entrance.js has frozen the way out and the wind has dropped), harmless all through:
-//   far      0 - 1.4 s    small, far off in the haze over the peaks, circling; it banks, cries, and turns on him,
-//                         growing, up out of the top of the view
-//   pass     1.3 - 2.6    in again huge and fast from the right, low over the summit past him, snow torn up under it
-//   circle   2.6 - 3.85   up round the left, over the top of the view, and down the right onto the summit: a blow
-//   coil     3.85 - 4.55  along the summit, and up: it rears over it, its body lying back along the ground
-//   roar     4.55 - 5.5   it throws its head back, then down at him, jaws wide: a blast of frost (its name and its
+// Before it comes it is far off: coiled on a far peak in the sky, seen from the eyrie, the span and the summit; it lifts
+// its head when he comes into view (build 99). Its coming (the rise, after entrance.js has frozen the way out and the
+// wind has dropped), harmless all through (seconds of B.tm, RISE):
+//   peak     0 - 1.0 s    on its peak, head up: it cries, and leaves it, its coil unwinding behind it
+//   far      1.0 - 3.0    across the sky toward him, growing, and up out of the top of the view
+//   pass     2.88 - 4.18  in again huge and fast from the right, low over the summit past him, snow torn up under it
+//   circle   4.18 - 5.43  up round the left, over the top of the view, and down the right onto the summit: a blow
+//   coil     5.43 - 6.13  along the summit, and up: it rears over it, its body lying back along the ground
+//   roar     6.13 - 7.08  it throws its head back, then down at him, jaws wide: a blast of frost (its name and its
 //                         music come here: B.revealAt, for entrance.js), ice up out of the ground short
 //                         of his feet, frost rolling over him
-//   then     5.5 - 5.8    its jaws shut, the ice breaks, and it comes up to fight
+//   then     7.08 - 7.38  its jaws shut, the ice breaks, and it comes up to fight
 import { T, LEVEL, ROCK, LEDGE, EMPTY } from './level.js';
 import { hurt, isRollInv } from './motor.js';
 import { tex, glow, additive } from './boss.js';
@@ -35,10 +37,14 @@ import { sfx } from '../audio/sfx.js';
 const THREE = window.THREE;
 // the rise's moments (seconds of B.tm); the ways it goes, as [time, x, y(, size)]: the near one from the summit's middle
 // and floor, the far one from the middle of the view
-export const RISE = { far: 1.42, cry: 0.62, near: 1.3, past: 1.95, down: 3.85, rear: 4.55, roar: 4.75, done: 5.5, end: 5.8 };
-const NEAR = [[1.3, 15, 14], [1.7, 5, 6.8], [2.0, -5.5, 3.7], [2.3, -12, 5.2], [2.6, -13, 8.4], [2.95, -6.5, 9.3], [3.3, 3, 8.9], [3.6, 7.8, 6.4],
-  [3.85, 7.0, 1.7], [4.08, 4.6, 1.4], [4.22, 2.8, 2.4], [4.4, 2.5, 6.0], [4.55, 1.4, 8.0]];
-const FAR = [[0, -4.0, 3.0, 0.14], [0.3, -0.5, 4.2, 0.15], [0.55, 3.0, 4.0, 0.16], [0.75, 5.2, 2.6, 0.18], [0.95, 3.6, 1.4, 0.22], [1.12, 0.8, 2.4, 0.33], [1.27, -0.6, 4.6, 0.55], [1.42, -1.2, 8.6, 1.0]];
+export const RISE = { leave: 1.0, far: 3.0, cry: 0.72, near: 2.88, past: 3.53, down: 5.43, rear: 6.13, roar: 6.33, done: 7.08, end: 7.38 };   // (build 99: its far part 3 s, not 1.4; leave: when it lifts off its peak)
+const NEAR = [[2.88, 15, 14], [3.28, 5, 6.8], [3.58, -5.5, 3.7], [3.88, -12, 5.2], [4.18, -13, 8.4], [4.53, -6.5, 9.3], [4.88, 3, 8.9], [5.18, 7.8, 6.4],
+  [5.43, 7.0, 1.7], [5.66, 4.6, 1.4], [5.8, 2.8, 2.4], [5.98, 2.5, 6.0], [6.13, 1.4, 8.0]];
+// the far part (build 99): from its peak (PERCH, where it lies coiled before he comes up, and is seen from the eyrie and
+// the span), across the sky toward him, growing, and up out of the top of the view. Each key [t, x, y, size], from the
+// middle of the view
+const PERCH = { x: -1.5, y: 4.2, s: 0.18 };   // (high in the middle of the view: where the eyrie and the span are open to the sky)
+const FAR = [[1.0, PERCH.x, PERCH.y, PERCH.s], [1.35, 1.4, 5.0, 0.19], [1.7, 4.4, 4.4, 0.2], [2.0, 5.2, 2.9, 0.22], [2.3, 3.2, 1.7, 0.27], [2.6, 0.9, 2.0, 0.36], [2.85, -0.4, 4.0, 0.55], [3.0, -1.2, 8.6, 1.0]];
 // a smooth way through keys [t, ...values] at their times: a cubic through each pair, its slope from its neighbours;
 // before the first, on along its first heading; after the last, held there
 function track(K, t){
@@ -51,8 +57,8 @@ function track(K, t){
 }
 export const WYRM = {
   name: 'The Rime Wyrm', hp: 38, phase2: 0.5,
-  rings: ['l', 'l', 'l', 'l', 'l', 'l', 'l', 'm', 'm', 'm', 'm', 'm', 's', 's', 's', 's'], gap: { l: 1.1, m: 0.9, s: 0.7 },   // close enough to overlap: one body, not beads
-  headR: 1.15,
+  rings: ['l', 'l', 'l', 'l', 'l', 'l', 'l', 'm', 'm', 'm', 'm', 'm', 's', 's', 's', 's'], gap: { l: 1.48, m: 1.17, s: 0.94 },   // close enough to overlap: one body, not beads
+  headR: 1.3,
   cruise: 9, turn: 5,                                  // how fast it flies, how sharply it comes round
   levels: [0, 3.5, 6.5],                               // the pass, the shelves, the slab: their tops over the pass
   fall: 1,                                             // what a fall into the cloud costs
@@ -66,6 +72,15 @@ export const WYRM = {
   cd: [1.4, 0.8],
 };
 const W = WYRM;
+// its look (build 99, docs/wyrm-sheet.md, look B): the head PixelLab drew, split into the head and its jaw on one canvas
+// (the jaw drawn open, hinged where the skull meets it), and a body and tail painted in its colours
+// (tools/wyrm-parts.py, PAL=drawn). All a quarter larger than the pictures' pixels. Points of the head's picture, from
+// its skull's middle (where the game's head point is), in world units, the head looking right
+const K = 1.25, SKULL = [62, 36], loc = ([px, py]) => [(px - SKULL[0]) / 16 * K, (SKULL[1] - py) / 16 * K];
+const HEAD_C = loc([56, 40]), HINGE = loc([60, 49]), SHUT = 0.59, EYE = loc([61, 34]), MOUTH = loc([82, 47]);
+// where the jaw's picture goes, and how it is turned, with its jaws `open` (0 shut, 1 as drawn): turned shut about the hinge
+export function jawAt(open){ const d = (1 - open) * SHUT, vx = HEAD_C[0] - HINGE[0], vy = HEAD_C[1] - HINGE[1];
+  return [HINGE[0] + vx * Math.cos(d) - vy * Math.sin(d), HINGE[1] + vx * Math.sin(d) + vy * Math.cos(d), d]; }
 
 export function makeWyrm(scene, R){
   const room = LEVEL.rooms.find(r => r.name === 'crown'), mk = LEVEL.marks.find(m => m.type === 'boss');
@@ -89,11 +104,11 @@ export function makeWyrm(scene, R){
     st: 'dormant', tm: 0, hp: W.hp, phase: 1, flash: 0, cd: 1.5, room, stageY, cx, mode: 'circle', mt: 0, acts: 0,
     h: { x: lair.x, y: lair.y, vx: -1, vy: 0, a: Math.PI }, trail: [], jaw: 0, spikes: [], shards: [], gone: 0, gap: { x0: gx0, x1: gx1, x: gx }, wt: 0, last: '', frost: [], rz: {}, revealAt: RISE.roar };   // its name and its music on the roar (entrance.js)
   const piece = (file, z) => { const t = tex(`assets/side/wyrm/${file}.png`), m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), litMat({ map: t, normalMap: tex(`assets/side/wyrm/${file}_n.png`), transparent: true, alphaTest: 0.5, side: THREE.DoubleSide })); m.position.z = z; m.visible = false; scene.add(m); return m; };
-  const SIZE = { l: [34, 41], m: [28, 35], s: [22, 29], head: [70, 46], jaw: [46, 16], tail: [34, 16] };
+  const SIZE = Object.fromEntries(Object.entries({ l: [35, 36], m: [28, 31], s: [23, 27], head: [112, 80], jaw: [112, 80], tail: [66, 34] }).map(([k, v]) => [k, v.map(n => n * K)]));
   const rings = W.rings.map((k, i) => ({ k, m: piece('ring_' + k, -0.6 - i * 0.004), x: lair.x, y: lair.y }));
   const tail = piece('tail', -0.7), jaw = piece('jaw', -0.52), head = piece('head', -0.5);
   for (const [m, k] of [[head, 'head'], [jaw, 'jaw'], [tail, 'tail'], ...rings.map(r => [r.m, r.k])]) m.scale.set(SIZE[k][0] / 16, SIZE[k][1] / 16, 1);
-  let total = 0; for (const r of rings){ total += W.gap[r.k]; r.d = total; } const tailD = total + 0.9;
+  let total = 0; for (const r of rings){ total += W.gap[r.k]; r.d = total; } const tailD = total + 2.2;   // (the tail's picture is long: its middle is well behind its join)
   const eyeLight = new THREE.PointLight(0x9fefff, 0, 6, 1.5); scene.add(eyeLight);   // its eye lights its own snout and the rings behind
   const eyeTex = glow('rgba(160,250,255,1)'), warnTex = glow('rgba(255,60,50,1)');
   const eye = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.3), additive(eyeTex, 0x7ff6ff, 0)); scene.add(eye);
@@ -109,6 +124,14 @@ export function makeWyrm(scene, R){
   const far = { head: new THREE.Mesh(head.geometry, farMat(head)), jaw: new THREE.Mesh(jaw.geometry, farMat(jaw)), tail: new THREE.Mesh(tail.geometry, farMat(tail)), rings: rings.map(r => new THREE.Mesh(r.m.geometry, farMat(r.m))) };
   const farAll = [far.head, far.jaw, far.tail, ...far.rings], FAR_DIM = new THREE.Color(0x5a6988), FAR_NEAR = new THREE.Color(0xc0cbdc);
   for (const m of farAll){ m.visible = false; scene.add(m); }
+  // the far peak it lies on: a crag in the haze, as far back as it is
+  const cragTex = (() => { const w = 72, h = 52, c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d');
+    for (let x = 0; x < w; x++){ const top = Math.round(4 + Math.abs(x - 38) * 1.15 + 3 * Math.sin(x * 0.9) + (x > 50 ? 4 : 0));
+      for (let y = Math.max(0, top); y < h; y++){ const d = y - top, snow = d < 4 + (x % 5 === 0 ? 2 : 0) && x < 54;
+        g.globalAlpha = Math.max(0, Math.min(1, 1.2 - y / h * 0.9)); g.fillStyle = snow ? '#ffffff' : x < 38 - d * 0.3 ? '#c0cbdc' : (x + y) % 2 ? '#8b9bb4' : '#c0cbdc'; g.fillRect(x, y, 1, 1); } }   // pale, and fading into the haze at its foot
+    const t = new THREE.CanvasTexture(c); t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false; return t; })();
+  const crag = new THREE.Mesh(new THREE.PlaneGeometry(4.5, 3.25), new THREE.MeshBasicMaterial({ map: cragTex, transparent: true, alphaTest: 0.05, depthWrite: false, opacity: 0.85 })); crag.visible = false; scene.add(crag);
+  const PERCH_ROOMS = ['eyrie', 'span', 'crown'].map(n => LEVEL.rooms.find(r => r.name === n)).filter(Boolean);
   const farEye = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), additive(eyeTex, 0x2ce8f5, 0)); farEye.visible = false; scene.add(farEye);
   const puffGeo = new THREE.PlaneGeometry(1, 1), puffs = [], PUFF_COLS = [0xffffff, 0xc0cbdc, 0xc0cbdc, 0x2ce8f5];
   for (let i = 0; i < 48; i++){ const m = new THREE.Mesh(puffGeo, additive(eyeTex, 0xffffff, 0)); m.visible = false; m.position.z = 0.6; scene.add(m); puffs.push({ m, life: 0 }); }
@@ -140,7 +163,7 @@ export function makeWyrm(scene, R){
   B.hud = () => B.active() ? { name: W.name, frac: Math.max(0, B.hp / W.hp), phase: B.phase } : null;
   const clear = () => { for (const s of B.spikes){ scene.remove(s.m); scene.remove(s.mark); } B.spikes.length = 0; for (const c of B.shards) scene.remove(c.m); B.shards.length = 0; };
   B.reset = () => { Object.assign(B, { st: 'dormant', tm: 0, hp: W.hp, phase: 1, cd: 1.5, mode: 'circle', mt: 0, acts: 0, jaw: 0, gone: 0, wt: 0, last: '', boil: 0, combo: false }); cleft(false); cloud.visible = false; for (const w of wisps) w.m.visible = false; Object.assign(B.h, { x: lair.x, y: lair.y, vx: -1, vy: 0, a: Math.PI }); B.trail.length = 0; clear();
-    B.rz = {}; shatter(null); for (const m of farAll) m.visible = false; farEye.visible = flare.visible = cone.visible = false; for (const p of puffs){ p.life = 0; p.m.visible = false; } };
+    B.rz = {}; B.lift = 0; shatter(null); for (const m of farAll) m.visible = false; farEye.visible = flare.visible = cone.visible = crag.visible = false; for (const p of puffs){ p.life = 0; p.m.visible = false; } };
   // the head steers toward a point: it has a speed and can only turn so fast, so it comes round in arcs
   function steer(tx, ty, speed, turn, dt){
     const H = B.h, want = Math.atan2(ty - H.y, tx - H.x); let d = want - H.a; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2;
@@ -149,11 +172,11 @@ export function makeWyrm(scene, R){
   // a spike of ice up out of whatever is under it: the plunge's (warned by a red mark, quick), or a shard's (at once, stands a second)
   const spike = (x, lag, y = stageY, stand = 0) => { const m = new THREE.Mesh(spikeGeo, spikeMat), mark = new THREE.Mesh(markGeo, additive(warnTex, 0xff5040, 0)); m.visible = false; m.position.set(x, y, 0.3); mark.position.set(x, y + 0.2, 0.4); scene.add(m); scene.add(mark);
     B.spikes.push({ x, y, t: stand ? W.spikes.warn : -lag, up: stand || W.spikes.up, m, mark, hit: false, short: !!stand }); };
-  const mouth = () => { const H = B.h, ca = Math.cos(H.a), sa = Math.sin(H.a), fl = ca < 0 ? -1 : 1; return { x: H.x + 1.7 * ca + 0.8 * fl * sa, y: H.y + 1.7 * sa - 0.8 * fl * ca }; };
+  const mouth = () => { const H = B.h, ca = Math.cos(H.a), sa = Math.sin(H.a), fl = ca < 0 ? -1 : 1; return { x: H.x + MOUTH[0] * ca - MOUTH[1] * fl * sa, y: H.y + MOUTH[0] * sa + MOUTH[1] * fl * ca }; };
   const shard = (P, events) => { const o = mouth(), tx = P.x, ty = P.y + 1.1, d = Math.hypot(tx - o.x, ty - o.y) || 1, m = new THREE.Mesh(shardGeo, shardMat); m.position.set(o.x, o.y, 0.45); scene.add(m);
-    B.shards.push({ x: o.x, y: o.y, vx: (tx - o.x) / d * W.shards.speed, vy: (ty - o.y) / d * W.shards.speed, m, back: false, t: 0 }); sfx.spit(); sfx.snap(); events.push({ type: 'bossTell' }); };
+    B.shards.push({ x: o.x, y: o.y, vx: (tx - o.x) / d * W.shards.speed, vy: (ty - o.y) / d * W.shards.speed, m, back: false, t: 0 }); sfx.iceSpit(); events.push({ type: 'bossTell' }); };
   // a shard sent back: at its head, faster, gold
-  const sendBack = (c, events) => { const H = B.h, d = Math.hypot(H.x - c.x, H.y - c.y) || 1, sp = W.shards.speed * 1.5; c.vx = (H.x - c.x) / d * sp; c.vy = (H.y - c.y) / d * sp; c.back = true; c.m.material = backMat; sfx.parry(); events.push({ type: 'block', at: { x: c.x, y: c.y } }); };
+  const sendBack = (c, events) => { const H = B.h, d = Math.hypot(H.x - c.x, H.y - c.y) || 1, sp = W.shards.speed * 1.5; c.vx = (H.x - c.x) / d * sp; c.vy = (H.y - c.y) / d * sp; c.back = true; c.m.material = backMat; sfx.parry(); sfx.iceSpit(); events.push({ type: 'block', at: { x: c.x, y: c.y } }); };
 
   B.step = (P, dt, fx, events) => {
     B.tm += dt; B.mt += dt; B.flash = Math.max(0, B.flash - dt);
@@ -168,16 +191,17 @@ export function makeWyrm(scene, R){
         hid = true; H.x = lair.x; H.y = lair.y;
         if (t > 0 && !Z.wind){ Z.wind = true; sfx.gust(); }
         if (t >= RISE.cry && !Z.cry){ Z.cry = true; sfx.roar(); }
+        if (t >= RISE.leave && !Z.leave){ Z.leave = true; sfx.wingRush(-1, 2.0, 0.3); }   // far off: it leaves its peak
       }
       else if (t < RISE.rear){
         // in: fast and low past him, round the left, over, down onto the summit at the right, along it and up
         const k = track(NEAR, t), q = track(NEAR, t - 0.02);
         H.x = cx + k[1]; H.y = stageY + k[2]; H.vx = (k[1] - q[1]) / 0.02; H.vy = (k[2] - q[2]) / 0.02; H.a = Math.atan2(H.vy, H.vx);
-        if (!Z.in){ Z.in = true; sfx.whoosh(); const u = Math.hypot(H.vx, H.vy) || 1; B.trail.length = 0; for (let j = 0; j < 80; j++) B.trail.push({ x: H.x - H.vx / u * j * 0.25, y: H.y - H.vy / u * j * 0.25 }); }   // its body behind it, out of sight
+        if (!Z.in){ Z.in = true; sfx.wingRush(1, 1.3); const u = Math.hypot(H.vx, H.vy) || 1; B.trail.length = 0; for (let j = 0; j < 80; j++) B.trail.push({ x: H.x - H.vx / u * j * 0.25, y: H.y - H.vy / u * j * 0.25 }); }   // its body behind it, out of sight
         if (k[2] < 4.6 && t < RISE.rear - 0.3) fx.dust({ x: H.x, y: stageY }, 3, 3.4);   // low: the snow torn up under it
         if (t >= RISE.past && !Z.past){ Z.past = true; sfx.whoosh(); events.push({ type: 'bossSweep', at: { x: H.x, y: stageY } }); fx.debris(H.x - 7, H.x + 7, stageY + 9, stageY, 26, [0xffffff, 0xc0cbdc], true); }
         if (t >= RISE.down && !Z.down){ Z.down = true; events.push({ type: 'bossSlam', at: { x: H.x, y: stageY } }); fx.burst({ x: H.x, y: stageY + 0.6 }, 30, 0xc0cbdc); fx.debris(H.x - 4, H.x + 4, stageY + 6, stageY, 16, [0xffffff, 0xc0cbdc], true); R.shock(H.x, stageY + 1, true); }
-        open = t > 4.3 ? 0.25 : 0;
+        open = t > 5.88 ? 0.25 : 0;
       }
       else {
         const M = NEAR[NEAR.length - 1], bx = cx + M[1], by = stageY + M[2];
@@ -191,7 +215,7 @@ export function makeWyrm(scene, R){
           // down at him, jaws wide: a blast of frost, at the ground short of his feet
           const u = Math.min(1, (t - RISE.roar) / 0.14), e = 1 - (1 - u) * (1 - u); H.x = bx + 0.4 - 1.2 * e; H.y = by + 0.6 - 0.8 * e;
           H.a += (Math.PI + 0.8 - H.a) * Math.min(1, dt * 18); open = 1; jit = 0.07; roar = 1;
-          const ca = Math.cos(H.a), sa = Math.sin(H.a), fl = ca < 0 ? -1 : 1, mx = H.x + 1.7 * ca + 0.8 * fl * sa, my = H.y + 1.7 * sa - 0.8 * fl * ca, ba = H.a - fl * 0.35;
+          const ca = Math.cos(H.a), sa = Math.sin(H.a), fl = ca < 0 ? -1 : 1, mx = H.x + MOUTH[0] * ca - MOUTH[1] * fl * sa, my = H.y + MOUTH[0] * sa + MOUTH[1] * fl * ca, ba = H.a - fl * 0.35;
           const ix = Math.sin(ba) < -0.2 ? mx + Math.cos(ba) * (my - stageY) / -Math.sin(ba) : mx; Z.mx = mx; Z.my = my;
           if (!Z.roar){ Z.roar = true; Z.flare = 0.55; Z.acc = 0; Z.n = 0; B.flash = 0.15; sfx.gust(); sfx.crack(); events.push({ type: 'bossSweep', at: { x: mx, y: stageY } }); R.shock(mx, my, true);
             fx.debris(room.x0 + 1, room.x1 - 1, stageY + 11, stageY, 40, [0xffffff, 0xc0cbdc, 0x2ce8f5], true); }
@@ -265,7 +289,7 @@ export function makeWyrm(scene, R){
       // ---- the frost breath
       else if (M === 'frostGo'){
         const tx = cx + B.side * W.frost.hang[0], ty = stageY + W.frost.hang[1]; steer(tx, ty, 13, 7, dt);
-        if (Math.hypot(H.x - tx, H.y - ty) < 1.4 || B.mt > 2.6){ go('frostTell'); sfx.gust(); }
+        if (Math.hypot(H.x - tx, H.y - ty) < 1.4 || B.mt > 2.6){ go('frostTell'); sfx.iceInhale(); }
       }
       else if (M === 'frostTell' || M === 'frost'){
         // it hangs at its end of the hall, head turned down along the pass; draws breath, then breathes
@@ -275,7 +299,7 @@ export function makeWyrm(scene, R){
           const k = B.mt / W.frost.tell; open = 0.3 + 0.7 * k;
           if (Math.random() < 0.8){ const a = Math.random() * Math.PI * 2, r0 = 3 + Math.random() * 2.5; puff(o.x + Math.cos(a) * r0, o.y + Math.sin(a) * r0, -Math.cos(a) * r0 * 2.6, -Math.sin(a) * r0 * 2.6, 0.5 + Math.random() * 0.4, 0.38); }
           R.glint(o.x, o.y, 0x2ce8f5, 0.4 + k, 3 + k * 3);
-          if (B.mt >= W.frost.tell){ go('frost'); B.n = 0; B.flash = 0.1; sfx.gust(); sfx.crack(); events.push({ type: 'bossSweep', at: { x: o.x, y: stageY } }); }
+          if (B.mt >= W.frost.tell){ go('frost'); B.n = 0; B.flash = 0.1; sfx.iceBreath(); events.push({ type: 'bossSweep', at: { x: o.x, y: stageY } }); }
         }
         else {
           open = 1; jit = 0.05; weak = 0.6;
@@ -283,7 +307,7 @@ export function makeWyrm(scene, R){
           // the ice along the pass, out to where the breath has reached (none in the gap)
           while (B.n * W.frost.step < far){ const x = from + dir * (B.n * W.frost.step + 0.3) + (Math.random() - 0.5) * 0.2; B.n++; if (x > gx0 - 0.2 && x < gx1 + 0.2) continue;
             const m = new THREE.Mesh(spikeGeo, frostMats[B.n % 2]); m.position.set(x, stageY - 0.05, 0.35); m.rotation.z = (Math.random() - 0.5) * 0.5; m.scale.set(0.5 + Math.random() * 0.4, 0.01, 1); scene.add(m);
-            B.frost.push({ m, x, t: 0, h: 0.7 + Math.random() * 0.45 }); if (B.n % 3 === 0){ fx.burst({ x, y: stageY + 0.4 }, 6, 0xc0cbdc); events.push({ type: 'rockLand', at: { x, y: stageY } }); } }
+            B.frost.push({ m, x, t: 0, h: 0.7 + Math.random() * 0.45 }); if (B.n % 3 === 0){ fx.burst({ x, y: stageY + 0.4 }, 6, 0xc0cbdc); sfx.iceRise(); } }
           // the blast: from its jaws to the ground where the ice is coming up
           const ix = Math.max(xMin - 2, Math.min(xMax + 2, edge)), len = Math.hypot(ix - o.x, stageY + 0.3 - o.y), k = Math.min(1, B.mt / 0.1, (W.frost.time - B.mt) / 0.2);
           cone.visible = true; cone.position.set((o.x + ix) / 2, (o.y + stageY + 0.3) / 2, 0.55); cone.rotation.z = Math.atan2(stageY + 0.3 - o.y, ix - o.x); cone.scale.set(len, 3.2 + Math.random() * 0.6, 1); cone.material.opacity = Math.max(0, k) * (0.55 + Math.random() * 0.3);
@@ -292,7 +316,7 @@ export function makeWyrm(scene, R){
           // on the pass where it lies, he is hurt
           if (P.y < stageY + 0.9 && (P.x - from) * dir >= 0 && (P.x - from) * dir <= far && !(P.x > gx0 && P.x < gx1)) hurt(P, 1, o.x, 'Frozen');
           if (B.mt >= W.frost.time){
-            cone.visible = false; shatter(fx); events.push({ type: 'rockLand', at: { x: cx, y: stageY } }); sfx.crack();
+            cone.visible = false; shatter(fx); events.push({ type: 'rockLand', at: { x: cx, y: stageY } }); sfx.iceCrack();
             if (B.phase === 2 && !B.combo){ B.combo = true; go('passGo'); B.side = side(); events.push({ type: 'bossTell' }); }
             else { B.combo = false; go('circle'); B.cd = ph(W.cd); }
           }
@@ -313,7 +337,7 @@ export function makeWyrm(scene, R){
         hid = true; H.vx = H.vy = 0; const k = Math.min(1, B.mt / ph(W.pass.tell));
         warnA = 0.25 + 0.45 * k; warnX = cx; warnW = xMax - xMin + 6; warnY = B.ly - 0.4;
         for (let n = 0; n < 2; n++) if (Math.random() < 0.5 + k * 0.4){ const x = B.side > 0 ? xMax + 3 - Math.random() * 4 : xMin - 3 + Math.random() * 4; puff(x, B.ly - 0.8 + Math.random() * 1.8, -B.side * (20 + Math.random() * 10), 0, 0.5 + Math.random() * 0.6, 1.2); }
-        if (B.mt >= ph(W.pass.tell)){ go('pass'); sfx.whoosh(); sfx.roar(); events.push({ type: 'bossSweep', at: { x: cx, y: B.ly } }); }
+        if (B.mt >= ph(W.pass.tell)){ go('pass'); sfx.wingRush(B.side, 2.6); sfx.roar(); events.push({ type: 'bossSweep', at: { x: cx, y: B.ly } }); }
       }
       else if (M === 'pass'){
         const sp = ph(W.pass.speed); H.a = B.side > 0 ? Math.PI : 0; H.vx = -B.side * sp; H.vy = 0; H.x += H.vx * dt; H.y = B.ly + Math.sin(B.mt * 7) * 0.15; open = 0.6;
@@ -376,7 +400,7 @@ export function makeWyrm(scene, R){
         // the cloud boils
         hid = true; H.vx = H.vy = 0; B.boil = Math.min(1, B.mt / W.up.tell);
         if (Math.random() < 0.7) puff(gx0 + Math.random() * (gx1 - gx0), stageY + 0.2, (Math.random() - 0.5) * 3, 3 + Math.random() * 4 * B.boil, 0.7 + Math.random() * 0.8, 0.6);
-        if (B.mt >= W.up.tell){ go('up'); sfx.whoosh(); sfx.roar(); fx.burst({ x: gx, y: stageY + 0.3 }, 30, 0xffffff); events.push({ type: 'bossSweep', at: { x: gx, y: stageY } }); }
+        if (B.mt >= W.up.tell){ go('up'); sfx.wingRush(); sfx.roar(); fx.burst({ x: gx, y: stageY + 0.3 }, 30, 0xffffff); events.push({ type: 'bossSweep', at: { x: gx, y: stageY } }); }
       }
       else if (M === 'up'){
         B.boil = Math.max(0, B.boil - dt * 2); H.a = Math.PI / 2; H.vx = 0; H.vy = W.up.speed; H.y += H.vy * dt; open = 1;
@@ -404,7 +428,7 @@ export function makeWyrm(scene, R){
       if (s.t < 0) continue;
       if (s.t < W.spikes.warn){ s.mark.material.opacity = 0.5 + 0.4 * Math.sin(s.t * 30); }
       else { const u = (s.t - W.spikes.warn) / s.up, e = s.short ? 0.12 / s.up : 0.25, k = u < e ? u / e : u > 1 - e ? Math.max(0, (1 - u) / e) : 1; s.mark.material.opacity = 0; s.m.visible = true; s.m.scale.y = k * (s.short ? 0.6 : 1);
-        if (!s.up0){ s.up0 = true; events.push({ type: 'rockLand', at: { x: s.x, y: s.y } }); fx.burst({ x: s.x, y: s.y + 0.6 }, 8, 0xc8f4ff); }
+        if (!s.up0){ s.up0 = true; sfx.iceRise(); fx.burst({ x: s.x, y: s.y + 0.6 }, 8, 0xc8f4ff); }
         if (!s.hit && k > 0.6 && Math.abs(P.x - s.x) < 0.7 && P.y < s.y + (s.short ? 1.1 : 1.6) && P.y > s.y - 1 && !isRollInv(P)){ if (hurt(P, 1, s.x, 'Spiked')) s.hit = true; }
         if (u >= 1){ scene.remove(s.m); scene.remove(s.mark); B.spikes.splice(i, 1); } }
     }
@@ -414,7 +438,7 @@ export function makeWyrm(scene, R){
       let gone = c.t > 3 || c.x < room.x0 - 4 || c.x > room.x1 + 4 || c.y > room.y1 + 4;
       if (!gone && c.back){
         // back at its head: it takes it whatever it is doing
-        if (B.st === 'fight' && Math.hypot(c.x - H.x, c.y - H.y) < W.headR + 0.4){ wound(W.shards.back, { x: c.x, y: c.y }, events, W.shards.back); fx.burst({ x: c.x, y: c.y }, 16, 0xfee761); sfx.crack(); gone = true; }
+        if (B.st === 'fight' && Math.hypot(c.x - H.x, c.y - H.y) < W.headR + 0.4){ wound(W.shards.back, { x: c.x, y: c.y }, events, W.shards.back); fx.burst({ x: c.x, y: c.y }, 16, 0xfee761); sfx.iceCrack(); gone = true; }
       }
       else if (!gone && Math.abs(P.x - c.x) < 0.45 && c.y > P.y && c.y < P.y + P.h && P.hp > 0){
         // his guard, facing it, sends it back; otherwise it goes in
@@ -425,7 +449,7 @@ export function makeWyrm(scene, R){
         // it cracks on what it hits, and leaves a spike standing there a second if it lands on a floor (not in the cloud)
         const i2 = Math.floor(c.x / T), j2 = Math.floor(c.y / T), t2 = LEVEL.tiles[j2 * LEVEL.W + i2];
         if (t2 === ROCK || (t2 === LEDGE && c.vy < 0 && c.y < (j2 + 1) * T && c.y > (j2 + 1) * T - 0.3) || c.y < stageY - 0.4){
-          gone = true; sfx.crack(); fx.burst({ x: c.x, y: c.y }, 12, 0xe8fbff); events.push({ type: 'rockLand', at: { x: c.x, y: c.y } });
+          gone = true; sfx.iceCrack(); fx.burst({ x: c.x, y: c.y }, 12, 0xe8fbff);
           if (!c.back && c.vy < 0 && !(c.x > gx0 && c.x < gx1)){ const top = floorUnder(c.x, c.y + 0.3); if (c.y - top < 0.8) spike(c.x, 0, top, W.shards.stand); }
         }
       }
@@ -445,28 +469,39 @@ export function makeWyrm(scene, R){
     B.jaw += (open - B.jaw) * Math.min(1, dt * 12);
     const flip = Math.cos(H.a) < 0 ? -1 : 1, ca = Math.cos(H.a), sa = Math.sin(H.a), on = (lx, ly) => [H.x + lx * ca - ly * flip * sa, H.y + lx * sa + ly * flip * ca];
     const jx0 = (Math.random() - 0.5) * jit, jy0 = (Math.random() - 0.5) * jit;   // the roar shakes its head
-    place(head, H.x + jx0, H.y + jy0, H.a, false);
-    { const ja = H.a - flip * B.jaw * 0.5, [jx, jy] = on(0.55 - B.jaw * 0.2, -0.95 - B.jaw * 0.25); place(jaw, jx + jx0, jy + jy0, ja, false); }
+    { const [hx, hy] = on(HEAD_C[0], HEAD_C[1]); place(head, hx + jx0, hy + jy0, H.a, false); }
+    { const [lx, ly, d] = jawAt(B.jaw), [jx, jy] = on(lx, ly); place(jaw, jx + jx0, jy + jy0, H.a + flip * d, false); }
     const lit = B.st === 'fight' ? 1 : B.st === 'rise' ? Math.min(1, B.tm) : B.st === 'die' ? Math.max(0, 1 - B.tm / 2) : 0;
-    { const [ex, ey] = on(0.06, 0.19); eye.position.set(ex, ey, -0.45); eye.material.opacity = lit * (0.8 + 0.2 * Math.sin(B.tm * 7)); eye.material.color.setHex(weak > 0 ? 0xffffff : B.phase === 2 ? 0xff5a50 : 0x7ff6ff); eye.scale.setScalar(1 + weak * 0.6 + roar * 0.7); eye.visible = show; }
+    { const [ex, ey] = on(EYE[0], EYE[1]); eye.position.set(ex, ey, -0.45); eye.material.opacity = lit * (0.8 + 0.2 * Math.sin(B.tm * 7)); eye.material.color.setHex(weak > 0 ? 0xffffff : B.phase === 2 ? 0xff5a50 : 0x7ff6ff); eye.scale.setScalar(1 + weak * 0.6 + roar * 0.7); eye.visible = show; }
     halo.position.set(H.x, H.y, -0.8); halo.material.opacity = weak * (0.35 + 0.15 * Math.sin(B.tm * 9)) + B.flash * 3; halo.visible = show;
     eyeLight.position.set(H.x, H.y + 0.3, 1.0); eyeLight.intensity = show ? lit * 0.9 + weak * 1.2 + B.flash * 4 : 0; eyeLight.color.setHex(B.phase === 2 ? 0xff7060 : 0x9fefff);
     if (show) R.glint(H.x, H.y, B.phase === 2 ? 0xff7060 : 0x9fefff, lit * 0.35 + weak * 0.45 + B.flash * 3, 5.5);
     // its coming: the far one, the breath, its flare, the ice it raised
-    if (B.st === 'rise' && B.tm > 0 && B.tm < RISE.far){
-      const t = B.tm, c = R.parallax(0, 0, 0), fat = tt => { const k = track(FAR, tt); return { x: c.x + k[1], y: c.y + k[2], s: Math.max(0.05, k[3]) }; };
-      const h = fat(t), h2 = fat(t - 0.02), a = Math.atan2(h.y - h2.y, h.x - h2.x), s = h.s, z = s > 0.3 ? -5 : -45, dim = Math.min(1, Math.max(0, (s - 0.15) / 0.6));
+    // far off: on its peak before he comes up (seen from the eyrie, the span and the summit; it lifts its head when he
+    // comes into view), and in its coming, off the peak and across the sky toward him (build 99)
+    const seen = !!(P && PERCH_ROOMS.some(r => P.x > r.x0 && P.x < r.x1 && P.y > r.y0 - 1 && P.y < r.y1));
+    if (B.st === 'dormant' && seen) B.lift = Math.min(1, (B.lift || 0) + dt / 1.4);
+    if ((B.st === 'rise' && B.tm < RISE.far) || (B.st === 'dormant' && seen)){
+      const t = B.st === 'rise' ? B.tm : 0, L = RISE.leave, c = R.parallax(0, 0, 0), P0 = { x: c.x + PERCH.x, y: c.y + PERCH.y };
+      // its coil: back from where its head lies, round and in, lying on the peak
+      const coil = v => { const r0 = Math.max(0.12, 0.55 - 0.045 * v), f = Math.PI / 2 + v / 0.42; return { x: P0.x + r0 * Math.cos(f), y: P0.y - 0.32 + r0 * Math.sin(f) * 0.55, s: PERCH.s }; };
+      const fat = tt => { if (tt < L) return coil((L - tt) * 1.6); const k = track(FAR, tt); return { x: c.x + k[1], y: c.y + k[2], s: Math.max(0.05, k[3]) }; };
+      const tb = Math.max(t, L), h = fat(tb), s = h.s, z = s > 0.3 ? -5 : -45, dim = Math.min(1, Math.max(0, (s - 0.15) / 0.6));
+      const lift = B.lift || 0, e = lift * lift * (3 - 2 * lift);
+      let a; if (t < L) a = -0.25 + (Math.PI + 0.3 + 0.25) * e; else { const h2 = fat(t - 0.02); a = Math.atan2(h.y - h2.y, h.x - h2.x); }
       const pose = (m, x, y, ang, k, sc, zz) => { m.visible = true; m.position.set(x, y, zz); m.rotation.z = ang; m.scale.set(SIZE[k][0] / 16 * sc, SIZE[k][1] / 16 * sc * (Math.cos(ang) < 0 ? -1 : 1), 1); m.material.color.copy(FAR_DIM).lerp(FAR_NEAR, dim); };
       Z.fjaw = (Z.fjaw || 0) + ((t > RISE.cry - 0.05 && t < RISE.cry + 0.4 ? 1 : 0) - (Z.fjaw || 0)) * Math.min(1, dt * 12);
       const fl = Math.cos(a) < 0 ? -1 : 1, ca = Math.cos(a), sa = Math.sin(a), fon = (lx, ly) => [h.x + (lx * ca - ly * fl * sa) * s, h.y + (lx * sa + ly * fl * ca) * s];
-      pose(far.head, h.x, h.y, a, 'head', s, z + 0.02);
-      { const ja = a - fl * Z.fjaw * 0.5, [jx, jy] = fon(0.55 - Z.fjaw * 0.2, -0.95 - Z.fjaw * 0.25); pose(far.jaw, jx, jy, ja, 'jaw', s, z + 0.015); }
-      { const [ex, ey] = fon(0.06, 0.19); farEye.visible = true; farEye.position.set(ex, ey, z + 0.03); farEye.scale.setScalar(1.6 * s * (1 + Z.fjaw)); farEye.material.opacity = 0.9; R.glint(ex, ey, 0x2ce8f5, 0.2 + Z.fjaw * 0.6, 1 + s * 5); }
-      // its body back along the way it came, a ring a gap (the gaps by its size where it was then)
-      let tt = t, acc = 0, prev = h, last = h, ri = 0;
-      while (ri <= rings.length && tt > t - 3){ tt -= 0.004; const p = fat(tt); acc += Math.hypot(p.x - prev.x, p.y - prev.y) / p.s; prev = p;
+      { const [hx, hy] = fon(HEAD_C[0], HEAD_C[1]); pose(far.head, hx, hy, a, 'head', s, z + 0.02); }
+      { const [lx, ly, d] = jawAt(Z.fjaw), [jx, jy] = fon(lx, ly); pose(far.jaw, jx, jy, a + fl * d, 'jaw', s, z + 0.015); }
+      { const [ex, ey] = fon(EYE[0], EYE[1]); farEye.visible = true; farEye.position.set(ex, ey, z + 0.03); farEye.scale.setScalar(1.6 * s * (1 + Z.fjaw)); farEye.material.opacity = t < L ? 0.25 + 0.65 * e : 0.9; R.glint(ex, ey, 0x2ce8f5, (t < L ? 0.1 + 0.2 * e : 0.2) + Z.fjaw * 0.6, 1 + s * 5); }
+      // the peak under it, while it is near it
+      crag.visible = t < L + 0.9; crag.position.set(P0.x + 0.1, P0.y - 2.2, -46); crag.material.opacity = 0.85 * Math.min(1, (L + 0.9 - t) / 0.5);
+      // its body back along the way it came (into the coil, before it left), a ring a gap (the gaps by its size where it was then)
+      let tt = tb, acc = 0, prev = h, last = h, ri = 0;
+      while (ri <= rings.length && tt > tb - 6){ tt -= 0.004; const p = fat(tt); acc += Math.hypot(p.x - prev.x, p.y - prev.y) / p.s; prev = p;
         if (acc >= (ri < rings.length ? rings[ri].d : tailD)){ const ang = Math.atan2(last.y - p.y, last.x - p.x); if (ri < rings.length) pose(far.rings[ri], p.x, p.y, ang, rings[ri].k, p.s, z - 0.01 - ri * 0.001); else pose(far.tail, p.x, p.y, ang, 'tail', p.s, z - 0.03); last = p; ri++; } }
-    } else if (far.head.visible){ for (const m of farAll) m.visible = false; farEye.visible = false; }
+    } else if (far.head.visible || crag.visible){ for (const m of farAll) m.visible = false; farEye.visible = false; crag.visible = false; }
     for (const p of puffs){
       if (p.life <= 0){ if (p.m.visible) p.m.visible = false; continue; }
       p.life -= dt; const u = 1 - p.life / p.max, drag = Math.exp(-dt * 2.2); p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= drag; p.vy *= drag;

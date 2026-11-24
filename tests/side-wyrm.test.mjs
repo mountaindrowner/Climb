@@ -102,3 +102,24 @@ test('it is never the same attack twice running, and every attack comes', () => 
   for (const k of ['plunge', 'frost', 'pass', 'shards', 'up']) assert.ok(seen.has(k), k);
   assert.equal(B.st, 'fight');
 });
+
+// build 99: its look (B of docs/wyrm-sheet.md), its far peak, its sounds
+test('its new pieces are in, with their normal maps; its jaw swings shut about the hinge', async () => {
+  const fs = await import('node:fs'), { jawAt } = await import('../src/side/wyrm.js');
+  for (const n of ['head', 'jaw', 'ring_l', 'ring_m', 'ring_s', 'tail']) for (const f of [n, n + '_n']) assert.ok(fs.existsSync(`assets/side/wyrm/${f}.png`), f);
+  const open = jawAt(1), shut = jawAt(0); assert.equal(open[2], 0, 'open as drawn'); assert.ok(shut[2] > 0.5, 'shut: turned up');
+  assert.ok(!fs.readFileSync('tools/boss-parts.py', 'utf8').match(/^    save\('wyrm'/m), 'the old painter no longer draws over it');
+});
+test('far off on its peak: seen from the eyrie, it lifts its head; its coming leaves the peak and is three seconds far off', async () => {
+  const { RISE } = await import('../src/side/wyrm.js');
+  assert.equal(RISE.far, 3.0); assert.ok(RISE.leave > RISE.cry && RISE.leave < RISE.far); assert.ok(RISE.near < RISE.far && RISE.roar > RISE.near);
+  const { B, P, run } = fight(); B.reset(); assert.equal(B.st, 'dormant');
+  const ey = LV.LEVEL.rooms.find(r => r.name === 'eyrie'); P.x = (ey.x0 + ey.x1) / 2; P.y = ey.y0 + 1.02; run(0.7); assert.ok(B.lift > 0.3 && B.lift < 1, `lifting: ${B.lift}`);
+  run(1.5); assert.equal(B.lift, 1); assert.equal(B.st, 'dormant', 'and it stays there till he is on the summit');
+});
+test('every piece of its ice has a sound, recorded and in the manifest, and the Wyrm asks for them', async () => {
+  const fs = await import('node:fs'), man = JSON.parse(fs.readFileSync('assets/audio/manifest.json', 'utf8')), sfx = fs.readFileSync('src/audio/sfx.js', 'utf8'), w = fs.readFileSync('src/side/wyrm.js', 'utf8');
+  for (const [f, k] of [['ice_inhale', 'iceInhale'], ['ice_breath', 'iceBreath'], ['ice_spit', 'iceSpit'], ['ice_crack', 'iceCrack'], ['ice_rise', 'iceRise'], ['wing_rush', 'wingRush']]){
+    assert.ok(man.sfx[f] && fs.existsSync('assets/audio/' + man.sfx[f].f), f); assert.ok(sfx.includes(`${k}:`) && sfx.includes(`${k}(`), k + ' in sfx.js'); assert.ok(w.includes(`sfx.${k}(`), k + ' asked for'); }
+  assert.ok(sfx.includes('createStereoPanner'), 'its wings go across the room');
+});
