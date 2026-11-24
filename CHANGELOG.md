@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Rime Wyrm rebuilt (latest; build 97).** Its summit is the broken pass: three levels, and the gap in the middle is cloud while it fights (a fall costs a heart). Five attacks, each taking a level from him: frost along the pass, a pass through the hall along one level, three shards from its mouth (cut one back at it), the plunge into whatever is under him, and from half health up through the gap; from half health the wind pushes him toward the gap. It looks as it did; new pieces come next. 487 checks. No save is moved.
+**All six weapons, to try (latest; build 98).** Try a place has a switch: with it, any region or moment starts with all six weapons. Nothing is saved. 487 checks. No save is moved.
+
+**The Rime Wyrm rebuilt (build 97).** Its summit is the broken pass: three levels, and the gap in the middle is cloud while it fights (a fall costs a heart). Five attacks, each taking a level from him: frost along the pass, a pass through the hall along one level, three shards from its mouth (cut one back at it), the plunge into whatever is under him, and from half health up through the gap; from half health the wind pushes him toward the gap. It looks as it did; new pieces come next (build 99). 487 checks. No save is moved.
 
 **The weapon on his back (build 96).** When he climbs onto an edge, gets up or takes a gift, whatever he carries is slung on his back and his hands are empty: six climbs, one a weapon. 479 checks. No save is moved.
 

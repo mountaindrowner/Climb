@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 97, date: '24 NOV 2026', phase: 17, phases: 22, last: 'THE RIME WYRM REBUILT' };
+const VERSION = { build: 98, date: '24 NOV 2026', phase: 17, phases: 22, last: 'ALL SIX WEAPONS, TO TRY' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -349,7 +349,8 @@ function endView(){ VIEW.on = false; VIEW.list = []; SIDE.watching = false; ENT.
 // ---- trying a place (from the title): any level from its start, or one of a few moments, with what he would have by
 // then. It is for looking at the game, a level at a time. It is not his save: that is put by when a trial begins and
 // is back, untouched, when he returns to the title (state.js TRY: what a trial stores is written beside it)
-const TRYING = { snap: null };
+const TRYING = { snap: null, all: false };   // all: every weapon from the start, wherever he tries (a dev tool, build 98)
+const ALL_ARMS = ['spade', 'clapper', 'tooth', 'bow', 'thorns'];   // in the order the swap goes round them, after the sword
 // what he would have: on the climb, what the keepers below have left him; in the Deep, all that the climb gives short of
 // its last keeper. `more`: a moment's own (who else has fallen, where he stands)
 const TRIES = () => { const deep = LEVELS.map((l, n) => n).filter(n => REGION_DATA[n].deep).sort((a, b) => (REGION_DATA[b].depth || [0, 0])[1] - (REGION_DATA[a].depth || [0, 0])[1]);
@@ -365,6 +366,7 @@ const MOMENTS = () => { const at = name => LEVELS.findIndex(l => l.name === name
 function tryMenu(){
   const rows = [menuLabel('TRY A PLACE  ·  FROM ITS START, WITH WHAT YOU WOULD HAVE BY THEN')], grid = document.createElement('div'), grid2 = document.createElement('div');
   for (const g of [grid, grid2]) g.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:min(94vw,600px)';
+  const arms = menuButton('', () => { TRYING.all = !TRYING.all; show(); }, true), show = () => { arms.textContent = 'Weapons: ' + (TRYING.all ? 'all six' : 'what you would have by then'); }; show(); rows.push(arms);
   for (const t of TRIES()) grid.appendChild(menuButton(t.name.replace(/^The /, ''), () => tryStart(t), true)); rows.push(grid);
   rows.push(menuLabel('OR A MOMENT')); for (const m of MOMENTS()) grid2.appendChild(menuButton(m.name, () => tryStart(m), true)); rows.push(grid2);
   rows.push(menuLabel('NOTHING HERE IS SAVED. YOUR OWN SAVE IS NOT TOUCHED.')); rows.push(menuButton('Back', title, true)); menuShow(rows, false, title); MENU.style.top = '30%';
@@ -377,9 +379,11 @@ function tryStart(t){
   G.top = deep ? Math.max(0, gifts) : n; G.level = n; G.began = true; G.shards = 150; G.lampNew = 0;
   if (deep && (REGION_DATA[n].depth || [0, 0])[1] < -2) G.under = 1;   // below the Flooded Levels he has been through its chapel
   G.taught = { move: 1, jump: 1, cut: 1, block: 1, parry: 1, crouch: 1, drop: 1, double: 1 };
+  if (TRYING.all){ G.arms = ALL_ARMS.slice(); G.taught.swap = 1; }
   menuHide(); STORY.kind = null; SCREEN = ''; PAUSE = false; resetLevels(); enter(n); G.lampNew = 0; G.top = deep ? Math.max(0, gifts) : n; store();
   if (t.room){ const r = LEVEL.rooms.find(q => q.name === t.room); if (r){ const x = r.x0 + (t.tx + 0.5) * T, y = r.y0 + t.ty * T; P = born(x, y); P.grounded = false; P.airTop = y; CAM.x = x; CAM.y = y + 2; CAM.lead = 0; if (SCF) SCF.reset(x, y + 1.8); } }
-  LATER.push({ t: t.room ? 0.6 : 4.6, f: () => banner('Trying: ' + (t.name || LEVEL.name), t.say || 'This is not your save. Nothing here is saved.', 6) });
+  if (TRYING.all){ G.arms = ALL_ARMS.slice(); swapButton(); }
+  LATER.push({ t: t.room ? 0.6 : 4.6, f: () => banner('Trying: ' + (t.name || LEVEL.name), (t.say || 'This is not your save. Nothing here is saved.') + (TRYING.all ? ` All six weapons: ${kname('swap')} to swap.` : ''), 6) });
 }
 // (the world is made again as his own save has it while the trial is still on, so that making it stores nothing of
 // his: a climb never begun stays never begun)
@@ -1523,7 +1527,7 @@ function drawHud(dt){
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { get arrows(){ return ARROWS; }, knotMenu, tryMenu, tryStart, TRIES, MOMENTS, TRY, waterMenu, goUnder, waterList, get under(){ return UNDER; }, set atWater(v){ ATWATER = v; }, get shrines(){ return SHRINES; }, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, RULE, VERSION, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { TRYING, get arrows(){ return ARROWS; }, knotMenu, tryMenu, tryStart, TRIES, MOMENTS, TRY, waterMenu, goUnder, waterList, get under(){ return UNDER; }, set atWater(v){ ATWATER = v; }, get shrines(){ return SHRINES; }, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, RULE, VERSION, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

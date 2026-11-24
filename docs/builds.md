@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 97 | 24 Nov 2026 | `314972f` | The Rime Wyrm rebuilt: the broken pass (three levels, the gap of cloud) and five attacks, each taking one level from him | no | yes (now) |
+| 98 | 24 Nov 2026 | `COMMITNN` | A dev tool: try any place with all six weapons | no | yes (now) |
+| 97 | 24 Nov 2026 | `314972f` | The Rime Wyrm rebuilt: the broken pass (three levels, the gap of cloud) and five attacks, each taking one level from him | no | replaced by 98 |
 | 96 | 24 Nov 2026 | `a21b0de` | The weapon on his back: when he climbs onto an edge, gets up or takes a gift, whatever he carries is slung behind him | no | replaced by 97 |
 | 95 | 23 Nov 2026 | `d659a60` | A heart behind the Tempest's Jar, a drink behind the Gardens' Lock, each in a prize chest | no | replaced by 96 |
 | 94 | 23 Nov 2026 | `1e890d4` | Mother Thorn's thorns: five fast cuts and a burst. The six weapons are done | no | replaced by 95 |
@@ -114,11 +115,32 @@ gone over again.
 
 ## The entries
 
+### Build 98: all six weapons, to try
+
+*Your word, 24 Nov: "Can you give me a mode that starts with the 6 weapons? Another part of the dev tools."*
+
+**For the player**
+
+- **Try a place** (on the title) has a switch at its top: **Weapons: what you would have by then / all six.** With
+  all six, any region or moment he tries starts with the sword, the hammer, the clapper, the tooth, the bow and the
+  thorns; the swap key goes round them in that order (`docs/try-all-weapons.png`). The banner as he starts says so.
+- As with every try, nothing is saved and your own save is not touched. The switch stays as you left it until the
+  page is closed.
+
+- **Underneath:** `main.js` (`TRYING.all`, `ALL_ARMS`; `tryMenu`, `tryStart`).
+- **Save: not moved.**
+- **Checked:** 487 checks pass. In the test browser: the switch turned to all six; the Roots tried; he had the
+  five besides the sword, and the swap went round all six.
+
+**To try**
+
+1. Title, Try a place, turn the switch to all six, and pick a region. Swap through them on its first creatures.
+
 ### Build 97: the Rime Wyrm rebuilt (the stage and the attacks)
 
 *Your word, 24 Nov: "Great instincts, do it", to `docs/wyrm-sheet.md` as written: three levels and a gap, all five
 attacks, a fall into the gap costing one heart, new pieces for its puppet. This build is the stage and the attacks,
-with the pieces it has now. The far peak, the sounds and the new pieces are build 98.*
+with the pieces it has now. The far peak, the sounds and the new pieces are build 99.*
 
 **For the player**
 
@@ -146,7 +168,7 @@ with the pieces it has now. The far peak, the sounds and the new pieces are buil
 **What is weaker than it should be**
 
 - **It looks as it did.** The new head, rings and tail are next, for your approval first.
-- **Its new attacks make the sounds it had:** the crack, the whoosh, the gust. Sounds of their own are build 98.
+- **Its new attacks make the sounds it had:** the crack, the whoosh, the gust. Sounds of their own are build 99.
 - **Not played through by hand.** The fight is run in the checks and each attack was forced and watched in the test
   browser; no one has fought it from the start.
 
