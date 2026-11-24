@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 99 | 24 Nov 2026 | `COMMITNN` | The Wyrm's new look (head drawn by PixelLab), seen on its far peak before the summit, and a sound for every piece of its ice | no | yes (now) |
+| 99 | 24 Nov 2026 | `3a809c1` | The Wyrm's new look (head drawn by PixelLab), seen on its far peak before the summit, and a sound for every piece of its ice | no | yes (now) |
 | 98 | 24 Nov 2026 | `0484c9a` | A dev tool: try any place with all six weapons | no | replaced by 99 |
 | 97 | 24 Nov 2026 | `314972f` | The Rime Wyrm rebuilt: the broken pass (three levels, the gap of cloud) and five attacks, each taking one level from him | no | replaced by 98 |
 | 96 | 24 Nov 2026 | `a21b0de` | The weapon on his back: when he climbs onto an edge, gets up or takes a gift, whatever he carries is slung behind him | no | replaced by 97 |
