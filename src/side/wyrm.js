@@ -79,6 +79,9 @@ const W = WYRM;
 const K = 1.25, SKULL = [62, 36], loc = ([px, py]) => [(px - SKULL[0]) / 16 * K, (SKULL[1] - py) / 16 * K];
 const HEAD_C = loc([56, 40]), HINGE = loc([60, 49]), SHUT = 0.59, EYE = loc([61, 34]), MOUTH = loc([82, 47]);
 // where the jaw's picture goes, and how it is turned, with its jaws `open` (0 shut, 1 as drawn): turned shut about the hinge
+// its face (build 100, docs/wyrm-sheet.md "Its faces"): a wince a moment after each hit; dazed while its head is caught
+// in the ice; angry from half health; else its own. The suffix of the drawing (tools/wyrm-faces.py)
+export function faceOf(B, weak){ return B.wince > 0 ? '_wince' : weak > 0.4 ? '_dazed' : B.phase === 2 ? '_angry' : ''; }
 export function jawAt(open){ const d = (1 - open) * SHUT, vx = HEAD_C[0] - HINGE[0], vy = HEAD_C[1] - HINGE[1];
   return [HINGE[0] + vx * Math.cos(d) - vy * Math.sin(d), HINGE[1] + vx * Math.sin(d) + vy * Math.cos(d), d]; }
 
@@ -107,6 +110,11 @@ export function makeWyrm(scene, R){
   const SIZE = Object.fromEntries(Object.entries({ l: [35, 36], m: [28, 31], s: [23, 27], head: [112, 80], jaw: [112, 80], tail: [66, 34] }).map(([k, v]) => [k, v.map(n => n * K)]));
   const rings = W.rings.map((k, i) => ({ k, m: piece('ring_' + k, -0.6 - i * 0.004), x: lair.x, y: lair.y }));
   const tail = piece('tail', -0.7), jaw = piece('jaw', -0.52), head = piece('head', -0.5);
+  // its head's drawings: each face with its mouth open (the jaw swung below it) and shut (a drawing of its own, the jaw
+  // piece put away). The open ones share the head's normal map; the shut ones have their own
+  const HEADS = {}; for (const m of ['', '_shut']) for (const f of ['', '_angry', '_wince', '_dazed']) HEADS[m + f] = tex(`assets/side/wyrm/head${m}${f}.png`);
+  const HEAD_N = { open: head.material.normalMap, shut: tex('assets/side/wyrm/head_shut_n.png') };
+  const showHead = (m, shut, face) => { const t = HEADS[(shut ? '_shut' : '') + face]; if (m.material.map === t) return; m.material.map = t; if (m.material.normalMap) m.material.normalMap = shut ? HEAD_N.shut : HEAD_N.open; m.material.needsUpdate = true; };
   for (const [m, k] of [[head, 'head'], [jaw, 'jaw'], [tail, 'tail'], ...rings.map(r => [r.m, r.k])]) m.scale.set(SIZE[k][0] / 16, SIZE[k][1] / 16, 1);
   let total = 0; for (const r of rings){ total += W.gap[r.k]; r.d = total; } const tailD = total + 2.2;   // (the tail's picture is long: its middle is well behind its join)
   const eyeLight = new THREE.PointLight(0x9fefff, 0, 6, 1.5); scene.add(eyeLight);   // its eye lights its own snout and the rings behind
@@ -162,7 +170,7 @@ export function makeWyrm(scene, R){
   B.active = () => B.st === 'rise' || B.st === 'fight' || B.st === 'die';
   B.hud = () => B.active() ? { name: W.name, frac: Math.max(0, B.hp / W.hp), phase: B.phase } : null;
   const clear = () => { for (const s of B.spikes){ scene.remove(s.m); scene.remove(s.mark); } B.spikes.length = 0; for (const c of B.shards) scene.remove(c.m); B.shards.length = 0; };
-  B.reset = () => { Object.assign(B, { st: 'dormant', tm: 0, hp: W.hp, phase: 1, cd: 1.5, mode: 'circle', mt: 0, acts: 0, jaw: 0, gone: 0, wt: 0, last: '', boil: 0, combo: false }); cleft(false); cloud.visible = false; for (const w of wisps) w.m.visible = false; Object.assign(B.h, { x: lair.x, y: lair.y, vx: -1, vy: 0, a: Math.PI }); B.trail.length = 0; clear();
+  B.reset = () => { Object.assign(B, { st: 'dormant', tm: 0, hp: W.hp, phase: 1, cd: 1.5, mode: 'circle', mt: 0, acts: 0, jaw: 0, gone: 0, wt: 0, last: '', boil: 0, combo: false, wince: 0 }); cleft(false); cloud.visible = false; for (const w of wisps) w.m.visible = false; Object.assign(B.h, { x: lair.x, y: lair.y, vx: -1, vy: 0, a: Math.PI }); B.trail.length = 0; clear();
     B.rz = {}; B.lift = 0; shatter(null); for (const m of farAll) m.visible = false; farEye.visible = flare.visible = cone.visible = crag.visible = false; for (const p of puffs){ p.life = 0; p.m.visible = false; } };
   // the head steers toward a point: it has a speed and can only turn so fast, so it comes round in arcs
   function steer(tx, ty, speed, turn, dt){
@@ -179,9 +187,9 @@ export function makeWyrm(scene, R){
   const sendBack = (c, events) => { const H = B.h, d = Math.hypot(H.x - c.x, H.y - c.y) || 1, sp = W.shards.speed * 1.5; c.vx = (H.x - c.x) / d * sp; c.vy = (H.y - c.y) / d * sp; c.back = true; c.m.material = backMat; sfx.parry(); sfx.iceSpit(); events.push({ type: 'block', at: { x: c.x, y: c.y } }); };
 
   B.step = (P, dt, fx, events) => {
-    B.tm += dt; B.mt += dt; B.flash = Math.max(0, B.flash - dt);
+    B.tm += dt; B.mt += dt; B.flash = Math.max(0, B.flash - dt); B.wince = Math.max(0, (B.wince || 0) - dt);
     const H = B.h, inRoom = P.x > room.x0 && P.x < room.x1 && P.y > room.y0 - 1 && P.y < room.y1;
-    let warnA = 0, warnX = 0, warnW = 4, warnY = stageY + 0.25, weak = 0, open = 0, still = false, hid = false, jit = 0, roar = 0;
+    let warnA = 0, warnX = 0, warnW = 4, warnY = stageY + 0.25, weak = 0, open = 0, still = false, hid = false, jit = 0, roar = 0, breathe = 0;
     const Z = B.rz;
     if (B.st === 'dormant'){ if (inRoom && P.grounded && P.y >= stageY - 0.05 && P.y < stageY + 0.5 && P.hp > 0){ B.st = 'rise'; B.tm = 0; events.push({ type: 'bossWake', boss: B }); } }
     else if (B.st === 'rise'){
@@ -296,7 +304,7 @@ export function makeWyrm(scene, R){
         still = true; H.vx = H.vy = 0; H.a += ((B.side > 0 ? Math.PI * 1.13 : -Math.PI * 0.13) - H.a) * Math.min(1, dt * 7); H.y += Math.sin(B.mt * 5) * dt * 0.3;
         const o = mouth();
         if (M === 'frostTell'){
-          const k = B.mt / W.frost.tell; open = 0.3 + 0.7 * k;
+          const k = B.mt / W.frost.tell; open = 0.3 + 0.7 * k; breathe = k;   // the cold rising in its head as it draws breath
           if (Math.random() < 0.8){ const a = Math.random() * Math.PI * 2, r0 = 3 + Math.random() * 2.5; puff(o.x + Math.cos(a) * r0, o.y + Math.sin(a) * r0, -Math.cos(a) * r0 * 2.6, -Math.sin(a) * r0 * 2.6, 0.5 + Math.random() * 0.4, 0.38); }
           R.glint(o.x, o.y, 0x2ce8f5, 0.4 + k, 3 + k * 3);
           if (B.mt >= W.frost.tell){ go('frost'); B.n = 0; B.flash = 0.1; sfx.iceBreath(); events.push({ type: 'bossSweep', at: { x: o.x, y: stageY } }); }
@@ -470,11 +478,12 @@ export function makeWyrm(scene, R){
     const flip = Math.cos(H.a) < 0 ? -1 : 1, ca = Math.cos(H.a), sa = Math.sin(H.a), on = (lx, ly) => [H.x + lx * ca - ly * flip * sa, H.y + lx * sa + ly * flip * ca];
     const jx0 = (Math.random() - 0.5) * jit, jy0 = (Math.random() - 0.5) * jit;   // the roar shakes its head
     { const [hx, hy] = on(HEAD_C[0], HEAD_C[1]); place(head, hx + jx0, hy + jy0, H.a, false); }
-    { const [lx, ly, d] = jawAt(B.jaw), [jx, jy] = on(lx, ly); place(jaw, jx + jx0, jy + jy0, H.a + flip * d, false); }
+    const shutNow = B.jaw < 0.15; B.face = (shutNow ? '_shut' : '') + faceOf(B, weak); showHead(head, shutNow, faceOf(B, weak));   // (B.face: which drawing, for a check)
+    { const [lx, ly, d] = jawAt(B.jaw), [jx, jy] = on(lx, ly); place(jaw, jx + jx0, jy + jy0, H.a + flip * d, shutNow); }
     const lit = B.st === 'fight' ? 1 : B.st === 'rise' ? Math.min(1, B.tm) : B.st === 'die' ? Math.max(0, 1 - B.tm / 2) : 0;
     { const [ex, ey] = on(EYE[0], EYE[1]); eye.position.set(ex, ey, -0.45); eye.material.opacity = lit * (0.8 + 0.2 * Math.sin(B.tm * 7)); eye.material.color.setHex(weak > 0 ? 0xffffff : B.phase === 2 ? 0xff5a50 : 0x7ff6ff); eye.scale.setScalar(1 + weak * 0.6 + roar * 0.7); eye.visible = show; }
-    halo.position.set(H.x, H.y, -0.8); halo.material.opacity = weak * (0.35 + 0.15 * Math.sin(B.tm * 9)) + B.flash * 3; halo.visible = show;
-    eyeLight.position.set(H.x, H.y + 0.3, 1.0); eyeLight.intensity = show ? lit * 0.9 + weak * 1.2 + B.flash * 4 : 0; eyeLight.color.setHex(B.phase === 2 ? 0xff7060 : 0x9fefff);
+    halo.position.set(H.x, H.y, -0.8); halo.material.opacity = weak * (0.35 + 0.15 * Math.sin(B.tm * 9)) + B.flash * 3 + breathe * (0.45 + 0.1 * Math.sin(B.tm * 30)); halo.visible = show;
+    eyeLight.position.set(H.x, H.y + 0.3, 1.0); eyeLight.intensity = show ? lit * 0.9 + weak * 1.2 + B.flash * 4 + breathe * 2.2 : 0; eyeLight.color.setHex(B.phase === 2 ? 0xff7060 : 0x9fefff);
     if (show) R.glint(H.x, H.y, B.phase === 2 ? 0xff7060 : 0x9fefff, lit * 0.35 + weak * 0.45 + B.flash * 3, 5.5);
     // its coming: the far one, the breath, its flare, the ice it raised
     // far off: on its peak before he comes up (seen from the eyrie, the span and the summit; it lifts its head when he
@@ -492,8 +501,8 @@ export function makeWyrm(scene, R){
       const pose = (m, x, y, ang, k, sc, zz) => { m.visible = true; m.position.set(x, y, zz); m.rotation.z = ang; m.scale.set(SIZE[k][0] / 16 * sc, SIZE[k][1] / 16 * sc * (Math.cos(ang) < 0 ? -1 : 1), 1); m.material.color.copy(FAR_DIM).lerp(FAR_NEAR, dim); };
       Z.fjaw = (Z.fjaw || 0) + ((t > RISE.cry - 0.05 && t < RISE.cry + 0.4 ? 1 : 0) - (Z.fjaw || 0)) * Math.min(1, dt * 12);
       const fl = Math.cos(a) < 0 ? -1 : 1, ca = Math.cos(a), sa = Math.sin(a), fon = (lx, ly) => [h.x + (lx * ca - ly * fl * sa) * s, h.y + (lx * sa + ly * fl * ca) * s];
-      { const [hx, hy] = fon(HEAD_C[0], HEAD_C[1]); pose(far.head, hx, hy, a, 'head', s, z + 0.02); }
-      { const [lx, ly, d] = jawAt(Z.fjaw), [jx, jy] = fon(lx, ly); pose(far.jaw, jx, jy, a + fl * d, 'jaw', s, z + 0.015); }
+      { const [hx, hy] = fon(HEAD_C[0], HEAD_C[1]); showHead(far.head, Z.fjaw < 0.15, ''); pose(far.head, hx, hy, a, 'head', s, z + 0.02); far.jaw.visible = Z.fjaw >= 0.15; }
+      if (Z.fjaw >= 0.15){ const [lx, ly, d] = jawAt(Z.fjaw), [jx, jy] = fon(lx, ly); pose(far.jaw, jx, jy, a + fl * d, 'jaw', s, z + 0.015); }
       { const [ex, ey] = fon(EYE[0], EYE[1]); farEye.visible = true; farEye.position.set(ex, ey, z + 0.03); farEye.scale.setScalar(1.6 * s * (1 + Z.fjaw)); farEye.material.opacity = t < L ? 0.25 + 0.65 * e : 0.9; R.glint(ex, ey, 0x2ce8f5, (t < L ? 0.1 + 0.2 * e : 0.2) + Z.fjaw * 0.6, 1 + s * 5); }
       // the peak under it, while it is near it
       crag.visible = t < L + 0.9; crag.position.set(P0.x + 0.1, P0.y - 2.2, -46); crag.material.opacity = 0.85 * Math.min(1, (L + 0.9 - t) / 0.5);
@@ -515,7 +524,7 @@ export function makeWyrm(scene, R){
 
   // a wound to its head (his cut, or its own shard sent back)
   function wound(dmg, at, events, heavy){
-    const H = B.h; B.hp -= dmg; B.flash = 0.12; events.push({ type: 'hit', at, heavy: (heavy || dmg) >= 2 });
+    const H = B.h; B.hp -= dmg; B.flash = 0.12; B.wince = 0.35; events.push({ type: 'hit', at, heavy: (heavy || dmg) >= 2 });
     if (B.phase === 1 && B.hp <= W.hp * W.phase2){ B.phase = 2; B.wt = 0; events.push({ type: 'bossPhase', boss: B }); }
     if (B.hp <= 0){ B.st = 'die'; B.tm = 0; B.gone = 0; B.down = false; H.vx = (H.x > cx ? -1 : 1) * 4; H.vy = 9; clear(); shatter(null); cone.visible = false; cleft(false); events.push({ type: 'bossDie' }); }
   }

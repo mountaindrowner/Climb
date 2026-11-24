@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 99 | 24 Nov 2026 | `3a809c1` | The Wyrm's new look (head drawn by PixelLab), seen on its far peak before the summit, and a sound for every piece of its ice | no | yes (now) |
+| 100 | 24 Nov 2026 | `COMMITNN` | The Wyrm's faces: its mouth shuts, it winces when hit, is dazed when stuck, angry from half health, and glows as it draws breath | no | yes (now) |
+| 99 | 24 Nov 2026 | `3a809c1` | The Wyrm's new look (head drawn by PixelLab), seen on its far peak before the summit, and a sound for every piece of its ice | no | replaced by 100 |
 | 98 | 24 Nov 2026 | `0484c9a` | A dev tool: try any place with all six weapons | no | replaced by 99 |
 | 97 | 24 Nov 2026 | `314972f` | The Rime Wyrm rebuilt: the broken pass (three levels, the gap of cloud) and five attacks, each taking one level from him | no | replaced by 98 |
 | 96 | 24 Nov 2026 | `a21b0de` | The weapon on his back: when he climbs onto an edge, gets up or takes a gift, whatever he carries is slung behind him | no | replaced by 97 |
@@ -115,6 +116,41 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 100: the Wyrm's faces
+
+*Your word, 24 Nov: "Solid stuff. Keep the work and apply", to `docs/wyrm-faces.png`: you had asked whether its face
+changes (it did not), and that none of the faces opened or shut its mouth.*
+
+**For the player**
+
+- **Its mouth shuts.** While its jaw is closed (flying, circling) its head is a drawing of its own with the mouth shut
+  and the fangs locked; as the mouth opens, the jaw swings down from it, as before. Until now, "shut" still showed
+  the inside of its mouth.
+- **Its face changes** (`docs/wyrm-faces-in-game.png`), shut or open:
+  - **a wince**, its eye screwed shut, for a moment each time it is hit (by his blade or by its own shard sent back);
+  - **dazed**, its eye half shut, while its head is caught in the ice;
+  - **angry**, a narrowed red eye under a spiked brow, from half health.
+- **It draws breath with a glow:** the cold rises in its head, brighter and brighter, before the frost breath.
+- Far off, on its peak and crossing the sky, its mouth is shut too, opening for its cry.
+
+**What is weaker than it should be**
+
+- **Its snout is a little rounder shut than open**, so it changes a little as the mouth opens.
+- **The faces are small in the fight** (the camera follows him, and its head is often at the edge of the view).
+
+- **Underneath:** `assets/side/wyrm/head[_shut][_angry|_wince|_dazed].png` and `head_shut_n.png`, made by
+  `tools/wyrm-faces.py` (new) from what PixelLab drew (`docs/wyrm-looks/faces/`); `src/side/wyrm.js` (`faceOf`,
+  `showHead`, `B.wince`, `breathe`, `B.face`). A check in `tests/side-wyrm.test.mjs`.
+- **Save: not moved.**
+- **Checked:** 491 checks pass. In the test browser: drawing breath, dazed and wincing in the slab, angry from half
+  health; through a stretch of the fight its head showed its own face, the shut mouth, and dazed, shut and open.
+
+**To try**
+
+1. Watch its head as it circles (mouth shut) and as it rears (mouth open).
+2. Hit it while it is stuck, and look for the wince.
+3. Past half health, look for the red eye.
 
 ### Build 99: the Wyrm from the far peak
 

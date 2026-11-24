@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Wyrm from the far peak (latest; build 99).** Its new look (a horned, frilled head drawn by PixelLab; a ridged body; a bladed tail), a quarter larger. Seen coiled on a far peak from the eyrie and the span; it lifts its head when he comes into view, and its coming starts from that peak (three seconds far off). A sound for every piece of its ice, its wings going across the room. 490 checks. No save is moved.
+**The Wyrm's faces (latest; build 100).** Its mouth truly shuts (a drawing of its own); it winces when hit, is dazed while stuck, angry from half health, and glows as it draws breath. 491 checks. No save is moved.
+
+**The Wyrm from the far peak (build 99).** Its new look (a horned, frilled head drawn by PixelLab; a ridged body; a bladed tail), a quarter larger. Seen coiled on a far peak from the eyrie and the span; it lifts its head when he comes into view, and its coming starts from that peak (three seconds far off). A sound for every piece of its ice, its wings going across the room. 490 checks. No save is moved.
 
 **All six weapons, to try (build 98).** Try a place has a switch: with it, any region or moment starts with all six weapons. Nothing is saved. 487 checks. No save is moved.
 

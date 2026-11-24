@@ -150,3 +150,6 @@ mouth shut, half open and wide. (Its snout is a little rounder in the closed dra
 
 The rest of what PixelLab made is in `docs/wyrm-looks/faces/` (an angry try that moved its eye, one that grew a red
 crest, and a breath that broke its snout: not shown).
+
+**Built in build 100** (your word: "Solid stuff. Keep the work and apply"): the closed mouth, angry, wince 2a, dazed,
+and drawing breath as a glow.

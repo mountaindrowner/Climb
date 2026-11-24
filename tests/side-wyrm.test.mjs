@@ -123,3 +123,14 @@ test('every piece of its ice has a sound, recorded and in the manifest, and the 
     assert.ok(man.sfx[f] && fs.existsSync('assets/audio/' + man.sfx[f].f), f); assert.ok(sfx.includes(`${k}:`) && sfx.includes(`${k}(`), k + ' in sfx.js'); assert.ok(w.includes(`sfx.${k}(`), k + ' asked for'); }
   assert.ok(sfx.includes('createStereoPanner'), 'its wings go across the room');
 });
+
+// build 100: its faces, and its mouth shut
+test('its face: a wince after a hit, dazed while stuck, angry from half health; every face drawn open and shut', async () => {
+  const fs = await import('node:fs'), { faceOf } = await import('../src/side/wyrm.js');
+  for (const m of ['', '_shut']) for (const f of ['', '_angry', '_wince', '_dazed']) assert.ok(fs.existsSync(`assets/side/wyrm/head${m}${f}.png`), m + f);
+  assert.ok(fs.existsSync('assets/side/wyrm/head_shut_n.png'));
+  assert.equal(faceOf({ phase: 1, wince: 0 }, 0), ''); assert.equal(faceOf({ phase: 2, wince: 0 }, 0), '_angry');
+  assert.equal(faceOf({ phase: 2, wince: 0 }, 1), '_dazed', 'stuck'); assert.equal(faceOf({ phase: 2, wince: 0.2 }, 1), '_wince', 'a hit shows over all');
+  const { B, P } = fight(); B.mode = 'stuck'; B.mt = 0; const H = B.h; P.x = H.x - 1.5; P.y = H.y - 1.2; P.face = 1; B.strike(P, 2.2, 1, []);
+  assert.ok(B.wince > 0.3, 'hit: it winces');
+});
