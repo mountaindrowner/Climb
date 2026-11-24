@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 96 | 24 Nov 2026 | `a21b0de` | The weapon on his back: when he climbs onto an edge, gets up or takes a gift, whatever he carries is slung behind him | no | yes (now) |
+| 97 | 24 Nov 2026 | `COMMITNN` | The Rime Wyrm rebuilt: the broken pass (three levels, the gap of cloud) and five attacks, each taking one level from him | no | yes (now) |
+| 96 | 24 Nov 2026 | `a21b0de` | The weapon on his back: when he climbs onto an edge, gets up or takes a gift, whatever he carries is slung behind him | no | replaced by 97 |
 | 95 | 23 Nov 2026 | `d659a60` | A heart behind the Tempest's Jar, a drink behind the Gardens' Lock, each in a prize chest | no | replaced by 96 |
 | 94 | 23 Nov 2026 | `1e890d4` | Mother Thorn's thorns: five fast cuts and a burst. The six weapons are done | no | replaced by 95 |
 | 93 | 23 Nov 2026 | `6484af5` | The Thunderhead's storm bow: free arrows across the room; the third goes through; shots up, and down from the air | no | replaced by 94 |
@@ -112,6 +113,60 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 97: the Rime Wyrm rebuilt (the stage and the attacks)
+
+*Your word, 24 Nov: "Great instincts, do it", to `docs/wyrm-sheet.md` as written: three levels and a gap, all five
+attacks, a fall into the gap costing one heart, new pieces for its puppet. This build is the stage and the attacks,
+with the pieces it has now. The far peak, the sounds and the new pieces are build 98.*
+
+**For the player**
+
+- **The summit is the broken pass** (`docs/wyrm-stage.png`): the pass, with the gap he came up by in its middle; a
+  shelf at each horn and one each side of the gap; a slab high over the gap. While the Wyrm fights, **the gap is
+  cloud.** A fall into it costs a heart and puts him back on the pass beside it.
+- **Its five attacks** (`docs/wyrm-attacks.png`), each taking one level from him:
+  - **Frost breath.** It hangs at the end of the hall he is at and draws breath, snow streaming into its jaws (0.8 s).
+    Then frost along the whole pass for three seconds. Be on a shelf or the slab. **Its head can be cut while it
+    breathes,** from the shelves.
+  - **The pass.** It flies out of the hall. A line of driven snow shows the level it will come along (one second, less
+    from half health), usually his own. Then it comes through the hall along it, the whole width. Be on another level.
+  - **Shards.** It rears over him, three motes in its jaws, then spits three shards of ice at him, one after another.
+    Each cracks where it lands and leaves a spike there a second. A shelf or the slab over him takes them. **Cut a
+    shard, or hold the guard against it, and it goes back at its head,** for two.
+  - **The plunge** (kept). Its head goes into the first thing under it: the slab, a shelf or the pass. Stuck there, it
+    can be cut, as before. From half health, a plunge onto the pass throws up spikes, as before.
+  - **Up through the gap** (from half health). It dives into the cloud; the cloud boils; it comes straight up out of
+    the gap, and the blast catches anyone at its edges.
+- **From half health** the wind blows along the pass, toward the gap, between its attacks; and a breath is followed at
+  once by a pass. Never the same attack twice running.
+- **The sweep along the floor and the falling icicles are gone.**
+- **The camera sits lower in its hall,** so the keeper's bar is under the pass, not over it.
+
+**What is weaker than it should be**
+
+- **It looks as it did.** The new head, rings and tail are next, for your approval first.
+- **Its new attacks make the sounds it had:** the crack, the whoosh, the gust. Sounds of their own are build 98.
+- **Not played through by hand.** The fight is run in the checks and each attack was forced and watched in the test
+  browser; no one has fought it from the start.
+
+- **Underneath:** `src/side/wyrm.js` (the fight rewritten: `frost`, `pass`, `shard`, `aim`/`dive`/`stuck`, `up`; the
+  gap and its cloud, `cleft()` cutting the seal's top row while it fights; `floorUnder`, `clearTo`; a shard sent back
+  by a cut, `B.strike`, or by the guard), `level.js` (`crown`: four shelves and the slab), `main.js` (a keeper may
+  give the camera its own box, `BOSS.view`). `tests/side-wyrm.test.mjs` (new: the fight run in node, its pictures sent
+  to a stand-in for three.js).
+- **Save: not moved.**
+- **Checked:** 487 checks pass (the whole suite once with one failing: the Spires' budget of platforms in the air, three over from the hall's two new shelves and its slab. They are in the air by design, so the budget is raised by those three, with the reason beside it, and its file run again). In the test browser: each attack forced and photographed; frost on the pass hurt
+  him and not on the shelf; a pass along his level; the shards hurt him and left a spike; a plunge stuck in the slab;
+  up through the gap hurt him at its edge; a fall cost a heart; the wind carried him two metres in a second.
+
+**To try**
+
+1. Climb to the summit and fight it. Use the shelves and the slab.
+2. While it breathes, get onto a shelf near its head and cut it.
+3. Cut a shard, or hold the guard with the sword, as it comes.
+4. From half health: stand on the pass and feel the wind; stay off the gap's edges when the cloud boils.
+5. Say how long it took, and how many times it killed you.
 
 ### Build 96: the weapon on his back
 

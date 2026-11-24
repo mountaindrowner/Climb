@@ -394,7 +394,10 @@ function crown(){
   const r = open(2, 2);
   rect(r, 0, 0, 79, 1); rect(r, 36, 0, 42, 1, EMPTY); ledge(r, 36, 42, 1);   // the top of the mountain, the way up through it
   rect(r, 0, 2, 3, 26); rect(r, 76, 2, 79, 22);                   // a horn of rock at either end
-  ledge(r, 4, 9, 8); ledge(r, 70, 75, 8);
+  // (build 97, docs/wyrm-sheet.md: the broken pass, three levels.) The pass, its middle the gap he came up through, which
+  // is cloud while the Wyrm fights (wyrm.js); a shelf at each horn and one each side of the middle; and a slab high over
+  // the gap. Each of its attacks takes one level away from him
+  ledge(r, 4, 9, 8); ledge(r, 70, 75, 8); ledge(r, 20, 26, 8); ledge(r, 53, 59, 8); ledge(r, 33, 46, 14);
   mark(r, 'boss', 40, 2); mark(r, 'exit', 12, 2);
   mark(r, 'torch', 18, 7); mark(r, 'torch', 62, 7); mark(r, 'crystal', 24, 2); mark(r, 'crystal', 56, 2);
   return r;

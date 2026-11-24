@@ -11,7 +11,7 @@ import { tally, islands, platforms } from './helpers/platforms.mjs';
 const BUDGET = {
   'The Roots':          [17, 2, 0, true],
   'The Cloister':       [122, 81, 9],
-  'The Spires':         [113, 64, 4],
+  'The Spires':         [116, 67, 4],     // (+3 and +3, build 97: the Wyrm's hall, the broken pass: two shelves beside the gap and the slab over it, in the air by design, approved in docs/wyrm-sheet.md)
   'The Tempest':        [72, 43, 9],
   'The Gardens':        [117, 85, 8],
   'The Firmament':      [70, 50, 0],

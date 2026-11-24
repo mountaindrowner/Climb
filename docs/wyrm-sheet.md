@@ -1,7 +1,11 @@
 # The Rime Wyrm, rebuilt (the sheet)
 
 *Step 4 of the order in `docs/gifts-sheet.md`: "The Wyrm rebuilt. Then the other keepers, one a build." A written
-sheet, for your word before anything is built. Nothing here is built.*
+sheet, for your word before anything is built.*
+
+**Status (24 Nov):** your word, "Great instincts, do it": all of it, as written, with the gap costing a heart and new
+pieces for its puppet. **Built in build 97:** the stage (1) and the attacks (2), with the pieces it has now. **Next,
+build 98:** its coming from the far peak (3), the sounds (4), and the new pieces (5), which you will see first.
 
 ## What you said (the playtest of 21 Nov, K3)
 

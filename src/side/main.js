@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 96, date: '24 NOV 2026', phase: 17, phases: 22, last: 'THE WEAPON ON HIS BACK' };
+const VERSION = { build: 97, date: '24 NOV 2026', phase: 17, phases: 22, last: 'THE RIME WYRM REBUILT' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -960,7 +960,7 @@ function frame(ts){
   if (ENT.cam){ wantX = ENT.cam.x; wantY = ENT.cam.y; }   // the entrance: to the slab coming down, then to where it will rise
   CAM.x += (wantX - CAM.x) * Math.min(1, dt * (FLIGHT ? 16 : ENT.cam ? 2.6 : 5)); CAM.y += (wantY - CAM.y) * Math.min(1, dt * (FLIGHT ? 16 : P.grounded ? 4 : 6));
   const halfH = VIEW_H / 2 * CAM.zoom, halfW = halfH * (R.size().w / R.size().h);
-  const box = fight && !FLIGHT ? BOSS.room : { x0: 0, y0: 0, x1: LEVEL.W * T, y1: LEVEL.H * T };
+  const box = fight && !FLIGHT ? BOSS.view || BOSS.room : { x0: 0, y0: 0, x1: LEVEL.W * T, y1: LEVEL.H * T };   // (a keeper's own view of its hall: the Wyrm's goes lower, so its bar is not over the pass)
   const keep = (c, a, b, h) => b - a < h * 2 ? (a + b) / 2 : Math.max(a + h, Math.min(b - h, c));   // a hall smaller than the view: kept in the middle of it
   const cx = keep(CAM.x, box.x0, box.x1, halfW), cy = keep(CAM.y, box.y0, box.y1, halfH);
   FEEL_FX.shake = Math.max(0, FEEL_FX.shake - dt * 1.2); const sk = FEEL_FX.shake * OPT.shake;
