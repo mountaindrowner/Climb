@@ -204,3 +204,57 @@ the budget's two (`tests/side-platforms.test.mjs`).
 - **A shelf above must not overhang the lip below** where he jumps from. The simpler map check found four of these
   that the motor squeezed past; each is narrowed or widened so the jump has open air.
 - **Within five rows of a roof, only straight up works.** Every hole in a roof keeps a ladder in a flue under it.
+
+## The Spires, room by room (build 102)
+
+*Your word, 24 Nov: "Go", after the Cloister. The Spires, its two wings (the Pilgrims' Cairns, the Glacier Galleries)
+and its passage. `docs/spires-map-pass.png` is the region before and after; `docs/spires-map-pass-rooms.png`, six
+rooms in the game.*
+
+**116 planks became 90, in 56 screens. That is not under one a screen, and I have not bent the count to say it is.**
+Four pieces of rock in the air became three. Every one of the 90 has a reason: 32 rungs (wall to wall, in a flue or a
+hole's mouth), 30 steps off a wall, 21 stagings with ground under them, 6 boards of the two rope bridges, and the
+Wyrm's slab.
+
+**Why it stops at 90.** The Spires is towers in open sky, and its height is climbed in the clefts between them. What
+is left is mostly those ladders: in the needle's cleft (13 steps, the saddle and the spire), the Seated's flue (5),
+the deep ice (5), the reasons' two ladders (7), the hollow, the bell road. A cleft is eight tiles wide; stone steps in
+it would have to be five or six rows apart with four clear tiles between their lips (the spacing rules above), which
+does not fit without widening the towers. The rope bridges are the Spires' own and stay. So the check holds the
+Spires to "every plank has a reason" and to 90, and says in its note that it is over one a screen. **If you want it
+under, the next step is widening the clefts and building stone stairs in them; or we could count a ladder or a bridge
+as one made thing. Your call; I have done neither.**
+
+| Room | Before | After |
+|---|---|---|
+| The road (the bell road's climb) | Switchbacks of planks in the air above the second landing | Shelves out of one side of the face and the other, five rows apart; a rung under the hole |
+| The gate | Rungs over the lamp-room's roof, the wear's lip over it | The rungs between stone sides, a row up, so the roof has five rows of air over it |
+| The gatestair (and the Tempest's swept flight, the same shape) | Steps in the air along the top | A corbel along the west wall, the top's boards on it; the pilgrims, the stele and the urn a row down onto it |
+| The chimney | Planks up a bare room | A boulder, a step off the floor's ground, a shelf of the east wall, rungs under the hole |
+| The hollow | A step and rungs in the air | The step a block of the shrine's floor; the rungs under the hole against a stone side (the west: he comes onto them from the east) |
+| The eyrie | Planks up to the hole | A block of the floor, a staging, rock hung from the roof beside the hole with a step out of its foot (three wide, with four tiles of air beside the leaking rock so he walks off it west) |
+| The mouth, the nest, the scree, the ice cave, the reasons | A plank too low to pass under | A block of the floor, or a step of the shelf or bank, in its place (six in all) |
+| The teeth | A plank out from the sill; the needle's tip standing on the bridge's gap | The sill runs out as rock; a lip of the tooth; **a ridge from the needle's top to the tooth**, so the needle's tip is held |
+| The saddle | A step beside the glacier's way out hung in the air | A row up, against the tower |
+| The deep ice, the Seated, the reasons, the Turned | Rungs in the air | Three stones in place of three rungs in the deep ice; the others' rungs between stone sides (a flue) |
+
+**The three pieces of rock still in the air**, each said plainly:
+
+- **The needle's foot in the saddle.** The way into the needle's cleft goes under it, so in a side view it stands
+  over a doorway. Joining it to the ground shuts the cleft.
+- **The eyrie's roof east of its hole.** It is held by the Wyrm's seal over the quick way (rock until the Wyrm falls);
+  the check counts only bare rock.
+- **The rock adrift in the saddle**, with a thread caught on it. By design.
+
+The check also looks only at pieces under 400 tiles, so a wall over a door that is a little bigger is not counted (the
+eyrie's west wall over the windgap's door is one). I note it rather than hide it.
+
+**What I learned:**
+
+- **Lay every shelf before marking the air over them.** A mark laid before the next shelf ends up inside it.
+- **A step of stone at the foot of a ladder between stone sides is a trap.** He stands on it boxed in by the sides
+  and cannot walk off. In the Seated's flue it stays a plank.
+- **A ladder he comes onto from the side has a stone side only on the far side.** The hollow's had two, and the near
+  one shut the way onto it.
+- **The wear swells between nearby rock.** The teeth's sill, needle and lip became one mass until the air between them
+  was marked to keep.

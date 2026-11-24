@@ -10,7 +10,7 @@
 // Its rule (rooms.js MELT, level.js RULE.lit): a cold brazier is lit by a blow. Its fire melts the ice nearest it in
 // its room, for good: the way it closed, what was kept in it, and whoever sat down in it. Warmth opens, and it wakes.
 // Everything here has `gate: 'dash'`; the tests hold that none of it is reached without the Toll's step.
-import { room, rect, door, ledge, mark, EMPTY, ROCK, VELLUM, MELT } from '../rooms.js';
+import { room, rect, door, ledge, mark, EMPTY, ROCK, VELLUM, MELT, flue } from '../rooms.js';
 
 const TITLE = 'THE GLACIER GALLERIES';
 const named = fn => { const f = () => { const r = fn(); r.title = TITLE; r.gate = 'dash'; r.look = 'glacier'; return r; }; Object.defineProperty(f, 'name', { value: fn.name }); return f; };
@@ -47,9 +47,9 @@ function deepice(){
   const r = cave(2, 2); door(r, 'top', 60, 65); for (const y of [45, 41]) ledge(r, 60, 65, y);   // down from the gallery
   // three floors of it, one under another: a pane of thin ice across each (the Toll's step), a way down at each end
   rect(r, 20, 36, 77, 37); rect(r, 38, 38, 39, 43); rect(r, 38, 38, 39, 43, VELLUM);   // the top shelf, and its pane
-  for (const y of [27, 31, 35]) ledge(r, 12, 17, y);               // from the middle floor back up to it
+  rect(r, 12, 24, 13, 27); rect(r, 14, 24, 17, 32); rect(r, 18, 24, 19, 27);   // from the middle floor back up to it: three stones, from either side (planks in the air until the map pass)
   rect(r, 2, 22, 69, 23); rect(r, 76, 22, 77, 23); rect(r, 50, 24, 51, 35); rect(r, 50, 24, 51, 29, VELLUM);   // the middle floor, a wall across it, the pane in the wall
-  for (const y of [5, 9, 13, 17, 21]) ledge(r, 70, 75, y);         // down its east end, and back up
+  for (const y of [5, 9, 13, 17, 21]) ledge(r, 70, 75, y); flue(r, 70, 75, 9, 21);   // down its east end, and back up (between stone sides since the map pass)
   rect(r, 40, 2, 41, 21); rect(r, 40, 2, 41, 7, VELLUM);           // the lowest floor: a wall of ice to the roof of it, a pane at its foot
   rect(r, 10, 0, 15, 1, EMPTY); ledge(r, 10, 15, 1);               // boards over the way down to the Seated
   // one fire here, and it is not needed: a strand in its ice, and one who sat
@@ -62,7 +62,7 @@ function deepice(){
   return r;
 }
 function seated(){
-  const r = cave(2, 1); door(r, 'top', 10, 15); for (const y of [21, 17, 13, 9, 5]) ledge(r, 10, 15, y); door(r, 'left', 2, 7);
+  const r = cave(2, 1); door(r, 'top', 10, 15); for (const y of [21, 17, 13, 9, 5]) ledge(r, 10, 15, y); flue(r, 10, 15, 9, 20); door(r, 'left', 2, 7);
   mark(r, 'seated', 68, 2, { dir: -1 });
   for (const x of [30, 44, 58]) mark(r, 'brazier', x, 2);          // each one lit frees more of him
   mark(r, 'chest', 71, 2, { holds: 'gift:glide', prize: 'sat' });   // the wing's prize (build 91): the wind he kept, in sight behind him, shut while he sits

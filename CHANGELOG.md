@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Cloister in stone (latest; build 101).** Its map pass: the Cloister, its wings and its passage climb on their own stone. 122 planks became 49, none in the air (rungs, steps off a wall, stagings). 492 checks. No save is moved.
+**The Spires in stone (latest; build 102).** Its map pass: 116 planks became 90, each with a reason (rungs, steps off a wall, stagings, two rope bridges, the Wyrm's slab). Not yet under one a screen: the ladders in the towers' clefts are left for your word. 493 checks. No save is moved.
+
+**The Cloister in stone (build 101).** Its map pass: the Cloister, its wings and its passage climb on their own stone. 122 planks became 49, none in the air (rungs, steps off a wall, stagings). 492 checks. No save is moved.
 
 **The Wyrm's faces (build 100).** Its mouth truly shuts (a drawing of its own); it winces when hit, is dazed while stuck, angry from half health, and glows as it draws breath. 491 checks. No save is moved.
 

@@ -454,7 +454,10 @@ then dresses the new shapes. One level a build, each held to a budget by a check
   what is open and a proposed order, in `docs/playtest-2026-11-21.md`.
 - **The Cloister (build 101).** Done: 122 planks to 49, nine pieces of rock in the air to two (`docs/map-pass-sheet.md`,
   the Cloister room by room).
-- **Then, in order:** the Spires, the Tempest, the Gardens, the Firmament, the Workings, the Vein, the Flooded Levels,
+- **The Spires (build 102).** Done, short of the measure: 116 planks to 90 in 56 screens, every one with a reason
+  (ladders in the towers' clefts, two rope bridges, the Wyrm's slab). Under one a screen needs the clefts widened for
+  stone stairs, or a ladder counted as one thing: the player's call (`docs/map-pass-sheet.md`, the Spires room by room).
+- **Then, in order:** the Tempest, the Gardens, the Firmament, the Workings, the Vein, the Flooded Levels,
   the Great Shaft, the Hollow.
 - **Phase 18's rough rock** (faces in every region) is cut into the same walls, so it is laid out with each level's
   pass and switched on in phase 18.

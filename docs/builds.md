@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 101 | 24 Nov 2026 | `125baa0` | The Cloister's map pass: its height from its own stone, 122 planks to 49, none in the air | no | yes (now) |
+| 102 | 24 Nov 2026 | `COMMITNN` | The Spires' map pass: 116 planks to 90, each with a reason; not under one a screen (ladders in the clefts, the rope bridges) | no | yes (now) |
+| 101 | 24 Nov 2026 | `125baa0` | The Cloister's map pass: its height from its own stone, 122 planks to 49, none in the air | no | replaced by 102 |
 | 100 | 24 Nov 2026 | `e96cf7f` | The Wyrm's faces: its mouth shuts, it winces when hit, is dazed when stuck, angry from half health, and glows as it draws breath | no | replaced by 101 |
 | 99 | 24 Nov 2026 | `3a809c1` | The Wyrm's new look (head drawn by PixelLab), seen on its far peak before the summit, and a sound for every piece of its ice | no | replaced by 100 |
 | 98 | 24 Nov 2026 | `0484c9a` | A dev tool: try any place with all six weapons | no | replaced by 99 |
@@ -117,6 +118,52 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 102: the Spires in stone (its map pass)
+
+*Your word, 24 Nov: "Go", after the Cloister. The map pass for the Spires, its two wings and its passage.*
+
+**For the player**
+
+- **The Spires climbs more on its own stone** (`docs/spires-map-pass.png`, before and after;
+  `docs/spires-map-pass-rooms.png`). 116 planks became 90, and none is bare in the air: a rung, a step off a wall, a
+  staging with ground under it, a board of a rope bridge, or the Wyrm's slab.
+  - **The road up from the gate:** shelves out of the face, one side then the other, in place of planks in the air.
+  - **The chimney, the hollow, the eyrie:** a boulder, blocks of the floor, a shelf of the wall, rock hung from the
+    eyrie's roof beside the hole with a step out of its foot.
+  - **Eight planks too low to walk under** (the mouth, the nest, the scree, the ice cave, two in the reasons, the hollow, the
+    eyrie) are blocks of the ground.
+  - **The teeth:** the sill runs out as rock, and a ridge joins the needle's top to the tooth.
+  - **Ladders** in the gate, the Seated's room, the deep ice, the reasons and the Turned have stone sides; the deep
+    ice's lowest three rungs are stones.
+- **Everything found is where it was,** or a row from it: the gatestair's pilgrim, stele and urn (and the Tempest's
+  sweeper on the same stair) are a row down onto its new floor; a wraith in the eyrie and one in the chimney moved out
+  of stone.
+
+**What is weaker than it should be**
+
+- **It is not under one plank a screen** (90 in 56). What is left is mostly ladders in the clefts between the towers,
+  and the two rope bridges. Widening the clefts for stone stairs, or counting a ladder as one thing, is your call.
+- **Three pieces of rock still hang in the air:** the needle's foot (the way into its cleft goes under it), the
+  eyrie's roof east of its hole (held by the Wyrm's seal until it falls), and the rock adrift that holds a thread.
+- **Not played by a person.** Every place is reached in the checks, by the real motor and by the map check.
+
+- **Underneath:** `src/side/level.js` (the saddle, spire, nest, mouth, hollow, chimney, ice cave, teeth, eyrie, crown),
+  `src/side/seams.js` (the gate, road, gatestair and the Tempest's swept flight, which share a shape),
+  `src/side/regions/glacier.js` (the deep ice, the Seated), `src/side/regions/cairns.js` (the reasons, the Turned,
+  the scree), `src/side/rooms.js` (`keepOver`, `flue`, `stone`: a staging made a step of the ground).
+  `tests/side-platforms.test.mjs` holds the Spires to 90 and to a reason for each; a rope bridge (boards in a row, no
+  gap over three, rock at both ends) and the Wyrm's slab are named in it.
+- **Save: not moved.**
+- **Checked:** 493 checks pass (the whole suite once with two failing: a wraith began inside the eyrie's roof, and
+  the gatestair's urn stood a row over its new floor; moved, and those checks run again, with the map check for the
+  Spires and the Tempest). In the test browser: the road, the eyrie, the teeth, the hollow, the nest, the mouth.
+
+**To try**
+
+1. Try a place: the Spires. Climb the road from the gate, and the chimney and hollow up to the ropeway.
+2. Climb the eyrie to the crown. Does the hung rock by the hole read as the roof's own?
+3. Tell me whether the ladders in the clefts are fine as they are, or should become stone stairs.
 
 ### Build 101: the Cloister in stone (its map pass)
 

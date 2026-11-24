@@ -4,7 +4,7 @@
 // hole cut through the floor at `link` (tile columns of the first room, boarded over) lets him up into the region.
 // title: what the place line says there. By region index: 1 the Crypt Stair (into the Cloister), 2 the Bell Road (the
 // Spires), 3 the Last Hut (the Tempest), 4 the Breach (the Gardens), 5 the Long Stair (the Firmament).
-import { room, put, rect, walls, door, ledge, mark, stairs, den, shelf, pier, corbel, EMPTY, ROCK, LEDGE, SPIKES, CRACKED } from './rooms.js';
+import { room, put, rect, walls, door, ledge, mark, stairs, den, shelf, pier, corbel, keepOver, flue, EMPTY, ROCK, LEDGE, SPIKES, CRACKED } from './rooms.js';
 
 // the way up to a hole in the roof: ledges stacked in the hole's own columns, a jump apart (from beside it, the hole's
 // rock edge is in the way of a jump), from row y0 to just under the roof
@@ -45,7 +45,7 @@ function gate(){
   rect(r, 14, 2, 17, 6); rect(r, 14, 16, 17, 20);                 // the gate's two posts, and its lintel over
   rect(r, 20, 1, 27, 1, EMPTY); mark(r, 'pool', 20, 1, { w: 8, look: 'ice' });   // meltwater under the gate: the Spires' raising water
   // Ordric's lamp-room, cut into the gate's own rock beyond the meltwater; the way up is over its roof
-  ledge(r, 22, 27, 7); den(r, 28, 37, 2, 6, { open: 'L', back: 0 }); shaftUp(r, 30, 35, 14, 18);
+  ledge(r, 22, 27, 7); den(r, 28, 37, 2, 6, { open: 'L', back: 0 }); shaftUp(r, 30, 35, 15, 19); flue(r, 30, 35, 15, 20);   // (its rungs between stone sides since the map pass, a row up: five rows of air over the lamp-room's roof)
   mark(r, 'spawn', 5, 2); mark(r, 'torch', 12, 8); mark(r, 'torch', 19, 8); mark(r, 'urn', 8, 2); mark(r, 'urn', 37, 2);
   for (const y of [2, 4]) for (const x of [2, 4]) mark(r, 'keep', x, y);   // over the way up from the road (build 81: the wear rounded the corner into a lip over half the hatch, and it was nearly too tight to come up through)
   return r;
@@ -54,11 +54,16 @@ function road(){
   const r = room(1, 2); walls(r); door(r, 'bottom', 30, 35); ledge(r, 30, 35, 1);
   // the road: a worn stair up from the gate, then switchbacks up the face, a landing at each turn
   stairs(r, 24, 2, 6, -1, 2);
-  for (const [x0, x1, y] of [[4, 12, 8], [14, 20, 12], [20, 32, 16], [10, 18, 20], [20, 26, 24], [24, 28, 28]]){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); }
+  // (the map pass, build 102: from the second landing the road was planks in the air. Now the face's own stone:
+  // shelves out of one side and the other, five rows apart, the turn on the first; one rung under the hole)
+  for (const [x0, x1, y] of [[4, 12, 8], [14, 19, 12]]){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); }
+  const SH = [['R', 20, 16], ['L', 17, 21], ['R', 22, 26], ['L', 17, 31], ['R', 22, 36]];
+  for (const [side, x, y] of SH) shelf(r, side, x, y);
+  for (const [side, x, y] of SH) keepOver(r, side === 'L' ? 2 : x - 4, side === 'L' ? x + 4 : 37, y);   // (all laid first, so no mark of the air is under a shelf laid after it)
   mark(r, 'shrine', 25, 17);                                     // the turn: water seeps through the road here (a leak)
-  shaftUp(r, 29, 35, 31, 43);
+  ledge(r, 30, 35, 43); keepUp(r, 31, 34, 37, 43);
   mark(r, 'harpy', 20, 34); mark(r, 'urn', 6, 9); mark(r, 'chest', 30, 17, { holds: 'shards' });
-  mark(r, 'torch', 6, 26); mark(r, 'torch', 36, 36);
+  mark(r, 'torch', 6, 26); mark(r, 'torch', 36, 40);
   return r;
 }
 
@@ -139,7 +144,7 @@ function flights(){
 // Each ends the same way under its hole: a shelf of rock, and two ledges over it in the hole's own columns, so the
 // jump up has head room and a drop through them lands on the shelf, not the floor far below
 const headL = r => { rect(r, 2, 31, 9, 32); for (const y of [37, 41]) ledge(r, 2, 5, y); keepUp(r, 3, 4, 34, 44); };
-const headR = r => { rect(r, 29, 31, 37, 32); shaftUp(r, 30, 35, 37, 41); };
+const headR = r => { rect(r, 29, 31, 37, 32); shaftUp(r, 30, 35, 37, 41); flue(r, 30, 35, 38, 43); };   // (the top rung between stone sides since the map pass)
 const steps = (r, list) => { for (const [x0, x1, y] of list){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); } };
 const deco = (r, kind, x, y) => mark(r, 'deco', x, y, { kind });
 
@@ -176,8 +181,10 @@ function turning(r){
   walls(r); door(r, 'left', 14, 19); door(r, 'top', 30, 35);
   rect(r, 2, 2, 37, 13);
   stairs(r, 10, 14, 8, 1, 3); rect(r, 34, 2, 37, 21);                // the first flight, and its landing at the east wall
-  steps(r, [[27, 31, 24], [21, 25, 26], [15, 19, 28], [9, 13, 30]]); rect(r, 2, 31, 7, 32);   // back over it, to a shelf on the west wall
-  ledge(r, 8, 28, 32); for (const x of [12, 18, 24]) mark(r, 'keep', x, 34);                  // and along the top
+  // back over it, to a shelf out of the west wall (the map pass, build 102: the steps in the air went; the shelf reaches
+  // back for them, and the plank over the well rests on it)
+  steps(r, [[27, 31, 24], [22, 26, 25]]); corbel(r, 2, 17, 31, 'L', 1); keepOver(r, 2, 21, 31);
+  ledge(r, 18, 28, 31); for (const x of [12, 18, 24]) mark(r, 'keep', x, 33);                  // and along the top
   headR(r);
 }
 // the long room back over the sill: the ground rises over the sill's crown; a step under the hole at the near end
@@ -190,9 +197,9 @@ function overSill(r){
 // carved names. Grey-threaded pilgrims walk it: some going up, some standing at a shrine. They do not fight
 function gatestair(){
   const r = room(1, 2); turning(r);
-  for (const [x, y] of [[5, 14], [36, 22], [4, 33]]){ deco(r, 'stele', x, y); deco(r, 'candles', x + (x < 20 ? 2 : -2), y); }
-  mark(r, 'pilgrim', 7, 14); mark(r, 'pilgrim', 35, 22); mark(r, 'pilgrim', 18, 33);
-  mark(r, 'torch', 2, 24); mark(r, 'torch', 36, 27); mark(r, 'torch', 25, 36); mark(r, 'urn', 3, 33);
+  for (const [x, y] of [[5, 14], [36, 22], [4, 32]]){ deco(r, 'stele', x, y); deco(r, 'candles', x + (x < 20 ? 2 : -2), y); }
+  mark(r, 'pilgrim', 7, 14); mark(r, 'pilgrim', 35, 22); mark(r, 'pilgrim', 18, 32);
+  mark(r, 'torch', 2, 24); mark(r, 'torch', 36, 27); mark(r, 'torch', 25, 36); mark(r, 'urn', 3, 32);
   return r;
 }
 function bellroad(){
@@ -224,7 +231,7 @@ function leeway(){
 // a few steps ahead, seen from behind, never caught up with. Nothing hostile. The one long straight thing on the mountain
 function sweptflight(){
   const r = room(1, 2); turning(r);
-  mark(r, 'sweeper', 16, 17, { dir: 1 }); mark(r, 'sweeper', 22, 33, { dir: -1 });
+  mark(r, 'sweeper', 16, 17, { dir: 1 }); mark(r, 'sweeper', 22, 32, { dir: -1 });
   mark(r, 'torch', 2, 24); mark(r, 'torch', 36, 27); mark(r, 'torch', 5, 36); mark(r, 'crystal', 36, 22);
   return r;
 }

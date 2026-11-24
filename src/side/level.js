@@ -4,7 +4,7 @@
 // other: the Roots (caves), the Cloister (a ruined monastery), the Spires (ice, and the high pass), then, each in its own
 // file under regions/, the Tempest (the storm round the mountain), the Gardens (above the cloud) and the Firmament (the
 // summit, among the stars). One is in play at a time (LEVEL; loadLevel changes it).
-import { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, room, put, rect, walls, door, ledge, stairs, mark, open, den, ROUGH, TIER_A, TIER_B, shelf, pier, hung, corbel } from './rooms.js';
+import { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, room, put, rect, walls, door, ledge, stairs, mark, open, den, ROUGH, TIER_A, TIER_B, shelf, pier, hung, corbel, stone, keepOver, flue } from './rooms.js';
 import tempest from './regions/tempest.js';
 import gardens from './regions/gardens.js';
 import firmament from './regions/firmament.js';
@@ -285,6 +285,8 @@ function chapel(){
 // ---- the third region: the Spires, out in the open air near the summit. Nothing is filled in here: the rock is
 // what each piece draws, the rest is sky. Caves in the mountain on the left; outside, a climb up between a needle and
 // a tower, a rope bridge back across, a cavern of ice, the tower's teeth, a last bridge, and the summit.
+// a column of 'keep' marks, so the rock's wear leaves the way up through a hole open
+const keepUp = (r, x0, x1, y0, y1) => { for (let y = y0; y <= y1; y += 3) for (const x of [x0, x1]) mark(r, 'keep', x, y); };
 function massif(){ const r = room(); rect(r, 0, 0, r.w - 1, r.h - 1); r.filler = true; return r; }   // the mountain itself
 // the mountain's brow: the rock under the ice cave, leaning out over the gap
 function brow(){ const r = room(); rect(r, 0, 13, r.w - 1, r.h - 1); rect(r, 0, 7, 27, 12); rect(r, 0, 1, 12, 6); r.filler = true;
@@ -293,7 +295,7 @@ function brow(){ const r = room(); rect(r, 0, 13, r.w - 1, r.h - 1); rect(r, 0, 
 function mouth(){
   const r = room(); rect(r, 0, 0, r.w - 1, r.h - 1); rect(r, 2, 2, 37, 20, EMPTY); door(r, 'right', 2, 7);
   r.asks = 'dash'; rect(r, 38, 2, 39, 7, VELLUM);   // (build 87; `asks`: this room's pane is on the climb itself, not at a wing's door) thin ice has grown across the way up into the Spires: the Cracked Bell's step breaks it. The Bell-Foundry is part of the climb now (decision 0.13)
-  rect(r, 2, 2, 4, 3); ledge(r, 12, 18, 6);
+  rect(r, 2, 2, 4, 3); stone(r, 12, 18, 6);   // (a block of the floor since the map pass: the plank was too low to pass under)
   mark(r, 'spawn', 7, 2); mark(r, 'torch', 5, 8); mark(r, 'torch', 30, 7); mark(r, 'crystal', 22, 2); mark(r, 'crystal', 15, 7);
   mark(r, 'npc', 28, 2, { who: 'scribe' }); mark(r, 'urn', 33, 2); mark(r, 'urn', 35, 2);
   return r;
@@ -303,8 +305,8 @@ function saddle(){
   rect(r, 0, 0, 79, 1); rect(r, 0, 8, 3, 22);                     // the ground; the cliff over the cave's mouth
   for (const x of [20, 44]){ rect(r, x, 0, x + 5, 1, EMPTY); rect(r, x, 0, x + 5, 0, SPIKES); }   // crevasses, iced
   rect(r, 10, 2, 14, 3); rect(r, 30, 2, 37, 4); rect(r, 32, 5, 35, 5);   // outcrops
-  rect(r, 54, 8, 57, 22); rect(r, 66, 2, 79, 22);                 // the needle (a flake off the tower: the way in is under it), and the foot of the tower
-  ledge(r, 58, 65, 5); ledge(r, 58, 61, 9); ledge(r, 62, 65, 13); ledge(r, 58, 61, 17); ledge(r, 62, 65, 21);   // up between them
+  rect(r, 54, 8, 57, 22); rect(r, 66, 2, 79, 22); keepOver(r, 58, 65, 5); for (const y of [9, 13, 17]) keepOver(r, 58, 65, y);   // the needle (a flake off the tower: the way in is under it), and the foot of the tower (its face kept whole since the map pass: the wear had cut a notch in it, and a step hung in the air)
+  ledge(r, 58, 65, 5); ledge(r, 58, 61, 9); ledge(r, 62, 65, 14); ledge(r, 58, 61, 17); ledge(r, 62, 65, 21);   // up between them (the third a row up since the map pass: beside the mouth of the way out of the glacier it hung in the air)
   mark(r, 'harpy', 26, 12); mark(r, 'yeti', 40, 2); mark(r, 'yeti', 16, 2);
   mark(r, 'torch', 6, 9); mark(r, 'crystal', 12, 4); mark(r, 'crystal', 33, 6); mark(r, 'crystal', 52, 2); mark(r, 'torch', 64, 8);
   rect(r, 40, 13, 44, 14); mark(r, 'thread', 42, 15);                    // a rock adrift in the air, and what is caught on it
@@ -316,14 +318,14 @@ function spire(){
   rect(r, 14, 0, 17, 45); rect(r, 26, 0, 39, 34); rect(r, 30, 35, 33, 45); rect(r, 36, 35, 39, 45);   // the needle; the tower; the two teeth that rise from its top
   ledge(r, 18, 21, 2); ledge(r, 22, 25, 6); ledge(r, 18, 21, 10); ledge(r, 22, 25, 14); ledge(r, 18, 21, 18); ledge(r, 22, 25, 22);
   rect(r, 14, 25, 17, 30, EMPTY); ledge(r, 0, 17, 24);            // a gap through the needle: the rope bridge leaves here
-  ledge(r, 18, 21, 26); ledge(r, 22, 25, 30);                     // and on, to the top of the tower
+  ledge(r, 18, 25, 26); ledge(r, 22, 25, 30);                     // and on, to the top of the tower (the first reaching the tower since the map pass: the needle is cut through beside it)
   mark(r, 'harpy', 20, 40); mark(r, 'wraith', 8, 30); mark(r, 'crystal', 27, 35); mark(r, 'crystal', 34, 35); mark(r, 'torch', 12, 28);
   return r;
 }
 function nest(){
   const r = open();
   rect(r, 0, 0, 5, 22); rect(r, 6, 8, 30, 11);                    // the mountain's face; a shelf out of it, under the bridge
-  ledge(r, 6, 10, 16); ledge(r, 6, 10, 20);                       // back up to the bridge
+  stone(r, 6, 10, 16); ledge(r, 6, 10, 20);                       // back up to the bridge (the first a step of the shelf since the map pass)
   mark(r, 'harpy', 18, 16); mark(r, 'yeti', 24, 12); mark(r, 'crystal', 26, 12); mark(r, 'crystal', 12, 12);
   mark(r, 'npc', 16, 12, { who: 'wren' });
   return r;
@@ -338,7 +340,7 @@ function ropeway(){
 function hollow(){
   const r = room(); rect(r, 0, 0, r.w - 1, r.h - 1); rect(r, 2, 2, 37, 20, EMPTY); door(r, 'right', 2, 7); door(r, 'top', 8, 14);
   rect(r, 21, 2, 31, 2); rect(r, 23, 3, 29, 3);                   // the shrine's step
-  [[10, 16, 5], [16, 22, 9], [10, 16, 13], [8, 14, 17], [8, 14, 21]].forEach(([a, b, y]) => ledge(r, a, b, y));
+  stone(r, 10, 16, 5); [[17, 22, 9], [8, 14, 13], [8, 14, 17], [8, 14, 21]].forEach(([a, b, y]) => ledge(r, a, b, y)); rect(r, 7, 13, 7, 20);   // (since the map pass, the rungs under the hole against a stone side, the west: he comes onto them from the east; and the step before them a block of the shrine's ground)
   mark(r, 'shrine', 26, 4); mark(r, 'torch', 34, 9); mark(r, 'torch', 5, 9); mark(r, 'torch', 26, 14); mark(r, 'crystal', 34, 2); mark(r, 'crystal', 4, 2);
   mark(r, 'npc', 29, 4, { who: 'lamplighter' });
   return r;
@@ -346,9 +348,10 @@ function hollow(){
 function chimney(){
   const r = room(); rect(r, 0, 0, r.w - 1, r.h - 1); rect(r, 2, 2, 37, 20, EMPTY); door(r, 'bottom', 8, 14); door(r, 'top', 26, 32);
   ledge(r, 8, 14, 1);
-  [[14, 20, 5], [22, 28, 9], [26, 32, 13], [26, 32, 17], [26, 32, 21]].forEach(([a, b, y]) => ledge(r, a, b, y));
+  // (the map pass, build 102: a boulder, a plank on the floor's ground, a shelf of the east wall, and rungs under the hole)
+  pier(r, 15, 20, 5); ledge(r, 22, 25, 9); shelf(r, 'R', 26, 13); keepOver(r, 22, 37, 13); ledge(r, 26, 32, 17); ledge(r, 26, 32, 21);
   rect(r, 4, 14, 8, 20); rect(r, 33, 2, 37, 5);
-  mark(r, 'wraith', 35, 12); mark(r, 'wraith', 10, 8); mark(r, 'torch', 4, 7); mark(r, 'torch', 35, 18); mark(r, 'crystal', 35, 6); mark(r, 'crystal', 17, 6);
+  mark(r, 'wraith', 30, 8); mark(r, 'wraith', 10, 8); mark(r, 'torch', 4, 7); mark(r, 'torch', 36, 19); mark(r, 'crystal', 35, 6); mark(r, 'crystal', 17, 6);
   rect(r, 38, 6, 39, 10, CRACKED);                                   // the wall is thin here: there is a hole in the brow behind it
   return r;
 }
@@ -358,7 +361,7 @@ function icecave(){
   rect(r, 2, 2, 12, 5);                                           // a bank of ice at the back
   for (const x of [38, 60]){ rect(r, x, 0, x + 5, 1, EMPTY); rect(r, x, 0, x + 5, 0, SPIKES); }   // pits of ice
   rect(r, 47, 5, 55, 20);                                         // the roof comes down: crouch or roll under it
-  ledge(r, 14, 20, 6); ledge(r, 33, 37, 6); ledge(r, 64, 70, 7);
+  ledge(r, 14, 20, 6); stone(r, 33, 37, 6); ledge(r, 66, 71, 7);   // (the last over firm ice, not the pit, and the middle a block of ice at the pit's lip, since the map pass)
   mark(r, 'yeti', 20, 2); mark(r, 'wraith', 34, 12); mark(r, 'wraith', 66, 12); mark(r, 'yeti', 72, 2);
   mark(r, 'torch', 5, 9); mark(r, 'torch', 24, 10); mark(r, 'torch', 43, 9); mark(r, 'torch', 58, 10); mark(r, 'torch', 75, 10); mark(r, 'crystal', 7, 6); mark(r, 'crystal', 44, 2); mark(r, 'crystal', 67, 8); mark(r, 'crystal', 57, 2);
   mark(r, 'urn', 16, 2); mark(r, 'urn', 30, 2); mark(r, 'urn', 74, 2); mark(r, 'chest', 4, 6, { holds: 'shards' });
@@ -368,10 +371,12 @@ function icecave(){
 function teeth(){
   const r = open(1, 2);
   rect(r, 14, 0, 17, 26); rect(r, 30, 0, 33, 30); rect(r, 36, 0, 39, 45);   // the needle's tip, the middle tooth, the horn
-  rect(r, 0, 23, 3, 24); ledge(r, 7, 10, 24);                     // the sill of the ice cave's door, a plank out from it
-  ledge(r, 21, 26, 27);                                           // between the needle and the tooth
-  ledge(r, 34, 35, 33); ledge(r, 32, 35, 37); ledge(r, 32, 35, 41); ledge(r, 32, 35, 45);   // up the horn
-  mark(r, 'harpy', 22, 34); mark(r, 'wraith', 24, 40); mark(r, 'crystal', 15, 27); mark(r, 'crystal', 31, 31); mark(r, 'torch', 2, 27);
+  rect(r, 0, 23, 10, 24);                                         // the sill of the ice cave's door, running out as a lip of rock (a plank out from it, until the map pass)
+  corbel(r, 24, 29, 27, 'R', 1); rect(r, 18, 26, 24, 26);         // between the needle and the tooth: a lip of the tooth's rock, and a ridge from the needle's top out to it (so the needle's tip is held by the tooth, not standing on the gap the bridge goes through)
+  for (let y = 15; y <= 22; y += 2) for (let x = 1; x <= 12; x += 2) mark(r, 'keep', x, y);   // the air under the sill and beside the needle, and under the lip,
+  for (let y = 19; y <= 26; y += 2) for (let x = 18; x <= 29; x += 2) mark(r, 'keep', x, y);  // kept from the wear (it had swollen them into one mass of rock)
+  ledge(r, 34, 35, 33); ledge(r, 32, 35, 37); ledge(r, 32, 35, 44);   // up the horn (no rung beside the ice pane in it, since the map pass)
+  mark(r, 'harpy', 22, 34); mark(r, 'wraith', 24, 40); mark(r, 'crystal', 15, 27); mark(r, 'crystal', 31, 31); mark(r, 'torch', 2, 28);
   return r;
 }
 // the last bridge, from the horn's tip back to the mountain
@@ -388,9 +393,10 @@ function eyrie(){
   // the leaking rock: water seeps through it (the leak is on its top, on the way across), and under it is a hollow
   // out of the wind, Mirel's. A step up to it either side
   rect(r, 50, 2, 62, 8); den(r, 50, 57, 2, 5, { open: 'L', back: 0 }); rect(r, 45, 2, 47, 4); rect(r, 63, 2, 65, 4);
-  [[20, 26, 5], [28, 34, 9], [34, 40, 13], [36, 42, 17], [36, 42, 21]].forEach(([a, b, y]) => ledge(r, a, b, y));
+  // (the map pass, build 102: rock hung from the roof beside the hole, a step out of its foot under it, the floor clear below)
+  stone(r, 20, 26, 5); [[28, 34, 9], [36, 42, 18], [36, 42, 21]].forEach(([a, b, y]) => ledge(r, a, b, y)); hung(r, 43, 45, 12, 36); keepUp(r, 37, 41, 15, 20); keepUp(r, 47, 49, 9, 18);   // (the rock three wide: four tiles of air between it and the leaking rock, so he walks off that west)
   rect(r, 2, 2, 8, 4);
-  mark(r, 'shrine', 58, 9); mark(r, 'yeti', 14, 2); mark(r, 'wraith', 22, 14);
+  mark(r, 'shrine', 58, 9); mark(r, 'yeti', 14, 2); mark(r, 'wraith', 30, 12);
   mark(r, 'torch', 5, 9); mark(r, 'torch', 30, 5); mark(r, 'torch', 46, 9); mark(r, 'torch', 66, 9); mark(r, 'torch', 75, 9); mark(r, 'crystal', 4, 5); mark(r, 'crystal', 70, 2); mark(r, 'crystal', 44, 2);
   mark(r, 'chest', 7, 5, { holds: 'shards' }); mark(r, 'urn', 70, 2); mark(r, 'urn', 74, 2);
   return r;

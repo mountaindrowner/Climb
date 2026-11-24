@@ -14,7 +14,7 @@
 // after him. The stones of the way (rooms.js FACED) are gone from under him if he turns round on them. So: on the
 // ground, turn and face what follows; on the way, do not turn.
 // All of it but the wind gap's near ledge and the scree has `gate: 'glide'`; the tests hold that none of that is reached without the Wyrm's wind.
-import { room, rect, door, ledge, mark, EMPTY, ROCK, FACED } from '../rooms.js';
+import { room, rect, door, ledge, mark, EMPTY, ROCK, FACED, flue, stone } from '../rooms.js';
 
 const TITLE = 'THE PILGRIMS\' CAIRNS';
 const named = (fn, gate = 'glide', more = {}) => { const f = () => { const r = fn(); r.title = TITLE; r.gate = gate; Object.assign(r, more); return r; }; Object.defineProperty(f, 'name', { value: fn.name }); return f; };
@@ -48,7 +48,7 @@ function field(){
   return r;
 }
 function reasons(){
-  const r = cave(2, 1); door(r, 'top', 4, 9); for (const y of [22, 18, 14]) ledge(r, 4, 9, y);   // down from the field
+  const r = cave(2, 1); door(r, 'top', 4, 9); for (const y of [22, 18, 14]) ledge(r, 4, 9, y); flue(r, 4, 9, 18, 20);   // down from the field
   rect(r, 2, 2, 13, 12);                                           // where the way begins
   // the way: flat stones over the drop, at one height. The first lies against the ledge, over a step: there, turning
   // round costs nothing, and shows what it does
@@ -56,7 +56,7 @@ function reasons(){
   rect(r, 38, 2, 43, 12);                                          // a stack of rock halfway: there he may turn
   rect(r, 66, 2, 77, 12);                                          // where it ends; and the way down through it, to the slope
   rect(r, 70, 0, 75, 12, EMPTY); for (const y of [12, 8, 4, 0]) ledge(r, 70, 75, y);
-  for (const y of [5, 9]){ ledge(r, 14, 16, y); ledge(r, 44, 46, y); }   // from the floor under the way, back up to it
+  stone(r, 14, 16, 5); stone(r, 44, 46, 5); ledge(r, 14, 16, 9); ledge(r, 44, 46, 9);   // from the floor under the way, back up to it (the first of each a step of rock since the map pass)
   mark(r, 'cairn', 6, 13); mark(r, 'cairn', 41, 13);
   reason(r, 10, 13, 'NEXT YEAR.'); reason(r, 39, 13, 'THE CHILDREN.'); reason(r, 68, 13, 'IT IS ENOUGH TO HAVE SEEN IT.');
   for (const [x, y] of [[22, 2], [30, 2], [50, 2], [58, 2], [3, 13], [76, 13]]) deco(r, 'cairn', x, y);
@@ -67,7 +67,7 @@ function reasons(){
 const slopeTop = x => Math.round(14 - 12 * (x - 2) / 75);         // the Turned's slope: its top row at column x
 function turned(){
   const r = cave(2, 1); for (let x = 2; x <= 77; x++) rect(r, x, 2, x, slopeTop(x));
-  door(r, 'top', 30, 35); for (const y of [19, 15]) ledge(r, 30, 35, y);   // down from the reasons, onto the slope below him
+  door(r, 'top', 30, 35); for (const y of [19, 15]) ledge(r, 30, 35, y); flue(r, 30, 35, 19, 20);   // down from the reasons, onto the slope below him
   door(r, 'left', 15, 20);                                         // uphill, past him: his cairn
   rect(r, 70, 0, 75, 4, EMPTY);                                    // downhill: the hole to the scree. Nothing stops him leaving
   mark(r, 'turned', 20, slopeTop(20) + 1, { dir: 1 });
@@ -88,10 +88,10 @@ function hiscairn(){
 function scree(){
   const r = cave(); door(r, 'top', 30, 35); door(r, 'right', 12, 17);
   rect(r, 20, 2, 35, 9); rect(r, 36, 2, 37, 11);   // the bank of scree he comes down onto (high enough that the drop does not hurt), and down from it to the door; from it the hole is out of reach
-  ledge(r, 16, 19, 5);                                             // from the floor beside it back up onto the bank
+  stone(r, 16, 19, 5);                                             // from the floor beside it back up onto the bank (a step of the bank since the map pass)
   mark(r, 'chest', 6, 2, { holds: 'shards' });
   for (const [x, y] of [[10, 2], [15, 2], [23, 10]]) deco(r, 'cairn', x, y);
-  mark(r, 'torch', 4, 9); mark(r, 'torch', 24, 12); mark(r, 'urn', 12, 2); mark(r, 'crystal', 17, 2);
+  mark(r, 'torch', 4, 9); mark(r, 'torch', 24, 12); mark(r, 'urn', 12, 2); mark(r, 'crystal', 17, 6);
   for (const x of [30, 32, 34]) for (const y of [12, 16, 19]) keep(r, x, y);
   return r;
 }

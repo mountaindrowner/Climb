@@ -44,6 +44,9 @@ export const door = (r, side, a, b) => {
   else if (side === 'top') rect(r, a, r.h - 2, b, r.h - 1, EMPTY); else rect(r, a, 0, b, 1, EMPTY);
 };
 export const ledge = (r, x0, x1, y, v = LEDGE) => rect(r, x0, y, x1, y, v);
+// a staging made stone (the map pass): where a plank stood so low over the ground that nothing passed under it, rock
+// from its row down to the rock under each column, so it is a step of the ground itself
+export const stone = (r, x0, x1, y) => { for (let x = x0; x <= x1; x++) for (let j = y; j >= 0 && r.tiles[j][x] !== ROCK; j--) put(r, x, j, ROCK); };
 // stairs: n steps, each `run` tiles long and one tile (half a unit) high, rising toward dir (+1 right, -1 left), the
 // rock filled in under them
 export function stairs(r, x, y, n, dir, run = 2){
@@ -60,6 +63,12 @@ export const shelf = (r, side, x, y, thick = 2) => { const w0 = 2, w1 = r.w - 3;
 // a corbel out of any upright rock (a pillar, as well as a wall): from column x0 to x1, its top at row y, fixed to the
 // rock at its `side` end ('L': at x0, 'R': at x1). Two deep at that half, one at the outer half, as a shelf is
 export const corbel = (r, x0, x1, y, side, thick = 2) => { rect(r, x0, y, x1, y); if (thick > 1){ const h = Math.floor((x1 - x0) / 2); if (side === 'L') rect(r, x0, y - thick + 1, x0 + h, y - 1); else rect(r, x1 - h, y - thick + 1, x1, y - 1); } };
+// the air over a shelf, and out past its lip, kept from the rock's wear (which swells new stone from under): rows y+1
+// to y+5 from x0 to x1 (the map pass's rule 8)
+export const keepOver = (r, x0, x1, y) => { for (let x = x0; x <= x1; x += 2) for (const dy of [1, 3, 5]) if (r.tiles[y + dy] && r.tiles[y + dy][x] === EMPTY) r.marks.push({ type: 'keep', x, y: y + dy }); };
+// a flue: stone sides at x0 - 1 and x1 + 1 from row y0 to y1, so rungs in it are a ladder against a wall, not boards in
+// the air (it hangs from the roof over it)
+export const flue = (r, x0, x1, y0, y1) => { rect(r, x0 - 1, y0, x0 - 1, y1); rect(r, x1 + 1, y0, x1 + 1, y1); };
 // a pier, a boulder, a stalagmite: rock up from the floor (row 2) to row y
 export const pier = (r, x0, x1, y) => rect(r, x0, 2, x1, y);
 // rock hung from the roof down to row y; and, out from its foot toward column x, a step he can stand on (under a hole
