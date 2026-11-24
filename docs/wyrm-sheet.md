@@ -111,3 +111,20 @@ part of this build. Until then it leaves what it leaves today.
 2. **The attacks:** which of the five do you want, and is there a "wyrm thing" missing?
 3. **A fall into the gap costs one heart and puts him back on the pass.** Or should it kill?
 4. **Its look:** new pieces for the puppet, or a different creature altogether (drawn whole, like the others)?
+
+## The pieces, for your word (24 Nov)
+
+`docs/wyrm-looks.png`: today's Wyrm, and two new looks, each put together as the game puts it together, with him
+beside it for size.
+
+- **A, painted by rule** (`tools/wyrm-parts.py`, pieces in `docs/wyrm-looks/a/`): today's colours. A larger head with
+  two horns and a small frill; each ring longer than it is tall, so the body reads as one body and not a string of
+  beads, with a ridge of three ice blades along its back and ribbed plates under it; a tail ending in a scythe of ice.
+- **B, the head drawn by PixelLab** (`docs/wyrm-looks/b/`; what PixelLab made is in `docs/wyrm-looks/drawn/`): a
+  horned, frilled head with a real open mouth, split here into the head and a jaw that swings shut. PixelLab would
+  not draw a single ring or a tail (asked four ways, it drew whole dragons each time), so the body and tail are
+  painted by rule in the head's own colours, paler and more violet than today's.
+
+**What changes in the game with either:** the pieces' sizes, where the jaw hinges and where its eye glows (the eye's
+light sits in the drawn socket). Its moves stay as they are. **I would take B,** perhaps with the whole creature a
+quarter larger, so the head is a match for him.
