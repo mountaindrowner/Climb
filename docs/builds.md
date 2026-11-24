@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 100 | 24 Nov 2026 | `COMMITNN` | The Wyrm's faces: its mouth shuts, it winces when hit, is dazed when stuck, angry from half health, and glows as it draws breath | no | yes (now) |
+| 100 | 24 Nov 2026 | `e96cf7f` | The Wyrm's faces: its mouth shuts, it winces when hit, is dazed when stuck, angry from half health, and glows as it draws breath | no | yes (now) |
 | 99 | 24 Nov 2026 | `3a809c1` | The Wyrm's new look (head drawn by PixelLab), seen on its far peak before the summit, and a sound for every piece of its ice | no | replaced by 100 |
 | 98 | 24 Nov 2026 | `0484c9a` | A dev tool: try any place with all six weapons | no | replaced by 99 |
 | 97 | 24 Nov 2026 | `314972f` | The Rime Wyrm rebuilt: the broken pass (three levels, the gap of cloud) and five attacks, each taking one level from him | no | replaced by 98 |
