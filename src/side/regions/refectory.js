@@ -21,8 +21,9 @@ export const wing = { build(X){
   const st = X.roomOf('stairwell'); if (!st) return; const cx = Math.round((st.tx0 - X.X0) / 40), cy = Math.round((st.ty1 - X.Y0) / 23);
   X.addRoom(cx, cy, refectory);
   // up from the stair's top landing: rungs in its upper corner, and through its roof
-  for (let y = st.ty1 - 4; y < st.ty1; y++) for (let x = st.tx0 + 28; x <= st.tx0 + 34; x++) X.set(x, y, EMPTY);
+  for (let y = st.ty0 + 27; y < st.ty1; y++) for (let x = st.tx0 + 28; x <= st.tx0 + 34; x++) X.set(x, y, EMPTY);   // (the whole flue: the rock's wear is done before this)
   for (const y of [28, 32, 36, 40, 44]) for (let x = st.tx0 + 28; x <= st.tx0 + 34; x++) if (X.at(x, st.ty0 + y) === EMPTY) X.set(x, st.ty0 + y, X.tile.LEDGE);
+  for (let y = 28; y <= 41; y++) for (const x of [35, 36, 37]) X.set(st.tx0 + x, st.ty0 + y, X.tile.ROCK);   // (the map pass, build 101) their stone side, down from the roof: a ladder against a wall, not rungs in the air
 } };
 export const QUIET = ['refectory'];
 // ---- what stands in it, painted

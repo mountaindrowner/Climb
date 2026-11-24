@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 100 | 24 Nov 2026 | `e96cf7f` | The Wyrm's faces: its mouth shuts, it winces when hit, is dazed when stuck, angry from half health, and glows as it draws breath | no | yes (now) |
+| 101 | 24 Nov 2026 | `COMMITNN` | The Cloister's map pass: its height from its own stone, 122 planks to 49, none in the air | no | yes (now) |
+| 100 | 24 Nov 2026 | `e96cf7f` | The Wyrm's faces: its mouth shuts, it winces when hit, is dazed when stuck, angry from half health, and glows as it draws breath | no | replaced by 101 |
 | 99 | 24 Nov 2026 | `3a809c1` | The Wyrm's new look (head drawn by PixelLab), seen on its far peak before the summit, and a sound for every piece of its ice | no | replaced by 100 |
 | 98 | 24 Nov 2026 | `0484c9a` | A dev tool: try any place with all six weapons | no | replaced by 99 |
 | 97 | 24 Nov 2026 | `314972f` | The Rime Wyrm rebuilt: the broken pass (three levels, the gap of cloud) and five attacks, each taking one level from him | no | replaced by 98 |
@@ -116,6 +117,50 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 101: the Cloister in stone (its map pass)
+
+*Your word, 24 Nov: "Do the platform replacement idea, remember?" The map pass (`docs/map-pass-sheet.md`), done for
+the Roots in build 76 and judged good, now for the Cloister, its two wings and its passage.*
+
+**For the player**
+
+- **The Cloister climbs on its own stone** (`docs/cloister-map-pass.png`, before and after;
+  `docs/cloister-map-pass-rooms.png`). 122 planks became 49, and none is in the air: what is left is a rung in a flue,
+  a step off a wall, or a staging with ground under it.
+  - **The Scriptorium's hall:** the copyists' tiers are corbels out of its walls and pillars, the desks on them; a
+    short ladder up through the roof.
+  - **The belfry:** a boulder at the foot, Mirel's rock, then shelves out of one wall and the other, three screens up.
+  - **The founders' passage, the nave, the cloister walk, the library, the chapel, the bell-rope room, the casting
+    floor:** shelves, tombs, a plinth, steps hung from the vaulting, in place of planks.
+  - **The pit, where the Cracked Bell rolls:** only the lowest steps up each wall changed; its floor did not.
+- **Everything found is where it was,** or a step from it: the belfry's thread is a row lower, the nave's chest and a
+  crystal are on the plinth and a tomb, the cloister walk's chest on its step. Some creatures and lamps moved a few
+  tiles out of the new stone.
+- **The nave's west door is a row lower** (Corwen's gallery over it rests on the wall).
+
+**What is weaker than it should be**
+
+- **Two pieces of rock still hang in the air:** the pit's two brackets the tongues swing from (they shape the Bell's
+  fight; see the sheet).
+- **Coming down is slower,** as in the Roots: he walks off shelves where he dropped through planks.
+- **Not played by a person.** Every place is reached in the checks, both by the real motor and by the map check.
+
+- **Underneath:** `src/side/level.js` (belfry, stairwell, nave, library, cloister walk, chapel), `src/side/seams.js`
+  (the crypt's foot, the founders' passage, the lower flights), `src/side/regions/scriptorium.js` (the hall),
+  `src/side/regions/foundry.js` (bell-rope room, casting floor, slag runs, pit), `src/side/regions/refectory.js` (the
+  ladder's stone side), `src/side/rooms.js` (`corbel`: a shelf out of any upright rock). `tests/side-platforms.test.mjs`
+  holds the Cloister to what the pass left.
+- **Save: not moved.**
+- **Checked:** 492 checks pass (the whole suite once with one failing: an acolyte and a wisp began with their bodies
+  in the new stone; moved, and their check run again). In the test browser: the hall, the belfry, the nave, the
+  cloister walk.
+
+**To try**
+
+1. Try a place: the Cloister. Climb the belfry and the Scriptorium's hall. Does each room have a shape now?
+2. Note anywhere you bump your head on stone, or a jump that feels too far.
+3. Compare with the Roots: do the two now feel like one mountain?
 
 ### Build 100: the Wyrm's faces
 

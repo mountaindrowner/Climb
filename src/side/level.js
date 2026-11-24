@@ -4,7 +4,7 @@
 // other: the Roots (caves), the Cloister (a ruined monastery), the Spires (ice, and the high pass), then, each in its own
 // file under regions/, the Tempest (the storm round the mountain), the Gardens (above the cloud) and the Firmament (the
 // summit, among the stars). One is in play at a time (LEVEL; loadLevel changes it).
-import { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, room, put, rect, walls, door, ledge, stairs, mark, open, den, ROUGH, TIER_A, TIER_B, shelf, pier, hung } from './rooms.js';
+import { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, room, put, rect, walls, door, ledge, stairs, mark, open, den, ROUGH, TIER_A, TIER_B, shelf, pier, hung, corbel } from './rooms.js';
 import tempest from './regions/tempest.js';
 import gardens from './regions/gardens.js';
 import firmament from './regions/firmament.js';
@@ -210,31 +210,34 @@ function undercroft(){
   return r;
 }
 function nave(){
-  const r = room(2, 1); walls(r); door(r, 'left', 2, 7); door(r, 'right', 2, 7);
+  const r = room(2, 1); walls(r); door(r, 'left', 2, 6); door(r, 'right', 2, 7);   // (the west door a row lower since the map pass: Corwen's gallery over it rests on the wall)
   for (const x of [18, 50]){ rect(r, x, 0, x + 5, 1, EMPTY); rect(r, x, 0, x + 5, 0, SPIKES); }   // two pits
-  ledge(r, 8, 15, 6); ledge(r, 26, 34, 6); ledge(r, 36, 44, 10); ledge(r, 56, 64, 6); ledge(r, 66, 73, 10);   // the galleries
-  rect(r, 38, 2, 41, 3);                                          // a plinth mid-hall
-  rect(r, 2, 6, 10, 7); rect(r, 2, 13, 11, 14); for (const x of [3, 6, 9]) mark(r, 'keep', x, 9);   // Corwen's carrel: a stone gallery over the west door, where the house's hours were written down
-  mark(r, 'acolyte', 21, 2); mark(r, 'acolyte', 66, 2); mark(r, 'wisp', 40, 11); mark(r, 'gargoyle', 22, 13); mark(r, 'gargoyle', 58, 14); mark(r, 'acolyte', 70, 2);
-  mark(r, 'torch', 5, 8); mark(r, 'torch', 28, 12); mark(r, 'torch', 46, 6); mark(r, 'torch', 60, 12); mark(r, 'torch', 75, 8); mark(r, 'crystal', 11, 7); mark(r, 'crystal', 70, 11); mark(r, 'crystal', 34, 2);
-  mark(r, 'urn', 6, 2); mark(r, 'urn', 49, 2); mark(r, 'urn', 76, 2); mark(r, 'chest', 38, 11, { holds: 'shards' });
+  // (the map pass, build 101: the galleries were planks in the air. Now the hall's own stone: tombs and a plinth up from
+  // its floor, each a hop, the higher one a step from the lower)
+  ledge(r, 11, 15, 6); pier(r, 26, 33, 4); pier(r, 36, 44, 7); pier(r, 56, 63, 4); pier(r, 66, 73, 7);
+  rect(r, 2, 6, 10, 7); rect(r, 2, 13, 11, 14); for (const x of [3, 6, 9]) mark(r, 'keep', x, 9);   // Corwen's carrel: a stone gallery over the west door, where the house's hours were written down (held to the wall, since the map pass)
+  mark(r, 'acolyte', 21, 2); mark(r, 'acolyte', 60, 5); mark(r, 'wisp', 40, 11); mark(r, 'gargoyle', 22, 13); mark(r, 'gargoyle', 58, 14); mark(r, 'acolyte', 76, 2);
+  mark(r, 'torch', 5, 8); mark(r, 'torch', 28, 12); mark(r, 'torch', 46, 9); mark(r, 'torch', 60, 12); mark(r, 'torch', 75, 8); mark(r, 'crystal', 11, 7); mark(r, 'crystal', 70, 8); mark(r, 'crystal', 34, 2);
+  mark(r, 'urn', 6, 2); mark(r, 'urn', 49, 2); mark(r, 'urn', 76, 2); mark(r, 'chest', 40, 8, { holds: 'shards' });
   return r;
 }
 // three screens tall: ledges up past a door to the library, to a door onto the cloister walk; the bell's rope hangs above
 function belfry(){
   const r = room(1, 3); walls(r); door(r, 'left', 2, 7); door(r, 'left', 25, 30); door(r, 'left', 48, 53);
-  [[22, 29, 5], [10, 18, 9], [22, 30, 13], [30, 37, 17], [16, 24, 21], [2, 10, 24], [14, 22, 28], [26, 34, 32], [30, 37, 36], [18, 26, 40], [8, 16, 44], [2, 10, 47], [16, 24, 51], [28, 36, 55]]
-    .forEach(([a, b, y]) => ledge(r, a, b, y));
-  rect(r, 31, 7, 37, 8); for (const x of [32, 35]) mark(r, 'keep', x, 3);   // under the first turn of the bell stair, at the tower's foot: Mirel's place, as far from the door as the tower goes
-  mark(r, 'gargoyle', 20, 16); mark(r, 'gargoyle', 12, 36); mark(r, 'wisp', 33, 37); mark(r, 'wisp', 6, 12); mark(r, 'bell', 20, 64);
-  mark(r, 'torch', 34, 8); mark(r, 'torch', 5, 28); mark(r, 'torch', 34, 42); mark(r, 'torch', 5, 51); mark(r, 'crystal', 3, 2); mark(r, 'crystal', 34, 18); mark(r, 'crystal', 32, 56);
-  mark(r, 'npc', 20, 22, { who: 'wren' }); mark(r, 'thread', 34, 56);
+  // (the map pass, build 101: the stair was fourteen planks in the air. Now it is the tower's own stone: a boulder at
+  // its foot, the first turn, then shelves out of one wall and the other, six rows apart, the doors' landings among them)
+  pier(r, 15, 19, 4);
+  rect(r, 24, 7, 37, 8); for (const x of [32, 35]) mark(r, 'keep', x, 3);   // under the first turn of the bell stair, at the tower's foot: Mirel's place, as far from the door as the tower goes
+  for (const [side, y] of [['L', 13], ['R', 19], ['L', 24], ['R', 29], ['L', 35], ['R', 41], ['L', 47], ['R', 53]]) shelf(r, side, side === 'L' ? 19 : 24, y);
+  mark(r, 'gargoyle', 20, 16); mark(r, 'gargoyle', 12, 36); mark(r, 'wisp', 33, 33); mark(r, 'wisp', 6, 17); mark(r, 'bell', 20, 64);
+  mark(r, 'torch', 34, 11); mark(r, 'torch', 5, 28); mark(r, 'torch', 34, 44); mark(r, 'torch', 5, 51); mark(r, 'crystal', 3, 2); mark(r, 'crystal', 34, 20); mark(r, 'crystal', 32, 55);
+  mark(r, 'npc', 20, 22, { who: 'wren' }); mark(r, 'thread', 34, 55);
   return r;
 }
 function library(){
   const r = room(); walls(r); door(r, 'right', 2, 7); door(r, 'left', 2, 7);
   rect(r, 13, 2, 27, 2); rect(r, 15, 3, 25, 3);                   // the dais, stepped
-  ledge(r, 5, 11, 8); ledge(r, 29, 35, 8);
+  shelf(r, 'L', 11, 8, 1); shelf(r, 'R', 29, 8, 1);   // (galleries of the walls' stone since the map pass, build 101)
   mark(r, 'shrine', 20, 4); mark(r, 'crystal', 8, 9); mark(r, 'crystal', 32, 9); mark(r, 'torch', 4, 13); mark(r, 'torch', 36, 13); mark(r, 'torch', 14, 9); mark(r, 'torch', 26, 9);
   mark(r, 'npc', 23, 4, { who: 'lamplighter' });
   return r;
@@ -249,28 +252,31 @@ function cells(){
 function stairwell(){
   const r = room(1, 2); walls(r); door(r, 'right', 2, 7); door(r, 'right', 25, 30);
   stairs(r, 30, 2, 10, -1, 2); rect(r, 2, 2, 10, 11);            // the long stair up to a landing against the wall
-  ledge(r, 13, 19, 15); ledge(r, 22, 29, 18); ledge(r, 31, 37, 21); ledge(r, 30, 37, 24);   // and on up to the walk
+  ledge(r, 13, 19, 15); ledge(r, 24, 37, 21); ledge(r, 30, 37, 24);   // and on up to the walk (the map pass, build 101: the plank in the air between went; the step above reaches back to the stair)
   rect(r, 2, 30, 14, 43);                                         // the wall closes in over the landing
-  mark(r, 'wisp', 26, 12); mark(r, 'gargoyle', 24, 30); mark(r, 'acolyte', 6, 12); mark(r, 'torch', 35, 9); mark(r, 'torch', 16, 12); mark(r, 'torch', 20, 26); mark(r, 'torch', 35, 34); mark(r, 'crystal', 4, 12); mark(r, 'crystal', 25, 19);
-  ledge(r, 16, 21, 28); rect(r, 4, 32, 12, 37, EMPTY); rect(r, 13, 32, 14, 36, CRACKED);   // a cell in the wall over the landing, walled up
+  mark(r, 'wisp', 26, 12); mark(r, 'gargoyle', 24, 30); mark(r, 'acolyte', 6, 12); mark(r, 'torch', 35, 9); mark(r, 'torch', 16, 12); mark(r, 'torch', 20, 26); mark(r, 'torch', 25, 36); mark(r, 'crystal', 4, 12); mark(r, 'crystal', 25, 19);
+  corbel(r, 15, 21, 31, 'L', 1); rect(r, 4, 32, 12, 37, EMPTY); rect(r, 13, 32, 14, 36, CRACKED);   // a cell in the wall over the landing, walled up (before it, since the map pass, a corbel of the wall's own rock, not a plank)
   mark(r, 'chest', 6, 32, { holds: 'relic:lodestone' }); mark(r, 'thread', 10, 33); mark(r, 'urn', 8, 32); mark(r, 'chest', 8, 12, { holds: 'shards' });
   return r;
 }
 function cloister(){
   const r = room(2, 1); walls(r); door(r, 'left', 2, 7); door(r, 'right', 2, 7); door(r, 'top', 66, 72);
   for (const x of [14, 46]){ rect(r, x, 0, x + 5, 1, EMPTY); rect(r, x, 0, x + 5, 0, SPIKES); }
-  ledge(r, 56, 62, 5); ledge(r, 60, 65, 9); ledge(r, 64, 70, 13); ledge(r, 66, 72, 17); ledge(r, 66, 72, 21);   // up to the chapel
+  // up to the chapel (the map pass, build 101: it was five planks in the air): a boulder in the floor; a step hung from
+  // the vaulting; a step hung from the east wall under the chapel's hole; the floor left clear under them; a rung up
+  // through the hole
+  pier(r, 62, 66, 5); hung(r, 54, 57, 10, 61, 2); hung(r, 73, 77, 11, 66, 2); ledge(r, 66, 72, 17); ledge(r, 66, 72, 21);
   rect(r, 6, 17, 9, 20); rect(r, 26, 16, 29, 20); rect(r, 44, 17, 47, 20);   // broken vaulting
   mark(r, 'shrine', 36, 2);                                       // the last before the chapel
   mark(r, 'acolyte', 23, 2); mark(r, 'acolyte', 54, 2); mark(r, 'gargoyle', 40, 13); mark(r, 'gargoyle', 20, 14); mark(r, 'wisp', 50, 9);
   mark(r, 'torch', 5, 8); mark(r, 'torch', 24, 9); mark(r, 'torch', 42, 6); mark(r, 'torch', 57, 9); mark(r, 'torch', 75, 8); mark(r, 'crystal', 10, 2); mark(r, 'crystal', 76, 2); mark(r, 'crystal', 30, 2);
-  mark(r, 'urn', 4, 2); mark(r, 'urn', 33, 2); mark(r, 'chest', 62, 10, { holds: 'shards' });
+  mark(r, 'urn', 4, 2); mark(r, 'urn', 33, 2); mark(r, 'chest', 60, 12, { holds: 'shards' });
   return r;
 }
 // the top of the Cloister: the chapel, two screens high, where the Toll hangs. The way on opens when it falls
 function chapel(){
   const r = room(2, 2); walls(r); door(r, 'bottom', 66, 72); ledge(r, 66, 72, 1);
-  ledge(r, 4, 11, 8); ledge(r, 58, 64, 8);                        // galleries at either end, out of its swing
+  shelf(r, 'L', 11, 8, 1); shelf(r, 'R', 58, 8, 1);               // galleries at either end, out of its swing (the walls' stone since the map pass, build 101)
   mark(r, 'boss', 40, 2); mark(r, 'exit', 6, 2);
   mark(r, 'torch', 14, 9); mark(r, 'torch', 30, 9); mark(r, 'torch', 50, 9); mark(r, 'torch', 66, 9); mark(r, 'crystal', 22, 2); mark(r, 'crystal', 56, 2);
   return r;

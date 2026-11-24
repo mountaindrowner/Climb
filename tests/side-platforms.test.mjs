@@ -10,7 +10,7 @@ import { tally, islands, platforms } from './helpers/platforms.mjs';
 //                planks, of them touching nothing, rock in the air, has had its pass
 const BUDGET = {
   'The Roots':          [17, 2, 0, true],
-  'The Cloister':       [122, 81, 9],
+  'The Cloister':       [49, 10, 2, true],     // (build 101, its pass: 122 planks became 49. The two pieces of rock in the air are the pit's tongues' brackets: each tongue swings from the first rock over it)
   'The Spires':         [116, 67, 4],     // (+3 and +3, build 97: the Wyrm's hall, the broken pass: two shelves beside the gap and the slab over it, in the air by design, approved in docs/wyrm-sheet.md)
   'The Tempest':        [72, 43, 9],
   'The Gardens':        [117, 85, 8],

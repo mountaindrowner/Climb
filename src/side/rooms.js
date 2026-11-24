@@ -57,6 +57,9 @@ export function stairs(r, x, y, n, dir, run = 2){
 // between each and the next across the shaft, or he strikes his head on the one above as he leaps: he grabs the edge
 // and pulls up, which is what he is best at)
 export const shelf = (r, side, x, y, thick = 2) => { const w0 = 2, w1 = r.w - 3; if (side === 'L'){ rect(r, w0, y, x, y); if (thick > 1) rect(r, w0, y - thick + 1, w0 + Math.floor((x - w0) / 2), y - 1); } else { rect(r, x, y, w1, y); if (thick > 1) rect(r, x + Math.ceil((w1 - x) / 2), y - thick + 1, w1, y - 1); } };
+// a corbel out of any upright rock (a pillar, as well as a wall): from column x0 to x1, its top at row y, fixed to the
+// rock at its `side` end ('L': at x0, 'R': at x1). Two deep at that half, one at the outer half, as a shelf is
+export const corbel = (r, x0, x1, y, side, thick = 2) => { rect(r, x0, y, x1, y); if (thick > 1){ const h = Math.floor((x1 - x0) / 2); if (side === 'L') rect(r, x0, y - thick + 1, x0 + h, y - 1); else rect(r, x1 - h, y - thick + 1, x1, y - 1); } };
 // a pier, a boulder, a stalagmite: rock up from the floor (row 2) to row y
 export const pier = (r, x0, x1, y) => rect(r, x0, 2, x1, y);
 // rock hung from the roof down to row y; and, out from its foot toward column x, a step he can stand on (under a hole

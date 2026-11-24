@@ -13,7 +13,7 @@
 // rings the tongues swing (and hurt), the slag wakes and comes, the shutters come down. In silence the tongues hang
 // still, the slag is cold, the shutters are up. When the Cracked Bell falls the wing is still for good.
 // Everything here has `gate: 'breaker'`; the tests hold that none of it is reached without the spade.
-import { room, rect, walls, door, ledge, mark, stairs, EMPTY, LEDGE, SPIKES, SHUTTER, STILLED, CRACKED } from '../rooms.js';
+import { room, rect, walls, door, ledge, mark, shelf, pier, stairs, EMPTY, LEDGE, SPIKES, SHUTTER, STILLED, CRACKED } from '../rooms.js';
 
 const TITLE = 'THE BELL-FOUNDRY';
 const named = (fn, look = 'foundry') => { const f = () => { const r = fn(); r.title = TITLE; r.gate = 'breaker'; r.look = look; return r; }; Object.defineProperty(f, 'name', { value: fn.name }); return f; };
@@ -43,7 +43,7 @@ function casting(){
   for (const x of [20, 58]){ rect(r, x - 8, 2, x + 8, 4); rect(r, x - 5, 5, x + 5, 7); rect(r, x - 2, 8, x + 2, 8); tongue(r, x, 9); for (const dx of [-2, 0, 2]) keep(r, x + dx, 10); }
   // the hole the bells went down by, under the hoist: boards over it (the chain goes down through them, into the pit)
   rect(r, 36, 0, 43, 1, EMPTY); ledge(r, 36, 43, 1);
-  ledge(r, 6, 12, 12); mark(r, 'chest', 8, 13, { holds: 'shards' }); ledge(r, 66, 73, 12); mark(r, 'thread', 70, 13);   // on the hoist's galleries, off each crown
+  shelf(r, 'L', 12, 12); mark(r, 'chest', 8, 13, { holds: 'shards' }); shelf(r, 'R', 66, 12); mark(r, 'thread', 70, 13);   // on the hoist's galleries, off each crown (out of the walls' stone, since the map pass)
   mark(r, 'slag', 31, 2); mark(r, 'slag', 47, 2);
   for (const [k, x, y] of [['hoist', 40, 20], ['coldfurnace', 73, 2], ['ingots', 46, 2], ['crucible', 30, 20], ['crucible', 50, 20], ['moldhalf', 6, 2]]) deco(r, k, x, y);
   mark(r, 'torch', 4, 9); mark(r, 'torch', 33, 10); mark(r, 'torch', 47, 10); mark(r, 'torch', 76, 10); mark(r, 'urn', 10, 2); mark(r, 'urn', 69, 2); mark(r, 'crystal', 40, 2);
@@ -64,10 +64,10 @@ function molds(){
 }
 function slagruns(){
   const r = room(1, 2); walls(r); door(r, 'top', 32, 36); door(r, 'left', 2, 7); rect(r, 0, 2, 1, 7, SHUTTER);
-  for (const y of [38, 41, 44]) ledge(r, 32, 36, y);               // under the molds' hole: down by these, and back up
+  for (const y of [38, 44]) ledge(r, 32, 36, y);                   // under the molds' hole: down by these, and back up (one fewer since the map pass)
   // three runs, one under another, each sloping the other way; slag still hot in the dips
   run(r, 8, 37, 30, 35); run(r, 2, 31, 24, 19); run(r, 8, 37, 8, 13);
-  for (const [x, y] of [[20, 33], [12, 23], [26, 12]]){ rect(r, x, y - 1, x + 2, y + 1, EMPTY); rect(r, x, y - 2, x + 2, y - 2); rect(r, x, y - 1, x + 2, y - 1, SPIKES); }   // a dip in each, and what lies in it
+  for (const [x, y] of [[20, 33], [12, 23], [26, 12]]){ rect(r, x, y - 1, x + 2, y + 1, EMPTY); rect(r, x - 1, y - 2, x + 3, y - 2); rect(r, x, y - 1, x + 2, y - 1, SPIKES); }   // a dip in each, and what lies in it (its floor a tile wider each side: the run stays one piece of stone)
   rect(r, 14, 21, 14, 22);                                         // the middle dip is two wide: its far lip is a tile higher under a low roof, and he no longer takes an edge coming down (build 77)
   ledge(r, 2, 6, 28); ledge(r, 33, 37, 16); ledge(r, 2, 6, 5);     // from the end of each run up to the next
   tongue(r, 30, 35); tongue(r, 22, 22); tongue(r, 14, 10);
@@ -79,9 +79,9 @@ function slagruns(){
 function pit(){
   const r = room(2, 2); walls(r); door(r, 'right', 2, 7); door(r, 'top', 36, 43); door(r, 'left', 25, 30); rect(r, 0, 25, 1, 30, STILLED);
   // the galleries: up the west wall to the ringers' door, and a shorter climb on the east
-  for (const y of [5, 9, 13, 17, 21]) ledge(r, 2, 8, y); rect(r, 2, 23, 9, 24); for (const x of [2, 3, 4, 6]) for (const y of [25, 27]) keep(r, x, y);   // (the wear would bank the gallery up against the grate, and close the door behind it)
-  for (const y of [5, 9, 13]) ledge(r, 71, 77, y); mark(r, 'chest', 74, 14, { holds: 'shards' });
-  rect(r, 10, 20, 13, 21); tongue(r, 12, 9); rect(r, 66, 16, 69, 17); tongue(r, 67, 5);   // a tongue by each, hung from a bracket: no gallery is safe while anything rings
+  shelf(r, 'L', 12, 8, 1); for (const y of [13, 17, 21]) ledge(r, 2, 8, y); rect(r, 2, 23, 9, 24); for (const x of [2, 3, 4, 6]) for (const y of [25, 27]) keep(r, x, y);   // (the wear would bank the gallery up against the grate, and close the door behind it)
+  shelf(r, 'R', 70, 8, 1); ledge(r, 71, 77, 13); mark(r, 'chest', 74, 14, { holds: 'shards' });   // (the map pass, build 101: the lowest two steps each side are one shelf of the wall's stone)
+  rect(r, 10, 20, 13, 21); tongue(r, 12, 9); rect(r, 66, 16, 69, 17); tongue(r, 67, 5);   // (the map pass, build 101, left these two: each tongue swings from the first rock over it, and a beam to the roof boxed in the ringers' landing)   // a tongue by each, hung from a bracket: no gallery is safe while anything rings
   mark(r, 'crackedbell', 40, 2, { top: 44 });
   mark(r, 'slag', 18, 2); mark(r, 'slag', 30, 2); mark(r, 'slag', 58, 2);
   for (const [k, x, y] of [['moldhalf', 24, 2], ['moldhalf', 52, 2], ['ingots', 64, 2], ['ingots', 12, 2]]) deco(r, k, x, y);
@@ -91,12 +91,14 @@ function pit(){
 }
 function bellrope(){
   const r = room(); walls(r); door(r, 'right', 2, 7); door(r, 'top', 4, 9);
-  for (const y of [5, 9, 13, 17, 21]) ledge(r, 4, 9, y);           // the rungs
+  // (the map pass, build 101: five rungs in the air. Now two steps of stone, a shelf out of the wall under the hole, and
+  // a rung over it up into the hole)
+  pier(r, 17, 20, 4); pier(r, 12, 16, 8); shelf(r, 'L', 9, 13); ledge(r, 4, 9, 18); ledge(r, 4, 9, 21);   // the rungs
   rect(r, 18, 2, 26, 2);                                           // a low step, where what was kept here is kept
   mark(r, 'chest', 22, 3, { holds: 'relic:felt' });
   mark(r, 'chest', 30, 2, { holds: 'gift:dash', prize: 'still' });   // the wing's prize (build 87): what the Bell was cast to hold, and never did
-  for (const [k, x, y] of [['rope', 6, 20], ['tongues', 36, 2], ['ingots', 14, 2]]) deco(r, k, x, y);
-  mark(r, 'torch', 12, 9); mark(r, 'torch', 34, 9); mark(r, 'crystal', 19, 3); mark(r, 'urn', 34, 2);
+  for (const [k, x, y] of [['rope', 6, 20], ['tongues', 36, 2], ['ingots', 10, 2]]) deco(r, k, x, y);
+  mark(r, 'torch', 12, 11); mark(r, 'torch', 34, 9); mark(r, 'crystal', 19, 5); mark(r, 'urn', 34, 2);
   return r;
 }
 

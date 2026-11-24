@@ -4,7 +4,7 @@
 // hole cut through the floor at `link` (tile columns of the first room, boarded over) lets him up into the region.
 // title: what the place line says there. By region index: 1 the Crypt Stair (into the Cloister), 2 the Bell Road (the
 // Spires), 3 the Last Hut (the Tempest), 4 the Breach (the Gardens), 5 the Long Stair (the Firmament).
-import { room, rect, walls, door, ledge, mark, stairs, den, shelf, pier, EMPTY, LEDGE, SPIKES, CRACKED } from './rooms.js';
+import { room, put, rect, walls, door, ledge, mark, stairs, den, shelf, pier, corbel, EMPTY, ROCK, LEDGE, SPIKES, CRACKED } from './rooms.js';
 
 // the way up to a hole in the roof: ledges stacked in the hole's own columns, a jump apart (from beside it, the hole's
 // rock edge is in the way of a jump), from row y0 to just under the roof
@@ -20,17 +20,20 @@ function cryptfoot(){
   rect(r, 8, 1, 16, 1, EMPTY); mark(r, 'pool', 8, 1, { w: 9, look: 'arch' });   // the water, run down the stair and pooled under the founders' niche: the Cloister's raising water
   // Ordric's lamp-room, at the water's edge: the founders cut one by every water, so a lamp could be kept there. The
   // way up to the stair goes over its roof (a plank over the water first)
-  den(r, 18, 27, 2, 6, { open: 'L', back: 2 }); ledge(r, 13, 16, 5);
-  shaftUp(r, 30, 35, 6, 18);                                                  // up to the stair's mouth
+  den(r, 18, 27, 2, 6, { open: 'L', back: 2 }); corbel(r, 13, 17, 7, 'R', 1); put(r, 17, 8, ROCK);   // (since the map pass a step of the den's stone, not a plank, joined to its roof by a step)
+  ledge(r, 30, 35, 6); shelf(r, 'R', 30, 13); ledge(r, 30, 35, 18); keepUp(r, 31, 34, 14, 20);   // up to the stair's mouth: a rung off the den, a shelf of the wall, a rung under the hole
   mark(r, 'spawn', 4, 2); mark(r, 'crystal', 14, 2); mark(r, 'urn', 36, 2);   // no creature in the water's room
   return r;
 }
 function founders(){
   const r = room(1, 2); walls(r); door(r, 'bottom', 30, 35); ledge(r, 30, 35, 1);
   // the founders' tombs in the walls, one over another, each a niche of rock with a light in it
-  for (const [x, y] of [[2, 9], [36, 15], [2, 21], [36, 27], [2, 33], [36, 39]]){ rect(r, x, y, x + 1, y + 3); mark(r, 'crystal', x < 20 ? x + 3 : x - 2, y); }
-  for (const [x0, x1, y] of [[22, 28, 7], [12, 18, 12], [22, 28, 17], [12, 18, 22], [22, 28, 27]]){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); }
-  shaftUp(r, 29, 35, 31, 43);
+  for (const [x, y] of [[2, 9], [36, 15], [2, 21], [36, 27], [2, 33], [36, 39]]) rect(r, x, y, x + 1, y + 3);
+  // (the map pass, build 101: the way up was planks in the air. Now the founders' stone: shelves out of one wall and
+  // the other, six rows apart, a crystal on each; and at the top, too near the roof for a step, a ladder in a flue
+  // under the hole: two rungs wall to wall)
+  for (const [side, y] of [['R', 7], ['L', 12], ['R', 17], ['L', 22], ['R', 27], ['L', 32]]){ shelf(r, side, side === 'L' ? 17 : 22, y, y === 7 ? 1 : 2); mark(r, 'crystal', side === 'L' ? 5 : 34, y + 1); }   // (the first one thin: it is over the hole he comes up by)
+  shelf(r, 'R', 22, 33, 1); rect(r, 29, 39, 29, 43); rect(r, 36, 39, 36, 43); ledge(r, 30, 35, 39); ledge(r, 30, 35, 43); keepUp(r, 31, 34, 34, 42);
   mark(r, 'torch', 6, 30); mark(r, 'torch', 33, 34); mark(r, 'torch', 8, 40); mark(r, 'torch', 34, 43);   // the light comes down from the house
   mark(r, 'urn', 25, 18); mark(r, 'urn', 14, 23); mark(r, 'chest', 25, 28, { holds: 'shards' }); mark(r, 'wisp', 20, 36);
   return r;
@@ -148,11 +151,11 @@ function lowflights(){
   rect(r, 2, 2, 37, 13);
   stairs(r, 31, 14, 8, -1, 3); rect(r, 2, 2, 7, 21);                 // the first flight, and its landing at the west wall
   mark(r, 'runnel', 8, 22, { n: 8, run: 3, dir: 1 });                // the water, down it
-  steps(r, [[10, 13, 24], [16, 19, 26], [22, 25, 28], [28, 31, 30]]); rect(r, 33, 31, 37, 32);   // back over it, to a shelf on the east wall
-  ledge(r, 10, 32, 32); for (const x of [14, 20, 26]) mark(r, 'keep', x, 34);                    // the plank over the well
+  steps(r, [[10, 13, 24], [16, 19, 26]]); corbel(r, 22, 37, 31, 'R', 1);   // back over it, to a shelf out of the east wall (the map pass, build 101: the two steps in the air went; the shelf reaches back for them)
+  ledge(r, 10, 21, 31); for (const x of [14, 20, 26]) mark(r, 'keep', x, 33);                    // the plank over the well, to the shelf
   headL(r);
-  for (const [x, y] of [[35, 14], [4, 22], [35, 33], [7, 33]]){ deco(r, 'tomb', x, y); deco(r, 'plaque', x, y + 4); }   // the founders, oldest lowest
-  mark(r, 'crystal', 33, 14); mark(r, 'crystal', 6, 22); mark(r, 'torch', 20, 36); mark(r, 'urn', 36, 33);
+  for (const [x, y] of [[35, 14], [4, 22], [35, 32], [7, 33]]){ deco(r, 'tomb', x, y); deco(r, 'plaque', x, y + 4); }   // the founders, oldest lowest
+  mark(r, 'crystal', 33, 14); mark(r, 'crystal', 6, 22); mark(r, 'torch', 20, 36); mark(r, 'urn', 36, 32);
   return r;
 }
 // the Breach, storm side: storm and garden both. Drowned beds, torn trellis, a gate hanging by one hinge; a nimbus

@@ -11,14 +11,14 @@
 //   lectern      the book they copy, open at its first page; a relic. A chute in its floor, for spoiled leaves, goes
 //                down past the furnace to the top of the stacks: the way back
 // Everything past the vellum has `gate: 'dash'`; the tests hold that none of it is reached without the Toll's step.
-import { room, rect, walls, door, ledge, mark, EMPTY, VELLUM } from '../rooms.js';
+import { room, rect, walls, door, ledge, mark, shelf, corbel, EMPTY, VELLUM } from '../rooms.js';
 
 const TITLE = 'THE SCRIPTORIUM';
 const named = (fn, look, gate = 'dash') => { const f = () => { const r = fn(); r.title = TITLE; r.gate = gate; r.look = look; return r; }; Object.defineProperty(f, 'name', { value: fn.name }); return f; };
 const deco = (r, kind, x, y) => mark(r, 'deco', x, y, { kind });
 const keep = (r, x, y) => mark(r, 'keep', x, y);
-// a desk to stand on: a short plank, and what is on it
-const desk = (r, x, y, who) => { ledge(r, x, x + 4, y); keep(r, x + 2, y + 2); if (who === 'c') mark(r, 'copyist', x + 2, y + 1, { dir: who === 'c' ? (x < r.w / 2 ? 1 : -1) : 1 }); else if (who) deco(r, who, x + 2, y + 1); };
+// a desk, on the stone at row y (since the map pass, build 101, not a plank of its own), and what is on it
+const desk = (r, x, y, who) => { keep(r, x + 2, y + 2); if (who === 'c') mark(r, 'copyist', x + 2, y + 1, { dir: who === 'c' ? (x < r.w / 2 ? 1 : -1) : 1 }); else if (who) deco(r, who, x + 2, y + 1); };
 
 function stacks(){
   const r = room(); walls(r); door(r, 'right', 12, 17); door(r, 'left', 2, 7); door(r, 'top', 32, 37);
@@ -34,20 +34,38 @@ function stacks(){
 function hall(){
   const r = room(2, 2); walls(r); door(r, 'right', 2, 7); door(r, 'right', 25, 30); door(r, 'top', 6, 11);
   // the pillars of shelves, floor to roof but for the ways through them
-  for (const x of [26, 52]){ rect(r, x, 2, x + 2, 43); rect(r, x, 8, x + 2, 13, EMPTY); rect(r, x, 20, x + 2, 25, EMPTY); rect(r, x, 32, x + 2, 37, EMPTY); }
-  // the desks: he climbs across them. In by the east door at the floor; up the east bay to the first way through the
-  // pillars; up the middle bay; west through the second, and up the west bay to the hole in the roof. The east bay's
-  // middle goes to the furnace. The top of the middle bay, through the third way, comes to a sheet of vellum
-  for (const [x, y, w] of [[66, 5, 0], [58, 7, 0], [45, 8, 'inkpot'], [37, 11, 0], [44, 14, 0], [36, 17, 0], [47, 17, 0],
-    [58, 20, 0], [66, 22, 'spoils'], [20, 20, 0], [10, 23, 0], [18, 26, 'c'], [8, 29, 0], [16, 32, 0], [8, 35, 0], [20, 39, 0],
-    [16, 7, 'c'], [6, 12, 'spoils'], [66, 13, 'c'], [38, 23, 'c'], [31, 31, 0], [40, 34, 'c'], [46, 31, 0]]) desk(r, x, y, w);
-  ledge(r, 70, 77, 24);                                            // the step to the furnace's door
-  for (const y of [38, 42]) ledge(r, 6, 11, y);                    // up to the red room
+  // (the map pass: the ways through them that no way uses are filled, so no piece of a pillar hangs between two: the
+  // west pillar stands from the floor to its way through and hangs from the roof above it; the east pillar's middle
+  // is held by the alcove's floor)
+  for (const x of [26, 52]) rect(r, x, 2, x + 2, 43);
+  rect(r, 26, 20, 28, 25, EMPTY); rect(r, 52, 8, 54, 13, EMPTY); rect(r, 52, 32, 54, 37, EMPTY);
+  // (the map pass, build 101: the desks were planks hung in the air. Now the tiers are the house's own stone, corbels
+  // out of the walls and the pillars, a side and then the other, five or six rows apart, and the copyists' desks stand
+  // on them.) In by the east door at the floor; up the east bay to the first way through the pillars (and on up it to
+  // the furnace's door); up the middle bay, west through the second, and up the west bay to the hole in the roof. The
+  // top of the middle bay, through the third way, comes to a sheet of vellum
+  // the east bay
+  corbel(r, 55, 61, 7, 'L', 1); shelf(r, 'R', 66, 13); corbel(r, 55, 65, 19, 'L'); shelf(r, 'R', 70, 24);
+  // the middle bay
+  corbel(r, 44, 51, 7, 'R', 1); corbel(r, 29, 38, 13, 'L'); corbel(r, 46, 51, 18, 'R'); corbel(r, 29, 37, 19, 'L', 1);
+  corbel(r, 42, 51, 25, 'R'); corbel(r, 29, 36, 30, 'L'); corbel(r, 43, 51, 31, 'R', 1);
+  // the west bay
+  corbel(r, 19, 25, 7, 'R', 1); shelf(r, 'L', 15, 13); corbel(r, 18, 25, 19, 'R'); shelf(r, 'L', 14, 24); corbel(r, 20, 25, 29, 'R'); shelf(r, 'L', 13, 34); corbel(r, 21, 25, 38, 'R');
+  // a ladder up through the roof: a short flue under its hole, two rungs wall to wall (too near the roof for a step:
+  // only straight up reaches it)
+  rect(r, 5, 40, 5, 43); rect(r, 12, 40, 12, 43); ledge(r, 6, 11, 40); ledge(r, 6, 11, 44);
+  // the air over every tier, and out past its lip, is kept: the rock's wear would swell each from under, and leave too
+  // little room on the one below (the map pass's rule 8)
+  for (const [x0, x1, y] of [[55, 69, 7], [62, 77, 13], [55, 69, 19], [66, 77, 24], [40, 51, 7], [29, 42, 13], [39, 51, 18], [29, 39, 19], [38, 51, 25], [29, 42, 30], [39, 51, 31],
+    [2, 16, 13], [15, 25, 7], [14, 25, 19], [2, 16, 24], [13, 25, 29], [2, 17, 34], [14, 25, 38]]) for (let x = x0; x <= x1; x += 2) for (const dy of [1, 3, 5]) if (r.tiles[y + dy][x] === EMPTY) keep(r, x, y + dy);
+  // the desks on the stone, and who is at them
+  for (const [x, y, w] of [[56, 7, 'inkpot'], [67, 13, 'c'], [58, 19, 0], [45, 7, 0], [31, 13, 0], [44, 25, 'c'], [31, 30, 0], [45, 31, 0],
+    [19, 19, 0], [5, 24, 'c'], [18, 29, 'c'], [6, 34, 'spoils'], [16, 1, 'c'], [20, 38, 0]]) desk(r, x, y, w);
   // sheets hung between the pillars: an alcove behind one, in the east bay's top
-  rect(r, 55, 32, 55, 37, VELLUM); rect(r, 56, 31, 77, 31); mark(r, 'chest', 72, 32, { holds: 'thread' }); mark(r, 'crystal', 68, 32);
+  rect(r, 55, 32, 55, 37, VELLUM); rect(r, 55, 31, 77, 31); mark(r, 'chest', 72, 32, { holds: 'thread' }); mark(r, 'crystal', 68, 32);
   mark(r, 'blot', 14, 2); mark(r, 'blot', 40, 2); mark(r, 'blot', 62, 2);
   for (const [k, x, y] of [['washline', 12, 22], ['washline', 40, 24], ['washline', 64, 14], ['washline', 20, 34], ['lamp', 39, 40], ['lamp', 14, 41], ['lamp', 66, 41], ['spoils', 33, 2], ['spoils', 70, 2], ['bookcase', 5, 2]]) deco(r, k, x, y);
-  mark(r, 'urn', 4, 2); mark(r, 'urn', 47, 2); mark(r, 'urn', 73, 25); mark(r, 'chest', 22, 40, { holds: 'shards' });
+  mark(r, 'urn', 4, 2); mark(r, 'urn', 47, 2); mark(r, 'urn', 73, 25); mark(r, 'chest', 22, 39, { holds: 'shards' });
   return r;
 }
 function furnace(){

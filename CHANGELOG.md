@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Wyrm's faces (latest; build 100).** Its mouth truly shuts (a drawing of its own); it winces when hit, is dazed while stuck, angry from half health, and glows as it draws breath. 491 checks. No save is moved.
+**The Cloister in stone (latest; build 101).** Its map pass: the Cloister, its wings and its passage climb on their own stone. 122 planks became 49, none in the air (rungs, steps off a wall, stagings). 492 checks. No save is moved.
+
+**The Wyrm's faces (build 100).** Its mouth truly shuts (a drawing of its own); it winces when hit, is dazed while stuck, angry from half health, and glows as it draws breath. 491 checks. No save is moved.
 
 **The Wyrm from the far peak (build 99).** Its new look (a horned, frilled head drawn by PixelLab; a ridged body; a bladed tail), a quarter larger. Seen coiled on a far peak from the eyrie and the span; it lifts its head when he comes into view, and its coming starts from that peak (three seconds far off). A sound for every piece of its ice, its wings going across the room. 490 checks. No save is moved.
 

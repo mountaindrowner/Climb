@@ -164,3 +164,43 @@ Use **Try a place** on the title screen, and pick the Roots.
 - **The Warden's fight was not replayed by a person** with the stage's hole changed (a stone step in it, not planks).
   His real jump clears it in the checks.
 - Nothing here has been played by a person. This build exists to be compared, by you, with the Cloister.
+
+## The Cloister, room by room (build 101)
+
+*Your word, 24 Nov: "Do the platform replacement idea." The Cloister and its two wings and its passage, as the Roots
+was. `docs/cloister-map-pass.png` is the region before and after; `docs/cloister-map-pass-rooms.png`, four rooms in
+the game.*
+
+**122 planks became 49**, in 50 screens; nine pieces of rock in the air became two. Of the 49: 21 are rungs (wall to
+wall in a flue, or in a hole's mouth), 18 are steps off a wall, 10 are stagings with ground under them. None is bare.
+
+| Room | Before | After |
+|---|---|---|
+| Scriptorium hall | 26 desks hung in the air, six ways through two pillars | The tiers are the house's stone: corbels out of the walls and pillars, a side and then the other, the desks and copyists on them. The three ways through the pillars no one used are filled, so no piece of a pillar hangs between two. Up through the roof: **2 kept**, a ladder of two rungs in a flue, too near the roof for anything but straight up |
+| Belfry | 14 planks up three screens | A boulder at the tower's foot, Mirel's rock (the first turn) wider, then eight shelves out of one wall and the other, the doors' landings among them. **None kept** |
+| Founders' passage | 10 | Six shelves out of the walls among the founders' tombs, a crystal on each; a ladder of two rungs in a flue under the hole. **3 kept** (the rungs, and the boards over the way in) |
+| Stairwell | 10 | The step in the air went (the step off the wall above reaches back to the stair); the ledge before the walled-up cell is a corbel of the rock over the landing; the rungs up to the refectory have a stone side. **8 kept**, all steps off a wall or rungs |
+| Nave | 5 galleries | Two tombs and a plinth up from the floor, a hop each; the chest and a crystal on them. Corwen's stone gallery, which hung in the air over the west door, rests on the wall (the door is a row lower). **1 kept** |
+| Cloister walk | 5 | A boulder, a step hung from the vaulting, a step hung from the east wall under the chapel's hole, the floor clear under them for the way to the belfry. **2 kept** (the rungs up through the hole) |
+| Library, chapel | 2 galleries each | Shelves out of the walls at the same heights. The chapel's are the Toll's refuges, as before |
+| Crypt's foot | 6 | The plank over the water is a step of Ordric's den; a shelf of the wall under the stair's mouth. **4 kept** |
+| Lower flights | 7 | The two steps in the air went; a shelf out of the east wall reaches back for them, and the plank over the well rests on it. **5 kept** |
+| The pit (the Cracked Bell) | 8 steps up its walls | The lowest two each side are one shelf of the wall's stone, high enough to walk under. **4 kept**. The bell's floor is untouched |
+| Bell-rope room | 5 rungs | Two steps of stone, a shelf under the hole, a rung over it. **2 kept** |
+| Casting floor | 2 galleries in the air | Shelves out of the walls |
+| Slag runs | 6; two runs cut in two by their dips | One rung fewer; each dip's floor a tile wider, so its run stays one piece of stone |
+
+**Kept as they were:** the slype's and the molds' ladders, the undercroft's step between the tombs, the refectory's
+table, the boards over each hole.
+
+**The two pieces of rock still in the air** are the pit's two brackets, each a tongue hangs from. A tongue swings from
+the first rock over it, so they shape the Bell's fight; a beam up to the roof boxed in the ringers' landing. They are
+the budget's two (`tests/side-platforms.test.mjs`).
+
+**What I learned (and the checks now hold):**
+
+- **The wear swells new stone from under** and can leave four rows where there were six. In a room of tiers, the air
+  over each tier and out past its lip is marked to keep (rule 8 of the pilot). The Scriptorium hall needed it.
+- **A shelf above must not overhang the lip below** where he jumps from. The simpler map check found four of these
+  that the motor squeezed past; each is narrowed or widened so the jump has open air.
+- **Within five rows of a roof, only straight up works.** Every hole in a roof keeps a ladder in a flue under it.
