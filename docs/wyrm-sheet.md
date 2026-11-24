@@ -142,5 +142,11 @@ picture, and its jaw, stay exactly as they are, so each face swaps in over the o
 4. **Drawing breath:** PixelLab's try turned the whole head into glowing ice. Better done in the game, as a glow
    rising in the head it has, than as a drawing.
 
+**And its mouth** (you: "none of them open the mouth or close it"). Its mouth is not in the faces: the jaw is a piece
+of its own that swings. But swung shut it never looked shut (the inside of the mouth and the upper teeth still showed).
+So: a drawing of the head with its mouth closed (PixelLab, tidying the join of the jaw swung shut: `faces/seam_1.png`),
+shown when its mouth is shut, and the jaw swinging open from there. `docs/wyrm-faces.png` is now each face with its
+mouth shut, half open and wide. (Its snout is a little rounder in the closed drawing than in the open one.)
+
 The rest of what PixelLab made is in `docs/wyrm-looks/faces/` (an angry try that moved its eye, one that grew a red
 crest, and a breath that broke its snout: not shown).
