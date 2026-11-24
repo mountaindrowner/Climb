@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 101 | 24 Nov 2026 | `COMMITNN` | The Cloister's map pass: its height from its own stone, 122 planks to 49, none in the air | no | yes (now) |
+| 101 | 24 Nov 2026 | `125baa0` | The Cloister's map pass: its height from its own stone, 122 planks to 49, none in the air | no | yes (now) |
 | 100 | 24 Nov 2026 | `e96cf7f` | The Wyrm's faces: its mouth shuts, it winces when hit, is dazed when stuck, angry from half health, and glows as it draws breath | no | replaced by 101 |
 | 99 | 24 Nov 2026 | `3a809c1` | The Wyrm's new look (head drawn by PixelLab), seen on its far peak before the summit, and a sound for every piece of its ice | no | replaced by 100 |
 | 98 | 24 Nov 2026 | `0484c9a` | A dev tool: try any place with all six weapons | no | replaced by 99 |
