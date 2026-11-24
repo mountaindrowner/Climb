@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 96 | 24 Nov 2026 | `COMMIT96` | The weapon on his back: when he climbs onto an edge, gets up or takes a gift, whatever he carries is slung behind him | no | yes (now) |
+| 96 | 24 Nov 2026 | `a21b0de` | The weapon on his back: when he climbs onto an edge, gets up or takes a gift, whatever he carries is slung behind him | no | yes (now) |
 | 95 | 23 Nov 2026 | `d659a60` | A heart behind the Tempest's Jar, a drink behind the Gardens' Lock, each in a prize chest | no | replaced by 96 |
 | 94 | 23 Nov 2026 | `1e890d4` | Mother Thorn's thorns: five fast cuts and a burst. The six weapons are done | no | replaced by 95 |
 | 93 | 23 Nov 2026 | `6484af5` | The Thunderhead's storm bow: free arrows across the room; the third goes through; shots up, and down from the air | no | replaced by 94 |
