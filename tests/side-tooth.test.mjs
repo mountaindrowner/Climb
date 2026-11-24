@@ -80,3 +80,8 @@ test('the thorns: the fastest and the shortest; five cuts where the sword makes 
   const t = ST.TEACH[4]; assert.equal(t.arm, 'thorns'); assert.ok(!t.flask); for (const l of [t.does, ...t.how, ...(t.more || [])]) assert.ok(l.length <= 110, l);
   assert.deepEqual(ST.TEACH.filter(k => k.arm).map(k => k.arm), ['spade', 'clapper', 'tooth', 'bow', 'thorns'], 'every keeper of the climb leaves a weapon');
 });
+test('where his hands are busy his weapon is on his back: a climb, a getting up and a taking of a gift for each of the six', () => {
+  for (const id of Object.keys(M.ARMS)){ for (const n of ['climb', 'getup', 'receive']){ const A = meta.anims[`bk_${id}_${n}`]; assert.ok(A && A.n, `${id}: ${n}`); }
+    const C = meta.anims[`bk_${id}_climb`].climb; assert.ok(C && Object.keys(C.corner).length === meta.anims[`bk_${id}_climb`].frames, `${id}: every frame of the climb has its corner`); const d = Object.keys(C.depth).sort((a, b) => a - b).map(k => C.depth[k]); assert.ok(d.every((v, i) => !i || v <= d[i - 1]) && d[d.length - 1] === 0, `${id}: he only rises (${d})`); }
+  assert.ok(src('main.js').includes("const bk = n => has('bk_' + (P.weapon || 'blade') + '_' + n)"));
+});

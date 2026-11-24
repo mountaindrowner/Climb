@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 95 | 23 Nov 2026 | `d659a60` | A heart behind the Tempest's Jar, a drink behind the Gardens' Lock, each in a prize chest | no | yes (now) |
+| 96 | 24 Nov 2026 | `COMMIT96` | The weapon on his back: when he climbs onto an edge, gets up or takes a gift, whatever he carries is slung behind him | no | yes (now) |
+| 95 | 23 Nov 2026 | `d659a60` | A heart behind the Tempest's Jar, a drink behind the Gardens' Lock, each in a prize chest | no | replaced by 96 |
 | 94 | 23 Nov 2026 | `1e890d4` | Mother Thorn's thorns: five fast cuts and a burst. The six weapons are done | no | replaced by 95 |
 | 93 | 23 Nov 2026 | `6484af5` | The Thunderhead's storm bow: free arrows across the room; the third goes through; shots up, and down from the air | no | replaced by 94 |
 | 92 | 23 Nov 2026 | `9e3a209` | The Toll's clapper, a flail: the longest reach, a blow that rings creatures to a stop; the Toll leaves it, not a heart | no | replaced by 93 |
@@ -111,6 +112,39 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 96: the weapon on his back
+
+*Your word, 24 Nov: "Yes, all of that sounds cool. Do it." The six pictures of him with each weapon slung
+(`docs/weapon-on-back.png`), and from each the drawings for where both his hands are busy.*
+
+**For the player**
+
+- **When he climbs onto an edge, gets up after a fall, or takes a gift,** whatever weapon he carries is on his back
+  and his hands are empty (`docs/weapon-on-back-in-game.png`). Until now he held his sword through all of those,
+  whatever was in his hand.
+- **Six climbs,** one for each weapon, each put together from his own reach, his crouch and his standing picture with
+  that weapon slung, as the sword's climb was (`docs/weapon-on-back-climbs.png`).
+
+**What is weaker than it should be**
+
+- **The reach in each climb is his arms thrown up and out,** not a hand hooked over the edge: the jumps made for it
+  turned him to face us in their later frames, so only their first, side-on reach is used.
+- **Getting up begins kneeling,** not lying: none of the six strips would start him flat on the ground.
+- **Rough rock has no drawing of its own** (he shows his drawing in the air while he grips it, as before). It is in
+  the Deep, which is shut.
+- **Swimming is drawn as falling,** as before, with the weapon in his hand.
+
+- **Underneath:** `assets/side/mask_tall_c/bk_<weapon>_climb|getup|receive.png` (18 strips and their normal maps),
+  `tools/compose-climb-back.py` (new: each climb and its table of where the ledge's corner is; he only rises),
+  `docs/weapons/back/` (the 24 strips as made), `main.js` (`heroPose`: `bk`). A check in `tests/side-tooth.test.mjs`.
+- **Save: not moved.**
+- **Checked:** 479 checks pass (the whole suite once with one failing: a check for the spade's old drawings matched the new `bk_spade_` ones, the hammer on his back; narrowed, and its file run again). In the test browser: the same ledge climbed with each of the six; a gift taken.
+
+**To try**
+
+1. With each weapon in hand, jump at an edge and watch him haul over it.
+2. Take a gift (a keeper's, a prize chest's) with something other than the sword in hand.
 
 ### Build 95: a heart and a drink, kept
 

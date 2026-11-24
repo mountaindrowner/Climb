@@ -1772,5 +1772,35 @@
     "group": "010b6cb2-5acd-48ce-822e-51265cabcc0e"
    }
   }
+ },
+ "back_blade": {
+  "id": "9cd0aad3-0374-4292-aa98-6b6f63457d33",
+  "description": "the hero (mask_tall_c), a state of him: his weapon slung on his back, hands empty",
+  "anims": {}
+ },
+ "back_hammer": {
+  "id": "384b5ebf-3a46-4264-b146-f1f6bb820f92",
+  "description": "the hero (mask_tall_c), a state of him: his weapon slung on his back, hands empty",
+  "anims": {}
+ },
+ "back_clapper": {
+  "id": "c7cc6ec1-459d-499f-a8c5-a8e987af6522",
+  "description": "the hero (mask_tall_c), a state of him: his weapon slung on his back, hands empty",
+  "anims": {}
+ },
+ "back_tooth": {
+  "id": "9d113c5e-bc27-4702-88be-1815f06f2087",
+  "description": "the hero (mask_tall_c), a state of him: his weapon slung on his back, hands empty",
+  "anims": {}
+ },
+ "back_bow": {
+  "id": "6d10e279-7331-4073-b593-3d48549fcb65",
+  "description": "the hero (mask_tall_c), a state of him: his weapon slung on his back, hands empty",
+  "anims": {}
+ },
+ "back_thorns": {
+  "id": "5163db0b-009c-4bff-abae-cb2bc7b7e5a1",
+  "description": "the hero (mask_tall_c), a state of him: his weapon slung on his back, hands empty",
+  "anims": {}
  }
 }

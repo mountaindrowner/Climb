@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 95, date: '23 NOV 2026', phase: 17, phases: 22, last: 'A HEART AND A DRINK, KEPT' };
+const VERSION = { build: 96, date: '24 NOV 2026', phase: 17, phases: 22, last: 'THE WEAPON ON HIS BACK' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -774,8 +774,10 @@ function heroPose(P, t){
   // with the hammer in hand, its own drawing where there is one (build 89: a whole set, `hm_`, made from one picture of
   // him holding it, docs/weapons-sheet.md; until then nine drawings of the spade it used to be)
   const pre = weaponOf(P).pre, held = n => pre && has(pre + n) ? pre + n : n;   // (build 91: by the weapon's own prefix, motor.js ARMS)
-  if (WAKE > 0 && has('getup')) return ['getup', Math.min(0.999, Math.max(0, 1 - WAKE / 1.4))];   // where he fell: up off the ground
-  if (RECEIVE > 0 && has('receive')) return ['receive', Math.min(0.999, 1 - RECEIVE / RECEIVE_T)];   // taking a keeper's gift
+  // where his hands are busy, his weapon is on his back (build 96; agreed 22 Nov): his climb, his getting up, his taking a gift
+  const bk = n => has('bk_' + (P.weapon || 'blade') + '_' + n) ? 'bk_' + (P.weapon || 'blade') + '_' + n : n;
+  if (WAKE > 0 && has('getup')) return [bk('getup'), Math.min(0.999, Math.max(0, 1 - WAKE / 1.4))];   // where he fell: up off the ground
+  if (RECEIVE > 0 && has('receive')) return [bk('receive'), Math.min(0.999, 1 - RECEIVE / RECEIVE_T)];   // taking a keeper's gift
   if (P.art){ if (P.art.k === 'slam' && P.weapon === 'spade' && has('hm_atk3')) return ['hm_atk3', (6 + Math.min(5.99, P.art.t / P.art.dur * 6)) / 12];   // the slam, with the hammer: its great blow
     if (P.weapon === 'tooth'){ const u = Math.min(0.999, P.art.t / P.art.dur), a = { cleave: ['tt_atk3', (4 + u * 7) / 12], gust: ['tt_up', (5 + u * 6) / 12], slam: ['tt_land', u] }[P.art.k]; if (a && has(a[0])) return a; }
     if (P.weapon === 'thorns'){ const u = Math.min(0.999, P.art.t / P.art.dur), a = { cleave: ['th_atk3', (5 + u * 6.9) / 12], gust: ['th_up', (3 + u * 7.9) / 11], slam: ['th_land', u] }[P.art.k]; if (a && has(a[0])) return a; }
@@ -783,7 +785,7 @@ function heroPose(P, t){
     if (P.weapon === 'clapper'){ const u = Math.min(0.999, P.art.t / P.art.dur), a = { cleave: ['cl_atk1', (5 + u * 6) / 12], gust: ['cl_up', (6 + u * 5) / 12], slam: ['cl_atk2', (4 + u * 7) / 12] }[P.art.k]; if (a && has(a[0])) return a; }   // the arts, with the tooth: its charge, its upward thrust, a landing
     const name = { cleave: 'atk_dash_px', gust: 'atk_rise_px', slam: 'plunge_land' }[P.art.k]; if (has(name)) return [name, Math.min(0.999, P.art.t / P.art.dur)]; }   // an ember art
   if (P.mantle && pick('climb')){
-    const name = pick('climb'), C = CLIMB[name] || A[name].climb, M = P.mantle;   // climb_own carries its table (tools/compose-climb.py)
+    const name = has(bk('climb')) && bk('climb') !== 'climb' ? bk('climb') : pick('climb'), C = CLIMB[name] || A[name].climb, M = P.mantle;   // climb_own carries its table (tools/compose-climb.py)
     if (C && M.wall != null){
       const n = A[name].frames, hpx = (M.y1 - M.y0) * 16; let f0 = C.first; while (f0 < n - 2 && C.depth[f0] > hpx + 5) f0++;   // the frame that fits where he caught it
       const f = Math.min(n - 1, f0 + Math.floor(M.t / M.dur * (n - f0))), [cx, foot] = C.corner[f];

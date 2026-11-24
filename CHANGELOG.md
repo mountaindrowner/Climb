@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**A heart and a drink, kept (latest; build 95).** A heart in a prize chest behind the Tempest's Jar, a drink behind the Gardens' Lock. 478 checks. No save is moved.
+**The weapon on his back (latest; build 96).** When he climbs onto an edge, gets up or takes a gift, whatever he carries is slung on his back and his hands are empty: six climbs, one a weapon. 479 checks. No save is moved.
+
+**A heart and a drink, kept (build 95).** A heart in a prize chest behind the Tempest's Jar, a drink behind the Gardens' Lock. 478 checks. No save is moved.
 
 **The thorns, and the six weapons done (build 94).** Mother Thorn leaves the thorns: a pair of hooked blades, five fast cuts then a burst; the shortest reach; no block. Every keeper of the climb now leaves a weapon. 477 checks. No save is moved.
 

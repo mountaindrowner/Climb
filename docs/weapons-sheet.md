@@ -297,3 +297,6 @@ of the hero; the ids are in `docs/weapon-looks.json`, under `on_back`).
 a weapon, twenty-four in all. Today those show him with the sword in hand, whatever he carries.
 
 **For you:** yes to the six, or which to try again?
+
+**Approved and done** (24 Nov, build 96): the six pictures, and from them his climb, his getting up and his taking a
+gift with each weapon on his back.

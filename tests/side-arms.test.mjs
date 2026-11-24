@@ -25,6 +25,6 @@ test('the spade: a whole weapon. Three slow blows, the last with a wave; further
   // weapon shows; each blow's drawing is one he has, and lands inside its strip)
   for (const a of ['hm_idle', 'hm_run', 'hm_air', 'hm_land', 'hm_crouch', 'hm_crouch_walk', 'hm_roll', 'hm_hurt', 'hm_atk1', 'hm_atk2', 'hm_atk3', 'hm_plunge', 'receive']) assert.ok(meta.anims[a] && meta.anims[a].n, `his drawing ${a}`);
   for (const m of spade.matchAll(/anim: '(\w+)', hit: (\d+) \/ (\d+)/g)){ const A = meta.anims[m[1]]; assert.ok(A, m[1]); assert.equal(A.frames, +m[3], `${m[1]}: the blow is counted in its own frames`); assert.ok(+m[2] < +m[3]); }
-  assert.ok(!Object.keys(meta.anims).some(a => /spade/.test(a)), 'the spade\'s drawings are gone');
+  assert.ok(!Object.keys(meta.anims).some(a => /^(spade_|atk_spade)/.test(a)), 'the spade\'s drawings are gone');   // (bk_spade_*: the hammer on his back, build 96)
   const feet = new Set(['hm_idle', 'hm_run', 'hm_atk1', 'hm_atk3', 'hm_roll'].map(a => meta.anims[a].foot + ':' + meta.anims[a].cx)); assert.equal(feet.size, 1, 'every strip stands him in the same place');
 });
