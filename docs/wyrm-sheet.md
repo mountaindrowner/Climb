@@ -129,3 +129,18 @@ beside it for size.
 **What changes in the game with either:** the pieces' sizes, where the jaw hinges and where its eye glows (the eye's
 light sits in the drawn socket). Its moves stay as they are. **I would take B,** perhaps with the whole creature a
 quarter larger, so the head is a match for him.
+
+## Its faces, for your word (24 Nov)
+
+You asked whether its face changes. It did not: one drawing, its jaw and the colour of its eye's glow aside.
+`docs/wyrm-faces.png`: faces PixelLab drew by repainting only the eye and brow of the head (the rest of the
+picture, and its jaw, stay exactly as they are, so each face swaps in over the one head):
+
+1. **Angry**, from half health: a narrowed red eye under a spiked, scowling brow.
+2. **A wince**, for a moment each time it is hit: two tries, a and b.
+3. **Dazed**, while its head is stuck in the ice.
+4. **Drawing breath:** PixelLab's try turned the whole head into glowing ice. Better done in the game, as a glow
+   rising in the head it has, than as a drawing.
+
+The rest of what PixelLab made is in `docs/wyrm-looks/faces/` (an angry try that moved its eye, one that grew a red
+crest, and a breath that broke its snout: not shown).
