@@ -12,7 +12,7 @@
 // Its rule (rooms.js KEPT; level.js RULE.upset, RULE.unkept). Disturb nothing. A setting broken is a thing out of its place: the
 // Housekeeper comes by the servants' doors to set it right, and strikes whoever is in its reach on that floor; and
 // while anything is out of its place his own house is shut. To strike the Housekeeper is the worst of it.
-import { rect, door, ledge, mark, cave, EMPTY, ROCK, VELLUM, KEPT } from '../rooms.js';
+import { rect, door, ledge, mark, cave, flue, EMPTY, ROCK, VELLUM, KEPT } from '../rooms.js';
 
 const TITLE = 'THE KEEPERS\' HOUSES';
 const named = (fn, more = {}) => { const f = () => { const r = fn(); r.title = TITLE; r.look = 'houses'; Object.assign(r, more); return r; }; Object.defineProperty(f, 'name', { value: fn.name }); return f; };
@@ -24,33 +24,37 @@ const inside = (r, w = 40) => rect(r, 2, 2, w - 3, 20, EMPTY);      // a built r
 const up = (r, x0, x1, ys) => { for (const y of ys) ledge(r, x0, x1, y); };
 
 function lane(){
-  const r = cave(2, 1); inside(r, 80); door(r, 'left', 9, 14); ledge(r, 2, 8, 8); ledge(r, 3, 8, 5);   // in from the arbor, at the height of its east shelf; planks down to the lane, and back up
+  const r = cave(2, 1); inside(r, 80); door(r, 'left', 9, 14);    // in from the arbor, at the height of its east shelf
   door(r, 'top', 10, 15); door(r, 'top', 50, 55); door(r, 'bottom', 70, 75); ledge(r, 70, 75, 1);
-  up(r, 10, 15, [5, 9, 13, 17, 21]); up(r, 50, 55, [5, 9, 13, 17, 21]);   // up into each house
+  // (the map pass, build 104: the way in was planks, and the way up into each house five rungs in the air. Now a stoop
+  // of stone at the gate, a step down from it to the lane, and a rung over it; and before the second house a mounting
+  // block of two steps, and a rung)
+  rect(r, 2, 2, 15, 8); rect(r, 16, 2, 18, 5); up(r, 10, 15, [15, 21]); flue(r, 10, 15, 15, 20);
+  rect(r, 47, 2, 49, 5); rect(r, 50, 2, 55, 8); rect(r, 56, 2, 58, 5); up(r, 50, 55, [15, 21]); flue(r, 50, 55, 15, 20);   // up into each house
   mark(r, 'housekeeper', 40, 2); serv(r, 28, 2); serv(r, 62, 2);
   set(r, 22, 2); set(r, 44, 2);
-  for (const [k, x] of [['front', 20], ['front', 36], ['front', 60], ['shutters', 6], ['shutters', 46]]) deco(r, k, x, 2);
-  mark(r, 'torch', 4, 9); mark(r, 'torch', 33, 9); mark(r, 'torch', 66, 9); mark(r, 'crystal', 76, 2);
-  for (const x of [3, 5]) for (const y of [10, 13]) keep(r, x, y);
+  for (const [k, x] of [['front', 24], ['front', 36], ['front', 64], ['shutters', 30], ['shutters', 43]]) deco(r, k, x, 2);
+  mark(r, 'torch', 4, 12); mark(r, 'torch', 33, 9); mark(r, 'torch', 66, 9); mark(r, 'crystal', 76, 2);
+  for (const x of [3, 5, 8, 12]) for (const y of [10, 13]) keep(r, x, y);
   return r;
 }
 function longtable(){
-  const r = cave(2, 1); inside(r, 80); door(r, 'top', 70, 75); up(r, 70, 75, [5, 9, 13, 17, 21]);
+  const r = cave(2, 1); inside(r, 80); door(r, 'top', 70, 75); rect(r, 67, 2, 69, 5); rect(r, 70, 2, 77, 9); up(r, 70, 75, [15, 21]); flue(r, 70, 75, 15, 20);   // (a stair of two steps and a rung, since the map pass)
   ledge(r, 14, 60, 4);                                              // the table: he can go along it, or under it
   for (const x of [18, 26, 34, 42, 50, 58]) set(r, x, 5);           // a place laid for each of them
-  serv(r, 66, 2); serv(r, 15, 2); mark(r, 'chest', 6, 2, { holds: 'thread' });      // (a servants' door at either end of the hall); the thread, past every place
+  serv(r, 63, 2); serv(r, 15, 2); mark(r, 'chest', 6, 2, { holds: 'thread' });      // (a servants' door at either end of the hall); the thread, past every place
   mark(r, 'moth', 24, 12); mark(r, 'moth', 40, 14); mark(r, 'moth', 54, 12);
   for (const [k, x] of [['hearth', 10], ['bench', 22], ['bench', 38], ['bench', 54], ['shutters', 30], ['shutters', 48]]) deco(r, k, x, 2);
-  mark(r, 'torch', 4, 9); mark(r, 'torch', 37, 12); mark(r, 'torch', 64, 9); mark(r, 'crystal', 76, 2);
+  mark(r, 'torch', 4, 9); mark(r, 'torch', 37, 12); mark(r, 'torch', 64, 9); mark(r, 'crystal', 76, 10);
   return r;
 }
 // a house: three floors. flip: which side its stair is on
 function house(r, flip, moths){
   const X = x => flip ? 39 - x : x, R2 = (a, b, y0, y1, t) => rect(r, Math.min(X(a), X(b)), y0, Math.max(X(a), X(b)), y1, t), L = (a, b, y) => ledge(r, Math.min(X(a), X(b)), Math.max(X(a), X(b)), y);
   inside(r); door(r, 'bottom', 10, 15); ledge(r, 10, 15, 1); door(r, 'top', 30, 35);
-  R2(12, 37, 8, 9); L(4, 9, 5); L(2, 11, 9);                         // the first floor up, a stair of planks at one side
-  R2(2, 27, 15, 16); L(30, 35, 12); L(28, 37, 16);                   // the second, its stair at the other
-  up(r, 30, 35, [19, 21]);                                          // and on up
+  R2(12, 37, 8, 9); R2(4, 9, 2, 5); L(2, 11, 9);                     // the first floor up: a block to step from, and planks over the stair's well (since the map pass; a plank stood there)
+  R2(2, 27, 15, 16); R2(36, 37, 10, 12); L(28, 37, 16);              // the second, its stair at the other side: a block by the wall
+  up(r, 30, 35, [21]);                                              // and on up (one rung fewer)
   for (const [x, y] of [[24, 2], [32, 2], [20, 10], [30, 10], [8, 17], [18, 17]]) set(r, X(x), y);
   serv(r, X(36), 2); serv(r, X(34), 10); serv(r, X(4), 17);
   for (const [k, x, y] of [['laidtable', 28, 2], ['hearth', 20, 2], ['bed', 25, 10], ['shutters', 16, 10], ['trunk', 13, 17], ['shutters', 22, 17]]) deco(r, k, X(x), y);
@@ -60,7 +64,7 @@ function house(r, flip, moths){
 }
 function house1(){ const r = house(cave(), false, [[26, 11]]); mark(r, 'chest', 12, 17, { holds: 'shards' }); return r; }
 // (a moth hangs three tiles over its mark: each is set low enough that that is under the floor above, not in it)
-function house2(){ const r = house(cave(), false, [[18, 4], [26, 11], [14, 17]]); mark(r, 'urn', 6, 2); return r; }
+function house2(){ const r = house(cave(), false, [[18, 4], [26, 11], [14, 17]]); mark(r, 'urn', 6, 6); return r; }
 function backway(){
   const r = cave(); inside(r); door(r, 'bottom', 30, 35); ledge(r, 30, 35, 1); door(r, 'left', 8, 13);
   rect(r, 2, 2, 12, 7); rect(r, 13, 2, 18, 4);                      // up to the door out

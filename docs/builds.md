@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 103 | 24 Nov 2026 | `1265ed4` | The Tempest's map pass: 72 planks to 50 in 51 screens, none bare in the air | no | yes (now) |
+| 104 | 26 Nov 2026 | `COMMITNN` | The Gardens' map pass: 117 planks to 46 in 47 screens, none bare in the air; a bloom under each quick way | no | yes (now) |
+| 103 | 24 Nov 2026 | `1265ed4` | The Tempest's map pass: 72 planks to 50 in 51 screens, none bare in the air | no | replaced by 104 |
 | 102 | 24 Nov 2026 | `e0d0745` | The Spires' map pass: 116 planks to 90, each with a reason; not under one a screen (ladders in the clefts, the rope bridges) | no | replaced by 103 |
 | 101 | 24 Nov 2026 | `125baa0` | The Cloister's map pass: its height from its own stone, 122 planks to 49, none in the air | no | replaced by 102 |
 | 100 | 24 Nov 2026 | `e96cf7f` | The Wyrm's faces: its mouth shuts, it winces when hit, is dazed when stuck, angry from half health, and glows as it draws breath | no | replaced by 101 |
@@ -119,6 +120,54 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 104: the Gardens in stone (its map pass)
+
+*Your word, 26 Nov: "Let's do the gardens pass." Also written down from the same message: when the Deep opens, what a
+hint is, the great puzzle, creatures, keepers, the Spires' ladders (roadmap, decisions 0.26 to 0.31).*
+
+**For the player**
+
+- **The Gardens climbs on its own stone** (`docs/gardens-map-pass.png`, before and after;
+  `docs/gardens-map-pass-rooms.png`). 117 planks became 46, in 47 screens, and none is bare in the air.
+  - **The Breach:** courses of the broken wall stand out of either side, one and then the other, up to the hole.
+  - **The wellspring:** the blooms throw him onto shelves of the well's own stone.
+  - **The terraces:** the terrace the first bloom throws him to runs out of the cliff; it hung in the air.
+  - **The Aqueducts:** a block of stone in each of the sluices' falls; stone at the arches' east end.
+  - **The Keepers' Houses:** a stoop of stone at the lane's gate, a mounting block before the second house, a stone
+    stair in the long hall, a block on each floor of each house.
+- **New: three blooms under ways choked with thorn.** On the arbor's walk and the wellspring's west shelf; the
+  brambles' middle bloom is two tiles east. Each throws him up under a hole full of thorn. When Mother Thorn falls
+  the thorn withers and the same bloom throws him up into it: these are the quick ways, which were ladders of planks.
+- **Moved a little:** the Breach's chest (on a course of the wall), the sluices' chest, the spill's urn, a thornback
+  and a toad in the sundial, a lasher, an urn and a crystal in the arbor, two house fronts in the lane.
+
+**What is weaker than it should be**
+
+- **The blooms on the arbor's walk and the wellspring's shelf are on the way he walks:** he is thrown up if he steps
+  on one. That is how the brambles already play; say if it is a nuisance here.
+- **Seven pieces of rock still hang in the air:** three terraces of the hanging gardens and the aqueduct's four spans
+  (on painted piers). See the sheet.
+- **Under one a screen by one** (46 in 47).
+- **Not played by a person.**
+
+- **Underneath:** `src/side/seams.js` (the wall's foot, the Breach, the storm beds; Mother Thorn's rule, which builds
+  the quick ways), `src/side/regions/gardens.js`, `src/side/regions/aqueducts.js`, `src/side/regions/houses.js`.
+  `tests/side-platforms.test.mjs` holds the Gardens to its pass; `tests/side-walk.test.mjs`: the door to Corwen's nook
+  is a tile wider in its list. `docs/roadmap.md`: decisions 0.26 to 0.31.
+- **Save: not moved.**
+- **Checked:** 495 checks pass, the whole suite at once. Before it, the Gardens' own checks found these, each fixed:
+  a pocket in the Breach under its first course; a pocket in the spill between two steps; the arches' east stair
+  one row short under the deck (which left the beds with no way back up for one who cannot cross the spans); eight
+  low places under new stone. The quick ways are played with the real motor, fallen and standing. In the test
+  browser: the Breach, the wellspring, the arbor, the lane, the sluices, the terraces.
+
+**To try**
+
+1. Try a place: the Gardens. Climb the Breach, then the wellspring.
+2. Walk the arbor: step on the new bloom and look up. Is it a hint, or a nuisance?
+3. Go through the Aqueducts down to the beds and back up to the channel at its east end.
+4. In the Keepers' Houses, go up into each house from the lane.
 
 ### Build 103: the Tempest in stone (its map pass)
 

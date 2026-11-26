@@ -97,10 +97,10 @@ function hut(){
 function wallfoot(){
   const r = room(); walls(r); door(r, 'top', 30, 35);
   rect(r, 18, 2, 29, 9);                                           // the fallen wall's stones, heaped
-  den(r, 18, 27, 2, 6, { open: 'L', back: 0 }); ledge(r, 14, 17, 5); ledge(r, 31, 35, 6);   // Ordric's lamp-room, in the old wall's own cellar under the stones; the way up is over them
-  shaftUp(r, 30, 35, 10, 18);
+  den(r, 18, 27, 2, 6, { open: 'L', back: 0 }); stone(r, 14, 15, 5); rect(r, 28, 2, 37, 9); keepOver(r, 18, 37, 9);   // Ordric's lamp-room, in the old wall's own cellar under the stones; the way up is over them (since the map pass the heap runs to the east wall, and a stone of it is the step up)
+  shaftUp(r, 30, 35, 15, 19); flue(r, 30, 35, 15, 20);
   rect(r, 7, 1, 14, 1, EMPTY); mark(r, 'pool', 7, 1, { w: 8, look: 'spout' });   // the garden's own spring, out of the broken wall: the Gardens' raising water
-  mark(r, 'spawn', 5, 2); mark(r, 'urn', 36, 2); mark(r, 'crystal', 33, 2);   // no creature in the water's room: Ordric is on the fallen stones
+  mark(r, 'spawn', 5, 2); mark(r, 'urn', 36, 10); mark(r, 'crystal', 33, 10);   // no creature in the water's room: Ordric is on the fallen stones
   return r;
 }
 function breach(){
@@ -108,11 +108,15 @@ function breach(){
   // the wall itself, broken through: its courses standing either side, rubble heaped in the gap
   rect(r, 2, 2, 9, 30); rect(r, 37, 24, 39, 44);
   rect(r, 10, 2, 16, 5); rect(r, 17, 2, 21, 9); rect(r, 22, 2, 25, 4);
-  for (const [x0, x1, y] of [[18, 24, 14], [24, 30, 19], [16, 22, 23], [22, 28, 27]]){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); }
-  shaftUp(r, 28, 35, 31, 43);
-  ledge(r, 32, 37, 16); mark(r, 'keep', 35, 18);                  // a ledge out from the broken courses, at the wall: Corwen's nook is through it (level.js nooks)
+  // (the map pass, build 104: the way up was planks in the air. Now courses of the wall still standing out of either
+  // side, one and then the other: the second is the one at the east wall where Corwen's nook is through it (level.js
+  // nooks); the fifth is the top of the west courses, run out; from the last a rung straight up under the hole)
+  const SH = [[9, 16, 15], [24, 37, 16], [9, 20, 21], [26, 36, 26], [9, 19, 31], [27, 36, 37]];
+  for (const [x0, x1, y] of SH) rect(r, x0, y, x1, y);
+  for (const [x0, x1, y] of SH) keepOver(r, x0 < 20 ? 11 : x0 - 5, x0 < 20 ? x1 + 5 : 35, y);
+  ledge(r, 30, 35, 43); flue(r, 30, 35, 43, 43); keepUp(r, 31, 34, 39, 43); for (const y of [38, 40, 42]) for (let x = 14; x <= 28; x += 2) mark(r, 'keep', x, y);   // (the air over the last jump kept from the roof's wear)
   mark(r, 'lasher', 13, 6); mark(r, 'puff', 20, 30); mark(r, 'nimbus', 26, 36);
-  mark(r, 'torch', 12, 12); mark(r, 'torch', 28, 26); mark(r, 'urn', 23, 5); mark(r, 'chest', 17, 24, { holds: 'shards' });
+  mark(r, 'torch', 12, 12); mark(r, 'torch', 28, 26); mark(r, 'urn', 23, 5); mark(r, 'chest', 15, 22, { holds: 'shards' });
   return r;
 }
 
@@ -172,11 +176,11 @@ function stormbeds(){
   const r = room(1, 2); walls(r); door(r, 'right', 14, 19); door(r, 'top', 2, 5);
   rect(r, 2, 2, 37, 13);
   rect(r, 6, 14, 12, 15); rect(r, 18, 14, 26, 15);                   // the beds, banked up
-  steps(r, [[28, 33, 19], [18, 24, 22], [8, 14, 25], [16, 22, 28], [10, 14, 30]]);   // what is left of the trellis
-  headL(r);
-  mark(r, 'lasher', 9, 16); mark(r, 'lasher', 22, 16); mark(r, 'nimbus', 16, 23);
+  rect(r, 20, 21, 37, 21); rect(r, 2, 26, 14, 26);                 // (the map pass: a course of the wall over the door, and one of the west wall, where the trellis's planks hung)
+  headL(r); rect(r, 2, 31, 9, 31, EMPTY); flue(r, 2, 5, 40, 43); keepOver(r, 15, 35, 21); keepOver(r, 3, 19, 26);   // (the landing one course thick here: five rows of air over the shelf under it)
+  mark(r, 'lasher', 9, 16); mark(r, 'lasher', 22, 16); mark(r, 'nimbus', 17, 30);
   deco(r, 'gatehang', 33, 14); deco(r, 'trellis', 30, 14); deco(r, 'trellis', 15, 14); deco(r, 'trellis', 4, 14); deco(r, 'tuft', 8, 16); deco(r, 'tuft', 21, 16); deco(r, 'tuft', 24, 16);
-  mark(r, 'torch', 35, 22); mark(r, 'torch', 5, 27); mark(r, 'urn', 3, 33);
+  mark(r, 'torch', 35, 24); mark(r, 'torch', 5, 28); mark(r, 'urn', 3, 33);
   return r;
 }
 // a stair, then ledges back over it, then a long plank: the shape of the Bell Road's and the Long Stair's first rooms
@@ -324,7 +328,14 @@ export const RULES = {
     for (const [a, b, x] of [['wellspring', 'sundial', 10], ['arbor', 'cascade', 8], ['orangery', 'canopy', 6], ['brambles', 'orangery', 20]]){ const A = X.roomOf(a), B = X.roomOf(b); if (!A || !B) continue;
       const x0 = B.tx0 + x; let lo = B.ty0 + 1; while (lo > A.ty0 && [0, 1, 2, 3].every(d => X.at(x0 + d, lo - 1) === ROCK)) lo--;   // the rock between them, down from the upper room's floor
       for (let y = lo; y <= B.ty0 + 1; y++) for (let d = 0; d < 4; d++) X.set(x0 + d, y, y === B.ty0 + 1 ? GIVEN : HOLD);
-      for (let y = lo - 4, n = 0; y > A.ty0 + 3 && n < 5; y -= 4, n++){ if (![0, 1, 2, 3].every(d => X.at(x0 + d, y) === EMPTY && X.at(x0 + d, y + 1) === EMPTY)) break; for (let d = 0; d < 4; d++) X.set(x0 + d, y, LEDGE); }   // ledges under it, down into the room below
+      // under it, what brings him up into it from the ground below (the map pass, build 104: five planks hung in the air
+      // under each). Rungs six rows apart, down as far as he can come to: a jump from that ground, or the throw of a
+      // bloom where one grows under the mouth. They are steps off a rib of stone hung from the mouth's west side
+      let g = lo - 1; while (g > A.ty0 && X.at(x0 + 1, g) !== ROCK && X.at(x0 + 2, g) !== ROCK) g--;
+      const s = g + 1, bloom = X.marks.some(m => m.type === 'bloom' && m.y === s && m.x >= x0 && m.x <= x0 + 3), reach = s + (bloom ? 19 : 6), rungs = [];
+      for (let y = B.ty0 + 1 - 6; y > s + 2; y -= 6){ rungs.push(y); if (y + 1 <= reach) break; }
+      for (const y of rungs) for (let d = 0; d < 4; d++) if (X.at(x0 + d, y) === EMPTY) X.set(x0 + d, y, LEDGE);
+      if (rungs.length) for (let y = Math.max(rungs[rungs.length - 1], s + 5); y < lo; y++) if (X.at(x0 - 1, y) === EMPTY) X.set(x0 - 1, y, ROCK);
       A.quick = true; }
   },
 };

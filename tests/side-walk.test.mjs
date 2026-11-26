@@ -15,7 +15,7 @@ const KNOWN = {
   "The Cloister": ["nave 2-4,2", "nave 8-10,2", "molds 5-7,2", "molds 13-15,2", "molds 21-23,2", "molds 29-29,2", "cells 9-13,2", "cells 19-23,2", "cells 29-33,2"],
   "The Spires": ["road 38-41,2", "deepice 28-30,30", "deepice 32-32,30", "icecave 47-49,2", "icecave 53-55,2"],
   "The Tempest": ["leeslope 29-31,27", "hut 38-41,27", "coils 12-14,2", "coils 18-20,2", "yard 6-8,2", "yard 11-13,2", "yard 9-11,6", "? 210-212,208"],
-  "The Gardens": ["breach 39-41,17"],
+  "The Gardens": ["breach 38-41,17"],
   "The Firmament": ["flights 37-37,40", "threshold 21-23,2", "threshold 26-28,2", "orrery 8-11,1", "orrery 20-23,1", "meridian 44-47,3", "lens 8-12,2", "zenith 20-22,2", "zenith 24-26,2", "zenith 53-55,2", "zenith 57-59,2"],
   "The Workings": [],
   "The Vein": [],

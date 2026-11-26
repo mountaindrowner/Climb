@@ -225,6 +225,9 @@ Spires to "every plank has a reason" and to 90, and says in its note that it is 
 under, the next step is widening the clefts and building stone stairs in them; or we could count a ladder or a bridge
 as one made thing. Your call; I have done neither.**
 
+*26 Nov: you left it to my judgment, within the pass's rule. The ladders stay (roadmap 0.31): each is a made thing
+between stone sides, which is what the rule asks for.*
+
 | Room | Before | After |
 |---|---|---|
 | The road (the bell road's climb) | Switchbacks of planks in the air above the second landing | Shelves out of one side of the face and the other, five rows apart; a rung under the hole |
@@ -298,3 +301,42 @@ Nine pieces of rock in the air became seven.
 - **A mouth of one tile is no mouth.** A step beside the lamp-room left its mouth a tile wide; it is two.
 - **The rock check has a blind side.** It looks only at pieces under 400 tiles, and only at bare rock (not iron or a
   keeper's seal). Both are noted where they matter rather than changed.
+
+## The Gardens, room by room (build 104)
+
+*Your word, 26 Nov: "Let's do the gardens pass. Let's finish the other levels as well." The Gardens, its two wings (the
+Aqueducts, the Keepers' Houses) and its passage (the Breach). `docs/gardens-map-pass.png` is the region before and
+after; `docs/gardens-map-pass-rooms.png`, six rooms in the game.*
+
+**117 planks became 46, in 47 screens: under one a screen.** 85 were bare in the air; none is now. Of the 46: 32 rungs
+(wall to wall: in a flue, a hole's mouth, or over a stair's well in a house), 11 steps off a wall, 3 with ground
+under them (the long table among them). Eight pieces of rock in the air became seven.
+
+| Room | Before | After |
+|---|---|---|
+| The Breach | Ten planks up the broken wall | Six courses of the wall still standing out of either side, one and then the other; the second is the one Corwen's nook is through; a rung under the hole |
+| The wall's foot | Rungs over the lamp-room | The heap runs to the east wall; rungs between stone sides; the step by the lamp-room a stone |
+| The storm beds | Five planks of trellis | A course of the wall over the door, one of the west wall |
+| The storm door, the terraces | A plank; a terrace hung in the air, two planks up from it, a plank for the thread | A block of the floor; the terrace runs out of the far cliff, a block of marble on it under the way up; the thread on a lip of a root of the bed above |
+| The wellspring | Six planks to catch the blooms' throws | Shelves of the well's own courses: one of the east wall, the west shelf and the sill of the way out each run toward the middle. One plank stays (he comes up through it, over the second bloom) |
+| The orangery, the cascade, the canopy, the arbor | Planks to the vault, across to the walk, for two chests | A course over the door and a lip of the vault; the walk run out to meet the throw; lips of the cliff and of a root of the terrace above |
+| The sundial | Five planks | Two steps of stone and two rungs against a stone side |
+| **The four quick ways** (open when Mother Thorn falls) | Under each mouth, four or five planks hung in the air: seventeen in all | **A bloom under the mouth throws him into it.** One on the arbor's walk and one on the wellspring's shelf are new; the brambles' middle bloom is two tiles east, under its mouth; the orangery's is climbed from the course over its door. One or two rungs under each mouth, off a rib of stone hung from it: six in all. While she stands, each bloom throws him up to look at a way choked with thorn |
+| The arches | Two ladders of three in the air | West: two rungs, the upper between stone sides. East: a block of stone and one rung |
+| The sluices, the spill | Two planks in each fall | A block of stone in each fall; two steps of stone in the spill |
+| The lane | Planks down from the gate; two ladders of five in the air | A stoop of stone at the gate with a step down to the lane; a mounting block before the second house; one rung over each, between stone sides |
+| The long table, the two houses | A ladder of five; seven planks a house | A stair of two steps and a rung; in each house a block on each floor to step from (four planks left: the boards over each stair's well, and the two ways in and out) |
+
+**The seven pieces of rock still in the air**, said plainly: three are the hanging gardens' own terraces (the floors
+between the open rooms: this is a garden hung in the sky, and nothing joins them to the map's edge), and four are the
+aqueduct's spans, which stand on piers that are painted, not built (a built pier would wall off the beds under them).
+
+**What I learned:**
+
+- **A jump out from under a floor needs the floor's height counted.** The arches' east stair first had its step under
+  the deck: the jump up from it met the deck's underside by one row. The block is lower, and a rung finishes it.
+- **A shelf over the place he jumps from shuts it.** The Breach's first course overhung the rubble he climbs from.
+- **A bloom is the Gardens' ladder.** Where a way goes straight up through open air, a bloom under it does what five
+  planks did, and says what the region is about.
+- **Things painted on the floor move with the stone:** a pier and a bed of the arches, a chest in the sluices, an urn
+  in the spill were inside new stone, and are beside it.

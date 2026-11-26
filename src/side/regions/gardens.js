@@ -22,7 +22,7 @@
 //   lasher      a rooted flower with thorn whips: it turns to him, rears, and lashes a long low whip: jump it, roll
 //               through it, or block it
 //   puff        a sleepy spore pod adrift: near him it swells red and bursts in a cloud; cut it first
-import { room, rect, walls, door, ledge, mark, open, cave, EMPTY, SPIKES, CRACKED } from '../rooms.js';
+import { room, rect, walls, door, ledge, mark, open, cave, shelf, stone, keepOver, hung, flue as sides, EMPTY, SPIKES, CRACKED } from '../rooms.js';
 
 const slab = (r, x0 = 0, x1 = r.w - 1) => rect(r, x0, 0, x1, 1);              // a terrace: two courses of marble
 const thorns = (r, x0, x1) => { rect(r, x0, 0, x1, 0); rect(r, x0, 1, x1, 1, SPIKES); };   // brambles grown through its top course
@@ -30,9 +30,9 @@ const isle = (r, x0, x1) => rect(r, x0, 0, x1, 1);                            //
 
 function stormdoor(){
   const r = cave(); door(r, 'right', 2, 7);
-  rect(r, 2, 2, 4, 4); rect(r, 2, 5, 3, 6); ledge(r, 22, 28, 6);
+  rect(r, 2, 2, 4, 4); rect(r, 2, 5, 3, 6); stone(r, 22, 27, 6);   // (a block of the floor since the map pass)
   mark(r, 'spawn', 8, 2); mark(r, 'npc', 15, 2, { who: 'scribe' });
-  mark(r, 'torch', 6, 9); mark(r, 'torch', 20, 10); mark(r, 'torch', 34, 9); mark(r, 'crystal', 25, 7); mark(r, 'crystal', 31, 2); mark(r, 'urn', 28, 2);
+  mark(r, 'torch', 6, 9); mark(r, 'torch', 20, 10); mark(r, 'torch', 34, 9); mark(r, 'crystal', 25, 7); mark(r, 'crystal', 31, 2); mark(r, 'urn', 30, 2);
   return r;
 }
 function terraces(){
@@ -40,10 +40,10 @@ function terraces(){
   slab(r); rect(r, 0, 8, 3, 22);                                   // the ground; the cliff over the storm door
   thorns(r, 20, 26);                                               // the first thorns: a jump
   mark(r, 'bloom', 40, 2);                                         // the first bloom
-  rect(r, 46, 12, 62, 13);                                         // the terrace it throws him to
-  ledge(r, 66, 72, 17); ledge(r, 66, 72, 21);                      // on up, into the arbor's floor
+  rect(r, 46, 12, 75, 13);                                         // the terrace it throws him to (out of the far cliff since the map pass: it hung in the air)
+  rect(r, 69, 14, 72, 19);                                         // on up, into the arbor's floor: a block of marble on the terrace, under the way up
   rect(r, 76, 0, 79, 22);                                          // the far cliff
-  ledge(r, 28, 32, 16); mark(r, 'thread', 30, 17);                 // in plain sight: back from the bloom, not on
+  rect(r, 25, 16, 27, 22); rect(r, 28, 16, 32, 16); mark(r, 'thread', 30, 17);   // in plain sight: back from the bloom, not on (a root of the bed above, and a lip of it)
   mark(r, 'thornback', 13, 2); mark(r, 'thornback', 33, 2); mark(r, 'lasher', 56, 14); mark(r, 'puff', 60, 19); mark(r, 'lasher', 66, 2);
   mark(r, 'chest', 72, 2, { holds: 'shards' });                    // under the terrace, past a lasher
   mark(r, 'crystal', 8, 2); mark(r, 'crystal', 36, 2); mark(r, 'crystal', 49, 14); mark(r, 'crystal', 74, 2); mark(r, 'torch', 6, 6); mark(r, 'urn', 16, 2); mark(r, 'urn', 60, 14);
@@ -53,16 +53,17 @@ function arbor(){
   const r = open();
   slab(r); rect(r, 26, 0, 32, 1, EMPTY); ledge(r, 26, 32, 1);     // the walk, the way up through it
   rect(r, 36, 0, 39, 22);                                          // the cliff
-  ledge(r, 31, 35, 8); mark(r, 'chest', 33, 9, { holds: 'shards' });
-  mark(r, 'lasher', 15, 2); mark(r, 'puff', 22, 12); mark(r, 'toad', 29, 2);
-  mark(r, 'crystal', 34, 2); mark(r, 'crystal', 7, 2); mark(r, 'urn', 11, 2); mark(r, 'torch', 35, 5);
+  rect(r, 31, 8, 35, 8); mark(r, 'chest', 33, 9, { holds: 'shards' });   // (a lip of the cliff, at the gardeners' gate)
+  mark(r, 'bloom', 9, 2);                                          // on the walk, under a way up choked with thorn: it throws him up to look at it, and into it once she has fallen (the map pass)
+  mark(r, 'lasher', 17, 2); mark(r, 'puff', 22, 12); mark(r, 'toad', 29, 2);
+  mark(r, 'crystal', 34, 2); mark(r, 'crystal', 4, 2); mark(r, 'urn', 21, 2); mark(r, 'torch', 35, 5);
   return r;
 }
 function brambles(){
   const r = open();
   rect(r, 29, 0, 39, 1); rect(r, 0, 0, 10, 1); thorns(r, 11, 28);   // sound ground at either end, the bed between
   mark(r, 'bloom', 31, 2);                                         // at the bed's edge: it throws him the whole way over
-  isle(r, 18, 21); mark(r, 'bloom', 19, 2);                        // and one in the middle of it, for a second throw
+  isle(r, 19, 22); mark(r, 'bloom', 21, 2);                        // and one in the middle of it, for a second throw (two tiles east since the map pass: under the way up that opens when Mother Thorn falls)
   mark(r, 'puff', 22, 10); mark(r, 'puff', 12, 12); mark(r, 'puff', 26, 16);
   mark(r, 'crystal', 37, 2); mark(r, 'crystal', 2, 2);
   return r;
@@ -70,10 +71,14 @@ function brambles(){
 function wellspring(){
   const r = room(1, 2); walls(r); door(r, 'right', 2, 7); door(r, 'right', 25, 30);
   mark(r, 'bloom', 20, 2);                                         // the first throw
-  ledge(r, 26, 32, 14); ledge(r, 14, 20, 17);                      // caught; across
-  rect(r, 2, 16, 9, 17); mark(r, 'bloom', 3, 18);                  // a shelf, the second throw
-  ledge(r, 2, 8, 26); ledge(r, 14, 20, 26); rect(r, 28, 23, 37, 24);   // caught again, over it; across; the sill of the way out
-  ledge(r, 8, 13, 30); ledge(r, 19, 25, 34);                       // and on up, to nothing, it seems
+  // (the map pass, build 104: the well's own courses, not planks. A shelf of the east wall catches the first throw; the
+  // west shelf and the sill of the way out each reach toward the middle; the plank over the second bloom stays, since
+  // he comes up through it)
+  rect(r, 23, 14, 37, 14); rect(r, 30, 13, 37, 13);                // caught
+  rect(r, 2, 16, 16, 17); mark(r, 'bloom', 3, 18); mark(r, 'bloom', 11, 18);   // across, to a shelf: the second throw; and a third under the way up choked with thorn
+  ledge(r, 2, 8, 26); rect(r, 17, 23, 37, 24);                     // caught again, over it; across, to the sill of the way out
+  rect(r, 15, 34, 25, 34);                                         // and on up, to nothing, it seems: a lip of the stone over the way out, come to off the rungs under the choked way
+  keepOver(r, 18, 37, 14); keepOver(r, 2, 21, 17); keepOver(r, 12, 37, 24); keepOver(r, 15, 25, 34); for (const y of [20, 24, 28, 32, 36, 40]) for (const x of [10, 13]) mark(r, 'keep', x, y);
   rect(r, 26, 33, 37, 43); rect(r, 29, 35, 37, 40, EMPTY); rect(r, 26, 35, 28, 40, CRACKED);   // a niche walled up at the top
   mark(r, 'thread', 33, 35);
   mark(r, 'puff', 30, 9); mark(r, 'puff', 11, 22); mark(r, 'puff', 30, 16);
@@ -85,7 +90,7 @@ function orangery(){
   const r = cave(); door(r, 'left', 2, 7); door(r, 'right', 2, 7);
   rect(r, 14, 2, 26, 2); rect(r, 16, 3, 24, 3);                    // the shrine's step
   mark(r, 'shrine', 20, 4); mark(r, 'npc', 10, 2, { who: 'lamplighter' });
-  ledge(r, 4, 9, 8); ledge(r, 15, 25, 13);                         // up to the roof, where a wall is cracked
+  rect(r, 2, 8, 9, 8); rect(r, 15, 13, 25, 13); keepOver(r, 2, 14, 8); keepOver(r, 11, 25, 13);   // up to the roof, where a wall is cracked (a course over the door, and a lip of the vault)
   rect(r, 26, 12, 37, 20); rect(r, 28, 14, 35, 19, EMPTY); rect(r, 26, 14, 27, 19, CRACKED);   // the vault
   mark(r, 'chest', 32, 14, { holds: 'relic:seedheart' });
   mark(r, 'torch', 4, 12); mark(r, 'torch', 12, 9); mark(r, 'torch', 28, 8); mark(r, 'torch', 36, 8);
@@ -98,8 +103,8 @@ function cascade(){
   mark(r, 'bloom', 11, 2); mark(r, 'bloom', 22, 2);               // thrown from the first, the scarf reaches the terrace; the second is the plain way
   rect(r, 28, 12, 39, 13); rect(r, 37, 2, 39, 11); rect(r, 37, 14, 39, 45);   // the high terrace, on the cliff
   mark(r, 'npc', 29, 14, { who: 'wren' }); mark(r, 'bloom', 35, 14);
-  ledge(r, 30, 36, 21); ledge(r, 19, 25, 23); rect(r, 0, 23, 14, 24);   // caught, over it; across; the walk above, toward the canopy
-  ledge(r, 30, 35, 30); mark(r, 'chest', 33, 31, { holds: 'shards' });   // straight up off the high bloom
+  ledge(r, 30, 36, 21); rect(r, 0, 23, 22, 24);                    // caught, over it; across, to the walk above, toward the canopy (run out to meet it since the map pass)
+  ledge(r, 30, 36, 30); mark(r, 'chest', 33, 31, { holds: 'shards' });   // straight up off the high bloom
   mark(r, 'lasher', 14, 2); mark(r, 'thornback', 33, 2); mark(r, 'toad', 25, 2); mark(r, 'puff', 20, 30); mark(r, 'puff', 8, 36); mark(r, 'puff', 22, 27);
   mark(r, 'crystal', 2, 2); mark(r, 'crystal', 32, 14); mark(r, 'crystal', 4, 25); mark(r, 'crystal', 12, 25); mark(r, 'urn', 8, 25);
   return r;
@@ -109,7 +114,7 @@ function canopy(){
   slab(r); thorns(r, 30, 35);
   rect(r, 14, 2, 17, 15);                                          // the garden wall: only the bloom clears it
   mark(r, 'bloom', 23, 2);
-  ledge(r, 32, 37, 12); mark(r, 'chest', 35, 13, { holds: 'shards' });
+  rect(r, 38, 12, 39, 22); rect(r, 32, 12, 37, 12); mark(r, 'chest', 35, 13, { holds: 'shards' });   // (a root of the terrace above, and a lip of it)
   mark(r, 'lasher', 19, 2); mark(r, 'thornback', 6, 2); mark(r, 'puff', 25, 11); mark(r, 'puff', 9, 9); mark(r, 'puff', 30, 17);
   mark(r, 'crystal', 38, 2); mark(r, 'crystal', 27, 2); mark(r, 'crystal', 2, 2); mark(r, 'crystal', 15, 16); mark(r, 'urn', 10, 2);
   return r;
@@ -117,8 +122,8 @@ function canopy(){
 function sundial(){
   const r = cave(); door(r, 'right', 2, 7); door(r, 'top', 8, 14);
   rect(r, 22, 2, 32, 2); rect(r, 24, 3, 30, 3);                    // the shrine's step
-  [[10, 16, 5], [16, 22, 9], [10, 16, 13], [8, 14, 17], [8, 14, 21]].forEach(([a, b, y]) => ledge(r, a, b, y));
-  mark(r, 'shrine', 27, 4); mark(r, 'thornback', 15, 2); mark(r, 'toad', 6, 2);
+  rect(r, 19, 2, 21, 5); rect(r, 14, 2, 18, 9); ledge(r, 8, 14, 15); ledge(r, 8, 14, 21); rect(r, 7, 15, 7, 20); for (const y of [11, 13, 17, 19]) for (const x of [9, 13, 16]) mark(r, 'keep', x, y);   // (since the map pass: two steps of stone, clear of the quick way's mouth, and two rungs under the hole against a stone side)
+  mark(r, 'shrine', 27, 4); mark(r, 'thornback', 35, 2); mark(r, 'toad', 5, 2);
   mark(r, 'torch', 5, 9); mark(r, 'torch', 34, 10); mark(r, 'torch', 20, 16); mark(r, 'crystal', 36, 2); mark(r, 'crystal', 3, 2); mark(r, 'urn', 34, 2);
   return r;
 }

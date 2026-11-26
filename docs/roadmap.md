@@ -76,7 +76,14 @@ per keeper, and **everything explained** to the player, plainly, the first time 
 | 0.24 | The weapons | **Made in steps, each with your yes:** which weapons; what each looks like; its drawings; then into the game. **The gamut of kinds.** **The weapon is the same in every frame,** and he holds it in every drawing where it shows (`docs/weapons-sheet.md`). The hammer's two candidate drawings are turned down: they did not match each other |
 | 0.25 | What a keeper leaves, besides | **Worth considering, not for now:** something only a keeper gives (a soul, or what fits the story), spent on one great change to him |
 
-(The table above is continued by 0.21 to 0.25: answers given on 22 Nov.)
+| 0.26 | When the Deep opens | **He is thrown into it.** As soon as the second-to-last keeper falls (Mother Thorn), and before he enters the last region, the last keeper taunts him and throws him down to the very lowest part of the Deep. He climbs back up through it. Until then it stays shut. ("Let's do that for now", 26 Nov.) Its sheet comes before it is built |
+| 0.27 | What a hint is | **Never a giveaway, never a poem.** No person says what the next part requires or what to do there. They say that it is tricky, that something is going on they are not sure of, and what to keep an eye on because it might help. Hob in the Vein is the case that raised it (26 Nov; sharpens 0.18) |
+| 0.28 | The great puzzle | **Six out of ten cryptic.** And the puzzles are a phase entirely of their own (phase 22 stays apart from everything else) |
+| 0.29 | Creatures | **Make them all,** every enemy the game needs, without asking for each. **Flat: drawn from the side, in two dimensions, never at an angle or on a diagonal** (26 Nov) |
+| 0.30 | Keepers | **Only the Wyrm for now.** The others are asked about later (26 Nov) |
+| 0.31 | The Spires' ladders | **Left to my judgment, within the map pass's rule.** Decided: they stay. A ladder between stone sides is a made thing with a reason, which is what the rule asks; the Spires is held to 90 planks, each with a reason (26 Nov) |
+
+(The table above is continued by 0.21 to 0.25: answers given on 22 Nov; and 0.26 to 0.31: 26 Nov.)
 
 **Where the gifts sheet stands (22 Nov, build 88):** step 1 built (86, the hammer; its drawings await a yes); step 2
 half built (87, the air dash from the Cracked Bell; the glide, the heart and the drink wait on what a keeper leaves
@@ -457,9 +464,12 @@ then dresses the new shapes. One level a build, each held to a budget by a check
 - **The Spires (build 102).** Done, short of the measure: 116 planks to 90 in 56 screens, every one with a reason
   (ladders in the towers' clefts, two rope bridges, the Wyrm's slab). Under one a screen needs the clefts widened for
   stone stairs, or a ladder counted as one thing: the player's call (`docs/map-pass-sheet.md`, the Spires room by room).
+  **26 Nov: left to my judgment; the ladders stay** (decision 0.31).
 - **The Tempest (build 103).** Done: 72 planks to 50 in 51 screens, none bare in the air; nine pieces of rock in the air
   to seven, each named (`docs/map-pass-sheet.md`, the Tempest room by room).
-- **Then, in order:** the Gardens, the Firmament, the Workings, the Vein, the Flooded Levels,
+- **The Gardens (build 104).** Done: 117 planks to 46 in 47 screens, none bare in the air. The four quick ways are
+  climbed by a bloom under each mouth (`docs/map-pass-sheet.md`, the Gardens room by room).
+- **Then, in order:** the Firmament, the Workings, the Vein, the Flooded Levels,
   the Great Shaft, the Hollow.
 - **Phase 18's rough rock** (faces in every region) is cut into the same walls, so it is laid out with each level's
   pass and switched on in phase 18.

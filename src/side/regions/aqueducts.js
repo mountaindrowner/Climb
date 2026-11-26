@@ -11,7 +11,7 @@
 // Its rule (level.js flows, RULE.wet; motor.js FLOW). The water runs one way, and it carries what stands in it: along
 // a channel, faster than he runs; down a fall, and nothing rises through a fall. A sluice wheel (struck) stops its
 // water, or starts it. The keepers of the sluices put each wheel back as it was.
-import { rect, door, ledge, mark, cave, EMPTY, ROCK, STILLED } from '../rooms.js';
+import { rect, door, ledge, mark, cave, flue, EMPTY, ROCK, STILLED } from '../rooms.js';
 
 const TITLE = 'THE AQUEDUCTS';
 const named = (fn, more = {}) => { const f = () => { const r = fn(); r.title = TITLE; r.look = 'aqueduct'; Object.assign(r, more); return r; }; Object.defineProperty(f, 'name', { value: fn.name }); return f; };
@@ -26,9 +26,9 @@ function arches(){
   const r = cave(2, 2); door(r, 'right', 25, 30); door(r, 'left', 10, 15);   // in from the wellspring, on the channel; out to the sluices, on the beds
   rect(r, 2, 2, 77, BEDS);                                         // the old beds under the arches
   rect(r, 2, 10, 77, 43, EMPTY);                                   // (all of it one space: nothing hangs in it but the channel)
-  for (const [a, b] of DECKS){ rect(r, a, DECK - 1, b, DECK); deco(r, 'pier', Math.round((a + b) / 2), BEDS + 1); }
-  rect(r, 2, DECK - 1, 7, DECK, EMPTY); ledge(r, 2, 7, DECK); for (const y of [13, 17, 21]) ledge(r, 3, 7, y);   // up from the beds to the channel's west end
-  rect(r, 72, DECK - 1, 76, DECK, EMPTY); ledge(r, 72, 76, DECK); for (const y of [13, 17, 21]) ledge(r, 72, 76, y);   // and at its east end, by the door: down to the beds, and back up (one who cannot cross the gaps is not left below)
+  for (const [a, b] of DECKS){ rect(r, a, DECK - 1, b, DECK); if (b < 99) deco(r, 'pier', Math.round((a + b) / 2), BEDS + 1); }   // (the last span's pier is the stone stair at its end)
+  rect(r, 2, DECK - 1, 7, DECK, EMPTY); ledge(r, 2, 7, DECK); for (const y of [14, 19]) ledge(r, 3, 7, y); flue(r, 3, 7, 16, 22);   // up from the beds to the channel's west end (two rungs, the upper between stone sides, since the map pass: three hung in the air)
+  rect(r, 72, DECK - 1, 76, DECK, EMPTY); ledge(r, 72, 76, DECK); rect(r, 72, BEDS + 1, 77, 15); ledge(r, 72, 76, 20); rect(r, 77, 16, 77, 22);   // and at its east end (a block of stone and one rung against a rib of it, since the map pass), by the door: down to the beds, and back up (one who cannot cross the gaps is not left below)
   flow(r, 8, DECK + 1, 7, 2, 'e', 'a'); for (const [a, b] of DECKS.slice(1, 3)) flow(r, a, DECK + 1, b - a + 1, 2, 'e', 'a');   // the water on each span, east (it comes in under the wheel); on the last it goes down a drain before the door
   flow(r, 64, DECK + 1, 7, 2, 'e', 'a'); deco(r, 'drain', 71, DECK + 1); deco(r, 'gate', 8, DECK + 1);
   wheel(r, 5, DECK + 1, 'a');                                      // on the dry stone at the channel's head
@@ -36,8 +36,8 @@ function arches(){
   mark(r, 'strider', 27, DECK + 1, { key: 'a' }); mark(r, 'strider', 50, DECK + 1, { key: 'a' });   // (none on the span by the door: that one is for learning the water)
   mark(r, 'thornback', 34, BEDS + 1); mark(r, 'thornback', 58, BEDS + 1); mark(r, 'lasher', 46, BEDS + 1);
   mark(r, 'chest', 20, BEDS + 1, { holds: 'shards' });
-  for (const [k, x] of [['bed', 16], ['bed', 38], ['bed', 54], ['bed', 70]]) deco(r, k, x, BEDS + 1);
-  mark(r, 'urn', 26, BEDS + 1); mark(r, 'urn', 62, BEDS + 1); mark(r, 'crystal', 74, BEDS + 1); mark(r, 'crystal', 12, BEDS + 1);
+  for (const [k, x] of [['bed', 16], ['bed', 38], ['bed', 54], ['bed', 64]]) deco(r, k, x, BEDS + 1);
+  mark(r, 'urn', 26, BEDS + 1); mark(r, 'urn', 62, BEDS + 1); mark(r, 'crystal', 74, 16); mark(r, 'crystal', 12, BEDS + 1);
   for (const x of [74, 76]) for (const y of [26, 29]) keep(r, x, y); for (const x of [3, 5]) for (const y of [11, 14]) keep(r, x, y);
   return r;
 }
@@ -45,11 +45,12 @@ function sluices(){
   const r = cave(1, 2); door(r, 'right', 10, 15); door(r, 'top', 4, 9);   // in from the beds; up into the lock
   rect(r, 2, 2, 37, BEDS); rect(r, 2, 10, 37, 43, EMPTY);
   rect(r, 12, 20, 37, 21); rect(r, 2, 32, 27, 33);                 // two landings
-  for (const y of [13, 17]) ledge(r, 4, 9, y); flow(r, 2, 10, 10, 12, 'd', 'f1'); wheel(r, 24, 10, 'f1');   // the first fall, and its wheel under it
-  for (const y of [25, 29]) ledge(r, 30, 35, y); flow(r, 28, 22, 10, 12, 'd', 'f2'); wheel(r, 16, 22, 'f2');
-  for (const y of [37, 41]) ledge(r, 4, 9, y); flow(r, 2, 34, 10, 12, 'd', 'f3'); wheel(r, 20, 34, 'f3');
+  rect(r, 4, 10, 9, 15); flow(r, 2, 10, 10, 12, 'd', 'f1');   // (the map pass: each fall's stair is a block of stone in it, where two planks hung)
+  wheel(r, 24, 10, 'f1');   // the first fall, and its wheel under it
+  rect(r, 30, 22, 35, 27); flow(r, 28, 22, 10, 12, 'd', 'f2'); wheel(r, 16, 22, 'f2');
+  rect(r, 4, 34, 9, 36); ledge(r, 4, 9, 42); flue(r, 4, 9, 42, 43); flow(r, 2, 34, 10, 12, 'd', 'f3'); wheel(r, 20, 34, 'f3');
   mark(r, 'sluicer', 32, 10, { lo: -18, hi: 4 }); mark(r, 'sluicer', 22, 22, { lo: -8, hi: 5 }); mark(r, 'sluicer', 14, 34, { lo: -1, hi: 11 });   // each keeps to its landing (lo, hi: how far it goes either way, in tiles)
-  mark(r, 'chest', 34, 22, { holds: 'shards' });
+  mark(r, 'chest', 37, 22, { holds: 'shards' });
   for (const [k, x, y] of [['gate', 7, 22], ['gate', 33, 34], ['gate', 7, 44]]) deco(r, k, x, y);
   mark(r, 'torch', 36, 14); mark(r, 'torch', 14, 26); mark(r, 'torch', 25, 38); mark(r, 'urn', 16, 10); mark(r, 'crystal', 30, 10);
   for (const x of [34, 36]) for (const y of [11, 14]) keep(r, x, y);
@@ -77,9 +78,9 @@ function head(){
 function spill(){
   const r = cave(); door(r, 'left', 14, 19); door(r, 'right', 4, 9);
   rect(r, 2, 2, 37, 20, EMPTY); rect(r, 2, 2, 9, 13); rect(r, 30, 2, 37, 3);   // the top of it, at the head's door; the foot of it, at the wellspring's
-  ledge(r, 22, 27, 7); ledge(r, 14, 19, 11);                         // the stair, when it is dry
+  rect(r, 22, 2, 27, 7); rect(r, 10, 2, 19, 5); rect(r, 11, 6, 19, 11);                     // the stair, when it is dry (two steps of stone since the map pass)
   flow(r, 10, 6, 20, 16, 'd', 'sp');
-  deco(r, 'gate', 10, 14); mark(r, 'torch', 34, 12); mark(r, 'urn', 12, 2);
+  deco(r, 'gate', 10, 14); mark(r, 'torch', 34, 12); mark(r, 'urn', 33, 4);
   for (const x of [3, 5]) for (const y of [15, 18]) keep(r, x, y); for (const x of [34, 36]) for (const y of [5, 8]) keep(r, x, y);
   return r;
 }

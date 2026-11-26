@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Tempest in stone (latest; build 103).** Its map pass: 72 planks became 50 in 51 screens, none bare in the air (shelves of the hut's walls, terraces that meet, blocks of the floor, ladders against stone). 494 checks. No save is moved.
+**The Gardens in stone (latest; build 104).** Its map pass: 117 planks became 46 in 47 screens, none bare in the air. The quick ways that open when Mother Thorn falls are climbed by a bloom under each (three blooms are new or moved), not by ladders of planks. 495 checks. No save is moved.
+
+**The Tempest in stone (build 103).** Its map pass: 72 planks became 50 in 51 screens, none bare in the air (shelves of the hut's walls, terraces that meet, blocks of the floor, ladders against stone). 494 checks. No save is moved.
 
 **The Spires in stone (build 102).** Its map pass: 116 planks became 90, each with a reason (rungs, steps off a wall, stagings, two rope bridges, the Wyrm's slab). Not yet under one a screen: the ladders in the towers' clefts are left for your word. 493 checks. No save is moved.
 
