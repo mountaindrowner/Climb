@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 104 | 26 Nov 2026 | `COMMITNN` | The Gardens' map pass: 117 planks to 46 in 47 screens, none bare in the air; a bloom under each quick way | no | yes (now) |
+| 104 | 26 Nov 2026 | `d936c12` | The Gardens' map pass: 117 planks to 46 in 47 screens, none bare in the air; a bloom under each quick way | no | yes (now) |
 | 103 | 24 Nov 2026 | `1265ed4` | The Tempest's map pass: 72 planks to 50 in 51 screens, none bare in the air | no | replaced by 104 |
 | 102 | 24 Nov 2026 | `e0d0745` | The Spires' map pass: 116 planks to 90, each with a reason; not under one a screen (ladders in the clefts, the rope bridges) | no | replaced by 103 |
 | 101 | 24 Nov 2026 | `125baa0` | The Cloister's map pass: its height from its own stone, 122 planks to 49, none in the air | no | replaced by 102 |
