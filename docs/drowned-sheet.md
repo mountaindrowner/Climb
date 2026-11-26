@@ -32,6 +32,41 @@ This is the first deep water in the game for one who goes west first, so it teac
 *The engine has this already: the Flooded Levels' pump moves its water the same way (`RULE.tide`). What is new is a
 clock driving it, and the checks playing each room at low water and at high.*
 
+## Its gates, and the windlasses that work them
+
+*Added on your word, 26 Nov: "Each wing should feel interesting, contextual, complex. Also we should probably have
+gates and lever kind of functions that require the players to explore." (Roadmap, decisions 0.32 and 0.33.)*
+
+What the keepers did was hold water. They did it with gates of stone that slide in grooves, each raised and lowered by
+a windlass somewhere else, a chain along the wall between the two.
+
+- **A gate holds what is behind it.** Shut at high water, the room behind it stays full while the rest empties: he can
+  float in it whenever he likes. Shut at low water, it stays dry while the rest fills. So a gate is not only open or
+  shut: it is a choice about a room, made at a moment.
+- **A windlass,** struck, turns its gate over (open to shut, shut to open). It stays as he left it, and his save
+  remembers it, as it does the Aqueducts' wheels.
+- **No windlass is beside its gate.** The chain on the wall says which way it lies. Follow the chain.
+- **Some windlasses can only be reached at one state of the water,** or only with another gate set a certain way. That
+  is what there is to work out.
+
+**The three gates:**
+
+1. **The hall's gate,** between the water stair and the drowned hall. Shut when he first comes. Its chain runs back up
+   the stair to a windlass on a ledge over its head, which only high water reaches. The first lesson, with nothing to
+   fight: look where the chain goes, and wait for the water.
+2. **The cells' gate,** at the foot of the cells. Its windlass is on the hall's gallery, across the hall. Shut at high
+   water, the cells' shaft stays full and he floats straight to the top cell. Shut at low water, it stays dry and he
+   can walk into the bottom cell, which is otherwise always under. Both are worth doing: the top cell has the third
+   windlass's chain running through it, the bottom cell has a chest.
+3. **The culvert's grate,** in the hall's floor. Its windlass is in the cup room, behind the weir: the last room. So
+   the quick way back into the pool is opened from the far side, by one who has been all the way through.
+
+**And one he cannot work yet:** a hatch in the hall's floor with no chain to it at all, only a ring. With the Wyrm's
+wind he goes under at high water and lifts it from below: the undercroft.
+
+*What is new in the engine for this: a body of water that a gate can hold at the height it had when the gate shut;
+the windlass (a struck thing that keeps its state, as the wheels do); the chain drawn along the wall.*
+
 ## How it is entered, and left
 
 - **In:** past the pool, a door in the pool room's west wall, and a stair that goes down into the water.
@@ -83,18 +118,31 @@ for going west first.) Say if you would rather it did something else.
 - **Drawings:** the skimmer, the Pike, the floor's picture, a wet variant of the Roots' stone. The skimmer and the
   Pike need the same PixelLab route the creatures pass needs (the picture tool, not the character tool). I have not
   yet shown that route works: the bat I tried came out standing.
-- **Builds:** about three. The rooms and the water's clock; the skimmer and the leech; the Pike.
+- **Builds:** about four. The rooms and the water's clock; the gates and windlasses; the skimmer and the leech; the
+  Pike.
 - **Risk:** the checks have never played a level whose water moves on a clock. That is the part most likely to take
   longer than I think.
 
 ## To decide
 
 1. **Is this what "finish the wings" meant?** I read it as: build the two wings the plan has and the game does not.
-2. **The water that breathes: yes?** It is the whole wing. If you would rather the water stood still, the wing is
-   simpler and less its own.
+2. **The water that breathes, and the gates that hold it: yes?** They are the whole wing. If you would rather the
+   water stood still, the wing is simpler and less its own.
 3. **The Pike now, or later?** You said of the keepers "only the Wyrm for now". The Pike is a wing's fight, not a
    keeper, but it is a new large creature. The wing can be built without it and the weir left empty.
 4. **The relic.**
+
+## The same rule, in the wings already built
+
+Looking at the ten that are built, by what is in them today:
+
+| Has gates and the things that work them | Has a rule that acts as a gate, but nothing he sets | Has neither |
+|---|---|---|
+| The Glacier Galleries (nine braziers, each melts the ice near it); the Wreck of the Works (nine levers); the Aqueducts (five sluice wheels) | The Bell-Foundry (ringing iron brings the shutters down); the Eye of the Storm (doors that open to one who waits); the Keepers' Houses (his house shut while anything is out of place); the Orrery Wing (the grate behind the Almanac) | **The Ossuary, the Scriptorium, the Pilgrims' Cairns** |
+
+I cannot tell from the map alone whether the first column's levers are far enough from their gates to make him
+explore: that is for a play to say. The three in the last column are the ones that most need something. I would give
+each its own short sheet after this wing (a thing of that place, not a windlass again), if you want that.
 
 ## The other one: the Shard
 

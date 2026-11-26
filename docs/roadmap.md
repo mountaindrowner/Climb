@@ -83,7 +83,10 @@ per keeper, and **everything explained** to the player, plainly, the first time 
 | 0.30 | Keepers | **Only the Wyrm for now.** The others are asked about later (26 Nov) |
 | 0.31 | The Spires' ladders | **Left to my judgment, within the map pass's rule.** Decided: they stay. A ladder between stone sides is a made thing with a reason, which is what the rule asks; the Spires is held to 90 planks, each with a reason (26 Nov) |
 
-(The table above is continued by 0.21 to 0.25: answers given on 22 Nov; and 0.26 to 0.31: 26 Nov.)
+| 0.32 | What a wing is | **Interesting, contextual, complex.** Each wing is its own place with its own workings, made of what that place was, and with enough in it to be worked out (26 Nov) |
+| 0.33 | Gates and levers | **Gates, and the levers that open them, placed so that he has to explore:** the lever is not beside its gate. In each place they are that place's own things (a windlass, a wheel, a brazier), not one switch used everywhere (26 Nov) |
+
+(The table above is continued by 0.21 to 0.25: answers given on 22 Nov; and 0.26 to 0.33: 26 Nov.)
 
 **Where the gifts sheet stands (22 Nov, build 88):** step 1 built (86, the hammer; its drawings await a yes); step 2
 half built (87, the air dash from the Cracked Bell; the glide, the heart and the drink wait on what a keeper leaves
