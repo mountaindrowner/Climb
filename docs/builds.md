@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 107 | 26 Nov 2026 | `COMMIT107` | The Drowned Galleries, first build: the Roots' west wing, twelve screens, and water that rises and falls. The Roots moved to make room | **yes** (once) | yes (now) |
+| 107 | 26 Nov 2026 | `c17d1fd` | The Drowned Galleries, first build: the Roots' west wing, twelve screens, and water that rises and falls. The Roots moved to make room | **yes** (once) | yes (now) |
 | 106 | 26 Nov 2026 | `4ac1531` | The Deep's map pass, its five levels: 122 planks to 39, none bare in the air. The map pass is done | no | replaced by 107 |
 | 105 | 26 Nov 2026 | `24171a1` | The Firmament's map pass: 68 planks to 30 in 40 screens, none bare in the air; people hint and do not instruct | no | replaced by 106 |
 | 104 | 26 Nov 2026 | `d936c12` | The Gardens' map pass: 117 planks to 46 in 47 screens, none bare in the air; a bloom under each quick way | no | replaced by 105 |
