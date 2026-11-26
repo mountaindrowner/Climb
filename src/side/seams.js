@@ -124,7 +124,7 @@ function breach(){
 function stairfoot(){
   const r = room(); walls(r); door(r, 'top', 8, 13);
   stairs(r, 16, 2, 9, 1, 2); rect(r, 34, 2, 37, 10);              // the first flight, to the wall
-  shaftUp(r, 8, 13, 6, 18);                                       // and up from its foot to the next
+  for (const y of [7, 13, 19]) ledge(r, 8, 13, y); flue(r, 8, 13, 13, 20); keepUp(r, 9, 12, 8, 19);   // and up from its foot to the next (three rungs, the upper two between stone sides, since the map pass: four hung in the air)
   rect(r, 17, 2, 29, 9); den(r, 17, 26, 2, 6, { open: 'L', back: 0 }); rect(r, 16, 2, 16, 7, EMPTY);   // Ordric's last lamp-room, under the long stair: the stair's foot is its roof
   rect(r, 6, 1, 13, 1, EMPTY); mark(r, 'pool', 6, 1, { w: 8, look: 'ring' });   // a still pool at the stair's foot, the stars in it: the Firmament's raising water
   mark(r, 'spawn', 5, 2); mark(r, 'urn', 36, 11); mark(r, 'crystal', 34, 11);
@@ -134,10 +134,14 @@ function flights(){
   const r = room(1, 2); walls(r); door(r, 'bottom', 8, 13); ledge(r, 8, 13, 1);
   // flight after flight, turning at each landing, the sky darkening into stars as it goes
   stairs(r, 14, 2, 10, 1, 2); rect(r, 34, 2, 37, 11);
-  for (const [x0, x1, y] of [[26, 32, 15], [18, 24, 19], [10, 16, 23], [18, 24, 27]]){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); }   // the landings, turning
-  shaftUp(r, 8, 13, 31, 43);                                        // to the top step
-  mark(r, 'mote', 30, 26); mark(r, 'mote', 24, 40); mark(r, 'urn', 36, 12); mark(r, 'chest', 12, 24, { holds: 'shards' });
-  mark(r, 'torch', 36, 16); mark(r, 'torch', 6, 26); mark(r, 'torch', 34, 40);
+  // (the map pass, build 105: the landings were planks in the air. Now flights of the stair's own stone, out of one
+  // wall and then the other, and two rungs between stone sides to the top step)
+  const SH = [[2, 26, 17], [31, 37, 23], [2, 26, 29]];             // the landings, turning
+  for (const [x0, x1, y] of SH) rect(r, x0, y, x1, y);
+  for (const [x0, x1, y] of SH) keepOver(r, x0 < 20 ? 2 : 27, x0 < 20 ? 30 : 37, y);
+  for (const y of [35, 41]) ledge(r, 8, 13, y); flue(r, 8, 13, 35, 43); keepUp(r, 9, 12, 31, 43);   // to the top step
+  mark(r, 'mote', 29, 27); mark(r, 'mote', 24, 40); mark(r, 'urn', 36, 12); mark(r, 'chest', 6, 18, { holds: 'shards' });
+  mark(r, 'torch', 36, 26); mark(r, 'torch', 4, 21); mark(r, 'torch', 34, 40);
   return r;
 }
 

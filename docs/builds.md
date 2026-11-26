@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 104 | 26 Nov 2026 | `d936c12` | The Gardens' map pass: 117 planks to 46 in 47 screens, none bare in the air; a bloom under each quick way | no | yes (now) |
+| 105 | 26 Nov 2026 | `COMMITNN` | The Firmament's map pass: 68 planks to 30 in 40 screens, none bare in the air; people hint and do not instruct | no | yes (now) |
+| 104 | 26 Nov 2026 | `d936c12` | The Gardens' map pass: 117 planks to 46 in 47 screens, none bare in the air; a bloom under each quick way | no | replaced by 105 |
 | 103 | 24 Nov 2026 | `1265ed4` | The Tempest's map pass: 72 planks to 50 in 51 screens, none bare in the air | no | replaced by 104 |
 | 102 | 24 Nov 2026 | `e0d0745` | The Spires' map pass: 116 planks to 90, each with a reason; not under one a screen (ladders in the clefts, the rope bridges) | no | replaced by 103 |
 | 101 | 24 Nov 2026 | `125baa0` | The Cloister's map pass: its height from its own stone, 122 planks to 49, none in the air | no | replaced by 102 |
@@ -120,6 +121,61 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 105: the Firmament in stone (its map pass); hints, not instructions
+
+*Your word, 26 Nov: "Let's finish the other levels as well"; and on Hob in the Vein: "I don't want any of the text to
+be just an obvious giveaway of what the next section requires... I don't want you speaking in poems" (decision 0.27).*
+
+**For the player**
+
+- **The Firmament climbs on its own stone** (`docs/firmament-map-pass.png`, before and after;
+  `docs/firmament-map-pass-rooms.png`). 68 planks became 30, in 40 screens, and none is bare in the air. The
+  star-glass is untouched.
+  - **The Long Stair:** its landings are flights of stone out of one wall and then the other.
+  - **The forecourt and the transit:** a block and corbels up the tower's face.
+  - **The meridian:** rock hung from the gnomon's floor beside the hole, a step out of its foot.
+  - **The archive, the lens, the vigil, the gnomon, the aphelion, the ascension:** courses, lips and blocks of stone.
+  - **The Orrery Wing:** two steps of stone and a rung in the hours; one rung off the top of the turn in the arms.
+- **Five people's lines hint and no longer instruct** (the rule is: say it is tricky, say what to watch, never say
+  what to do, never a poem):
+  - Hob in the Vein: "The dark down here is not empty. I have never worked out what is in it." / "It keeps to where
+    you have already been. Watch the lamps. They seem to matter to it." / "I do not turn back in the Vein. I could not
+    tell you why."
+  - Hob in the Flooded Levels: "There are holes in the walls along here, and something in them. I have not seen what
+    sets it off. Watch how you pass." / "There is a lamp on the chapel altar that I never filled. It may be worth a
+    look."
+  - Ordric in the Cloister: "The doors in this house keep to the bell. I never learned its count. Listen to it."
+  - Ordric in the Spires: "The wind on the open faces is not steady. Something in it comes and goes. Watch it a
+    while."
+  - Ordric in the Tempest: "The air goes up in places here."
+- **Moved a little:** the Long Stair's chest (on the first flight), a crystal in the forecourt and one in the transit,
+  an urn in the vigil, a lamp in the hours, the meridian's chest (a row lower).
+
+**What is weaker than it should be**
+
+- **The orrery's step up to Corwen's cell is still a plank** (over the floor now, not in the air): stone there made a
+  low place over the way in.
+- **Other people's lines were not all reread against the new rule.** I changed the five that told him what to do.
+  Mirel's on urns and threads explain how the game works, which is a different thing; say if you want those gone too.
+- **Not played by a person.**
+
+- **Underneath:** `src/side/seams.js` (the stair's foot, the flights), `src/side/regions/firmament.js`,
+  `src/side/regions/orrery.js`, `src/side/talk.js` (the lines). `tests/side-platforms.test.mjs` holds the Firmament to
+  its pass.
+- **Save: not moved.**
+- **Checked:** 496 checks. The whole suite once with one failing: a note I wrote in the middle of a line in the vigil
+  had swallowed the code that walls up its shelf (the check for exactly that caught it). Mended, and that check, the
+  Firmament's own (real motor, map, pockets, low places) and the checks of things standing in rock run again: all
+  pass. Before the suite the Firmament's own checks found: the orrery's way in with no foothold under its one clear
+  column; the vigil's step blocking its hall; four low places under new stone. In the test browser: the Long Stair,
+  the forecourt, the meridian, the transit, the archive, the hours.
+
+**To try**
+
+1. Try a place: the Firmament. Climb the Long Stair, then the tower's face from the forecourt into the orrery.
+2. Cross the meridian and go up into the gnomon by the hung rock.
+3. Talk to Ordric in the Cloister, the Spires and the Tempest: do his lines point without telling?
 
 ### Build 104: the Gardens in stone (its map pass)
 

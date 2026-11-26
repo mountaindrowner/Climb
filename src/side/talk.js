@@ -25,8 +25,8 @@ export const PEOPLE = { lamplighter: { name: 'ORDRIC OF THE VIGIL', art: 'px_mot
 // middle of the figure (Mirel's middle is her shell)
 const FACES = { px_mole: [14, 8, 32], px_mole2: [12, 0, 32], px_moth: [18, 7, 32], px_hermit: [22, 10, 32], px_hermit_free: [22, 10, 32], px_rook: [20, 8, 32] };
 // Hob is met only in the Deep, so his lines are by region index from the Workings (6) down
-const HOB = []; HOB[7] = ['You lit them. Stay near a lamp you have lit.', 'Something follows the path you took down here. It will not come into lamplight.', 'Do not go back the way you came. Keep moving on.'];
-HOB[8] = ['The pump was my grandfather\'s. It has never stopped.', 'Go slowly past the holes in the walls. The eels strike at anything fast.', 'There is a lamp on the chapel altar that I never filled. Go and stand by it.'];
+const HOB = []; HOB[7] = ['The dark down here is not empty. I have never worked out what is in it.', 'It keeps to where you have already been. Watch the lamps. They seem to matter to it.', 'I do not turn back in the Vein. I could not tell you why.'];   // (26 Nov, decision 0.27: he hints, he does not say what to do)
+HOB[8] = ['The pump was my grandfather\'s. It has never stopped.', 'There are holes in the walls along here, and something in them. I have not seen what sets it off. Watch how you pass.', 'There is a lamp on the chapel altar that I never filled. It may be worth a look.'];
 HOB[6] = ['I am Hob. This is the Deep: the guild\'s mines, under the mountain.', 'It is not the way up. Come down here for what is hidden, when you are ready.', 'I will be further down. I always am.'];
 // (build 77, from a playtest: the lines were too vague. Each meeting now says, in order: who or where; what to do next
 // or how; and one line of their own. docs/writing.md, "Two voices")
@@ -34,9 +34,9 @@ export const SCRIPT = {
   hob: HOB,
   lamplighter: [
     ['You fell from the top. The water brought you back. It always will.', 'The way up is through these caves. The Warden guards the top of them.', INTRO.lamplighter],   // who he is (teach.js): said the first time he is met, wherever that is
-    ['This house rang its bell for the flame. The bell still rings.', 'Some doors here only open on the bell\'s beat. Wait for it.', 'The Toll hangs in the chapel at the top. Shards, if you have them.'],
-    ['The pass is above us. The Wyrm coils on it.', 'On the open faces the wind pushes you down. Climb between gusts.', 'Shards, if you have them.'],
-    ['The storm is above us. The Thunderhead turns in the middle of it.', 'Rising air will carry you up. I never could ride it. I always wanted to do the carrying.', 'Shards, if you have them.'],
+    ['This house rang its bell for the flame. The bell still rings.', 'The doors in this house keep to the bell. I never learned its count. Listen to it.', 'The Toll hangs in the chapel at the top. Shards, if you have them.'],
+    ['The pass is above us. The Wyrm coils on it.', 'The wind on the open faces is not steady. Something in it comes and goes. Watch it a while.', 'Shards, if you have them.'],
+    ['The storm is above us. The Thunderhead turns in the middle of it.', 'The air goes up in places here. I never could ride it. I always wanted to do the carrying.', 'Shards, if you have them.'],
     ['Sun. I had forgotten it has a smell.', 'Mother Thorn grows at the top of this garden. The summit is past her.', 'Shards, if you have them.'],
     ['This is my last lamp. The summit is just above us.', 'What waits there looks like you. It holds a lamp, and will not put it down.', 'Go up. You are expected.'],
   ],

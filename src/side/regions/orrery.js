@@ -10,7 +10,7 @@
 // Its rule (level.js movers, motor.js; and the hours here). It all turns, and it keeps time: what moves can be stood
 // on and carries him. And what it says is going to happen is wrong, always the same way: it calls an hour, and strikes
 // the one after.
-import { rect, door, ledge, mark, cave, EMPTY, ROCK, STILLED } from '../rooms.js';
+import { flue, rect, door, ledge, mark, cave, EMPTY, ROCK, STILLED } from '../rooms.js';
 
 const TITLE = 'THE ORRERY WING';
 const named = (fn, more = {}) => { const f = () => { const r = fn(); r.title = TITLE; r.look = 'orrery'; Object.assign(r, more); return r; }; Object.defineProperty(f, 'name', { value: fn.name }); return f; };
@@ -30,11 +30,11 @@ function escapement(){
 // the floor of hours: PLATES of them, each so many tiles wide, from tile HOUR0
 export const PLATES = 9, PLATE = 6, HOUR0 = 16;
 function hours(){
-  const r = cave(2, 1); rect(r, 2, 2, 77, 20, EMPTY); door(r, 'left', 12, 17); door(r, 'top', 71, 76); up(r, 71, 76, [5, 9, 13, 17, 21]);
+  const r = cave(2, 1); rect(r, 2, 2, 77, 20, EMPTY); door(r, 'left', 12, 17); door(r, 'top', 71, 76); rect(r, 71, 2, 73, 5); rect(r, 74, 2, 77, 9); up(r, 71, 76, [15, 21]); flue(r, 71, 76, 15, 20);   // (two steps of stone and a rung, since the map pass)
   rect(r, 2, 2, 10, 11); rect(r, 11, 2, 12, 7); rect(r, 13, 2, 14, 4);   // in at the head of a stair: from there the whole floor can be watched
   mark(r, 'hours', HOUR0, 2, { n: PLATES, w: PLATE }); deco(r, 'dates', 8, 12);
   mark(r, 'chest', 43, 2, { holds: 'shards' });
-  mark(r, 'torch', 4, 19); mark(r, 'torch', 74, 9); mark(r, 'crystal', 70, 2);
+  mark(r, 'torch', 4, 19); mark(r, 'torch', 67, 9); mark(r, 'crystal', 70, 2);
   for (const x of [3, 5]) for (const y of [13, 16]) keep(r, x, y);
   return r;
 }
@@ -44,10 +44,10 @@ function arms(){
   const r = cave(2, 2); rect(r, 2, 2, 77, 43, EMPTY); door(r, 'bottom', 71, 76); ledge(r, 71, 76, 1); door(r, 'top', 32, 37);
   for (const a of ARMS) mover(r, HUB[0], HUB[1], { kind: 'arm', ...a });
   rect(r, 35, 2, 45, 4); rect(r, 33, 2, 34, 3); rect(r, 46, 2, 47, 3);   // a mounting block under the hub: from it a planet at the foot of its turn is a short hop up
-  ledge(r, 30, 39, 40); ledge(r, 32, 37, 43);                       // off the top of the turn, and up to the Almanac
-  for (let x = 4; x <= 76; x += 3) for (const y of [36, 39, 42]) keep(r, x, y);   // the roof stays where it was cut: a planet at the top of its turn has his head near it
-  ledge(r, 2, 12, 22); mark(r, 'chest', 6, 23, { holds: 'thread' });   // at nine o'clock
-  ledge(r, 67, 77, 30); mark(r, 'chest', 73, 31, { holds: 'shards' });
+  ledge(r, 32, 37, 42); flue(r, 32, 37, 42, 43);                    // off the top of the turn, and up to the Almanac (one rung between stone sides, since the map pass: two planks hung there)
+  for (let x = 4; x <= 76; x += 3) for (const y of [36, 39, 42]) if (!(y === 42 && x === 31)) keep(r, x, y);   // the roof stays where it was cut: a planet at the top of its turn has his head near it
+  rect(r, 2, 22, 12, 22); mark(r, 'chest', 6, 23, { holds: 'thread' });   // at nine o'clock (a shelf of the wall)
+  rect(r, 67, 30, 77, 30); mark(r, 'chest', 73, 31, { holds: 'shards' });
   mark(r, 'roller', 20, 2, { lo: -16, hi: 30 }); mark(r, 'roller', 58, 2, { lo: -30, hi: 10 });
   mark(r, 'torch', 4, 10); mark(r, 'torch', 75, 10); mark(r, 'torch', 4, 34); mark(r, 'torch', 75, 38); mark(r, 'crystal', 10, 2); mark(r, 'urn', 64, 2);
   return r;

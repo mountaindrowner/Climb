@@ -469,7 +469,9 @@ then dresses the new shapes. One level a build, each held to a budget by a check
   to seven, each named (`docs/map-pass-sheet.md`, the Tempest room by room).
 - **The Gardens (build 104).** Done: 117 planks to 46 in 47 screens, none bare in the air. The four quick ways are
   climbed by a bloom under each mouth (`docs/map-pass-sheet.md`, the Gardens room by room).
-- **Then, in order:** the Firmament, the Workings, the Vein, the Flooded Levels,
+- **The Firmament (build 105).** Done: 68 planks to 30 in 40 screens, none bare in the air (`docs/map-pass-sheet.md`,
+  the Firmament room by room). **The climb's six regions are done.** What is left is the Deep.
+- **Then, in order:** the Workings, the Vein, the Flooded Levels,
   the Great Shaft, the Hollow.
 - **Phase 18's rough rock** (faces in every region) is cut into the same walls, so it is laid out with each level's
   pass and switched on in phase 18.

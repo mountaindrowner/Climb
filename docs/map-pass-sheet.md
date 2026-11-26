@@ -340,3 +340,35 @@ aqueduct's spans, which stand on piers that are painted, not built (a built pier
   planks did, and says what the region is about.
 - **Things painted on the floor move with the stone:** a pier and a bed of the arches, a chest in the sluices, an urn
   in the spill were inside new stone, and are beside it.
+
+## The Firmament, room by room (build 105)
+
+*Your word, 26 Nov: "Let's finish the other levels as well." The Firmament, its wing (the Orrery Wing) and its passage
+(the Long Stair). `docs/firmament-map-pass.png` is the region before and after; `docs/firmament-map-pass-rooms.png`,
+six rooms in the game.*
+
+**68 planks became 30, in 40 screens: under one a screen.** 24 were bare in the air; none is now. Of the 30: 20 rungs
+(wall to wall), 4 steps off a wall, 6 with ground under them. No rock hangs in the air, before or after. **The
+star-glass is not planks** (it is there and not there by turns): it is as it was.
+
+| Room | Before | After |
+|---|---|---|
+| The Long Stair's flights | Four landings of planks in the air, four rungs | Three flights of the stair's own stone, out of one wall and then the other; two rungs between stone sides to the top step |
+| The stair's foot | Four rungs over the pool | Three, the upper two between stone sides |
+| The forecourt | Five planks up the tower's face | A block, two corbels of the tower (the upper shorter), and a rung under the way in |
+| The meridian | Five planks up into the gnomon; a shelf for a chest over nothing | A block; rock hung from the gnomon's floor beside the hole, a step out of its foot, one rung. The shelf a row lower, within a post's reach of the island |
+| The gnomon | A plank; the high door's landing and the thread's shelf planks | A block; the landing the door's own sill; the shelf a lip of the wall. Its floor of planks half way up stays: a made floor, wall to wall |
+| The archive, the lens, the aphelion, the vigil | Shelves of plank | A course over each of the archive's doors; a lip of the lens's pier; a lip of the aphelion's wall; two steps of stone in the vigil |
+| The transit, the ascension | Five planks up the tower; three up to the summit | A block and two corbels of the tower; a block, the star-glass, and a shelf of the wall under the way up |
+| The orrery | A plank up to Corwen's cell; a plank on the cell's roof | The plank a row lower over the floor (a post's reach); the other is the roof's stone |
+| The hours | Five rungs in the air | Two steps of stone and a rung between stone sides |
+| The arms | Two planks off the top of the turn; two shelves | One rung between stone sides; the shelves are the wall's |
+
+**What I learned:**
+
+- **A way in under a low floor has one column that works.** The orrery's way in comes up under Corwen's cell: only its
+  west column has room to stand. The foothold under it must reach that column, so the last step is a rung the hatch's
+  whole width, not a short corbel.
+- **Under a low shelf there is no room to jump high.** The vigil's step blocked the hall for the simpler check (and
+  would have been a fight for a person): it is two steps, the lower on the shelf's side.
+- **A porch out from a cell is a low place under it.** I tried one for the orrery and took it out.

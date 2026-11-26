@@ -14,7 +14,7 @@ const BUDGET = {
   'The Spires':         [90, 28, 3, 'reasons'],   // (build 102, its pass: 116 planks became 90 and every one has a reason, but it is NOT under one a screen (56): what is left is ladders in the towers' clefts and two rope bridges. The three pieces of rock in the air are walls over doorways and the rock adrift that holds a thread: docs/map-pass-sheet.md, "The Spires, room by room")
   'The Tempest':        [50, 9, 7, true],   // (build 103, its pass: 72 planks became 50, in 51 screens; bare in the air, 29 became none. The seven pieces of rock in the air are named in docs/map-pass-sheet.md, "The Tempest, room by room")
   'The Gardens':        [46, 3, 7, true],   // (build 104, its pass: 117 planks became 46, in 47 screens; bare in the air, 85 became none. The seven pieces of rock in the air are the hanging gardens' own terraces and the aqueduct's spans: docs/map-pass-sheet.md, "The Gardens, room by room")
-  'The Firmament':      [70, 50, 0],
+  'The Firmament':      [30, 6, 0, true],   // (build 105, its pass: 68 planks became 30, in 40 screens; bare in the air, 24 became none. The star-glass is not planks and is as it was)
   'The Workings':       [47, 44, 0],
   'The Vein':           [43, 33, 2],
   'The Flooded Levels': [10, 8, 0],

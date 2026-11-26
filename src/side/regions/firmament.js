@@ -16,7 +16,7 @@
 //   vigil      the last shrine
 //   ascension  bare rock and the last planks
 //   zenith     the top of the mountain. The Fallen waits by the dark beacon
-import { room, rect, door, ledge, mark, open, cave, EMPTY, SPIKES, CRACKED, GLASS_A, GLASS_B } from '../rooms.js';
+import { room, rect, door, ledge, mark, open, cave, stone, keepOver, EMPTY, SPIKES, CRACKED, GLASS_A, GLASS_B } from '../rooms.js';
 const A = GLASS_A, B = GLASS_B;
 // a trench of shards in a floor two tiles thick: a tile deep, so a fall into it is one hurt and a step out
 // (base: the row its shards stand in; 1 where the floor is three thick, over open air, so nothing shows through from below)
@@ -36,9 +36,9 @@ function terrace(){
   rect(r, 9, 2, 12, 3);                                            // a plinth
   trench(r, 18, 31); ledge(r, 19, 23, 1, A); ledge(r, 26, 30, 1, B);
   trench(r, 46, 59); ledge(r, 47, 51, 1, B); ledge(r, 54, 58, 1, A);
-  ledge(r, 62, 66, 5); ledge(r, 68, 74, 9); ledge(r, 62, 66, 13); ledge(r, 68, 74, 17); ledge(r, 68, 74, 21);   // up the tower's face
+  rect(r, 62, 2, 66, 5); rect(r, 68, 10, 75, 10); rect(r, 70, 16, 75, 16); ledge(r, 68, 75, 20); rect(r, 67, 20, 67, 22); keepOver(r, 64, 75, 10); keepOver(r, 66, 75, 16);   // up the tower's face: a block, two corbels of the tower, and a rung under the way in, from the tower to a rib of its floor (five planks, until the map pass)
   mark(r, 'sentinel', 38, 2); mark(r, 'mote', 50, 7); mark(r, 'mote', 53, 9); mark(r, 'mote', 56, 7);
-  mark(r, 'urn', 42, 2); mark(r, 'crystal', 35, 2); mark(r, 'crystal', 63, 2); mark(r, 'crystal', 10, 4); mark(r, 'torch', 4, 8); mark(r, 'torch', 72, 6);
+  mark(r, 'urn', 42, 2); mark(r, 'crystal', 35, 2); mark(r, 'crystal', 60, 2); mark(r, 'crystal', 10, 4); mark(r, 'torch', 4, 8); mark(r, 'torch', 72, 6);
   return r;
 }
 function orrery(){
@@ -46,7 +46,8 @@ function orrery(){
   door(r, 'bottom', 28, 34); rect(r, 28, 2, 34, 2, EMPTY); ledge(r, 28, 34, 2); door(r, 'left', 3, 8);
   trench(r, 7, 24, 1);                                             // the shards under the orrery's arms
   ledge(r, 20, 23, 5, A); ledge(r, 14, 17, 7, B); ledge(r, 8, 11, 5, A);   // an arc over them
-  rect(r, 29, 6, 37, 7); rect(r, 29, 13, 37, 14); ledge(r, 24, 27, 11); ledge(r, 34, 37, 15); for (const x of [30, 33, 36]) mark(r, 'keep', x, 9);   // Corwen's cell, cut into the east wall where the orrery's arms pass: the gallery goes round it
+  rect(r, 29, 6, 37, 7); rect(r, 29, 13, 37, 14); ledge(r, 25, 27, 10); rect(r, 34, 15, 37, 15);   // (the step up a row lower and a tile east since the map pass: over the floor, within a post's reach of it)
+  for (const x of [30, 33, 36]) mark(r, 'keep', x, 9);   // Corwen's cell, cut into the east wall where the orrery's arms pass: the gallery goes round it
   mark(r, 'chest', 36, 16, { holds: 'shards' });
   mark(r, 'oculus', 6, 16);   // (out of sight of Corwen's cell)
   mark(r, 'torch', 36, 5); mark(r, 'torch', 4, 10); mark(r, 'crystal', 26, 3); mark(r, 'crystal', 4, 3);
@@ -57,9 +58,10 @@ function meridian(){
   const r = open(2, 1); rect(r, 0, 0, 79, 2); rect(r, 0, 3, 2, 22);     // three thick here too
   trench(r, 44, 63, 1); ledge(r, 59, 63, 2, A); ledge(r, 54, 58, 2, B); ledge(r, 49, 53, 2, A); ledge(r, 44, 48, 2, B);
   trench(r, 16, 37, 1); ledge(r, 33, 37, 2, A); ledge(r, 28, 32, 2, B); ledge(r, 22, 27, 2, A); ledge(r, 16, 21, 2, B);
-  ledge(r, 44, 47, 7, A); ledge(r, 38, 43, 11);                    // over the island between: a plank, and a shelf
-  mark(r, 'chest', 40, 12, { holds: 'shards' });
-  ledge(r, 4, 9, 6); ledge(r, 10, 15, 9); ledge(r, 4, 9, 13); ledge(r, 8, 14, 17); ledge(r, 8, 14, 21);   // up into the gnomon
+  ledge(r, 44, 47, 7, A); ledge(r, 38, 43, 10);                    // over the island between: a plank, and a shelf (a row lower since the map pass: within a post's reach of the island)
+  mark(r, 'chest', 40, 11, { holds: 'shards' });
+  // up into the gnomon (the map pass: a block, then rock hung from the gnomon's floor beside the hole, a step out of its foot, one rung)
+  rect(r, 3, 3, 7, 7); rect(r, 15, 13, 17, 22); rect(r, 8, 13, 14, 13); ledge(r, 8, 14, 19); keepOver(r, 4, 14, 13); for (const y of [9, 11]) for (const x of [4, 8, 12]) mark(r, 'keep', x, y);
   mark(r, 'oculus', 41, 15); mark(r, 'mote', 24, 8); mark(r, 'mote', 27, 10); mark(r, 'mote', 30, 8);
   mark(r, 'crystal', 40, 3); mark(r, 'crystal', 70, 3); mark(r, 'crystal', 12, 3); mark(r, 'torch', 74, 8); mark(r, 'torch', 5, 9);
   return r;
@@ -68,9 +70,9 @@ function meridian(){
 function gnomon(){
   const r = open(1, 2); rect(r, 0, 0, 39, 1); rect(r, 8, 0, 14, 1, EMPTY); ledge(r, 8, 14, 1);
   rect(r, 0, 2, 1, 45); rect(r, 36, 2, 39, 45); rect(r, 36, 2, 39, 7, EMPTY); rect(r, 36, 25, 39, 30, EMPTY);   // its walls; a door low to the archive, one high onto the roof
-  ledge(r, 16, 22, 5); ledge(r, 24, 28, 9, A); ledge(r, 2, 35, 13);                  // to the floor half way
-  ledge(r, 26, 30, 17, B); ledge(r, 18, 22, 21, A); ledge(r, 28, 35, 24);            // and on, to the high door
-  ledge(r, 9, 13, 24, B); ledge(r, 2, 6, 28);                                        // a way aside, to what was left on the top shelf
+  stone(r, 16, 22, 5); ledge(r, 24, 28, 9, A); ledge(r, 2, 35, 13);                  // to the floor half way (the first step a block, since the map pass)
+  ledge(r, 26, 30, 17, B); ledge(r, 18, 22, 21, A); rect(r, 28, 24, 35, 24);         // and on, to the high door: its sill
+  ledge(r, 9, 13, 24, B); rect(r, 2, 28, 6, 28);                                        // a way aside, to what was left on the top shelf
   mark(r, 'thread', 4, 29);
   mark(r, 'mote', 12, 6); mark(r, 'mote', 8, 32); mark(r, 'oculus', 6, 19); mark(r, 'mote', 22, 28); mark(r, 'mote', 25, 30); mark(r, 'mote', 28, 28);
   mark(r, 'torch', 4, 5); mark(r, 'torch', 33, 16); mark(r, 'torch', 33, 27); mark(r, 'crystal', 30, 2); mark(r, 'crystal', 20, 14); mark(r, 'crystal', 4, 14); mark(r, 'urn', 26, 2);
@@ -79,7 +81,7 @@ function gnomon(){
 function archive(){
   const r = cave(); door(r, 'left', 2, 7); door(r, 'right', 2, 7);
   rect(r, 13, 2, 27, 2); rect(r, 15, 3, 25, 3);                    // the dais, stepped
-  ledge(r, 5, 11, 9); ledge(r, 29, 35, 9);
+  rect(r, 2, 9, 11, 9); rect(r, 29, 9, 37, 9); keepOver(r, 2, 16, 9); keepOver(r, 24, 37, 9);   // (a course over each door, since the map pass)
   mark(r, 'shrine', 20, 4); mark(r, 'npc', 9, 2, { who: 'lamplighter' });
   mark(r, 'urn', 30, 2); mark(r, 'urn', 33, 2); mark(r, 'crystal', 8, 10); mark(r, 'crystal', 32, 10); mark(r, 'torch', 4, 14); mark(r, 'torch', 36, 14); mark(r, 'torch', 14, 9); mark(r, 'torch', 26, 9);
   return r;
@@ -87,7 +89,7 @@ function archive(){
 // the lens room: its keeper, its two eyes, and behind the cracked pier what the astronomers steered by
 function lens(){
   const r = cave(); door(r, 'left', 2, 7);
-  ledge(r, 8, 12, 5, A); ledge(r, 14, 18, 9, B); ledge(r, 20, 26, 12);
+  ledge(r, 8, 12, 5, A); ledge(r, 14, 18, 9, B); rect(r, 20, 12, 30, 12);   // (the last a lip of the pier)
   mark(r, 'chest', 23, 13, { holds: 'shards' });
   rect(r, 31, 7, 37, 20); rect(r, 31, 2, 32, 6, CRACKED);          // the pier, and where it has split
   mark(r, 'chest', 35, 2, { holds: 'relic:starcompass' });
@@ -102,10 +104,10 @@ function transit(){
   mark(r, 'updraft', 28, 2, { w: 5, h: 15 });
   trench(r, 52, 59);
   ledge(r, 47, 51, 14, A); ledge(r, 54, 58, 11, B);                // down from the pier
-  ledge(r, 62, 66, 9); ledge(r, 68, 72, 5); ledge(r, 68, 72, 13); ledge(r, 62, 66, 17); ledge(r, 66, 72, 21);   // and up, to the aphelion
+  rect(r, 62, 2, 66, 6); rect(r, 68, 12, 75, 12); rect(r, 70, 18, 75, 18); rect(r, 73, 19, 75, 22); keepOver(r, 64, 75, 12); keepOver(r, 66, 72, 18);   // and up, to the aphelion: a block and two corbels of the tower
   mark(r, 'npc', 42, 17, { who: 'wren' });
   mark(r, 'sentinel', 15, 2); mark(r, 'sentinel', 23, 2); mark(r, 'oculus', 56, 17);
-  mark(r, 'urn', 8, 2); mark(r, 'crystal', 26, 2); mark(r, 'crystal', 38, 17); mark(r, 'crystal', 64, 2); mark(r, 'torch', 4, 7); mark(r, 'torch', 74, 8);
+  mark(r, 'urn', 8, 2); mark(r, 'crystal', 26, 2); mark(r, 'crystal', 38, 17); mark(r, 'crystal', 61, 2); mark(r, 'torch', 4, 7); mark(r, 'torch', 74, 8);
   return r;
 }
 // a wall with a window high in it, and a bloom to throw him at it: the planks are the last step
@@ -114,7 +116,7 @@ function aphelion(){
   rect(r, 8, 2, 11, 14); rect(r, 8, 21, 11, 22);                   // the wall; its window
   mark(r, 'bloom', 21, 2);
   ledge(r, 17, 20, 13, A); ledge(r, 12, 15, 14, B);
-  ledge(r, 30, 36, 10); mark(r, 'chest', 34, 11, { holds: 'shards' });
+  rect(r, 30, 10, 37, 10); mark(r, 'chest', 34, 11, { holds: 'shards' });
   mark(r, 'sentinel', 4, 2); mark(r, 'sentinel', 35, 2);
   mark(r, 'crystal', 24, 2); mark(r, 'crystal', 10, 15); mark(r, 'torch', 36, 5); mark(r, 'torch', 2, 8);
   return r;
@@ -122,15 +124,15 @@ function aphelion(){
 function vigil(){
   const r = cave(); door(r, 'left', 2, 7); door(r, 'right', 2, 7);
   rect(r, 9, 2, 21, 2); rect(r, 11, 3, 19, 3);                     // the last shrine's step
-  ledge(r, 22, 26, 6); rect(r, 26, 10, 37, 11); rect(r, 31, 12, 32, 16, CRACKED); rect(r, 31, 17, 37, 20);   // a shelf under the roof, walled up
+  rect(r, 24, 2, 25, 4); rect(r, 22, 2, 23, 6); rect(r, 26, 10, 37, 11); rect(r, 31, 12, 32, 16, CRACKED); rect(r, 31, 17, 37, 20);   // a shelf under the roof, walled up (and up to it two steps of stone, the lower toward the shelf: under it there is no room to jump higher)
   mark(r, 'thread', 35, 12);
-  mark(r, 'shrine', 15, 4); mark(r, 'urn', 26, 2); mark(r, 'urn', 5, 2); mark(r, 'crystal', 30, 2); mark(r, 'crystal', 34, 2);
+  mark(r, 'shrine', 15, 4); mark(r, 'urn', 28, 2); mark(r, 'urn', 5, 2); mark(r, 'crystal', 30, 2); mark(r, 'crystal', 34, 2);
   mark(r, 'torch', 4, 9); mark(r, 'torch', 24, 12); mark(r, 'torch', 36, 6);
   return r;
 }
 function ascension(){
   const r = open(); rect(r, 0, 0, 39, 1); rect(r, 0, 2, 1, 22);
-  ledge(r, 28, 33, 5); ledge(r, 20, 25, 9, A); ledge(r, 13, 18, 13, B); ledge(r, 8, 14, 17); ledge(r, 8, 14, 21);
+  stone(r, 28, 33, 5); ledge(r, 20, 25, 9, A); ledge(r, 13, 18, 13, B); rect(r, 2, 18, 12, 18); rect(r, 2, 19, 7, 22); keepOver(r, 8, 17, 18);   // (a block, the star-glass, and a shelf of the wall under the way up)
   mark(r, 'mote', 24, 6); mark(r, 'mote', 27, 8); mark(r, 'mote', 30, 6);
   mark(r, 'crystal', 34, 2); mark(r, 'crystal', 5, 2); mark(r, 'torch', 36, 8);
   return r;

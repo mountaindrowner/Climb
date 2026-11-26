@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Gardens in stone (latest; build 104).** Its map pass: 117 planks became 46 in 47 screens, none bare in the air. The quick ways that open when Mother Thorn falls are climbed by a bloom under each (three blooms are new or moved), not by ladders of planks. 495 checks. No save is moved.
+**The Firmament in stone (latest; build 105).** Its map pass: 68 planks became 30 in 40 screens, none bare in the air; the star-glass is as it was. Five lines of Hob's and Ordric's hint at what is ahead and no longer say what to do. 496 checks. No save is moved.
+
+**The Gardens in stone (build 104).** Its map pass: 117 planks became 46 in 47 screens, none bare in the air. The quick ways that open when Mother Thorn falls are climbed by a bloom under each (three blooms are new or moved), not by ladders of planks. 495 checks. No save is moved.
 
 **The Tempest in stone (build 103).** Its map pass: 72 planks became 50 in 51 screens, none bare in the air (shelves of the hut's walls, terraces that meet, blocks of the floor, ladders against stone). 494 checks. No save is moved.
 
