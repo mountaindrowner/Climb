@@ -6,7 +6,7 @@
 //           him back: the longest glide there is). At its foot, deep water: whoever falls the shaft falls into it unhurt
 //   floor   reached under that water, through a drowned arch, so only with the Wyrm's wind (needs). Dry rock, and the
 //           hole the Auger went on through. A warm light comes up out of it. The way down is the next phase's
-import { room, rect, door, ledge, mark, EMPTY } from '../rooms.js';
+import { room, rect, door, ledge, mark, EMPTY, ROCK, LEDGE } from '../rooms.js';
 
 const mass = (cw = 1, ch = 1) => { const r = room(cw, ch); rect(r, 0, 0, r.w - 1, r.h - 1); return r; };
 const filler = draw => { const r = room(); draw(r); r.filler = true; return r; };
@@ -15,7 +15,7 @@ const deco = (r, kind, x, y) => mark(r, 'deco', x, y, { kind });
 const keep = (r, x, y) => mark(r, 'keep', x, y);
 // where the water at the foot of the drop stands (the row over its top), and the camp's stages: [x0, x1, row]
 // (the second stage hangs out from under the head's shelf, so there is room over it to jump from)
-export const SHAFT = { top: 14, stages: [[24, 31, 55], [16, 23, 50], [24, 31, 45], [8, 15, 40], [24, 31, 35], [8, 15, 30], [24, 31, 25], [8, 15, 20]] };
+export const SHAFT = { top: 14, stages: [[25, 31, 55], [20, 23, 50], [24, 31, 44], [8, 15, 40], [24, 31, 35], [8, 15, 30], [24, 31, 25], [8, 15, 20]] };
 
 function drop(){
   const r = mass(1, 3); rect(r, 8, 6, 31, 66, EMPTY);
@@ -23,13 +23,14 @@ function drop(){
   rect(r, 8, 58, 19, 60); rect(r, 13, 60, 17, 60, EMPTY); mark(r, 'pool', 13, 60, { w: 5, look: 'trough' });
   mark(r, 'spawn', 10, 61); mark(r, 'arrive', 10, 61, { name: 'top' }); mark(r, 'pass', 8, 63, { w: 5, h: 4, to: 7, at: 'lip' });
   // the camp, stage under stage, and at the water a stage of rock to climb out onto
-  for (const [x0, x1, y] of SHAFT.stages) ledge(r, x0, x1, y);
+  rect(r, 18, 50, 19, 57);   // a rib of the head's shelf, down to the second stage: a plank off it, out from under the shelf (room over it to jump from; and nothing of stone at the height of his head beside the stages either side of it)
+  for (const [x0, x1, y] of SHAFT.stages) rect(r, x0, y, x1, y, y === 20 || y === 50 ? LEDGE : ROCK);   // (the lowest a plank still: he comes up through it from the bank. The rest ledges of the shaft's own rock, out of one side and the other, since the map pass: they were planks, and the second hung in the air)
   rect(r, 8, 6, 13, SHAFT.top);   // (build 81: a row higher than the water, so it is seen to be a bank; it was level with the water's top, and he could not tell he could get out there)
   rect(r, 32, 6, 39, 10, EMPTY); mark(r, 'water', 8, 6, { w: 24, h: SHAFT.top - 6 }); mark(r, 'water', 32, 6, { w: 8, h: 5, deep: true });
   mark(r, 'updraft', 8, 16, { w: 24, h: 40, cold: true });
   deco(r, 'camp', 27, 56); deco(r, 'cot', 11, 41); deco(r, 'kettle', 28, 36); deco(r, 'depth', 20, 48); deco(r, 'depth', 20, 28); deco(r, 'depthonly', 20, 18);
-  mark(r, 'chest', 28, 46, { holds: 'thread' }); mark(r, 'chest', 11, 21, { holds: 'thread' }); mark(r, 'urn', 26, 26); mark(r, 'urn', 18, 61);
-  for (let y = 8; y <= 56; y += 4) for (const x of [10, 14, 18, 22, 26, 30]) if (!(x < 14 && y < SHAFT.top)) keep(r, x, y);
+  mark(r, 'chest', 28, 45, { holds: 'thread' }); mark(r, 'chest', 11, 21, { holds: 'thread' }); mark(r, 'urn', 26, 26); mark(r, 'urn', 18, 61);
+  for (let y = 8; y <= 56; y += 4) for (const x of [10, 14, 18, 22, 26, 30]) if (!(x < 14 && y < SHAFT.top) && r.tiles[y][x] !== ROCK) keep(r, x, y);
   for (const x of [22, 26, 30]) for (const y of [60, 64]) keep(r, x, y);
   for (const x of [33, 36]) for (const y of [7, 9]) keep(r, x, y);
   return r;

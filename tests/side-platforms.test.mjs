@@ -15,11 +15,11 @@ const BUDGET = {
   'The Tempest':        [50, 9, 7, true],   // (build 103, its pass: 72 planks became 50, in 51 screens; bare in the air, 29 became none. The seven pieces of rock in the air are named in docs/map-pass-sheet.md, "The Tempest, room by room")
   'The Gardens':        [46, 3, 7, true],   // (build 104, its pass: 117 planks became 46, in 47 screens; bare in the air, 85 became none. The seven pieces of rock in the air are the hanging gardens' own terraces and the aqueduct's spans: docs/map-pass-sheet.md, "The Gardens, room by room")
   'The Firmament':      [30, 6, 0, true],   // (build 105, its pass: 68 planks became 30, in 40 screens; bare in the air, 24 became none. The star-glass is not planks and is as it was)
-  'The Workings':       [47, 44, 0],
-  'The Vein':           [43, 33, 2],
-  'The Flooded Levels': [10, 8, 0],
-  'The Great Shaft':    [9, 1, 0],
-  'The Hollow':         [13, 10, 0],
+  'The Workings':       [11, 4, 0, true],   // (build 106, the Deep's pass: 47 planks became 11, in 14 screens)
+  'The Vein':           [9, 0, 2, true],    // (build 106: 43 became 9, in 12 screens. The two pieces of rock in the air are the knot's two floors, each cut through by its shafts)
+  'The Flooded Levels': [10, 7, 0, true],   // (build 106: one plank in the air made a step off a pillar; the rest stood on posts already)
+  'The Great Shaft':    [3, 0, 0, true],    // (build 106: six of its eight stages are ledges of the shaft's rock; two are planks still, off the bank's wall and off a rib of the head's shelf)
+  'The Hollow':         [6, 2, 0, true],    // (build 106: 13 became 6)
 };
 // a rope bridge: boards along one row, no gap between one and the next wider than three tiles, its two ends on rock
 // (rock beside the end board, no more than three tiles off along the row, or right under it). Each board of it is

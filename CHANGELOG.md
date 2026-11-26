@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Firmament in stone (latest; build 105).** Its map pass: 68 planks became 30 in 40 screens, none bare in the air; the star-glass is as it was. Five lines of Hob's and Ordric's hint at what is ahead and no longer say what to do. 496 checks. No save is moved.
+**The Deep in stone (latest; build 106).** The map pass for the Deep's five levels: 122 planks became 39, none bare in the air, each level under one a screen. The map pass is done for all eleven levels. The creatures pass has its sheet. 501 checks. No save is moved.
+
+**The Firmament in stone (build 105).** Its map pass: 68 planks became 30 in 40 screens, none bare in the air; the star-glass is as it was. Five lines of Hob's and Ordric's hint at what is ahead and no longer say what to do. 496 checks. No save is moved.
 
 **The Gardens in stone (build 104).** Its map pass: 117 planks became 46 in 47 screens, none bare in the air. The quick ways that open when Mother Thorn falls are climbed by a bloom under each (three blooms are new or moved), not by ladders of planks. 495 checks. No save is moved.
 

@@ -53,7 +53,7 @@ function pockets(){
   water(r, 2, 0, 76, 12);
   mark(r, 'raft', 30, 12, { w: 6 }); mark(r, 'raft', 50, 12, { w: 6 });
   mark(r, 'sunk', 31, 4); mark(r, 'sunk', 51, 4); mark(r, 'sunk', 64, 4);
-  ledge(r, 53, 58, 17); mark(r, 'chest', 56, 18, { holds: 'thread' });
+  ledge(r, 53, 59, 17); mark(r, 'chest', 56, 18, { holds: 'thread' });   // (out from the pillar, since the map pass: it hung a tile short of it)
   lamp(r, 13, 18); lamp(r, 31, 19); lamp(r, 49, 19); lamp(r, 69, 19); dl(r, 21, 7); dl(r, 41, 7); dl(r, 61, 7);
   mark(r, 'urn', 4, 12); mark(r, 'urn', 7, 12);
   for (let x = 4; x <= 76; x += 4) for (const y of [6, 14, 17]) if (!(x < 10 && y < 12) && !(y > 9 && [20, 40, 60].includes(x))) keep(r, x, y);

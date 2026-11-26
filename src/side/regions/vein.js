@@ -10,7 +10,7 @@
 //   lip       the edge of the Great Shaft: the way on, later
 // Its rule (level.js RULE.lit; main.js the lamp). Do not go back over it. The Echo goes where he went a few seconds ago
 // and strikes where he was; it will not come into the light of a guild lamp he has lit.
-import { room, rect, door, ledge, mark, cave, EMPTY, STILLED } from '../rooms.js';
+import { flue, room, rect, door, ledge, mark, cave, EMPTY, STILLED } from '../rooms.js';
 
 const filler = draw => { const r = room(); draw(r); r.filler = true; return r; };
 function solid(){ return filler(r => { rect(r, 0, 0, 39, 22); }); }
@@ -20,8 +20,8 @@ const up = (r, x0, x1, ys) => { for (const y of ys) ledge(r, x0, x1, y); };
 const lamp = (r, x, y) => mark(r, 'glamp', x, y);                   // a guild lamp, unlit: it hangs at y
 
 function seal(){
-  const r = cave(); door(r, 'top', 4, 9); up(r, 4, 9, [5, 9, 13, 17, 21]); door(r, 'right', 2, 7);
-  // (the way up is taken from the third rung: the room's roof is the level's, and there is no jumping higher than its top)
+  const r = cave(); door(r, 'top', 4, 9); rect(r, 10, 2, 12, 4); rect(r, 7, 2, 9, 9); rect(r, 2, 2, 6, 14); door(r, 'right', 2, 7);   // (three steps of stone up to the way out, since the map pass: five rungs hung there)
+  // (the way up is taken from the top step: the room's roof is the level's, and there is no jumping higher than its top)
   mark(r, 'spawn', 14, 2); mark(r, 'arrive', 14, 2, { name: 'top' }); mark(r, 'arrive', 17, 2, { name: 'overflow' }); mark(r, 'pass', 4, 15, { w: 6, h: 6, to: 6, at: 'seal' });
   rect(r, 20, 1, 26, 1, EMPTY); mark(r, 'pool', 20, 1, { w: 7, look: 'trough' });   // the Vein's raising water: the last trough the guild set
   lamp(r, 14, 8); lamp(r, 32, 8); mark(r, 'crystal', 36, 2); mark(r, 'urn', 28, 2);
@@ -31,39 +31,40 @@ function seal(){
 }
 function glitter(){
   const r = cave(2, 1); door(r, 'left', 2, 7); door(r, 'bottom', 10, 15); ledge(r, 10, 15, 1);
-  ledge(r, 30, 38, 7); ledge(r, 50, 58, 9);
-  mark(r, 'prospector', 28, 2, { face: 1 }); mark(r, 'crystal', 33, 2); mark(r, 'prospector', 62, 2, { face: 1 }); mark(r, 'crystal', 67, 2);
-  mark(r, 'glimmer', 22, 2); mark(r, 'glimmer', 44, 2); mark(r, 'glimmer', 54, 10); mark(r, 'glimmer', 73, 2);
-  mark(r, 'crystal', 40, 2); mark(r, 'crystal', 50, 2); mark(r, 'crystal', 34, 8); mark(r, 'crystal', 76, 2); mark(r, 'crystal', 6, 2);
+  rect(r, 30, 2, 38, 4); rect(r, 32, 5, 36, 6); rect(r, 50, 2, 58, 5); rect(r, 52, 6, 56, 8);   // two heaps of spoil, stepped (stagings, until the map pass)
+  mark(r, 'prospector', 27, 2, { face: 1 }); mark(r, 'crystal', 31, 5); mark(r, 'prospector', 62, 2, { face: 1 }); mark(r, 'crystal', 67, 2);
+  mark(r, 'glimmer', 22, 2); mark(r, 'glimmer', 44, 2); mark(r, 'glimmer', 54, 9); mark(r, 'glimmer', 73, 2);
+  mark(r, 'crystal', 40, 2); mark(r, 'crystal', 48, 2); mark(r, 'crystal', 34, 7); mark(r, 'crystal', 76, 2); mark(r, 'crystal', 6, 2);
   lamp(r, 18, 8); lamp(r, 46, 14); lamp(r, 72, 8);
-  mark(r, 'chest', 76, 2, { holds: 'shards' }); mark(r, 'urn', 25, 2); mark(r, 'urn', 58, 2);
+  mark(r, 'chest', 76, 2, { holds: 'shards' }); mark(r, 'urn', 24, 2); mark(r, 'urn', 60, 2);
   for (const x of [3, 5]) for (const y of [3, 6]) keep(r, x, y);
   return r;
 }
 // the knot: its three galleries' floors (the row he stands on) and the shafts between them
 export const KNOT = { floors: [2, 17, 32] };
 function knot(){
-  const r = cave(2, 2); rect(r, 2, 2, 77, 43, EMPTY); door(r, 'top', 50, 55); up(r, 50, 55, [35, 39, 43]); door(r, 'bottom', 58, 63); ledge(r, 58, 63, 1);
+  const r = cave(2, 2); rect(r, 2, 2, 77, 43, EMPTY); door(r, 'top', 50, 55); door(r, 'bottom', 58, 63); ledge(r, 58, 63, 1);
   rect(r, 2, 15, 77, 16); rect(r, 2, 30, 77, 31);                  // two floors across it: three galleries
-  for (const [x, y0] of [[8, 30], [66, 30], [30, 15], [70, 15]]){ rect(r, x, y0, x + 5, y0 + 1, EMPTY); ledge(r, x, x + 5, y0 + 1); up(r, x, x + 5, [y0 - 10, y0 - 6, y0 - 2]); }   // a shaft through each, planked over at its top, rungs down it
+  for (const [x, y0] of [[8, 30], [66, 30], [30, 15], [70, 15]]){ rect(r, x, y0, x + 5, y0 + 1, EMPTY); ledge(r, x, x + 5, y0 + 1); rect(r, x, y0 - 13, x + 5, y0 - 10); rect(r, x + 2, y0 - 9, x + 3, y0 - 5); }   // a shaft through each, planked over at its top; under it a stone of two steps, come onto from either side (three rungs hung under each, until the map pass)
+  rect(r, 50, 32, 55, 36); rect(r, 52, 37, 53, 41);              // and the same under the way out through the roof
   for (const [x, y] of [[20, 37], [60, 37], [20, 22], [50, 22], [20, 7], [64, 7]]) lamp(r, x, y);
   mark(r, 'echo', 40, 32);
   mark(r, 'prospector', 26, 32, { face: 1 }); mark(r, 'crystal', 31, 32); mark(r, 'prospector', 46, 17, { face: -1 }); mark(r, 'crystal', 41, 17);
   mark(r, 'glimmer', 16, 17); mark(r, 'glimmer', 58, 17); mark(r, 'glimmer', 14, 2); mark(r, 'glimmer', 44, 2); mark(r, 'glimmer', 74, 32);
   mark(r, 'chest', 5, 2, { holds: 'thread' }); mark(r, 'chest', 75, 17, { holds: 'shards' });
   mark(r, 'crystal', 4, 32); mark(r, 'crystal', 76, 2); mark(r, 'crystal', 24, 2); mark(r, 'crystal', 62, 17); mark(r, 'urn', 36, 2);
-  for (let x = 6; x <= 74; x += 4) for (const y of [8, 12, 22, 26, 37, 41]) keep(r, x, y);   // the galleries stay as they were cut
+  for (let x = 6; x <= 74; x += 4) for (const y of [8, 12, 22, 26, 37, 41]) if (r.tiles[y][x] === EMPTY) keep(r, x, y);   // the galleries stay as they were cut
   return r;
 }
 function assay(){
-  const r = cave(2, 1); rect(r, 2, 2, 77, 20, EMPTY); door(r, 'top', 18, 23); up(r, 18, 23, [5, 9, 13, 17, 21]); door(r, 'bottom', 4, 9); rect(r, 4, 0, 9, 1, STILLED);
+  const r = cave(2, 1); rect(r, 2, 2, 77, 20, EMPTY); door(r, 'top', 18, 23); rect(r, 18, 2, 23, 6); rect(r, 20, 7, 21, 12); ledge(r, 18, 23, 18); flue(r, 18, 23, 18, 20); door(r, 'bottom', 4, 9); rect(r, 4, 0, 9, 1, STILLED);   // (two steps of stone and a rung, since the map pass)
   mark(r, 'assayer', 44, 2); mark(r, 'echo', 60, 2, { late: true });
   lamp(r, 12, 9); lamp(r, 74, 9); mark(r, 'crystal', 30, 2); mark(r, 'crystal', 58, 2);
   for (let x = 6; x <= 74; x += 4) for (const y of [14, 18]) keep(r, x, y);
   return r;
 }
 function cradle(){
-  const r = cave(2, 1); rect(r, 2, 2, 77, 20, EMPTY); door(r, 'top', 44, 49); up(r, 44, 49, [5, 9, 13, 17, 21]); door(r, 'right', 12, 17);
+  const r = cave(2, 1); rect(r, 2, 2, 77, 20, EMPTY); door(r, 'top', 44, 49); rect(r, 44, 2, 49, 6); rect(r, 46, 7, 47, 12); ledge(r, 44, 49, 18); flue(r, 44, 49, 18, 20); door(r, 'right', 12, 17);   // (two steps of stone and a rung, since the map pass)
   rect(r, 70, 2, 77, 11); rect(r, 66, 2, 69, 7); rect(r, 62, 2, 65, 4);   // up to the lip's door
   mark(r, 'chest', 8, 2, { holds: 'relic:lampstone' }); deco(r, 'cradle', 24, 2); mark(r, 'echo', 30, 2);
   lamp(r, 14, 9); lamp(r, 40, 9); lamp(r, 60, 9); mark(r, 'crystal', 18, 2); mark(r, 'glimmer', 54, 2);
@@ -75,8 +76,8 @@ function lip(){
   const r = cave(); rect(r, 2, 2, 37, 20, EMPTY); door(r, 'left', 12, 17); door(r, 'bottom', 23, 29);
   // (the Great Shaft itself: the hole in the floor, and the way down it)
   mark(r, 'pass', 23, 0, { w: 7, h: 2, to: 9, at: 'top', gate: 'still' }); mark(r, 'arrive', 16, 2, { name: 'lip' });
-  rect(r, 2, 2, 12, 11); ledge(r, 14, 18, 5); ledge(r, 14, 18, 8);   // the lip itself, and rungs back up to it from the foot
-  ledge(r, 17, 22, 11); ledge(r, 25, 30, 13); ledge(r, 32, 37, 15); mark(r, 'chest', 35, 16, { holds: 'thread' });
+  rect(r, 2, 2, 12, 11); rect(r, 18, 2, 20, 5); ledge(r, 13, 22, 11);   // the lip itself; a board out from it over the foot, and a stone to come back up through it from
+  rect(r, 29, 15, 37, 15); mark(r, 'chest', 35, 16, { holds: 'thread' });   // a shelf of the far wall, a jump from the board over the shaft's mouth
   deco(r, 'shaft', 26, 2); lamp(r, 8, 18); mark(r, 'crystal', 34, 2);
   for (const x of [3, 5]) for (const y of [13, 16]) keep(r, x, y);
   r.after = true;

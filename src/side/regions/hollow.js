@@ -9,7 +9,7 @@
 //             tiles (TIER_A, TIER_B), which the Auger bores away. Its east wall is rough rock
 //   source    two screens, past the pit: the spring, and the flame beside it
 //   wall      a rough face going up out of sight: with the grip, the way back to the Roots
-import { room, rect, door, ledge, mark, EMPTY, HOLD, ROUGH, TIER_A, TIER_B } from '../rooms.js';
+import { flue, room, rect, door, ledge, mark, EMPTY, HOLD, ROUGH, TIER_A, TIER_B } from '../rooms.js';
 
 const mass = (cw = 1, ch = 1) => { const r = room(cw, ch); rect(r, 0, 0, r.w - 1, r.h - 1); return r; };
 const filler = draw => { const r = room(); draw(r); r.filler = true; return r; };
@@ -22,7 +22,7 @@ function roof(){
   const r = mass(1, 2); rect(r, 4, 4, 35, 43, EMPTY); door(r, 'top', 16, 21); door(r, 'right', 4, 9); rect(r, 36, 4, 37, 9, EMPTY);
   mark(r, 'pass', 16, 37, { w: 6, h: 9, to: 9, at: 'floor' }); mark(r, 'arrive', 18, 35, { name: 'top' });
   // the roof's broken ledges, down
-  for (const [x0, x1, y] of [[12, 25, 34], [24, 31, 28], [12, 19, 23], [22, 29, 18], [10, 17, 13], [20, 27, 9]]) ledge(r, x0, x1, y);
+  for (const [x0, x1, y] of [[4, 25, 34], [24, 35, 28], [4, 17, 23], [22, 35, 18], [4, 19, 13]]) rect(r, x0, y, x1, y); ledge(r, 20, 27, 9);   // (out of one wall and the other, since the map pass: five of them hung in the air. The lowest is a staging still)
   // the water from above, in threads; where it gathers: the level's raising water
   for (const x of [9, 30, 34]) mark(r, 'flow', x, 4, { w: 1, h: 38, dir: 'd', key: 'fall', soft: true });
   rect(r, 16, 3, 23, 3, EMPTY); mark(r, 'pool', 16, 3, { w: 8, look: 'spout' }); mark(r, 'spawn', 10, 4);
@@ -42,7 +42,7 @@ function camp(){
 }
 function circles(){
   const r = mass(3, 1); rect(r, 2, 4, 117, 20, EMPTY); door(r, 'top', 70, 75); door(r, 'bottom', 32, 37); rect(r, 32, 2, 37, 3, EMPTY);
-  for (const y of [8, 13, 18, 22]) ledge(r, 70, 75, y);   // the camp's ladder down, a rung at a time
+  rect(r, 67, 4, 69, 7); rect(r, 70, 4, 77, 11); ledge(r, 70, 75, 17); ledge(r, 70, 75, 22); flue(r, 70, 75, 17, 20);   // the camp's way down: two rungs between stone sides, onto a block with a step either side (four rungs, two in the air, until the map pass)
   // the rings the engine cut: ruts, and the ridges between them
   for (const [x0, x1] of [[8, 20], [44, 56], [84, 98], [104, 112]]) rect(r, x0, 2, x1, 3, EMPTY);
   for (const [x0, x1, h] of [[24, 28, 6], [60, 63, 7], [78, 81, 6], [100, 102, 5]]) rect(r, x0, 4, x1, h);
@@ -50,9 +50,9 @@ function circles(){
   rect(r, 38, 0, 38, 3, ROUGH);
   mark(r, 'echo', 20, 6); mark(r, 'echo', 66, 6); mark(r, 'echo', 94, 6);
   for (const x of [14, 42, 68, 90, 110]) lamp(r, x, 13);
-  mark(r, 'chest', 5, 4, { holds: 'thread' }); mark(r, 'chest', 114, 4, { holds: 'shards' }); mark(r, 'urn', 50, 2); mark(r, 'urn', 90, 2); mark(r, 'urn', 72, 4);
+  mark(r, 'chest', 5, 4, { holds: 'thread' }); mark(r, 'chest', 114, 4, { holds: 'shards' }); mark(r, 'urn', 50, 2); mark(r, 'urn', 90, 2); mark(r, 'urn', 64, 4);
   deco(r, 'farlight', 4, 8);
-  for (let x = 4; x <= 116; x += 4) for (const y of [9, 13, 17]) keep(r, x, y);
+  for (let x = 4; x <= 116; x += 4) for (const y of [9, 13, 17]) if (r.tiles[y][x] === EMPTY) keep(r, x, y);
   for (const x of [33, 36]) for (const y of [1, 3, 5]) keep(r, x, y);
   return r;
 }

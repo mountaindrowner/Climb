@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 105 | 26 Nov 2026 | `24171a1` | The Firmament's map pass: 68 planks to 30 in 40 screens, none bare in the air; people hint and do not instruct | no | yes (now) |
+| 106 | 26 Nov 2026 | `COMMITNN` | The Deep's map pass, its five levels: 122 planks to 39, none bare in the air. The map pass is done | no | yes (now) |
+| 105 | 26 Nov 2026 | `24171a1` | The Firmament's map pass: 68 planks to 30 in 40 screens, none bare in the air; people hint and do not instruct | no | replaced by 106 |
 | 104 | 26 Nov 2026 | `d936c12` | The Gardens' map pass: 117 planks to 46 in 47 screens, none bare in the air; a bloom under each quick way | no | replaced by 105 |
 | 103 | 24 Nov 2026 | `1265ed4` | The Tempest's map pass: 72 planks to 50 in 51 screens, none bare in the air | no | replaced by 104 |
 | 102 | 24 Nov 2026 | `e0d0745` | The Spires' map pass: 116 planks to 90, each with a reason; not under one a screen (ladders in the clefts, the rope bridges) | no | replaced by 103 |
@@ -121,6 +122,54 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 106: the Deep in stone (its map pass). The map pass is done
+
+*Your word, 26 Nov: "Let's finish the other levels as well." The Deep's five levels in one build, since it is shut
+for now. Also in this build: the creatures pass's sheet (`docs/creatures-sheet.md`), nothing of it drawn yet.*
+
+**For the player** (the Deep is shut: this is seen with Try a place)
+
+- **The Deep climbs on its own stone** (`docs/deep-map-pass.png`, `docs/deep-map-pass-rooms.png`). The Workings: 47
+  planks became 11. The Vein: 43 became 9. The Great Shaft: 9 became 3. The Hollow: 13 became 6. The Flooded Levels:
+  one plank mended. Each level is under one plank a screen, and none is bare in the air.
+  - **The Workings:** ledges of rock down the cage's shaft; sleeping shelves cut in the bunkhouse's rock; in the
+    cistern a pillar hung from the roof, and ledges out of it and out of the wall by turns; the tally-house's
+    benches are blocks of the floor.
+  - **The Vein:** stone steps under every shaft of the knot, and under the ways out of the seal, the assay and the
+    cradle; heaps of spoil in the glitter.
+  - **The Great Shaft:** six of its eight stages are ledges of the shaft's own rock.
+  - **The Hollow:** the roof's broken ledges come out of its walls.
+- **Moved a little:** the cistern's barnacle and two crystals (a row lower, on stagings a row lower), its relic's
+  chest (on a shelf of the wall), the bunkhouse's urns, the props' chest, crystals and urns in the glitter, an urn in
+  the Hollow.
+
+**What is weaker than it should be**
+
+- **Two pieces of rock still hang in the air** in the Vein: the knot's two floors, cut through by their shafts.
+- **Not played by a person,** and the Deep is the part of the game played least.
+- **The creatures pass has only its sheet.** A first try at a flat bat came out as a standing figure: PixelLab's
+  character tool draws things that stand. The creatures that fly or crawl need its picture tool, with the crawler as
+  the style to match. That is the next piece of work.
+
+- **Underneath:** `src/side/regions/workings.js`, `vein.js`, `flooded.js`, `shaft.js`, `hollow.js`.
+  `tests/side-platforms.test.mjs` holds every level to its pass now; only the Spires is marked as over one a screen.
+  `docs/creatures-sheet.md`, `docs/creatures-now.png`.
+- **Save: not moved.**
+- **Checked:** 501 checks pass, the whole suite (a first run of it had one failing: with only the wind, he could not
+  get down the Great Shaft past stone that stood at the height of his head; three stages moved, one stays a plank,
+  and the suite run again whole). Before that each level's own checks found these, each fixed: the knot's steps
+  walled its galleries; the cistern's stones cut its water into basins, its pillar shut the way along the water's
+  top, and its top ledge could not be left; the cage's stay stood in the way onto it; the Hollow's ledges overhung
+  each other. In the test browser: the cage, the cistern, the bunkhouse, the knot, the Great Shaft, the Hollow's roof
+  (dark, as the Deep is: the map picture shows the change better).
+
+**To try**
+
+1. Try a place: the Workings. Go down the cage's shaft, along the long level, and down into the cistern.
+2. Cross the cistern's water to the quay.
+3. Try a place: the Vein. Go down through the knot's three galleries and back up.
+4. Read `docs/creatures-sheet.md`: is the order right, and are the seventeen I call "at an angle" the ones you mean?
 
 ### Build 105: the Firmament in stone (its map pass); hints, not instructions
 

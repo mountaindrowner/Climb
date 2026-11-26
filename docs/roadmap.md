@@ -471,8 +471,11 @@ then dresses the new shapes. One level a build, each held to a budget by a check
   climbed by a bloom under each mouth (`docs/map-pass-sheet.md`, the Gardens room by room).
 - **The Firmament (build 105).** Done: 68 planks to 30 in 40 screens, none bare in the air (`docs/map-pass-sheet.md`,
   the Firmament room by room). **The climb's six regions are done.** What is left is the Deep.
-- **Then, in order:** the Workings, the Vein, the Flooded Levels,
-  the Great Shaft, the Hollow.
+- **The Deep (build 106).** Done, its five levels in one build: the Workings 47 planks to 11, the Vein 43 to 9, the
+  Flooded Levels 10 (one mended), the Great Shaft 9 to 3, the Hollow 13 to 6. Each under one a screen, none bare in
+  the air (`docs/map-pass-sheet.md`, the Deep level by level).
+- **The map pass is done:** eleven levels. The Spires alone is over one plank a screen (90 in 56: ladders in its
+  clefts, by decision 0.31).
 - **Phase 18's rough rock** (faces in every region) is cut into the same walls, so it is laid out with each level's
   pass and switched on in phase 18.
 

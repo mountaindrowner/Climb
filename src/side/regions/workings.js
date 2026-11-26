@@ -9,7 +9,7 @@
 //   long      the long level: a rail line the whole width of the Workings, carts on it, a gap where the floor went
 //   cistern   the bottom, where the water came in and stayed: lampreys on the roof, barnacles on the rock. The way on
 //             down (to the Flooded Levels) is under the water, and closed to him yet
-import { room, rect, walls, door, ledge, mark, stairs, EMPTY, LEDGE, SPIKES, CRACKED } from '../rooms.js';
+import { room, rect, walls, door, ledge, mark, stairs, keepOver, flue, EMPTY, LEDGE, SPIKES, CRACKED } from '../rooms.js';
 
 const filler = draw => { const r = room(); draw(r); r.filler = true; return r; };
 function solid(){ return filler(r => { rect(r, 0, 0, 39, 22); }); }
@@ -19,10 +19,12 @@ function cage(){
   door(r, 'top', 17, 22);                                         // up the shaft: out to the Pithead
   door(r, 'right', 25, 30); door(r, 'right', 2, 7);               // to the tally-house above, the props below
   // the cage itself, stuck, hung high in the shaft: he lands on its roof coming down
-  ledge(r, 15, 24, 38); ledge(r, 15, 24, 33); rect(r, 15, 34, 15, 37, LEDGE); rect(r, 24, 34, 24, 37, LEDGE);   // its roof, its floor, its bars
-  // the frame the cage ran in: rungs down the shaft, a jump apart each way, and a step out to the door above the props
-  for (const [x0, x1, y] of [[4, 10, 8], [13, 20, 13], [4, 10, 18], [13, 20, 23], [4, 10, 28]]) ledge(r, x0, x1, y);
-  ledge(r, 29, 37, 24);
+  rect(r, 25, 33, 25, 43); ledge(r, 15, 24, 38); ledge(r, 15, 24, 33);   // its roof and its floor, off the one stay it still hangs by (on the far side from the ledges: he comes onto it from the west)
+  // (the map pass, build 106: the frame's rungs hung in the air. Now ledges of the shaft's own rock, the hewers' stages,
+  // out of one side and then the other; the fourth is the sill of the door to the tally-house)
+  const SH = [[2, 10, 7], [13, 37, 13], [2, 10, 18], [13, 37, 24], [2, 10, 29]];
+  for (const [x0, x1, y] of SH) rect(r, x0, y, x1, y);
+  for (const [x0, x1, y] of SH) keepOver(r, x0 < 8 ? 3 : 9, x0 < 8 ? 14 : 37, y);
   rect(r, 2, 31, 2, 43);                                           // a post of the frame
   mark(r, 'spawn', 20, 39); mark(r, 'arrive', 20, 39, { name: 'down' });
   mark(r, 'pass', 17, 41, { w: 6, h: 5, to: 0, at: 'pithead' });
@@ -32,28 +34,28 @@ function cage(){
 }
 function tally(){
   const r = room(); walls(r); door(r, 'left', 2, 7); door(r, 'right', 2, 7);
-  ledge(r, 8, 14, 7); ledge(r, 26, 32, 9);                         // the tally-men's benches
+  rect(r, 8, 2, 14, 4); rect(r, 26, 2, 32, 5);                    // the tally-men's benches: two blocks of the floor (planks, until the map pass)
   rect(r, 17, 1, 23, 1, EMPTY); mark(r, 'pool', 17, 1, { w: 7, look: 'trough' });   // the Deep's raising water: the hewers' trough, the water that came down the pipes
   mark(r, 'torch', 12, 9); mark(r, 'torch', 28, 11);
-  mark(r, 'urn', 5, 2); mark(r, 'urn', 34, 2); mark(r, 'chest', 29, 10, { holds: 'thread' });
+  mark(r, 'urn', 5, 2); mark(r, 'urn', 34, 2); mark(r, 'chest', 29, 6, { holds: 'thread' });
   return r;
 }
 function bunk(){
   const r = room(); walls(r); door(r, 'left', 2, 7);
-  ledge(r, 6, 12, 6); ledge(r, 6, 12, 11); ledge(r, 27, 33, 6); ledge(r, 27, 33, 11);   // the cots, two high
+  rect(r, 2, 8, 12, 8); rect(r, 2, 13, 12, 13); rect(r, 27, 8, 37, 8); rect(r, 27, 13, 37, 13);   // the cots, two high: shelves cut in the rock (planks in the air, until the map pass)
   mark(r, 'npc', 20, 2, { who: 'hob' }); mark(r, 'torch', 20, 9);
-  mark(r, 'urn', 9, 7); mark(r, 'urn', 30, 12); mark(r, 'crawler', 31, 2);
+  mark(r, 'urn', 9, 9); mark(r, 'urn', 30, 14); mark(r, 'crawler', 31, 2);
   return r;
 }
 function props(){
   const r = room(2, 1); walls(r); door(r, 'left', 2, 7); door(r, 'bottom', 50, 55); ledge(r, 50, 55, 1);   // boards over the hole down to the long level
   // the timbers: posts from floor to roof, a beam across, standing in the gallery the whole way along
   for (const x of [12, 26, 40, 64]){ rect(r, x, 2, x, 3); rect(r, x, 18, x, 20); }
-  ledge(r, 16, 22, 8); ledge(r, 30, 36, 11); ledge(r, 44, 49, 8); ledge(r, 58, 63, 12); ledge(r, 68, 74, 8);
+  ledge(r, 58, 63, 9);                                            // one staging still standing, a step up from a post's stump (five hung here, three of them in the air, until the map pass)
   rect(r, 46, 2, 49, 3, SPIKES);                                  // where the floor rotted: the old nails up
   mark(r, 'crawler', 22, 2); mark(r, 'crawler', 60, 2); mark(r, 'flitter', 34, 16); mark(r, 'flitter', 70, 15);
   mark(r, 'torch', 7, 8); mark(r, 'torch', 33, 14); mark(r, 'torch', 56, 9); mark(r, 'torch', 75, 13);
-  mark(r, 'urn', 4, 2); mark(r, 'urn', 38, 2); mark(r, 'chest', 61, 13, { holds: 'shards' });
+  mark(r, 'urn', 4, 2); mark(r, 'urn', 38, 2); mark(r, 'chest', 61, 10, { holds: 'shards' });
   return r;
 }
 function long(){
@@ -61,9 +63,9 @@ function long(){
   // the rail line along the whole level: the bed raised a little, the gap where the floor went into the dark
   rect(r, 2, 2, 117, 2); rect(r, 10, 2, 15, 2, LEDGE);   // over the hole to the cistern: boards, to drop through or come up onto
   rect(r, 40, 0, 51, 2, EMPTY); rect(r, 40, 0, 51, 0, SPIKES);
-  ledge(r, 43, 48, 6);                                            // a cart, stopped over the gap
-  ledge(r, 82, 88, 7); ledge(r, 92, 98, 12); ledge(r, 88, 96, 17);   // staging up to the hole into the props, a jump apart, the last under it
-  ledge(r, 16, 22, 7); ledge(r, 60, 66, 7); ledge(r, 100, 106, 8);   // carts off the line, to stand on
+  rect(r, 45, 0, 46, 4); rect(r, 43, 5, 48, 6);                    // a pier of the old floor in the gap, and a slab on it (a cart hung in the air there, until the map pass)
+  rect(r, 90, 3, 95, 7); ledge(r, 90, 95, 13); ledge(r, 90, 95, 19); flue(r, 90, 95, 13, 20);   // up to the hole into the props: a block under it, and two rungs between stone sides
+  ledge(r, 100, 106, 8);                                           // a cart off the line, to stand on
   mark(r, 'burrower', 28, 3); mark(r, 'crawler', 70, 3); mark(r, 'barnacle', 108, 3); mark(r, 'flitter', 56, 15);
   mark(r, 'torch', 8, 9); mark(r, 'torch', 34, 9); mark(r, 'torch', 62, 11); mark(r, 'torch', 104, 10);
   mark(r, 'crystal', 24, 3); mark(r, 'crystal', 80, 3);
@@ -81,13 +83,19 @@ function cistern(){
   rect(r, 67, 2, 77, 9);                                                              // the quay, east: dry, and the door on it
   // the guild's ladder of staging down from the hole in the roof, a jump apart: the way back up as well as down
   // (marked 'keep' over each, so the wear on the rock leaves room to stand on them). Its two lowest are under the water now
-  for (const [x0, x1, y] of [[6, 11, 7], [14, 20, 12], [6, 11, 17], [14, 20, 22], [6, 11, 27], [14, 20, 32], [6, 11, 37], [10, 15, 42]]){ ledge(r, x0, x1, y); mark(r, 'keep', x0 + 2, y + 2); mark(r, 'keep', x1 - 1, y + 3); }
-  ledge(r, 30, 38, 10); ledge(r, 48, 56, 10); ledge(r, 66, 74, 16);                     // stones standing out of the water
+  // (the map pass, build 106: eight stagings hung in the air. Now a pillar of the cistern hung from its roof beside the
+  // hole, and ledges out of it and out of the west wall by turns, two tiles of air between their lips; at the water a
+  // stone of two steps; under the hole one rung. No ledge is nearer the roof than his height: he could not walk off it)
+  rect(r, 16, 19, 20, 43); rect(r, 2, 2, 7, 14); rect(r, 8, 2, 13, 9);
+  for (const y of [23, 33]) rect(r, 2, y, 7, y); for (const y of [19, 28, 38]) rect(r, 10, y, 15, y);
+  ledge(r, 10, 15, 44);
+  for (const y of [14, 19, 23, 28, 33, 38]) keepOver(r, 2, 15, y); for (const y of [40, 42]) for (const x of [9, 11, 14]) mark(r, 'keep', x, y);
+  ledge(r, 30, 38, 9); ledge(r, 48, 56, 9); rect(r, 66, 16, 77, 16);                    // two stagings standing in the water, their boards at its top (a row lower since the map pass: a post's reach from the floor), and a shelf of the east wall
   for (const x of [69, 72, 75]) for (const y of [11, 14]) mark(r, 'keep', x, y);       // the quay stays level
   mark(r, 'lamprey', 34, 30); mark(r, 'lamprey', 52, 34); mark(r, 'lamprey', 70, 30);
-  mark(r, 'barnacle', 33, 11);
+  mark(r, 'barnacle', 33, 10);
   mark(r, 'torch', 6, 26); mark(r, 'torch', 40, 16); mark(r, 'torch', 74, 22);
-  mark(r, 'crystal', 36, 11); mark(r, 'crystal', 52, 11);
+  mark(r, 'crystal', 36, 10); mark(r, 'crystal', 52, 10);
   mark(r, 'chest', 70, 17, { holds: 'relic:tally' });
   return r;
 }

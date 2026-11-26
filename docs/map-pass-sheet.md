@@ -372,3 +372,56 @@ star-glass is not planks** (it is there and not there by turns): it is as it was
 - **Under a low shelf there is no room to jump high.** The vigil's step blocked the hall for the simpler check (and
   would have been a fight for a person): it is two steps, the lower on the shelf's side.
 - **A porch out from a cell is a low place under it.** I tried one for the orrery and took it out.
+
+## The Deep, level by level (build 106)
+
+*Your word, 26 Nov: "Let's finish the other levels as well." The Deep's five levels in one build: they are shut for
+now (decision 0.26), and most are small. `docs/deep-map-pass.png` is all five before and after;
+`docs/deep-map-pass-rooms.png`, six rooms in the game.*
+
+| Level | Planks before | After | Screens | Rock in the air |
+|---|---|---|---|---|
+| The Workings | 47 (44 in the air) | 11 | 14 | none |
+| The Vein | 43 (33) | 9 | 12 | 2, as before (the knot's two floors) |
+| The Flooded Levels | 10 (1) | 10 | 12 | none |
+| The Great Shaft | 9 (1) | 3 | 4 | none |
+| The Hollow | 13 (10) | 6 | 14 | none |
+
+**Every level is under one plank a screen, and none is bare in the air.**
+
+| Room | Before | After |
+|---|---|---|
+| The Workings: the cage | A cage of planks hung in the shaft (its bars eight planks), five rungs of its frame in the air | The cage's roof and floor off the one stay it still hangs by (on its far side); five ledges of the shaft's own rock, side to side, the fourth the sill of the tally-house's door |
+| The tally-house | Two benches of plank | Two blocks of the floor |
+| The bunkhouse | Cots of plank, two high | Sleeping shelves cut in the rock |
+| The props | Five stagings, three in the air | One, a step up from a post's stump |
+| The long level | A cart hung over the gap; three stagings up to the props; carts to stand on | A pier of the old floor in the gap with a slab on it; a block under the hole and two rungs between stone sides; one cart |
+| The cistern | Eight stagings down from the roof, in the air; stones in the water that were planks in the air | A pillar hung from the roof beside the hole, and ledges out of it and out of the west wall by turns, two tiles of air between their lips; at the water a stone of two steps; one rung under the hole. The two stagings in the water stand a row lower, a post's reach from the floor. A shelf of the east wall for the chest |
+| The Vein: the seal | Five rungs up to the way out | Three steps of stone |
+| The glitter | Two stagings | Two heaps of spoil, stepped |
+| The knot | Under each of its four shafts, three rungs in the air; three more under the way out | Under each a stone of two steps, come onto from either side |
+| The assay, the cradle | Five rungs each | A stone of two steps and one rung between stone sides |
+| The lip | Two rungs back up to it; three planks across the shaft's mouth | A stone to come up from, through a board out from the lip; a shelf of the far wall |
+| The Flooded Levels: the pockets | A plank a tile short of its pillar | It reaches it |
+| The Great Shaft: the drop | Eight stages of plank, one in the air | Six are ledges of the shaft's rock, out of one side and the other. Two are planks still: the lowest (he comes up through it from the bank), and the second from the top, off a rib of stone hung from the head's shelf |
+| The Hollow: the roof | Six broken ledges, five in the air | Five out of one wall and the other; the lowest a staging still |
+| The circles | Four rungs, two in the air | A block with a step either side, and two rungs between stone sides |
+
+**The two pieces of rock still in the air** are the knot's two floors, each cut through by its shafts. In a mine they
+run back into the rock; from the side they join nothing. Holding them up would wall off the gallery under them.
+
+**What I learned:**
+
+- **A tall step is a wall from its high side.** My first stones under the knot's shafts had the tall half to one side:
+  from that side there was no way on, and the drop off it was too far. Each is a stone with a low step either side.
+- **A ledge nearer the roof than his height cannot be left.** The cistern's first top ledge was a row under the roof,
+  in the hole's mouth: he stood in the hole and could not step out of it. The top ledge is five rows down, a rung over it.
+- **Two tiles of air between the lips, always.** The simpler check has him rise in the free column beside a lip. With
+  the lips touching, the ledge ten rows up on the same side is in his way by one row.
+- **Stone in water changes the water.** Stones to the floor cut the cistern's water into basins, and a pillar hung low
+  over it shut the way along its top. The stagings in the water stay planks, on posts.
+- **The marks that keep the wear off matter as much as the stone.** Taking them off the Great Shaft's stages let the
+  wear close in over the bank.
+- **Stone beside him at the height of his head is a wall.** Planks five rows apart, one side and the other, can be
+  walked off under each other. Ledges of stone cannot: the one above is in the way of his head. Three of the Great
+  Shaft's stages moved a row or a tile for this, and one stays a plank.
