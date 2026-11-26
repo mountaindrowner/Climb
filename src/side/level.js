@@ -25,9 +25,10 @@ import * as EYE from './regions/eye.js';
 import * as AQUEDUCTS from './regions/aqueducts.js';
 import * as HOUSES from './regions/houses.js';
 import * as ORRERY from './regions/orrery.js';
+import * as DROWNED from './regions/drowned.js';
 // the wings set into a region after it is built (so the region itself is not changed): by region, { left: columns added
 // to its west, build(X) }
-const WINGS = { 1: [SCRIPTORIUM.wing, FOUNDRY.wing, REFECTORY.wing], 2: [CAIRNS.wing, GLACIER.wing], 3: [WORKS.wing, EYE.wing], 4: [AQUEDUCTS.wing, HOUSES.wing], 5: [ORRERY.wing] };   // a region's wings: each `left` columns added west of it or `right` columns east, and what it builds there
+const WINGS = { 0: [DROWNED.wing], 1: [SCRIPTORIUM.wing, FOUNDRY.wing, REFECTORY.wing], 2: [CAIRNS.wing, GLACIER.wing], 3: [WORKS.wing, EYE.wing], 4: [AQUEDUCTS.wing, HOUSES.wing], 5: [ORRERY.wing] };   // a region's wings: each `left` columns added west of it or `right` columns east, and what it builds there
 export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, ROUGH, TIER_A, TIER_B };
 
 // ---- the first region: up from the bottom of the mountain
@@ -418,7 +419,7 @@ function crown(){
 // the regions, from the bottom of the mountain up: rooms on a grid, [column, row, builder, columns wide, rows tall].
 // `fill` is what is between the rooms; `wear` is how hard the organic pass works the rock
 const REGIONS = [
-  { name: 'The Roots', theme: 'roots', sub: 'the caves at the bottom of the mountain', card: '', epithet: 'IT HAS FORGOTTEN WHAT IT GUARDS', quiet: ['arena', ...OSSUARY.QUIET], seed: 1234567, wear: { sag: 1, swell: 1, humps: 0.8 },
+  { name: 'The Roots', theme: 'roots', sub: 'the caves at the bottom of the mountain', card: '', epithet: 'IT HAS FORGOTTEN WHAT IT GUARDS', quiet: ['arena', ...OSSUARY.QUIET, ...DROWNED.QUIET], deco: DROWNED.decoDef, seed: 1234567, wear: { sag: 1, swell: 1, humps: 0.8 },
     layout: [[0, 0, start], [1, 0, corridor], [2, 0, pithead], [2, 1, oldshaft], [1, 1, shaft], [0, 1, tunnel], [0, 2, chamber], [1, 2, ascent], [2, 2, gallery], [3, 2, well, 1, 2], [0, 3, roost], [1, 3, bridge], [2, 3, grotto], [2, 4, arena, 2, 2], ...OSSUARY.LAYOUT], looks: OSSUARY.LOOKS },
   { name: 'The Cloister', theme: 'cloister', sub: 'a monastery that rang its bell for the flame', card: 'The caves are below you. Keep climbing.', epithet: 'IT RINGS FOR A LIGHT IT CANNOT SEE', quiet: ['chapel', ...SCRIPTORIUM.QUIET, ...FOUNDRY.QUIET, ...REFECTORY.QUIET], enemies: { ...SCRIPTORIUM.enemies, ...FOUNDRY.enemies }, ai: { ...SCRIPTORIUM.ai, ...FOUNDRY.ai }, deco: (px, PAL) => ({ ...SCRIPTORIUM.decoDef(px, PAL), ...FOUNDRY.decoDef(px, PAL), ...REFECTORY.decoDef(px, PAL) }), looksDef: { ...SCRIPTORIUM.looks, ...FOUNDRY.looks }, seed: 7654321, wear: { sag: 0.55, swell: 0.5, humps: 0.4 },
     layout: [[0, 0, undercroft], [1, 0, nave, 2, 1], [3, 0, belfry, 1, 3], [0, 1, stairwell, 1, 2], [1, 1, cells], [2, 1, library], [1, 2, cloister, 2, 1], [1, 3, chapel, 2, 1]] },
@@ -580,7 +581,8 @@ function build(n){
   if (!below && !above && !RULES[n] && !WING) return finish(C);
   const hall = (() => { const b = C.marks.find(m => m.type === 'boss'); return b && C.rooms.find(r => b.x >= r.tx0 && b.x < r.tx1 && b.y >= r.ty0 && b.y < r.ty1); })();
   // how far the region moves: up by the rows under it; right, if the sill above stands to the left of what there is
-  const Y0 = below ? below.rows * ROOM.h : 0;
+  const wDown = WING ? Math.max(0, ...WING.map(w => w.down || 0)) : 0;   // rows added under a region for a wing that goes down (the Drowned Galleries, under the Roots)
+  const Y0 = below ? below.rows * ROOM.h : wDown * ROOM.h;
   let X0 = wLeft * ROOM.w, W = C.W + X0, H = C.H + Y0, sx = 0, sy = 0;
   if (above && hall){
     const s0 = above.dir > 0 ? hall.tx1 + above.gap : hall.tx0 - above.gap - SILL.w;   // where the sill starts, as core counts
@@ -678,7 +680,7 @@ function finish(L){
     if (m.type === 'mover') movers.push({ kind: m.kind || 'arm', cx: (m.x + 0.5) * T, cy: m.y * T, r: (m.r || 8) * T, ax: (m.ax || 0) * T, ay: (m.ay || 0) * T, period: m.period || 8, ph: m.ph || 0, dir: m.dir || 1, w: (m.w || 5) * T, x: 0, y: 0, px: 0, py: 0, at: -1 });   // a thing that moves and can be stood on (the Orrery Wing): a planet on an arm (round cx, cy at r), or a pallet that slides (by ax, ay either side of cx, cy). Its place is the world's clock's (PHASE.t), nothing else's
     // deep water (phase 16, the Flooded Levels; motor.js SWIM): a body of it, from its bottom-left tile. It bears him up;
     // with the Wyrm's wind it carries him under. key 'tide': the Pump moves it (RULE.tide, 0 its floor to 1 its top)
-    if (m.type === 'water') waters.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 4)) * T, key: m.key || '', lo: (m.y + (m.up || 0)) * T, deep: !!m.deep });   // lo: where the Pump's water stands at its lowest (`up` rows over its bottom)
+    if (m.type === 'water') waters.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 4)) * T, key: m.key || '', lo: (m.y + (m.up || 0)) * T, deep: !!m.deep, gain: m.gain || 1 });   // lo: where the Pump's water stands at its lowest (`up` rows over its bottom)
     // a raft (the Flooded Levels): planks on the water. Stood on, it goes down under him; left, it comes back up
     if (m.type === 'raft') movers.push({ kind: 'raft', cx: (m.x + 0.5) * T, cy: m.y * T, r: 0, ax: 0, ay: 0, period: 1, ph: 0, dir: 1, w: (m.w || 5) * T, x: 0, y: 0, px: 0, py: 0, at: -1, sink: 0, load: 0, deep: (m.deep || 7) * T });
     if (m.type === 'gust') gusts.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 12)) * T });   // the wind the Wyrm holds: it bears down there in beats; when the Wyrm falls it turns, and lifts
@@ -955,7 +957,12 @@ export function moversNow(){
 export const RAFT = { sink: 1.5, rise: 1.1 };   // a raft under him: how fast it goes down, and comes back
 // deep water: the body of it at a point, and where its top is now (the Pump's water rises and falls; once the Pump runs
 // free it is gone)
-export const waterTop = w => w.key === 'tide' ? (RULE.still ? w.lo : w.lo + (w.y1 - w.lo) * RULE.tide) : w.y1;
+// the water that breathes (the Drowned Galleries; key 'breath'): it rises from its low mark to its high, stands, falls and
+// stands again, on the world's clock, the same every time. 0 low, 1 high. BREATH.hold: a test holds it where it likes
+export const BREATH = { low: 4, rise: 15, high: 5, fall: 15, hold: null };
+export const breath = (t = PHASE.t) => { if (BREATH.hold != null) return BREATH.hold; const all = BREATH.low + BREATH.rise + BREATH.high + BREATH.fall, ease = x => x * x * (3 - 2 * x); let u = ((t % all) + all) % all;
+  if (u < BREATH.low) return 0; u -= BREATH.low; if (u < BREATH.rise) return ease(u / BREATH.rise); u -= BREATH.rise; if (u < BREATH.high) return 1; return 1 - ease((u - BREATH.high) / BREATH.fall); };
+export const waterTop = w => w.key === 'tide' ? (RULE.still ? w.lo : w.lo + (w.y1 - w.lo) * RULE.tide) : w.key === 'breath' ? w.lo + (w.y1 - w.lo) * Math.min(1, breath() * w.gain) : w.y1;   // (gain: a drain under a floor is full long before the room over it)
 export const waterAt = (x, y) => { for (const w of LEVEL.waters || []) if (x >= w.x0 && x < w.x1 && y >= w.y0 && y < waterTop(w)) return w; return null; };
 // the top of the water over a point (bodies of it stand one on another: a sump under a flooded room), or null out of it
 export const waterOver = (x, y) => { const w = waterAt(x, y); if (!w) return null; let top = waterTop(w); for (let k = 0; k < 6; k++){ const u = waterAt(x, top + 0.01); if (!u) break; top = waterTop(u); } return top; };

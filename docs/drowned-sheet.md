@@ -2,7 +2,7 @@
 
 *Your word, 26 Nov: "Finish the wings." The world plan (`docs/world-blueprint.md`) gave every region two wings, west
 and east. Ten of the twelve are built. Two are not: **the Drowned Galleries** (the Roots, west) and **the Shard** (the
-Firmament). This sheet is the Drowned Galleries. Nothing in it is built: it waits on your word. The Shard is at the
+Firmament). This sheet is the Drowned Galleries. The rooms and the water are built (build 107: see "As built" below); the gates, the creatures and the Pike are not yet. The Shard is at the
 end of this sheet.*
 
 ## What it is
@@ -131,6 +131,56 @@ for going west first.) Say if you would rather it did something else.
 3. **The Pike now, or later?** You said of the keepers "only the Wyrm for now". The Pike is a wing's fight, not a
    keeper, but it is a new large creature. The wing can be built without it and the weir left empty.
 4. **The relic.**
+
+## As built: build 107 (the rooms, and the water)
+
+*The first of the four builds. What is in it, and where it differs from the sheet above. Pictures:
+`docs/drowned-build107.png`.*
+
+**In it now**
+
+- **The way in.** A door in the pool room's west wall, the first thing to his left when he wakes. Nothing gates it.
+- **The water breathes.** Four seconds low, fifteen rising, five high, fifteen falling: thirty-nine in all, the same
+  every time. A pale line on the walls shows where high water comes to.
+- **The water stair** (two screens tall). A stairhead level with the pool room, and seventeen steps down. At high
+  water all of it but the top two steps is under.
+- **The drowned hall** (four screens). The floor's picture, two pools that never empty, a gallery on either wall where
+  high water comes to. **At low water he has the floor and nothing else.** The way on is off the west gallery. On
+  the east gallery: a chest and a thread.
+- **The cells** (two screens tall). In off the west gallery: a pit with cells in its walls, and a flue of cells over
+  it, each cell's sill a step, one side and the other.
+- **The weir** (two screens tall). A pond between two banks, sixteen tiles deep at high water. Nothing lives in it
+  yet.
+- **The cup room.** Behind the weir, dry. **The Keepers' Cup:** your flask holds one more drink. A line cut in the
+  wall.
+- **The culvert.** A drain in the hall's floor, a knee-deep tunnel east under the stair, and a shaft of three rungs
+  up through **boards in the floor of the pool he woke in.**
+- One lamprey, under the west gallery. The skimmer, the leech and the Pike are not drawn yet.
+
+**Where it differs from the sheet**
+
+| The sheet said | It is | Why |
+|---|---|---|
+| Nine screens | **Twelve** | The stair, the cells and the weir each wanted two screens of height, and the culvert a screen under the pool |
+| West of the pool | **West of it and lower:** four columns west, two rows down | A stair that goes down into water has to have somewhere down to go. The pool room was the bottom of the map |
+| Twelve tiles between low water and high | **Sixteen** | I measured him: with a second jump and his hands on a lip he gets up fourteen tiles and a half. At twelve the galleries were climbed dry, and the water was not needed. At sixteen it is |
+| A row of columns, a thread on a column's head | **Columns painted behind; the thread on the east gallery** | A column he could stand on, in the middle of the floor, either walls the hall in two or has to hang in the air |
+| The cells: which he gets into depends on the water | **Only partly.** The water takes him across the pit; the flue above it is a dry climb | The cells' gate is what makes the water matter there. That is the next build |
+| The culvert open only at low water | **Open always** (he wades it at low water, and is floated along its roof at high) | Its grate comes with the gates |
+
+**The Roots moved.** To make room, every place in the Roots is now 160 tiles east and 46 up. A save from before has
+what it found and broke there moved with it, once (`winged` 4 to 5, `src/side/state.js`).
+
+**The Keepers' Cup does what the Carrier's Yoke does** (one more drink). Worn together they give two, up to the
+flask's limit of seven. If you would rather the Cup did something of its own, say what.
+
+**How the checks play it.** The water is the same every time, so he can wait for any height of it. The checks hold it
+at five heights (low, a quarter, half, three quarters, high) and play every place in the wing at each: what it lifts
+him to, where it sets him down, what he reaches from either, and that nowhere traps him at any height. A separate
+check holds the water low and proves the galleries, the cells, the weir and the cup room are **not** reached.
+
+**Not in it yet** (the next three builds): the three gates and their windlasses; the hatch and the undercroft; the
+skimmer and the leech; the Pike.
 
 ## The same rule, in the wings already built
 

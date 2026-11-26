@@ -78,6 +78,12 @@ them:
 8. **Air that matters is marked.** The pass that wears the rock smooth fills air nobody stands near. A chasm between
    pillars has to be told to stay a chasm. (It filled the bridge's.)
 
+**Measured later (build 107, the Drowned Galleries): how high he really gets.** From a floor, with a second jump, his
+feet come up eight tiles and a half; and rising beside a lip he takes it with his hands as much as six tiles over his
+feet. So **he gets up fourteen tiles and a half**, where he can rise beside the lip. The map check's "seven up" is a
+floor, not a ceiling. Anything meant to be out of reach from a floor is **sixteen** over it, or has no floor within
+fourteen tiles of its lip.
+
 ## The Roots, room by room
 
 | Room | Before | After |

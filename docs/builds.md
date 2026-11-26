@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 106 | 26 Nov 2026 | `4ac1531` | The Deep's map pass, its five levels: 122 planks to 39, none bare in the air. The map pass is done | no | yes (now) |
+| 107 | 26 Nov 2026 | `COMMIT107` | The Drowned Galleries, first build: the Roots' west wing, twelve screens, and water that rises and falls. The Roots moved to make room | **yes** (once) | yes (now) |
+| 106 | 26 Nov 2026 | `4ac1531` | The Deep's map pass, its five levels: 122 planks to 39, none bare in the air. The map pass is done | no | replaced by 107 |
 | 105 | 26 Nov 2026 | `24171a1` | The Firmament's map pass: 68 planks to 30 in 40 screens, none bare in the air; people hint and do not instruct | no | replaced by 106 |
 | 104 | 26 Nov 2026 | `d936c12` | The Gardens' map pass: 117 planks to 46 in 47 screens, none bare in the air; a bloom under each quick way | no | replaced by 105 |
 | 103 | 24 Nov 2026 | `1265ed4` | The Tempest's map pass: 72 planks to 50 in 51 screens, none bare in the air | no | replaced by 104 |
@@ -122,6 +123,62 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 107: the Drowned Galleries, the rooms and the water
+
+*Your word, 26 Nov: "Finish the wings", then "Each wing should feel interesting, contextual, complex. Also we should
+probably have gates and lever kind of functions that require the players to explore", then "Go". The sheet is
+`docs/drowned-sheet.md`. This is the first of its four builds: the rooms, and the water that breathes. The gates and
+their windlasses are the next.*
+
+**For the player**
+
+- **A door in the pool room's west wall,** to his left when he wakes. Beyond it, twelve screens: the Drowned
+  Galleries (`docs/drowned-build107.png`).
+- **The water rises and falls,** slowly, the same every time (39 seconds for the whole of it). At low water the
+  floors are dry. At high water it floats him up to what the floor cannot reach.
+- **The rooms:** a broad stair down into the water; the keepers' great hall, with a gallery on either wall where high
+  water comes to; a pit and a flue of cells; the weir's pond between two banks; a dry room behind it; and a drain
+  under all of it that comes up through boards in the floor of the pool he woke in.
+- **A relic, the Keepers' Cup:** your flask holds one more drink. A thread, on the hall's east gallery.
+- **To try:**
+  1. Wake, and go left instead of right. Go down the stair.
+  2. In the hall at low water, look for a way up. There is none: wait for the water, and let it carry you to a gallery.
+  3. Stand on the hall's floor as the water comes. It should lift you off your feet, and never drown you.
+  4. West gallery, the cells: cross the pit on the water, then climb the flue.
+  5. The weir: fall in at low water. You cannot climb out. Wait.
+  6. In the hall, drop into the drain in the floor near the east end, and follow it. You should come up in the pool.
+  7. Stand in the pool, at its west end, and press down and jump. You should drop through the boards.
+
+**What is weaker than it should be**
+
+- **It is bigger and deeper than the sheet said:** twelve screens for nine, and the water rises sixteen tiles for
+  twelve. He climbs fourteen and a half with a second jump and his hands, so at twelve the water was not needed.
+- **The cells need the water only to cross their pit.** The gate that makes the water matter there is the next build.
+- **Nothing in it fights** but one lamprey. The skimmer, the leech and the Pike are not drawn: the way to draw
+  creatures flat is still not proved (`docs/creatures-sheet.md`).
+- **The Keepers' Cup does what the Carrier's Yoke does.** It wants your word, or an idea of its own.
+- **The hall has no pier.** A column he can stand on in the middle of a floor either walls the hall in two or hangs
+  in the air. The columns are painted behind him; the thread is on the east gallery.
+- **The stair counts as rock in the air.** The drain runs under it from the hall to the pool, so in a side view the
+  stair stands on the drain's roof and touches nothing else. It is the Roots' one counted exception to the map pass's
+  rule (`tests/side-platforms.test.mjs`). A floor over a culvert is what a culvert is; say if it reads wrong.
+- **Not played by a person.** The water's pace, above all, is a guess.
+
+- **Save: moved.** The Roots are now 160 tiles east and 46 up, for the wing's four columns and two rows. Everything a
+  save had found or broken in the Roots is moved with them, once (`winged` 4 to 5 in `src/side/state.js`).
+- **Checked:** 509 automated checks, seven of them the wing's (`tests/side-drowned.test.mjs`): where it lies,
+  the water's clock, that low water reaches the floor and nothing more, the thread, the culvert both ways, the
+  relic, the save's move. The region's own checks now play the wing at five heights of the water, with the real
+  motor and with the map check, and look for traps at each. A look in the test browser at every room, low and high.
+- **Not checked:** not played by hand; the sounds; a phone.
+- **Mistakes caught before it went out:** the galleries were climbed without the water (twice: at twelve tiles and
+  at fifteen); the ledge over the hall's door was leapt to from the stair; the pier's "arch" did not go through it;
+  flames burned under the water; a note of mine in the middle of a line hid the east gallery's crystal from the game;
+  a cell's roof hung from nothing; seven older checks named places in the Roots by number and had to follow the move.
+- **Underneath:** `src/side/regions/drowned.js` (new); `src/side/level.js` (a wing may add rows under its region;
+  water with key `breath`, `BREATH`, `breath()`); `tests/helpers/reach.mjs` and `stuck.mjs` (rooms that breathe are
+  played at five heights); `tests/side-level.test.mjs` (the map check: water between a low mark and a high).
 
 ### Build 106: the Deep in stone (its map pass). The map pass is done
 

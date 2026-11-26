@@ -54,7 +54,7 @@ test('the opening rooms ask for each lesson', () => {
   const L = loadLevel(0), room = n => L.rooms.find(r => r.name === n), tile = (i, j) => L.tiles[j * L.W + i];
   const inRoom = (r, fn) => { for (let j = Math.round(r.y0 / T); j < Math.round(r.y1 / T); j++) for (let i = Math.round(r.x0 / T); i < Math.round(r.x1 / T); i++) if (fn(i, j)) return true; return false; };
   assert.ok(inRoom(room('corridor'), (i, j) => tile(i, j) === LV.SPIKES), 'the corridor has its spike pit (jump)');
-  assert.ok(L.marks.some(m => m.type === 'crawler' && m.x >= room('corridor').x0 && m.x < room('corridor').x1), 'and a crawler alone (cut, block)');
+  assert.ok(L.marks.some(m => m.type === 'crawler' && m.x >= room('corridor').tx0 && m.x < room('corridor').tx1), 'and a crawler alone (cut, block)');
   // (the map pass: the Roots' way up has no planks left, so the first room no longer asks for dropping through one. The
   // first he meets is the lamplighter's step, behind Ordric's room; the hint comes the first time he stands on any)
   assert.ok(inRoom(room('corridor'), (i, j) => tile(i, j) === LV.LEDGE), 'the first plank is in the corridor (drop through)');
@@ -68,7 +68,7 @@ test('the opening rooms ask for each lesson', () => {
 });
 
 test('walking into the tunnel\'s low stretch, upright, brings up CROUCH', () => {
-  loadLevel(0); I.release(); const { T: Te } = fresh(); const P = M.newPlayer(7.5, 18.5);
+  const tn = loadLevel(0).rooms.find(r => r.name === 'tunnel'); I.release(); const { T: Te } = fresh(); const P = M.newPlayer(tn.x0 + 7.5, tn.y0 + 7);   // (the tunnel's place, since the Roots moved: build 107)
   for (let f = 0; f < 30; f++){ M.stepPlayer(P, 1 / 120); clock.t += 1 / 120; }   // settle
   I.hold('right', true); P.events.length = 0;
   for (let f = 0; f < 360; f++){ M.stepPlayer(P, 1 / 120); clock.t += 1 / 120; Te.step(1 / 120, { P, held: I.IN.held, solidAt: LV.solidAt, onPlank: open }); for (const e of P.events.splice(0)) Te.event(e, { P, solidAt: LV.solidAt }); if (Te.shown()) break; }

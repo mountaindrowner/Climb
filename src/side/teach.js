@@ -129,6 +129,7 @@ export const ICONS = {
   turnstone: ['', '', '....kkkkkkkk', '...kpppppllk', '..kpplllllmmk', '..kplkklkklmk', '..klllllllmmk', '...kmmmmmmmk', '....kkkkkkk'],
   flint: ['', '', '......kkkk', '....kkllllk', '...kllpllmk', '..kllllmmmk..Y', '..klmmmmmk..yY', '...kkmmkk..oy', '.....kk...o'],
   stillair: ['', '', '.....kkkkkk', '...kkWWWWWWkk', '..kWWWppppWWWk', '..kWWp....pWWk', '..kWWp....pWWk', '..kWWWppppWWWk', '...kkWWWWWWkk', '.....kkkkkk'],
+  cup: ['', '', '..kkkkkkkkkkk', '..kCCCCCCCCCk', '..kpBBBBBBBlk', '..kplllllllmk', '...kplllllmk', '....kplllmk', '.....kkkkk', '......kmk', '......kmk', '....kkkmkkk', '....kpllmmk', '....kkkkkkk'],
   yoke: ['', '', '.kkkkkkkkkkkkkk', '.kuuuuWWWWuuuuk', '.kkkkkkkkkkkkkk', '..k..........k', '..k..........k', '.kkk........kkk', '.kck........kck', '.kck........kck', '.kkk........kkk'],
   place: ['', '', '....kkkkkk', '..kkwwwwwwkk', '.kwwwppppwwwk', '.kwwpwwwwpwwk', '.kwwpwwwwpwwk', '.kwwwppppwwwk', '..kkwwwwwwkk', '....kkkkkk'],
   lastpage: ['', '...kkkkkkkk', '..kppppppppk', '..kppppppppk', '..kppppppppk', '..kppppppppk', '..kppppppppk', '..kppppppppk', '..kppppppkkk', '..kpppppkpk', '..kkkkkkkk'],

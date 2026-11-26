@@ -10,7 +10,7 @@
 //   GIFTS, giftName  -> the gifts in the order he is given them, and what each is called
 //   reached(seen, room, W), goalOf(marks), nearGoal(goal), runback(...)
 import { clock } from './browser.mjs';
-const { LEVEL, LEVELS, loadLevel, T, PHASE, REGION_DATA, RULE, waterAt } = await import('../../src/side/level.js');
+const { LEVEL, LEVELS, loadLevel, T, PHASE, REGION_DATA, RULE, waterAt, BREATH } = await import('../../src/side/level.js');
 const M = await import('../../src/side/motor.js');
 const I = await import('../../src/core/input.js');
 const { TEACH, ABILITY, ARRIVES } = await import('../../src/side/state.js');
@@ -78,11 +78,18 @@ for (const d of ['left', 'right']){ CLIMBP.push((t, I) => { I.hold(d, true); });
   for (const up of [2.2, 3.2, 4.2, 5.2]) CLIMBP.push((t, I) => { I.hold(d, t < up); I.hold(d === 'left' ? 'right' : 'left', t >= up && t < up + 0.25); });
   // and down one: off its top the other way, back onto its face, and down it
   for (const back of [0.16, 0.3]) CLIMBP.push((t, I) => { I.hold(d === 'left' ? 'right' : 'left', t < back); I.hold(d, t >= back && t < back + 0.7); I.hold('down', t >= back + 0.7); }); }
+// water that breathes (the Drowned Galleries; level.js BREATH): it is the same every time, so he can wait for any height
+// of it. A place in a room of it is played at each of these heights, the water held there: what it lifts him to, where it
+// sets him down, and what he reaches from either. (He cannot be harmed by waiting: it cannot drown him)
+export const BREATHS = [0, 0.25, 0.5, 0.75, 1];
+export const breathRoom = (x, y) => { const i = Math.floor(x / T), j = Math.round(y / T); return (LEVEL.rooms || []).some(r => r.breath && i >= r.tx0 && i < r.tx1 && j >= r.ty0 - 1 && j < r.ty1); };
+export { BREATH };
 export { run, PROGS, DASH, LONG, SWIMP, CLIMBP };   // for the stuck-finder (tests/helpers/stuck.mjs)
 const tileSupport = (x, y) => { const t = LEVEL.tiles[(Math.round(y / T) - 1) * W + Math.floor(x / T)]; return t === 1 || t === 2; };
 const CACHE = new Map();
 export function graph(N, gifts = []){
   const key = N + ':' + [...gifts].sort().join(',');
+  BREATH.hold = 0;
   const L = loadLevel(N); W = L.W;
   const has = new Set(gifts);
   M.CAN.breaker = has.has('breaker'); M.CAN.dash = has.has('dash'); M.CAN.glide = has.has('glide'); M.CAN.grip = has.has('grip'); RULE.bore = 0;
@@ -93,15 +100,17 @@ export function graph(N, gifts = []){
   if (CACHE.has(key)) return { ...base, ...CACHE.get(key) };
   const sp = L.marks.find(m => m.type === 'spawn'), start = sp.y * W + sp.x, pos = new Map([[start, [(sp.x + 0.5) * T, sp.y * T]]]);
   const seen = new Set([start]), q = [start], edges = new Map();
-  const progs = has.has('dash') ? PROGS.concat(DASH) : PROGS, rough = LEVEL.tiles.includes(20);
+  const progs = has.has('dash') ? PROGS.concat(DASH) : PROGS, rough = LEVEL.tiles.includes(20), breathing = LEVEL.waters.some(w => w.key === 'breath');
   while (q.length){
     const k = q.pop(), [x, y] = pos.get(k), nx = new Map();
     const take = (c, at) => { if (c === k) return; if (!nx.has(c)) nx.set(c, Math.hypot(at[0] - x, at[1] - y)); if (!pos.has(c)) pos.set(c, at); };
+    for (const b of breathing && breathRoom(x, y) ? (has.has('lowwater') ? [0] : has.has('shallow') ? BREATHS.slice(0, 2) : BREATHS) : [0]){ BREATH.hold = b;   // ('lowwater': it never rises; 'shallow': it comes a quarter of the way and no more)
     const inWater = LEVEL.waters.length && (waterAt(x, y + 0.9) || waterAt(x, y + 0.05));
     if (!inWater || tileSupport(x, y)) for (const p of progs) for (const [c, at] of run(x, y, p)) take(c, at);
     if (rough && has.has('grip')) for (const p of CLIMBP) for (const [c, at] of run(x, y, p, 900)) take(c, at);   // up a rough face: a long way
     if (inWater) for (const p of SWIMP) for (const [c, at] of run(x, y, p, 200)) take(c, at);
     if (has.has('glide') && (LEVEL.updrafts.length || (RULE.fallen && (LEVEL.gusts || []).length))) for (const p of LONG) for (const [c, at] of run(x, y, p, 420)) take(c, at);   // where there is rising air to ride
+    } BREATH.hold = 0;
     edges.set(k, nx);
     for (const c of nx.keys()) if (!seen.has(c)){ seen.add(c); q.push(c); }
   }

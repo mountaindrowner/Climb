@@ -29,9 +29,15 @@ const roomy = (i, j) => { for (let d = 0; d < BODY; d++) if (solid(i, j + d)) re
 // With the wind (BROKE; or a section he cannot come into without it) he goes anywhere in it. He leaves it at its top
 const WET = new Int16Array(W * H); for (const w of waters) for (let j = Math.round(w.y0 * 2); j < Math.round(w.y1 * 2); j++) for (let i = Math.round(w.x0 * 2); i < Math.round(w.x1 * 2); i++) if (i >= 0 && j >= 0 && i < W && j < H) WET[j * W + i] = 1;
 for (let i = 0; i < W; i++){ let top = 0; for (let j = H - 1; j >= 0; j--){ if (WET[j * W + i]){ if (!top) top = j + 1; WET[j * W + i] = top; } else top = 0; } }
+// water that breathes (the Drowned Galleries; level.js BREATH): LOW[k] is the row over its top at its lowest (0: it does
+// not breathe); WET, as ever, at its highest. He waits for any height between: he swims wherever some height would hold
+// him, stands wherever its lowest leaves him his feet, and leaves it at whatever top it has when he is there
+const LOW = new Int16Array(W * H); for (const w of waters) if (w.key === 'breath'){ const lo = Math.max(1, Math.round(w.lo * 2)); for (let i = Math.round(w.x0 * 2); i < Math.round(w.x1 * 2); i++){ if (i < 0 || i >= W) continue; let j0 = Math.round(w.y0 * 2), j1 = Math.round(w.y1 * 2) - 1; while (j0 > 0 && WET[(j0 - 1) * W + i]) j0--; for (let j = j0; j <= j1 && j < H; j++) if (j >= 0) LOW[j * W + i] = LOW[j * W + i] ? Math.min(LOW[j * W + i], lo) : lo; } }   // (one such water over another, a drain under a hall: the lower's low mark is the column's)
 const WIND = (REGION_DATA[N].needs || []).includes('glide'), deepAt = (i, j) => { const t = i < 0 || j < 0 || i >= W || j >= H ? 0 : WET[j * W + i]; return t ? t - j : 0; };
-const swims = (i, j) => { const d = deepAt(i, j); return d > 0 && at(i, j) !== ROCK && roomy(i, j) && (WIND || BROKE ? d >= 2 : d === 3 || d === 4); };
-const stand = (i, j) => at(i, j) !== ROCK && at(i, j) !== 3 && support(i, j - 1) && roomy(i, j) && (roomy(i - 1, j) || roomy(i + 1, j)) && (BROKE || !BARRED.has(j * W + i)) && (WIND || BROKE || deepAt(i, j) <= 3);
+const lowAt = (i, j) => { const t = i < 0 || j < 0 || i >= W || j >= H ? 0 : LOW[j * W + i]; return t ? t - j : null; };   // how deep he is here at its lowest (null: this water does not breathe)
+const swims = (i, j) => { const d = deepAt(i, j), lo = lowAt(i, j); return d > 0 && at(i, j) !== ROCK && roomy(i, j) && (WIND || BROKE ? d >= 2 : lo != null ? d >= 3 && lo <= 4 : d === 3 || d === 4); };
+const tops = (i, j) => { const top = WET[j * W + i], lo = LOW[j * W + i]; if (!lo) return [top]; const out = []; for (const t of [j + 3, j + 4]) if (t >= lo && t <= top) out.push(t); return out.length ? out : [Math.min(top, Math.max(lo, j + 3))]; };   // the rows over the water's top that could be, with him afloat here
+const stand = (i, j) => at(i, j) !== ROCK && at(i, j) !== 3 && support(i, j - 1) && roomy(i, j) && (roomy(i - 1, j) || roomy(i + 1, j)) && (BROKE || !BARRED.has(j * W + i)) && (WIND || BROKE || (lowAt(i, j) ?? deepAt(i, j)) <= 3);
 // crouched or rolling he fits under three tiles: he can go along there, not jump
 const low = (i, j) => { if (at(i, j) === ROCK || at(i, j) === 3 || !support(i, j - 1)) return false; for (let d = 0; d < 3; d++) if (solid(i, j + d)) return false; return true; };   // crouched 1.4: three tiles
 
@@ -46,7 +52,7 @@ function reach(edges){
     const [i, j] = q.pop(); from = j * W + i;
     // in deep water: along it and up and down it; and from near its top, out onto what stands at its edge
     if (swims(i, j)){ for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (swims(i + a, j + b)) push(i + a, j + b);
-      const top = WET[j * W + i]; if (top - j <= 5) for (let dx = -4; dx <= 4; dx++) for (let tj = top - 2; tj <= top + 1; tj++){ const ti = i + dx; if (stand(ti, tj) && !swims(ti, tj) && clear(i, ti, Math.max(tj, top - 1), tj + BODY - 1)) push(ti, tj); } }
+      for (const top of tops(i, j)) if (top - j <= 5) for (let dx = -4; dx <= 4; dx++) for (let tj = top - 2; tj <= top + 1; tj++){ const ti = i + dx; if (stand(ti, tj) && (!swims(ti, tj) || LOW[tj * W + ti]) && clear(i, ti, Math.max(tj, top - 1), tj + BODY - 1)) push(ti, tj); } }
     for (const dir of [-1, 1]){
       push(i + dir, j, true);   // along, crouched if need be
       if (!stand(i, j)) continue;

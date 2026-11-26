@@ -1,0 +1,81 @@
+// The Drowned Galleries (docs/drowned-sheet.md): the Roots' west wing. The region tests hold that its rooms are reached
+// and nothing in them traps him, played at every height of the water. These hold what is its own: where it lies, the
+// water that breathes, what only high water comes to, the way back through the pool, the relic, and the save's move.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import './helpers/browser.mjs';
+const R = await import('./helpers/reach.mjs');
+const LV = await import('../src/side/level.js');
+const DR = await import('../src/side/regions/drowned.js');
+const M = await import('../src/side/motor.js');
+const ST = await import('../src/side/state.js');
+const L = { ...R.loadLevel(0) }, room = n => L.rooms.find(r => r.name === n), NAMES = ['waterstair', 'drownedhall', 'keepcells', 'weir', 'cuproom', 'culvert'];
+const stoodIn = (seen, r, x0, y0, x1, y1) => { for (const k of seen){ const i = k % L.W - r.tx0, j = Math.floor(k / L.W) - r.ty0; if (i >= x0 && i <= x1 && j >= y0 && j <= y1) return true; } return false; };
+
+test('twelve screens, west of the pool and lower than it, open from the first', () => {
+  const rs = NAMES.map(room); assert.ok(rs.every(Boolean));
+  assert.equal(rs.reduce((n, r) => n + (r.tx1 - r.tx0) * (r.ty1 - r.ty0) / (40 * 23), 0), 12);
+  const st = room('start'); assert.ok(rs.every(r => r.title === 'THE DROWNED GALLERIES' && r.wing && !r.gate));
+  for (const n of ['waterstair', 'drownedhall', 'keepcells', 'weir', 'cuproom']) assert.ok(room(n).tx1 <= st.tx0, n + ' is west of the pool room');
+  for (const n of ['waterstair', 'drownedhall', 'keepcells', 'culvert']) assert.ok(room(n).ty0 < st.ty0, n + ' goes lower than the pool');
+  assert.equal(room('culvert').tx0, st.tx0, 'the culvert is under the pool room'); assert.equal(room('culvert').ty1, st.ty0);
+  for (let y = st.ty0 + 2; y <= st.ty0 + 6; y++) assert.equal(L.tiles[y * L.W + st.tx0], LV.EMPTY, 'a door in the pool room\'s west wall');
+});
+test('the water breathes: low, a slow rise, high, a fall, the same every time', () => {
+  const B = LV.BREATH, all = B.low + B.rise + B.high + B.fall; B.hold = null;
+  try {
+    assert.equal(LV.breath(0), 0); assert.equal(LV.breath(B.low + B.rise + 1), 1); assert.equal(LV.breath(B.low + B.rise / 2), 0.5);
+    for (let t = 0; t < all; t += 0.37){ const a = LV.breath(t), b = LV.breath(t + 1 / 60); assert.ok(a >= 0 && a <= 1); assert.ok(Math.abs(a - b) < 0.01, 'no jump in it'); assert.ok(Math.abs(LV.breath(t + all * 3) - a) < 1e-9, 'the same every time'); }
+    assert.ok(B.rise >= 10 && B.fall >= 10 && B.high >= 4, 'slow enough to watch, and it stands long enough to be used');
+  } finally { B.hold = 0; }
+  const ws = L.waters.filter(w => w.key === 'breath'); assert.ok(ws.length >= 5);
+  for (const w of ws.filter(w => w.gain === 1)) assert.equal(Math.round((w.y1 - w.lo) / LV.T), 16, 'sixteen tiles between low water and high: more than he can climb (fourteen and a half, with a second jump and his hands)');
+  const w = ws.find(w => w.gain === 1); B.hold = 0; assert.equal(LV.waterTop(w), w.lo); B.hold = 1; assert.equal(LV.waterTop(w), w.y1); B.hold = 0.5; assert.equal(LV.waterTop(w), (w.lo + w.y1) / 2); B.hold = 0;
+});
+test('at low water he walks the hall\'s floor and no more; the galleries, the cells, the weir and the cup room want the rise', () => {
+  const low = R.graph(0, ['lowwater']), hall = room('drownedhall'), stair = room('waterstair');
+  assert.ok(stoodIn(low.seen, hall, 2, 8, 13, 8) && stoodIn(low.seen, hall, 60, 8, 77, 8), 'the hall\'s floor, end to end, on his feet');
+  assert.ok(!stoodIn(low.seen, hall, 2, 24, 9, 25), 'not its west gallery'); assert.ok(!stoodIn(low.seen, hall, 70, 24, 77, 25), 'nor its east');
+  assert.ok(!stoodIn(low.seen, stair, 2, 25, 5, 26), 'nor the ledge over the hall\'s door');
+  for (const n of ['keepcells', 'weir', 'cuproom']) assert.ok(!R.reached(low.seen, room(n), low.W), n + ' is not come to at low water');
+  const all = R.graph(0, []);
+  assert.ok(stoodIn(all.seen, hall, 2, 24, 9, 25) && stoodIn(all.seen, hall, 70, 24, 77, 25) && stoodIn(all.seen, stair, 2, 25, 5, 26), 'the rise brings him to all three');
+  for (const n of NAMES) assert.ok(R.reached(all.seen, room(n), all.W), n);
+});
+test('the thread is on the east gallery, where only the rise brings him; and the weir\'s banks want its water too', () => {
+  const hall = room('drownedhall'), we = room('weir'), th = L.marks.find(m => m.type === 'thread' && m.x >= hall.tx0 && m.x < hall.tx1 && m.y >= hall.ty0 && m.y < hall.ty1); assert.ok(th);
+  assert.ok(th.x - hall.tx0 >= 70 && th.y - hall.ty0 >= DR.DROWNED.high, 'on the east gallery, where high water comes to');
+  assert.equal(DR.DROWNED.high - DR.DROWNED.floor, 16); assert.equal(DR.DROWNED.weirHigh - DR.DROWNED.weirLow, 16);
+  // the weir: from its bed (he may fall in at low water) neither bank is climbed; he is not stuck there, the water comes back
+  LV.BREATH.hold = 0; let out = false; for (const p of R.PROGS) for (const x of [16.5, 20.5, 27.5, 31.4]) for (const [c] of R.run((we.tx0 + x) * LV.T, (we.ty0 + 2) * LV.T, p)) if (Math.floor(c / L.W) - we.ty0 >= 19) out = true;
+  assert.ok(!out, 'the banks are not climbed from the bed');
+});
+test('the culvert: from the hall\'s drain, under the stair, and up through the boards in the pool he woke in; and down again', () => {
+  const st = room('start'), cu = room('culvert'), sp = L.marks.find(m => m.type === 'spawn');
+  for (let x = 3; x <= 6; x++) assert.equal(L.tiles[st.ty0 * L.W + st.tx0 + x], LV.LEDGE, 'boards in the pool\'s floor');
+  assert.ok(sp.x > st.tx0 + 6, 'he does not wake on them');
+  assert.equal(L.tiles.filter((t, k) => t === LV.LEDGE && k % L.W >= cu.tx0 && k % L.W < cu.tx1 && Math.floor(k / L.W) >= cu.ty0 && Math.floor(k / L.W) < cu.ty1).length, 12, 'three rungs in its shaft');
+  // with the water held low, and the door in the pool room's wall never used, the boards are still a way down and back
+  const low = R.graph(0, ['lowwater']); assert.ok(stoodIn(low.seen, cu, 0, 2, 8, 2), 'the culvert\'s floor');
+  LV.BREATH.hold = 0; let up = false; const from = [(cu.tx0 + 4.5) * LV.T, (cu.ty0 + 20) * LV.T];
+  for (const p of R.PROGS) for (const [c] of R.run(from[0], from[1], p)) if (Math.floor(c / L.W) === st.ty0 + 1) up = true;
+  assert.ok(up, 'from the top rung he comes up through the boards, into the pool');
+});
+test('the Keepers\' Cup: in the cup room, the wing\'s one relic; a drink more', () => {
+  const cup = room('cuproom'), ch = L.marks.filter(m => m.type === 'chest' && /^relic:/.test(m.holds || '') && NAMES.map(room).some(r => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1));
+  assert.equal(ch.length, 1); assert.equal(ch[0].holds, 'relic:cup'); assert.ok(ch[0].x >= cup.tx0 && ch[0].x < cup.tx1 && ch[0].y >= cup.ty0);
+  assert.ok(ST.RELICS.cup && ST.RELICS.cup.line.length <= 110);
+  const G = ST.G, was = { relics: G.relics, worn: G.worn, flasks: G.flasks };
+  G.relics = []; G.worn = []; G.flasks = 0; const base = ST.maxFlask(); G.relics = ['cup']; G.worn = ['cup']; assert.equal(ST.maxFlask(), base + 1); Object.assign(G, was);
+  assert.ok(!L.waters.some(w => w.x0 < cup.x1 && w.x1 > cup.x0 && w.y0 < cup.y1 && w.y1 > cup.y0), 'the cup room is dry always');
+});
+test('a save from before the wing: what it had found and broken in the Roots is moved with them, once', () => {
+  assert.deepEqual(ST.WING_MOVED[0].slice(0, 2), [L.X0, L.Y0], 'by as far as the Roots moved'); assert.deepEqual([L.X0, L.Y0], [DR.wing.left * 40, DR.wing.down * 23]);
+  const store = {}; globalThis.localStorage = { getItem: k => store[k] ?? null, setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } };
+  const old = { seamed: 1, joined: 1, winged: 4, can: {}, level: 0, top: 0, got: { 0: ['t24,13', 'c33,15'], 1: ['c200,80'] }, broke: { 0: ['10,5'] }, blocked: {}, relics: [], worn: [] };
+  store['climb-side'] = JSON.stringify(old);
+  const G = ST.loadSave();
+  if (G.began){ assert.deepEqual(G.got[0], ['t184,59', 'c193,61']); assert.deepEqual(G.broke[0], ['170,51']); assert.deepEqual(G.got[1], ['c200,80'], 'the Cloister\'s is left alone'); assert.equal(G.winged, 5);
+    store['climb-side'] = JSON.stringify(G); const again = ST.loadSave(); assert.deepEqual(again.got[0], ['t184,59', 'c193,61'], 'and not moved twice'); }
+  else assert.fail('the save was not read: its key is not one this test knows');
+});

@@ -15,7 +15,7 @@
 //   G.seen, G.slain, G.keepers: what he has met, killed, and which keepers he has faced (Corwen's Annals, annals.js)
 import { TUNE } from '../config/tuning.js';
 const KEY = 'climb-side', OKEY = 'climb-side-opts';
-const blank = () => ({ can: {}, seamed: 1, level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], worn: [], knots: 0, arms: [], wield: 'blade', got: {}, broke: {}, met: {}, charts: [], began: false, falls: 0, seen: {}, slain: {}, keepers: {}, blocked: {}, fallsBy: {}, sealed: {}, rooms: {}, joined: 1, winged: 4 });
+const blank = () => ({ can: {}, seamed: 1, level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], worn: [], knots: 0, arms: [], wield: 'blade', got: {}, broke: {}, met: {}, charts: [], began: false, falls: 0, seen: {}, slain: {}, keepers: {}, blocked: {}, fallsBy: {}, sealed: {}, rooms: {}, joined: 1, winged: 5 });
 export const G = blank();
 export const OPT = { music: 0.7, sfx: 1, voice: 0.8, text: 'normal', shake: 1, flash: 1, diff: 1, synth: false, rumble: true, phone: 'auto', hints: true };   // hints: the opening's help when he struggles (teach.js)   // phone: 'auto' (by the device), true, false   // diff: 0 story, 1 climber, 2 summit
 const read = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e){ return null; } };
@@ -35,9 +35,10 @@ export const JOIN_MOVED = { 1: [0, 46], 2: [0, 69], 3: [40, 69], 4: [0, 46], 5: 
 // the count a save's `winged` must be under for the move still to be owed
 // the Wreck of the Works (build 66) is three rooms to the west of the Tempest, which stood one room in already: 80 tiles
 // the Aqueducts (build 68) are three rooms to the west of the Gardens: 120 tiles
-export const WING_MOVED = { 1: [120, 0, 1], 2: [120, 0, 2], 3: [80, 0, 3], 4: [120, 0, 4] };
+// the Drowned Galleries (build 107) are four rooms to the west of the Roots and two rows under them: 160 tiles east, 46 up
+export const WING_MOVED = { 0: [160, 46, 5], 1: [120, 0, 1], 2: [120, 0, 2], 3: [80, 0, 3], 4: [120, 0, 4] };
 function winged(S){
-  const have = S.winged || 0; if (have >= 4) return; S.winged = 4;
+  const have = S.winged || 0; if (have >= 5) return; S.winged = 5;
   for (const n of Object.keys(WING_MOVED)){ const [dx, dy, since] = WING_MOVED[n]; if (have >= since) continue; const mv = id => { const m = /^([a-z]?)(-?\d+),(-?\d+)$/.exec(id); return m ? m[1] + (+m[2] + dx) + ',' + (+m[3] + dy) : id; };
     for (const k of ['got', 'broke', 'blocked', 'lit']) if (S[k] && S[k][n]) S[k][n] = S[k][n].map(mv); }
 }
@@ -73,7 +74,7 @@ export function wear(id, on = !has(id)){
 function knotted(S){ if (!Array.isArray(S.worn)){ const n = (S.relics || []).length; S.knots = Math.max(0, Math.min(KNOTS.most - KNOTS.base, n - KNOTS.base)); S.worn = (S.relics || []).slice(0, KNOTS.base + S.knots); } }
 export const THREADS_A_HEART = 3;
 export const maxHearts = () => Math.max(2, Math.min(10, Math.min(9, TUNE.player.hp + Math.floor(G.threads / THREADS_A_HEART) + G.hearts + [2, 0, -2][OPT.diff]) + (has('place') ? 1 : 0)));   // (the Second Place: one heart more)
-export const maxFlask = () => Math.min(7, Math.min(6, TUNE.player.flask + G.flasks) + (has('yoke') ? 1 : 0));   // (the Carrier's Yoke: one draught more)
+export const maxFlask = () => Math.min(7, Math.min(6, TUNE.player.flask + G.flasks) + (has('yoke') ? 1 : 0) + (has('cup') ? 1 : 0));   // (the Carrier's Yoke: one draught more; the Keepers' Cup, another)
 export const took = (n, id) => (G.got[n] || []).includes(id);
 export const take = (n, id) => { (G.got[n] = G.got[n] || []).push(id); store(); };
 export const DIFF = ['Story', 'Climber', 'Summit'];
@@ -90,6 +91,7 @@ export const RELICS = {   // name: whose it was; line: what it does; lore: whose
   felt:        { name: 'Founder\'s Felt',        line: 'A perfect block stuns every creature near you for a moment.', lore: 'The founders wrapped a tongue in it when a bell was to be struck and not heard.' },
   boots:       { name: 'Wright\'s Boots',         line: 'Electrified iron does not hurt you.', lore: 'Cork and gum. The Wrights wore them to walk their own works. They did not take them off to sleep.' },
   stillair:    { name: 'A Breath of the Eye',    line: 'You sink more slowly while gliding.', lore: 'Air from the middle of the storm, where nothing moves. It was kept behind a door that opens to no one in a hurry.' },
+  cup:         { name: 'Keepers\' Cup',          line: 'Your flask holds one more drink.', lore: 'The keepers of the water drank from it once a year, and no one else did. It was left on its plinth when the halls went under.' },
   yoke:        { name: 'Carrier\'s Yoke',        line: 'Your flask holds one more drink.', lore: 'Before the channel was cut, the water came up from the pool on men\'s shoulders. One of them left this at the head.' },
   place:       { name: 'The Second Place',       line: 'You have one more heart.', lore: 'In his house the table was laid for two. He took his own place from it. The other is still laid.' },
   lastpage:    { name: 'The Last Page',          line: 'Once per rest, a hit that would kill you leaves you with one heart.', lore: 'The almanac\'s last page. Every other has an hour on it. This one is blank.' },

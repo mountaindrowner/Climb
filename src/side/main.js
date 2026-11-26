@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 106, date: '26 NOV 2026', phase: 17, phases: 22, last: 'THE DEEP IN STONE' };
+const VERSION = { build: 107, date: '26 NOV 2026', phase: 17, phases: 22, last: 'THE DROWNED GALLERIES' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -187,7 +187,7 @@ function wingStep(dt){
   if (!G.refectory && P.grounded && LEVEL.theme === 'cloister') for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'tablehead' && Math.abs(m.x * T - P.x) < 6 && Math.abs(m.y * T - P.y) < 2.5){ G.refectory = 1; store(); banner('The refectory', 'The table is still laid for pilgrims. The bread has turned to stone.', 6); }
   // its stones' words, as he stands by one; and his own cairn, the first time he comes to it
   if (LEVEL.theme === 'spires' && P.grounded){ const now = performance.now() / 1000;
-    for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'reason' && Math.abs((m.x + 0.5) * T - P.x) < 1.3 && Math.abs(m.y * T - P.y) < 1.5 && now - (WAY.said.get(m) || -99) > 14 && !(BANNER && BANNER.t > 0)){ WAY.said.set(m, now); banner('', 'Scratched on the stone: ' + m.says, 2.6); }
+    for (const m of LEVEL.marks) if (m.type === 'deco' && (m.kind === 'reason' || m.kind === 'keepline') && Math.abs((m.x + 0.5) * T - P.x) < 1.3 && Math.abs(m.y * T - P.y) < 1.5 && now - (WAY.said.get(m) || -99) > 14 && !(BANNER && BANNER.t > 0)){ WAY.said.set(m, now); banner('', (m.kind === 'keepline' ? 'Cut in the wall: ' : 'Scratched on the stone: ') + m.says, m.kind === 'keepline' ? 4 : 2.6); }
     if (!G.cairnSeen) for (const e of E.list) if (e.type === 'hiscairn' && e.alive && Math.abs(e.x - P.x) < 3.2 && Math.abs(e.y - P.y) < 2){ G.cairnSeen = 1; store(); banner('Your own cairn', 'Your name is on the top stone, from before you fell. Under it: NOT YET.', 6.5); } }
   // the Eye of the Storm: how long he has stood still (the Hush stir on it: regions/eye.js); the door of cloud he stands
   // by thins as he waits, and opens; it is open a little while, and not shut on him while he is in it

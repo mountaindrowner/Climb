@@ -4,7 +4,9 @@
 // a drop through a plank) he is stuck. Every gift is his, so a pocket is one the player can never get out of. Only the
 // rooms are searched (not the rock over the summit), and from each place up to six moves on.
 //   pockets(N) -> [{ x, y, room }]   tiles where he would be stuck
-import { graph, run, PROGS, DASH, LONG, SWIMP, CLIMBP, GIFTS, LEVEL, T } from './reach.mjs';
+import { graph, run as run1, PROGS, DASH, LONG, SWIMP, CLIMBP, GIFTS, LEVEL, T, BREATH, BREATHS, breathRoom } from './reach.mjs';
+// in a room whose water breathes he may wait for any height of it: a place is left if it is left at any
+const run = (x, y, p, frames, hurtOk) => { if (!breathRoom(x, y)) return run1(x, y, p, frames, hurtOk); const out = new Map(); for (const b of BREATHS){ BREATH.hold = b; for (const [c, at] of run1(x, y, p, frames, hurtOk)) if (!out.has(c)) out.set(c, at); } BREATH.hold = 0; return out; };
 const { BODY } = await import('../../src/side/motor.js');
 const ROCK = 1, LEDGE = 2;
 export function pockets(N){
