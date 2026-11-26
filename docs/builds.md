@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 106 | 26 Nov 2026 | `COMMITNN` | The Deep's map pass, its five levels: 122 planks to 39, none bare in the air. The map pass is done | no | yes (now) |
+| 106 | 26 Nov 2026 | `4ac1531` | The Deep's map pass, its five levels: 122 planks to 39, none bare in the air. The map pass is done | no | yes (now) |
 | 105 | 26 Nov 2026 | `24171a1` | The Firmament's map pass: 68 planks to 30 in 40 screens, none bare in the air; people hint and do not instruct | no | replaced by 106 |
 | 104 | 26 Nov 2026 | `d936c12` | The Gardens' map pass: 117 planks to 46 in 47 screens, none bare in the air; a bloom under each quick way | no | replaced by 105 |
 | 103 | 24 Nov 2026 | `1265ed4` | The Tempest's map pass: 72 planks to 50 in 51 screens, none bare in the air | no | replaced by 104 |
