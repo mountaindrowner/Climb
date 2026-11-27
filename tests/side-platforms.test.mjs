@@ -33,7 +33,7 @@ function bridged(all, p, tiles, W){
   return left && right;
 }
 // one board in the air, by design and approved: the Wyrm's slab over the broken pass (docs/wyrm-sheet.md)
-const ALLOWED = [{ level: 'The Spires', x0: 153, y: 290 }];
+const ALLOWED = [{ level: 'The Spires', x0: 153, y: 336 }];   // (290 before every level was lifted 46 rows, build 115)
 const screens = N => { const { rooms } = { ...loadLevel(N) }; let s = 0; for (const r of rooms) s += Math.round((r.tx1 - r.tx0) / 40) * Math.round((r.ty1 - r.ty0) / 23); return s; };
 
 for (let N = 0; N < LEVELS.length; N++){ const name = LEVELS[N].name, B = BUDGET[name];

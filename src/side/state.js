@@ -15,7 +15,7 @@
 //   G.seen, G.slain, G.keepers: what he has met, killed, and which keepers he has faced (Corwen's Annals, annals.js)
 import { TUNE } from '../config/tuning.js';
 const KEY = 'climb-side', OKEY = 'climb-side-opts';
-const blank = () => ({ can: {}, seamed: 1, level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], worn: [], knots: 0, arms: [], wield: 'blade', got: {}, broke: {}, met: {}, charts: [], began: false, falls: 0, seen: {}, slain: {}, keepers: {}, blocked: {}, fallsBy: {}, sealed: {}, rooms: {}, joined: 1, winged: 5 });
+const blank = () => ({ can: {}, seamed: 1, level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], worn: [], knots: 0, arms: [], wield: 'blade', got: {}, broke: {}, met: {}, charts: [], began: false, falls: 0, seen: {}, slain: {}, keepers: {}, blocked: {}, fallsBy: {}, sealed: {}, rooms: {}, joined: 1, winged: 6 });
 export const G = blank();
 export const OPT = { music: 0.7, sfx: 1, voice: 0.8, text: 'normal', shake: 1, flash: 1, diff: 1, synth: false, rumble: true, phone: 'auto', hints: true };   // hints: the opening's help when he struggles (teach.js)   // phone: 'auto' (by the device), true, false   // diff: 0 story, 1 climber, 2 summit
 const read = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e){ return null; } };
@@ -37,10 +37,26 @@ export const JOIN_MOVED = { 1: [0, 46], 2: [0, 69], 3: [40, 69], 4: [0, 46], 5: 
 // the Aqueducts (build 68) are three rooms to the west of the Gardens: 120 tiles
 // the Drowned Galleries (build 107) are four rooms to the west of the Roots and two rows under them: 160 tiles east, 46 up
 export const WING_MOVED = { 0: [160, 46, 5], 1: [120, 0, 1], 2: [120, 0, 2], 3: [80, 0, 3], 4: [120, 0, 4] };
+export const LIFT_MOVED = 46;
 function winged(S){
-  const have = S.winged || 0; if (have >= 5) return; S.winged = 5;
-  for (const n of Object.keys(WING_MOVED)){ const [dx, dy, since] = WING_MOVED[n]; if (have >= since) continue; const mv = id => { const m = /^([a-z]?)(-?\d+),(-?\d+)$/.exec(id); return m ? m[1] + (+m[2] + dx) + ',' + (+m[3] + dy) : id; };
-    for (const k of ['got', 'broke', 'blocked', 'lit']) if (S[k] && S[k][n]) S[k][n] = S[k][n].map(mv); }
+  const have = S.winged || 0; if (have >= 6) return; S.winged = 6;
+  // (a leak he has found for travel is kept as 'x,y|its room': build 115 moves those too, which the wings before it did not)
+  for (const n of Object.keys(WING_MOVED)){ const [dx, dy, since] = WING_MOVED[n]; if (have >= since) continue; const mv = id => { const m = /^([a-z]?)(-?\d+),(-?\d+)(\|.*)?$/.exec(id); return m ? m[1] + (+m[2] + dx) + ',' + (+m[3] + dy) + (m[4] || '') : id; };
+    for (const k of ['got', 'broke', 'blocked', 'lit', 'wat']) if (S[k] && Array.isArray(S[k][n])) S[k][n] = S[k][n].map(mv); }
+  // (build 115) every level was lifted onto two rows of rock: 46 tiles up, all of them
+  if (have < 6){ const up = id => { const m = /^([a-z]?)(-?\d+),(-?\d+)(\|.*)?$/.exec(id); return m ? m[1] + m[2] + ',' + (+m[3] + LIFT_MOVED) + (m[4] || '') : id; }; for (const k of ['got', 'broke', 'blocked', 'lit', 'wat']) for (const n of Object.keys(S[k] || {})) if (Array.isArray(S[k][n])) S[k][n] = S[k][n].map(up); }
+}
+// (build 116) from here on a save knows where each level stood when it was written: `org[n]`, the level's own corner in
+// tiles. When a level has grown west or down since (a wing's far end, rows under it), what the save holds there is moved by
+// the difference as the level is come into, and nothing has to be written here for it again. A save with no `org` for a
+// level is from build 115 or before, and `winged` above has brought it to where build 115 had the levels: ORG115
+export const ORG115 = [[160, 92], [120, 92], [120, 115], [120, 115], [120, 92], [0, 115], [0, 46], [0, 46], [0, 46], [0, 46], [0, 46]];
+export function rebase(n, X0, Y0, S = G){
+  const org = (S.org = S.org || {}), was = org[n] || ORG115[n] || [X0, Y0], dx = X0 - was[0], dy = Y0 - was[1]; org[n] = [X0, Y0];
+  if (!dx && !dy) return false;
+  const mv = id => { const m = /^([a-z]?)(-?\d+),(-?\d+)(\|.*)?$/.exec(id); return m ? m[1] + (+m[2] + dx) + ',' + (+m[3] + dy) + (m[4] || '') : id; };
+  for (const k of ['got', 'broke', 'blocked', 'lit', 'wat']) if (S[k] && Array.isArray(S[k][n])) S[k][n] = S[k][n].map(mv);
+  return true;
 }
 function joined(S){
   if (S.joined) return; S.joined = 1;

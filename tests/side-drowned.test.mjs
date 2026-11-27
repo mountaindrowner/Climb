@@ -73,14 +73,17 @@ test('the Keepers\' Cup: in the cup room, the wing\'s one relic; a drink more', 
   assert.ok(!L.waters.some(w => w.x0 < cup.x1 && w.x1 > cup.x0 && w.y0 < cup.y1 && w.y1 > cup.y0), 'the cup room is dry always');
 });
 test('a save from before the wing: what it had found and broken in the Roots is moved with them, once', () => {
-  assert.deepEqual(ST.WING_MOVED[0].slice(0, 2), [L.X0, L.Y0], 'by as far as the Roots moved'); assert.deepEqual([L.X0, L.Y0], [DR.wing.left * 40, DR.wing.down * 23]);
+  assert.deepEqual(ST.WING_MOVED[0].slice(0, 2), [L.X0, L.Y0 - ST.LIFT_MOVED], 'by as far as the Roots moved for the wing'); assert.deepEqual([L.X0, L.Y0], [DR.wing.left * 40, DR.wing.down * 23 + LV.LIFT.base * 23]); assert.equal(ST.LIFT_MOVED, LV.LIFT.base * 23, 'and every level 46 more, for the rows under it (build 115)');
   const store = {}; globalThis.localStorage = { getItem: k => store[k] ?? null, setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } };
-  const old = { seamed: 1, joined: 1, winged: 4, can: {}, level: 0, top: 0, got: { 0: ['t24,13', 'c33,15'], 1: ['c200,80'] }, broke: { 0: ['10,5'] }, blocked: {}, relics: [], worn: [] };
+  const old = { seamed: 1, joined: 1, winged: 4, can: {}, level: 0, top: 0, got: { 0: ['t24,13', 'c33,15'], 1: ['c200,80'] }, broke: { 0: ['10,5'] }, blocked: {}, relics: [], worn: [], wat: { 0: ['r', '20,10|the pool'], 6: ['r', '30,40|a level'] } };
   store['climb-side'] = JSON.stringify(old);
   const G = ST.loadSave();
-  if (G.began){ assert.deepEqual(G.got[0], ['t184,59', 'c193,61']); assert.deepEqual(G.broke[0], ['170,51']); assert.deepEqual(G.got[1], ['c200,80'], 'the Cloister\'s is left alone'); assert.equal(G.winged, 5);
-    store['climb-side'] = JSON.stringify(G); const again = ST.loadSave(); assert.deepEqual(again.got[0], ['t184,59', 'c193,61'], 'and not moved twice'); }
+  if (G.began){ assert.deepEqual(G.got[0], ['t184,105', 'c193,107']); assert.deepEqual(G.broke[0], ['170,97']); assert.deepEqual(G.got[1], ['c200,126'], 'the Cloister\'s is lifted, and not moved aside'); assert.equal(G.winged, 6); assert.deepEqual(G.wat[0], ['r', '180,102|the pool'], 'a leak he found to travel by moves with its place'); assert.deepEqual(G.wat[6], ['r', '30,86|a level']);
+    store['climb-side'] = JSON.stringify(G); const again = ST.loadSave(); assert.deepEqual(again.got[0], ['t184,105', 'c193,107'], 'and not moved twice'); }
   else assert.fail('the save was not read: its key is not one this test knows');
+  // a save from build 107 to 114 has the wing's move already, and is only lifted
+  store['climb-side'] = JSON.stringify({ ...old, winged: 5, got: { 0: ['t184,59'], 7: ['c10,20'] } }); const late = ST.loadSave();
+  assert.deepEqual(late.got[0], ['t184,105'], 'lifted, not moved aside again'); assert.deepEqual(late.got[7], ['c10,66'], 'the Deep as well');
 });
 
 // ---- the gates and their windlasses (build 108)

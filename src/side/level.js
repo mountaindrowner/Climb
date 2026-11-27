@@ -29,6 +29,9 @@ import * as DROWNED from './regions/drowned.js';
 // the wings set into a region after it is built (so the region itself is not changed): by region, { left: columns added
 // to its west, build(X) }
 const WINGS = { 0: [DROWNED.wing, OSSUARY.after], 1: [SCRIPTORIUM.wing, FOUNDRY.wing, REFECTORY.wing], 2: [CAIRNS.wing, GLACIER.wing], 3: [WORKS.wing, EYE.wing], 4: [AQUEDUCTS.wing, HOUSES.wing], 5: [ORRERY.wing] };   // a region's wings: each `left` columns added west of it or `right` columns east, and what it builds there
+// (build 116) what is built past a wing's far end, or under or over a region, in the rows the lift left for it (docs/edges-sheet.md).
+// Built last, after the keeper's rule, so that the rooms there were keep their order (a save keeps the rooms he has seen by it)
+const EDGES = {};
 export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, ROUGH, TIER_A, TIER_B, SLUICE };
 
 // ---- the first region: up from the bottom of the mountain
@@ -575,14 +578,27 @@ export function sill(k){
 // lower stretch up to the raising water's room), and beside its keeper's hall the sill of the join above, the way out
 // of the hall sealed until the keeper falls. What core made is moved whole, never changed: its wear, its people's
 // places and what the tests measure stay as they were
+// (build 115) every level stands on rows of the mountain's rock that nothing is cut in yet, and has a row over it: room to
+// grow down or up without moving the level again. What is built is moved whole: its tiles, its marks, its rooms, its joins
+export const LIFT = { base: 2, top: 1 };
+function lifted(L, fill = ROCK){
+  // (the row over it is rock's only: over a level that stands under the sky a row of open air would join, over the tops of
+  // its walls, places that are shut off from each other; such a level grows upward when something is built there, and
+  // nothing has to be moved for that)
+  const dy = LIFT.base * ROOM.h, up = fill === ROCK ? LIFT.top * ROOM.h : 0, W = L.W, H = L.H + dy + up, grow = a => { const out = new Uint8Array(W * H).fill(ROCK); out.fill(fill, (dy + L.H) * W); out.set(a, dy * W); return out; };
+  const row = v => v == null ? v : v + dy, mk = m => ({ ...m, y: m.y + dy, ...(m.base != null ? { base: m.base + dy } : {}), ...(m.perch ? { perch: { ...m.perch, y: m.perch.y + dy, ...(m.perch.base != null ? { base: m.perch.base + dy } : {}) } } : {}) });
+  const joins = {}; for (const [k, J] of Object.entries(L.joins || {})) joins[k] = { ...J, y: J.y + dy, ...(J.seal ? { seal: J.seal.map(id => { const [x, y] = id.split(','); return x + ',' + (+y + dy); }) } : {}) };
+  return { ...L, H, tiles: grow(L.tiles), raw: grow(L.raw), marks: L.marks.map(mk), joins, Y0: row(L.Y0 || 0), over: up,
+    rooms: L.rooms.map(r => ({ ...r, y0: r.y0 + dy * T, y1: r.y1 + dy * T, ty0: r.ty0 + dy, ty1: r.ty1 + dy })) };
+}
 function build(n){
   const C = core(n), R = REGIONS[n], below = JOINS[n], above = n < CLIMB_TOP ? JOINS[n + 1] : null;
-  const WING = WINGS[n], wLeft = WING ? Math.max(0, ...WING.map(w => w.left || 0)) : 0, wRight = WING ? Math.max(0, ...WING.map(w => w.right || 0)) : 0;
-  if (!below && !above && !RULES[n] && !WING) return finish(C);
+  const WING = WINGS[n], EDGE = EDGES[n], ALLW = [...(WING || []), ...(EDGE || [])], wLeft = Math.max(0, ...ALLW.map(w => w.left || 0)), wRight = Math.max(0, ...ALLW.map(w => w.right || 0));
+  if (!below && !above && !RULES[n] && !WING && !EDGE) return finish(lifted({ joins: {}, X0: 0, Y0: 0, ...C }, R.fill === undefined ? ROCK : R.fill));
   const hall = (() => { const b = C.marks.find(m => m.type === 'boss'); return b && C.rooms.find(r => b.x >= r.tx0 && b.x < r.tx1 && b.y >= r.ty0 && b.y < r.ty1); })();
   // how far the region moves: up by the rows under it; right, if the sill above stands to the left of what there is
-  const wDown = WING ? Math.max(0, ...WING.map(w => w.down || 0)) : 0;   // rows added under a region for a wing that goes down (the Drowned Galleries, under the Roots)
-  const Y0 = below ? below.rows * ROOM.h : wDown * ROOM.h;
+  const wDown = Math.max(0, ...ALLW.map(w => w.down || 0));   // rows added under a region for a wing that goes down (the Drowned Galleries, under the Roots)
+  let Y0 = below ? below.rows * ROOM.h : wDown * ROOM.h;
   let X0 = wLeft * ROOM.w, W = C.W + X0, H = C.H + Y0, sx = 0, sy = 0;
   if (above && hall){
     const s0 = above.dir > 0 ? hall.tx1 + above.gap : hall.tx0 - above.gap - SILL.w;   // where the sill starts, as core counts
@@ -590,15 +606,15 @@ function build(n){
     sx = s0 + X0; sy = hall.ty0 + Y0; W = Math.max(C.W + X0, sx + SILL.w); H = Math.max(H, sy + SILL.h);
   }
   W = Math.max(W, X0 + C.W + wRight * ROOM.w);   // a wing east of it: columns of the mountain's rock for it to be cut into
-  const fill = R.fill === undefined ? ROCK : R.fill, tiles = new Uint8Array(W * H).fill(fill), raw = new Uint8Array(W * H).fill(fill);
+  const fill = R.fill === undefined ? ROCK : R.fill; let tiles = new Uint8Array(W * H).fill(fill), raw = new Uint8Array(W * H).fill(fill);
   if (C.H + Y0 < H) for (let j = C.H + Y0; j < H; j++) for (let i = X0; i < X0 + C.W; i++){ tiles[j * W + i] = ROCK; raw[j * W + i] = ROCK; }   // over a region with a roof, the roof (as it was: past the top was rock)
   for (let j = 0; j < C.H; j++) for (let i = 0; i < C.W; i++){ tiles[(j + Y0) * W + i + X0] = C.tiles[j * C.W + i]; raw[(j + Y0) * W + i + X0] = C.raw[j * C.W + i]; }
-  const marks = C.marks.map(m => ({ ...m, x: m.x + X0, y: m.y + Y0, ...(m.base != null ? { base: m.base + Y0 } : {}), ...(m.perch ? { perch: { ...m.perch, x: m.perch.x + X0, y: m.perch.y + Y0, ...(m.perch.wall != null ? { wall: m.perch.wall + X0 } : {}), ...(m.perch.base != null ? { base: m.perch.base + Y0 } : {}) } } : {}) }));
-  const rooms = C.rooms.map(r => ({ ...r, x0: r.x0 + X0 * T, x1: r.x1 + X0 * T, y0: r.y0 + Y0 * T, y1: r.y1 + Y0 * T, tx0: r.tx0 + X0, tx1: r.tx1 + X0, ty0: r.ty0 + Y0, ty1: r.ty1 + Y0 }));
+  let marks = C.marks.map(m => ({ ...m, x: m.x + X0, y: m.y + Y0, ...(m.base != null ? { base: m.base + Y0 } : {}), ...(m.perch ? { perch: { ...m.perch, x: m.perch.x + X0, y: m.perch.y + Y0, ...(m.perch.wall != null ? { wall: m.perch.wall + X0 } : {}), ...(m.perch.base != null ? { base: m.perch.base + Y0 } : {}) } } : {}) }));
+  let rooms = C.rooms.map(r => ({ ...r, x0: r.x0 + X0 * T, x1: r.x1 + X0 * T, y0: r.y0 + Y0 * T, y1: r.y1 + Y0 * T, tx0: r.tx0 + X0, tx1: r.tx1 + X0, ty0: r.ty0 + Y0, ty1: r.ty1 + Y0 }));
   const set = (i, j, v) => { if (i >= 0 && j >= 0 && i < W && j < H){ tiles[j * W + i] = v; raw[j * W + i] = v; } }, at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i];
   const stamp = (k, x0, y0) => { const t = sill(k); for (let y = 0; y < SILL.h; y++) for (let x = 0; x < SILL.w; x++) set(x0 + x, y0 + y, t[y][x]); };
   const roomRec = (name, title, x0, y0, w, h, more) => ({ name, title, gate: '', open: false, x0: x0 * T, y0: y0 * T, x1: (x0 + w) * T, y1: (y0 + h) * T, tx0: x0, ty0: y0, tx1: x0 + w, ty1: y0 + h, ...more });
-  const joins = {};
+  let joins = {};
   // ---- from below: the rows under the region are the mountain's rock; in them the passage's lower stretch (its rooms
   // worn like any others), then the sill laid over, whole
   if (below){
@@ -636,7 +652,9 @@ function build(n){
     joins.up = { k: n + 1, x: sx, y: sy, dir: above.dir, to: n + 1, seal };
   }
   // ---- what the keeper holds in its region, and the quick way it leaves (seams.js RULES): set into the region as built
-  if (RULES[n] || WING){
+  // (build 116) lifted here, and no longer last: what follows is cut into the level as it stands, rows under it and over it and all
+  let over = 0; { const L1 = lifted({ W, H, tiles, raw, marks, rooms, joins, Y0 }, fill); tiles = L1.tiles; raw = L1.raw; marks = L1.marks; rooms = L1.rooms; joins = L1.joins; H = L1.H; Y0 = L1.Y0; over = L1.over; }
+  if (RULES[n] || WING || EDGE){
     const roomOf = name => rooms.find(r => r.name === name);
     // a room of its own, on a cell the region left empty (as the region counts cells), worn like the rest
     const addRoom = (cx, cy, make, more = {}) => { const r = make(), x0 = X0 + cx * ROOM.w, y0 = Y0 + cy * ROOM.h, sub = new Uint8Array(r.w * r.h), ms = r.marks.map(m => ({ ...m }));
@@ -662,8 +680,9 @@ function build(n){
     const X = { set, at, W, H, X0, Y0, rooms, marks, roomOf, addRoom, lintel, doorway, addMarks, tile: { EMPTY, ROCK, LEDGE, SPIKES, CRACKED, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, ROUGH, TIER_A, TIER_B, SLUICE } };
     if (WING) for (const w of WING) w.build(X);
     if (RULES[n]) RULES[n](X);
+    if (EDGE) for (const w of EDGE) w.build(X);
   }
-  return finish({ ...C, W, H, tiles, raw, marks, rooms, joins, X0, Y0 });
+  return finish({ ...C, W, H, tiles, raw, marks, rooms, joins, X0, Y0, over });
 }
 // what the motor asks about every step: the flowers' tiles, and the rising air (in world units)
 // One spring a region (build 88; decision 0.17, and "fewer springs" from the playtest of 21 Nov): on the climb, the one in

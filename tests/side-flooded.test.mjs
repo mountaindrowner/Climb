@@ -25,9 +25,9 @@ test('deep water bears him up: without the Wyrm\'s wind he floats in the cistern
   const a = play(false, x, top + 4, 5, (t, I) => I.hold('down', true)); assert.ok(a.P.swim, 'the water has him'); assert.ok(a.low > top - M.SWIM.float - 0.9, `he went ${(top - a.low).toFixed(2)} under`); assert.equal(a.hurt, 0);
   assert.ok(Math.abs((top - a.P.y) - M.SWIM.float) < 0.2, 'and rests at his chest in it');
   const dive = play(false, x, top + 12, 3, (t, I) => { if (t < 0.02){ I.hold('down', true); I.tap('attack'); } }); assert.ok(dive.low > top - M.SWIM.float - 1.2, 'not even by his plunge');
-  const b = play(true, x, top + 4, 5, (t, I) => I.hold('down', true)); assert.ok(b.low < 0.6, 'with the wind: to the bottom of the sump');
+  const b = play(true, x, top + 4, 5, (t, I) => I.hold('down', true)); assert.ok(b.low < 0.6 + L.Y0 * 0.5, 'with the wind: to the bottom of the sump');
   const hang = play(true, x, top - 2, 2, () => {}); assert.ok(hang.P.swim && Math.abs(hang.P.vy) < 1, 'let go, he hangs in it');
-  const up = play(true, x, 1.2, 4, (t, I) => I.hold('jump', true)); assert.ok(Math.abs((top - up.P.y) - M.SWIM.float) < 0.25, 'jump held: up to its top');
+  const up = play(true, x, 1.2 + L.Y0 * 0.5, 4, (t, I) => I.hold('jump', true)); assert.ok(Math.abs((top - up.P.y) - M.SWIM.float) < 0.25, 'jump held: up to its top');
   const out = play(false, c.x0 + 31, top - 1.5, 4, (t, I) => { I.hold('right', true); if (Math.floor(t * 4) !== Math.floor((t - 1 / 60) * 4)) I.tap('jump'); }); assert.ok(out.P.x > c.x0 + 33.6 && out.events.includes('surface'), 'and he can leave it onto the quay');
 });
 test('the sump: a passage in the cistern\'s floor, under its water, that only the wind reaches; the quay and the seal are reached without it', () => {

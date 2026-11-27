@@ -16,7 +16,7 @@ import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE
 import { width as textWidth, width as pxWidth, text as pxText } from './pixelfont.js';
 const wrapText = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };
 const wrapFine = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t, 1, true) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };   // (the small print's widths)
-import { G, OPT, loadSave, store, storeOpt, wipe, TRY, fresh, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, ABILITY, ARRIVES, BOON, THREADS_A_HEART, DIFF } from './state.js';
+import { G, OPT, loadSave, store, storeOpt, wipe, rebase, TRY, fresh, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, ABILITY, ARRIVES, BOON, THREADS_A_HEART, DIFF } from './state.js';
 import { makeItems } from './items.js';
 import { makeTalk, SCRIPT } from './talk.js';
 import { ANNALS, PEOPLE_PAGE } from './annals.js';
@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 114, date: '27 NOV 2026', phase: 17, phases: 22, last: 'THE CAIRNS: THE WIND-BREAKS' };
+const VERSION = { build: 115, date: '27 NOV 2026', phase: 17, phases: 22, last: 'EVERY LEVEL LIFTED: ROOM UNDER AND OVER' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -79,7 +79,7 @@ let CHECK = null, BANNER = null, WON = false, DEATH = 0;
 const SPANS = REGION_DATA.map((R, n) => R.depth || REGION_SPAN[n]);   // each region's height on the mountain (the Deep's below the water: negative)
 // how high he is in this region, 0 to 1: from the middle of the sill he came in by to the middle of the one he leaves by
 // (the same place in two regions reads the same height: the mountain is one climb)
-const heightHere = () => { const J = LEVEL.joins || {}, y0 = J.down ? (J.down.y + SILL.floor) * T : 0, y1 = J.up ? (J.up.y + SILL.floor) * T : LEVEL.H * T; return Math.max(0, Math.min(1, (P.y - y0) / (y1 - y0))); };
+const heightHere = () => { const J = LEVEL.joins || {}, y0 = J.down ? (J.down.y + SILL.floor) * T : (LEVEL.Y0 || 0) * T, y1 = J.up ? (J.up.y + SILL.floor) * T : (LEVEL.H - (LEVEL.over || 0)) * T; return Math.max(0, Math.min(1, (P.y - y0) / (y1 - y0))); };
 const SUB = LEVELS.map(l => l.sub), CARD = LEVELS.map(l => l.card);   // under a region's name; and what the card says, coming up into it
 // what he can do, from what he has beaten and what he carries
 function learn(){
@@ -99,6 +99,8 @@ const GLITTER = { lv: null, at: [] };   // the Vein: where its crystals are (the
 const CALMS = { wait: 2.5, open: 4, near: 4.5, ease: 0.5 }, EYE = { door: null, p: 0, held: null };   // the Eye of the Storm (regions/eye.js CALMS says the same): the door of cloud he waits at, and how long he has waited
 const WAY = { was: false, said: new Map(), fall: [] }; let SHUTSAID = false, LOOKT = 0;   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
 // `walked`: he has walked in from the next region (cross): he and his scarf are as they were
+// what his save holds in this level, moved with it if it has grown west or down since (state.js): as soon as the level is made
+const rebased = () => { if (rebase(LEVEL.index, LEVEL.X0 || 0, LEVEL.Y0 || 0) && G.began) store(); };
 function setup(walked = false){
   RULE.upset = 0; RULE.unkept = !!(G.unkept && G.unkept[LEVEL.index]);   // the Keepers' Houses: everything in its place; and whether their keeper is broken (its own switch: the Gardens have two wing keepers, and the Lock's is `still`)
   setGates((G.gates && G.gates[LEVEL.index]) || {}, (G.pans && G.pans[LEVEL.index]) || {}, (G.walls && G.walls[LEVEL.index]) || []);   // the Drowned Galleries: each gate as he left it, and the water it holds
@@ -146,7 +148,7 @@ const ENTERED = [];
 function enter(n, at){
   ARROWS.length = 0;   // (the scene is made new: the arrows in flight go with it)
   ENT.reset();   // a hall shut behind him is open again before he goes (its tiles are the region's own)
-  const t0 = performance.now(); loadLevel(n); for (const J of Object.values(LEVEL.joins || {})) prepare(J.to); loadLevel(n); const t1 = performance.now(); R.load(); const t2 = performance.now();   // and the regions it joins, made now, in the dark, for walking into
+  const t0 = performance.now(); loadLevel(n); for (const J of Object.values(LEVEL.joins || {})) prepare(J.to); loadLevel(n); rebased(); const t1 = performance.now(); R.load(); const t2 = performance.now();   // and the regions it joins, made now, in the dark, for walking into
   if (hero.meta) hero.sprite = makeSprite(R.scene, `assets/side/${hero.name}`, hero.meta);
   FX2.ghosts.length = 0; setup(); const t3 = performance.now();
   ENTERED.push({ n, build: Math.round(t1 - t0), load: Math.round(t2 - t1), setup: Math.round(t3 - t2) });   // what going into a region costs (a check: window.__side.entered)
@@ -274,7 +276,7 @@ function joinStep(){
 let JOINWAIT = 0;
 function cross(J, side){
   const t0 = performance.now(), from = LEVEL.index;
-  ENT.reset(); loadLevel(J.to);
+  ENT.reset(); loadLevel(J.to); rebased();
   const J2 = LEVEL.joins[side === 'up' ? 'down' : 'up'], dx = (J2.x - J.x) * T, dy = (J2.y - J.y) * T;
   if (hero.sprite) hero.sprite.g.userData.keep = true; if (SCF) SCF.g.userData.keep = true;
   const t1 = performance.now(); R.load({ carry: true, shift: { x: dx, y: dy }, at: { x: P.x + dx, y: P.y + dy } }); const t2 = performance.now();

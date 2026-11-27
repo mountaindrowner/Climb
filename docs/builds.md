@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 114 | 27 Nov 2026 | `a9c2759` | The Pilgrims' Cairns' wind-breaks: two walls of slate; knocked down, the wind rises somewhere else. A thread on a horn too tall to climb; the scree climbed from below | no | yes (now) |
+| 115 | 27 Nov 2026 | `COMMIT115` | Every level lifted: two rooms of rock under each (and a room more over those with a roof of rock), so there is somewhere to build down and up. A save now follows its level when it grows. Nothing he can reach is changed | **moved** (every place 46 tiles up; done as the save is read) | yes (now) |
+| 114 | 27 Nov 2026 | `a9c2759` | The Pilgrims' Cairns' wind-breaks: two walls of slate; knocked down, the wind rises somewhere else. A thread on a horn too tall to climb; the scree climbed from below | no | replaced by 115 |
 | 113 | 27 Nov 2026 | `8d3a3b2` | The Ossuary's scales: two grave-slabs, each lifted by weight in a pan that is in another room. His own weight, a stack of bones knocked in, and a Tallyman who takes them out again | no | replaced by 114 |
 | 112 | 27 Nov 2026 | `5bbbfb2` | The Drowned Galleries, the undercroft: the keepers' store under the hall, for one with the Seated's Wind; a hatch lifted from below. The wing's sheet is built | no | replaced by 113 |
 | 111 | 27 Nov 2026 | `23ee1e0` | The weir's fight is a squid, not a pike: long, violet, blind. It fights as the pike did | no | replaced by 112 |
@@ -130,6 +131,50 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 115: every level lifted
+
+*Your word, 27 Nov: "if possible, let's push every level up a bit, creating space for more at the base or above to
+expand." (Roadmap, decision 0.36.) This is that, alone. The new rooms at the edges come in the builds after it.*
+
+**For the player**
+
+- **Nothing he can see or reach is changed.** Every level is where it was, with its rooms as they were.
+- **Under each level there are now two rooms of solid rock.** They are for what is built next: a far end of a wing
+  can go down two rooms without the level being moved again.
+- **Over the levels with a roof of rock (the Roots, the Cloister, the five of the Deep) there is a room more of it.**
+  The four under the sky have none: see the mistake below. They can grow upward when something is built there, and
+  nothing has to move for that.
+- **A save now follows its level.** It keeps where each level stood when it was written. If a level has grown west
+  or down since, what the save holds there is moved by the difference as he comes into it. Until now each such
+  move was written by hand, and one was missed (see "Save").
+- **What is built past the wings is cut into the level after it is lifted,** so it can use the new rows. Nothing is
+  built there yet.
+- **The height readout in the corner** counts from the level's own floor, as before, and not from the new rock.
+- **To try:**
+  1. Load a save from before this build. Everything found, broken, lit and opened should be as it was left.
+  2. Use the water to travel to a place found before this build.
+
+**What is weaker than it should be**
+
+- **It is room, not rooms.** Nothing is in the new space yet.
+- **Every level is bigger to hold in memory** by three rooms' height across its whole width. Not measured on a phone.
+- **Not played by a person.**
+
+- **Save: moved.** Every level's places are 46 tiles higher. A save from before has what it found, broke, shut, lit
+  and the waters it found for travel moved with them, once, as it is read (`winged` 5 to 6). The same change mends a
+  fault from build 107: a water found for travel in the Roots before the Drowned Galleries was not moved then.
+- **Checked:** 534 automated checks, two new (`tests/side-edges.test.mjs`: every room and mark is inside its
+  level; a save's places follow a level by as far as it has grown, once), seven changed for the lift (rows named by
+  number; the save). Every level opened in the test browser at its start, its lowest room and its highest: no
+  errors (`docs/lift-build115.png`).
+- **Mistakes caught before it went out:**
+  - **A row of sky over the Spires and the Gardens joined places that are shut off from each other** (the air went
+    over the tops of the walls beside the stone arch to the next region). The check for places he cannot leave
+    found it on the first full run. The four levels under the sky have no row over them now.
+  - **The Cracked Bell's reach was moved with the level,** though it is counted in its own room: it would have
+    risen 46 tiles too far. Found by comparing every level before and after.
+- **Not checked:** not played by hand; a real save from an earlier build (the check uses a made one).
 
 ### Build 114: the Pilgrims' Cairns' wind-breaks
 
