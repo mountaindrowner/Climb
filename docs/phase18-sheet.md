@@ -40,13 +40,16 @@ It was built to be gone down. Two ways out, and I would leave both open:
   short way and the hard one. It is the only way to the grip, and so to the Shard.
 - **Back up, the way the guild came down.** The roof's ledges, the Shaft's floor under its water, the camp's stages
   up the drop in the cold air, the Vein from its far end, the seal, the Workings, the cage (which runs now), the
-  Pithead. The long way. No keeper has to fall, but the Assayer's hall is on it, come into from behind.
+  Pithead. The long way. The Assayer's hall is on it, come into from behind.
 
 What has to be made for that:
 
-- **Every join on the way checked upward,** and mended where it only goes down. Four joins: the Hollow to the
-  Shaft, the Shaft to the Vein, the Vein to the Workings, the Workings to the Pithead.
-- **The keepers' grates, from the inside.** The Assayer is met from the back of its hall.
+- **Three of the four joins go upward already.** Checked 27 Nov with the tests' player, without the grip: from where
+  he lands in the Hollow to its way out above; from the Shaft's floor to its head; from the Workings' seal to the
+  Pithead.
+- **The fourth is the Vein.** With the Assayer down it goes upward as it is. With the Assayer standing it is not
+  known: its hall is shut behind grates until it falls, and nothing has ever come at them from the far side. So
+  either the Assayer has to fall on the long way, or its grates are made to open from within (question 2).
 - **The words.** "This place is optional. To go on with the climb, go back up" goes. The goal in the pause menu says
   where he is and that the way is up.
 - **Hob.** He is met going down, each time further down, and his lines say so. Coming up, he is met in the other
@@ -118,13 +121,15 @@ without her shell (one drawing); Corwen's open book (one drawing). About $0.40. 
   him. I think that is right (it is a reason to go back down). You may want the Auger to be the only way out.
 - **The Fallen is seen an hour or more before it is fought.** That is the point of the throw. It also spends the
   surprise of its shape early.
-- **The Assayer from behind** may be a worse fight than from the front, or no fight at all.
+- **The Assayer from behind** may be a worse fight than from the front, or no fight at all. If it has to fall on the
+  long way, then both ways out have a keeper on them: the Auger on one, the Assayer on the other.
 
 ## To decide
 
 1. **The Deep on the main way, about forty-five screens: yes?** It is what 0.26 says. I am asking because of its
    size.
-2. **Two ways out, or only through the Auger?** I would leave both.
+2. **Two ways out, or only through the Auger?** I would leave both. And on the long way: **must the Assayer fall,**
+   or may he slip out past it? I would have it fall: a climb out of the Deep with nothing in the way is a walk.
 3. **Where the throw happens:** in the Firmament's first room (as above), or at the head of the Gardens, in sight of
    Mother Thorn's fallen hall?
 4. **What is in the Shard?**
