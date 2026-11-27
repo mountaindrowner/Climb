@@ -259,6 +259,110 @@ test('the Spires\' far ends, played: down the cleft and no way back until the wa
   const th = L2.marks.find(m => m.type === 'thread' && in0(m, lb)); assert.ok([...ALL2.seen].some(k => Math.abs(k % ALL2.W - th.x) <= 1 && Math.floor(k / ALL2.W) === th.y), 'the thread at the look-back');
 });
 
+// ---- the Tempest (build 118): the Great Rod past the coils, the Blue past the stills
+const TF = await import('../src/side/regions/tempestfar.js');
+const L3 = { ...R.loadLevel(3) }, room3 = n => L3.rooms.find(r => r.name === n), FAR3 = ['rod', 'blue'];
+
+test('the Tempest: a column further west and two further east, five screens', () => {
+  const rs = FAR3.map(room3); assert.ok(rs.every(Boolean)); assert.ok(rs.every(r => r.far && r.wing));
+  assert.equal(rs.reduce((n, r) => n + (r.tx1 - r.tx0) * (r.ty1 - r.ty0) / (ROOM.w * ROOM.h), 0), 5);
+  const co = room3('coils'), sb = room3('stillb'), ro = room3('rod'), bl = room3('blue');
+  assert.equal(ro.tx1, co.tx0, 'the rod\'s shaft is the column west of the coils'); assert.equal(ro.tx0, 0, 'at the level\'s west edge'); assert.equal(ro.ty0, co.ty0 + ROOM.h, 'a screen up from their foot');
+  assert.equal(bl.tx0, sb.tx1, 'the Blue is east of the upper still'); assert.equal(bl.tx1, L3.W, 'to the level\'s east edge'); assert.equal(bl.ty0, sb.ty0, 'level with it');
+  assert.equal(ro.gate, '', 'open, as the works are'); assert.equal(bl.gate, 'glide', 'for one who has the Seated\'s wind, as the Eye is'); assert.equal(bl.look, 'eye');
+  // the coils' upper landing, where the way in is: he can stand on it now (it was four rows under the roof, and he is nearly five tall)
+  const th = L3.marks.find(m => m.type === 'chest' && m.holds === 'thread' && in0(m, co)); assert.ok(th); for (let d = 0; d < 5; d++) assert.notEqual(L3.tiles[(th.y + d) * L3.W + th.x], LV.ROCK, 'head-room over the coils\' thread');
+  assert.equal(th.y - co.ty0, TF.ROD.door, 'and the way in is off that landing');
+});
+
+test('the Great Rod: four landings too far apart to climb; a flight of iron on one half, a flight on the other, a lever at the foot of each; the last by the hook', () => {
+  const D = TF.ROD, ro = room3('rod'), at = (x, y) => L3.tiles[(ro.ty0 + y) * L3.W + ro.tx0 + x];
+  for (let k = 1; k < D.lands.length; k++){ assert.ok(D.lands[k][0] - D.lands[k - 1][0] >= 15, 'fifteen rows from landing to landing'); assert.notEqual(D.lands[k][1], D.lands[k - 1][1], 'one side and the other'); }
+  const halves = D.plates.map(p => p[2]); assert.deepEqual(halves, ['A', 'A', 'B', 'B'], 'the first flight is all one half, the second all the other');
+  for (const [y, side, half] of D.plates){ const x = side === 'w' ? D.shaft[0] : D.shaft[1]; assert.equal(at(x, y - 1), half === 'A' ? LV.IRON_A : LV.IRON_B); assert.equal(at(side === 'w' ? D.shaft[0] - 1 : D.shaft[1] + 1, y - 1), LV.ROCK, 'each plate is off the wall'); }
+  const seq = [D.lands[0][0], D.plates[0][0], D.plates[1][0], D.lands[1][0], D.plates[2][0], D.plates[3][0], D.lands[2][0]]; for (let k = 1; k < seq.length; k++) assert.ok(seq[k] - seq[k - 1] <= 7 && seq[k] > seq[k - 1], 'no step of a flight is more than a leap');
+  const levers = L3.marks.filter(m => m.type === 'lever' && in0(m, ro)).map(m => m.y - ro.ty0).sort((a, b) => a - b); assert.deepEqual(levers, [D.lands[0][0], D.lands[1][0]], 'a lever on each of the two lower landings');
+  // the current: with it in the A half the first flight shocks and the second does not; a lever sends it over
+  R.graph(3, [...R.GIFTS, 'current']); const a = [ro.tx0 + D.shaft[0], ro.ty0 + D.plates[0][0] - 1], b = [ro.tx0 + D.shaft[1], ro.ty0 + D.plates[2][0] - 1];
+  LV.RULE.sw = 0; assert.ok(LV.liveAt(...a) && !LV.liveAt(...b)); LV.RULE.sw = 1; assert.ok(!LV.liveAt(...a) && LV.liveAt(...b)); LV.RULE.sw = 0;
+  // the hook: left at the head, its winch a landing below the landing it comes down to
+  const hook = L3.marks.find(m => m.type === 'mover' && m.key === D.hook.key), win = L3.marks.find(m => m.type === 'winch' && m.key === D.hook.key);
+  assert.equal(hook.kind, 'rail'); assert.equal(hook.y - ro.ty0, D.lands[3][0], 'left level with the head'); assert.equal(hook.y + hook.dy - ro.ty0, D.lands[2][0], 'and sent, it comes down to the third landing'); assert.equal(win.y - ro.ty0, D.lands[1][0], 'its winch is on the second');
+  for (let y = 61; y <= 65; y++) assert.equal(at(0, y), LV.EMPTY, 'a window at the head, out of the cliff'); assert.ok(L3.marks.some(m => m.type === 'thread' && in0(m, ro) && m.y - ro.ty0 === D.lands[3][0]), 'and a thread there');
+});
+
+test('the Blue: a deck with four floors of cloud in it, a cell under each, a door of cloud from each cell to the next and the last into the flue', () => {
+  const B = TF.BLUE, bl = room3('blue'), at = (x, y) => L3.tiles[(bl.ty0 + y) * L3.W + bl.tx0 + x];
+  assert.equal(B.windows.length, 4); for (const [a, b] of B.windows) for (let x = a; x <= b; x++){ assert.equal(at(x, B.deck - 1), LV.CALM); assert.equal(at(x, B.deck - 2), LV.CALM); assert.equal(at(x, B.deck), LV.EMPTY); assert.equal(at(x, B.deck - 3), LV.EMPTY, 'a cell under it'); }
+  for (const x of B.ribs){ for (let y = 2; y <= 7; y++) assert.equal(at(x, y), LV.CALM, 'a door of cloud'); for (let y = 8; y <= 11; y++) assert.equal(at(x, y), LV.ROCK, 'in a wall of stone'); }
+  for (const [k, [a, b]] of B.windows.entries()){ const lo = B.ribs[k], hi = B.ribs[k + 1] || 78; assert.ok(a > lo + 1 && b < hi, 'each floor of cloud is over a cell of its own'); }
+  assert.ok(B.deck - 2 <= MO.SIDE.fallSafe / LV.T, 'the drop from the deck into a cell is one he takes unhurt');
+  // the Eye's rule: in a hurry the cloud is stone; for one who has stood still it is nothing
+  R.graph(3, [...R.GIFTS, 'hurry']); const w = [bl.tx0 + B.windows[0][0], bl.ty0 + B.deck - 1]; assert.equal(LV.tileAt(...w), LV.ROCK, 'cloud bears one who moves'); R.graph(3, R.GIFTS); assert.equal(LV.tileAt(...w), LV.EMPTY, 'and lets go of one who has waited');
+  assert.equal(L3.marks.filter(m => m.type === 'thread' && in0(m, bl)).length, 2, 'two threads: the Eye had none'); assert.ok(L3.marks.filter(m => m.type === 'hush' && in0(m, bl)).length >= 4, 'and the Hush, which move while he waits');
+});
+
+const ALL3 = R.graph(3, R.GIFTS), SHUT3 = R.graph(3, ['shut', ...R.GIFTS]);
+test('the Tempest\'s far ends, played: the rod\'s head only by the hook; the Blue\'s deck and its cells; and a way back', () => {
+  const ro = room3('rod'), bl = room3('blue'), D = TF.ROD, B = TF.BLUE;
+  for (const n of FAR3) assert.ok(R.reached(ALL3.seen, room3(n), ALL3.W), n + ' is come to');
+  assert.ok(stood(ALL3, ro, 2, D.lands[3][0], D.shaft[0] + 5, D.lands[3][0]), 'the head of the rod'); assert.ok(stood(SHUT3, ro, D.shaft[1] - 5, D.lands[2][0], D.shaft[1], D.lands[2][0]), 'the third landing without the hook');
+  assert.ok(!stood(SHUT3, ro, 0, D.lands[2][0] + 8, 39, 66), 'and nothing over it: not with every gift he has');
+  // (one who will not wait does not come to the Blue at all: the Eye's own doors of cloud are before it. That its floors of cloud are stone to him is held above)
+  assert.ok(stood(ALL3, bl, 12, B.deck, 77, B.deck), 'the deck'); for (const [k, x] of B.ribs.entries()) assert.ok(stood(ALL3, bl, x + 2, 2, (B.ribs[k + 1] || 78) - 1, 2), 'the cell east of the wall at ' + x); assert.ok(stood(ALL3, bl, 66, 2, 77, 2), 'the last cell, and its thread');
+  const home = { rod: room3('coils'), blue: room3('stillb') }, inRoom = (k, r) => { const i = k % ALL3.W, j = Math.floor(k / ALL3.W); return i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1; };
+  for (const n of FAR3){ const from = nodesIn(ALL3, room3(n)); assert.ok(from.length > 0); for (const k of from) assert.ok([...onward(ALL3, [k])].some(c => inRoom(c, home[n])), `${n}: from ${k % ALL3.W - room3(n).tx0},${Math.floor(k / ALL3.W) - room3(n).ty0} there is a way back`); }
+});
+
+// ---- the Gardens (build 118): the Rising Main past the lock, the Last House past his house
+const GF = await import('../src/side/regions/gardensfar.js');
+const L4 = { ...R.loadLevel(4) }, room4 = n => L4.rooms.find(r => r.name === n), FAR4 = ['main', 'lasthouse', 'attic'];
+
+test('the Gardens: a column further west and one further east, five screens', () => {
+  const rs = FAR4.map(room4); assert.ok(rs.every(Boolean)); assert.ok(rs.every(r => r.far && r.wing));
+  assert.equal(rs.reduce((n, r) => n + (r.tx1 - r.tx0) * (r.ty1 - r.ty0) / (ROOM.w * ROOM.h), 0), 5);
+  const lo = room4('lock'), hh = room4('hishouse'), ma = room4('main'), lh = room4('lasthouse'), at = room4('attic');
+  assert.equal(ma.tx1, lo.tx0, 'the main is the column west of the lock'); assert.equal(ma.tx0, 0, 'at the level\'s west edge'); assert.equal(ma.ty1, lo.ty1, 'from the lock down'); assert.equal(ma.ty0 + GF.MAIN.top - 2, lo.ty0, 'its top landing level with the lock\'s floor');
+  assert.equal(lh.tx0, hh.tx1, 'the last house is east of his own'); assert.equal(lh.ty0, hh.ty0); assert.equal(lh.tx1, L4.W, 'at the level\'s east edge'); assert.equal(at.ty0, lh.ty1, 'its attic over it');
+  assert.equal(ma.gate, ''); assert.equal(ma.look, 'aqueduct'); assert.ok([lh, at].every(r => !r.gate && r.look === 'houses' && r.title === 'THE LAST HOUSE'), 'no gate of its own, as the houses have none');
+});
+
+test('the Rising Main: a fall between each landing and the next, a stair in each, its wheel at its foot; and the last fall\'s wheel three falls above it', () => {
+  const M = GF.MAIN, ma = room4('main'), at = (x, y) => L4.tiles[(ma.ty0 + y) * L4.W + ma.tx0 + x];
+  const flows = L4.flows.filter(f => /^m[0-3]$/.test(f.key)), wheels = L4.marks.filter(m => m.type === 'wheel' && /^m[0-3]$/.test(m.key));
+  assert.equal(flows.length, 4); assert.equal(wheels.length, 4); assert.ok(flows.every(f => f.dy === -1 && !f.soft), 'falling water, that bears him down');
+  for (const [key, x, y, [wx, wy], h = 12, step = 6] of M.falls){ const w = wheels.find(q => q.key === key), f = flows.find(q => q.key === key);
+    assert.equal(f.y0 / LV.T, ma.ty0 + y); assert.equal((f.y1 - f.y0) / LV.T, h); for (let a = x + 2; a <= x + 7; a++) assert.equal(at(a, y + step - 1), LV.ROCK, 'a stair of stone in the fall');
+    assert.deepEqual([w.x - ma.tx0, w.y - ma.ty0], [wx, wy]); if (key !== 'm0') assert.equal(wy, y, `${key}: its wheel is at its foot: the way back is his to open`); }
+  const m0 = M.falls.find(f => f[0] === 'm0'); assert.equal(m0[3][1], M.top, 'the last fall\'s wheel is on the top landing'); assert.ok(m0[3][1] - m0[2] >= 36, 'three falls above what it shuts');
+  const th = L4.marks.find(m => m.type === 'thread' && in0(m, ma)); assert.ok(th.x - ma.tx0 >= m0[1] + 2 && th.x - ma.tx0 <= m0[1] + 7 && th.y - ma.ty0 === m0[2] + m0[5], 'and the thread is on the step in that fall');
+  assert.equal(L4.marks.filter(m => m.type === 'sluicer' && in0(m, ma)).length, 2, 'two machines: one of them keeps the top landing\'s wheel');
+  // the water: running, each fall bears him down; shut, it is nothing
+  R.graph(4, [...R.GIFTS, 'wet']); const f = flows.find(q => q.key === 'm1'), mid = [(f.x0 + f.x1) / 2, (f.y0 + f.y1) / 2]; assert.ok(LV.flowAt(...mid), 'the falls run'); R.graph(4, R.GIFTS); assert.equal(LV.flowAt(...mid), null, 'a fall he has shut is air');
+});
+
+test('the Last House: behind a kept door off his own house; three steps up to its attic', () => {
+  const lh = room4('lasthouse'), hh = room4('hishouse'), at = room4('attic'), H = GF.HOUSE;
+  for (let y = 2; y <= 7; y++){ assert.equal(L4.tiles[(lh.ty0 + y) * L4.W + lh.tx0], LV.KEPT, 'its door is a kept door'); assert.equal(L4.tiles[(hh.ty0 + y) * L4.W + hh.tx1 - 1], LV.EMPTY, 'off his house\'s east wall'); }
+  R.graph(4, [...R.GIFTS, 'upset']); assert.equal(LV.tileAt(lh.tx0, lh.ty0 + 3), LV.ROCK, 'shut while anything in the row is out of its place'); R.graph(4, R.GIFTS); assert.equal(LV.tileAt(lh.tx0, lh.ty0 + 3), LV.EMPTY, 'and open when nothing is');
+  assert.equal(L4.marks.filter(m => m.type === 'setting' && (in0(m, lh) || in0(m, at))).length, 0, 'nothing in it can be put out of its place: he cannot shut himself in');
+  let last = 2; for (const [y] of H.steps){ assert.ok(y - last <= 7, 'the steps are no more than a leap apart'); last = y; } assert.ok(ROOM.h + 2 - last <= 7, 'and the attic\'s floor a leap over the last');
+  assert.ok(L4.marks.some(m => m.type === 'thread' && in0(m, at)), 'a thread in the attic'); assert.ok(L4.marks.some(m => m.type === 'deco' && m.kind === 'doorplate' && m.says && in0(m, at)), 'and the plate that was never cut');
+});
+
+// (with every fall in the Aqueducts running he does not come as far as the lock, so the main's falls are not played running here: that a running fall is water that bears him down, and each stair is inside its fall, is held above)
+const ALL4 = R.graph(4, R.GIFTS), UPSET4 = R.graph(4, ['upset', ...R.GIFTS]);
+test('the Gardens\' far ends, played: down the main and back with the falls shut; the last house only when all is in its place', () => {
+  const ma = room4('main'), lh = room4('lasthouse'), at = room4('attic'), M = GF.MAIN;
+  for (const n of FAR4) assert.ok(R.reached(ALL4.seen, room4(n), ALL4.W), n + ' is come to');
+  const th = L4.marks.find(m => m.type === 'thread' && in0(m, ma)); assert.ok([...ALL4.seen].some(k => Math.abs(k % ALL4.W - th.x) <= 1 && Math.floor(k / ALL4.W) === th.y), 'the thread on the step, with its fall shut');
+  assert.ok(stood(ALL4, ma, 10, M.bed, 27, M.bed), 'the bed');
+  const inRoom = (G, k, r) => { const i = k % G.W, j = Math.floor(k / G.W); return i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1; }, lo = room4('lock');
+  assert.ok(!R.reached(UPSET4.seen, lh, UPSET4.W) && !R.reached(UPSET4.seen, at, UPSET4.W), 'the last house: not while anything is out of its place');
+  const home = { main: lo, lasthouse: room4('hishouse'), attic: room4('hishouse') };
+  for (const n of FAR4){ const from = nodesIn(ALL4, room4(n)); assert.ok(from.length > 0); for (const k of from) assert.ok([...onward(ALL4, [k])].some(c => inRoom(ALL4, c, home[n])), `${n}: from ${k % ALL4.W - room4(n).tx0},${Math.floor(k / ALL4.W) - room4(n).ty0} there is a way back`); }
+});
+
 test('the game moves a save with its level wherever a level is made: as it starts, on going into a region, on walking into one', async () => {
   const src = (await import('node:fs')).readFileSync(new URL('../src/side/main.js', import.meta.url), 'utf8');
   assert.ok(/\nrebased\(\);[^\n]*\nsetup\(\);\n/.test(src), 'before the first level is set up (level.js makes that one itself)');

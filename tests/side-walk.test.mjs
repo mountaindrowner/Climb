@@ -8,7 +8,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import './helpers/browser.mjs';
-const { LEVELS } = await import('./helpers/reach.mjs'); const { lowSpots } = await import('./helpers/walk.mjs');
+const { LEVELS } = await import('./helpers/reach.mjs'); const { lowSpots } = await import('./helpers/walk.mjs'); const { loadLevel } = await import('../src/side/level.js'); const { ORG115 } = await import('../src/side/state.js');
 // room, tiles from-to, row (in the room's own tiles, as the place readout shows them: Options, Place)
 const KNOWN = {
   "The Roots": ["tunnel 19-21,14", "tunnel 28-30,14", "chamber 38-41,2", "gallery 38-41,2", "chamber 30-32,16", "ascent 38-41,16", "well 34-36,39"],
@@ -24,7 +24,9 @@ const KNOWN = {
   "The Hollow": [],
 };
 for (let N = 0; N < LEVELS.length; N++) test(`${LEVELS[N].name}: no new place where he must duck under a lip to walk on`, () => {
-  const now = lowSpots(N), known = new Set(KNOWN[LEVELS[N].name] || []);
+  // (a spot in no room is named by the level's own tiles, as build 115 had the level: it is moved by as far as the level has grown since, state.js ORG115)
+  const LN = loadLevel(N), gx = (LN.X0 || 0) - ORG115[N][0], gy = (LN.Y0 || 0) - ORG115[N][1], moved = s => { const m = /^\? (\d+)-(\d+),(\d+)$/.exec(s); return m ? `? ${+m[1] + gx}-${+m[2] + gx},${+m[3] + gy}` : s; };
+  const now = lowSpots(N), known = new Set((KNOWN[LEVELS[N].name] || []).map(moved));
   const fresh = now.filter(s => !known.has(s));
   assert.deepEqual(fresh, [], `new low spots (room, tiles, row): ${fresh.join('; ')}. Open the rock over them, or add them to KNOWN if they are meant`);
 });

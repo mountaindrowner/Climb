@@ -29,12 +29,14 @@ import * as DROWNED from './regions/drowned.js';
 import * as ROOTSFAR from './regions/rootsfar.js';
 import * as CLOISTERFAR from './regions/cloisterfar.js';
 import * as SPIRESFAR from './regions/spiresfar.js';
+import * as TEMPESTFAR from './regions/tempestfar.js';
+import * as GARDENSFAR from './regions/gardensfar.js';
 // the wings set into a region after it is built (so the region itself is not changed): by region, { left: columns added
 // to its west, build(X) }
 const WINGS = { 0: [DROWNED.wing, OSSUARY.after], 1: [SCRIPTORIUM.wing, FOUNDRY.wing, REFECTORY.wing], 2: [CAIRNS.wing, GLACIER.wing], 3: [WORKS.wing, EYE.wing], 4: [AQUEDUCTS.wing, HOUSES.wing], 5: [ORRERY.wing] };   // a region's wings: each `left` columns added west of it or `right` columns east, and what it builds there
 // (build 116) what is built past a wing's far end, or under or over a region, in the rows the lift left for it (docs/edges-sheet.md).
 // Built last, after the keeper's rule, so that the rooms there were keep their order (a save keeps the rooms he has seen by it)
-const EDGES = { 0: [ROOTSFAR.far], 1: [CLOISTERFAR.far], 2: [SPIRESFAR.far] };
+const EDGES = { 0: [ROOTSFAR.far], 1: [CLOISTERFAR.far], 2: [SPIRESFAR.far], 3: [TEMPESTFAR.far], 4: [GARDENSFAR.far] };
 export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, ROUGH, TIER_A, TIER_B, SLUICE };
 
 // ---- the first region: up from the bottom of the mountain
@@ -433,8 +435,8 @@ const REGIONS = [
     layout: [[0, 0, mouth], [1, 0, saddle, 2, 1], [0, 1, massif], [1, 1, nest], [2, 1, spire, 1, 2], [0, 2, hollow], [1, 2, ropeway], [0, 3, chimney], [1, 3, brow], [0, 4, icecave, 2, 1], [2, 3, teeth, 1, 2],
       [0, 5, eyrie, 2, 1], [2, 5, span], [0, 6, crown, 2, 2]], cols: 3 },
   // each in its own file (regions/); the Tempest with what its wing brings (regions/works.js)
-  { ...tempest, quiet: [...tempest.quiet, ...WORKS.QUIET, ...EYE.QUIET], enemies: { ...tempest.enemies, ...WORKS.enemies, ...EYE.enemies }, ai: { ...tempest.ai, ...WORKS.ai, ...EYE.ai }, deco: (px, PAL) => ({ ...tempest.deco(px, PAL), ...WORKS.decoDef(px, PAL), ...EYE.decoDef(px, PAL) }), looksDef: EYE.looks },
-  { ...gardens, quiet: [...(gardens.quiet || []), ...AQUEDUCTS.QUIET, ...HOUSES.QUIET], enemies: { ...gardens.enemies, ...AQUEDUCTS.enemies, ...HOUSES.enemies }, ai: { ...gardens.ai, ...AQUEDUCTS.ai, ...HOUSES.ai }, deco: (px, PAL) => ({ ...gardens.deco(px, PAL), ...AQUEDUCTS.decoDef(px, PAL), ...HOUSES.decoDef(px, PAL) }), looksDef: { ...AQUEDUCTS.looks, ...HOUSES.looks } },   // the Gardens with what their wing brings (regions/aqueducts.js)
+  { ...tempest, quiet: [...tempest.quiet, ...WORKS.QUIET, ...EYE.QUIET], enemies: { ...tempest.enemies, ...WORKS.enemies, ...EYE.enemies, ladder: CLOISTERFAR.enemies.ladder, winch: CLOISTERFAR.enemies.winch }, ai: { ...tempest.ai, ...WORKS.ai, ...EYE.ai, ladder: CLOISTERFAR.ai.ladder, winch: CLOISTERFAR.ai.winch }, deco: (px, PAL) => ({ ...tempest.deco(px, PAL), ...WORKS.decoDef(px, PAL), ...EYE.decoDef(px, PAL), ...TEMPESTFAR.decoDef(px, PAL) }), looksDef: EYE.looks },
+  { ...gardens, quiet: [...(gardens.quiet || []), ...AQUEDUCTS.QUIET, ...HOUSES.QUIET], enemies: { ...gardens.enemies, ...AQUEDUCTS.enemies, ...HOUSES.enemies }, ai: { ...gardens.ai, ...AQUEDUCTS.ai, ...HOUSES.ai }, deco: (px, PAL) => ({ ...gardens.deco(px, PAL), ...AQUEDUCTS.decoDef(px, PAL), ...HOUSES.decoDef(px, PAL), ...GARDENSFAR.decoDef(px, PAL) }), looksDef: { ...AQUEDUCTS.looks, ...HOUSES.looks } },   // the Gardens with what their wing brings (regions/aqueducts.js)
   { ...firmament, quiet: [...(firmament.quiet || []), ...ORRERY.QUIET], enemies: { ...firmament.enemies, ...ORRERY.enemies }, ai: { ...firmament.ai, ...ORRERY.ai }, deco: (px, PAL) => ({ ...firmament.deco(px, PAL), ...ORRERY.decoDef(px, PAL) }), looksDef: ORRERY.looksOf(firmament.themeDef) },   // the Firmament with what its wing brings (regions/orrery.js)
   workings,   // the Deep: off the climb, under it (deep: true)
   vein,       // and under that, behind the guild's seal (dark: true)

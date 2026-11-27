@@ -13,7 +13,7 @@ const inRoom = (m, r) => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.
 
 test('eight screens east of the arbor; a servants\' door on every floor that has a setting; the Gardens no wider than they were', () => {
   const rs = NAMES.map(room); assert.ok(rs.every(Boolean)); assert.equal(rs.reduce((n, r) => n + (r.tx1 - r.tx0) * (r.ty1 - r.ty0) / (40 * 23), 0), 8);
-  assert.ok(rs.every(r => r.wing && r.title === 'THE KEEPERS\' HOUSES' && r.tx0 >= room('arbor').tx1)); assert.equal(L.W, 320, 'no wider: a save is not moved');
+  assert.ok(rs.every(r => r.wing && r.title === 'THE KEEPERS\' HOUSES' && r.tx0 >= room('arbor').tx1)); assert.equal(Math.max(...rs.map(r => r.tx1)) - L.X0, 320 - 120, 'the houses end where the Gardens did: the wing made them no wider (the Last House, past them, is build 118)');
   const sets = L.marks.filter(m => m.type === 'setting'), doors = L.marks.filter(m => m.type === 'deco' && m.kind === 'servdoor'); assert.ok(sets.length >= 20 && doors.length >= 10);
   for (const s of sets) assert.ok(doors.some(d => Math.abs(d.y - s.y) * T < K.floor && Math.abs(d.x - s.x) * T < 24), `no servants' door on the floor of the setting at ${s.x},${s.y}`);
   assert.ok(L.tiles.includes(LV.VELLUM), 'the gardeners\' gate'); assert.equal(L.marks.filter(m => m.type === 'housekeeper').length, 1);

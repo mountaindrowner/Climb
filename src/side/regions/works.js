@@ -34,7 +34,7 @@ function coils(){
   rect(r, 2, 14, 9, 15); mark(r, 'lever', 5, 16);                  // a landing of stone, and its lever
   A(r, 14, 22, 19); mark(r, 'coil', 10, 22, { half: 1, to: [16, 0] });
   rect(r, 28, 23, 37, 24); mark(r, 'lever', 33, 25);               // the landing at the cranes' door
-  B(r, 16, 24, 29); B(r, 16, 24, 34); rect(r, 2, 38, 14, 39); mark(r, 'chest', 6, 40, { holds: 'thread' }); mark(r, 'coil', 12, 32, { half: 0, to: [16, 0] });   // and on up, for one who goes past the door
+  B(r, 16, 24, 29); B(r, 16, 24, 34); rect(r, 2, 36, 14, 37); mark(r, 'chest', 6, 38, { holds: 'thread' });   /* (build 118: two rows lower. It stood four rows under the roof, and he is nearly five tall: he could not come up on to it, and this thread was never to be had) */ mark(r, 'coil', 12, 32, { half: 0, to: [16, 0] });   // and on up, for one who goes past the door
   for (const [k, x, y] of [['drum', 34, 2], ['wreck', 20, 2]]) deco(r, k, x, y);
   mark(r, 'torch', 36, 12); mark(r, 'torch', 3, 22); mark(r, 'torch', 36, 34); mark(r, 'crystal', 10, 2); mark(r, 'urn', 24, 2);
   for (const x of [30, 33, 36]) keep(r, x, 27);

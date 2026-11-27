@@ -16,7 +16,7 @@ const inRoom = (m, r) => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.
 test('nine screens west of the wellspring, open to anyone; the head behind the Lock', () => {
   const rs = NAMES.map(room); assert.ok(rs.every(Boolean)); assert.equal(rs.reduce((n, r) => n + (r.tx1 - r.tx0) * (r.ty1 - r.ty0) / (40 * 23), 0), 9);
   assert.ok(rs.every(r => !r.gate && r.wing && r.title === 'THE AQUEDUCTS' && r.tx1 <= room('wellspring').tx0)); assert.ok(room('head').after && !room('spill').after && !room('lock').after);
-  const wheels = L.marks.filter(m => m.type === 'wheel'), keys = new Set(L.flows.map(f => f.key)); assert.equal(wheels.length, 5); assert.ok(wheels.every(w => keys.has(w.key)), 'every wheel has its water'); assert.ok(keys.has('surge'));
+  const wheels = L.marks.filter(m => m.type === 'wheel' && !/^m\d$/.test(m.key)) /* (not the Rising Main's four, past the lock: build 118, held in side-edges) */, keys = new Set(L.flows.map(f => f.key)); assert.equal(wheels.length, 5); assert.ok(wheels.every(w => keys.has(w.key)), 'every wheel has its water'); assert.ok(keys.has('surge'));
   for (const w of wheels) assert.ok(!L.flows.some(f => (w.x + 0.5) * T >= f.x0 && (w.x + 0.5) * T < f.x1 && w.y * T >= f.y0 && w.y * T < f.y1), `the wheel '${w.key}' stands out of the water`);
 });
 // he stands at tile x on the arches' channel, with these keys held, for so many frames
@@ -76,5 +76,5 @@ test('at the head: the Carrier\'s Yoke. His flask holds one draught more', () =>
   const worn = ST.G.worn; ST.G.worn = []; const plain = ST.maxFlask(); ST.G.worn = ['yoke']; const more = ST.maxFlask(); ST.G.worn = worn; assert.equal(more, plain + 1);
 });
 test('a save from before the wing is moved once: the Gardens stand three rooms further east', () => {
-  assert.deepEqual(ST.WING_MOVED[4].slice(0, 2), [120, 0]); assert.equal(R.loadLevel(4).X0, 120);
+  assert.deepEqual(ST.WING_MOVED[4].slice(0, 2), [120, 0]); assert.equal(ST.ORG115[4][0], 120); assert.ok(R.loadLevel(4).X0 >= 120, 'what has been built west of the wing since is the save\'s own to follow (state.js rebase)');
 });

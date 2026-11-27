@@ -166,6 +166,21 @@ of iron round it. Three screens up.
   under each is not seen from above.
 - **The Eye has no thread now.** Two here.
 
+#### As built: build 118
+
+*Pictures: `docs/tempest-far-build118.png`. Five screens: three west, two east.*
+
+| The sheet said | It is | Why |
+|---|---|---|
+| "Over the drafting room, cut up through the cliff" | **In off the coils' upper landing,** a column west of the Wreck, three screens up | The coils are the wing's west end and its tallest room. The drafting room is in the middle of it |
+| "The iron is in two halves, as in the works... The lever is at the foot; the second lever is half-way, on the wrong half" | **As said.** Four landings of stone fifteen rows apart. The first flight's plates are on one half, the second's on the other; a lever on each of the two lower landings | |
+| "A crane's hook on a chain is the last stretch, once its winch is turned" | **As said, on a rail:** the hook is left at the top. Its winch is on the landing under it | The Cloister's ladders and crane work the same way |
+| "At the head: above the cloud of the works, the storm seen from the side. A thread, a chest" | **An alcove and a window west. A thread, a chest** | |
+| "Past the stills, and over them, in the room above the level" | **Beside the upper still,** two screens east | The Tempest has no roof of rock, so it has no row over it (build 115) |
+| "A floor of cloud that lets him down only when he stands still on it. What is under each is not seen from above" | **As said:** a deck with four floors of cloud in it, a cell under each, a door of cloud between each cell and the next | |
+| "The Eye has no thread now. Two here" | **Two, and a chest,** each in a cell of its own | |
+| Not said | **The coils' upper landing is two rows lower** | It stood four rows under the roof and he is nearly five tall. He could never come up on to it, and the chest of thread there was never to be had |
+
 ### 5. The Gardens
 
 **West: the Rising Main.** Past the lock: the shaft the water comes up by, from the pool at the bottom of the
@@ -180,6 +195,20 @@ world. Three screens down into the new rock.
 - **Its door is one of the kept doors:** shut while anything in the row is out of its place. The way to it goes
   through the houses, past the things that are easy to knock over.
 - **Up: its attic,** in the room above the level. A thread, a chest.
+
+#### As built: build 118
+
+*Pictures: `docs/gardens-far-build118.png`. Five screens: three west, two east.*
+
+| The sheet said | It is | Why |
+|---|---|---|
+| "Three screens down into the new rock" | **Three screens, beside the sluices and the lock,** in off the lock's floor on to its top landing. It stops over the new rows | The lock is at the foot of the wing. Three screens down from it would be six from the sluices' head |
+| "Falls he cannot climb through, each shut by a wheel on a landing that is not its own" | **Three falls with the wheel at the foot of each, and a fourth whose wheel is on the top landing,** three falls above it | A wheel above its fall is a way down he cannot open and a way back he cannot reach. At the foot, the way back is his to open, as in the sluices. The fourth is the one that asks him to remember |
+| "A machine keeps one of the wheels and opens it again" | **As said:** a keeper of the sluices on the top landing, at the fourth fall's wheel; and one on the second landing | |
+| "At the bottom: the water coming in. A thread, and one line on the wall" | **As said, and a chest.** The thread is up the stair under the fourth fall | |
+| "Its door is one of the kept doors: shut while anything in the row is out of its place" | **As said,** in the east wall of his own house | |
+| "Up: its attic, in the room above the level" | **Over it,** up a stair of three steps, in the Gardens' own rows | The Gardens have no roof of rock, so they have no row over them (build 115) |
+| "A thread, a chest" | **As said, and the plate by the door, which was never cut** | |
 
 ### 6. The Firmament
 

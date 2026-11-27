@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 117 | 27 Nov 2026 | `bdff3d0` | The Spires' far ends, eight screens: the Way Down past his cairn (a cleft he drops down and cannot climb; the wall at its foot keeps off the wind that carries him back) and the Crevasse past the Seated (a crack in the glacier; one fire at its head melts the plug in its floor, forty rows below) | no (a save follows the level) | yes (now) |
+| 118 | 27 Nov 2026 | `COMMIT118` | The far ends of the Tempest and of the Gardens, ten screens: the Great Rod off the coils (plates of iron live in one half or the other, and a crane's hook on a rail) and the Blue past the stills (floors of cloud that let him down when he stands still); the Rising Main past the lock (four falls and their wheels) and the Last House past his own (a kept door, an attic) | no (a save follows the level) | yes (now) |
+| 117 | 27 Nov 2026 | `bdff3d0` | The Spires' far ends, eight screens: the Way Down past his cairn (a cleft he drops down and cannot climb; the wall at its foot keeps off the wind that carries him back) and the Crevasse past the Seated (a crack in the glacier; one fire at its head melts the plug in its floor, forty rows below) | no (a save follows the level) | replaced by 118 |
 | 116 | 27 Nov 2026 | `220224b` | The far ends of the Roots and of the Cloister, twenty-one screens. The Roots: the Drawing-Place past the weir (a bucket-chain he sets going and rides; the Well sounded three screens down) and the Unsorted (a pit, one scale with its stack in three, the first tomb under it). The Cloister: the Empty Shelves past the copying hall (two ladders that roll on rails when struck; the binders' loft) and the Cull past the slag runs (a casting crane sent from a winch on the pit's floor). The keepers' words in the Drowned Galleries are said at last | no (a save follows the level, build 115) | replaced by 117 |
 | 115 | 27 Nov 2026 | `a7a3e87` | Every level lifted: two rooms of rock under each (and a room more over those with a roof of rock), so there is somewhere to build down and up. A save now follows its level when it grows. Nothing he can reach is changed | **moved** (every place 46 tiles up; done as the save is read) | replaced by 116 |
 | 114 | 27 Nov 2026 | `a9c2759` | The Pilgrims' Cairns' wind-breaks: two walls of slate; knocked down, the wind rises somewhere else. A thread on a horn too tall to climb; the scree climbed from below | no | replaced by 115 |
@@ -133,6 +134,85 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 118: the far ends of the Tempest and of the Gardens
+
+*The fourth and fifth of the levels' edges (`docs/edges-sheet.md`, sections 4 and 5, and "As built: build 118" under
+each). Pictures: `docs/tempest-far-build118.png`, `docs/gardens-far-build118.png`. Nothing new in the engine: the
+rod's hook runs on the rail made for the Cloister's ladders, and the rest is each wing's own working.*
+
+**For the player**
+
+- **The Tempest, west, off the coils: the Great Rod.** Three screens.
+  - **A doorway in the west wall of the coils, at their upper landing.** Beyond it a shaft with the Wrights' tallest
+    rod up the back of it, and four landings of stone, one side and the other, fifteen rows apart.
+  - **Between the landings, plates of iron.** The first flight is on one half of the iron and the second on the
+    other. The current is in one half. A lever on each of the two lower landings sends it to the other.
+  - **The last flight has no plates:** a crane's hook on a rail, left at the top. Its winch is on the landing below.
+  - **At the head:** a window out of the cliff, a thread, a chest.
+  - **The chest of thread at the coils' upper landing can be had now.** The landing was too close under the roof to
+    stand on, since the wing was built.
+- **The Tempest, east, past the stills: the Blue.** Two screens. For one who has the Seated's Wind, as the Eye is.
+  - **A doorway in the east wall of the upper still,** a flue up, and a deck in clear sky.
+  - **Four floors of cloud in the deck.** Each lets him down only when he stands still on it, into a cell he could
+    not see from above. A door of cloud between each cell and the next; the last leads back to the flue.
+  - **Two threads and a chest,** each in a cell. Five of the Hush, which move while he waits.
+- **The Gardens, west, past the lock: the Rising Main.** Three screens.
+  - **A doorway in the lock's west wall,** on to the top landing of a shaft. Three landings and a bed, a fall of
+    water between each and the next, a stair of stone inside each fall.
+  - **Running, a fall carries him down and cannot be climbed. Shut, its stair can.** Each fall's wheel is at its
+    foot: he comes down with the water and opens his own way back.
+  - **A fourth fall, at the bed, runs over the stair to a thread.** Its wheel is on the top landing, three falls up.
+    A keeper of the sluices stands by it and turns it back.
+  - **At the bed:** the mark cut over the channel where the water comes in, and a chest.
+- **The Gardens, east, past his house: the Last House.** Two screens.
+  - **A door in the east wall of his own house.** It is a kept door: shut while anything in the row of houses is
+    out of its place.
+  - **A house like the others,** and up a stair of three steps, its attic: a thread, a chest, the plate for a
+    keeper's name, with no name cut in it.
+- **To try:**
+  1. In the Wreck of the Works, climb the coils past the cranes' door to the top, take the chest, and go on west.
+  2. Climb the rod. Find which lever makes each flight safe, then the winch for the hook.
+  3. In the Eye of the Storm, go east from the upper still, up on to the deck, and stand still on each floor of cloud.
+  4. In the Aqueducts, open the lock, go west from its floor, and ride the falls down. Come back up.
+  5. At the bottom, find what shuts the fall over the thread.
+  6. In the Keepers' Houses, reach his house with nothing knocked over, and go on east.
+
+**What is weaker than it should be**
+
+- **The rod's two levers are each on the landing at the foot of the flight they make safe.** He passes both on the
+  way up. Neither is somewhere he has to go and find.
+- **The Blue's cells are a row.** Four floors, four cells, all the same size. What is in each is different; the
+  cells are not.
+- **The Rising Main's first three falls are the sluices again,** in a shaft. Only the fourth asks anything new.
+- **The keeper at the top wheel undoes it while he is three falls below.** He has to strike it down first or be
+  quick. Nothing tells him it has been turned back but the fall running again.
+- **The Last House has no working of its own.** Its door is the houses' rule, and behind it is a room and an attic.
+- **None of the four goes into the two rows of rock under the level,** and the Tempest and the Gardens have no row
+  over them to go up into.
+- **Not played by a person.**
+
+- **Save: not moved by hand.** The Tempest and the Gardens are each a column wider to the west; a save from before
+  is moved by that as he comes into the level. Adds nothing new (the hook is kept with the rails, the wheels with
+  the Aqueducts' wheels).
+- **Checked:** 556 automated checks, eight new (in `tests/side-edges.test.mjs`): where the rooms are and
+  what the new columns are made of; the rod (the landings more than he climbs apart, the plates of each flight on
+  one half, a lever under each, the hook and its winch, the window); the Blue (the floors of cloud and a cell under
+  each, the doors between the cells, what is in each); the main (each fall with a stair in it and its wheel at its
+  foot, the fourth fall's wheel on the top landing, the keepers); the last house (its kept door, the stair, the
+  attic); and played with the real motor: from every place in the new rooms a way back. Older checks changed: the
+  walk test's known spots move with a level that has grown; a floor of cloud counts as something a platform may
+  hang from; the Aqueducts' and the Houses' counts of their own things.
+  In the test browser: every new room seen; the top wheel struck and the fourth fall shut.
+- **Not checked:** not played by hand; the hook ridden by hand; the Blue's floors stood on by hand; the sounds.
+- **Mistakes caught before it went out:**
+  - **The coils' upper landing could not be stood on** (four rows under the roof). Found because the rod's door is
+    on it. Two rows lower now.
+  - **The Last House was first given a gift as its gate,** and the check that no room opens before its gate failed:
+    the houses have none. It has none.
+  - **A chimney wall in the Last House cut its floor in two.** A stair of three steps now.
+  - **The fourth fall's stair stood under a landing** with no room over it. The stair is three rows and the fall ten.
+  - **A sill in the Blue's flue hung over the cut of the door.** It stands against the wall above the door now.
 
 ### Build 117: the Spires' far ends
 
