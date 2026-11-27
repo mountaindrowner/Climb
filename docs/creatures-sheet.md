@@ -14,6 +14,18 @@ make sure that they align to the flat rule. I want them 2D, not at an angle, not
 - **The standard** is the red crawler.
 - **Made without asking for each** (26 Nov). I still show you each batch when it is in the game.
 
+## The way to draw them: found (27 Nov)
+
+PixelLab's **character** tool draws things that stand up, so a bat came out as a standing figure. Its **picture**
+tool, asked for a side view on a clear ground, draws a creature flat and in profile. Three tries at the Drowned
+Galleries' skimmer all came out side-on (`docs/skimmer-candidates.png`: the crawler and the water-strider as they
+are in the game, then tries a, b and c). One generation each.
+
+What it does not give is movement: a picture is one frame. For a flier, a second frame with the wings down is
+enough, and I can make that from the first. A walker needs more, and that is still to be worked out.
+
+**None of the three is in the game.** Say which you like (I would take **b**), or that none will do.
+
 ## Where the drawings stand (`docs/creatures-now.png`: every creature as it is drawn today)
 
 I looked at all sixty. **Flat already:** the crawler, the acolyte, the sentinel, the prospector, the water-strider,
