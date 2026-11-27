@@ -253,6 +253,23 @@ already. So these are that creature, placed in the wing, doing what it does. A l
 are those ledges; the sills are how he gets down from them and back. Before this build the weir could not be climbed
 out of: he waited for the water. Now it can.
 
+## As built: build 111 (the Pike became the Squid)
+
+*Your word, 27 Nov: "Maybe not fish for the water but some kind of water fiend or eldritch squid." Pictures:
+`docs/drowned-build111.png`; the five I drew to choose from, beside the pike: `docs/weir-fiend-candidates.png`.*
+
+- **The thing in the weir is the Squid:** long, violet, one pale blind eye, its arms under it. Nearly eleven tiles
+  long in a pond sixteen wide.
+- **It fights as the Pike did.** Afloat it comes at whatever is in its water, and a blow glances off it. Left on the
+  bed at low water it can be struck; it lashes at what stands before its arms, and turns slowly on what is behind.
+- **Its arms sway** (four frames, the one drawing bent). In the Annals: "It came up the drain when the halls went
+  under, and grew to fill the weir. It does not see. It feels the water move."
+- **The pike's drawing is out of the game.** Wherever this sheet says "the Pike" above, read the Squid.
+
+**The other four** are kept as drawings only: a pale ribbed crawler, a green eel-fiend, a thing in a spiral shell, and
+a blue serpent with a white horned head. Any of them could be the undercroft's, or another water's. Say if you like
+one better for the weir.
+
 ## The same rule, in the wings already built
 
 Looking at the ten that are built, by what is in them today:

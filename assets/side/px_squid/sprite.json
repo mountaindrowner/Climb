@@ -1,0 +1,24 @@
+{
+ "name": "px_squid",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 96,
+   "h": 48,
+   "foot": 42,
+   "cx": 47.0,
+   "footLast": 42,
+   "cxLast": 47.0
+  },
+  "swim": {
+   "frames": 4,
+   "w": 96,
+   "h": 48,
+   "foot": 42,
+   "cx": 47.0,
+   "footLast": 42,
+   "cxLast": 47.0
+  }
+ }
+}

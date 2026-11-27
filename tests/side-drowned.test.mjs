@@ -146,23 +146,24 @@ test('it spits a bead in a flat line at one on his feet, after a warning; one wh
   const far = skim(4, { x: 60, y: 4 }); assert.equal(far.shots.length, 0, 'nor at one far off');
 });
 
-// ---- the Pike (build 110): the wing's fight
-const pikeAt = (depth, P, secs = 4, st0 = 'idle') => { const d = DR.enemies.pike, bed = 1, e = { type: 'pike', d, x: 12, y: bed + 1, home: { x: 12, y: bed + 1 }, st: st0, tm: 0, age: 0, face: 1, mk: { y: bed * 2, span: 6 } }, ev = [], hits = [];
-  for (let t = 0; t < secs; t += 1 / 60){ e.tm += 1 / 60; e.age += 1 / 60; DR.ai.pike(e, P, 1 / 60, { T: 0.5, dx: P.x - e.x, dy: P.y - e.y, waterAt: (x, y) => y < bed + depth ? {} : null, go: s => { e.st = s; e.tm = 0; }, anim(){}, events: ev,
+// ---- the Squid (build 110 as a pike; build 111 as it is): the wing's fight
+const pikeAt = (depth, P, secs = 4, st0 = 'idle') => { const d = DR.enemies.squid, bed = 1, e = { type: 'squid', d, x: 12, y: bed + 1, home: { x: 12, y: bed + 1 }, st: st0, tm: 0, age: 0, face: 1, mk: { y: bed * 2, span: 6 } }, ev = [], hits = [];
+  for (let t = 0; t < secs; t += 1 / 60){ e.tm += 1 / 60; e.age += 1 / 60; DR.ai.squid(e, P, 1 / 60, { T: 0.5, dx: P.x - e.x, dy: P.y - e.y, waterAt: (x, y) => y < bed + depth ? {} : null, go: s => { e.st = s; e.tm = 0; }, anim(){}, events: ev,
     hit: (x0, y0, x1, y1) => { const h = P.x + 0.34 > x0 && P.x - 0.34 < x1 && P.y + 2.4 > y0 && P.y < y1; if (h) hits.push(t); return h; } }); }
   return { e, ev, hits, d, bed }; };
-test('the Pike afloat: a blow glances off it, and it comes at whatever is in its water, after a warning; one on the bank it leaves', () => {
+test('the Squid afloat: a blow glances off it, and it comes at whatever is in its water, after a warning; one on the bank it leaves', () => {
   const swim = pikeAt(8, { x: 14, y: 1 + 8 - M.SWIM.float }); assert.equal(swim.e.beached, false); assert.equal(swim.d.guard(swim.e), true, 'a blow is turned');
-  assert.ok(swim.ev.some(v => v.type === 'tell'), 'a warning'); assert.ok(swim.hits.length >= 1, 'and it bites one who stays where he is');
+  assert.ok(swim.ev.some(v => v.type === 'tell'), 'a warning'); assert.ok(swim.hits.length >= 1, 'and it takes one who stays where he is');
   assert.ok(swim.d.windup >= 0.5, 'warned for long enough to move');
   const bank = pikeAt(8, { x: 14, y: 1 + 8.5 }); assert.equal(bank.hits.length, 0, 'nothing at one on the bank'); assert.ok(!bank.ev.some(v => v.type === 'tell'));
   for (const P of [{ x: 9.2, y: 4 }, { x: 14.8, y: 4 }]){ const q = pikeAt(8, P, 6); assert.ok(q.e.x >= q.e.pond.x0 + 1 && q.e.x <= q.e.pond.x1 - 1, 'it keeps to its pond'); assert.ok(q.e.y > 1 && q.e.y < 9, 'and to its water'); }
 });
-test('the Pike left on the bed: it can be struck; it snaps at one before its head, and turns on one behind it', () => {
+test('the Squid left on the bed: it can be struck; it lashes at one before its arms, and turns on one behind it', () => {
   const front = pikeAt(0.5, { x: 15.2, y: 1 }); assert.equal(front.e.beached, true); assert.equal(front.d.guard(front.e), false, 'a blow lands');
   assert.ok(front.ev.some(v => v.type === 'tell') && front.hits.length >= 1, 'it warns, and snaps');
   const behind = pikeAt(0.5, { x: 9.5, y: 1 }, 0.9); assert.equal(behind.hits.length, 0, 'behind it, nothing yet'); assert.equal(behind.e.face, 1, 'it has not turned in under a second');
   const later = pikeAt(0.5, { x: 9.5, y: 1 }, 4); assert.equal(later.e.face, -1, 'but it turns'); assert.ok(later.hits.length >= 1, 'and then snaps');
   const up = pikeAt(0.5, { x: 15.2, y: 9 }); assert.equal(up.hits.length, 0, 'one up on a sill or a bank is out of its reach');
-  assert.equal(L.marks.filter(m => m.type === 'pike').length, 1); assert.equal(roomOf(L.marks.find(m => m.type === 'pike')).name, 'weir'); assert.ok(DR.enemies.pike.name && DR.enemies.pike.hp >= 12);
+  assert.equal(L.marks.filter(m => m.type === 'squid').length, 1); assert.equal(roomOf(L.marks.find(m => m.type === 'squid')).name, 'weir'); assert.ok(DR.enemies.squid.name === 'The Squid' && DR.enemies.squid.hp >= 12);
+  assert.ok(!DR.enemies.pike && !L.marks.some(m => m.type === 'pike'), 'no fish in the weir (27 Nov: "not fish for the water")');
 });

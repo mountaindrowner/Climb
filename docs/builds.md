@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 110 | 27 Nov 2026 | `6a68cde` | The Drowned Galleries, fourth build: the Pike, the wing's fight. Afloat it bites and cannot be hurt; left on the bed at low water it can | no | yes (now) |
+| 111 | 27 Nov 2026 | `COMMIT111` | The weir's fight is a squid, not a pike: long, violet, blind. It fights as the pike did | no | yes (now) |
+| 110 | 27 Nov 2026 | `6a68cde` | The Drowned Galleries, fourth build: the Pike, the wing's fight. Afloat it bites and cannot be hurt; left on the bed at low water it can | no | replaced by 111 |
 | 109 | 27 Nov 2026 | `bb2f832` | The Drowned Galleries, third build: the skimmer (a new creature, the first drawn by the new way), two of them over the hall's pools; two leeches in the cells' flue | no | replaced by 110 |
 | 108 | 27 Nov 2026 | `504ced0` | The Drowned Galleries, second build: three gates of stone, each raised by a windlass somewhere else. The cells' gate holds their water | no | replaced by 109 |
 | 107 | 26 Nov 2026 | `c17d1fd` | The Drowned Galleries, first build: the Roots' west wing, twelve screens, and water that rises and falls. The Roots moved to make room | **yes** (once) | replaced by 108 |
@@ -126,6 +127,37 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 111: the Drowned Galleries, the Squid in place of the Pike
+
+*Your word, 27 Nov: "Maybe not fish for the water but some kind of water fiend or eldritch squid."*
+
+**For the player**
+
+- **The thing in the weir is the Squid** (`docs/drowned-build111.png`): long, violet, one pale blind eye. The pike is
+  gone from the game.
+- **The fight is the same.** Afloat at high water it comes at whatever is in its water and cannot be hurt; left on the
+  bed at low water it can be struck, lashes at what is before its arms, and turns on what is behind it.
+- **In Corwen's Annals:** the Squid, under the Roots, in the Pike's place.
+- **To try:** the weir, as for build 110. Look at it on the bed at low water, and under you at high.
+
+**What is weaker than it should be**
+
+- **I chose it from five** (`docs/weir-fiend-candidates.png`) without asking which. The other four are kept as
+  drawings: say if one of them should be the weir's instead.
+- **It moves like a fish with arms.** It was a pike's fight first. A squid would more rightly reach with one long arm
+  and pull; that is a different fight, and I have not built it.
+- **Its name is plain** ("The Squid", as "The Pump" and "The Lock" are). If you want a name with more dread in it,
+  give me one or ask for some.
+- **One drawing bent,** as before: its arms sway, nothing else moves.
+- **Not played by a person.**
+
+- **Save: not moved.** A count of pikes killed, if anyone has one from build 110, is not carried to the Squid.
+- **Checked:** 519 automated checks (the Pike's two, now the Squid's, and one line more: no fish in the weir).
+  In the test browser: seen on the bed, turned, and afloat; a lash and a lunge each taking a heart; its name shown.
+- **Not checked:** not played by hand; its death; its sound.
+- **Underneath:** `assets/side/px_squid/` (new; `px_pike` removed); `src/side/regions/drowned.js`;
+  `src/side/annals.js`; `src/audio/sfx.js`.
 
 ### Build 110: the Drowned Galleries, the Pike
 

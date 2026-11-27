@@ -24,8 +24,9 @@ are in the game, then tries a, b and c). One generation each.
 What it does not give is movement: a picture is one frame. For a flier, a second frame with the wings down is
 enough, and I can make that from the first. A walker needs more, and that is still to be worked out.
 
-**The Pike** (build 110) was drawn the same way, at the size it is in the game; its tail's four frames are that one
-drawing bent.
+**The Squid** (build 111) was drawn the same way, at the size it is in the game; its arms' four frames are that one
+drawing bent. (For one build, 110, it was a pike. Your word: not a fish.) **A rule from that:** what lives in the
+mountain's water is a thing of the deep, not a fish.
 
 **Drawing b is in the game** (build 109), on your word of 27 Nov ("They all look great"). Its four wing frames
 are that one drawing bent.
