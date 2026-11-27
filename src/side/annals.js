@@ -8,6 +8,7 @@ export const ANNALS = [
       { type: 'crawler', name: 'Crawler', art: 'px_crawler', line: 'It eats what falls this far. Most of what falls this far.' },
       { type: 'flitter', name: 'Pale Bat', art: 'px_flitter', line: 'Born in the dark. It has never seen light, and hates it.' },
       { type: 'spitter', name: 'Black Leech', art: 'px_leech', line: 'It drinks what drips from above, and gives it back.' },
+      { type: 'skimmer', name: 'Skimmer', art: 'px_skimmer', line: 'It keeps over the last of the water, and spits it at what comes near.' },
       { type: 'burrower', name: 'Delver', art: 'px_burrower', line: 'A blind worm of the deep. It hears every step.' },
       { type: 'sexton', name: 'The Sexton', art: 'px_sexton', line: 'Sent down to bury the dead. Nobody sent word to stop.' } ] },
   { region: 'The Cloister', keeper: { theme: 'cloister', art: 'toll/bell', name: 'The Toll', line: 'It rings for a light it cannot see.' },

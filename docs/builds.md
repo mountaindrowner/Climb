@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 108 | 27 Nov 2026 | `504ced0` | The Drowned Galleries, second build: three gates of stone, each raised by a windlass somewhere else. The cells' gate holds their water | no | yes (now) |
+| 109 | 27 Nov 2026 | `COMMIT109` | The Drowned Galleries, third build: the skimmer (a new creature, the first drawn by the new way), two of them over the hall's pools; two leeches in the cells' flue | no | yes (now) |
+| 108 | 27 Nov 2026 | `504ced0` | The Drowned Galleries, second build: three gates of stone, each raised by a windlass somewhere else. The cells' gate holds their water | no | replaced by 109 |
 | 107 | 26 Nov 2026 | `c17d1fd` | The Drowned Galleries, first build: the Roots' west wing, twelve screens, and water that rises and falls. The Roots moved to make room | **yes** (once) | replaced by 108 |
 | 106 | 26 Nov 2026 | `4ac1531` | The Deep's map pass, its five levels: 122 planks to 39, none bare in the air. The map pass is done | no | replaced by 107 |
 | 105 | 26 Nov 2026 | `24171a1` | The Firmament's map pass: 68 planks to 30 in 40 screens, none bare in the air; people hint and do not instruct | no | replaced by 106 |
@@ -124,6 +125,45 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 109: the Drowned Galleries, the skimmer and the leeches
+
+*Your word, 27 Nov, of the three skimmer drawings and the three wings' sheets: "They all look great." I took drawing
+b. The third of the wing's builds (`docs/drowned-sheet.md`, "As built: build 109").*
+
+**For the player**
+
+- **The skimmer:** a long fly hanging over each of the hall's two pools (`docs/drowned-build109.png`). It warns, then
+  spits a bead of water in a flat line at one who is on his feet and level with it. Two blows. It rises and falls
+  with the water and never leaves its pool.
+- **It leaves a swimmer alone,** and its bead goes over his head. Duck, and it goes over that too.
+- **Two leeches** on the walls of the cells' flue.
+- **In Corwen's Annals:** the Skimmer, under the Roots.
+- **To try:**
+  1. In the hall at low water, walk toward a pool. The skimmer should turn, flare, and spit. Duck it.
+  2. Strike it: two blows. It is over water, so jump at it from the pool's edge.
+  3. Float in the hall at high water under a skimmer. It should not spit at you.
+  4. Climb the cells' flue past the two leeches.
+
+**What is weaker than it should be**
+
+- **The skimmers are dark** in the hall, which has no flame below high water. They read as shapes.
+- **Reaching one to strike it is awkward:** it hangs over deep water. That may be right (it is a shooter to be got
+  past), or it may only annoy. A play will say.
+- **The leech is not new.** My sheet was wrong to call it unused: it is the Roots' wall-spitter. The ones here do what
+  that creature does; nothing drops on him.
+- **The skimmer's four frames are one drawing bent.** Good enough for wings; it will not do for a walker.
+- **Not played by a person.**
+
+- **Save: not moved.**
+- **Checked:** 517 automated checks, two new (the skimmer keeps over its water at any height and within its
+  pool; it warns and spits flat at one on his feet, and not at a swimmer or one far off). In the test browser: both
+  skimmers seen at low water and at high, a bead seen passing over a swimmer, a leech seen in the flue, no errors.
+- **Not checked:** not played by hand; its sound; a skimmer struck.
+- **Mistake caught before it went out:** as first set it hung lower and spat at swimmers: three hits in seven
+  seconds on one who could not dodge.
+- **Underneath:** `assets/side/px_skimmer/` (new); `src/side/regions/drowned.js` (the skimmer and how it behaves);
+  `src/side/annals.js`; `src/audio/sfx.js` (its voice).
 
 ### Build 108: the Drowned Galleries, the gates and their windlasses
 

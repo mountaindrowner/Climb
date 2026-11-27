@@ -217,6 +217,23 @@ more opens: he opens all three, in that order. Separate checks hold the gates do
 A gate that is down counts as stone in the map check, which joins the water stair to its walls: the Roots have no
 rock in the air again.
 
+## As built: build 109 (the skimmer, and the leeches)
+
+*The third build. Pictures: `docs/drowned-build109.png`.*
+
+- **The skimmer** (new; drawing b of the three you saw). A long fly that hangs over water, a little above wherever
+  the water's top is. It keeps to the pool it was set over. When one on his feet comes level with it, it warns, and
+  spits a bead of water in a flat line. Two blows. It never comes at him: it is the Roots' flier that shoots, which
+  the region did not have. **Two of them, one over each of the hall's pools.**
+- **Fair to a swimmer.** It hangs high enough that its bead goes over the head of one who is afloat, and it does not
+  aim at him: the water is where he waits, and he cannot dodge there. One on his feet can duck the bead.
+- **Its wings move** in four frames, which I made from the one drawing (wings up, level, down, level).
+- **Two leeches** on the wet walls of the cells' flue, each across from a sill.
+
+**Where it differs from the sheet.** The sheet called the leech "drawn already, never used", and had it drop on what
+passes below. That was wrong: the leech drawing is the Roots' wall-spitter (the Black Leech), which is in the game
+already. So these are that creature, placed in the wing, doing what it does. A leech that drops is not built.
+
 ## The same rule, in the wings already built
 
 Looking at the ten that are built, by what is in them today:

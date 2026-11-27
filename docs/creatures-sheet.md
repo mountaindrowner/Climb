@@ -24,7 +24,8 @@ are in the game, then tries a, b and c). One generation each.
 What it does not give is movement: a picture is one frame. For a flier, a second frame with the wings down is
 enough, and I can make that from the first. A walker needs more, and that is still to be worked out.
 
-**None of the three is in the game.** Say which you like (I would take **b**), or that none will do.
+**Drawing b is in the game** (build 109), on your word of 27 Nov ("They all look great"). Its four wing frames
+are that one drawing bent.
 
 ## Where the drawings stand (`docs/creatures-now.png`: every creature as it is drawn today)
 

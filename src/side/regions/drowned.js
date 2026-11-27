@@ -70,6 +70,7 @@ function drownedhall(){
   for (const x of [11, 25, 39, 53, 67]) deco(r, 'column', x, 8, { h: 36 });
   for (const x of [8, 30, 39, 46, 60]) deco(r, 'mosaic', x, 8);
   mark(r, 'lamprey', 8, 22); mark(r, 'windlass', 71, 24, { key: 'cells' });
+  mark(r, 'skimmer', 18, 5, { span: 4 }); mark(r, 'skimmer', 52, 5, { span: 4 });   // one over each pool: at low water that is all the water it has
   for (const x of [15, 35, 55]) deco(r, 'chainh', x, 34); deco(r, 'chain', 70, 25); deco(r, 'chain', 3, 14);
   mark(r, 'torch', 5, 32); mark(r, 'torch', 74, 32); mark(r, 'crystal', 30, 8); mark(r, 'crystal', 60, 8); mark(r, 'crystal', 18, 3); mark(r, 'crystal', 52, 3); mark(r, 'crystal', 77, 24);   // (no flame where the water comes: the floor is lit by what grows in it)
   mark(r, 'urn', 75, 24); mark(r, 'urn', 4, 8); mark(r, 'urn', 33, 8); mark(r, 'urn', 44, 8); mark(r, 'chest', 73, 24, { holds: 'shards' }); mark(r, 'thread', 76, 25);
@@ -91,6 +92,7 @@ function keepcells(){
   for (const [x, y] of [[10, 29], [4, 35], [10, 41]]) rect(r, x, y, x + 1, y);
   water(r, 0, DROWNED.low, 40, H - DROWNED.low, { key: 'breath', held: 'cells' });
   tide(r, 15, -1); tide(r, 24, 1); deco(r, 'chain', 36, 8);
+  mark(r, 'spitter', 4, 32); mark(r, 'spitter', 11, 38);           // leeches on the flue's wet walls, each across from a sill
   mark(r, 'chest', 5, 8, { holds: 'shards' }); mark(r, 'urn', 29, 8); mark(r, 'urn', 31, 8); mark(r, 'urn', 8, H); mark(r, 'urn', 29, 14);
   mark(r, 'torch', 30, 27); mark(r, 'torch', 8, 27); mark(r, 'torch', 7, 38); mark(r, 'crystal', 9, 8); mark(r, 'crystal', 31, 14); mark(r, 'crystal', 16, 8); mark(r, 'crystal', 23, 8);
   keeps(r, 14, 8, 25, H + 5); keeps(r, 26, H, 39, H + 5); keeps(r, 26, 8, 39, 12); keeps(r, 2, 8, 13, 12); keeps(r, 26, 14, 32, 18); keeps(r, 2, H, 13, H + 4);
@@ -175,10 +177,30 @@ const texes = T3 => TEX || (TEX = {
   drum: pix(T3, 14, 14, f => { for (let y = 0; y < 14; y++) for (let x = 0; x < 14; x++){ const d = Math.hypot(x - 6.5, y - 6.5); if (d < 4.6) f(d > 3.4 ? '#181425' : d > 1.4 ? '#b86f50' : '#733e39', x, y, 1, 1); } f('#181425', 6, 0, 2, 14); f('#181425', 0, 6, 14, 2); f('#c0cbdc', 6, 0, 2, 3); f('#c0cbdc', 6, 11, 2, 3); f('#c0cbdc', 0, 6, 3, 2); f('#c0cbdc', 11, 6, 3, 2); }),
 });
 export const enemies = {
+  // the skimmer: a long fly that hangs over water and spits a bead of it in a flat line. It keeps over its own stretch of
+  // water (the pool it was set over, `span` tiles either way), a little above wherever that water's top is now. It does
+  // not come at him: it is the Roots' flier that shoots. Two blows
+  // (over: how high it hangs over the water. At that height its bead goes over the head of one who is afloat, and it does
+  // not aim at him: the water is where he waits, and he cannot dodge there. One on his feet can duck it)
+  skimmer: { ai: 'skimmer', hp: 2, w: 0.7, h: 1.0, color: 0x5a9aa0, fly: true, range: 8, level: 1.7, charge: 0.8, speed: 9, cooldown: 2.8, over: 1.6, drift: 2.0, orb: 0x9fe8ff, mouthY: -0.3, art: 'px_skimmer', word: 'Spat on' },
   // a windlass: struck, its gate goes up; struck again, it comes down. Not a creature
   windlass: { ai: 'windlass', own: true, prop: true, hp: 99, w: 0.6, h: 1.4, color: 0xb86f50, fly: false, guard(e){ e.struck = true; return true; }, onHit(e){ e.hp = e.d.hp; e.struck = true; } },
 };
 export const ai = {
+  skimmer(e, P, dt, c){
+    const d = e.d, m = e.mk || {}, T = c.T; e.fr = ((e.fr || 0) + dt * 9) % 1; e.cool = Math.max(0, (e.cool || 0) - dt);
+    if (!e.lane){ const half = (m.span || 4) * T; e.lane = { x0: e.home.x - half, x1: e.home.x + half, base: (m.y + 0.5) * T }; e.dirn = e.dirn || 1; }
+    // where its water's top is now, under it: up from the pool it was set over, a quarter of a unit at a time
+    let top = e.lane.base; for (let k = 0; k < 96 && c.waterAt(e.x, top + 0.01); k++) top += 0.25;
+    const want = top + d.over + Math.sin(e.age * 2.3) * 0.12; e.y += (want - e.y) * Math.min(1, dt * 3);
+    const near = Math.abs(c.dx) < d.range, lvl = Math.abs(P.y + 1.3 - e.y) < d.level;
+    if (e.st === 'aim'){ e.face = Math.sign(c.dx) || e.face; e.warn = true;
+      if (e.tm >= d.charge){ e.warn = false; c.shoot(c.E, e, { x: e.x + e.face * 12, y: e.y + d.mouthY - 1.4, vx: 0, vy: 0, grounded: true }, false); c.events.push({ type: 'spit', e }); e.cool = d.cooldown; c.go('drift'); } }
+    else { if (e.st !== 'drift') c.go('drift'); e.warn = false;
+      e.x += e.dirn * d.drift * dt; if (e.x < e.lane.x0){ e.x = e.lane.x0; e.dirn = 1; } if (e.x > e.lane.x1){ e.x = e.lane.x1; e.dirn = -1; } e.face = near ? (Math.sign(c.dx) || e.dirn) : e.dirn;
+      if (near && lvl && e.cool <= 0){ c.go('aim'); c.events.push({ type: 'tell', e }); } }
+    c.anim(e, 'fly', e.fr);
+  },
   windlass(e, P, dt, c){
     const m = e.mk || {}; e.st = 'idle'; e.cool = Math.max(0, (e.cool || 0) - dt);
     if (e.struck){ e.struck = false; if (e.cool <= 0){ e.cool = 0.8; c.events.push({ type: 'windlass', e, key: m.key, at: { x: e.x, y: e.y + 1 } }); } }

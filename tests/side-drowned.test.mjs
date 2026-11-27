@@ -125,3 +125,20 @@ test('the one who plays it through turns all three, in their order: the hall\'s,
   const G = R.graph(0, []); assert.deepEqual([...G.gates].sort(), ['cells', 'culvert', 'hall']);
   const cup = lasses.find(q => q.key === 'culvert'), shut = R.graph(0, ['shut', 'gate:hall']); assert.ok(![...shut.seen].some(k => Math.abs(k % shut.W - cup.x) <= 3 && Math.abs(Math.floor(k / shut.W) - cup.y) <= 2), 'the culvert\'s windlass is the last: behind the cells and the weir');
 });
+
+// ---- who lives in it (build 109)
+const skim = (top, P, secs = 3) => { const d = DR.enemies.skimmer, e = { type: 'skimmer', d, x: 20, y: top + d.over, home: { x: 20, y: 6 }, st: 'idle', tm: 0, age: 0, face: 1, mk: { y: 6, span: 4 } }, ev = [], shots = [];   // (set over a pool whose bed is at row 6; it begins where it hangs)
+  for (let t = 0; t < secs; t += 1 / 60){ e.tm += 1 / 60; e.age += 1 / 60; DR.ai.skimmer(e, P, 1 / 60, { T: 0.5, dx: P.x - e.x, dy: P.y - e.y, waterAt: (x, y) => y < top ? {} : null, go: s => { e.st = s; e.tm = 0; }, anim(){}, events: ev, E: {}, shoot: (E, q, at, lob) => shots.push({ at, lob, y: e.y }) }); }
+  return { e, ev, shots, d }; };
+test('the skimmer hangs over its own water, wherever that water\'s top is, and keeps to its pool', () => {
+  for (const top of [4, 7.5, 12]){ const { e, d } = skim(top, { x: 60, y: 0 }); assert.ok(Math.abs(e.y - (top + d.over)) < 0.2, `over water at ${top}: it is at ${e.y.toFixed(2)}`); assert.ok(e.x >= 18 - 1e-6 && e.x <= 22 + 1e-6, 'within four tiles of where it was set'); }
+  assert.equal(L.marks.filter(m => m.type === 'skimmer').length, 2); for (const m of L.marks.filter(m => m.type === 'skimmer')) assert.ok(LV.waterAt((m.x + 0.5) * LV.T, (m.y + 0.5) * LV.T), 'each is set over a pool that never empties');
+  assert.ok(DR.enemies.skimmer.fly && DR.enemies.skimmer.hp === 2 && !DR.enemies.skimmer.reach, 'a flier, two blows, and it does not come at him');
+});
+test('it spits a bead in a flat line at one on his feet, after a warning; one who is afloat it leaves alone', () => {
+  const walker = skim(4, { x: 25, y: 4 }); assert.ok(walker.ev.some(v => v.type === 'tell'), 'a warning'); assert.ok(walker.shots.length >= 1, 'and the bead');
+  for (const s of walker.shots){ assert.equal(s.lob, false); assert.ok(Math.abs(s.at.y + 1.4 - (s.y + walker.d.mouthY)) < 1e-6, 'aimed level with its own mouth: flat'); }
+  assert.ok(walker.d.charge >= 0.6, 'warned for long enough'); assert.ok(4 + walker.d.over + walker.d.mouthY > 4 + M.BODY.crouch - 0.2, 'and it goes over one who ducks');
+  const afloat = skim(12, { x: 25, y: 12 - M.SWIM.float }); assert.equal(afloat.shots.length, 0, 'nothing at a swimmer'); assert.ok(12 + afloat.d.over + afloat.d.mouthY > 12 - M.SWIM.float + M.BODY.stand, 'its bead would pass over his head anyway');
+  const far = skim(4, { x: 60, y: 4 }); assert.equal(far.shots.length, 0, 'nor at one far off');
+});

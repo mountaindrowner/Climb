@@ -3,7 +3,7 @@
 *Your word, 26 Nov: "Each wing should feel interesting, contextual, complex. Also we should probably have gates and
 lever kind of functions that require the players to explore." (Roadmap, decisions 0.32 and 0.33.) Of the twelve
 wings, three have neither a gate he sets nor a rule that acts as one: the Ossuary, the Scriptorium and the Pilgrims'
-Cairns. This is one short sheet for each. Nothing here is built: each waits on your word.*
+Cairns. This is one short sheet for each. Nothing here is built yet. Approved 27 Nov ("They all look great"): to be built after the Drowned Galleries.*
 
 The rule for all three, from decision 0.33: **the thing he works is not beside the thing it opens,** and in each
 place it is a thing of that place. None of them is a windlass.

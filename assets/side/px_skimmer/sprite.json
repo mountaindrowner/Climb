@@ -1,0 +1,24 @@
+{
+ "name": "px_skimmer",
+ "ppu": 16,
+ "anims": {
+  "stand": {
+   "frames": 1,
+   "w": 64,
+   "h": 48,
+   "foot": 38,
+   "cx": 31.0,
+   "footLast": 38,
+   "cxLast": 31.0
+  },
+  "fly": {
+   "frames": 4,
+   "w": 64,
+   "h": 48,
+   "foot": 38,
+   "cx": 31.0,
+   "footLast": 38,
+   "cxLast": 31.0
+  }
+ }
+}
