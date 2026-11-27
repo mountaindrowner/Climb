@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 122 | 27 Nov 2026 | `COMMIT122` | Phase 18, part 2: the Deep climbed from the bottom. A ring under the Assayer's grate unbars it from below; Hob's lines for one climbing out | no | yes (now) |
+| 122 | 27 Nov 2026 | `1ed6379` | Phase 18, part 2: the Deep climbed from the bottom. A ring under the Assayer's grate unbars it from below; Hob's lines for one climbing out | no | yes (now) |
 | 121 | 27 Nov 2026 | `42b234c` | Phase 18 begun: the throw. At the door of the last region he is thrown down to the Hollow, at the bottom of the Deep, and climbs out; the Deep's doors open when he does. A new game clears everything | no | replaced by 122 |
 | 120 | 27 Nov 2026 | `b5d7543` | The Deep's far ends, seventeen screens: the Winding-House (the Workings: a cage that runs once its engine is started), the False Lode (the Vein: a ring with the guild's air-door across it), the Drowned Stope (the Flooded Levels: a windlass in the air, a grate under two screens of water), the Adit (the Great Shaft: a wall against the cold, and the cold up a raise), the Far Wall (the Hollow: a rough face four screens tall). Every level has its far ends | no (a save follows the level) | replaced by 121 |
 | 119 | 27 Nov 2026 | `6170aab` | The Firmament's far end, six screens: the Outer Ring past the arms (a ring of two planets that turns from the first; a second arm, the outermost, that stands until it is wound from the winding room, and then carries him to the head of a tower) | no | replaced by 120 |
