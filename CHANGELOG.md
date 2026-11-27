@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Drowned Galleries, the undercroft (latest; build 112).** The keepers' store, two screens under the hall's floor and under water always, for one who has the Seated's Wind: down through the floor of the hall's west pool. A hatch in the hall's floor has no chain, only a ring on its underside; struck from below it lifts. A thread, a chest, a line on the wall. The wing's sheet is built. 522 checks. No save is moved.
+**The Ossuary's scales (latest; build 113).** Two grave-slabs shut the way to the Sexton's yard and the way up to the count. Each hangs on a scale whose pan is in another room: his own weight lifts it while he stands there; a stack of skulls knocked off the ledge over the pan lifts it for good; a Tallyman at a full pan takes the bones back a piece at a time. 527 checks. No save is moved.
+
+**The Drowned Galleries, the undercroft (build 112).** The keepers' store, two screens under the hall's floor and under water always, for one who has the Seated's Wind: down through the floor of the hall's west pool. A hatch in the hall's floor has no chain, only a ring on its underside; struck from below it lifts. A thread, a chest, a line on the wall. The wing's sheet is built. 522 checks. No save is moved.
 
 **The Drowned Galleries, the Squid (build 111).** The weir's fight is no longer a pike but a squid: long, violet, one pale blind eye. It fights as the pike did (afloat it cannot be hurt and takes what is in its water; on the bed at low water it can be struck). The pike's drawing is out of the game. 519 checks. No save is moved.
 

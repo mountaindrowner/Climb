@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 112 | 27 Nov 2026 | `5bbbfb2` | The Drowned Galleries, the undercroft: the keepers' store under the hall, for one with the Seated's Wind; a hatch lifted from below. The wing's sheet is built | no | yes (now) |
+| 113 | 27 Nov 2026 | `COMMIT113` | The Ossuary's scales: two grave-slabs, each lifted by weight in a pan that is in another room. His own weight, a stack of bones knocked in, and a Tallyman who takes them out again | no | yes (now) |
+| 112 | 27 Nov 2026 | `5bbbfb2` | The Drowned Galleries, the undercroft: the keepers' store under the hall, for one with the Seated's Wind; a hatch lifted from below. The wing's sheet is built | no | replaced by 113 |
 | 111 | 27 Nov 2026 | `23ee1e0` | The weir's fight is a squid, not a pike: long, violet, blind. It fights as the pike did | no | replaced by 112 |
 | 110 | 27 Nov 2026 | `6a68cde` | The Drowned Galleries, fourth build: the Pike, the wing's fight. Afloat it bites and cannot be hurt; left on the bed at low water it can | no | replaced by 111 |
 | 109 | 27 Nov 2026 | `bb2f832` | The Drowned Galleries, third build: the skimmer (a new creature, the first drawn by the new way), two of them over the hall's pools; two leeches in the cells' flue | no | replaced by 110 |
@@ -128,6 +129,54 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 113: the Ossuary's scales
+
+*Your word, 27 Nov, of the three wings' sheets: "They all look great"; and "Next keep going". The first of the three
+(`docs/bare-wings-sheet.md`, section 1 and "As built: build 113").*
+
+**For the player** (he needs the Warden's hammer to come into the Ossuary at all)
+
+- **The way to the Sexton's yard is shut by a grave-slab,** and so is the hole from the yard up to the count
+  (`docs/ossuary-scales-build113.png`).
+- **Each slab hangs on a scale whose pan is in another room.** The yard's pan is in the sorting room; the count's is
+  in the niches. A chain goes up the wall beside each pan.
+- **Stand in a pan and its slab goes up.** Step off and it comes down. So he can see what it does, and cannot use
+  it alone.
+- **Over each pan, on a ledge, is a stack of skulls.** Strike it and it goes over into the pan, and the slab stays up.
+- **A Tallyman at a full pan takes the bones back,** one every two and a half seconds, and the slab comes down a
+  third each time. Kill him, or be quick.
+- **To try:**
+  1. In the sorting room, stand in the pan on the low heap. Listen for the slab.
+  2. Get up onto the shelf over it (from the tall heap) and strike the stack.
+  3. Leave the Tallyman by the pan alive and watch what he does.
+  4. Go up the niches: the way to the yard should be open. Find the count's pan on the way.
+
+**What is weaker than it should be**
+
+- **Two scales, not the three the sheet had.** The third had nowhere to be.
+- **He cannot see the slab from the pan.** He hears it. The chain says there is one; nothing shows him which door.
+- **The Tallyman is not seen carrying anything.** The bones are in the pan, then on the ledge.
+- **Standing in the pan and running for the door is not possible** (the door is two rooms away), so his own weight
+  only ever teaches. That is as the sheet meant, but it may feel like a trick that does nothing.
+- **A stack can be knocked down before he has seen the slab it lifts.** Then he never learns what it did.
+- **Not played by a person.**
+
+- **Save: not moved.** Adds: what lies in each pan (`G.pans`). A save from before finds both slabs down.
+- **Checked:** 527 automated checks, five new (`tests/side-scales.test.mjs`): where the slabs, pans and stacks
+  are; that a slab rises by as much as lies in its pan; his own weight, and that it is not kept; the stack; the
+  Tallyman; and, with the real motor, that the yard and the count are shut until their stacks are down and that one
+  who plays it through opens both. In the test browser: both scales worked, both slabs seen down and up.
+- **Not checked:** not played by hand; a Tallyman watched taking bones in the running game; the sounds.
+- **The full run had one failure of 527,** and it was a check, not the game: the Drowned Galleries' count of its own
+  gates had begun to see the Ossuary's two slabs. I narrowed that check and ran it again alone; I did not run all 527
+  a second time.
+- **Mistakes caught before it went out:** two more notes of mine in the middle of a line swallowed code (one in the
+  drawing code, one in a test helper). The check that looks for that now reads the test helpers too, and found an
+  older one there.
+- **Underneath:** `src/side/regions/ossuary.js` (the pans, the stacks, the slabs); `src/side/level.js` (`RULE.pan`,
+  `RULE.lift`, `setPan`, `liftOf`: a slab that is up by rows); `src/side/props.js`; `src/side/main.js` (the `pan`
+  event).
 
 ### Build 112: the Drowned Galleries, the undercroft
 

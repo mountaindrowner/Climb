@@ -7,8 +7,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 
-const dirs = ['src/side', 'src/side/regions', 'src/audio', 'src/core'];
-const files = dirs.flatMap(d => readdirSync(new URL('../' + d, import.meta.url)).filter(f => f.endsWith('.js')).map(f => d + '/' + f));
+const dirs = ['src/side', 'src/side/regions', 'src/audio', 'src/core', 'tests/helpers'];   // (the checks' own helpers too, since build 113: three times in a day a note in one of them swallowed code)
+const files = dirs.flatMap(d => readdirSync(new URL('../' + d, import.meta.url)).filter(f => f.endsWith('.js') || f.endsWith('.mjs')).map(f => d + '/' + f));
 const CODE = /[a-zA-Z_$.\]]+\([^)]*\);|\b(if|for|const|let|return)\s*\(|\w\s=\s[^=].*;\s|\}\s*$|;\s*\}\s*$/;
 export const swallowed = text => { const out = [];
   text.split('\n').forEach((ln, n) => { let i = 0, q = null, at = -1;

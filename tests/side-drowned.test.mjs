@@ -84,7 +84,7 @@ test('a save from before the wing: what it had found and broken in the Roots is 
 });
 
 // ---- the gates and their windlasses (build 108)
-const gates = L.marks.filter(m => m.type === 'gate' && m.key !== 'hatch'), lasses = L.marks.filter(m => m.type === 'windlass'), roomOf = m => L.rooms.find(r => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1);
+const gates = L.marks.filter(m => m.type === 'gate' && ['hall', 'cells', 'culvert'].includes(m.key)) /* the wing's three: not its hatch, nor the Ossuary's slabs */, lasses = L.marks.filter(m => m.type === 'windlass'), roomOf = m => L.rooms.find(r => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1);
 test('three gates of stone, each with a windlass that is somewhere else', () => {
   assert.deepEqual(gates.map(g => g.key).sort(), ['cells', 'culvert', 'hall']); assert.deepEqual(lasses.map(g => g.key).sort(), ['cells', 'culvert', 'hall']);
   for (const g of gates){ for (let y = g.y; y < g.y + g.h; y++) for (let x = g.x; x < g.x + g.w; x++){ assert.equal(L.tiles[y * L.W + x], LV.SLUICE); assert.equal(L.gateOf.get(y * L.W + x), g.key); }

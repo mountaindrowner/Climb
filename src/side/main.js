@@ -9,7 +9,7 @@ import { sfx, ac, musicBus, ambience, setMix, MIX, warm, manifestReady, say, bea
 import { voiceOf } from '../audio/voice.js';
 import { makeScore } from '../audio/score.js';
 import '../ui/feel.js';
-import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE, MEETINGS, SILL, prepare, RULE, SPIKES, setGates, breath } from './level.js';
+import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE, MEETINGS, SILL, prepare, RULE, SPIKES, setGates, breath, setPan } from './level.js';
 import { makeTeach, keyName, fill, INTRO, CARDS, drawIcon } from './teach.js';
 import { makeProps } from './props.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt, hurt, isRollInv, ARMS, POGO, pogo, BOW } from './motor.js';
@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 112, date: '27 NOV 2026', phase: 17, phases: 22, last: 'THE GALLERIES: THE UNDERCROFT' };
+const VERSION = { build: 113, date: '27 NOV 2026', phase: 17, phases: 22, last: 'THE OSSUARY: THE SCALES' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -101,7 +101,7 @@ const WAY = { was: false, said: new Map(), fall: [] }; let SHUTSAID = false, LOO
 // `walked`: he has walked in from the next region (cross): he and his scarf are as they were
 function setup(walked = false){
   RULE.upset = 0; RULE.unkept = !!(G.unkept && G.unkept[LEVEL.index]);   // the Keepers' Houses: everything in its place; and whether their keeper is broken (its own switch: the Gardens have two wing keepers, and the Lock's is `still`)
-  setGates((G.gates && G.gates[LEVEL.index]) || {});   // the Drowned Galleries: each gate as he left it, and the water it holds
+  setGates((G.gates && G.gates[LEVEL.index]) || {}, (G.pans && G.pans[LEVEL.index]) || {});   // the Drowned Galleries: each gate as he left it, and the water it holds
   RULE.wetAll = false; RULE.wet = new Set(LEVEL.marks.filter(m => m.type === 'wheel' && m.open !== false).map(m => m.key)); { const W0 = G.wet && G.wet[LEVEL.index]; if (W0) for (const k of Object.keys(W0)){ if (W0[k]) RULE.wet.add(k); else RULE.wet.delete(k); } }   // the Aqueducts: each sluice wheel as he left it (or as its keeper did)
   RULE.hush = 0; RULE.open = 0; RULE.calmFree = false; EYE.door = EYE.held = null; EYE.p = 0;   // the Eye of the Storm: its doors of cloud shut
   RULE.sw = (G.sw && G.sw[LEVEL.index]) || 0; RULE.surge = 0; RULE.swFree = false;   // the Wreck of the Works: the lever as he left it
@@ -1351,6 +1351,13 @@ function onEvent(e){
       if (e.key === 'hatch') banner('', up ? 'The hatch in the hall\'s floor has lifted.' : 'The hatch has shut.', 3);
       else if (!G.gateTold){ G.gateTold = 1; store(); banner('A windlass', up ? 'Somewhere a gate has gone up. The chain on the wall shows where.' : 'Its gate has come down again.', 5); }
       else banner('', up ? 'A gate has gone up.' : holds ? 'Its gate has come down. The water behind it will stay as it is.' : 'Its gate has come down.', 2.6); break; }
+    // the Ossuary's scales: what is in a pan has changed (a stack knocked into it; a Tallyman taking a piece out; his own
+    // weight on it or off it). Its slab goes up or comes down by as much. His save keeps what lies in each pan
+    case 'pan': { const was = RULE.lift[e.key] || 0; setPan(e.key, e.load, e.eff == null ? e.load : e.eff); const now = RULE.lift[e.key] || 0;
+      if (e.kept !== false){ ((G.pans = G.pans || {})[LEVEL.index] = G.pans[LEVEL.index] || {})[e.key] = RULE.pan[e.key]; store(); }
+      if (now !== was){ PROPS.show(); sfx.creak(); if (now > was) sfx.door(); else sfx.slam(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.12); for (const B of PROPS.sluices || []) if (B.key === e.key) fx.dust({ x: B.x, y: B.y }, 10, 3); }
+      if (e.fell){ sfx.crack(); fx.burst(e.at, 16, 0xead4aa); if (!G.panTold){ G.panTold = 1; store(); banner('The scales', 'Weight in a pan lifts a slab somewhere else. The chain shows where.', 5); } }
+      else if (e.by === 'tally' && Math.hypot(e.at.x - P.x, e.at.y - P.y) < 24 && !G.tallyTold){ G.tallyTold = 1; store(); banner('', 'A Tallyman is taking the bones back out of the pan.', 4); } break; }
     case 'arc': if (Math.hypot(e.at.x - P.x, e.at.y - P.y) < 16) sfx.zap(); break;
     // the Aqueducts: a sluice wheel turned (by him, or put back by its keeper); a keeper's arm come down; the Lock letting go
     case 'sluice': { const on = !RULE.wet.has(e.key); if (on) RULE.wet.add(e.key); else RULE.wet.delete(e.key); ((G.wet = G.wet || {})[LEVEL.index] = G.wet[LEVEL.index] || {})[e.key] = on ? 1 : 0; store();

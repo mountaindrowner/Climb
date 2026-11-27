@@ -103,7 +103,7 @@ export function graph(N, gifts = []){
   const raise = k => { RULE.gates.add(k); delete RULE.held[k]; };
   setGates(); for (const g of has) if (g.startsWith('gate:')) raise(g.slice(5));
   if (CACHE.has(key)){ const c = CACHE.get(key); for (const k of c.gates) raise(k); return { ...base, ...c }; }
-  const windlasses = L.marks.filter(m => m.type === 'windlass' || m.type === 'ring'); let found = null;
+  const windlasses = L.marks.filter(m => m.type === 'windlass' || m.type === 'ring' || m.type === 'bonestack' /* a stack over a scale's pan: knocked into it, its slab is up for good */); let found = null;
   // (a gate that goes up changes only what is near it, and the water it held: the places within forty-five tiles of either
   // are played again with it up, and the search goes on from them. Nothing further off could have told the difference.
   // REACH_SCRATCH=1: every round from the spawn again, the slow way, to hold this one to)

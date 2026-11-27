@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import './helpers/browser.mjs';
 const { LEVELS, loadLevel } = await import('./helpers/reach.mjs');
 const { REGION_DATA } = await import('../src/side/level.js');
-const NOT = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust', 'rod', 'flow', 'mover', 'glamp', 'water', 'raft', 'dlamp', 'valve', 'gate', 'windlass', 'ring', 'pilgrim', 'sweeper']   /* the last two: who he passes in the passages (phase 9), not creatures. (A gate and its windlass, the Drowned Galleries: things) */);
+const NOT = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust', 'rod', 'flow', 'mover', 'glamp', 'water', 'raft', 'dlamp', 'valve', 'gate', 'windlass', 'ring', 'pan', 'bonestack', 'pilgrim', 'sweeper']   /* the last two: who he passes in the passages (phase 9), not creatures. (A gate and its windlass, the Drowned Galleries: things) */);
 // (a region marked `empty` has nobody in it, by its plan: the Great Shaft)
 const mix = LEVELS.map((_, n) => n).filter(n => !REGION_DATA[n].empty && !REGION_DATA[n].sparse).map(n => { const L = loadLevel(n), c = {}; for (const m of L.marks) if (!NOT.has(m.type)) c[m.type] = (c[m.type] || 0) + 1; return { name: L.name, c }; });
 

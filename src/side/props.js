@@ -389,7 +389,7 @@ export function makeProps(scene, R){
       else held.push(B);
     } }
   const showHeld = () => { for (const B of held){ B.m.visible = !RULE.fallen; if (B.plank) B.plank.visible = RULE.fallen; } for (const B of doors){ const shut = RULE.shut && !RULE.fallen; B.m.visible = shut; B.stub.visible = !shut; }
-    for (const B of shutters){ const shut = RULE.ring > 0 && !RULE.still; B.m.visible = shut; if (B.stub) B.stub.visible = !shut; } for (const B of grates) B.m.visible = !RULE.still; for (const B of kepts) B.m.visible = RULE.upset > 0 && !RULE.unkept; for (const B of sluices) B.m.visible = !RULE.gates.has(B.key); for (const B of ways) B.m.visible = !RULE.turned; for (const B of ices) B.m.visible = !(RULE.litAll || RULE.lit.has(B.fire)); };
+    for (const B of shutters){ const shut = RULE.ring > 0 && !RULE.still; B.m.visible = shut; if (B.stub) B.stub.visible = !shut; } for (const B of grates) B.m.visible = !RULE.still; for (const B of kepts) B.m.visible = RULE.upset > 0 && !RULE.unkept; for (const B of sluices){ const rows = Math.round(B.h / T), up = RULE.gates.has(B.key) ? rows : Math.min(rows, RULE.lift[B.key] || 0); B.m.visible = up < rows; B.m.position.y = B.y + up * T; } /* a slab on a scale goes up by rows: it slides into its lintel */ for (const B of ways) B.m.visible = !RULE.turned; for (const B of ices) B.m.visible = !(RULE.litAll || RULE.lit.has(B.fire)); };
   RULE.shut = false; showHeld(); let bellT = 1.2;
   // ---- the storm's gantries (live decks): each run an iron grating; while the storm rules it spits
   const decks = [];

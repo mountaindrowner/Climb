@@ -36,6 +36,33 @@ by degrees. The Tallymen need one new thing to do.
 
 ---
 
+### As built: build 113
+
+*Pictures: `docs/ossuary-scales-build113.png`.*
+
+- **Two scales, not three.**
+  - **The yard's:** its slab stands in the way from the niches to the Sexton's yard. Its pan is in the sorting room,
+    on the low heap; its stack is on the lip of the shelf over the pan.
+  - **The count's:** its slab lies across the hole from the yard up to the count. Its pan is in the niches, on the
+    third shelf; its stack is in the niche over it.
+- **A slab goes up by as much as lies in its pan.** Three pieces in a stack; the upright slab rises a third a piece.
+  The one that lies across a hole lifts only for all three.
+- **His own weight lifts it all the way** while he stands in the pan, and it comes down when he steps off.
+- **The stack, struck, goes over into the pan and stays.** Any blow does it, not only the hammer's.
+- **A Tallyman at a pan with bones in it takes one back every two and a half seconds.** The bones go back to the
+  ledge, so the stack can be knocked down again. One Tallyman keeps the sorting room's pan; none keeps the other.
+- **His save keeps what lies in each pan.**
+
+**Where it differs from the sheet above**
+
+| The sheet said | It is | Why |
+|---|---|---|
+| Three scales | **Two** | The third was to open the deadhouse stair "from this side early". That stair is the way out, at the far end: there is no early side to open it from |
+| Struck with the hammer | **Any blow** | He may be carrying the sword when he gets there. Making him change weapon to knock over bones is a rule with no reason in it |
+| A Tallyman carries a piece back to the ledge | **The piece is gone from the pan and back on the ledge at once** | He stands at the pan for it; he is not seen carrying |
+
+---
+
 ## 2. The Scriptorium (the Cloister, west): the rolling ladders
 
 **What the place is.** Where the house's books were copied. No page may have a fault, so the copyists have been
