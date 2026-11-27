@@ -73,7 +73,7 @@ test('the Keepers\' Cup: in the cup room, the wing\'s one relic; a drink more', 
   assert.ok(!L.waters.some(w => w.x0 < cup.x1 && w.x1 > cup.x0 && w.y0 < cup.y1 && w.y1 > cup.y0), 'the cup room is dry always');
 });
 test('a save from before the wing: what it had found and broken in the Roots is moved with them, once', () => {
-  assert.deepEqual(ST.WING_MOVED[0].slice(0, 2), [L.X0, L.Y0 - ST.LIFT_MOVED], 'by as far as the Roots moved for the wing'); assert.deepEqual([L.X0, L.Y0], [DR.wing.left * 40, DR.wing.down * 23 + LV.LIFT.base * 23]); assert.equal(ST.LIFT_MOVED, LV.LIFT.base * 23, 'and every level 46 more, for the rows under it (build 115)');
+  assert.deepEqual(ST.WING_MOVED[0].slice(0, 2), [ST.ORG115[0][0], ST.ORG115[0][1] - ST.LIFT_MOVED], 'by as far as the Roots moved for the wing'); assert.deepEqual(ST.ORG115[0], [DR.wing.left * 40, DR.wing.down * 23 + LV.LIFT.base * 23]); assert.ok(L.X0 >= ST.ORG115[0][0] && L.Y0 >= ST.ORG115[0][1], 'what has been built past the wing since is the save\'s own to follow (state.js rebase)'); assert.equal(ST.LIFT_MOVED, LV.LIFT.base * 23, 'and every level 46 more, for the rows under it (build 115)');
   const store = {}; globalThis.localStorage = { getItem: k => store[k] ?? null, setItem: (k, v) => { store[k] = String(v); }, removeItem: k => { delete store[k]; } };
   const old = { seamed: 1, joined: 1, winged: 4, can: {}, level: 0, top: 0, got: { 0: ['t24,13', 'c33,15'], 1: ['c200,80'] }, broke: { 0: ['10,5'] }, blocked: {}, relics: [], worn: [], wat: { 0: ['r', '20,10|the pool'], 6: ['r', '30,40|a level'] } };
   store['climb-side'] = JSON.stringify(old);
@@ -87,7 +87,7 @@ test('a save from before the wing: what it had found and broken in the Roots is 
 });
 
 // ---- the gates and their windlasses (build 108)
-const gates = L.marks.filter(m => m.type === 'gate' && ['hall', 'cells', 'culvert'].includes(m.key)) /* the wing's three: not its hatch, nor the Ossuary's slabs */, lasses = L.marks.filter(m => m.type === 'windlass'), roomOf = m => L.rooms.find(r => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1);
+const gates = L.marks.filter(m => m.type === 'gate' && ['hall', 'cells', 'culvert'].includes(m.key)) /* the wing's three: not its hatch, nor the Ossuary's slabs */, lasses = L.marks.filter(m => m.type === 'windlass' && ['hall', 'cells', 'culvert'].includes(m.key)) /* (not the bucket-chain's, past the weir: build 116) */, roomOf = m => L.rooms.find(r => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1);
 test('three gates of stone, each with a windlass that is somewhere else', () => {
   assert.deepEqual(gates.map(g => g.key).sort(), ['cells', 'culvert', 'hall']); assert.deepEqual(lasses.map(g => g.key).sort(), ['cells', 'culvert', 'hall']);
   for (const g of gates){ for (let y = g.y; y < g.y + g.h; y++) for (let x = g.x; x < g.x + g.w; x++){ assert.equal(L.tiles[y * L.W + x], LV.SLUICE); assert.equal(L.gateOf.get(y * L.W + x), g.key); }
@@ -128,7 +128,7 @@ test('a gate that is down holds the water behind it; the cells\' is held dry unt
   LV.setGates({ hall: 1, culvert: { held: null } }); assert.ok(LV.RULE.gates.has('hall') && !LV.RULE.gates.has('culvert') && LV.RULE.held.cells === 0); LV.setGates(); LV.BREATH.hold = 0;
 });
 test('the one who plays it through turns all three, in their order: the hall\'s, the cells\', the culvert\'s', () => {
-  const G = R.graph(0, []); assert.deepEqual([...G.gates].sort(), ['cells', 'culvert', 'hall']);
+  const G = R.graph(0, []); assert.deepEqual([...G.gates].filter(k => k !== 'draw').sort(), ['cells', 'culvert', 'hall']);   // (and the bucket-chain past the weir, which is no gate)
   const cup = lasses.find(q => q.key === 'culvert'), shut = R.graph(0, ['shut', 'gate:hall']); assert.ok(![...shut.seen].some(k => Math.abs(k % shut.W - cup.x) <= 3 && Math.abs(Math.floor(k / shut.W) - cup.y) <= 2), 'the culvert\'s windlass is the last: behind the cells and the weir');
 });
 

@@ -69,6 +69,21 @@ sorting fell behind: a pit, tipped full, going down under the Ossuary.
 - **Behind the slab:** the foot of the pit runs back west under the aisle to the well's foot: a short way out, and a
   chest on it. A thread on the highest ledge.
 
+#### As built: build 116
+
+*Pictures: `docs/roots-far-build116.png`. Thirteen screens: nine west, four east.*
+
+| The sheet said | It is | Why |
+|---|---|---|
+| The windlass reached "from the floor of the cells' pit" | **As said.** A doorway in the weir's west bank looks into the shaft half-way up, so he sees the chain before he finds its foot | So that it is seen first and worked out after |
+| The loft: "a thread, a chest" | **A chest.** The thread is at the bottom of the Sounding | One thread a side. The dive is the harder of the two |
+| The Unsorted is entered "past the wall of niches" | **From the head of the aisle's stair,** a screen lower | The pit's foot is level with the aisle, and the stair ends at that wall |
+| "Its floor a funnel... the pan at the bottom" | **Heaps against the walls, and a pile in the middle with the pan in its dip** | From the pile's two heads he comes up to the step and to the lowest tier in seven rows. The floor was a place he could not leave |
+| "Three ledges... not on one path" | **One on the step he comes in by, one across the pit, one at the head of five tiers up the east wall** | A second way in (from the niches' top niche) left the wall between the two doors hanging in the air. One way in; the third is a climb |
+| Behind the slab: "a short way out" under the aisle | **The first tomb,** under the pit's floor | With the way in at the aisle there is nothing to shorten. The slab guards something to find |
+| "A thread on the highest ledge" | **As said** | |
+| Not said | **A ring under the slab:** struck from below, it stays up | A Tallyman emptying the pan would have shut him in the tomb |
+
 ### 2. The Cloister
 
 **West: the Empty Shelves.** Past the copying hall is where the finished books were to go. No book was ever
@@ -89,6 +104,20 @@ the slag runs.
 - **A casting crane on a chain** carries him over the pit, once its winch is turned. The winch is at the bottom,
   among the slag.
 - **Down: the cooling pit,** in the new rock. A thread, a chest.
+
+#### As built: build 116
+
+*Pictures: `docs/cloister-far-build116.png`. Eight screens: five west, three east.*
+
+| The sheet said | It is | Why |
+|---|---|---|
+| "The rail of each goes out of sight through the shelving" | **Both ladders are in one room, seen end to end** | A rail through a wall wants a second room for each ladder. What is kept: each is left at the wrong end, and the second cannot be come to until the first is sent |
+| Not said | **A cornice over each ladder where it was left** | With the Seated's wind he could leap from a ladder's top rung at its wrong end and glide to the gallery. The cornice keeps his head down |
+| "Up: the binders' loft... in the room above the level" | **Over the shelves and the rubrication,** in the Cloister's own top row | That row was there already. The new row over the Cloister is not used yet |
+| "Dumb bells. A cracked bell struck here does not ring" | **They are painted, not struck** | A thing to strike that does nothing is a thing he would strike once |
+| "A casting crane on a chain carries him over the pit, once its winch is turned" | **As said, on a rail that climbs:** the far landing is ten rows over the near one | Level with it, he could glide across and the crane was nothing |
+| "The winch is at the bottom, among the slag" | **As said** | |
+| "Down: the cooling pit, in the new rock" | **Not built.** The Cull is three screens beside the slag runs and stops a screen over the new rows | It would have been two more screens of pit with nothing in them |
 
 ### 3. The Spires
 
@@ -164,7 +193,7 @@ Smaller: the Deep is shut for most of the game (decision 0.26), and its sections
 
 ## The order
 
-Build 116: the Roots. Then the Cloister, the Spires, the Tempest, the Gardens, the Firmament, each a build. Then
+Build 116: the Roots and the Cloister. Then the Spires, the Tempest, the Gardens, the Firmament, each a build. Then
 the Deep in two builds. Each is published as it is done, with pictures.
 
 ## What I am not sure of

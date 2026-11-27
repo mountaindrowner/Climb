@@ -140,8 +140,9 @@ export const ai = {
     bones(e, c, T3, load, k => [e.x + (k - 1) * 0.5, e.y + 0.52 - (eff ? 0.12 : 0)]);
   },
   bonestack(e, P, dt, c){
-    const key = (e.mk || {}).key, left = PAN.pieces - (c.RULE.pan[key] || 0); e.st = 'idle'; e.cool = Math.max(0, (e.cool || 0) - dt);
-    if (e.struck){ e.struck = false; if (left > 0 && e.cool <= 0){ e.cool = 0.6; c.events.push({ type: 'pan', key, load: PAN.pieces, eff: PAN.pieces, fell: true, at: { x: e.x, y: e.y + 0.6 } }); } }
+    // (build 116) a stack of one (`n: 1`, the Unsorted): one piece, and it is this stack's own: it is on its ledge or it is not
+    const mk = e.mk || {}, key = mk.key, one = mk.n === 1, gone = one && (c.RULE.stacks[key] || []).includes(mk.i), left = one ? (gone ? 0 : 1) : PAN.pieces - (c.RULE.pan[key] || 0); e.st = 'idle'; e.cool = Math.max(0, (e.cool || 0) - dt);
+    if (e.struck){ e.struck = false; if (left > 0 && e.cool <= 0){ e.cool = 0.6; const load = one ? Math.min(PAN.pieces, (c.RULE.pan[key] || 0) + 1) : PAN.pieces; c.events.push({ type: 'pan', key, load, eff: load, fell: true, ...(one ? { stack: mk.i } : {}), at: { x: e.x, y: e.y + 0.6 } }); } }
     const T3 = three(); if (!T3) return;
     bones(e, c, T3, left, k => [e.x + (k % 2 ? 0.08 : -0.08), e.y + 0.25 + k * 0.42]);
   },

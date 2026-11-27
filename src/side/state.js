@@ -51,7 +51,9 @@ function winged(S){
 // the difference as the level is come into, and nothing has to be written here for it again. A save with no `org` for a
 // level is from build 115 or before, and `winged` above has brought it to where build 115 had the levels: ORG115
 export const ORG115 = [[160, 92], [120, 92], [120, 115], [120, 115], [120, 92], [0, 115], [0, 46], [0, 46], [0, 46], [0, 46], [0, 46]];
+let HERE = null;   // the level he is in, and where it stands: written into every save from here on (a new game empties G after its level is made)
 export function rebase(n, X0, Y0, S = G){
+  if (S === G) HERE = [n, X0, Y0];
   const org = (S.org = S.org || {}), was = org[n] || ORG115[n] || [X0, Y0], dx = X0 - was[0], dy = Y0 - was[1]; org[n] = [X0, Y0];
   if (!dx && !dy) return false;
   const mv = id => { const m = /^([a-z]?)(-?\d+),(-?\d+)(\|.*)?$/.exec(id); return m ? m[1] + (+m[2] + dx) + ',' + (+m[3] + dy) + (m[4] || '') : id; };
@@ -70,7 +72,7 @@ export function loadSave(){ const s = read(KEY); Object.assign(G, blank()); if (
 // trying a place from the title (main.js tryStart): what happens then is not his save. It is written beside it, and his
 // own is not touched
 export const TRY = { on: false };
-export function store(){ try { localStorage.setItem(TRY.on ? KEY + '-try' : KEY, JSON.stringify(G)); } catch (e){} }
+export function store(){ if (HERE) (G.org = G.org || {})[HERE[0]] = [HERE[1], HERE[2]]; try { localStorage.setItem(TRY.on ? KEY + '-try' : KEY, JSON.stringify(G)); } catch (e){} }
 // the save in hand made new, the one in the browser left as it is
 export function fresh(){ for (const k of Object.keys(G)) delete G[k]; Object.assign(G, blank()); }
 export function storeOpt(){ try { localStorage.setItem(OKEY, JSON.stringify(OPT)); } catch (e){} }

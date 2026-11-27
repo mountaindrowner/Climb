@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 115 | 27 Nov 2026 | `a7a3e87` | Every level lifted: two rooms of rock under each (and a room more over those with a roof of rock), so there is somewhere to build down and up. A save now follows its level when it grows. Nothing he can reach is changed | **moved** (every place 46 tiles up; done as the save is read) | yes (now) |
+| 116 | 27 Nov 2026 | `COMMIT116` | The far ends of the Roots and of the Cloister, twenty-one screens. The Roots: the Drawing-Place past the weir (a bucket-chain he sets going and rides; the Well sounded three screens down) and the Unsorted (a pit, one scale with its stack in three, the first tomb under it). The Cloister: the Empty Shelves past the copying hall (two ladders that roll on rails when struck; the binders' loft) and the Cull past the slag runs (a casting crane sent from a winch on the pit's floor). The keepers' words in the Drowned Galleries are said at last | no (a save follows the level, build 115) | yes (now) |
+| 115 | 27 Nov 2026 | `a7a3e87` | Every level lifted: two rooms of rock under each (and a room more over those with a roof of rock), so there is somewhere to build down and up. A save now follows its level when it grows. Nothing he can reach is changed | **moved** (every place 46 tiles up; done as the save is read) | replaced by 116 |
 | 114 | 27 Nov 2026 | `a9c2759` | The Pilgrims' Cairns' wind-breaks: two walls of slate; knocked down, the wind rises somewhere else. A thread on a horn too tall to climb; the scree climbed from below | no | replaced by 115 |
 | 113 | 27 Nov 2026 | `8d3a3b2` | The Ossuary's scales: two grave-slabs, each lifted by weight in a pan that is in another room. His own weight, a stack of bones knocked in, and a Tallyman who takes them out again | no | replaced by 114 |
 | 112 | 27 Nov 2026 | `5bbbfb2` | The Drowned Galleries, the undercroft: the keepers' store under the hall, for one with the Seated's Wind; a hatch lifted from below. The wing's sheet is built | no | replaced by 113 |
@@ -131,6 +132,130 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 116: the far ends of the Roots and of the Cloister
+
+*The first two of the levels' edges (`docs/edges-sheet.md`, sections 1 and 2, and "As built: build 116" under each).
+Pictures: `docs/roots-far-build116.png`, `docs/cloister-far-build116.png`. Two levels in one build: the Roots' first
+full run found faults that changed its rooms, and by the time they were mended the Cloister was built too.*
+
+**For the player**
+
+- **West, past the weir: the Drawing-Place.** Nine screens.
+  - **A doorway in the weir's west bank** looks into a well-shaft three screens tall. A chain of buckets hangs in
+    it, still. There is no climbing it.
+  - **Its windlass is at the foot,** in a sump reached from the floor of the cells' pit. In the sump's floor is the
+    mouth of the Well itself.
+  - **Turned, the buckets go up.** He rides them to **the loft** over the weir, where the water was tipped: a chest,
+    the keepers' words on the wall, and a hole at the far end that drops him back into the weir.
+  - **The Sounding:** down through the Well's mouth, three screens of water straight down into the new rock. For one
+    who has the Seated's Wind. At the bottom: the lead of the keepers' line, a thread, a chest, a line on the wall.
+- **East, past the niches: the Unsorted.** Four screens.
+  - **A doorway at the head of the aisle's stair,** two rows up off its last step. Beyond it a pit three screens
+    tall, heaped against its walls, and a pile in the middle of its floor with a scale's pan in the dip of it.
+  - **The stack is in three:** a piece on the step he comes in by, a piece across the pit, a piece at the head of
+    five tiers up the east wall. The slab is in the pit's floor and lifts only for all three.
+  - **Two Tallymen** take the bones out of the pan again.
+  - **Under the slab: the first tomb.** One tomb, a chest, a line. A ring on the slab's underside: struck from below
+    it stays up, so he is not shut in.
+  - **A thread** at the head of the tiers.
+- **The keepers' words in the Drowned Galleries are said now.** The lines cut in the walls of the cup room and the
+  store (builds 107 and 112) have never been shown: the code that says such words ran only in the Spires. It runs
+  everywhere now.
+- **The Cloister, west, past the copying hall: the Empty Shelves.** Five screens.
+  - **A doorway in the hall's west wall at its floor.** Beyond it three screens of shelving with nothing on it, and
+    two galleries, each too far over the last to climb to.
+  - **Two ladders on rails,** each left at the wrong end. Struck, a ladder rolls to the other end and stays. The
+    first is on the floor; the second hangs over the first gallery and cannot be come to until the first is sent.
+  - **A cornice over each ladder where it was left,** so that the Seated's wind does not make them nothing.
+  - **Up four steps of the wall to the binders' loft:** presses, covers with nothing in them, the ledger, a chest, a
+    thread. A chest on a far shelf for one who can glide to it.
+- **The Cloister, east, past the slag runs: the Cull.** Three screens.
+  - **A doorway at the foot of the runs,** on to a landing two-thirds of the way up a pit of cracked bells. Steps
+    of the wall go down to its floor.
+  - **A casting crane:** a ladle hung from a rail that climbs across the pit to a landing ten rows higher on the far
+    side, where it was left. **Its winch is on the pit's floor.** Struck, the ladle comes over. Standing on it, he
+    strikes its chains and it carries him up and across.
+  - **Two tongues hang in its way.** He has to crouch on the ladle. Touched, they ring: the far cell's shutter
+    drops, the slag on the floor wakes, and the tongues swing and hurt.
+  - **In the cell:** a thread.
+- **To try:**
+  1. From the weir's west bank, go through the new doorway and look at the shaft.
+  2. Find the windlass (raise the cells' gate, cross the pit's floor at low water, go west).
+  3. Ride a bucket up. Step off at the gallery, then at the loft.
+  4. With the Seated's Wind: dive from the sump.
+  5. In the Ossuary, climb the aisle's stair and go through the doorway at its head.
+  6. Knock all three stacks into the pit. Watch the Tallymen. Go down through the slab.
+  7. Stand by the plinth in the cup room. The keepers' line should be said.
+  8. In the Scriptorium's copying hall, go west at the floor. Strike the ladder. Find the second.
+  9. In the Bell-Foundry, go east at the foot of the slag runs. Go down, strike the winch, come back up, ride.
+
+**What is weaker than it should be**
+
+- **The windlass is on the way.** He has to find the sump, but once he is there the chain starts beside him. The
+  sheet's rule is that the lever is not beside what it moves; here it is at the other end of the same thing.
+- **The three stacks are nearly on one path.** The sheet had the third come to another way, from the niches' top
+  niche. Two ways into one room leave the stone between them hanging in the air, which the map pass forbids. So
+  there is one way in, and the third stack is a climb.
+- **The ride has nothing in it.** No creature is in the shaft. Leeches on its walls would make it a ride to be
+  defended; not built.
+- **The loft is a flat room.** Two steps and some racks. The binders' loft is the same.
+- **The tiers in the pit are eleven rows apart:** a second jump and his hands on the lip, five times. That is by the
+  measure (`docs/map-pass-sheet.md`), but nothing else in the game asks it five times running. Every climb he must
+  make to get back out of anywhere is seven rows or less.
+- **The ladders are not hidden.** The sheet had each rail go out of sight, so that he had to find where a ladder
+  went. Both are in one room and seen end to end. What is left of the working is the order of them.
+- **The crane's winch is at the bottom of the same pit.** A way down, a blow, a way back up: it is far, but he
+  knows where to go.
+- **Riding the ladle upright costs a heart** (the tongues swing). Nothing but the low tips of the tongues tells him
+  to crouch.
+- **The Cull does not go down into the new rock,** as the sheet said it would. It is three screens beside the
+  runs. The Cloister's use of the rows under it is still to come.
+- **Stepping off the top bucket** has to be done before it goes over the wheel, or he falls the height of the shaft
+  into the water. Not tried by hand: it may be too quick or too easy.
+- **Neither far end has a fight,** as the sheet says, and it asks you whether they should.
+- **Not played by a person.**
+
+- **Save: not moved by hand.** The Roots are a column wider to the west; a save from before is moved by that as he
+  comes into the level (build 115's `rebase`). Adds: the chain, kept with the gates (`G.gates`); which single
+  stacks have gone over (`G.pans`, under the scale's name and `#`); where each level stands (`G.org`), now written
+  into every save.
+- **New in the engine:** a mover with a key, which goes only while its windlass is turned and keeps its own clock; the
+  'chain' kind (one way at one pace, and in again at the foot); a scale's stack of one piece, each remembered by
+  itself; a thing on a rail, which stands at one end until it is sent and rolls to the other (`G.rails`); words on a
+  thing in the world said in every region, by the kind of thing.
+- **Checked:** 544 automated checks, ten new (in `tests/side-edges.test.mjs`): for the Roots, where the six rooms are; the
+  chain (still, started with no jump, at one pace, stopped and started again, kept in the save, the shaft sheer); the
+  scale (one way in, the tiers, the slab only for all three, each stack its own, the ring, the save); played with
+  the real motor: the loft only by the chain, the tomb only by all three stacks, and from every place in the new
+  rooms a way back; a new game's save says where its level stands; the game moves a save wherever a level is made. For the Cloister: where its three rooms are; a
+  thing on a rail (still, sent, one way with no jump, there, sent back, kept in the save; the ladder and the winch
+  ask for it); each ladder and the crane left where it is no use and of use where it goes; played with the real
+  motor and every gift: the loft only by both ladders, the far cell only by the crane, and a way back from
+  everywhere. Seven older checks changed: five to count only their own winches, scales, shutters and relics; the
+  coarse map check, which now knows a chain and a rail; the joins' check of how far a level was moved. In the test browser: every new room of both levels seen, the chain seen still and going,
+  the slab seen up, each ladder sent, the ladle sent and ridden, the tongues rung and the shutter down, the labels
+  and the ledger said; the game started on a save made as build 115 makes them, standing in the Roots: what it had
+  found, broken and found for travel came up forty tiles east, where those things now are.
+- **Not checked:** not played by hand; the ride by hand; the dive by hand; the sounds; a real save from an earlier
+  build (the one tried was made for the test).
+- **Mistakes caught before it went out:**
+  - **He could drop into the tomb and not climb out** (the last sill was too close under the pit's floor for him to
+    stand on). Found by asking, for every place in the new rooms, whether there is a way back. That check is kept.
+  - **The pit's floor was a place he could not leave** in the first layout: its ledges overhung each other.
+  - **Two doors into the pit left a slab of wall hanging between them.** One way in, now.
+  - **Every climb out was too tall for the coarse map check,** which allows seven rows where I had built ten to
+    twelve. The Roots' first full run failed on it (the loft "cut off", the pit and the tomb "places he cannot
+    get out of"). The steps out of the pit, the tomb, the shelves and the Cull are seven rows or less now, each a
+    single course of stone so that there is head-room under the next.
+  - **With the Seated's wind the ladders and the crane could be passed by.** A cornice over each ladder's wrong
+    end, and the Cull's far landing ten rows higher than its near one.
+  - **A new game's save did not say where its level stood,** because the game is emptied after the level is made.
+  - **A save standing in the Roots would not have been moved at all.** The level that is there as the game starts
+    is made before the rest of the game is, and did not go by the place where a save is moved. Everything found in
+    the Roots would have been forty tiles out. Found in the test browser, by starting the game on a save made as
+    build 115 makes them; the same is now tried each time, and a check holds that no level is loaded anywhere that
+    does not move the save.
 
 ### Build 115: every level lifted
 

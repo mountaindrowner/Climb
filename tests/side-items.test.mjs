@@ -15,7 +15,9 @@ for (let N = 0; N < LEVELS.length; N++){
     const chests = marks.filter(m => m.type === 'chest'), relic = m => /^relic:/.test(m.holds || ''), wings = new Set(marks.map(wingOf).filter(Boolean));
     const rel = chests.filter(m => relic(m) && !wingOf(m));
     assert.equal(rel.length, 1, 'one relic'); const id = rel[0].holds.slice(6); assert.ok(RELICS[id], `relic ${id} is not a known one`); relics.push(id);
-    for (const w of wings){ const wr = chests.filter(m => relic(m) && wingOf(m) === w); assert.equal(wr.length, 1, `one relic in ${w}`); const wid = wr[0].holds.slice(6); assert.ok(RELICS[wid], `relic ${wid} is not a known one`); relics.push(wid); }
+    // (a far end with a name of its own, build 116 on: it is the end of a wing that has its relic, and has none)
+    const farOnly = w => rooms.filter(r => (r.gate || r.wing) && (r.title || r.name) === w).every(r => r.far);
+    for (const w of wings){ const wr = chests.filter(m => relic(m) && wingOf(m) === w); if (farOnly(w)){ assert.equal(wr.length, 0, `no relic in ${w}: a far end`); continue; } assert.equal(wr.length, 1, `one relic in ${w}`); const wid = wr[0].holds.slice(6); assert.ok(RELICS[wid], `relic ${wid} is not a known one`); relics.push(wid); }
     assert.equal(marks.filter(m => m.type === 'thread' && !wingOf(m)).length + chests.filter(m => m.holds === 'thread' && !wingOf(m)).length, 2, 'two threads on the climb');
     const deep = !marks.some(m => m.type === 'exit');   // the Deep has its own people (Hob); the climb has the three
     if (!REGION_DATA[N].empty && !REGION_DATA[N].alone)   // (nobody is in the Great Shaft, and no one to speak to in the Hollow: Hob does not go down that far)
@@ -34,7 +36,7 @@ test('no relic is in two regions, and every keeper leaves something', () => { as
 // the region it is entered under, and each region's page is its keeper's
 test("Corwen's Annals: every creature entered, each under the region it lives in", async () => {
   const { ANNALS } = await import('../src/side/annals.js'), all = new Set(ANNALS.flatMap(a => a.creatures.map(c => c.type)));
-  const NOT = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust', 'rod', 'pilgrim', 'sweeper', 'clapper', 'hiscairn', 'brazier', 'sitter', 'server', 'lever', 'coil', 'crane', 'wheel', 'flow', 'setting', 'mover', 'hours', 'glamp', 'water', 'raft', 'dlamp', 'valve', 'gate', 'windlass', 'ring', 'pan', 'bonestack', 'windbreak']   /* the last two: who he passes in the passages (phase 9), not creatures */);
+  const NOT = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust', 'rod', 'pilgrim', 'sweeper', 'clapper', 'hiscairn', 'brazier', 'sitter', 'server', 'lever', 'coil', 'crane', 'wheel', 'flow', 'setting', 'mover', 'hours', 'glamp', 'water', 'raft', 'dlamp', 'valve', 'gate', 'windlass', 'ring', 'pan', 'bonestack', 'windbreak', 'ladder', 'winch']   /* the last two: who he passes in the passages (phase 9), not creatures */);
   for (let N = 0; N < LEVELS.length; N++){
     const { marks, theme } = loadLevel(N), here = new Set(marks.filter(m => !NOT.has(m.type)).map(m => m.type));
     for (const t of here) assert.ok(all.has(t), `${t} (in ${LEVELS[N].name}) has no entry`);

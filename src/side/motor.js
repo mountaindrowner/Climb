@@ -300,7 +300,7 @@ export function stepPlayer(P, dt){
   // stops him and it goes on without him; going down it sets him on whatever floor it passes
   const MS = moversNow();
   if (P.ride && P.ride.kind === 'raft') P.ride.load = 0.12;
-  if (P.ride){ const m = P.ride; if (!P.grounded || m.ghost || !MS.length) P.ride = null; else { const dx = m.x - P.rideX, dy = m.y - P.rideY; P.rideX = m.x; P.rideY = m.y; if (dx) moveX(P, dx);
+  if (P.ride){ const m = P.ride; if (!P.grounded || m.ghost || !MS.length || m.jump) P.ride = null; else { const dx = m.x - P.rideX, dy = m.y - P.rideY; P.rideX = m.x; P.rideY = m.y; if (dx) moveX(P, dx);
       if (dy > 0){ if (boxRock(P, P.x, P.y + dy)){ P.ride = null; P.grounded = false; P.vy = 0; } else P.y = m.y; } else if (dy < 0){ P.grounded = false; moveY(P, m.y - P.y, P.y + 0.05); if (!P.grounded){ P.y = m.y; P.grounded = true; } else if (P.y > m.y + 1e-3) P.ride = null; } } }
   // ---- move: across (climbing steps on the way), then up or down
   const wasGrounded = P.grounded, y0 = P.y;

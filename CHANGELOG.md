@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**Every level lifted (latest; build 115).** Two rooms of rock under every level, and a room more over those with a roof of rock, so that what is built next has somewhere to go down and up. A save now follows its level when the level grows. Nothing he can reach is changed. 534 checks. **The save is moved** (every place 46 tiles up, once, as it is read).
+**The far ends of the Roots and of the Cloister (latest; build 116).** Twenty-one screens past the wings. In the Roots: past the weir, the Drawing-Place, a well-shaft with the keepers' bucket-chain, set going at a windlass in the sump and ridden three screens up to the loft, and under the sump the Well itself, sounded three screens down, for one who can go under; past the niches, the Unsorted, a pit with one scale whose stack is in three, and the first tomb under its floor. In the Cloister: past the copying hall, the Empty Shelves, with two ladders that roll along their rails when struck, and the binders' loft over them; past the slag runs, the Cull, a pit of cracked bells crossed on the ladle of a casting crane whose winch is on the pit's floor. The lines the keepers cut in the walls of the Drowned Galleries are said now (they never were). 544 checks. No save is moved by hand.
+
+**Every level lifted (build 115).** Two rooms of rock under every level, and a room more over those with a roof of rock, so that what is built next has somewhere to go down and up. A save now follows its level when the level grows. Nothing he can reach is changed. 534 checks. **The save is moved** (every place 46 tiles up, once, as it is read).
 
 **The Pilgrims' Cairns' wind-breaks (build 114).** Two walls of slate the pilgrims slept behind. Three blows bring one down, for good, and the wind it kept off rises somewhere else: up the shaft to a thread on a horn of rock too tall to climb, and up the hole out of the scree. 532 checks. No save is moved.
 

@@ -23,7 +23,8 @@ test('a shutter is nothing in silence, rock while iron rings, and nothing for go
   assert.equal(LV.tileAt(sx, sy), LV.EMPTY); assert.equal(LV.tileAt(gx, gy), LV.ROCK);
   LV.RULE.ring = 2; assert.equal(LV.tileAt(sx, sy), LV.ROCK, 'shut while it rings'); LV.RULE.still = true; assert.equal(LV.tileAt(sx, sy), LV.EMPTY, 'up for good'); assert.equal(LV.tileAt(gx, gy), LV.EMPTY, 'the grate lifted');
   LV.RULE.ring = 0; LV.RULE.still = false;
-  assert.equal(L.tiles.filter(t => t === LV.SHUTTER).length, 3 * 12 + 5, 'three shutters in doorways, and the lid over the way down to the runs'); assert.ok(L.tiles.includes(LV.STILLED));
+  { const cu = L.rooms.find(r => r.name === 'cull'), mine = [...L.tiles.keys()].filter(k => L.tiles[k] === LV.SHUTTER && !(cu && k % L.W >= cu.tx0 && k % L.W < cu.tx1 && Math.floor(k / L.W) >= cu.ty0 && Math.floor(k / L.W) < cu.ty1));   // (not the cell's door in the Cull, past the runs: build 117, held in side-edges)
+    assert.equal(mine.length, 3 * 12 + 5, 'three shutters in doorways, and the lid over the way down to the runs'); } assert.ok(L.tiles.includes(LV.STILLED));
 });
 test('before the Bell has fallen the bell-rope is shut, from the pit and from the slype; after, it is the way back up', () => {
   const a = R.graph(1, R.GIFTS), b = R.graph(1, [...R.GIFTS, 'still']);

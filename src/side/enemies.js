@@ -12,7 +12,7 @@
 //                  harpy     a white hawk: fast, and it dives twice before it wheels away (ai flitter)
 //                  wraith    drifts at you through anything, rears, and rushes: cut it as it recovers (ai wraith)
 // Each is drawn with its PixelLab strips once they exist (tools/pixellab.py), a glowing stand-in before.
-import { T, ROCK, LEDGE, LEVEL, tileAt, REGION_DATA, RULE, waterAt } from './level.js';
+import { T, ROCK, LEDGE, LEVEL, tileAt, REGION_DATA, RULE, waterAt, moverAt, PHASE } from './level.js';
 import { hurt, isRollInv, shove, SIDE } from './motor.js';
 import { makeSprite, lit as litMat } from './render.js';
 const THREE = window.THREE;
@@ -339,7 +339,7 @@ export function stepEnemies(E, P, dt, fx, events){
       // anim(e, name, frac, dy, z), shoot(E, e, P, lob), hurt(P, n, fromX, word), isRollInv(P), ground(x, y), solidAt(x, y),
       // kill(e, events), tileAt, T; hit(x0, y0, x1, y1, word, fromX): hurts him if his body is in that box and he is not
       // rolling through (true if it did)
-      CUSTOM[ai](e, P, dt, { go, dx, dy, dist, events, fx, E, anim, shoot, hurt: e.d.heavy ? (Q, n, x, w) => hurt(Q, Math.max(n, e.d.heavy), x, w) : hurt, isRollInv, ground, solidAt, kill: killEnemy, tileAt, T, RULE, lit: litMat, rooms: LEVEL.rooms, marks: LEVEL.marks, flows: LEVEL.flows, waterAt, SIDE,
+      CUSTOM[ai](e, P, dt, { go, dx, dy, dist, events, fx, E, anim, shoot, hurt: e.d.heavy ? (Q, n, x, w) => hurt(Q, Math.max(n, e.d.heavy), x, w) : hurt, isRollInv, ground, solidAt, kill: killEnemy, tileAt, T, RULE, lit: litMat, rooms: LEVEL.rooms, marks: LEVEL.marks, flows: LEVEL.flows, movers: LEVEL.movers, moverAt, time: PHASE.t, waterAt, SIDE,
         hit: (x0, y0, x1, y1, word, fromX) => P.x + 0.34 > x0 && P.x - 0.34 < x1 && P.y + P.h > y0 && P.y < y1 && !isRollInv(P) && hurt(P, e.d.heavy || 1, fromX == null ? (x0 + x1) / 2 : fromX, word || e.d.word || 'Struck') });
     }
     // what it threw, in flight: a glob or a bolt goes straight, a chunk of ice falls in its arc

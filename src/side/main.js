@@ -9,7 +9,7 @@ import { sfx, ac, musicBus, ambience, setMix, MIX, warm, manifestReady, say, bea
 import { voiceOf } from '../audio/voice.js';
 import { makeScore } from '../audio/score.js';
 import '../ui/feel.js';
-import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE, MEETINGS, SILL, prepare, RULE, SPIKES, setGates, breath, setPan } from './level.js';
+import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE, MEETINGS, SILL, prepare, RULE, SPIKES, setGates, breath, setPan, keyRun, railSend } from './level.js';
 import { makeTeach, keyName, fill, INTRO, CARDS, drawIcon } from './teach.js';
 import { makeProps } from './props.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt, hurt, isRollInv, ARMS, POGO, pogo, BOW } from './motor.js';
@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 115, date: '27 NOV 2026', phase: 17, phases: 22, last: 'EVERY LEVEL LIFTED: ROOM UNDER AND OVER' };
+const VERSION = { build: 116, date: '27 NOV 2026', phase: 17, phases: 22, last: 'THE FAR ENDS OF THE ROOTS AND THE CLOISTER' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -97,13 +97,15 @@ function learn(){
 let WAKE = 0;   // at the very start he lies where he fell, and gets up
 const GLITTER = { lv: null, at: [] };   // the Vein: where its crystals are (they light the dark round them)
 const CALMS = { wait: 2.5, open: 4, near: 4.5, ease: 0.5 }, EYE = { door: null, p: 0, held: null };   // the Eye of the Storm (regions/eye.js CALMS says the same): the door of cloud he waits at, and how long he has waited
-const WAY = { was: false, said: new Map(), fall: [] }; let SHUTSAID = false, LOOKT = 0;   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
+const WAY = { was: false, said: new Map(), fall: [], lines: [], lv: -1, n: 0 };
+// words that are on a thing in the world, said as he stands by it: what is said before them, and for how long (by the deco's kind)
+const SPOKEN = { reason: ['Scratched on the stone: ', 2.6], keepline: ['Cut in the wall: ', 4], shelfmark: ['On the shelf\'s label: ', 4], ledger: ['In the binders\' ledger: ', 5], castmark: ['Cast in the rim: ', 4] }; let SHUTSAID = false, LOOKT = 0;   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
 // `walked`: he has walked in from the next region (cross): he and his scarf are as they were
 // what his save holds in this level, moved with it if it has grown west or down since (state.js): as soon as the level is made
 const rebased = () => { if (rebase(LEVEL.index, LEVEL.X0 || 0, LEVEL.Y0 || 0) && G.began) store(); };
 function setup(walked = false){
   RULE.upset = 0; RULE.unkept = !!(G.unkept && G.unkept[LEVEL.index]);   // the Keepers' Houses: everything in its place; and whether their keeper is broken (its own switch: the Gardens have two wing keepers, and the Lock's is `still`)
-  setGates((G.gates && G.gates[LEVEL.index]) || {}, (G.pans && G.pans[LEVEL.index]) || {}, (G.walls && G.walls[LEVEL.index]) || []);   // the Drowned Galleries: each gate as he left it, and the water it holds
+  setGates((G.gates && G.gates[LEVEL.index]) || {}, (G.pans && G.pans[LEVEL.index]) || {}, (G.walls && G.walls[LEVEL.index]) || [], (G.rails && G.rails[LEVEL.index]) || {});   // the Drowned Galleries: each gate as he left it, and the water it holds
   RULE.wetAll = false; RULE.wet = new Set(LEVEL.marks.filter(m => m.type === 'wheel' && m.open !== false).map(m => m.key)); { const W0 = G.wet && G.wet[LEVEL.index]; if (W0) for (const k of Object.keys(W0)){ if (W0[k]) RULE.wet.add(k); else RULE.wet.delete(k); } }   // the Aqueducts: each sluice wheel as he left it (or as its keeper did)
   RULE.hush = 0; RULE.open = 0; RULE.calmFree = false; EYE.door = EYE.held = null; EYE.p = 0;   // the Eye of the Storm: its doors of cloud shut
   RULE.sw = (G.sw && G.sw[LEVEL.index]) || 0; RULE.surge = 0; RULE.swFree = false;   // the Wreck of the Works: the lever as he left it
@@ -141,6 +143,7 @@ function setup(walked = false){
   for (let j = 0; j < LEVEL.H; j++) for (let i = 0; i < LEVEL.W; i++){ const k = COL[LEVEL.tiles[j * LEVEL.W + i]]; if (k) img.data.set([...k, 255], ((LEVEL.H - 1 - j) * LEVEL.W + i) * 4); }
   g.putImageData(img, 0, 0); MAP = { c, seen: new Set(((G.rooms || {})[LEVEL.index] || []).map(k => LEVEL.rooms[k]).filter(Boolean)) };   // the rooms he has been in before are still on the map (he can walk back into a region)
 }
+rebased();   // (the level that is there as the game starts was made by level.js itself, not by enter(): its save is moved here)
 setup();
 // into region n: the world is made again, he stands at its start with the hearts and flask he had
 const ENTERED = [];
@@ -189,9 +192,11 @@ function wingStep(dt){
   // the refectory's table, the first time he stands at it
   if (!G.refectory && P.grounded && LEVEL.theme === 'cloister') for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'tablehead' && Math.abs(m.x * T - P.x) < 6 && Math.abs(m.y * T - P.y) < 2.5){ G.refectory = 1; store(); banner('The refectory', 'The table is still laid for pilgrims. The bread has turned to stone.', 6); }
   // its stones' words, as he stands by one; and his own cairn, the first time he comes to it
-  if (LEVEL.theme === 'spires' && P.grounded){ const now = performance.now() / 1000;
-    for (const m of LEVEL.marks) if (m.type === 'deco' && (m.kind === 'reason' || m.kind === 'keepline') && Math.abs((m.x + 0.5) * T - P.x) < 1.3 && Math.abs(m.y * T - P.y) < 1.5 && now - (WAY.said.get(m) || -99) > 14 && !(BANNER && BANNER.t > 0)){ WAY.said.set(m, now); banner('', (m.kind === 'keepline' ? 'Cut in the wall: ' : 'Scratched on the stone: ') + m.says, m.kind === 'keepline' ? 4 : 2.6); }
-    if (!G.cairnSeen) for (const e of E.list) if (e.type === 'hiscairn' && e.alive && Math.abs(e.x - P.x) < 3.2 && Math.abs(e.y - P.y) < 2){ G.cairnSeen = 1; store(); banner('Your own cairn', 'Your name is on the top stone, from before you fell. Under it: NOT YET.', 6.5); } }
+  // (build 116: in every region. Until now this ran only in the Spires, and the lines the keepers cut in the walls of the
+  // Drowned Galleries, builds 107 to 112, were never said)
+  if (P.grounded){ const now = performance.now() / 1000; if (WAY.lv !== LEVEL.index || WAY.n !== LEVEL.marks.length){ WAY.lv = LEVEL.index; WAY.n = LEVEL.marks.length; WAY.lines = LEVEL.marks.filter(m => m.type === 'deco' && m.says && SPOKEN[m.kind]); }
+    for (const m of WAY.lines) if (Math.abs((m.x + 0.5) * T - P.x) < 1.3 && Math.abs(m.y * T - P.y) < 1.5 && now - (WAY.said.get(m) || -99) > 14 && !(BANNER && BANNER.t > 0)){ WAY.said.set(m, now); banner('', SPOKEN[m.kind][0] + m.says, SPOKEN[m.kind][1]); }
+    if (LEVEL.theme === 'spires' && !G.cairnSeen) for (const e of E.list) if (e.type === 'hiscairn' && e.alive && Math.abs(e.x - P.x) < 3.2 && Math.abs(e.y - P.y) < 2){ G.cairnSeen = 1; store(); banner('Your own cairn', 'Your name is on the top stone, from before you fell. Under it: NOT YET.', 6.5); } }
   // the Eye of the Storm: how long he has stood still (the Hush stir on it: regions/eye.js); the door of cloud he stands
   // by thins as he waits, and opens; it is open a little while, and not shut on him while he is in it
   if (PROPS.calms.length && !PAUSE){
@@ -1345,18 +1350,25 @@ function onEvent(e){
       if (!G.swSaid){ G.swSaid = 1; store(); banner('', 'The lever moves the current to the other half of the iron.', 3.4); } break; }
     // the Drowned Galleries: a windlass turned. Its gate goes up, or comes down; a gate that comes down holds the water
     // behind it at the height it has now. His save keeps both
+    // the Empty Shelves (build 117): a ladder struck. It rolls to the other end of its rail; his save keeps where it is going
+    case 'rail': { const to = railSend(e.key); if (to == null) break; ((G.rails = G.rails || {})[LEVEL.index] = G.rails[LEVEL.index] || {})[e.key] = to; store(); sfx.creak(); sfx.rumble(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.1); fx.dust(e.at, 10, 2);
+      if (!G.railTold){ G.railTold = 1; store(); banner('A ladder on a rail', 'Struck, it rolls to the other end of its rail.', 4); } break; }
     case 'windlass': { const up = !RULE.gates.has(e.key), holds = LEVEL.marks.some(m => m.type === 'gate' && m.key === e.key && m.holds);
+      const runs = (LEVEL.movers || []).some(m => m.key === e.key);   // (build 116) a windlass may turn a chain or a lift, and no gate
       if (up){ RULE.gates.add(e.key); delete RULE.held[e.key]; } else { RULE.gates.delete(e.key); if (holds) RULE.held[e.key] = breath(); }
+      if (runs) keyRun(e.key, up);
       ((G.gates = G.gates || {})[LEVEL.index] = G.gates[LEVEL.index] || {})[e.key] = up ? 1 : { held: holds ? RULE.held[e.key] : null }; store(); PROPS.show();
       sfx.creak(); sfx.door(); sfx.rumble(); fx.burst(e.at, 12, 0xc0cbdc); R.glint(e.at.x, e.at.y, 0xc0cbdc, 0.9, 5, 0.3); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.18);
       for (const B of PROPS.sluices || []) if (B.key === e.key) fx.dust({ x: B.x, y: B.y }, 14, 3);
       if (e.key === 'hatch') banner('', up ? 'The hatch in the hall\'s floor has lifted.' : 'The hatch has shut.', 3);
+      else if (runs) banner('', up ? (e.says || 'Somewhere a chain has begun to turn.') : 'It has stopped.', 3.2);
       else if (!G.gateTold){ G.gateTold = 1; store(); banner('A windlass', up ? 'Somewhere a gate has gone up. The chain on the wall shows where.' : 'Its gate has come down again.', 5); }
       else banner('', up ? 'A gate has gone up.' : holds ? 'Its gate has come down. The water behind it will stay as it is.' : 'Its gate has come down.', 2.6); break; }
     // the Ossuary's scales: what is in a pan has changed (a stack knocked into it; a Tallyman taking a piece out; his own
     // weight on it or off it). Its slab goes up or comes down by as much. His save keeps what lies in each pan
     case 'pan': { const was = RULE.lift[e.key] || 0; setPan(e.key, e.load, e.eff == null ? e.load : e.eff); const now = RULE.lift[e.key] || 0;
-      if (e.kept !== false){ ((G.pans = G.pans || {})[LEVEL.index] = G.pans[LEVEL.index] || {})[e.key] = RULE.pan[e.key]; store(); }
+      const ST = (RULE.stacks[e.key] = RULE.stacks[e.key] || []); if (e.stack != null && !ST.includes(e.stack)) ST.push(e.stack); else if (e.by === 'tally' && ST.length) ST.pop();   // (a stack of one that went over; or the last of them carried back to its ledge)
+      if (e.kept !== false){ const GP = ((G.pans = G.pans || {})[LEVEL.index] = G.pans[LEVEL.index] || {}); GP[e.key] = RULE.pan[e.key]; if (ST.length || GP[e.key + '#']) GP[e.key + '#'] = ST.slice(); store(); }
       if (now !== was){ PROPS.show(); sfx.creak(); if (now > was) sfx.door(); else sfx.slam(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.12); for (const B of PROPS.sluices || []) if (B.key === e.key) fx.dust({ x: B.x, y: B.y }, 10, 3); }
       if (e.fell){ sfx.crack(); fx.burst(e.at, 16, 0xead4aa); if (!G.panTold){ G.panTold = 1; store(); banner('The scales', 'Weight in a pan lifts a slab somewhere else. The chain shows where.', 5); } }
       else if (e.by === 'tally' && Math.hypot(e.at.x - P.x, e.at.y - P.y) < 24 && !G.tallyTold){ G.tallyTold = 1; store(); banner('', 'A Tallyman is taking the bones back out of the pan.', 4); } break; }

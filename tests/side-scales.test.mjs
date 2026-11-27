@@ -8,7 +8,7 @@ const R = await import('./helpers/reach.mjs');
 const LV = await import('../src/side/level.js');
 const OS = await import('../src/side/regions/ossuary.js');
 const L = { ...R.loadLevel(0) }, room = n => L.rooms.find(r => r.name === n), roomOf = m => L.rooms.find(r => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1);
-const gates = L.marks.filter(m => m.type === 'gate' && ['yard', 'count'].includes(m.key)), pans = L.marks.filter(m => m.type === 'pan'), stacks = L.marks.filter(m => m.type === 'bonestack');
+const gates = L.marks.filter(m => m.type === 'gate' && ['yard', 'count'].includes(m.key)), ours = m => ['yard', 'count'].includes(m.key) /* (the Unsorted's scale, past the niches, is held in side-edges) */, pans = L.marks.filter(m => m.type === 'pan' && ours(m)), stacks = L.marks.filter(m => m.type === 'bonestack' && ours(m));
 
 test('two scales: each slab\'s pan is in another room, and its stack is over the pan', () => {
   assert.deepEqual(gates.map(g => g.key).sort(), ['count', 'yard']); assert.deepEqual(pans.map(g => g.key).sort(), ['count', 'yard']); assert.deepEqual(stacks.map(g => g.key).sort(), ['count', 'yard']);
