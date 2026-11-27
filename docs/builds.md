@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 121 | 27 Nov 2026 | `42b234c` | Phase 18 begun: the throw. At the door of the last region he is thrown down to the Hollow, at the bottom of the Deep, and climbs out; the Deep's doors open when he does. A new game clears everything | no | yes (now) |
+| 122 | 27 Nov 2026 | `COMMIT122` | Phase 18, part 2: the Deep climbed from the bottom. A ring under the Assayer's grate unbars it from below; Hob's lines for one climbing out | no | yes (now) |
+| 121 | 27 Nov 2026 | `42b234c` | Phase 18 begun: the throw. At the door of the last region he is thrown down to the Hollow, at the bottom of the Deep, and climbs out; the Deep's doors open when he does. A new game clears everything | no | replaced by 122 |
 | 120 | 27 Nov 2026 | `b5d7543` | The Deep's far ends, seventeen screens: the Winding-House (the Workings: a cage that runs once its engine is started), the False Lode (the Vein: a ring with the guild's air-door across it), the Drowned Stope (the Flooded Levels: a windlass in the air, a grate under two screens of water), the Adit (the Great Shaft: a wall against the cold, and the cold up a raise), the Far Wall (the Hollow: a rough face four screens tall). Every level has its far ends | no (a save follows the level) | replaced by 121 |
 | 119 | 27 Nov 2026 | `6170aab` | The Firmament's far end, six screens: the Outer Ring past the arms (a ring of two planets that turns from the first; a second arm, the outermost, that stands until it is wound from the winding room, and then carries him to the head of a tower) | no | replaced by 120 |
 | 118 | 27 Nov 2026 | `152e4f7` | The far ends of the Tempest and of the Gardens, ten screens: the Great Rod off the coils (plates of iron live in one half or the other, and a crane's hook on a rail) and the Blue past the stills (floors of cloud that let him down when he stands still); the Rising Main past the lock (four falls and their wheels) and the Last House past his own (a kept door, an attic) | no (a save follows the level) | replaced by 119 |
@@ -137,6 +138,58 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 122: the Deep climbed from the bottom
+
+*Phase 18, part 2 (`docs/phase18-sheet.md`, and "As built: build 122" in it). Pictures:
+`docs/deep-upward-build122.png`. No new drawings (the ring is the Drowned Galleries').*
+
+**For the player**
+
+- **The long way out of the Deep now goes all the way:** the Hollow's roof, the Great Shaft, the Vein, the Workings,
+  the Pithead. Without the grip, and with no keeper down.
+- **In the Vein, coming up from the Shaft:** the lip, the cradle, and the flue up out of the cradle. Over the flue
+  is the grate in the floor of the Assayer's hall. It is barred.
+  - **A ring hangs beside the flue's upper step.** Struck, he is told "The grate over you is unbarred", and it is
+    open. It stays open.
+  - **Up the rung and through the hatch,** he is in the Assayer's hall, at its west end. The Assayer wakes.
+  - **The stair out of the hall is near the hatch.** He can fight the Assayer or leave it.
+- **From above nothing is changed:** the ring is under the grate. One who comes down the Vein still has to still
+  the Assayer to go on.
+- **Hob, met on the way up,** has his own lines in the Vein and in the Workings (they are in the sheet, for your
+  yes). Once he is out of the Deep, Hob says what he always said.
+- **To try:**
+  1. After the throw, go back up the Hollow's roof, through the Shaft's floor and up the camp's stages.
+  2. In the Vein, cross the lip and the cradle and climb the flue. Find the ring. Strike it.
+  3. Come up into the Assayer's hall. Fight it, or go round it to the stair.
+  4. Talk to Hob at the head of the Vein, and again in the Workings' bunkhouse.
+
+**What is weaker than it should be**
+
+- **The Assayer can be walked past.** Coming up, he is at the stair before it reaches him.
+- **The ring is small and the Vein is dark.** It hangs a tile from the step, in the light of his own lamp, and
+  nothing points at it. A player who misses it is under a grate with no way on.
+- **The long way out has no keeper on it and no gift at the end of it.** It is long and dark, and that is all that
+  makes it the hard way.
+- **Hob in the Workings is in the bunkhouse,** which is off the way out. A player climbing straight up the shaft
+  does not meet him there.
+- **The Echo in the cradle comes at him from the way he came.** That is its rule. On a way that only goes on, it
+  is no more than a push.
+- **Not played by a person.**
+
+- **Save: not moved.** Adds nothing new (the grate unbarred is kept with the gates he has raised).
+- **Checked:** 581 automated checks, three new (`tests/side-throw.test.mjs`): the ring is under the grate,
+  beside the step and within his blow; the grate is stone until the Assayer is stilled or the bar is off, and his
+  save keeps it off; no other level has such a ring; played with the real motor from where the Shaft comes in,
+  with the Assayer standing: he comes to the ring and not out, and with the bar off through the hall to the
+  Vein's stair; from above, the lip is behind the Assayer as before; Hob's lines for one climbing out are used
+  only then, and none of them says what to do.
+  In the test browser: up from the Shaft at the lip, the ring, the grate unbarred, the rung, and through the
+  hatch into the hall with the real keys.
+- **Not checked:** not played by hand; the whole way out in one go; Hob's lines heard in the game.
+- **Mistakes caught before it went out:**
+  - **I had written in the sheet that no keeper had to fall on the long way.** That was not known: the Vein's
+    grate shut it. The sheet was corrected before this build, and this build is what makes it so.
 
 ### Build 121: the throw
 

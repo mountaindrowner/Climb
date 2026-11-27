@@ -27,6 +27,10 @@ const FACES = { px_mole: [14, 8, 32], px_mole2: [12, 0, 32], px_moth: [18, 7, 32
 // Hob is met only in the Deep, so his lines are by region index from the Workings (6) down
 const HOB = []; HOB[7] = ['The dark down here is not empty. I have never worked out what is in it.', 'It keeps to where you have already been. Watch the lamps. They seem to matter to it.', 'I do not turn back in the Vein. I could not tell you why.'];   // (26 Nov, decision 0.27: he hints, he does not say what to do)
 HOB[8] = ['The pump was my grandfather\'s. It has never stopped.', 'There are holes in the walls along here, and something in them. I have not seen what sets it off. Watch how you pass.', 'There is a lamp on the chapel altar that I never filled. It may be worth a look.'];
+// (build 122) met by one who was thrown down and is climbing out: he comes on Hob from below, the Vein first. His own
+// lines for that, by region as HOB's are (the words are for the designer's yes: decision 0.27 holds)
+export const HOB_UP = []; HOB_UP[7] = ['You came up out of the dark. I have not seen anyone do that.', 'I am Hob. I fill the guild\'s lamps. There is no guild.', 'Whatever is behind you keeps to where you have been. I would not go back for anything.'];
+HOB_UP[6] = ['You again. Going up. Nobody goes up.', 'The cage has not run in my time. There is an engine for it somewhere over the shaft. I never went to look.', 'I will be further down. I always am.'];
 HOB[6] = ['I am Hob. This is the Deep: the guild\'s mines, under the mountain.', 'It is not the way up. Come down here for what is hidden, when you are ready.', 'I will be further down. I always am.'];
 // (build 77, from a playtest: the lines were too vague. Each meeting now says, in order: who or where; what to do next
 // or how; and one line of their own. docs/writing.md, "Two voices")

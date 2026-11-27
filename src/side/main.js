@@ -18,7 +18,7 @@ const wrapText = (str, w) => { const out = []; let line = ''; for (const word of
 const wrapFine = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t, 1, true) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };   // (the small print's widths)
 import { G, OPT, loadSave, store, storeOpt, wipe, rebase, TRY, fresh, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, ABILITY, ARRIVES, BOON, THREADS_A_HEART, DIFF } from './state.js';
 import { makeItems } from './items.js';
-import { makeTalk, SCRIPT } from './talk.js';
+import { makeTalk, SCRIPT, HOB_UP } from './talk.js';
 import { ANNALS, PEOPLE_PAGE } from './annals.js';
 import { makeRenderer, makeSprite, VIEW_H, makeSwingFx, LOW, MOOD } from './render.js';
 import { spawnFx, stepFx } from './fx.js';
@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 121, date: '27 NOV 2026', phase: 18, phases: 22, last: 'THE THROW: AT THE DOOR OF THE LAST REGION, HE IS THROWN TO THE BOTTOM OF THE MOUNTAIN' };
+const VERSION = { build: 122, date: '27 NOV 2026', phase: 18, phases: 22, last: 'THE DEEP CLIMBED FROM THE BOTTOM: THE ASSAYER\'S GRATE FROM UNDER, HOB MET COMING UP' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -1263,7 +1263,8 @@ function breakRock(x, y, r, dig = false){
 // someone is spoken to: all they have to say here the first time, the last of it after; the Scribe counts what is unfound,
 // the Lamplighter trades when he has spoken
 function talkTo(N){
-  const k = LEVEL.index + ':' + N.who, n = G.met[k] || 0, S0 = (SCRIPT[N.who] || [])[LEVEL.index] || ['...'], lines = n === 0 ? S0.slice() : [S0[S0.length - 1]];
+  const climbing = N.who === 'hob' && G.thrown && !G.out && HOB_UP[LEVEL.index];   // (build 122) Hob, met by one climbing out of the Deep: his lines for that
+  const k = LEVEL.index + ':' + N.who, n = G.met[k] || 0, S0 = climbing || (SCRIPT[N.who] || [])[LEVEL.index] || ['...'], lines = n === 0 ? S0.slice() : [S0[S0.length - 1]];
   // a story beat he walked past (phase 8): the first time they speak here, they say what he missed of the last one
   if (n === 0 && (MEETINGS[LEVEL.index] || {})[N.who] === 'story') for (let q = LEVEL.index - 1; q >= 0; q--) if ((MEETINGS[q] || {})[N.who] === 'story'){
     const was = (SCRIPT[N.who] || [])[q]; if (!G.met[q + ':' + N.who] && was && was[0] !== INTRO[N.who]){ lines.unshift(was[0]); G.met[q + ':' + N.who] = 1; } break; }

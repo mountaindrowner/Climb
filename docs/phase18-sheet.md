@@ -74,6 +74,24 @@ What has to be made for that:
   order. His lines want writing again for that, by decision 0.27 (never a giveaway, never a poem).
 - **The Deep's far ends** (build 120) need nothing: they are off the way.
 
+### As built: build 122 (part 2, the Deep upward)
+
+*Pictures: `docs/deep-upward-build122.png`.*
+
+| The sheet said | It is | Why |
+|---|---|---|
+| "Every join on the way checked upward, and mended where it only goes down" | **Three went upward as they were. The fourth is mended:** a ring hangs on the bar of the Assayer's grate, in the flue under it, beside the upper step. Struck, the bar is off and the grate is open | The grate is a hatch in the floor of the Assayer's hall. From under it there was no way to it at all |
+| "The Assayer is met from the back of its hall" | **As said. And he can walk past it:** the stair out of the hall is ten tiles from the hatch, and the Assayer stands twenty tiles beyond the stair | I had said I would have it fall. Making it fall means shutting the hall's own way in behind him, and that way is the one the hall is come into by from above. Question 2 is still yours |
+| "The words" | **Done with the throw** (build 121): what he is told on landing, and the goal in the pause menu | |
+| "Hob... his lines want writing again" | **Written for the Vein and the Workings,** and said only to one who was thrown and has not yet climbed out. In the Flooded Levels he says what he always says | They are mine, below, for your yes |
+
+**Hob, to one climbing out:**
+
+- *The Vein:* "You came up out of the dark. I have not seen anyone do that." / "I am Hob. I fill the guild's lamps.
+  There is no guild." / "Whatever is behind you keeps to where you have been. I would not go back for anything."
+- *The Workings:* "You again. Going up. Nobody goes up." / "The cage has not run in my time. There is an engine for it
+  somewhere over the shaft. I never went to look." / "I will be further down. I always am."
+
 ## 3. Rough faces in the regions already built
 
 Carried from phase 17: "rough faces in every region from the Roots on, seen long before they can be climbed."

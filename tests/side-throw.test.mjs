@@ -77,5 +77,51 @@ test('where he lands: in the Hollow, on his feet beside its water; and he is not
   assert.ok(up(HOLLOW, 'spawn', null, 'top', HAS), 'the Hollow: up its roof to the Shaft\'s floor');
   assert.ok(up(HOLLOW - 1, 'arrive', 'floor', 'top', HAS), 'the Great Shaft: from its floor to its head');
   assert.ok(up(6, 'arrive', 'seal', 'down', HAS), 'the Workings: from the seal to the Pithead');
-  assert.ok(up(7, 'arrive', 'lip', 'top', [...HAS, 'still']), 'the Vein: from its lip to its stair, the Assayer down (build 122 looks at it with the Assayer standing)');
+  assert.ok(up(7, 'arrive', 'lip', 'top', [...HAS, 'still']), 'the Vein: from its lip to its stair, the Assayer down');
+});
+
+// ---- the Deep upward (build 122; docs/phase18-sheet.md 2)
+test('the Assayer\'s grate, from under it: a ring on its bar, in the flue below; struck, the grate is open whether the Assayer stands or not', () => {
+  LV.loadLevel(7); LV.setGates(); const L = { ...LV.LEVEL }, room = n => L.rooms.find(r => r.name === n), cr = room('cradle'), as = room('assay'), inR = (m, r) => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1;
+  const grate = []; for (let j = 0; j < L.H; j++) for (let i = 0; i < L.W; i++) if (L.tiles[j * L.W + i] === LV.STILLED) grate.push([i, j]);
+  assert.equal(grate.length, 12, 'one grate in the Vein: the hatch in the floor of the Assayer\'s hall'); assert.ok(grate.every(([i, j]) => i >= as.tx0 + 4 && i <= as.tx0 + 9 && j >= as.ty0 && j <= as.ty0 + 1));
+  const ring = L.marks.filter(m => m.type === 'ring'); assert.equal(ring.length, 1); assert.equal(ring[0].key, 'unbar'); assert.ok(ring[0].bars && ring[0].says); assert.ok(inR(ring[0], cr), 'in the cradle, under the hall');
+  assert.ok(ring[0].x >= as.tx0 + 4 && ring[0].x <= as.tx0 + 9, 'under the grate'); assert.equal(L.tiles[ring[0].y * L.W + ring[0].x], LV.EMPTY);
+  // beside the upper step of the flue, within his reach from it; and the rung over that step is a leap up, the hall's floor a leap over the rung
+  const step = cr.ty0 + 13; assert.equal(L.tiles[(step - 1) * L.W + cr.tx0 + 46], LV.ROCK, 'the upper step'); assert.ok(Math.abs(ring[0].x - (cr.tx0 + 47)) <= 2 && ring[0].y - step >= 0 && ring[0].y - step <= 3, 'the ring hangs where his blow is');
+  assert.equal(L.tiles[(cr.ty0 + 18) * L.W + cr.tx0 + 46], LV.LEDGE, 'the rung'); assert.ok(19 - 13 <= 7 && (as.ty0 + 2) - (cr.ty0 + 19) <= 7);
+  // the grate: stone until the Assayer is stilled or the bar is off
+  const [gx, gy] = grate[0]; LV.RULE.still = false; assert.equal(LV.tileAt(gx, gy), LV.ROCK); LV.RULE.gates.add('unbar'); assert.equal(LV.tileAt(gx, gy), LV.EMPTY, 'unbarred'); LV.RULE.gates.delete('unbar'); assert.equal(LV.tileAt(gx, gy), LV.ROCK);
+  LV.RULE.still = true; assert.equal(LV.tileAt(gx, gy), LV.EMPTY, 'or the Assayer down'); LV.RULE.still = false;
+  LV.setGates({ unbar: 1 }); assert.ok(LV.RULE.gates.has('unbar'), 'his save keeps it unbarred'); LV.setGates(); assert.ok(!LV.RULE.gates.has('unbar'));
+  const props = readFileSync(new URL('../src/side/props.js', import.meta.url), 'utf8'); assert.ok(/for \(const B of grates\) B\.m\.visible = !\(RULE\.still \|\| RULE\.gates\.has\('unbar'\)\);/.test(props), 'and it is not drawn when it is open');
+  // no other level has such a ring: a grate anywhere else opens only when its keeper falls
+  for (let n = 0; n < LV.LEVELS.length; n++) if (n !== 7) assert.equal(LV.loadLevel(n).marks.filter(m => m.bars).length, 0, LV.LEVELS[n].name);
+});
+
+test('the long way out, played without the grip and with no keeper down: the Hollow, the Shaft, the Vein, the Workings', () => {
+  const onward = (G, from) => { const seen = new Set(from), q = [...from]; while (q.length){ const k = q.pop(); for (const c of (G.edges.get(k) || new Map()).keys()) if (!seen.has(c)){ seen.add(c); q.push(c); } } return seen; };
+  const HAS = ['breaker', 'dash', 'glide'];
+  // the Vein is not walked from its spawn here (that is at its top): he is set down where the Shaft comes in, and played from there
+  const G = R.graph(7, HAS), W = G.W, lip = G.marks.find(m => m.type === 'arrive' && m.name === 'lip'), top = G.marks.find(m => m.type === 'arrive' && m.name === 'top');
+  assert.ok(![...G.seen].some(k => Math.abs(k % W - lip.x) <= 3 && Math.abs(Math.floor(k / W) - lip.y) <= 2), 'from above the lip is behind the Assayer, as it was: the ring is under the grate, not over it'); assert.ok(!G.gates.includes('unbar'));
+  // from below: every place he can come to from the lip, the ring among them; then, the bar off, the hall and the stair
+  LV.loadLevel(7); LV.setGates(); LV.RULE.still = false; const T = LV.T, seen = new Set(), q = [[(lip.x + 0.5) * T, lip.y * T]], cell = (x, y) => Math.round(y / T) * W + Math.floor(x / T); seen.add(cell(...q[0]));
+  const walk = () => { while (q.length){ const [x, y] = q.pop(); for (const p of R.PROGS.concat(R.DASH)) for (const [c, at] of R.run(x, y, p)) if (!seen.has(c)){ seen.add(c); q.push(at); } } };
+  walk(); const ring = G.marks.find(m => m.type === 'ring'), near = (m, dx = 3, dy = 2) => [...seen].some(k => Math.abs(k % W - m.x) <= dx && Math.abs(Math.floor(k / W) - m.y) <= dy);
+  assert.ok(near(ring), 'he comes to the ring'); assert.ok(!near(top), 'and not out: the grate is barred');
+  LV.RULE.gates.add('unbar'); for (const k of seen) q.push([(k % W + 0.5) * T, Math.floor(k / W) * T]); walk(); assert.ok(near(top), 'the bar off: up through the hall and the knot to the Vein\'s stair');
+  const as = G.rooms.find(r => r.name === 'assay'); assert.ok([...seen].some(k => { const i = k % W, j = Math.floor(k / W); return i >= as.tx0 && i < as.tx1 && j >= as.ty0 && j < as.ty1; }), 'through the Assayer\'s hall');
+  LV.setGates();
+});
+
+test('Hob, met by one climbing out: his own lines in the Vein and the Workings, used only then', () => {
+  const talk = readFileSync(new URL('../src/side/talk.js', import.meta.url), 'utf8');
+  return import('../src/side/talk.js').then(TK => {
+    assert.ok(Array.isArray(TK.HOB_UP[7]) && TK.HOB_UP[7].length === 3 && Array.isArray(TK.HOB_UP[6]) && TK.HOB_UP[6].length === 3); assert.equal(TK.HOB_UP[8], undefined, 'in the Flooded Levels he says what he always says: they are off the way');
+    assert.ok(/const climbing = N\.who === 'hob' && G\.thrown && !G\.out && HOB_UP\[LEVEL\.index\];/.test(main)); assert.ok(/S0 = climbing \|\| \(SCRIPT\[N\.who\] \|\| \[\]\)\[LEVEL\.index\]/.test(main));
+    // decision 0.27: never what to do
+    for (const n of [6, 7]) for (const line of TK.HOB_UP[n]){ assert.ok(!/\b(you must|you need|you should|go to|strike|turn the|start the|climb)\b/i.test(line), 'no instruction: ' + line); assert.ok(line.length < 120); }
+    assert.equal(TK.HOB_UP[6][2], TK.SCRIPT.hob[6][2], 'and in the Workings he ends as he always does'); assert.ok(talk.includes('HOB_UP[7]'));
+  });
 });

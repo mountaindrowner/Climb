@@ -67,6 +67,9 @@ function cradle(){
   const r = cave(2, 1); rect(r, 2, 2, 77, 20, EMPTY); door(r, 'top', 44, 49); rect(r, 44, 2, 49, 6); rect(r, 46, 7, 47, 12); ledge(r, 44, 49, 18); flue(r, 44, 49, 18, 20); door(r, 'right', 12, 17);   // (two steps of stone and a rung, since the map pass)
   rect(r, 70, 2, 77, 11); rect(r, 66, 2, 69, 7); rect(r, 62, 2, 65, 4);   // up to the lip's door
   mark(r, 'chest', 8, 2, { holds: 'relic:lampstone' }); deco(r, 'cradle', 24, 2); mark(r, 'echo', 30, 2);
+  // (build 122, docs/phase18-sheet.md 2) the Assayer's grate, from under it: a ring on its bar, hanging in the flue beside the upper step. Struck, the bar is
+  // off and the grate is open, whether the Assayer stands or not: for one who has come up from the Shaft
+  mark(r, 'ring', 48, 14, { key: 'unbar', bars: true, says: 'The grate over you is unbarred.' });
   lamp(r, 14, 9); lamp(r, 40, 9); lamp(r, 60, 9); mark(r, 'crystal', 18, 2); mark(r, 'glimmer', 54, 2);
   for (const x of [74, 76]) for (const y of [13, 16]) keep(r, x, y);
   r.after = true;
