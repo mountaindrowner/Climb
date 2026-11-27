@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 123 | 27 Nov 2026 | `COMMIT123` | Phase 18, part 3: a rough face in each of the five passages between regions. A chimney in the passage's roof, a nook at its head; climbed with the grip and by nothing else | no | yes (now) |
+| 123 | 27 Nov 2026 | `d0eed06` | Phase 18, part 3: a rough face in each of the five passages between regions. A chimney in the passage's roof, a nook at its head; climbed with the grip and by nothing else | no | yes (now) |
 | 122 | 27 Nov 2026 | `1ed6379` | Phase 18, part 2: the Deep climbed from the bottom. A ring under the Assayer's grate unbars it from below; Hob's lines for one climbing out | no | replaced by 123 |
 | 121 | 27 Nov 2026 | `42b234c` | Phase 18 begun: the throw. At the door of the last region he is thrown down to the Hollow, at the bottom of the Deep, and climbs out; the Deep's doors open when he does. A new game clears everything | no | replaced by 122 |
 | 120 | 27 Nov 2026 | `b5d7543` | The Deep's far ends, seventeen screens: the Winding-House (the Workings: a cage that runs once its engine is started), the False Lode (the Vein: a ring with the guild's air-door across it), the Drowned Stope (the Flooded Levels: a windlass in the air, a grate under two screens of water), the Adit (the Great Shaft: a wall against the cold, and the cold up a raise), the Far Wall (the Hollow: a rough face four screens tall). Every level has its far ends | no (a save follows the level) | replaced by 121 |
