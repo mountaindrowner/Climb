@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 109 | 27 Nov 2026 | `COMMIT109` | The Drowned Galleries, third build: the skimmer (a new creature, the first drawn by the new way), two of them over the hall's pools; two leeches in the cells' flue | no | yes (now) |
+| 109 | 27 Nov 2026 | `bb2f832` | The Drowned Galleries, third build: the skimmer (a new creature, the first drawn by the new way), two of them over the hall's pools; two leeches in the cells' flue | no | yes (now) |
 | 108 | 27 Nov 2026 | `504ced0` | The Drowned Galleries, second build: three gates of stone, each raised by a windlass somewhere else. The cells' gate holds their water | no | replaced by 109 |
 | 107 | 26 Nov 2026 | `c17d1fd` | The Drowned Galleries, first build: the Roots' west wing, twelve screens, and water that rises and falls. The Roots moved to make room | **yes** (once) | replaced by 108 |
 | 106 | 26 Nov 2026 | `4ac1531` | The Deep's map pass, its five levels: 122 planks to 39, none bare in the air. The map pass is done | no | replaced by 107 |
