@@ -105,10 +105,14 @@ function weir(){
   rect(r, 4, 0, 11, B - 1, EMPTY); rect(r, 4, 1, 5, 1); rect(r, 10, 7, 11, 7); rect(r, 4, 13, 5, 13);
   rect(r, 2, B, 37, 43, EMPTY); rect(r, 16, 2, 31, B - 1, EMPTY);
   rect(r, 35, B, 37, B + 2); rect(r, 37, B + 3, 37, B + 5); door(r, 'right', 25, 29);
+  // two sills on each bank's face (build 110): down to the bed at low water, and back up. The Pike lies between
+  for (const x of [16, 30]) for (const y of [7, 13]) rect(r, x, y, x + 1, y);
+  mark(r, 'pike', 24, 2, { span: 6 });
   water(r, 16, DROWNED.weirLow, 16, DROWNED.weirHigh - DROWNED.weirLow, { key: 'breath' });
   tide(r, 17, -1, DROWNED.weirHigh); tide(r, 30, 1, DROWNED.weirHigh);
-  mark(r, 'torch', 13, 23); mark(r, 'torch', 33, 23); mark(r, 'torch', 24, 30); mark(r, 'crystal', 24, 2); mark(r, 'urn', 20, 2); mark(r, 'urn', 28, 2);
+  mark(r, 'torch', 13, 23); mark(r, 'torch', 33, 23); mark(r, 'torch', 24, 30); mark(r, 'crystal', 19, 2); mark(r, 'crystal', 28, 2);
   keeps(r, 2, B, 37, 32); keeps(r, 16, 2, 31, B - 1); for (let y = 0; y < B; y++) for (const x of [6, 8]) keep(r, x, y);
+  for (const x of [16, 30]) for (const y of [7, 13]) for (const d of [1, 3, 5]){ keep(r, x, y + d); keep(r, x + 1, y + d); }
   for (const [x, y] of [[4, 1], [10, 7], [4, 13]]) for (const d of [1, 3, 5]) if (y + d < B + 5){ keep(r, x, y + d); keep(r, x + 1, y + d); }
   return r;
 }
@@ -183,6 +187,12 @@ export const enemies = {
   // (over: how high it hangs over the water. At that height its bead goes over the head of one who is afloat, and it does
   // not aim at him: the water is where he waits, and he cannot dodge there. One on his feet can duck it)
   skimmer: { ai: 'skimmer', hp: 2, w: 0.7, h: 1.0, color: 0x5a9aa0, fly: true, range: 8, level: 1.7, charge: 0.8, speed: 9, cooldown: 2.8, over: 1.6, drift: 2.0, orb: 0x9fe8ff, mouthY: -0.3, art: 'px_skimmer', word: 'Spat on' },
+  // the Pike: the wing's fight. A great blind pike grown too big for the weir it was shut in. While the weir's water is
+  // deep enough to bear it (`shallow`), it is afloat: it comes at whatever is in its water, and a blow glances off it.
+  // When the water falls away it is left on the bed: there it can be struck, and it snaps at what stands before its head,
+  // and turns, slowly, on what is behind it. So the fight is the water: down the sills as it falls, out again as it rises
+  pike: { ai: 'pike', hp: 16, w: 2.2, h: 1.2, color: 0x8b9b6a, fly: true, name: 'The Pike', swim: 0.9, lunge: 10, shallow: 1.3, reach: 2.4, windup: 0.6, art: 'px_pike', word: 'Bitten',
+    guard(e){ return e.beached === false; } },
   // a windlass: struck, its gate goes up; struck again, it comes down. Not a creature
   windlass: { ai: 'windlass', own: true, prop: true, hp: 99, w: 0.6, h: 1.4, color: 0xb86f50, fly: false, guard(e){ e.struck = true; return true; }, onHit(e){ e.hp = e.d.hp; e.struck = true; } },
 };
@@ -200,6 +210,39 @@ export const ai = {
       e.x += e.dirn * d.drift * dt; if (e.x < e.lane.x0){ e.x = e.lane.x0; e.dirn = 1; } if (e.x > e.lane.x1){ e.x = e.lane.x1; e.dirn = -1; } e.face = near ? (Math.sign(c.dx) || e.dirn) : e.dirn;
       if (near && lvl && e.cool <= 0){ c.go('aim'); c.events.push({ type: 'tell', e }); } }
     c.anim(e, 'fly', e.fr);
+  },
+  pike(e, P, dt, c){
+    const d = e.d, m = e.mk || {}, T = c.T, go = c.go; e.cool = Math.max(0, (e.cool || 0) - dt);
+    if (!e.pond){ const half = (m.span || 6) * T; e.pond = { x0: e.home.x - half, x1: e.home.x + half, bed: m.y * T }; e.dirn = 1; e.face = 1; }
+    const lo = e.pond.x0 + d.w * 0.75, hi = e.pond.x1 - d.w * 0.75, clampX = () => { e.x = Math.max(lo, Math.min(hi, e.x)); };
+    // how deep its water is now: up from the bed, a quarter of a unit at a time
+    let top = e.pond.bed; for (let k = 0; k < 96 && c.waterAt(e.home.x, top + 0.01); k++) top += 0.25;
+    const depth = top - e.pond.bed; e.beached = depth < d.shallow;
+    if (!e.woke && Math.abs(c.dx) < 12 && Math.abs(c.dy) < 14) e.woke = true;   // (its name and its strength are shown once he is in its room)
+    const inPond = P.x > e.pond.x0 - 0.6 && P.x < e.pond.x1 + 0.6, head = () => e.x + e.face * d.w * 0.8;
+    if (e.beached){
+      // left on the bed: it lies there, and works its jaw
+      e.y += (e.pond.bed + 0.85 - e.y) * Math.min(1, dt * 6); e.rot = Math.sin(e.age * 3.1) * 0.05; e.fr = ((e.fr || 0) + dt * 0.7) % 1;
+      const ahead = (P.x - e.x) * e.face, low = P.y < e.pond.bed + 1.8;
+      if (e.st === 'wind'){ e.warn = true; if (e.tm >= d.windup){ go('snap'); e.hitDone = false; } }
+      else if (e.st === 'snap'){ e.warn = false; if (!e.hitDone){ e.hitDone = true; const x0 = e.face > 0 ? head() - 0.4 : head() - d.reach + 0.4; c.hit(x0, e.pond.bed, x0 + d.reach, e.pond.bed + 1.7, d.word, e.x); } if (e.tm > 0.5){ go('lie'); e.cool = 1.2; } }
+      else if (e.st === 'turn'){ e.warn = false; if (e.tm > 1.0){ e.face = -e.face; go('lie'); e.cool = 0.35; } }
+      else { if (e.st !== 'lie') go('lie'); e.warn = false;
+        if (inPond && low && e.cool <= 0){ if (ahead > 0 && ahead < d.w * 0.8 + d.reach){ go('wind'); c.events.push({ type: 'tell', e }); } else if (ahead < 0) go('turn'); } }
+    } else {
+      // afloat: it keeps the middle of its water, and comes at what is in it
+      e.rot = 0; e.fr = ((e.fr || 0) + dt * (e.st === 'lunge' ? 5 : 1.8)) % 1;
+      const mid = Math.min(top - 0.8, e.pond.bed + Math.max(0.9, depth * 0.5)), wet = inPond && P.y < top - 0.2 && P.y + 2.4 > e.pond.bed;
+      if (e.st === 'aim'){ e.warn = true; e.face = Math.sign(P.x - e.x) || e.face; if (e.tm >= d.windup + 0.25){ const L = Math.hypot(P.x - head(), P.y + 0.9 - e.y) || 1; e.lx = (P.x - head()) / L; e.ly = (P.y + 0.9 - e.y) / L; go('lunge'); e.hitDone = false; } }
+      else if (e.st === 'lunge'){ e.warn = false; e.x += e.lx * d.lunge * dt; e.y += e.ly * d.lunge * dt; clampX(); e.y = Math.max(e.pond.bed + 0.7, Math.min(top - 0.3, e.y));
+        if (!e.hitDone && c.hit(head() - 0.8, e.y - 0.7, head() + 0.8, e.y + 0.8, d.word, e.x)) e.hitDone = true;
+        if (e.tm > 0.45){ go('rest'); e.cool = 1.7; } }
+      else { if (e.st !== 'cruise' && e.st !== 'rest') go('cruise'); e.warn = false;
+        e.x += e.dirn * d.swim * dt; if (e.x <= lo){ e.x = lo; e.dirn = 1; } if (e.x >= hi){ e.x = hi; e.dirn = -1; } e.face = e.dirn; e.y += (mid - e.y) * Math.min(1, dt * 2);
+        if (e.st === 'rest' && e.tm > 1.2) go('cruise');
+        if (e.st === 'cruise' && wet && e.cool <= 0){ go('aim'); c.events.push({ type: 'tell', e }); } }
+    }
+    c.anim(e, 'swim', e.fr);
   },
   windlass(e, P, dt, c){
     const m = e.mk || {}; e.st = 'idle'; e.cool = Math.max(0, (e.cool || 0) - dt);

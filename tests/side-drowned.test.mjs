@@ -42,13 +42,16 @@ test('at low water he walks the hall\'s floor and no more; the galleries, the ce
   assert.ok(stoodIn(all.seen, hall, 2, 24, 9, 25) && stoodIn(all.seen, hall, 70, 24, 77, 25) && stoodIn(all.seen, stair, 2, 28, 5, 29), 'the rise brings him to all three');
   for (const n of NAMES) assert.ok(R.reached(all.seen, room(n), all.W), n);
 });
-test('the thread is on the east gallery, where only the rise brings him; and the weir\'s banks want its water too', () => {
+test('the thread is on the east gallery, where only the rise brings him; the weir\'s banks are climbed by their sills', () => {
   const hall = room('drownedhall'), we = room('weir'), th = L.marks.find(m => m.type === 'thread' && m.x >= hall.tx0 && m.x < hall.tx1 && m.y >= hall.ty0 && m.y < hall.ty1); assert.ok(th);
   assert.ok(th.x - hall.tx0 >= 70 && th.y - hall.ty0 >= DR.DROWNED.high, 'on the east gallery, where high water comes to');
   assert.equal(DR.DROWNED.high - DR.DROWNED.floor, 16); assert.equal(DR.DROWNED.weirHigh - DR.DROWNED.weirLow, 16);
-  // the weir: from its bed (he may fall in at low water) neither bank is climbed; he is not stuck there, the water comes back
-  LV.BREATH.hold = 0; let out = false; for (const p of R.PROGS) for (const x of [16.5, 20.5, 27.5, 31.4]) for (const [c] of R.run((we.tx0 + x) * LV.T, (we.ty0 + 2) * LV.T, p)) if (Math.floor(c / L.W) - we.ty0 >= 19) out = true;
-  assert.ok(!out, 'the banks are not climbed from the bed');
+  // the weir (since build 110): two sills on each bank's face. From the bed at low water each bank is climbed by them, and
+  // not without them: straight up the middle of the pond there is nothing
+  for (const x of [16, 30]) for (const y of [7, 13]) assert.equal(L.tiles[(we.ty0 + y) * L.W + we.tx0 + x], LV.ROCK, 'a sill');
+  LV.BREATH.hold = 0; const climb = x0 => { let front = [[(we.tx0 + x0) * LV.T, (we.ty0 + 2) * LV.T]], top = 0; const seen = new Set();
+    for (let hop = 0; hop < 4; hop++){ const next = []; for (const [x, y] of front) for (const p of R.PROGS) for (const [c, at] of R.run(x, y, p)){ top = Math.max(top, Math.floor(c / L.W) - we.ty0); if (!seen.has(c)){ seen.add(c); next.push(at); } } front = next.slice(0, 40); } return top; };
+  assert.ok(climb(18.5) >= 19, 'up the west bank by its sills'); assert.ok(climb(29.5) >= 19, 'and the east');
 });
 test('the culvert: from the hall\'s drain, under the stair, and up through the boards in the pool he woke in; and down again', () => {
   const st = room('start'), cu = room('culvert'), sp = L.marks.find(m => m.type === 'spawn');
@@ -141,4 +144,25 @@ test('it spits a bead in a flat line at one on his feet, after a warning; one wh
   assert.ok(walker.d.charge >= 0.6, 'warned for long enough'); assert.ok(4 + walker.d.over + walker.d.mouthY > 4 + M.BODY.crouch - 0.2, 'and it goes over one who ducks');
   const afloat = skim(12, { x: 25, y: 12 - M.SWIM.float }); assert.equal(afloat.shots.length, 0, 'nothing at a swimmer'); assert.ok(12 + afloat.d.over + afloat.d.mouthY > 12 - M.SWIM.float + M.BODY.stand, 'its bead would pass over his head anyway');
   const far = skim(4, { x: 60, y: 4 }); assert.equal(far.shots.length, 0, 'nor at one far off');
+});
+
+// ---- the Pike (build 110): the wing's fight
+const pikeAt = (depth, P, secs = 4, st0 = 'idle') => { const d = DR.enemies.pike, bed = 1, e = { type: 'pike', d, x: 12, y: bed + 1, home: { x: 12, y: bed + 1 }, st: st0, tm: 0, age: 0, face: 1, mk: { y: bed * 2, span: 6 } }, ev = [], hits = [];
+  for (let t = 0; t < secs; t += 1 / 60){ e.tm += 1 / 60; e.age += 1 / 60; DR.ai.pike(e, P, 1 / 60, { T: 0.5, dx: P.x - e.x, dy: P.y - e.y, waterAt: (x, y) => y < bed + depth ? {} : null, go: s => { e.st = s; e.tm = 0; }, anim(){}, events: ev,
+    hit: (x0, y0, x1, y1) => { const h = P.x + 0.34 > x0 && P.x - 0.34 < x1 && P.y + 2.4 > y0 && P.y < y1; if (h) hits.push(t); return h; } }); }
+  return { e, ev, hits, d, bed }; };
+test('the Pike afloat: a blow glances off it, and it comes at whatever is in its water, after a warning; one on the bank it leaves', () => {
+  const swim = pikeAt(8, { x: 14, y: 1 + 8 - M.SWIM.float }); assert.equal(swim.e.beached, false); assert.equal(swim.d.guard(swim.e), true, 'a blow is turned');
+  assert.ok(swim.ev.some(v => v.type === 'tell'), 'a warning'); assert.ok(swim.hits.length >= 1, 'and it bites one who stays where he is');
+  assert.ok(swim.d.windup >= 0.5, 'warned for long enough to move');
+  const bank = pikeAt(8, { x: 14, y: 1 + 8.5 }); assert.equal(bank.hits.length, 0, 'nothing at one on the bank'); assert.ok(!bank.ev.some(v => v.type === 'tell'));
+  for (const P of [{ x: 9.2, y: 4 }, { x: 14.8, y: 4 }]){ const q = pikeAt(8, P, 6); assert.ok(q.e.x >= q.e.pond.x0 + 1 && q.e.x <= q.e.pond.x1 - 1, 'it keeps to its pond'); assert.ok(q.e.y > 1 && q.e.y < 9, 'and to its water'); }
+});
+test('the Pike left on the bed: it can be struck; it snaps at one before its head, and turns on one behind it', () => {
+  const front = pikeAt(0.5, { x: 15.2, y: 1 }); assert.equal(front.e.beached, true); assert.equal(front.d.guard(front.e), false, 'a blow lands');
+  assert.ok(front.ev.some(v => v.type === 'tell') && front.hits.length >= 1, 'it warns, and snaps');
+  const behind = pikeAt(0.5, { x: 9.5, y: 1 }, 0.9); assert.equal(behind.hits.length, 0, 'behind it, nothing yet'); assert.equal(behind.e.face, 1, 'it has not turned in under a second');
+  const later = pikeAt(0.5, { x: 9.5, y: 1 }, 4); assert.equal(later.e.face, -1, 'but it turns'); assert.ok(later.hits.length >= 1, 'and then snaps');
+  const up = pikeAt(0.5, { x: 15.2, y: 9 }); assert.equal(up.hits.length, 0, 'one up on a sill or a bank is out of its reach');
+  assert.equal(L.marks.filter(m => m.type === 'pike').length, 1); assert.equal(roomOf(L.marks.find(m => m.type === 'pike')).name, 'weir'); assert.ok(DR.enemies.pike.name && DR.enemies.pike.hp >= 12);
 });

@@ -234,6 +234,25 @@ rock in the air again.
 passes below. That was wrong: the leech drawing is the Roots' wall-spitter (the Black Leech), which is in the game
 already. So these are that creature, placed in the wing, doing what it does. A leech that drops is not built.
 
+## As built: build 110 (the Pike)
+
+*The fourth build: the wing's fight. Pictures: `docs/drowned-build110.png`.*
+
+- **The Pike** lies in the weir's pond: a great pale-eyed pike, nine tiles long in a pond sixteen wide.
+- **While the water bears it, it is afloat.** It keeps the middle of its water. Anything that is in that water it
+  turns on, flares, and comes at: one bite, one heart. A blow glances off it. One on a bank it leaves alone.
+- **When the water falls away it is left on the bed.** There a blow lands. It snaps at whatever stands before its
+  head, after a warning, and turns on what is behind it, which takes it a second. So: behind it, strike, step round
+  as it turns.
+- **Two sills on each bank's face** (new): down to the bed at low water, and back up before the rise. With the Pike
+  dead, the weir is crossed on foot at low water as well as on the water at high.
+- **Sixteen blows.** He has about eleven seconds on the bed in each rise and fall of the water.
+- Its name and its strength show while he is in its room.
+
+**Where it differs from the sheet.** The sheet had him waiting out high water "on the weir's two ledges". The banks
+are those ledges; the sills are how he gets down from them and back. Before this build the weir could not be climbed
+out of: he waited for the water. Now it can.
+
 ## The same rule, in the wings already built
 
 Looking at the ten that are built, by what is in them today:

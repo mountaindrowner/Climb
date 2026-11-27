@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 109 | 27 Nov 2026 | `bb2f832` | The Drowned Galleries, third build: the skimmer (a new creature, the first drawn by the new way), two of them over the hall's pools; two leeches in the cells' flue | no | yes (now) |
+| 110 | 27 Nov 2026 | `COMMIT110` | The Drowned Galleries, fourth build: the Pike, the wing's fight. Afloat it bites and cannot be hurt; left on the bed at low water it can | no | yes (now) |
+| 109 | 27 Nov 2026 | `bb2f832` | The Drowned Galleries, third build: the skimmer (a new creature, the first drawn by the new way), two of them over the hall's pools; two leeches in the cells' flue | no | replaced by 110 |
 | 108 | 27 Nov 2026 | `504ced0` | The Drowned Galleries, second build: three gates of stone, each raised by a windlass somewhere else. The cells' gate holds their water | no | replaced by 109 |
 | 107 | 26 Nov 2026 | `c17d1fd` | The Drowned Galleries, first build: the Roots' west wing, twelve screens, and water that rises and falls. The Roots moved to make room | **yes** (once) | replaced by 108 |
 | 106 | 26 Nov 2026 | `4ac1531` | The Deep's map pass, its five levels: 122 planks to 39, none bare in the air. The map pass is done | no | replaced by 107 |
@@ -125,6 +126,47 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 110: the Drowned Galleries, the Pike
+
+*The fourth of the wing's builds (`docs/drowned-sheet.md`, "As built: build 110"). The wing now has its rooms, its
+water, its gates, its creatures and its fight. What is left of the sheet is the undercroft.*
+
+**For the player**
+
+- **The Pike is in the weir** (`docs/drowned-build110.png`). At high water it is afloat, and bites whatever is in
+  its water; a blow glances off it. As the water falls it is left lying on the bed, and then it can be struck.
+- **On the bed it snaps at what is before its head,** after a warning, and turns on what is behind it. Get behind it.
+- **Sills on the weir's banks:** two on each, down to the bed and back. Go down as the water falls; be up again
+  before it bears the Pike.
+- **In Corwen's Annals:** the Pike, under the Roots.
+- **To try:**
+  1. Come up into the weir. Stand on the bank and watch a whole rise and fall.
+  2. Jump in at high water. It should flare and come at you. Get out.
+  3. At low water go down the sills. Stand before its head: it snaps. Stand behind it: it turns.
+  4. Kill it across two or three falls of the water. Sixteen blows.
+  5. With it dead, cross the weir at low water on foot.
+
+**What is weaker than it should be**
+
+- **It has one drawing.** Its tail moves; its jaw does not open, and it does not thrash. The snap is read from the
+  flare before it, not from the fish.
+- **I do not know if eleven seconds a fall is the right length** for the fight. It is a guess until someone plays.
+- **It comes back** each time he returns to the Roots, as the Sexton and the Turned do. A fight that stays won is a
+  thing the game does not have yet for wings.
+- **The weir can now be climbed out of at low water,** which build 107 said it could not. The sills are for the
+  fight; they also make the room less of a wait.
+- **Nothing is left when it dies** but shards. The cup room behind it is the prize.
+- **Not played by a person.**
+
+- **Save: not moved.**
+- **Checked:** 519 automated checks, two new (afloat: a blow is turned, it warns and bites one in its water, it
+  leaves one on the bank, it keeps to its pond; on the bed: a blow lands, it snaps before its head and turns on one
+  behind, and one up on a sill is out of its reach). The weir's check now holds that each bank is climbed by its
+  sills. In the test browser: seen on the bed and afloat, a snap and a bite each taking a heart, its name shown.
+- **Not checked:** not played by hand; its death; its sound; the hammer, tooth, bow and thorns against it.
+- **Underneath:** `assets/side/px_pike/` (new); `src/side/regions/drowned.js` (the Pike, the weir's sills);
+  `src/side/annals.js`; `src/audio/sfx.js`.
 
 ### Build 109: the Drowned Galleries, the skimmer and the leeches
 
