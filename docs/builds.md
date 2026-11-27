@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 108 | 27 Nov 2026 | `COMMIT108` | The Drowned Galleries, second build: three gates of stone, each raised by a windlass somewhere else. The cells' gate holds their water | no | yes (now) |
+| 108 | 27 Nov 2026 | `504ced0` | The Drowned Galleries, second build: three gates of stone, each raised by a windlass somewhere else. The cells' gate holds their water | no | yes (now) |
 | 107 | 26 Nov 2026 | `c17d1fd` | The Drowned Galleries, first build: the Roots' west wing, twelve screens, and water that rises and falls. The Roots moved to make room | **yes** (once) | replaced by 108 |
 | 106 | 26 Nov 2026 | `4ac1531` | The Deep's map pass, its five levels: 122 planks to 39, none bare in the air. The map pass is done | no | replaced by 107 |
 | 105 | 26 Nov 2026 | `24171a1` | The Firmament's map pass: 68 planks to 30 in 40 screens, none bare in the air; people hint and do not instruct | no | replaced by 106 |
