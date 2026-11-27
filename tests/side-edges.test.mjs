@@ -644,5 +644,6 @@ test('the game moves a save with its level wherever a level is made: as it start
   const src = (await import('node:fs')).readFileSync(new URL('../src/side/main.js', import.meta.url), 'utf8');
   assert.ok(/\nrebased\(\);[^\n]*\nsetup\(\);\n/.test(src), 'before the first level is set up (level.js makes that one itself)');
   assert.ok(/loadLevel\(n\); rebased\(\);/.test(src), 'in enter()'); assert.ok(/loadLevel\(J\.to\); rebased\(\);/.test(src), 'in cross()');
-  assert.equal((src.match(/loadLevel\(/g) || []).length, 3, 'and there is no other place a level is loaded (two in enter, one in cross): a new one must move the save too');
+  assert.ok(/if \(deepDoors\(\)\) loadLevel\(LEVEL\.index\);/.test(src) && src.indexOf('if (deepDoors()) loadLevel(LEVEL.index);') < src.search(/\nrebased\(\);[^\n]*\nsetup\(\);\n/), 'and where the Deep\'s doors are set as the game starts (build 121): before that first move');
+  assert.equal((src.match(/loadLevel\(/g) || []).length, 4, 'and there is no other place a level is loaded (two in enter, one in cross, one as the game starts): a new one must move the save too');
 });

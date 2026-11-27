@@ -9,7 +9,7 @@ import { sfx, ac, musicBus, ambience, setMix, MIX, warm, manifestReady, say, bea
 import { voiceOf } from '../audio/voice.js';
 import { makeScore } from '../audio/score.js';
 import '../ui/feel.js';
-import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE, MEETINGS, SILL, prepare, RULE, SPIKES, setGates, breath, setPan, keyRun, railSend } from './level.js';
+import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, DEEP, tileAt, LEDGE, MEETINGS, SILL, prepare, RULE, SPIKES, setGates, breath, setPan, keyRun, railSend } from './level.js';
 import { makeTeach, keyName, fill, INTRO, CARDS, drawIcon } from './teach.js';
 import { makeProps } from './props.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt, hurt, isRollInv, ARMS, POGO, pogo, BOW } from './motor.js';
@@ -35,13 +35,22 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 120, date: '27 NOV 2026', phase: 17, phases: 22, last: 'THE DEEP: THE WINDING-HOUSE, THE FALSE LODE, THE DROWNED STOPE, THE ADIT, THE FAR WALL' };
+const VERSION = { build: 121, date: '27 NOV 2026', phase: 18, phases: 22, last: 'THE THROW: AT THE DOOR OF THE LAST REGION, HE IS THROWN TO THE BOTTOM OF THE MOUNTAIN' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
 const sp = spawnPoint();
 loadSave();
+// ---- the throw, and the Deep's doors (build 121, docs/phase18-sheet.md 1; decision 0.26). G.due: he has come to the
+// door of the last region and is about to be thrown. G.thrown: he has been. G.out: he has climbed out of the Deep
+// since. The Deep's doors in the climb are shut until he is out (level.js DEEP.shut), and open after, both ways.
+// (A save that was in the last region already, or past the end, is not thrown: the Deep is open to it)
+if (G.thrown == null && !G.due && ((G.top || 0) >= CLIMB_TOP || G.done)){ G.thrown = 1; G.out = 1; }
+const deepDoors = () => { const shut = !G.out; if (DEEP.shut === shut) return false; DEEP.shut = shut; resetLevels(); return true; };
+if (deepDoors()) loadLevel(LEVEL.index);
+const HOLLOW = REGION_DATA.findIndex(r => r.name === 'The Hollow');
+let THROWT = 0, OUTNOW = false;
 // the phone mode: by the device (a touch screen no wider than a small tablet), or as the options say
 const phoneNow = () => OPT.phone === 'auto' ? (typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches && Math.max(screen.width, screen.height) <= 1400) : !!OPT.phone;
 LOW.on = phoneNow();
@@ -149,6 +158,9 @@ setup();
 const ENTERED = [];
 // `at`: where he comes in, by name (an arrive mark: a passage's other end); else the region's start
 function enter(n, at){
+  const from0 = LEVEL.index;
+  if (G.thrown && !G.out && !REGION_DATA[n].deep && REGION_DATA[from0].deep){ G.out = 1; OUTNOW = true; }   // (build 121) up out of the Deep, the first time since he was thrown: its doors are open now
+  deepDoors();
   ARROWS.length = 0;   // (the scene is made new: the arrows in flight go with it)
   ENT.reset();   // a hall shut behind him is open again before he goes (its tiles are the region's own)
   const t0 = performance.now(); loadLevel(n); for (const J of Object.values(LEVEL.joins || {})) prepare(J.to); loadLevel(n); rebased(); const t1 = performance.now(); R.load(); const t2 = performance.now();   // and the regions it joins, made now, in the dark, for walking into
@@ -160,7 +172,10 @@ function enter(n, at){
   const am = at && !ws && LEVEL.marks.find(m => m.type === 'arrive' && m.name === at), s = ws ? { x: ws.x, y: ws.y } : am ? { x: (am.x + 0.5) * T, y: am.y * T } : spawnPoint(), old = P; P = born(s.x, s.y); PASS.cool = 1.2; P.hp = Math.max(1, Math.min(P.maxHp, old.hp)); P.flask = Math.min(P.flaskMax, old.flask);
   CAM.x = s.x; CAM.y = s.y + 2; CAM.lead = 0;
   if (ws){ TOUCHED.add(ws); WAKE = 1.5; LATER.push({ t: 0.75, f: () => splash(s.x, s.y) }); }
-  giftEnd(); BANNER = null; NAMED = !(roomAt(s.x, s.y + 0.5) || {}).look; if (NAMED) banner(LEVEL.name, SUB[LEVEL.index] || '', 4); marks(); G.level = LEVEL.index; if (!LEVEL.deep) G.top = Math.max(G.top, G.level); G.began = true; store();
+  giftEnd(); BANNER = null; NAMED = !(roomAt(s.x, s.y + 0.5) || {}).look; if (NAMED) banner(LEVEL.name, SUB[LEVEL.index] || '', 4); marks(); G.level = LEVEL.index; if (!LEVEL.deep) G.top = Math.max(G.top, G.level); G.began = true;
+  if (n === CLIMB_TOP && from0 === CLIMB_TOP - 1 && !G.thrown && !TRY.on) G.due = 1;   // (build 121) he has come up into the last region: what is at its door is waiting
+  if (OUTNOW){ OUTNOW = false; LATER.push({ t: 5, f: () => banner('Out of the Deep', 'Its doors are open now, both ways.', 6) }); }
+  store();
 }
 // ---- what the keeper holds in its region, where it needs the game's hand (phase 9, docs/phase9-sheet.md 3). Level.js
 // RULE and props.js do the rest. The Tempest: its rods are struck in turn, the nearest few, each with a warning (a red
@@ -223,7 +238,7 @@ function wingStep(dt){
   // the Deep is shut (decision 0.12): standing on its hatch, he is told so, once a visit
   if (!SHUTSAID && P.grounded) for (const m of LEVEL.marks) if (m.type === 'pass' && m.shut && Math.abs((m.x + (m.w || 2) / 2) * T - P.x) < (m.w || 2) * T / 2 + 0.3 && Math.abs(P.y - m.y * T) < 0.8 && !(BANNER && BANNER.t > 0)){ SHUTSAID = true; sfx.block(); banner('The way down is shut', 'The guild nailed this hatch down. It does not open yet.', 5); }
   if (!G.deepWarn && P.grounded && !REGION_DATA[LEVEL.index].deep) for (const m of LEVEL.marks) if (m.type === 'pass' && !m.shut && REGION_DATA[m.to] && REGION_DATA[m.to].deep && Math.abs((m.x + (m.w || 2) / 2) * T - P.x) < 9 && P.y - m.y * T < 6 && P.y - m.y * T > -1 && !(BANNER && BANNER.t > 0)){ G.deepWarn = 1; store(); banner('A way down', 'This goes to the Deep, under the mountain. It is optional, and harder. The climb is the other way: up.', 8); }
-  if (!G.deepTold && REGION_DATA[LEVEL.index].deep && P.grounded && !(BANNER && BANNER.t > 0)){ G.deepTold = 1; store(); banner('The Deep', 'You have left the climb. This place is optional. To go on with the climb, go back up.', 8); }
+  if (!G.deepTold && REGION_DATA[LEVEL.index].deep && P.grounded && !(BANNER && BANNER.t > 0)){ G.deepTold = 1; store(); if (G.thrown && !G.out) banner('The bottom of the mountain', 'You were thrown down. The way out is up.', 8); else banner('The Deep', 'You have left the climb. This place is optional. To go on with the climb, go back up.', 8); }
   // deep water, the first time: what it does with him (without the Wyrm's wind; and with it)
   if (P.swim && P.depth > 1.3){ if (!CAN.glide && !G.floatTold){ G.floatTold = 1; store(); banner('Deep water', 'You float, but you cannot dive yet. That takes a wind to carry you.', 5.5); } else if (CAN.glide && !G.swimTold){ G.swimTold = 1; store(); banner('Swimming', 'Jump: swim up. Down: dive. Let go to float in place.', 7); } }
   { const dark = !!REGION_DATA[LEVEL.index].dark;
@@ -281,16 +296,22 @@ function joinStep(){
 let JOINWAIT = 0;
 function cross(J, side){
   const t0 = performance.now(), from = LEVEL.index;
-  ENT.reset(); loadLevel(J.to); rebased();
+  ENT.reset(); deepDoors(); loadLevel(J.to); rebased();
   const J2 = LEVEL.joins[side === 'up' ? 'down' : 'up'], dx = (J2.x - J.x) * T, dy = (J2.y - J.y) * T;
   if (hero.sprite) hero.sprite.g.userData.keep = true; if (SCF) SCF.g.userData.keep = true;
   const t1 = performance.now(); R.load({ carry: true, shift: { x: dx, y: dy }, at: { x: P.x + dx, y: P.y + dy } }); const t2 = performance.now();
   FX2.ghosts.length = 0; setup(true);
   P.x += dx; P.y += dy; P.airTop += dy; if (P.mantle){ P.mantle.x0 += dx; P.mantle.x1 += dx; P.mantle.y0 += dy; P.mantle.y1 += dy; if (P.mantle.wall != null) P.mantle.wall += dx; }
   CAM.x += dx; CAM.y += dy; SCF.shift(dx, dy);
-  NAMED = side === 'down'; G.level = LEVEL.index; if (!LEVEL.deep) G.top = Math.max(G.top, G.level); learn(); store();   // going up, the region is named when he comes out into its own look; going down he knows where he is
+  NAMED = side === 'down'; G.level = LEVEL.index; if (!LEVEL.deep) G.top = Math.max(G.top, G.level); if (LEVEL.index === CLIMB_TOP && from === CLIMB_TOP - 1 && !G.thrown && !TRY.on) G.due = 1; learn(); store();   // going up, the region is named when he comes out into its own look; going down he knows where he is
   setTimeout(() => { for (const K of Object.values(LEVEL.joins || {})) prepare(K.to); }, 2500);   // the region beyond this one, made while he walks on
   CROSSED.push({ from, to: LEVEL.index, load: Math.round(t1 - t0), scene: Math.round(t2 - t1), setup: Math.round(performance.now() - t2) });
+}
+// ---- the throw (build 121): the screen (story.js 'thrown'), and then he is at the bottom of the mountain: the Hollow's
+// water, whole, with everything he has
+function throwDown(){
+  release(); BANNER = null; P.vx = 0; THROWT = 0;
+  STORY.start('thrown', {}, () => { G.thrown = 1; G.due = 0; enter(HOLLOW); P.hp = P.maxHp; P.flask = P.flaskMax; WAKE = 1.7; const s = spawnPoint(); splash(s.x, s.y); G.deepTold = 0; store(); });
 }
 // going up: the picture goes dark, the next region is made, it comes back
 const GO = { to: -1, t: 0, st: '', from: -1, at: null, join: null };
@@ -323,7 +344,7 @@ function begin(){   // from the start: the fall, then he gets up at the bottom
   // a first climb finds the Roots already made (they were made behind the title, as they are at the first): made again
   // only when there is something to undo, so the press does not wait on the painting
   const fresh = !G.began && LEVEL.index === 0 && !Object.keys(G.broke || {}).length;
-  menuHide(); wipe(); if (!fresh){ resetLevels(); enter(0); } { const s = spawnPoint(); P = born(s.x, s.y); }   // everything as it was at the first: the rock unbroken, the chests shut
+  menuHide(); wipe(); deepDoors(); if (!fresh){ resetLevels(); enter(0); } { const s = spawnPoint(); P = born(s.x, s.y); }   // everything as it was at the first: the rock unbroken, the chests shut
   STORY.start('intro', {}, () => { WAKE = 1.7; const s = spawnPoint(); splash(s.x, s.y); banner(LEVEL.name, SUB[0], 4); G.began = true; store(); });   // the fall ends in the water: he comes up out of it
 }
 // ---- the keepers' entrances, to watch (the title's 'The keepers'): each in full, as the first time it is met, then
@@ -604,7 +625,7 @@ const found = S => { const L = ((G.wat = G.wat || {})[LEVEL.index] = G.wat[LEVEL
 function oldWaters(){ G.wat = G.wat || {}; for (let n = 0; n < LEVELS.length; n++){ const been = REGION_DATA[n].deep ? !!(G.rooms && (G.rooms[n] || []).length) : G.began && n <= G.top; if (been && !(G.wat[n] = G.wat[n] || []).includes('r')) G.wat[n].unshift('r'); } }
 // the waters he can come up at: the mountain from its top down, then the Deep; the one he stands in left out
 function waterList(){ const out = [], here = ATWATER ? ATWATER.id : ''; const order = [...LEVELS.keys()].filter(n => !REGION_DATA[n].deep).reverse().concat([...LEVELS.keys()].filter(n => REGION_DATA[n].deep));
-  for (const n of order) for (const k of (G.wat && G.wat[n]) || []){ const [id, room] = k.split('|'); if (n === LEVEL.index && id === here) continue; out.push({ n, id, raise: id === 'r', name: LEVELS[n].name.replace(/^The /, ''), room: room || '' }); }
+  for (const n of order) for (const k of (G.wat && G.wat[n]) || []){ const [id, room] = k.split('|'); if (n === LEVEL.index && id === here) continue; if (G.thrown && !G.out && !REGION_DATA[n].deep) continue;   /* (build 121) thrown down, he does not come up by the water until he has climbed out once */ out.push({ n, id, raise: id === 'r', name: LEVELS[n].name.replace(/^The /, ''), room: room || '' }); }
   return out; }
 function waterMenu(){
   SCREEN = 'under'; PAUSE = true; release(); oldWaters(); WSEL = waterList();
@@ -642,7 +663,7 @@ const PBTN = menuButton('II', () => pause(!PAUSE), true); PBTN.style.cssText += 
 const KEEPER_OF = ['the Warden', 'the Toll', 'the Rime Wyrm', 'the Thunderhead', 'Mother Thorn', 'the Fallen'];
 function goalLines(){
   const n = LEVEL.index, goal = 'GOAL: CLIMB TO THE FLAME AT THE TOP OF THE MOUNTAIN', beat = k => !!G.beat[k] || G.top > k;
-  if (REGION_DATA[n] && REGION_DATA[n].deep) return [goal, 'YOU ARE IN THE DEEP, UNDER THE MOUNTAIN. IT IS OPTIONAL. THE CLIMB IS ABOVE.'];
+  if (REGION_DATA[n] && REGION_DATA[n].deep) return [goal, G.thrown && !G.out ? 'YOU WERE THROWN DOWN TO THE BOTTOM OF THE MOUNTAIN. CLIMB OUT: THE WAY IS UP.' : 'YOU ARE IN THE DEEP, UNDER THE MOUNTAIN. IT IS OPTIONAL. THE CLIMB IS ABOVE.'];
   if (n >= 5) return [goal, beat(n) ? 'THE SUMMIT IS OPEN. GO UP.' : 'NEXT: THE SUMMIT. FACE WHAT WAITS THERE.'];
   return [goal, beat(n) ? `NEXT: ${KEEPER_OF[n].toUpperCase()} IS BEATEN. TAKE THE WAY UP TO ${LEVELS[n + 1].name.toUpperCase()}.` : `NEXT: FIND ${KEEPER_OF[n].toUpperCase()} AT THE TOP OF ${LEVEL.name.toUpperCase()}. IT BLOCKS THE WAY UP.`];
 }
@@ -869,6 +890,7 @@ function frame(ts){
     if (IN.pressed.has('jump') || IN.pressed.has('attack')){ IN.pressed.clear(); press(); }
     if (NOTE) NOTE.t += dt; drawHud(dt); endFrame(); requestAnimationFrame(frame); return; }
   if (PAUSE){ drawHud(0); endFrame(); requestAnimationFrame(frame); return; }
+  if (G.due && !G.thrown && LEVEL.index === CLIMB_TOP && !GO.st && !STORY.active() && !PAUSE && !SCREEN && P.hp > 0 && !DISS && !UNDER && !TRY.on){ THROWT += dt; if (THROWT > 1.6 && P.grounded) throwDown(); } else THROWT = 0;   // (build 121) a moment in the last region's door, and then the throw
   if (STORY.active() && !GO.st){ hudBegin(); STORY.draw(dt); endFrame(); requestAnimationFrame(frame); return; }   // a story screen is up: the world waits (on the title, until a press: a browser lets no sound play before one)
   ruleStep(dt); wingStep(dt);
   joinStep();   // first in the frame: if he has walked through a sill's middle, the region is changed before anything looks at it

@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 120 | 27 Nov 2026 | `b5d7543` | The Deep's far ends, seventeen screens: the Winding-House (the Workings: a cage that runs once its engine is started), the False Lode (the Vein: a ring with the guild's air-door across it), the Drowned Stope (the Flooded Levels: a windlass in the air, a grate under two screens of water), the Adit (the Great Shaft: a wall against the cold, and the cold up a raise), the Far Wall (the Hollow: a rough face four screens tall). Every level has its far ends | no (a save follows the level) | yes (now) |
+| 121 | 27 Nov 2026 | `COMMIT121` | Phase 18 begun: the throw. At the door of the last region he is thrown down to the Hollow, at the bottom of the Deep, and climbs out; the Deep's doors open when he does. A new game clears everything | no | yes (now) |
+| 120 | 27 Nov 2026 | `b5d7543` | The Deep's far ends, seventeen screens: the Winding-House (the Workings: a cage that runs once its engine is started), the False Lode (the Vein: a ring with the guild's air-door across it), the Drowned Stope (the Flooded Levels: a windlass in the air, a grate under two screens of water), the Adit (the Great Shaft: a wall against the cold, and the cold up a raise), the Far Wall (the Hollow: a rough face four screens tall). Every level has its far ends | no (a save follows the level) | replaced by 121 |
 | 119 | 27 Nov 2026 | `6170aab` | The Firmament's far end, six screens: the Outer Ring past the arms (a ring of two planets that turns from the first; a second arm, the outermost, that stands until it is wound from the winding room, and then carries him to the head of a tower) | no | replaced by 120 |
 | 118 | 27 Nov 2026 | `152e4f7` | The far ends of the Tempest and of the Gardens, ten screens: the Great Rod off the coils (plates of iron live in one half or the other, and a crane's hook on a rail) and the Blue past the stills (floors of cloud that let him down when he stands still); the Rising Main past the lock (four falls and their wheels) and the Last House past his own (a kept door, an attic) | no (a save follows the level) | replaced by 119 |
 | 117 | 27 Nov 2026 | `bdff3d0` | The Spires' far ends, eight screens: the Way Down past his cairn (a cleft he drops down and cannot climb; the wall at its foot keeps off the wind that carries him back) and the Crevasse past the Seated (a crack in the glacier; one fire at its head melts the plug in its floor, forty rows below) | no (a save follows the level) | replaced by 118 |
@@ -136,6 +137,72 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 121: the throw
+
+*Phase 18, part 1 (`docs/phase18-sheet.md`, and "As built: build 121" in it). Your decision of 26 Nov (roadmap, 0.26):
+"the last keeper taunts him and throws him down to the very lowest part of the Deep. He climbs back up through it.
+Until then it stays shut." Pictures: `docs/throw-build121.png`. No new drawings.*
+
+**For the player**
+
+- **When he first comes up into the Firmament,** after Mother Thorn, he has a second and a half there. Then a screen
+  comes up, as the opening's does.
+  - **Two figures on a ledge under the stars:** him, and his own shape, dark, a pale thread at its neck. "It had
+    your walk."
+  - **It says:** "You are the one that fell. Go back down. I will carry it." It walks up to him and throws him off.
+  - **The fall again, quicker:** past the gardens, through the storm, past the spires of ice, past the halls of
+    stone, into the water at the bottom of the mountain. "And through it. Down the Well, which has no floor. Under
+    the mountain there was a light."
+  - A press hurries it on, as with the opening.
+- **He gets up beside the Hollow's water,** whole, with everything he has. He is told: "The bottom of the mountain.
+  You were thrown down. The way out is up." The goal in the pause menu says the same.
+- **Until he has climbed out:**
+  - the Pithead's hatch in the Roots is nailed down, as it has been;
+  - travel through the water offers only the Deep's own waters.
+- **The first time he comes up into the climb,** he is told: "Out of the Deep. Its doors are open now, both ways."
+  The hatch is open from then on.
+- **A save that is already in the Firmament, or has seen the end, is not thrown.** The Deep is open to it at once.
+- **Mended: a new game starts clean.** Before, anything the save kept that a blank save does not name came into the
+  new game: gates raised, walls knocked down, fires lit, the cage sent down, that he had won.
+- **To try:**
+  1. Beat Mother Thorn and take the way up. Watch what happens at the Firmament's door.
+  2. In the Hollow, open the pause menu and read the goal. Try the water: see where it offers to take you.
+  3. Climb out, by either way. See what is said at the Pithead, and that the hatch is open.
+  4. Start a new game after that. The hatch should be nailed down again.
+
+**What is weaker than it should be**
+
+- **It is a screen, not a scene.** The Fallen is not in the room with him; he is standing in the Firmament, and the
+  picture changes.
+- **The Fallen on the screen is his own drawing made dark.** It does not take hold of him: it walks up, there is a
+  flash, and he is in the air.
+- **It happens wherever he comes in.** By the sill he walks through, or by the way up from Mother Thorn's hall. Not
+  at a place made for it.
+- **Its lines are mine,** three of them new ("It had your walk"; what it says; "Under the mountain there was a
+  light"). They want your yes.
+- **The Deep was built to be gone down.** This build only checks that he is not shut in: the Hollow, the Great
+  Shaft and the Workings go upward as they are, and the Vein does with the Assayer down. What it is like to climb,
+  and Hob met in the wrong order, is the next build.
+- **The banner in the Deep still says it is optional once he has climbed out.** It is, then.
+- **Not played by a person.**
+
+- **Save: not moved.** Adds three small things it remembers: that the throw is due, that it has happened, that he
+  has climbed out.
+- **Checked:** 578 automated checks, six new (`tests/side-throw.test.mjs`): a new game clears everything; the
+  Deep's doors shut and open with their switch, and its ways up are never shut; the throw is set off only by
+  coming up into the last region from the one under it; out of the Deep opens its doors, and no water of the climb
+  is offered before; the screen is its own kind, plays the opening's fall, and ends; he lands on his feet beside
+  the Hollow's water, and from there, with what he has by then and no keeper down, the way out above is come to
+  (and through the Shaft and the Workings; the Vein with the Assayer down). One older check changed (where levels
+  are loaded, now four places).
+  In the test browser: from the Gardens up into the Firmament, the screen at nine moments, the landing, what he
+  is told, the waters offered, out at the Pithead, the hatch open.
+- **Not checked:** not played by hand; the walk through the sill into the Firmament by hand (the browser run went up
+  by the other way); the sounds on the screen.
+- **Mistakes caught before it went out:**
+  - **A new game did not clear the save** (above). Found because the throw would have followed him into one.
+  - **The last line was set over the light** and could not be read. It is set high now.
 
 ### Build 120: the Deep's far ends
 

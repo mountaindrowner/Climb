@@ -3,7 +3,8 @@
 //   The story (docs/story.md): he fell from the top of the world into the water at its roots, and the water gave him
 //   back. A light is calling him home, and it is not by his own strength that he goes: every fall ends in the water,
 //   and the water gives him back again (the 'pool' screen). These screens say so and show where on the mountain he is.
-// makeStory(hud) returns { active(), start(kind, opts), draw(dt), press() }; kinds: 'title', 'intro', 'card', 'ending'.
+// makeStory(hud) returns { active(), start(kind, opts), draw(dt), press() }; kinds: 'title', 'intro', 'card', 'ending',
+// 'thrown' (build 121).
 import { sfx } from '../audio/sfx.js';
 import { text } from './pixelfont.js';
 const PAL = { ink: '#181425', deep: '#262b44', dark: '#3a4466', mid: '#5a6988', light: '#8b9bb4', pale: '#c0cbdc', white: '#ffffff', navy: '#124e89', blue: '#0099db', cyan: '#2ce8f5',
@@ -171,7 +172,7 @@ export function makeStory(hud, heroBase){
   const end = () => { const d = S.done; S.kind = null; S.done = null; if (d) d(); };
   // a press: the title waits for its buttons; the rest can be hurried on once they have begun
   S.press = () => { if (!S.kind || S.kind === 'title') return; if (S.t > 0.6){ if (S.kind === 'card') S.t = Math.max(S.t, LEN.card - 0.5); else if (S.kind === 'pool') S.t = Math.max(S.t, LEN.pool - 0.4); else end(); } };
-  const LEN = { intro: 29.5, card: 3.6, ending: 30, pool: 3.0 };
+  const LEN = { intro: 29.5, card: 3.6, ending: 30, pool: 3.0, thrown: 7.2 + (21.4 - 5) / 1.6 + 9.2 };   // (thrown: THROW1 and what comes after the water, below)
 
   function beacon(on, t){
     const x = PEAK_X, y = APEX - 3; px(PAL.wood1, x - 1, y, 3, 3); px(PAL.ink, x - 2, y + 3, 5, 1);
@@ -257,20 +258,10 @@ export function makeStory(hud, heroBase){
     if (S.quiet && S.quiet() && Math.floor(S.t * 2) % 2 === 0) say('press any key, or tap, for sound', 0.95, 0.024, 0.75, '#8b9bb4');   // a browser lets no sound play before a press
     const pr = S.opts.progress && S.opts.progress(); if (pr != null){ px(PAL.ink, 12, 101, 102, 4); px('#3a4466', 13, 102, 100, 2); px(PAL.fire3, 13, 102, Math.max(1, Math.round(100 * pr)), 2); }
   }
-  function intro(dt){
-    const t = S.t;
-    // the lines, each with when it comes and goes
-    const L = [[0.5, 2.6, 'You kept the flame at the top of this mountain.'], [2.8, 4.8, 'You let it go out. You fell.'], [5.3, 7.5, 'Past the stars.'], [7.7, 10.0, 'Past the gardens.'], [10.2, 12.5, 'Through the storm.'], [12.7, 15.0, 'Past the spires of ice.'], [15.2, 17.5, 'Past the halls of stone.'],
-      [17.8, 21.0, 'Down into the water at the bottom of the mountain.'], [22.0, 24.6, 'The water brought you back.'], [24.9, 27.0, 'Far above, a light is calling you.'], [27.2, 29.3, 'Climb back to the top.']];
-    const FALL0 = 5, FALL1 = 21.4;
-    if (t < FALL0){
-      // the summit, and him off it
-      g.drawImage(night, 0, 0); beacon(t < 2.2, t); snowfall(dt, -14);
-      const u = ease((t - 2.2) / 2.8), x = PEAK_X - 3 - u * 60, y = APEX - 8 + u * u * 150;
-      figure(u > 0 ? hero.fall : hero.stand, Math.floor(t * 8), x, y, -u * 5, 14);
-      if (t > 2.2 && t < 2.5) px(PAL.white, 0, 0, CW, CH);
-      if (t > 2.2 && S.said < 0){ S.said = 0; sfx.crack && sfx.crack(); }
-    } else if (t < FALL1){
+  // the fall itself, from under the stars to the water (t: the opening's own clock, 5 to 21.4). The opening plays it; so
+  // does the throw (build 121), quicker
+  const FALL0 = 5, FALL1 = 21.4;
+  function fallPart(t, dt){
       // the fall. The six regions, from the summit down, each a held shot while its line is up; between two, a whip down
       // through the rock (the picture dips to black there, and the shot changes). Close on him under the summit's stars,
       // smaller and further off with every region, alone in the dark at the last. He does not tumble: he falls face down,
@@ -302,6 +293,20 @@ export function makeStory(hud, heroBase){
         for (let x = 0; x < CW; x++){ const yy = 150 + Math.round(Math.sin(x * 0.2 + t * 9) * 1.5 * (1 - w)); px(Math.abs(x - 160) < 30 + w * 80 ? (x % 3 ? PAL.cyan : PAL.white) : PAL.navy, x, yy, 1, 1); }
         for (let q = 0; q < 26; q++){ const a = Math.PI * (0.15 + 0.7 * (q / 25)), r = w * (22 + (q % 5) * 7), x = 160 + Math.cos(a) * r * 1.6, y = 150 - Math.sin(a) * r + w * w * 30; px(q % 3 ? PAL.cyan : PAL.white, x, y, 1, 2); }
         if (w < 0.3){ g.globalAlpha = (0.3 - w) / 0.3 * 0.7; px(PAL.white, 0, 0, CW, CH); g.globalAlpha = 1; } }
+  }
+  function intro(dt){
+    const t = S.t;
+    // the lines, each with when it comes and goes
+    const L = [[0.5, 2.6, 'You kept the flame at the top of this mountain.'], [2.8, 4.8, 'You let it go out. You fell.'], [5.3, 7.5, 'Past the stars.'], [7.7, 10.0, 'Past the gardens.'], [10.2, 12.5, 'Through the storm.'], [12.7, 15.0, 'Past the spires of ice.'], [15.2, 17.5, 'Past the halls of stone.'],
+      [17.8, 21.0, 'Down into the water at the bottom of the mountain.'], [22.0, 24.6, 'The water brought you back.'], [24.9, 27.0, 'Far above, a light is calling you.'], [27.2, 29.3, 'Climb back to the top.']];
+    if (t < FALL0){
+      // the summit, and him off it
+      g.drawImage(night, 0, 0); beacon(t < 2.2, t); snowfall(dt, -14);
+      const u = ease((t - 2.2) / 2.8), x = PEAK_X - 3 - u * 60, y = APEX - 8 + u * u * 150;
+      figure(u > 0 ? hero.fall : hero.stand, Math.floor(t * 8), x, y, -u * 5, 14);
+      if (t > 2.2 && t < 2.5) px(PAL.white, 0, 0, CW, CH);
+      if (t > 2.2 && S.said < 0){ S.said = 0; sfx.crack && sfx.crack(); }
+    } else if (t < FALL1){ fallPart(t, dt);
     } else {
       // the water, in the dark; and then the light on it
       const k = ease((t - 21.9) / 2.2); px(PAL.ink, 0, 0, CW, CH); g.globalAlpha = k; g.drawImage(pool, 0, 0); g.globalAlpha = 1;
@@ -311,6 +316,46 @@ export function makeStory(hud, heroBase){
     for (const [a, b, text] of L) if (t > a && t < b) say(text, 0.88, 0.042, Math.min(1, (t - a) / 0.6, (b - t) / 0.6));
     if (t < 3) say('press a button to skip', 0.96, 0.022, 0.5 * Math.min(1, t), '#cfe6ff');
     if (t >= LEN.intro) end();
+  }
+  // ---- the throw (build 121, docs/phase18-sheet.md 1): at the door of the last region, what he left at the top is
+  // standing in the way. It has his shape, dark, a pale thread at its neck. It says one thing and throws him off the
+  // mountain: the fall again, quicker; and this time through the water, down the Well, to the light under the mountain
+  let DARK = null;
+  function dark(){   // his standing drawing, dark, its red gone pale: made once the drawing is in
+    if (DARK) return DARK; const im = hero.stand; if (!im.complete || !im.naturalWidth) return null;
+    const c = canvas(im.naturalWidth, im.naturalHeight), cg = c.getContext('2d', { willReadFrequently: true }); cg.drawImage(im, 0, 0);
+    const D = cg.getImageData(0, 0, c.width, c.height), d = D.data;
+    for (let q = 0; q < d.length; q += 4){ if (d[q + 3] < 120) continue; const red = d[q] > 150 && d[q + 1] < 90 && d[q + 2] < 100; if (red){ d[q] = 192; d[q + 1] = 203; d[q + 2] = 220; } else { const v = (d[q] + d[q + 1] + d[q + 2]) / 3; d[q] = 16 + v * 0.10; d[q + 1] = 14 + v * 0.10; d[q + 2] = 30 + v * 0.20; } }
+    cg.putImageData(D, 0, 0); c.naturalWidth = c.width; c.naturalHeight = c.height; c.complete = true; return DARK = c; }
+  const THROW0 = 7.2, THROW_K = 1.6, THROW1 = THROW0 + (FALL1 - FALL0) / THROW_K;   // when he is thrown; how much quicker the fall is; when he meets the water
+  function thrown(dt){
+    const t = S.t;
+    const L = [[0.9, 3.0, 'It had your walk.'], [3.3, 6.6, '"You are the one that fell. Go back down. I will carry it."'],
+      [THROW0 + 1.6, THROW0 + 3.0, 'Past the gardens.'], [THROW0 + 3.2, THROW0 + 4.6, 'Through the storm.'], [THROW0 + 4.8, THROW0 + 6.2, 'Past the spires of ice.'], [THROW0 + 6.4, THROW0 + 7.8, 'Past the halls of stone.'], [THROW0 + 8.0, THROW1, 'Into the water at the bottom of the mountain.'],
+      [THROW1 + 0.4, THROW1 + 2.6, 'And through it.'], [THROW1 + 2.9, THROW1 + 5.6, 'Down the Well, which has no floor.'], [THROW1 + 5.9, THROW1 + 8.6, 'Under the mountain there was a light.', 0.3]];   // (the last is set high: the light is where the others are)
+    if (t < THROW0){
+      // the door of the last region: the two of them on a ledge under the stars
+      px(PAL.ink, 0, 0, CW, CH); const im = far.firmament; if (im.complete && im.naturalWidth) g.drawImage(im, 40, 0, 320, 224, 0, -52, 320, 224); weather(0, t * 0.25, 0.5);
+      px(PAL.ink, 0, 132, CW, CH - 132); for (let x = 0; x < CW; x += 2) px(x % 6 ? PAL.navy : PAL.blue, x, 132, 1, 1);
+      const step = ease((t - 5.2) / 1.2), fx0 = 214 - step * 62, flung = t > 6.5 ? (t - 6.5) / (THROW0 - 6.5) : 0;
+      // him: standing; then taken and thrown back off the ledge
+      if (!flung) figure(hero.stand, Math.floor(t * 4), 112, 117, 0, 30); else figure(hero.fall, Math.floor(t * 10), 112 - flung * 96, 117 - Math.sin(flung * Math.PI) * 34 + flung * flung * 60, -flung * 5, 30);
+      // it: his shape, dark, facing him; it walks up to him
+      const dk = dark(); if (dk){ const n = Math.max(1, Math.round(dk.naturalWidth / dk.naturalHeight)), w = dk.naturalWidth / n, f = Math.floor(t * 4) % n; g.save(); g.translate(Math.round(fx0), 117 + (step > 0 && step < 1 ? Math.round(Math.sin(t * 14)) : 0)); g.scale(-1, 1); g.drawImage(dk, f * w, 0, w, dk.naturalHeight, -15, -15, 30, 30); g.restore(); }
+      if (t > 6.5 && t < 6.75) px(PAL.white, 0, 0, CW, CH);
+      if (t > 6.5 && S.said < 0){ S.said = 0; sfx.crack && sfx.crack(); }
+      const a = Math.min(1, t / 0.8); if (a < 1){ g.globalAlpha = 1 - a; px(PAL.ink, 0, 0, CW, CH); g.globalAlpha = 1; }
+    } else if (t < THROW1){ if (S.said < 0.2){ S.said = 0.2; S.shot = -1; } fallPart(FALL0 + (t - THROW0) * THROW_K, dt * THROW_K); if (S.said >= 0.5 && S.said < 0.6) S.said = 0.6; }
+    else {
+      // through the water and on down: the dark, going up past him; and then, far under, a light
+      const u = t - THROW1; px(PAL.ink, 0, 0, CW, CH); weather(5, t * 1.6, 1);
+      const F = falling(), fr = F && F.dive ? Math.floor(t * 11) % F.dive : 0; if (F) pose(F[0], fr, 160 + Math.sin(t * 0.9) * 4, 70 + Math.sin(t * 1.3) * 2, 1);
+      const k = ease((u - 4.6) / 4.0); if (k > 0){ const cy = CH + 40 - k * 70, r = 30 + k * 80; for (let y = Math.max(0, Math.floor(cy - r)); y < CH; y++) for (let x = Math.max(0, Math.floor(160 - r)); x < Math.min(CW, 160 + r); x++){ const d = Math.hypot(x - 160, (y - cy) * 1.4) / r; if (d < 1 && B4[(y & 3) * 4 + (x & 3)] / 16 < (1 - d) * k) px(d < 0.3 ? PAL.fire3 : d < 0.6 ? PAL.fire2 : PAL.fire1, x, y, 1, 1); } }
+      const out = (t - (LEN.thrown - 0.6)) / 0.6; if (out > 0){ g.globalAlpha = Math.min(1, out); px(PAL.fire3, 0, 0, CW, CH); g.globalAlpha = 1; }
+    }
+    for (const [a, b, text, y = 0.88] of L) if (t > a && t < b) say(text, y, 0.042, Math.min(1, (t - a) / 0.5, (b - t) / 0.5));
+    if (t < 3) say('press a button to skip', 0.96, 0.022, 0.5 * Math.min(1, t), '#cfe6ff');
+    if (t >= LEN.thrown) end();
   }
   // him, in the water under the light, getting up; motes of it going up round him
   function rise(u, t){
@@ -350,7 +395,7 @@ export function makeStory(hud, heroBase){
   S.draw = dt => {
     if (!S.kind) return;
     S.t += dt; words.length = 0; g.globalAlpha = 1;
-    ({ title, intro, card, ending, pool: poolScreen })[S.kind](dt);
+    ({ title, intro, card, ending, pool: poolScreen, thrown })[S.kind](dt);
     if (!S.kind) return;
     // where the game is (S.note: main.js's lines), small in the top right of the title and the opening
     if (S.note && (S.kind === 'title' || S.kind === 'intro')) S.note.forEach((s, k) => words.push({ text: s, y: (8 + k * 8) / CH, size: 0.02, alpha: S.kind === 'title' ? 0.9 : 0.45, col: k ? '#8b9bb4' : '#c0cbdc', x: CW - 4, align: 'right', small: true }));

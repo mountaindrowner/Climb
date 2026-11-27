@@ -76,7 +76,9 @@ export function store(){ if (HERE) (G.org = G.org || {})[HERE[0]] = [HERE[1], HE
 // the save in hand made new, the one in the browser left as it is
 export function fresh(){ for (const k of Object.keys(G)) delete G[k]; Object.assign(G, blank()); }
 export function storeOpt(){ try { localStorage.setItem(OKEY, JSON.stringify(OPT)); } catch (e){} }
-export function wipe(){ Object.assign(G, blank()); try { localStorage.removeItem(KEY); } catch (e){} }
+// (build 121: everything he had is gone, not only what a blank save names. Before, what was kept under any other name
+// came into the new game with him: gates he had raised, walls he had knocked down, lamps he had lit, that he had won)
+export function wipe(){ for (const k of Object.keys(G)) delete G[k]; Object.assign(G, blank()); try { localStorage.removeItem(KEY); } catch (e){} }
 // a relic works only while it is tied into the scarf; he can carry more than he can wear, and chooses at a flame
 export const has = id => (G.worn || []).includes(id);
 export const owns = id => G.relics.includes(id);

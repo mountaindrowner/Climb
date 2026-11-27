@@ -32,6 +32,24 @@ him and throws him down to the very lowest part of the Deep. He climbs back up t
 - **The Deep's doors in the Roots stay shut until then.** After, they are open both ways, and the Deep is a place
   like any other.
 
+### As built: build 121 (part 1, the throw)
+
+*Pictures: `docs/throw-build121.png`. You said "continue with the phases" before answering the questions at the foot of
+this sheet, so this part is built to what I proposed there. Each of those is still yours to change.*
+
+| The sheet said | It is | Why |
+|---|---|---|
+| "In the Firmament's first room... the Fallen is standing in the way" | **A moment after he comes into the Firmament (a second and a half), a screen comes up,** as the opening's does: the two of them on a ledge under the stars | It is not in the room with him. Putting it there wants the Fallen's own drawings staged in a room they were not made for; the screen uses what is drawn already |
+| "It has his walk and his shape, dark, a pale thread at its neck" | **His own standing drawing, made dark, its red made pale.** It walks up to him | No new drawing. One of it taking hold of him would be better, and is yours to ask for |
+| "It says one thing" | **Two lines on the screen.** "It had your walk." Then what it says: "You are the one that fell. Go back down. I will carry it." | Both are mine. Say if you want them changed |
+| "The fall. The way the game began" | **As said, at a little over one and a half times the pace:** past the gardens, the storm, the spires, the halls, into the water | It is seen a second time; it should not take as long |
+| "He goes through it, down the Well... and comes out of the roof of the Hollow in the falling water" | **On the screen: through the water, on down in the dark, and a light under him.** Then he is getting up beside the Hollow's water, as he got up beside the pool at the first | The fall out of the Hollow's roof is not played in the room |
+| "No way back up by the water... the Deep's doors in the Roots stay shut until [he has climbed out]" | **As said.** The first time he comes up into the climb, the Pithead's hatch is open, and stays so | |
+| Not said | **A save that was already in the Firmament, or past the end, is not thrown.** The Deep is open to it | It has passed the place where the throw happens |
+| Not said | **Starting a new game now clears everything.** | An older fault, found here: gates he had raised, walls he had knocked down, and that he had won, came into the new game with him |
+
+**Not built yet from part 1:** nothing. **Next: part 2,** the Deep upward.
+
 ## 2. The Deep, climbed from the bottom
 
 It was built to be gone down. Two ways out, and I would leave both open:
