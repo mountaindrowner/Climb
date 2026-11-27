@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 110 | 27 Nov 2026 | `COMMIT110` | The Drowned Galleries, fourth build: the Pike, the wing's fight. Afloat it bites and cannot be hurt; left on the bed at low water it can | no | yes (now) |
+| 110 | 27 Nov 2026 | `6a68cde` | The Drowned Galleries, fourth build: the Pike, the wing's fight. Afloat it bites and cannot be hurt; left on the bed at low water it can | no | yes (now) |
 | 109 | 27 Nov 2026 | `bb2f832` | The Drowned Galleries, third build: the skimmer (a new creature, the first drawn by the new way), two of them over the hall's pools; two leeches in the cells' flue | no | replaced by 110 |
 | 108 | 27 Nov 2026 | `504ced0` | The Drowned Galleries, second build: three gates of stone, each raised by a windlass somewhere else. The cells' gate holds their water | no | replaced by 109 |
 | 107 | 26 Nov 2026 | `c17d1fd` | The Drowned Galleries, first build: the Roots' west wing, twelve screens, and water that rises and falls. The Roots moved to make room | **yes** (once) | replaced by 108 |
