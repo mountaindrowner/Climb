@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 118 | 27 Nov 2026 | `152e4f7` | The far ends of the Tempest and of the Gardens, ten screens: the Great Rod off the coils (plates of iron live in one half or the other, and a crane's hook on a rail) and the Blue past the stills (floors of cloud that let him down when he stands still); the Rising Main past the lock (four falls and their wheels) and the Last House past his own (a kept door, an attic) | no (a save follows the level) | yes (now) |
+| 119 | 27 Nov 2026 | `COMMIT119` | The Firmament's far end, six screens: the Outer Ring past the arms (a ring of two planets that turns from the first; a second arm, the outermost, that stands until it is wound from the winding room, and then carries him to the head of a tower) | no | yes (now) |
+| 118 | 27 Nov 2026 | `152e4f7` | The far ends of the Tempest and of the Gardens, ten screens: the Great Rod off the coils (plates of iron live in one half or the other, and a crane's hook on a rail) and the Blue past the stills (floors of cloud that let him down when he stands still); the Rising Main past the lock (four falls and their wheels) and the Last House past his own (a kept door, an attic) | no (a save follows the level) | replaced by 119 |
 | 117 | 27 Nov 2026 | `bdff3d0` | The Spires' far ends, eight screens: the Way Down past his cairn (a cleft he drops down and cannot climb; the wall at its foot keeps off the wind that carries him back) and the Crevasse past the Seated (a crack in the glacier; one fire at its head melts the plug in its floor, forty rows below) | no (a save follows the level) | replaced by 118 |
 | 116 | 27 Nov 2026 | `220224b` | The far ends of the Roots and of the Cloister, twenty-one screens. The Roots: the Drawing-Place past the weir (a bucket-chain he sets going and rides; the Well sounded three screens down) and the Unsorted (a pit, one scale with its stack in three, the first tomb under it). The Cloister: the Empty Shelves past the copying hall (two ladders that roll on rails when struck; the binders' loft) and the Cull past the slag runs (a casting crane sent from a winch on the pit's floor). The keepers' words in the Drowned Galleries are said at last | no (a save follows the level, build 115) | replaced by 117 |
 | 115 | 27 Nov 2026 | `a7a3e87` | Every level lifted: two rooms of rock under each (and a room more over those with a roof of rock), so there is somewhere to build down and up. A save now follows its level when it grows. Nothing he can reach is changed | **moved** (every place 46 tiles up; done as the save is read) | replaced by 116 |
@@ -134,6 +135,65 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 119: the Firmament's far end
+
+*The sixth of the levels' edges (`docs/edges-sheet.md`, section 6 and "As built: build 119"). Pictures:
+`docs/firmament-far-build119.png`. Nothing new in the engine: the outermost is a thing that moves only once it is
+wound, as the Roots' bucket-chain is (build 116).*
+
+**For the player**
+
+- **East, past the arms of the Orrery Wing: the Outer Ring.** Six screens, in one room. Open to anyone, as the wing
+  is.
+  - **A doorway at the east end of the arms' floor.** Beyond it a room three screens tall.
+  - **A ring of two planets, turning.** A block of brass under its hub: from the block's top a planet at the foot
+    of its turn is a short leap up.
+  - **The ring passes two shelves:** one on the west wall, with a chest; one across the room, at the foot of a
+    tower of brass thirty rows tall.
+  - **Over that shelf, a second arm: the outermost.** Its planet stands at the foot of its turn. He can leap up on
+    to it from the shelf. It does not move. A line is cut in the brass under it.
+  - **Its key is in the winding room,** beside the drum: behind the Almanac, at the far end of the wing.
+  - **Wound, the outermost goes round:** up the west side of its turn, over the top, and down past the tower's
+    head. A thread, a chest, a window east, and a second line cut in brass.
+- **To try:**
+  1. In the Orrery Wing, ride the arms as before, and go on east along their floor.
+  2. Get up on to the ring from the block. Ride it to each shelf.
+  3. From the shelf across the room, get up on to the outermost. See that it stands.
+  4. Still the Almanac, go into the winding room, and strike the key beside the drum.
+  5. Go back to the ring. Ride the outermost to the tower's head.
+
+**What is weaker than it should be**
+
+- **The key is on the wing's own way.** He has to still the Almanac to finish the wing anyway, and the key is in
+  the room behind it. A player who clears the wing first and finds the ring after has nothing to work out.
+- **The room is the arms again, taller.** A hub, planets, a mounting block, one creature on the floor.
+- **A fall costs only the climb.** The floor is twenty-nine rows under the ring. One brass ring rolls on it.
+- **The outermost goes round for good once wound,** and at the top of its turn it is a level leap from the
+  tower. There is nothing to time but the leap.
+- **The key can be struck again, and stops it.** Nothing tells him why it has stopped but the words on the screen.
+- **Not played by a person.**
+
+- **Save: not moved.** The Firmament is two columns wider to the east, and nothing in it is anywhere else. Adds
+  nothing new (the outermost's key is kept with the gates he has raised).
+- **Checked:** 559 automated checks, three new (in `tests/side-edges.test.mjs`): where the room is and how he
+  comes into it; the ring and the outermost (two planets opposite each other that go by the world's clock; a third
+  that stands at the foot of its turn whatever the clock says, goes on from there when wound, up the west side
+  first, never into the tower, and comes within a leap of the tower's head; the tower sheer for thirty rows; the
+  key in the winding room, behind the Almanac; what is at each place); and played with the real motor: the ring
+  and both shelves with nothing wound, the tower's head not with every gift he has, the tower's head wound, and
+  from every place in the room a way back. One older check changed: the Orrery Wing's count of what moves in it.
+  In the test browser: the room seen from the door, the block, both shelves and the tower's head; he stood on the
+  outermost while it stood; the key struck and the outermost seen going; both lines said.
+- **Not checked:** not played by hand; the ride on the outermost by hand; the sounds.
+- **Mistakes caught before it went out:**
+  - **The way in was first off the arms' high shelf,** which the map check cannot reach (it does not glide). In at
+    the floor now.
+  - **The outermost stood at the top of its turn, not the foot:** level with the tower's head and a leap from
+    it. The check that plays it did not catch this (nothing reaches the planet up there). The check that says
+    where it stands did.
+  - **The windlass's own words were not said:** the line a windlass is given was never passed on to the game. It
+    is now (this also gives the Roots' chain its own line, if it is ever given one).
 
 ### Build 118: the far ends of the Tempest and of the Gardens
 

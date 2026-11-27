@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 118, date: '27 NOV 2026', phase: 17, phases: 22, last: 'THE TEMPEST: THE GREAT ROD, THE BLUE. THE GARDENS: THE RISING MAIN, THE LAST HOUSE' };
+const VERSION = { build: 119, date: '27 NOV 2026', phase: 17, phases: 22, last: 'THE FIRMAMENT: THE OUTER RING' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -99,7 +99,7 @@ const GLITTER = { lv: null, at: [] };   // the Vein: where its crystals are (the
 const CALMS = { wait: 2.5, open: 4, near: 4.5, ease: 0.5 }, EYE = { door: null, p: 0, held: null };   // the Eye of the Storm (regions/eye.js CALMS says the same): the door of cloud he waits at, and how long he has waited
 const WAY = { was: false, said: new Map(), fall: [], lines: [], lv: -1, n: 0 };
 // words that are on a thing in the world, said as he stands by it: what is said before them, and for how long (by the deco's kind)
-const SPOKEN = { reason: ['Scratched on the stone: ', 2.6], keepline: ['Cut in the wall: ', 4], shelfmark: ['On the shelf\'s label: ', 4], ledger: ['In the binders\' ledger: ', 5], castmark: ['Cast in the rim: ', 4], mainmark: ['Cut over the channel: ', 4.5], doorplate: ['On the plate by the door: ', 4] }; let SHUTSAID = false, LOOKT = 0;   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
+const SPOKEN = { reason: ['Scratched on the stone: ', 2.6], keepline: ['Cut in the wall: ', 4], shelfmark: ['On the shelf\'s label: ', 4], ledger: ['In the binders\' ledger: ', 5], castmark: ['Cast in the rim: ', 4], mainmark: ['Cut over the channel: ', 4.5], doorplate: ['On the plate by the door: ', 4], ringplate: ['Cut in the brass: ', 4.5] }; let SHUTSAID = false, LOOKT = 0;   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
 // `walked`: he has walked in from the next region (cross): he and his scarf are as they were
 // what his save holds in this level, moved with it if it has grown west or down since (state.js): as soon as the level is made
 const rebased = () => { if (rebase(LEVEL.index, LEVEL.X0 || 0, LEVEL.Y0 || 0) && G.began) store(); };

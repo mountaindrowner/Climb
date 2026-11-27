@@ -2,6 +2,7 @@
 // them and past the wings' far ends, and the save that follows a level when it grows.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 const LV = await import('../src/side/level.js'), ST = await import('../src/side/state.js');
 const { LEVELS, loadLevel, LIFT, ROOM } = LV;
@@ -361,6 +362,63 @@ test('the Gardens\' far ends, played: down the main and back with the falls shut
   assert.ok(!R.reached(UPSET4.seen, lh, UPSET4.W) && !R.reached(UPSET4.seen, at, UPSET4.W), 'the last house: not while anything is out of its place');
   const home = { main: lo, lasthouse: room4('hishouse'), attic: room4('hishouse') };
   for (const n of FAR4){ const from = nodesIn(ALL4, room4(n)); assert.ok(from.length > 0); for (const k of from) assert.ok([...onward(ALL4, [k])].some(c => inRoom(ALL4, c, home[n])), `${n}: from ${k % ALL4.W - room4(n).tx0},${Math.floor(k / ALL4.W) - room4(n).ty0} there is a way back`); }
+});
+
+// ---- the Firmament (build 119): the Outer Ring past the arms
+const FF = await import('../src/side/regions/firmamentfar.js');
+const L5 = { ...R.loadLevel(5) }, room5 = n => L5.rooms.find(r => r.name === n);
+
+test('the Firmament: two columns further east, six screens, in off the arms\' floor; nothing to the west', () => {
+  const ou = room5('outer'), ar = room5('arms'); assert.ok(ou && ou.far && ou.wing); assert.equal(ou.title, 'THE OUTER RING'); assert.equal(ou.look, 'orrery'); assert.equal(ou.gate, '', 'open, as the wing is');
+  assert.equal((ou.tx1 - ou.tx0) * (ou.ty1 - ou.ty0) / (ROOM.w * ROOM.h), 6);
+  assert.equal(ou.tx0, ar.tx1, 'east of the arms'); assert.equal(ou.tx1, L5.W, 'to the level\'s east edge'); assert.equal(ou.ty0, ar.ty0, 'from their floor'); assert.equal(ou.ty1, ar.ty1 + ROOM.h, 'a screen higher than they go');
+  assert.equal(L5.X0, ST.ORG115[5][0], 'the Firmament is not moved: the west is the Shard\'s');
+  for (let y = 2; y <= 7; y++) for (const x of [ar.tx1 - 2, ar.tx1 - 1, ou.tx0, ou.tx0 + 1]) assert.equal(L5.tiles[(ar.ty0 + y) * L5.W + x], LV.EMPTY, 'the way in, at the floor');
+  assert.equal(L5.tiles[(ar.ty0 + 1) * L5.W + ou.tx0], LV.ROCK, 'on one floor with the arms');
+});
+
+test('the Outer Ring: two planets that turn from the first; the outermost stands at the foot of its turn until its key is turned, in the winding room', () => {
+  R.loadLevel(5); LV.setGates();
+  const ou = room5('outer'), wi = room5('winding'), G = FF.RING, O = G.outer, T = LV.T;
+  const mine = LV.LEVEL.movers.filter(m => m.cx >= ou.x0), ring = mine.filter(m => !m.key), out = mine.filter(m => m.key === O.key);
+  assert.equal(mine.length, 3); assert.equal(ring.length, 2); assert.equal(out.length, 1); assert.ok(mine.every(m => m.kind === 'arm'));
+  assert.ok(Math.abs(ring[0].ph - ring[1].ph) === 0.5, 'opposite each other'); assert.ok(ring.every(m => m.r === G.r * T));
+  // the ring goes by the world's clock; the outermost does not go
+  const [a, b] = [LV.moverAt(ring[0], 0), LV.moverAt(ring[0], 3)]; assert.ok(Math.hypot(a[0] - b[0], a[1] - b[1]) > 1, 'the ring turns');
+  const foot = LV.moverAt(out[0], 0); for (const t of [1, 7.3, 400]) assert.deepEqual(LV.moverAt(out[0], t), foot, 'not wound: it stands');
+  assert.ok(Math.abs(foot[0] - (ou.x0 + (O.hub[0] + 0.5) * T)) < 0.3 && Math.abs(foot[1] - (ou.y0 + (O.hub[1] - O.r) * T)) < 0.01, 'at the foot of its turn');
+  // from the shelf he can get up on to it; from it the tower's head is far out of reach
+  const footRow = O.hub[1] - O.r; assert.ok(footRow - G.row <= 7, 'a leap up from the shelf'); assert.ok(G.tower[2] - footRow > 18, 'and the head of the tower more than he can come up by any means from there');
+  assert.ok(G.tower[2] - G.row >= 30, 'the tower is sheer from the shelf: thirty rows'); for (let y = G.row; y < G.tower[2]; y++) assert.equal(L5.tiles[(ou.ty0 + y) * L5.W + ou.tx0 + G.tower[0]], LV.ROCK, 'its face is stone all the way');
+  // wound at t = 50: on from where it stood, round the west side and up; at the top of its turn it is over the tower's head, a step away
+  LV.RULE.gates.add(O.key); LV.keyRun(O.key, true, 50); assert.deepEqual(LV.moverAt(out[0], 50), foot);
+  const q = LV.moverAt(out[0], 50 + O.period / 4), top = LV.moverAt(out[0], 50 + O.period / 2);
+  assert.ok(q[0] < foot[0] - O.r * T * 0.9, 'up the west side first: away from the tower');
+  assert.ok(Math.abs(top[1] - (ou.y0 + (O.hub[1] + O.r) * T)) < 0.01 && top[1] >= ou.y0 + G.tower[2] * T, 'its top is level with the tower\'s head');
+  let near = Infinity; for (let t = 50; t < 50 + O.period; t += 0.05){ const [x, y] = LV.moverAt(out[0], t); if (y >= ou.y0 + (G.tower[2] - 5) * T) near = Math.min(near, ou.x0 + G.tower[0] * T - (x + O.w * T / 2)); }
+  assert.ok(near < 7 * T, 'and comes within a leap of it'); for (let t = 50; t < 50 + O.period; t += 0.05){ const [x] = LV.moverAt(out[0], t); assert.ok(x + O.w * T / 2 <= ou.x0 + G.tower[0] * T + 0.26, 'it does not swing into the tower'); }
+  // his save keeps it going
+  LV.setGates({ [O.key]: 1 }); assert.ok(LV.RULE.gates.has(O.key)); LV.setGates(); assert.ok(!LV.RULE.gates.has(O.key));
+  // its key: in the winding room, which is behind the Almanac
+  const key = L5.marks.filter(m => m.type === 'windlass'); assert.equal(key.length, 1); assert.equal(key[0].key, O.key); assert.ok(in0(key[0], wi), 'in the winding room'); assert.ok(wi.after, 'behind the Almanac');
+  assert.ok(LV.REGION_DATA[5].enemies.windlass && LV.REGION_DATA[5].ai.windlass, 'the Firmament knows what a windlass is');
+  // what is there: a chest on the west shelf; a thread and a chest at the tower's head; two lines cut in brass
+  const th = L5.marks.filter(m => m.type === 'thread' && in0(m, ou)); assert.equal(th.length, 1); assert.equal(th[0].y - ou.ty0, G.tower[2]); assert.ok(th[0].x - ou.tx0 >= G.tower[0]);
+  assert.equal(L5.marks.filter(m => m.type === 'chest' && in0(m, ou)).length, 2); const said = L5.marks.filter(m => m.type === 'deco' && m.says && in0(m, ou)); assert.equal(said.length, 2); assert.ok(said.every(m => m.kind === 'ringplate'));
+  const src = readFileSync(new URL('../src/side/main.js', import.meta.url), 'utf8'); assert.ok(/ringplate: \[/.test(src), 'and the game says them');
+});
+
+const ALL5 = R.graph(5, [...R.GIFTS, 'still']), SHUT5 = R.graph(5, ['shut', 'still', ...R.GIFTS]);
+test('the Outer Ring, played: the ring and both shelves from the first; the tower\'s head only by the outermost; and a way back', () => {
+  const ou = room5('outer'), ar = room5('arms'), G = FF.RING;
+  assert.ok(R.reached(R.graph(5, R.arrival(5)).seen, ou, L5.W), 'come to as he arrives, with the wing');
+  assert.ok(R.reached(SHUT5.seen, room5('winding'), SHUT5.W), 'he has been in the winding room, and turned nothing');
+  assert.ok(stood(SHUT5, ou, G.west[0], G.row, G.west[1], G.row), 'the west shelf'); assert.ok(stood(SHUT5, ou, G.shelf[0], G.row, G.shelf[1], G.row), 'the shelf across');
+  assert.ok(!stood(SHUT5, ou, 40, G.tower[2] - 12, 79, 68), 'not the tower\'s head, nor anywhere near it: not with every gift he has');
+  assert.ok(stood(ALL5, ou, G.tower[0], G.tower[2], G.tower[1], G.tower[2]), 'wound: the tower\'s head');
+  const th = L5.marks.find(m => m.type === 'thread' && in0(m, ou)); assert.ok([...ALL5.seen].some(k => Math.abs(k % ALL5.W - th.x) <= 1 && Math.floor(k / ALL5.W) === th.y), 'and its thread');
+  const inRoom = (k, r) => { const i = k % ALL5.W, j = Math.floor(k / ALL5.W); return i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1; };
+  const from = nodesIn(ALL5, ou); assert.ok(from.length > 0); for (const k of from) assert.ok([...onward(ALL5, [k])].some(c => inRoom(c, ar)), `outer: from ${k % ALL5.W - ou.tx0},${Math.floor(k / ALL5.W) - ou.ty0} there is a way back`);
 });
 
 test('the game moves a save with its level wherever a level is made: as it starts, on going into a region, on walking into one', async () => {

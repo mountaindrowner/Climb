@@ -274,7 +274,7 @@ export const ai = {
   },
   windlass(e, P, dt, c){
     const m = e.mk || {}; e.st = 'idle'; e.cool = Math.max(0, (e.cool || 0) - dt);
-    if (e.struck){ e.struck = false; if (e.cool <= 0){ e.cool = 0.8; c.events.push({ type: 'windlass', e, key: m.key, at: { x: e.x, y: e.y + 1 } }); } }
+    if (e.struck){ e.struck = false; if (e.cool <= 0){ e.cool = 0.8; c.events.push({ type: 'windlass', e, key: m.key, says: m.says, at: { x: e.x, y: e.y + 1 } }); } }
     const T3 = three(); if (!T3) return;
     if (!e.g){ const X = texes(T3), g = new T3.Group(), ring = e.d.look === 'ring', dr = ring ? mesh(T3, X.ring, 12 / 16, 1) : mesh(T3, X.drum, 14 / 16, 14 / 16);
       if (!ring){ const fr = mesh(T3, X.frame, 18 / 16, 1); fr.position.y = 0.5; g.add(fr); } dr.position.set(0, ring ? 0.9 : 0.62, 0.001); g.add(dr); g.position.set(e.x, e.y, 0.04); c.E.scene.add(g); e.g = g; e.dr = dr; }

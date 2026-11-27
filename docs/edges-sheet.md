@@ -220,6 +220,20 @@ world. Three screens down into the new rock.
 
 **West** is where the Shard will be, and the Shard wants its own sheet. Not here.
 
+#### As built: build 119
+
+*Pictures: `docs/firmament-far-build119.png`. Six screens, in one room two wide and three tall.*
+
+| The sheet said | It is | Why |
+|---|---|---|
+| "Past the arms: the far planets, on arms long enough to swing out over nothing" | **A ring of two planets on arms fifteen tiles long, over a floor twenty-nine rows under them,** and a second, longer arm above | A fall to nothing would be a death. The floor is far enough to cost him the climb back |
+| Not said | **He comes in at the floor,** from the arms' floor, and mounts the ring from a block under its hub, as in the arms | The first way in was off the arms' high shelf. The map check does not glide and could not reach it; nor could a player who had not found that shelf |
+| "One of them has stopped" | **The outermost,** on its own arm, standing at the foot of its turn over the shelf across the room. He can get up on to it. It goes nowhere | |
+| "Its key is in the winding room" | **As said:** a windlass beside the drum. The winding room is behind the Almanac | So the ring is seen first, and the key is at the far end of the wing |
+| "Wound, it goes again, and is the way to the ring's far side" | **It carries him up the west of its turn to the head of a tower of brass,** thirty rows over the shelf | "Up": the room is a screen taller than the arms |
+| "A thread, a chest" | **A thread and a chest at the tower's head; a chest on a shelf of the west wall,** which the ring reaches without the key | Something to find before the key is found |
+| Not said | **Two lines cut in brass:** under the outermost, and at the tower's head | |
+
 ### 7 to 11. The Deep
 
 Smaller: the Deep is shut for most of the game (decision 0.26), and its sections have no wings to build past.

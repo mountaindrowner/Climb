@@ -16,7 +16,7 @@ const inRoom = (m, r) => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.
 test('nine screens east of the orrery room, open to anyone; the winding room behind the Almanac; the Firmament not moved', () => {
   const rs = NAMES.map(room); assert.ok(rs.every(Boolean)); assert.equal(rs.reduce((n, r) => n + (r.tx1 - r.tx0) * (r.ty1 - r.ty0) / (40 * 23), 0), 9);
   assert.ok(rs.every(r => !r.gate && r.wing && r.title === 'THE ORRERY WING' && r.tx0 >= room('orrery').tx1)); assert.ok(room('winding').after && !room('almanac').after); assert.equal(R.loadLevel(5).X0, 0, 'a save is not moved');
-  assert.equal(L.movers.length, 5, 'two pallets and three planets'); assert.equal(L.movers.filter(m => m.kind === 'arm').length, OR.ARMS.length);
+  const own = L.movers.filter(m => m.cx < room('arms').x1) /* (not the Outer Ring's three, past the arms: build 119, held in side-edges) */; assert.equal(own.length, 5, 'two pallets and three planets'); assert.equal(own.filter(m => m.kind === 'arm').length, OR.ARMS.length);
 });
 // the world's clock run by hand, he on a mover: what the game does, a step at a time
 const ride = (m, secs, keys = []) => { LV.PHASE.all = false; LV.PHASE.t = 0; for (const q of LV.LEVEL.movers) q.at = -1; LV.moversNow(); I.release(); clock.t += 10; const P = M.newPlayer(m.x, m.y + 0.5), tr = [];
