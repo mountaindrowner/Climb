@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 119, date: '27 NOV 2026', phase: 17, phases: 22, last: 'THE FIRMAMENT: THE OUTER RING' };
+const VERSION = { build: 120, date: '27 NOV 2026', phase: 17, phases: 22, last: 'THE DEEP: THE WINDING-HOUSE, THE FALSE LODE, THE DROWNED STOPE, THE ADIT, THE FAR WALL' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -99,7 +99,7 @@ const GLITTER = { lv: null, at: [] };   // the Vein: where its crystals are (the
 const CALMS = { wait: 2.5, open: 4, near: 4.5, ease: 0.5 }, EYE = { door: null, p: 0, held: null };   // the Eye of the Storm (regions/eye.js CALMS says the same): the door of cloud he waits at, and how long he has waited
 const WAY = { was: false, said: new Map(), fall: [], lines: [], lv: -1, n: 0 };
 // words that are on a thing in the world, said as he stands by it: what is said before them, and for how long (by the deco's kind)
-const SPOKEN = { reason: ['Scratched on the stone: ', 2.6], keepline: ['Cut in the wall: ', 4], shelfmark: ['On the shelf\'s label: ', 4], ledger: ['In the binders\' ledger: ', 5], castmark: ['Cast in the rim: ', 4], mainmark: ['Cut over the channel: ', 4.5], doorplate: ['On the plate by the door: ', 4], ringplate: ['Cut in the brass: ', 4.5] }; let SHUTSAID = false, LOOKT = 0;   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
+const SPOKEN = { reason: ['Scratched on the stone: ', 2.6], keepline: ['Cut in the wall: ', 4], shelfmark: ['On the shelf\'s label: ', 4], ledger: ['In the binders\' ledger: ', 5], castmark: ['Cast in the rim: ', 4], mainmark: ['Cut over the channel: ', 4.5], doorplate: ['On the plate by the door: ', 4], ringplate: ['Cut in the brass: ', 4.5], chalk: ['Chalked on the board: ', 4.5] }; let SHUTSAID = false, LOOKT = 0;   // the Pilgrims' Cairns: whether the stones of the way were gone last step; when each stone's words were last said
 // `walked`: he has walked in from the next region (cross): he and his scarf are as they were
 // what his save holds in this level, moved with it if it has grown west or down since (state.js): as soon as the level is made
 const rebased = () => { if (rebase(LEVEL.index, LEVEL.X0 || 0, LEVEL.Y0 || 0) && G.began) store(); };
@@ -243,7 +243,7 @@ function wingStep(dt){
       if (m.kind === 'sourceflame'){ R.glint((m.x + 0.5) * T, m.y * T + 0.7, 0xff9a40, 1.9 + 0.15 * Math.sin(time * 2.1), 13, 0); if (Math.abs((m.x + 0.5) * T - P.x) < 16 && Math.random() < 0.08) fx.burst({ x: (m.x + 0.5) * T + (Math.random() - 0.5) * 0.3, y: m.y * T + 1 }, 1, 0xfee761);
         if (Math.abs((m.x + 0.5) * T - P.x) < 6 && !G.source){ G.source = 1; G.flasks = (G.flasks || 0) + 1; P.flaskMax = maxFlask(); P.flask = P.flaskMax; P.hp = P.maxHp; store(); sfx.shrine(); fx.ring({ x: P.x, y: P.y + 1 }, 0xffd9a0); R.glint(P.x, P.y + 1.2, 0xfff0d0, 1.4, 10, 1.5);
           card({ head: 'THE BOTTOM OF THE MOUNTAIN', title: 'The Source', icon: 'flask', does: 'Your flask now holds one more drink, for good.', how: ['This is a pool: you can rest here and travel from here.'], lore: 'A spring rises here. Beside it burns a small flame that no one tends. All the water in the mountain comes up from this place.' }); } } }
-    if (!G.lipSeen && dark && P.grounded) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'shaft' && Math.abs(m.x * T - P.x) < 12 && P.y > m.y * T + 3){ G.lipSeen = 1; store(); banner('The lip', 'The Great Shaft. It goes down further than your lamp reaches.', 7); } }
+    if (!G.lipSeen && dark && P.grounded) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'shaft' && Math.abs(m.x * T - P.x) < 12 && P.y > m.y * T + 3 && P.y < m.y * T + 10 /* (build 120: on the lip, not anywhere over it. It was said in the glitter, four screens up) */){ G.lipSeen = 1; store(); banner('The lip', 'The Great Shaft. It goes down further than your lamp reaches.', 7); } }
   // the Orrery Wing: the hours cut in the wall, the first time he stands by them
   if (!G.datesSeen && P.grounded && (LEVEL.movers || []).length) for (const m of LEVEL.marks) if (m.type === 'deco' && m.kind === 'dates' && Math.abs(m.x * T - P.x) < 3 && Math.abs(m.y * T - P.y) < 2){ G.datesSeen = 1; store(); banner('The hours', 'Every hour the almanac gave for the flame to return. All of them have passed.', 7); }
   // the Aqueducts: the head, the first time he stands at it
@@ -1351,10 +1351,12 @@ function onEvent(e){
     // the Drowned Galleries: a windlass turned. Its gate goes up, or comes down; a gate that comes down holds the water
     // behind it at the height it has now. His save keeps both
     // the Empty Shelves (build 117): a ladder struck. It rolls to the other end of its rail; his save keeps where it is going
-    case 'rail': { const to = railSend(e.key); if (to == null) break; ((G.rails = G.rails || {})[LEVEL.index] = G.rails[LEVEL.index] || {})[e.key] = to; store(); sfx.creak(); sfx.rumble(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.1); fx.dust(e.at, 10, 2);
-      if (!G.railTold){ G.railTold = 1; store(); banner('A ladder on a rail', 'Struck, it rolls to the other end of its rail.', 4); } break; }
+    case 'rail': { const nd = (LEVEL.movers || []).find(m => m.key === e.key && m.needs);   // (build 120) a cage whose engine is not going: its lever does nothing
+      if (nd && !RULE.gates.has(nd.needs)){ sfx.creak(); banner('', 'It does not move. Nothing is turning its drum.', 3); break; }
+      const to = railSend(e.key); if (to == null) break; ((G.rails = G.rails || {})[LEVEL.index] = G.rails[LEVEL.index] || {})[e.key] = to; store(); sfx.creak(); sfx.rumble(); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.1); fx.dust(e.at, 10, 2);
+      if (!nd && !G.railTold){ G.railTold = 1; store(); banner('A ladder on a rail', 'Struck, it rolls to the other end of its rail.', 4); } break; }
     case 'windlass': { const up = !RULE.gates.has(e.key), holds = LEVEL.marks.some(m => m.type === 'gate' && m.key === e.key && m.holds);
-      const runs = (LEVEL.movers || []).some(m => m.key === e.key);   // (build 116) a windlass may turn a chain or a lift, and no gate
+      const runs = (LEVEL.movers || []).some(m => m.key === e.key || m.needs === e.key);   // (build 116) a windlass may turn a chain or a lift, and no gate
       if (up){ RULE.gates.add(e.key); delete RULE.held[e.key]; } else { RULE.gates.delete(e.key); if (holds) RULE.held[e.key] = breath(); }
       if (runs) keyRun(e.key, up);
       ((G.gates = G.gates || {})[LEVEL.index] = G.gates[LEVEL.index] || {})[e.key] = up ? 1 : { held: holds ? RULE.held[e.key] : null }; store(); PROPS.show();
@@ -1362,6 +1364,7 @@ function onEvent(e){
       for (const B of PROPS.sluices || []) if (B.key === e.key) fx.dust({ x: B.x, y: B.y }, 14, 3);
       if (e.key === 'hatch') banner('', up ? 'The hatch in the hall\'s floor has lifted.' : 'The hatch has shut.', 3);
       else if (runs) banner('', up ? (e.says || 'Somewhere a chain has begun to turn.') : 'It has stopped.', 3.2);
+      else if (e.says && up) banner('', e.says, 3.2);   // (build 120: a windlass with its own line says it)
       else if (!G.gateTold){ G.gateTold = 1; store(); banner('A windlass', up ? 'Somewhere a gate has gone up. The chain on the wall shows where.' : 'Its gate has come down again.', 5); }
       else banner('', up ? 'A gate has gone up.' : holds ? 'Its gate has come down. The water behind it will stay as it is.' : 'Its gate has come down.', 2.6); break; }
     // the Ossuary's scales: what is in a pan has changed (a stack knocked into it; a Tallyman taking a piece out; his own

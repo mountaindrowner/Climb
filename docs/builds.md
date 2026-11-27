@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 119 | 27 Nov 2026 | `6170aab` | The Firmament's far end, six screens: the Outer Ring past the arms (a ring of two planets that turns from the first; a second arm, the outermost, that stands until it is wound from the winding room, and then carries him to the head of a tower) | no | yes (now) |
+| 120 | 27 Nov 2026 | `COMMIT120` | The Deep's far ends, seventeen screens: the Winding-House (the Workings: a cage that runs once its engine is started), the False Lode (the Vein: a ring with the guild's air-door across it), the Drowned Stope (the Flooded Levels: a windlass in the air, a grate under two screens of water), the Adit (the Great Shaft: a wall against the cold, and the cold up a raise), the Far Wall (the Hollow: a rough face four screens tall). Every level has its far ends | no (a save follows the level) | yes (now) |
+| 119 | 27 Nov 2026 | `6170aab` | The Firmament's far end, six screens: the Outer Ring past the arms (a ring of two planets that turns from the first; a second arm, the outermost, that stands until it is wound from the winding room, and then carries him to the head of a tower) | no | replaced by 120 |
 | 118 | 27 Nov 2026 | `152e4f7` | The far ends of the Tempest and of the Gardens, ten screens: the Great Rod off the coils (plates of iron live in one half or the other, and a crane's hook on a rail) and the Blue past the stills (floors of cloud that let him down when he stands still); the Rising Main past the lock (four falls and their wheels) and the Last House past his own (a kept door, an attic) | no (a save follows the level) | replaced by 119 |
 | 117 | 27 Nov 2026 | `bdff3d0` | The Spires' far ends, eight screens: the Way Down past his cairn (a cleft he drops down and cannot climb; the wall at its foot keeps off the wind that carries him back) and the Crevasse past the Seated (a crack in the glacier; one fire at its head melts the plug in its floor, forty rows below) | no (a save follows the level) | replaced by 118 |
 | 116 | 27 Nov 2026 | `220224b` | The far ends of the Roots and of the Cloister, twenty-one screens. The Roots: the Drawing-Place past the weir (a bucket-chain he sets going and rides; the Well sounded three screens down) and the Unsorted (a pit, one scale with its stack in three, the first tomb under it). The Cloister: the Empty Shelves past the copying hall (two ladders that roll on rails when struck; the binders' loft) and the Cull past the slag runs (a casting crane sent from a winch on the pit's floor). The keepers' words in the Drowned Galleries are said at last | no (a save follows the level, build 115) | replaced by 117 |
@@ -135,6 +136,120 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 120: the Deep's far ends
+
+*The last of the levels' edges (`docs/edges-sheet.md`, sections 7 to 11, and "As built: build 120"). Pictures:
+`docs/workings-far-build120.png`, `docs/vein-far-build120.png`, `docs/flooded-far-build120.png`,
+`docs/shaft-far-build120.png`, `docs/hollow-far-build120.png`. One thing new in the engine: a thing on a rail may need
+an engine going before anything sends it.*
+
+**For the player**
+
+- **The Workings, west: the Winding-House.** Four screens.
+  - **A doorway off the shaft's west stage,** just under where he comes down. Beyond it a landing, and a cage
+    hanging level with it in a second compartment of the shaft. Its way down is sheer, fifty rows.
+  - **A lever in the cage, and a winch on the landing.** Struck, they do nothing: "It does not move. Nothing is
+    turning its drum."
+  - **A doorway at the west end of the long level** comes to the foot of the same compartment: a second winch, and
+    beside the cage's way, behind a wall of rock, the pumpmen's ladder-way. Eleven sills, one side and the other,
+    three screens up. A chest and a board on the way.
+  - **At its head, the winding-house,** in the row over the level: the engine, the banksman's board, a chest, a
+    thread. Its windlass starts the engine.
+  - **With the engine going,** a hatch in the winding-house floor is open: it drops him on to the landing by the
+    cage. The lever sends the cage down, and back. Either winch calls it.
+- **The Vein, east: the False Lode.** Four screens. Dark, as the Vein is.
+  - **A doorway at the east end of the glitter.** A drift along the foot of a ring, a riser up its east side by
+    five sills, back along the top, and down its west side by two long drops.
+  - **At the foot of the west side, the guild's air-door,** lying shut across the riser. He is standing on it, a
+    few rows over where he came in. Its windlass is on the sill over it.
+  - **An Echo is in the ring.** Until the door is up, the only way out is back over his own way.
+  - **A thread at the head of the east riser,** half-way round. A chest. Four of the guild's lamps. Two boards.
+- **The Flooded Levels, west: the Drowned Stope.** Three screens, under water.
+  - **A doorway in the chapel's west wall, at its floor.** Beyond it a chamber worked out and left: one screen up
+    to its roof, two down to its foot, into the rock under the level.
+  - **In its roof, a dome of air.** A dry ledge, the guild's lamp, a board, a windlass.
+  - **At its foot, a grate across a strong-room** cut under a bench of stone. The windlass in the air raises it.
+    The thread is inside.
+- **The Great Shaft, west: the Adit.** Two screens. No lamp in it but his.
+  - **A tunnel in the shaft's west wall,** level with the camp's stage half-way down. A wall of stacked stone
+    stands in its mouth. Past it, the camp of the ones who stopped: cots, a kettle, a chest, a board.
+  - **At the tunnel's far end, a raise:** a chimney up through the rock, twenty-eight rows, with one sill in it
+    twelve rows up. From the sill the rest is more than he climbs.
+  - **Knock the wall down** (three blows) and the shaft's cold comes through the tunnel and rises up the raise. He
+    rides it to the room over: where they slept. A thread, and the last thing they chalked.
+- **The Hollow, east: the Far Wall.** Four screens. The face is for one who has the grip.
+  - **A doorway at the east end of the Hollow's floor,** past the last of the engine's rings. A chamber: a board,
+    a chest, an Echo.
+  - **Its east wall is rough rock,** from the floor up out of the lamp's reach. Three sills on the other side of
+    the shaft to let go to, a lamp over each.
+  - **At its head, in the row over the level:** a board, and a thread.
+- **Mended:**
+  - **The Lip's words** ("The Great Shaft. It goes down further than your lamp reaches") were said in the glitter,
+    four screens over the Lip, to anyone who walked its east half. They are said on the lip now.
+  - **A gate's windlass that has its own line says it.** It said the general one.
+- **To try:**
+  1. In the Workings, go west off the shaft's first stage. Stand in the cage and strike its lever.
+  2. Go down to the long level, west to its end, and up the ladder-way. Start the engine. Drop through the hatch.
+  3. Ride the cage down and up. Call it from the other end with a winch.
+  4. In the Vein, go east from the glitter and round the ring. At the air-door, look for what raises it.
+  5. In the Flooded Levels, go west from the chapel. Find the air; then find what the windlass did.
+  6. In the Great Shaft, go in at the west stage half-way down. Try the raise. Then knock the wall down.
+  7. In the Hollow, look at the Far Wall on the way to the Auger. Come back with the grip.
+
+**What is weaker than it should be**
+
+- **The cage is a quicker way, not a way to anything.** The shaft's stages still go from the pithead to the long
+  level. What the engine opens is the winding-house's own way out.
+- **The ladder-way is the same hop eleven times.**
+- **With the cage at the foot, the landing is beside a drop of fifty rows.** A winch is there to call it. Nothing
+  stops him walking off.
+- **The air-door's windlass is beside the door.** It is on the inside, so the door cannot be raised from where he
+  came in; but once he is there it is in front of him.
+- **The Stope's working is the False Lode's the other way up:** a windlass in one place and a gate in another.
+  Two in one build.
+- **The Adit is not "glided into".** It is walked into from a stage.
+- **The Adit's wall is the Cairns' wall,** drawn as the pilgrims' slates. It is not drawn as miners' stone.
+- **The Far Wall is fifty-six rows of climbing and three places to rest.** The Echo at its foot follows him up
+  it. How hard that is on a rough face has not been felt by a person.
+- **The cage, the engine and the boards are painted by code,** as the rest of the far ends' things are.
+- **Not played by a person.**
+
+- **Save: not moved by hand.** The Workings, the Flooded Levels and the Great Shaft are each a column wider to the
+  west; a save from before is moved by that as he comes into the level. Adds: the engine and the cage (kept with
+  the gates he has raised and the rails he has sent).
+- **Checked:** 572 automated checks, thirteen more than before: eleven new (in `tests/side-edges.test.mjs`),
+  and two of the older per-level checks ("no traps, its gates open") that are now made for levels which have a room
+  behind a gift for the first time. For each level: where its
+  rooms are and how he comes into them, what each working is made of, and a play with the real motor. The Workings:
+  the cage hangs at the head of a sheer way; nothing sends it until the engine is going, then fifty rows in its
+  time and back; the hatch one way; the winding-house only by the ladder-way. The Vein: all the way round to the
+  air-door with nothing turned and no way through it; with it up, out where he came in. The Flooded Levels: the air
+  and its ledge; the strong-room only with the grate up. The Great Shaft: the raise's air is not there until the
+  wall is down; the room over only then, and only with a wind to ride. The Hollow: the foot as he comes; the face
+  only with the grip, sill by sill to the head. And for every one: from each place in it a way back. Older checks
+  changed: the lists of things that are not creatures (the cage).
+  In the test browser: every new room seen; the cage's lever struck with the engine stopped and going, and the
+  cage ridden down, and called from the foot with him standing there (it comes whole); the air-door, the grate and
+  the wall each seen before and after.
+- **Not checked:** not played by hand; the cage called from the far end by hand; the swim down the Stope by hand;
+  the ride up the raise by hand; the Far Wall climbed by hand; the sounds.
+- **Mistakes caught before it went out:**
+  - **The wall between the ladder-way and the cage hung in the air,** with a way round it at the top and at the
+    bottom. The top is a hatch now, which is why the engine opens it.
+  - **A wick-fly put in the cage's way rode down in the cage with him.** Taken out.
+  - **Called from the far end, the cage would have come as a floor with nothing on it.** Its frame and its lever
+    are a thing of their own, and things at rest far from him sleep where they are. The cage never sleeps now.
+  - **The False Lode's thread hung in the air over the riser.** On the rock beside it now.
+  - **The Far Wall was first set off the Source's east end.** That end is sealed behind the Source's own rough
+    face: nothing comes to it. Off the circles now.
+  - **Its face began six rows over the floor,** and he could not take hold of it. It is the chamber's east wall,
+    from the floor.
+  - **Its head could not be stood on:** he let go of the face and fell past the lip. The lip is a tile wider, and
+    the face goes a little over it.
+  - **From the Adit's upper room the only way down was a fall of twenty-eight rows.** One sill in the raise now.
+  - **Three markers that keep the rock from growing were set inside new stone** (the Stope's ledge, the raise's
+    sill).
 
 ### Build 119: the Firmament's far end
 

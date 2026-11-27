@@ -246,12 +246,33 @@ Smaller: the Deep is shut for most of the game (decision 0.26), and its sections
 | **The Great Shaft** | **The Adit:** a side tunnel half-way down the drop, glided into. The camp of the ones who stopped there. A thread, a chest |
 | **The Hollow** | **The Far Wall:** rough rock, climbed with the grip, up into the room above the level: the guild's highest mark. A thread |
 
+#### As built: build 120
+
+*Pictures: `docs/workings-far-build120.png`, `docs/vein-far-build120.png`, `docs/flooded-far-build120.png`,
+`docs/shaft-far-build120.png`, `docs/hollow-far-build120.png`. Seventeen screens over the five levels. One build, not
+two: all five were ready together.*
+
+| The sheet said | It is | Why |
+|---|---|---|
+| **The Workings.** "The lift has been stuck in its shaft since the level was built... its engine started, the cage goes between the pithead and the long level" | **A second compartment of the shaft, a column west, with a cage in it that runs.** The cage he lands on when he comes down is left as it is | He arrives on that cage's roof, and the shaft's stages under it are the level's only way out. A cage that moved there would move the place he arrives |
+| "A winding-house over the shaft" | **As said, in the row over the level.** Its engine is a windlass. Until it is going, the cage's lever and both its winches do nothing, and say so | |
+| Not said | **The winding-house is come to by the pumpmen's ladder-way,** three screens of sills beside the cage's way, from the long level. A hatch in its floor, which the engine opens, lets him down beside the cage | So he finds the cage first, at the top, and the engine is the whole level away |
+| **The Vein.** "A drift off the glitter that follows a second vein round in a ring and comes out where it went in" | **As said: a ring, two screens by two, up into the row over the level.** Across the last of it, where it comes back to the way in, the guild's air-door lies shut. Its windlass is over it, on the inside | A ring with nothing across it is a ring of air round a rock that hangs. And with the door shut the ring is a dead end, with an Echo in it: the way out of a dead end is back over his own way, which is what the Vein's rule forbids |
+| "A thread, half-way" | **As said:** at the head of the east riser | |
+| **The Flooded Levels.** "Under the chapel, a worked-out chamber under water, with air caught in its roof. A thread" | **West of the chapel and down: three screens, two of them in the rock under the level.** A dome of air at the top with a dry ledge and a windlass on it. At the foot, a strong-room behind a grate, and the thread in it | The room under the chapel is rock the level's own rooms are counted through. West of it is free |
+| Not said | **No eels in it.** Two of the Sunk | "Not fish" (27 Nov) may reach the eel. None were added until that is said |
+| **The Great Shaft.** "A side tunnel half-way down the drop, glided into" | **Walked into, off the camp's stage on the west wall** | Every part of the shaft's walls is a leap from one of the camp's stages. There is nowhere in it that only a glide comes to |
+| "East" | **West** | East of the drop is rock the level's rooms are counted through |
+| "The camp of the ones who stopped there. A thread, a chest" | **As said.** A wall of stacked stone at the tunnel's mouth keeps the shaft's cold out. Knocked down, the cold comes through and rises up a raise at the tunnel's far end. The thread is in the room at the raise's head, where they slept | The working is the Cairns' wind-break: a thing of the cold |
+| **The Hollow.** "Rough rock, climbed with the grip, up into the room above the level: the guild's highest mark. A thread" | **As said:** off the east end of the Hollow's floor, four screens, the last in the row over the level. Three sills to let go to. The highest mark and the thread at its head | |
+| "East" (of the Source) | **East of the circles** | The Source's east end is sealed behind its own rough face. And at the circles he sees the wall on his way to the Auger, before he can climb it |
+
 ---
 
 ## The order
 
-Build 116: the Roots and the Cloister. Build 117: the Spires. Then the Tempest, the Gardens, the Firmament. Then
-the Deep in two builds. Each is published as it is done, with pictures.
+Build 116: the Roots and the Cloister. 117: the Spires. 118: the Tempest and the Gardens. 119: the Firmament. 120:
+the Deep, all five. Each was published as it was done, with pictures. **All eleven levels are built.**
 
 ## What I am not sure of
 

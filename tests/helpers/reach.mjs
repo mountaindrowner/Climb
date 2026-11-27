@@ -103,7 +103,7 @@ export function graph(N, gifts = []){
   const raise = k => { RULE.gates.add(k); RULE.walls.add(k); delete RULE.held[k]; LEVEL.moverGhosts = null; };   // (and a chain or a lift on that key is going: he waits for it, as for all that turns)
   setGates(); for (const g of has) if (g.startsWith('gate:')) raise(g.slice(5));
   if (CACHE.has(key)){ const c = CACHE.get(key); for (const k of c.gates) raise(k); return { ...base, ...c }; }
-  const windlasses = L.marks.filter(m => m.type === 'windlass' || m.type === 'ring' || m.type === 'bonestack' || m.type === 'windbreak' || m.type === 'ladder' || m.type === 'winch' /* (a ladder on a rail: sent, it is everywhere on its rail for the one who waits) */ /* a stack over a scale's pan: knocked into it, its slab is up for good. A wind-break: knocked down, its wind rises */); let found = null;
+  const windlasses = L.marks.filter(m => m.type === 'windlass' || m.type === 'ring' || m.type === 'bonestack' || m.type === 'windbreak' || m.type === 'ladder' || m.type === 'winch' || m.type === 'cage' /* (a ladder on a rail: sent, it is everywhere on its rail for the one who waits) */ /* a stack over a scale's pan: knocked into it, its slab is up for good. A wind-break: knocked down, its wind rises */); let found = null;
   // (a gate that goes up changes only what is near it, and the water it held: the places within forty-five tiles of either
   // are played again with it up, and the search goes on from them. Nothing further off could have told the difference.
   // REACH_SCRATCH=1: every round from the spawn again, the slow way, to hold this one to)
@@ -129,7 +129,9 @@ export function graph(N, gifts = []){
   found = { seen, edges, pos };
   const come = m => [...seen].some(k => Math.abs(k % W - m.x) <= 3 && Math.abs(Math.floor(k / W) - m.y) <= 2);
   // (a scale whose stacks are single pieces: its slab is up only when he has come to every one of them)
-  const more = has.has('shut') ? [] : windlasses.filter(m => !RULE.gates.has(m.key) && come(m) && (m.n !== 1 || windlasses.every(q => q.key !== m.key || q.n !== 1 || come(q))));
+  // (build 120: a thing on a rail whose engine is not going is not sent: its winch and its lever do nothing)
+  const needs = k => { const v = (LEVEL.movers || []).find(v => v.key === k && v.needs); return v ? v.needs : null; };
+  const more = has.has('shut') ? [] : windlasses.filter(m => !RULE.gates.has(m.key) && come(m) && (!needs(m.key) || RULE.gates.has(needs(m.key))) && (m.n !== 1 || windlasses.every(q => q.key !== m.key || q.n !== 1 || come(q))));
   if (!more.length) break; for (const m of more) raise(m.key);
   if (!SCRATCH){ const boxes = []; for (const m of more){ for (const g of L.marks) if (g.type === 'gate' && g.key === m.key) boxes.push([g.x, g.y, g.x + (g.w || 1), g.y + (g.h || 1)]); for (const w of LEVEL.waters) if (w.held === m.key) boxes.push([w.x0 / T, w.y0 / T, w.x1 / T, w.y1 / T]); for (const u of LEVEL.updrafts) if (u.wall === m.key) boxes.push([u.x0 / T, u.y0 / T, u.x1 / T, u.y1 / T]); for (const v of LEVEL.movers || []) if (v.key === m.key) boxes.push([(v.cx - Math.abs(v.ax) - v.r) / T, (v.cy - Math.abs(v.ay) - v.r) / T, (v.cx + Math.abs(v.ax) + v.r) / T, (v.cy + Math.abs(v.ay) + v.r) / T]); }
     for (const k of seen){ const i = k % W, j = Math.floor(k / W); if (boxes.some(b => i >= b[0] - NEAR && i <= b[2] + NEAR && j >= b[1] - NEAR && j <= b[3] + NEAR)) q.push(k); } }
