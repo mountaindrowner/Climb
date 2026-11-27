@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 113 | 27 Nov 2026 | `COMMIT113` | The Ossuary's scales: two grave-slabs, each lifted by weight in a pan that is in another room. His own weight, a stack of bones knocked in, and a Tallyman who takes them out again | no | yes (now) |
+| 113 | 27 Nov 2026 | `8d3a3b2` | The Ossuary's scales: two grave-slabs, each lifted by weight in a pan that is in another room. His own weight, a stack of bones knocked in, and a Tallyman who takes them out again | no | yes (now) |
 | 112 | 27 Nov 2026 | `5bbbfb2` | The Drowned Galleries, the undercroft: the keepers' store under the hall, for one with the Seated's Wind; a hatch lifted from below. The wing's sheet is built | no | replaced by 113 |
 | 111 | 27 Nov 2026 | `23ee1e0` | The weir's fight is a squid, not a pike: long, violet, blind. It fights as the pike did | no | replaced by 112 |
 | 110 | 27 Nov 2026 | `6a68cde` | The Drowned Galleries, fourth build: the Pike, the wing's fight. Afloat it bites and cannot be hurt; left on the bed at low water it can | no | replaced by 111 |
