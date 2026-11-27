@@ -118,6 +118,31 @@ blows and stays down in his save, and two airs that share strength.
 
 ---
 
+### As built: build 114
+
+*Pictures: `docs/cairns-windbreaks-build114.png`.*
+
+- **Two walls, not three, and no shared wind.**
+  - **The horn's:** a wall of slates at the far end of the reasons, where the way of stones ends. Down, its wind runs
+    back the length of that cave and up the shaft he came down by, to the head of the horn of rock at the field's
+    west end. **A thread is on the horn's head**, seventeen tiles up a sheer face: with the wall standing it is out
+    of reach of everything he has.
+  - **The scree's:** a wall on the scree's bank. Down, its wind goes up the hole to the slope, so the scree is climbed
+    from below. That makes the wing's way out a way in as well, from Ordric's hollow.
+- **Three blows bring a wall down. It stays down,** and his save keeps it.
+- **Behind a wall that stands, nothing shows:** no streaks in the air.
+
+**Where it differs from the sheet above**
+
+| The sheet said | It is | Why |
+|---|---|---|
+| Three walls | **Two** | I built three first. A test showed they changed nothing: he leaps and hauls himself up fourteen tiles and a half, and glides a long way, so everything was in reach already. Only a sheer height of sixteen or more needs a wind. There were two such places |
+| A wind that lifts him over the Turned | **Not built** | It would make the wing's fight something to float past |
+| Two gullies that share one wind, so opening the second halves the first | **Not built** | A wall cannot be put back. Opening the wrong one first would lose him a thread for good |
+| A thread on the needle of rock | **On the horn** at the field's west end, made taller | The needle is eleven tiles: he climbs that. It keeps its own wind, as before |
+
+---
+
 ## To decide
 
 1. **Each of the three: yes, no, or something else?** They are independent.

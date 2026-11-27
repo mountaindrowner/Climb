@@ -75,7 +75,7 @@ function reach(edges){
     // a bloom throws him high (fourteen tiles, and his air jump after): up its column, then across
     if (pads.has(j * W + i)) for (let dy = 1; dy <= 17; dy++){ if (!clear(i, i, j, j + dy + BODY - 1)) break; for (let dx = -9; dx <= 9; dx++){ const ti = i + dx, tj = j + dy; if (stand(ti, tj) && clear(i, ti, tj, tj + BODY - 1)) push(ti, tj); for (let d2 = 1; d2 <= 6; d2++) if (stand(ti, tj - d2) && clear(i, ti, tj, tj + BODY - 1) && clear(ti, ti, tj - d2, tj + BODY - 1)) push(ti, tj - d2); } }
     // rising air carries him (the scarf) up its height, and out a little way either side at any level
-    for (const u of updrafts){ if ((u.gate && !BROKE) || u.cold) continue; const x0 = Math.round(u.x0 * 2), x1 = Math.round(u.x1 * 2) - 1, y0 = Math.round(u.y0 * 2), y1 = Math.round(u.y1 * 2);
+    for (const u of updrafts){ if ((u.gate && !BROKE) || u.cold || (u.wall && !BROKE)) continue; const x0 = Math.round(u.x0 * 2), x1 = Math.round(u.x1 * 2) - 1, y0 = Math.round(u.y0 * 2), y1 = Math.round(u.y1 * 2);
       if (i < x0 - 2 || i > x1 + 2 || j < y0 - 6 || j > y1) continue;
       for (let tj = j; tj <= y1 + 3; tj++) for (let ti = x0 - 7; ti <= x1 + 7; ti++){ if (!stand(ti, tj)) continue; const a = Math.max(x0, Math.min(x1, ti)); if (clear(a, ti, tj, tj + BODY - 1)) push(ti, tj); } }
     // the Auger's grip (BROKE): a rough face beside him is climbed, to its top, and he may leap off it on the way

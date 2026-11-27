@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 113 | 27 Nov 2026 | `8d3a3b2` | The Ossuary's scales: two grave-slabs, each lifted by weight in a pan that is in another room. His own weight, a stack of bones knocked in, and a Tallyman who takes them out again | no | yes (now) |
+| 114 | 27 Nov 2026 | `COMMIT114` | The Pilgrims' Cairns' wind-breaks: two walls of slate; knocked down, the wind rises somewhere else. A thread on a horn too tall to climb; the scree climbed from below | no | yes (now) |
+| 113 | 27 Nov 2026 | `8d3a3b2` | The Ossuary's scales: two grave-slabs, each lifted by weight in a pan that is in another room. His own weight, a stack of bones knocked in, and a Tallyman who takes them out again | no | replaced by 114 |
 | 112 | 27 Nov 2026 | `5bbbfb2` | The Drowned Galleries, the undercroft: the keepers' store under the hall, for one with the Seated's Wind; a hatch lifted from below. The wing's sheet is built | no | replaced by 113 |
 | 111 | 27 Nov 2026 | `23ee1e0` | The weir's fight is a squid, not a pike: long, violet, blind. It fights as the pike did | no | replaced by 112 |
 | 110 | 27 Nov 2026 | `6a68cde` | The Drowned Galleries, fourth build: the Pike, the wing's fight. Afloat it bites and cannot be hurt; left on the bed at low water it can | no | replaced by 111 |
@@ -129,6 +130,49 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 114: the Pilgrims' Cairns' wind-breaks
+
+*The second of the three wings' workings (`docs/bare-wings-sheet.md`, section 3 and "As built: build 114").*
+
+**For the player** (he needs the Seated's Wind to come into the Cairns at all)
+
+- **A thread on the head of the horn of rock** at the field's west end, over the way down. The air there is dead,
+  and the horn is seventeen tiles sheer (`docs/cairns-windbreaks-build114.png`).
+- **A wall of slates at the far end of the reasons,** where the way of stones ends. Three blows and it is down, for
+  good. The wind goes through: back along the cave, and up the shaft to the horn's head.
+- **A second wall on the scree's bank.** Down, its wind goes up the hole he fell through: the scree can be climbed.
+- **To try:**
+  1. On the field, look at the horn over the way down. Try to get up it.
+  2. Go down, walk the way of stones to its end without turning, and knock the wall down.
+  3. Go back and ride the wind up the shaft to the thread.
+  4. In the scree, knock the wall on the bank down and glide up the hole.
+
+**What is weaker than it should be**
+
+- **Two walls, not three; no shared wind; no wind over the Turned.** Each for a reason given in the sheet's "as
+  built". The sheet promised more than the place can hold: he climbs too well for most of it to need a wind.
+- **Neither wall is on the way to the relic.** One is for a thread and one is a short way back. He can finish the
+  wing and never touch either.
+- **Nothing tells him the horn's wind and the far wall are one thing** but the words when it falls: "Somewhere
+  behind it the air is rising."
+- **Walking back along the way of stones** to use the wind means not turning round, again. That may be a good second
+  use of the wing's rule, or a chore.
+- **Not played by a person.**
+
+- **Save: not moved.** Adds: the walls he has knocked down (`G.walls`).
+- **Checked:** 532 automated checks, five new (in `tests/side-cairns.test.mjs`): where the walls and their winds
+  are, and that the horn is too tall to climb; dead air behind a standing wall, rising air behind a fallen one, and
+  the save; three blows; with the real motor and every gift, that the horn's head is not reached with the walls
+  standing and is with them down; that the scree is climbed only with its wall down. In the test browser: both
+  walls seen standing and fallen, the streaks of the wind seen where each rises.
+- **Not checked:** not played by hand; the ride up the shaft by hand; the sounds.
+- **Mistake caught before it went out:** the first three walls did nothing at all. The check that would have said
+  so did not exist yet; I found it by counting the places he could reach, with walls and without, and getting the
+  same number.
+- **Underneath:** `src/side/regions/cairns.js` (the walls, the horn, the winds); `src/side/level.js` (`RULE.walls`;
+  rising air that answers to a wall); `src/side/props.js` (its streaks shown only when it rises); `src/side/main.js`
+  (the `windbreak` event).
 
 ### Build 113: the Ossuary's scales
 

@@ -490,7 +490,7 @@ export function makeProps(scene, R){
         G.m.material.opacity = on ? (going && Math.floor(t * 16) % 2 ? 0.45 : 1) : 0.13; G.gl.material.opacity = on ? 0.16 + Math.sin(t * 3 + G.x) * 0.04 : 0.02; G.turned = G.was !== null && G.was !== on; G.was = on; }
       for (const B of blooms){ B.t += dt; const u = Math.min(1, B.t / 0.5), k = u < 0.18 ? 1 - u / 0.18 * 0.55 : 0.45 + 0.55 * (1 - Math.cos((u - 0.18) / 0.82 * Math.PI * 2.5) * Math.exp(-(u - 0.18) * 5)) ; B.m.scale.set(1 + (1 - Math.min(1, k)) * 0.35, Math.max(0.4, k) + Math.sin(t * 1.7 + B.mk.x) * 0.02, 1); }
       const blow = gustOn();
-      for (const D of drafts){ const m = D.m, down = D.u.gust && !RULE.fallen; if (down && !blow){ m.material.opacity = Math.max(0, m.material.opacity - dt * 2); continue; }
+      for (const D of drafts){ const m = D.m, down = D.u.gust && !RULE.fallen; if (D.u.wall && !RULE.walls.has(D.u.wall)){ m.visible = false; continue; } m.visible = true; if (down && !blow){ m.material.opacity = Math.max(0, m.material.opacity - dt * 2); continue; }
         m.position.y += (down ? -2.4 : 1) * D.v * dt; m.position.x = D.x + Math.sin(t * 2 + D.ph) * 0.12; if (m.position.y > D.u.y1 || m.position.y < D.u.y0){ m.position.y = down ? D.u.y1 : D.u.y0; D.x = D.u.x0 + rnd() * (D.u.x1 - D.u.x0); }
         const f = Math.min(1, (m.position.y - D.u.y0) / 1.2, (D.u.y1 - m.position.y) / 1.5); m.material.opacity = 0.5 * Math.max(0, f); }
     },

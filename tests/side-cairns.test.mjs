@@ -70,3 +70,39 @@ test('his own cairn is not a creature; the Pilgrim\'s Stone is a relic, and leng
   const P = M.newPlayer(0, 0); M.SIDE.stone = false; M.hurt(P, 1, 1, 'x'); const plain = P.inv; const Q = M.newPlayer(0, 0); M.SIDE.stone = true; M.hurt(Q, 1, 1, 'x'); M.SIDE.stone = false; assert.ok(Q.inv > plain * 1.4);
   assert.ok(L.marks.filter(m => m.type === 'deco' && m.kind === 'reason' && m.says).length >= 8, 'the reasons, scratched on stones');
 });
+
+// ---- the wind-breaks (build 114; docs/bare-wings-sheet.md)
+const walls = L.marks.filter(m => m.type === 'windbreak'), winds = L.updrafts.filter(u => u.wall);
+test('two walls of slate, each across the foot of a wind that comes out somewhere else', () => {
+  assert.deepEqual(walls.map(w => w.key).sort(), ['horn', 'scree']); assert.deepEqual(winds.map(u => u.wall).sort(), ['horn', 'scree']);
+  const horn = walls.find(w => w.key === 'horn'), hw = winds.find(u => u.wall === 'horn'), re = room('reasons'), fi = room('field');
+  assert.ok(horn.x >= re.tx0 && horn.x < re.tx1 && horn.y >= re.ty0 && horn.y < re.ty1, 'the horn\'s wall is in the reasons');
+  assert.ok(Math.abs(horn.x - (hw.x0 + hw.x1) / 2 / T) >= 40, 'at the far end of that cave from its wind');
+  assert.ok(hw.y1 / T >= fi.ty0 + 22, 'and its wind goes up into the field, as high as the horn\'s head');
+  const th = L.marks.find(m => m.type === 'thread' && m.x - fi.tx0 <= 2 && m.x >= fi.tx0 && m.y >= fi.ty0 && m.y < fi.ty1 + 1); assert.ok(th, 'a thread on the horn\'s head');
+  let foot = th.y - 1; while (L.tiles[foot * L.W + th.x + 4] !== LV.ROCK && foot > fi.ty0) foot--; assert.ok(th.y - (foot + 1) >= 16, `the horn is ${th.y - foot - 1} tiles of sheer face: more than he climbs`);
+  assert.ok(CA.enemies.windbreak.prop && CA.enemies.windbreak.own, 'a wall is a thing, not a creature');
+});
+test('behind a wall that stands the air is dead; down, it rises, and his save keeps it down', () => {
+  R.loadLevel(2); LV.setGates(); const hw = winds.find(u => u.wall === 'horn'), at = [(hw.x0 + hw.x1) / 2, (hw.y0 + hw.y1) / 2];
+  assert.equal(LV.updraftAt(at[0], at[1]), null, 'standing: no wind'); LV.RULE.walls.add('horn'); assert.ok(LV.updraftAt(at[0], at[1]), 'down: it rises');
+  LV.setGates(); assert.equal(LV.updraftAt(at[0], at[1]), null); LV.setGates({}, {}, ['horn']); assert.ok(LV.updraftAt(at[0], at[1]), 'a save that has it down finds it down'); LV.setGates();
+  assert.ok(L.updrafts.some(u => !u.wall && u.gate === 'glide'), 'the wind in the gap answers to no wall');
+});
+test('three blows bring a wall down, and no more are counted after', () => {
+  R.loadLevel(2); LV.setGates(); const e = { type: 'windbreak', d: CA.enemies.windbreak, x: 5, y: 2, st: 'idle', mk: { key: 'horn' } }, ev = [], c = { RULE: LV.RULE, events: ev, E: { scene: { add(){} } } };
+  const blow = () => { CA.enemies.windbreak.onHit(e); e.cool = 0; CA.ai.windbreak(e, { x: 0, y: 0 }, 1 / 60, c); };
+  blow(); blow(); assert.equal(ev.length, 0, 'two: it stands'); blow(); assert.equal(ev.length, 1); assert.equal(ev[0].type, 'windbreak'); assert.equal(ev[0].key, 'horn'); assert.equal(CA.WALL.blows, 3);
+  LV.RULE.walls.add('horn'); blow(); blow(); blow(); assert.equal(ev.length, 1, 'down: nothing more'); LV.setGates();
+});
+test('the thread on the horn wants its wall down: not come to with the walls standing, by one who has every gift', () => {
+  const fi = room('field'), head = seen => [...seen].some(k => k % L.W - fi.tx0 <= 3 && k % L.W >= fi.tx0 && Math.floor(k / L.W) - fi.ty0 >= 22);
+  const stand = R.graph(2, [...R.GIFTS, 'shut']); assert.ok(!head(stand.seen), 'walls standing: the horn\'s head is out of reach');
+  const down = R.graph(2, R.GIFTS); assert.ok(head(down.seen), 'walls down: the wind carries him to it'); assert.ok(down.gates.includes('horn') && down.gates.includes('scree'), 'one who plays it through knocks both down');
+});
+test('the scree is climbed from below once its wall is down, and not before', () => {
+  R.loadLevel(2); const sc = room('scree'), tu = room('turned'), bank = [(sc.tx0 + 32.5) * T, (sc.ty0 + 10) * T];
+  LV.RULE.walls = new Set(); Object.assign(M.CAN, { glide: true, dash: true, breaker: true });
+  const up = () => { let top = 0; for (const p of R.LONG) for (const [c] of R.run(bank[0], bank[1], p, 420)) top = Math.max(top, Math.floor(c / L.W)); return top; };
+  assert.ok(up() < tu.ty0, 'the wall standing: he does not come up out of the scree'); LV.RULE.walls.add('scree'); assert.ok(up() >= tu.ty0, 'the wall down: up the hole, onto the slope'); LV.setGates();
+});

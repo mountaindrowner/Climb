@@ -675,7 +675,7 @@ function finish(L){
   const pads = new Map(), updrafts = [], gusts = [], flows = [], movers = [], waters = [];
   for (const m of L.marks){
     if (m.type === 'bloom') for (let a = -1; a <= 1; a++) pads.set(m.y * L.W + m.x + a, m);
-    if (m.type === 'updraft') updrafts.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 12)) * T, ...(m.gate ? { gate: m.gate } : {}), ...(m.cold ? { cold: true } : {}) });   // gate: this rising air is a wing's way in (the simple reach test counts it only with the gift)
+    if (m.type === 'updraft') updrafts.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 12)) * T, ...(m.gate ? { gate: m.gate } : {}), ...(m.cold ? { cold: true } : {}), ...(m.wall ? { wall: m.wall } : {}) });   // gate: this rising air is a wing's way in (the simple reach test counts it only with the gift)
     if (m.type === 'flow') flows.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 2)) * T, dx: m.dir === 'w' ? -1 : m.dir === 'e' ? 1 : 0, dy: m.dir === 'd' ? -1 : 0, key: m.key || '', soft: !!m.soft });   // (soft: only to be looked at: thin water falling, that bears nothing down)   // running water (the Aqueducts): it carries what stands in it; falling, nothing rises through it. It runs while its wheel is open (RULE.wet)
     if (m.type === 'mover') movers.push({ kind: m.kind || 'arm', cx: (m.x + 0.5) * T, cy: m.y * T, r: (m.r || 8) * T, ax: (m.ax || 0) * T, ay: (m.ay || 0) * T, period: m.period || 8, ph: m.ph || 0, dir: m.dir || 1, w: (m.w || 5) * T, x: 0, y: 0, px: 0, py: 0, at: -1 });   // a thing that moves and can be stood on (the Orrery Wing): a planet on an arm (round cx, cy at r), or a pallet that slides (by ax, ay either side of cx, cy). Its place is the world's clock's (PHASE.t), nothing else's
     // deep water (phase 16, the Flooded Levels; motor.js SWIM): a body of it, from its bottom-left tile. It bears him up;
@@ -927,7 +927,7 @@ function organic(tiles, W, H, marks, rooms, seed0 = 1234567, wear = { sag: 1, sw
 export const PHASE = { t: 0, period: 2.4, all: false };
 // the region's keeper: has it fallen (what it held is let go); are the doors on its bell's beat shut just now (props.js
 // turns them; in a test they are open: he waits)
-export const RULE = { fallen: false, shut: false, tearing: false, ring: 0, still: false, turned: false, lit: new Set(), litAll: false, sw: 0, surge: 0, swFree: false, hush: 0, open: 0, ox0: 0, ox1: -1, oy0: 0, oy1: -1, calmFree: false, wet: new Set(), wetAll: false, upset: 0, unkept: false, tide: 1, bore: 0, gates: new Set(), held: {}, pan: {}, lift: {} };   // upset: how many things in the Keepers' Houses are out of their place (and 9 while their keeper is after him)
+export const RULE = { fallen: false, shut: false, tearing: false, ring: 0, still: false, turned: false, lit: new Set(), litAll: false, sw: 0, surge: 0, swFree: false, hush: 0, open: 0, ox0: 0, ox1: -1, oy0: 0, oy1: -1, calmFree: false, wet: new Set(), wetAll: false, upset: 0, unkept: false, tide: 1, bore: 0, gates: new Set(), held: {}, pan: {}, lift: {}, walls: new Set() };   // upset: how many things in the Keepers' Houses are out of their place (and 9 while their keeper is after him)
 //   // wet: the sluice wheels that are open, by key (the Aqueducts: their water runs); wetAll: every one (a test)   // hush: how long he has stood still (the Eye of the Storm); open: seconds its doors of cloud stay open; calmFree: they are open (the tests' player waits as he must)
 //   // sw: which half of the works' iron the current is in (0, 1); surge: seconds of the Jar's discharge left (all of it live); swFree: the tests' player throws every lever as he needs it (none of it shocks)   // lit: the braziers that burn in this region, each by its place 'x,y' (the Glacier Galleries); litAll: every one (the tests' player lights what he comes to)
 //   // turned: on the stones of the way he has turned round (motor.js): they are gone until he stands on the ground   // ring: seconds of ringing left in the Bell-Foundry (iron was touched); still: its Cracked Bell has fallen, and nothing there rings again
@@ -968,6 +968,8 @@ export const waterTop = w => w.key === 'tide' ? (RULE.still ? w.lo : w.lo + (w.y
 // the gates as they are before he has touched any: all down, and each water a gate holds at the height its mark gives
 // (`at`, 0 low to 1 high). `left`: what a save remembers for this region ({ key: 1 } up; { key: { held } } down, and
 // the height it holds)
+// a wind-break (the Pilgrims' Cairns, build 114): RULE.walls is the walls of slate he has knocked down, by key. Rising air
+// that answers to a wall (an 'updraft' mark with `wall`) is not there until its wall is down, and then is for good
 // a slab hung on a scale (the Ossuary, build 113): RULE.pan[key] is how many pieces lie in its pan (0 to 3), RULE.lift[key]
 // how many rows of the slab are up for it. A slab that stands upright goes up a third of its height a piece; one that
 // lies across a hole lifts only for all three. `eff`: the weight that is on the pan now, if it is not the pieces in it
@@ -975,14 +977,14 @@ export const waterTop = w => w.key === 'tide' ? (RULE.still ? w.lo : w.lo + (w.y
 const slabUp = (tx, ty) => { const k = LEVEL.gateOf.get(ty * LEVEL.W + tx); if (RULE.gates.has(k)) return true; const up = RULE.lift[k]; return up > 0 && ty - LEVEL.gateBase[k] < up; };
 export const liftOf = (key, load) => { const g = (LEVEL.marks || []).find(m => m.type === 'gate' && m.key === key); return !g ? 0 : (g.h || 1) > 1 ? Math.round(Math.max(0, Math.min(3, load)) * g.h / 3) : load >= 3 ? 1 : 0; };
 export function setPan(key, load, eff = load){ RULE.pan[key] = Math.max(0, Math.min(3, load)); RULE.lift[key] = liftOf(key, eff); }
-export function setGates(left = {}, pans = {}){ RULE.gates = new Set(); RULE.held = {}; RULE.pan = {}; RULE.lift = {}; for (const m of LEVEL.marks || []) if (m.type === 'pan') setPan(m.key, pans[m.key] || 0);
+export function setGates(left = {}, pans = {}, walls = []){ RULE.gates = new Set(); RULE.held = {}; RULE.pan = {}; RULE.lift = {}; RULE.walls = new Set(walls); for (const m of LEVEL.marks || []) if (m.type === 'pan') setPan(m.key, pans[m.key] || 0);
   for (const m of LEVEL.marks || []) if (m.type === 'gate'){ const v = left[m.key]; if (v === 1) RULE.gates.add(m.key); else if (m.holds) RULE.held[m.key] = v && v.held != null ? v.held : (m.at || 0); } }
 export const waterAt = (x, y) => { for (const w of LEVEL.waters || []) if (x >= w.x0 && x < w.x1 && y >= w.y0 && y < waterTop(w)) return w; return null; };
 // the top of the water over a point (bodies of it stand one on another: a sump under a flooded room), or null out of it
 export const waterOver = (x, y) => { const w = waterAt(x, y); if (!w) return null; let top = waterTop(w); for (let k = 0; k < 6; k++){ const u = waterAt(x, top + 0.01); if (!u) break; top = waterTop(u); } return top; };
 export const flowOn = f => f.key === 'fall' ? true : f.key === 'surge' ? RULE.surge > 0 : RULE.wetAll || RULE.wet.has(f.key);   // ('surge': the Lock's water, while it lets go)
 export const flowAt = (x, y) => { for (const f of LEVEL.flows || []) if (!f.soft && x >= f.x0 && x < f.x1 && y >= f.y0 && y < f.y1 && flowOn(f)) return f; return null; };
-export const updraftAt = (x, y) => { for (const u of LEVEL.updrafts) if (x >= u.x0 && x < u.x1 && y >= u.y0 && y < u.y1) return u; if (RULE.fallen) for (const u of LEVEL.gusts || []) if (x >= u.x0 && x < u.x1 && y >= u.y0 && y < u.y1) return u; return null; };
+export const updraftAt = (x, y) => { for (const u of LEVEL.updrafts) if (x >= u.x0 && x < u.x1 && y >= u.y0 && y < u.y1 && (!u.wall || RULE.walls.has(u.wall))) return u; if (RULE.fallen) for (const u of LEVEL.gusts || []) if (x >= u.x0 && x < u.x1 && y >= u.y0 && y < u.y1) return u; return null; };
 // the wind's beat while the Wyrm holds it: it blows a while, drops a while (in a test, always: the worst of it)
 export const gustOn = () => PHASE.all || (PHASE.t % 4.4) < 2.6;
 export const gustAt = (x, y) => { if (RULE.fallen || !gustOn()) return null; for (const u of LEVEL.gusts || []) if (x >= u.x0 && x < u.x1 && y >= u.y0 && y < u.y1) return u; return null; };

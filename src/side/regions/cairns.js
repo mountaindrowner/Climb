@@ -13,6 +13,14 @@
 // Its rules. A cairn (the creature) is only stones while he looks at it; with his back to it, it comes apart and comes
 // after him. The stones of the way (rooms.js FACED) are gone from under him if he turns round on them. So: on the
 // ground, turn and face what follows; on the way, do not turn.
+// Its wind-breaks (build 114; docs/bare-wings-sheet.md): walls of slate the pilgrims stacked to sleep behind. Each stands
+// across the foot of a gully, and behind it the air is dead. Three blows and it is down, for good: the wind goes through,
+// and the gully is rising air to its far end, which is somewhere else (an 'updraft' mark with `wall`, level.js RULE.walls).
+//   horn     at the far end of the reasons, where the way of stones ends. Its wind runs back the length of that cave and
+//            up the shaft he came down by, to the head of the horn of rock that stands over the field's west end: a
+//            thread there, seventeen tiles up a sheer face
+//   scree    on the scree's bank. Its wind goes up the hole to the slope: the scree is climbed from below
+// (He leaps and hauls himself up fourteen tiles and a half, and glides a long way: only height does for a wind's work.)
 // All of it but the wind gap's near ledge and the scree has `gate: 'glide'`; the tests hold that none of that is reached without the Wyrm's wind.
 import { room, rect, door, ledge, mark, EMPTY, ROCK, FACED, flue, stone } from '../rooms.js';
 
@@ -37,9 +45,10 @@ function windgap(){
 function field(){
   const r = room(2, 1); r.open = true;
   // terraces down the mountain's shoulder, westward; a horn of rock at the far end, and under it the way down
-  rect(r, 60, 0, 79, 16); rect(r, 44, 0, 59, 12); rect(r, 28, 0, 43, 8); rect(r, 0, 0, 27, 4); rect(r, 0, 5, 2, 18);
+  rect(r, 60, 0, 79, 16); rect(r, 44, 0, 59, 12); rect(r, 28, 0, 43, 8); rect(r, 0, 0, 27, 4); rect(r, 0, 5, 2, 21);   // (the horn at the far end: taller since build 114, and a thread on its head)
   rect(r, 4, 0, 9, 4, EMPTY); ledge(r, 4, 9, 4);                   // boards over the way down to the reasons
-  rect(r, 34, 9, 36, 19); mark(r, 'thread', 35, 20); mark(r, 'updraft', 37, 9, { w: 6, h: 13 });   // a needle of rock, and the wind beside it: for one who glides
+  rect(r, 34, 9, 36, 19); mark(r, 'updraft', 37, 9, { w: 6, h: 13 });   // a needle of rock, and the wind beside it: for one who glides
+  mark(r, 'thread', 1, 22); for (const x of [4, 6, 8]) for (const y of [8, 12, 16, 20, 22]) keep(r, x, y);   // the thread: on the horn's head. The air over the way down is dead, until the wall in the reasons is down
   for (const [x, y] of [[70, 17], [52, 13], [46, 13], [22, 5], [14, 5]]) mark(r, 'cairn', x, y);
   for (const [x, y] of [[76, 17], [65, 17], [56, 13], [40, 9], [31, 9], [18, 5], [25, 5], [11, 5]]) deco(r, 'cairn', x, y);
   reason(r, 62, 17, 'NOT YET.'); reason(r, 49, 13, 'MY KNEE.'); reason(r, 29, 9, 'NOT ME.'); reason(r, 16, 5, 'THE WIND.');
@@ -54,6 +63,7 @@ function reasons(){
   // round costs nothing, and shows what it does
   for (const [a, b] of [[14, 16], [20, 23], [27, 30], [34, 37], [44, 65]]) rect(r, a, 12, b, 12, FACED);
   rect(r, 38, 2, 43, 12);                                          // a stack of rock halfway: there he may turn
+  mark(r, 'windbreak', 67, 13, { key: 'horn' }); mark(r, 'updraft', 4, 13, { w: 6, h: 34, wall: 'horn' });   // the wall where the way ends; and its wind, up the shaft at the cave's other end to the horn's head
   rect(r, 66, 2, 77, 12);                                          // where it ends; and the way down through it, to the slope
   rect(r, 70, 0, 75, 12, EMPTY); for (const y of [12, 8, 4, 0]) ledge(r, 70, 75, y);
   stone(r, 14, 16, 5); stone(r, 44, 46, 5); ledge(r, 14, 16, 9); ledge(r, 44, 46, 9);   // from the floor under the way, back up to it (the first of each a step of rock since the map pass)
@@ -71,6 +81,7 @@ function turned(){
   door(r, 'left', 15, 20);                                         // uphill, past him: his cairn
   rect(r, 70, 0, 75, 4, EMPTY);                                    // downhill: the hole to the scree. Nothing stops him leaving
   mark(r, 'turned', 20, slopeTop(20) + 1, { dir: 1 });
+
   reason(r, 44, slopeTop(44) + 1, 'GO DOWN.');
   for (const x of [8, 26, 38, 52, 60]) deco(r, 'cairn', x, slopeTop(x) + 1);
   mark(r, 'torch', 6, 18); mark(r, 'torch', 40, 14); mark(r, 'torch', 66, 9); mark(r, 'crystal', 56, slopeTop(56) + 1);
@@ -90,7 +101,9 @@ function scree(){
   rect(r, 20, 2, 35, 9); rect(r, 36, 2, 37, 11);   // the bank of scree he comes down onto (high enough that the drop does not hurt), and down from it to the door; from it the hole is out of reach
   stone(r, 16, 19, 5);                                             // from the floor beside it back up onto the bank (a step of the bank since the map pass)
   mark(r, 'chest', 6, 2, { holds: 'shards' });
-  for (const [x, y] of [[10, 2], [15, 2], [23, 10]]) deco(r, 'cairn', x, y);
+  // a wall on the bank; the wind it kept off goes up the hole he came down by
+  mark(r, 'windbreak', 26, 10, { key: 'scree' }); mark(r, 'updraft', 30, 10, { w: 6, h: 19, wall: 'scree' });
+  for (const [x, y] of [[10, 2], [15, 2], [22, 10]]) deco(r, 'cairn', x, y);
   mark(r, 'torch', 4, 9); mark(r, 'torch', 24, 12); mark(r, 'urn', 12, 2); mark(r, 'crystal', 17, 6);
   for (const x of [30, 32, 34]) for (const y of [12, 16, 19]) keep(r, x, y);
   return r;
@@ -140,7 +153,11 @@ function stones(e, c, n, dt, loose){
   if (e.rag){ const top = e.g[e.g.length - 1]; e.rag.position.set(top.x + 0.12, top.y - 0.1 + Math.sin(e.age * 3) * 0.03, 0.04); e.rag.rotation.z = 0.2 + Math.sin(e.age * 2.3) * 0.15; }
 }
 const scatter = e => { if (e.g) for (const s of e.g) s.m.visible = false; if (e.rag) e.rag.visible = false; };
+const WALL = { blows: 3 };
+export { WALL };
 export const enemies = {
+  // a wind-break: a low wall of slates. Three blows and it is down, for good. Not a creature
+  windbreak: { ai: 'windbreak', own: true, prop: true, hp: 99, w: 0.9, h: 1.5, color: 0x8b9bb4, fly: false, guard(e){ e.struck = true; return true; }, onHit(e){ e.hp = e.d.hp; e.struck = true; } },
   // a cairn: only stones while he looks at it. With his back to it, it comes apart and comes after him, tumbling; it
   // strikes what it reaches. Looked at, it is a cairn again where it stands, and can be knocked down
   cairn: { ai: 'cairn', own: true, hp: 3, w: 0.55, h: 1.5, color: 0x8b9bb4, wake: 9, chase: 4.2, fly: false, word: 'Struck by stones',
@@ -155,6 +172,16 @@ export const enemies = {
     onKill: scatter, spawn(e, c){ if (c.RULE.down){ e.alive = false; } } },
 };
 export const ai = {
+  windbreak(e, P, dt, c){
+    const key = (e.mk || {}).key, down = c.RULE.walls.has(key); e.st = 'idle'; e.cool = Math.max(0, (e.cool || 0) - dt);
+    if (e.struck){ e.struck = false; if (!down && e.cool <= 0){ e.cool = 0.25; e.blows = (e.blows || 0) + 1; if (e.blows >= WALL.blows) c.events.push({ type: 'windbreak', e, key, at: { x: e.x, y: e.y + 0.6 } }); } }
+    const T3 = three(); if (!T3) return;
+    // twelve slates, in four courses; down, they lie where they fell
+    if (!e.w){ e.w = []; for (let k = 0; k < 12; k++){ const m = new T3.Mesh(new T3.PlaneGeometry(0.62, 0.3), new T3.MeshBasicMaterial({ map: stoneTex(T3), transparent: true, alphaTest: 0.5 })); c.E.scene.add(m); e.w.push(m); } }
+    e.w.forEach((m, k) => { const row = Math.floor(k / 3), col = k % 3, lean = Math.min(1, (e.blows || 0) / WALL.blows) * (down ? 0 : 0.08);
+      if (down) m.position.set(e.x + (k - 5.5) * 0.3, e.y + 0.14 + (k % 2) * 0.1, 0.035 + k * 0.0005); else m.position.set(e.x + (col - 1) * 0.5 + (row % 2 ? 0.2 : 0) + lean * row, e.y + 0.15 + row * 0.28, 0.035 + k * 0.0005);
+      m.rotation.z = down ? ((k * 37) % 7 - 3) * 0.12 : 0; m.material.color.setHex(e.flash > 0 ? 0xffffff : 0xdfe4ee); });
+  },
   cairn(e, P, dt, c){
     const d = e.d, { dx, dy, go, events } = c, watched = Math.sign(e.x - P.x) === P.face || Math.abs(dx) < 0.25, near = Math.abs(dx) < d.wake && Math.abs(dy) < 3.5;
     if (e.st === 'idle'){ e.warn = false; if (near && !watched && Math.abs(dx) > 1.2){ go('loose'); e.face = Math.sign(dx) || 1; events.push({ type: 'notice', e }); } }
