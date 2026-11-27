@@ -28,12 +28,13 @@ import * as ORRERY from './regions/orrery.js';
 import * as DROWNED from './regions/drowned.js';
 import * as ROOTSFAR from './regions/rootsfar.js';
 import * as CLOISTERFAR from './regions/cloisterfar.js';
+import * as SPIRESFAR from './regions/spiresfar.js';
 // the wings set into a region after it is built (so the region itself is not changed): by region, { left: columns added
 // to its west, build(X) }
 const WINGS = { 0: [DROWNED.wing, OSSUARY.after], 1: [SCRIPTORIUM.wing, FOUNDRY.wing, REFECTORY.wing], 2: [CAIRNS.wing, GLACIER.wing], 3: [WORKS.wing, EYE.wing], 4: [AQUEDUCTS.wing, HOUSES.wing], 5: [ORRERY.wing] };   // a region's wings: each `left` columns added west of it or `right` columns east, and what it builds there
 // (build 116) what is built past a wing's far end, or under or over a region, in the rows the lift left for it (docs/edges-sheet.md).
 // Built last, after the keeper's rule, so that the rooms there were keep their order (a save keeps the rooms he has seen by it)
-const EDGES = { 0: [ROOTSFAR.far], 1: [CLOISTERFAR.far] };
+const EDGES = { 0: [ROOTSFAR.far], 1: [CLOISTERFAR.far], 2: [SPIRESFAR.far] };
 export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, ROUGH, TIER_A, TIER_B, SLUICE };
 
 // ---- the first region: up from the bottom of the mountain

@@ -204,6 +204,61 @@ test('the Cloister\'s far ends, played: the loft only by both ladders, the cell 
   for (const n of FAR1){ const from = nodesIn(ALL1, room1(n)); assert.ok(from.length > 0); for (const k of from) assert.ok([...onward(ALL1, [k])].some(c => inRoom(c, home[n])), `${n}: from ${k % ALL1.W - room1(n).tx0},${Math.floor(k / ALL1.W) - room1(n).ty0} there is a way back`); }
 });
 
+// ---- the Spires (build 117): the Way Down past his cairn, the Crevasse past the Seated
+const SF = await import('../src/side/regions/spiresfar.js'), MO = await import('../src/side/motor.js');
+const L2 = { ...R.loadLevel(2) }, room2 = n => L2.rooms.find(r => r.name === n), FAR2 = ['waydown', 'lookback', 'crevasse', 'blueblack'];
+
+test('the Spires: a column further west and one further east, eight screens', () => {
+  const rs = FAR2.map(room2); assert.ok(rs.every(Boolean)); assert.ok(rs.every(r => r.far && r.wing));
+  assert.equal(rs.reduce((n, r) => n + (r.tx1 - r.tx0) * (r.ty1 - r.ty0) / (ROOM.w * ROOM.h), 0), 8);
+  const hc = room2('hiscairn'), se = room2('seated'), wd = room2('waydown'), lb = room2('lookback'), cr = room2('crevasse'), bb = room2('blueblack');
+  assert.equal(wd.tx1, hc.tx0, 'the cleft is the column west of his cairn'); assert.equal(wd.tx0, 0, 'at the level\'s west edge'); assert.equal(wd.ty1, hc.ty1, 'from his cairn\'s height down'); assert.equal(lb.ty1, wd.ty0, 'the look-back under it');
+  assert.equal(cr.tx0, se.tx1, 'the crevasse is the column east of the Seated\'s hall'); assert.equal(cr.tx1, L2.W, 'at the level\'s east edge'); assert.equal(cr.ty1, se.ty1, 'from his hall down'); assert.equal(bb.ty1, cr.ty0, 'its bottom under it');
+  assert.ok([wd, lb].every(r => r.gate === 'glide' && r.title === 'THE WAY DOWN'), 'gated as the Cairns are'); assert.ok([cr, bb].every(r => r.gate === 'dash' && r.title === 'THE CREVASSE' && r.look === 'glacier'), 'and as the Galleries are');
+  // the new column west is the mountain's rock but for these rooms: nothing is open beside the field or the reasons
+  for (const n of ['field', 'reasons']){ const r = room2(n); for (let y = r.ty0; y < r.ty1; y++) for (let x = 0; x < r.tx0; x++) assert.equal(L2.tiles[y * L2.W + x], LV.ROCK, 'rock west of the ' + n); }
+});
+
+test('the Way Down: each ledge too far under the last to climb back, and no further than he drops unhurt; the wall at the bottom keeps a wind off all of it', () => {
+  const D = SF.DOWN, wd = room2('waydown'), lb = room2('lookback'), safe = MO.SIDE.fallSafe / LV.T;
+  const rows = D.ledges.map(l => l[0]); for (let k = 1; k < rows.length; k++){ const d = rows[k - 1] - rows[k]; assert.equal(d, D.drop); assert.ok(d > 14.5, 'more than he hauls himself up'); assert.ok(d <= safe, 'and no more than he drops unhurt'); assert.notEqual(D.ledges[k][1] < 20, D.ledges[k - 1][1] < 20, 'one side and the other'); }
+  assert.equal(rows[rows.length - 1] - 4, 6, 'the last ledge is a step over the cleft\'s floor'); assert.equal(4 + ROOM.h - D.foot, D.drop, 'and the floor a drop over the look-back\'s');
+  const wall = L2.marks.find(m => m.type === 'windbreak' && m.key === D.key), up = L2.updrafts.find(u => u.wall === D.key);
+  assert.ok(wall && in0(wall, lb), 'the wall is at the bottom'); assert.ok(up, 'and its wind');
+  assert.equal(up.y0 / LV.T, lb.ty0 + D.foot); assert.ok(up.y1 / LV.T >= wd.ty0 + rows[0] + 4, 'which rises the whole height of the cleft, past the ledge he came in on'); assert.ok(up.x0 / LV.T >= wd.tx0 + 13 && up.x1 / LV.T <= wd.tx0 + 27, 'in the open middle of it, between the ledges');
+  for (let y = lb.ty0 + D.foot; y < wd.ty0 + rows[0] + 4; y++) for (let x = up.x0 / LV.T; x < up.x1 / LV.T; x++) assert.notEqual(L2.tiles[y * L2.W + x], LV.ROCK, 'nothing stands in the wind\'s way');
+  R.loadLevel(2); LV.setGates(); const mid = [(up.x0 + up.x1) / 2, (wd.ty0 + 30) * LV.T];
+  assert.equal(LV.updraftAt(...mid), null, 'dead air while the wall stands'); LV.setGates({}, {}, [D.key]); assert.ok(LV.updraftAt(...mid), 'and rising air when it is down'); LV.setGates();
+  for (let y = D.foot + 2; y <= 17; y++) assert.equal(L2.tiles[(lb.ty0 + y) * L2.W + lb.tx0], LV.EMPTY, 'a window in the mountain\'s west face');
+  assert.ok(L2.marks.some(m => m.type === 'thread' && in0(m, lb)), 'a thread at the look-back');
+});
+
+test('the Crevasse: one fire at its head, and what it melts is the plug in its floor, forty rows below; then a second fire, at the bottom', () => {
+  const C = SF.CREV, cr = room2('crevasse'), bb = room2('blueblack');
+  const fire = L2.marks.filter(m => m.type === 'brazier' && in0(m, cr)); assert.equal(fire.length, 1); assert.equal(fire[0].y - cr.ty0, C.land, 'on the landing he comes in on');
+  const ice = []; for (let y = cr.ty0; y < cr.ty1; y++) for (let x = cr.tx0; x < cr.tx1; x++) if (L2.tiles[y * L2.W + x] === LV.MELT) ice.push([x, y]);
+  assert.equal(ice.length, (C.plug[1] - C.plug[0] + 1) * 4, 'the only ice in it is the plug'); assert.ok(ice.every(([x, y]) => y - cr.ty0 <= 3 && x - cr.tx0 >= C.plug[0] && x - cr.tx0 <= C.plug[1]), 'in its floor');
+  assert.ok(ice.every(([x, y]) => L2.meltOf.get(y * L2.W + x) === fire[0].x + ',' + fire[0].y), 'and it is that fire\'s'); assert.ok(fire[0].y - ice[0][1] >= 40, 'forty rows over it');
+  R.loadLevel(2); const was = LV.RULE.litAll, lit = LV.RULE.lit; LV.RULE.litAll = false; LV.RULE.lit = new Set();
+  try { const [x, y] = ice[0]; assert.equal(LV.tileAt(x, y), LV.ROCK, 'unlit: the plug is ice'); LV.RULE.lit.add(fire[0].x + ',' + fire[0].y); assert.equal(LV.tileAt(x, y), LV.EMPTY, 'lit: it is gone'); } finally { LV.RULE.litAll = was; LV.RULE.lit = lit; }
+  for (let k = 1; k < C.sills.length; k++){ assert.ok(C.sills[k - 1][0] - C.sills[k][0] <= 7, 'the sills are no more than a leap apart'); assert.notEqual(C.sills[k][1], C.sills[k - 1][1], 'one side and the other'); }
+  assert.ok(C.land - C.sills[0][0] <= 7 && C.sills[C.sills.length - 1][0] - 4 <= 7);
+  const f2 = L2.marks.filter(m => m.type === 'brazier' && in0(m, bb)); assert.equal(f2.length, 1, 'a second fire at the bottom');
+  assert.ok(L2.marks.some(m => m.type === 'sitter' && m.ice && in0(m, bb)), 'one who sat down there, in its ice'); const th = L2.marks.find(m => m.type === 'chest' && m.holds === 'thread' && in0(m, bb)); assert.ok(th); assert.equal(L2.tiles[th.y * L2.W + th.x], LV.MELT, 'and a thread in the same ice');
+  assert.ok(ROOM.h + 4 - C.block <= MO.SIDE.fallSafe / LV.T, 'the drop through the plug is one he takes unhurt');
+});
+
+const ALL2 = R.graph(2, R.GIFTS), SHUT2 = R.graph(2, ['shut', ...R.GIFTS]);
+test('the Spires\' far ends, played: down the cleft and no way back until the wall is down; down the crevasse and back', () => {
+  for (const n of FAR2) assert.ok(R.reached(ALL2.seen, room2(n), ALL2.W), n + ' is come to');
+  const hc = room2('hiscairn'), se = room2('seated'), lb = room2('lookback'), inRoom = (G, k, r) => { const i = k % G.W, j = Math.floor(k / G.W); return i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1; };
+  // the wall standing: he comes to the look-back all the same, and from it there is no way back to his cairn
+  assert.ok(R.reached(SHUT2.seen, lb, SHUT2.W), 'the look-back, with the wall standing'); const from = nodesIn(SHUT2, lb); assert.ok(![...onward(SHUT2, from)].some(k => inRoom(SHUT2, k, hc)), 'and no way back up, until it is down');
+  const home = { waydown: hc, lookback: hc, crevasse: se, blueblack: se };
+  for (const n of FAR2){ const fr = nodesIn(ALL2, room2(n)); assert.ok(fr.length > 0); for (const k of fr) assert.ok([...onward(ALL2, [k])].some(c => inRoom(ALL2, c, home[n])), `${n}: from ${k % ALL2.W - room2(n).tx0},${Math.floor(k / ALL2.W) - room2(n).ty0} there is a way back`); }
+  const th = L2.marks.find(m => m.type === 'thread' && in0(m, lb)); assert.ok([...ALL2.seen].some(k => Math.abs(k % ALL2.W - th.x) <= 1 && Math.floor(k / ALL2.W) === th.y), 'the thread at the look-back');
+});
+
 test('the game moves a save with its level wherever a level is made: as it starts, on going into a region, on walking into one', async () => {
   const src = (await import('node:fs')).readFileSync(new URL('../src/side/main.js', import.meta.url), 'utf8');
   assert.ok(/\nrebased\(\);[^\n]*\nsetup\(\);\n/.test(src), 'before the first level is set up (level.js makes that one itself)');

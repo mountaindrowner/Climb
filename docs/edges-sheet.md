@@ -136,6 +136,20 @@ down the mountain's west shoulder, four screens, and stops at a place where they
 - **Climbers in the walls.** One of them is in the ice the first fire melts.
 - **A thread in the ice, a chest at the bottom.**
 
+#### As built: build 117
+
+*Pictures: `docs/spires-far-build117.png`. Eight screens: four west, four east.*
+
+| The sheet said | It is | Why |
+|---|---|---|
+| "Four screens, and stops at a place where they turned to look back" | **As said:** three screens of cleft and the look-back under it | |
+| "At the look-back: the climb he came up, seen across the gulf" | **A window west, out over the land** | The cleft is on the mountain's west shoulder: the climb is behind it |
+| "A wind-break at the bottom... the way back, and it is at the far end" | **As said** | |
+| "One fire, far from its ice" | **As said:** the fire at the head, the plug forty rows under it | |
+| "And a second, at the bottom, that opens the ledge near the top where the thread is" | **A second fire at the bottom, and the thread is in its ice, beside it** | Each piece of ice answers to the nearest fire in its own room. A fire at the bottom cannot be given ice at the top of the crack |
+| "Climbers in the walls. One of them is in the ice the first fire melts" | **One, at the bottom, in the second fire's ice** | The first fire's ice is the floor |
+| "Down, both" | **Both go down three screens, and neither reaches the new rows under the level** | Three more screens of each would be the same again |
+
 ### 4. The Tempest
 
 **West: the Great Rod.** Over the drafting room, cut up through the cliff: the Wrights' tallest rod, and the stair
@@ -193,7 +207,7 @@ Smaller: the Deep is shut for most of the game (decision 0.26), and its sections
 
 ## The order
 
-Build 116: the Roots and the Cloister. Then the Spires, the Tempest, the Gardens, the Firmament, each a build. Then
+Build 116: the Roots and the Cloister. Build 117: the Spires. Then the Tempest, the Gardens, the Firmament. Then
 the Deep in two builds. Each is published as it is done, with pictures.
 
 ## What I am not sure of

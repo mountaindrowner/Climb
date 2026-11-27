@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 116 | 27 Nov 2026 | `220224b` | The far ends of the Roots and of the Cloister, twenty-one screens. The Roots: the Drawing-Place past the weir (a bucket-chain he sets going and rides; the Well sounded three screens down) and the Unsorted (a pit, one scale with its stack in three, the first tomb under it). The Cloister: the Empty Shelves past the copying hall (two ladders that roll on rails when struck; the binders' loft) and the Cull past the slag runs (a casting crane sent from a winch on the pit's floor). The keepers' words in the Drowned Galleries are said at last | no (a save follows the level, build 115) | yes (now) |
+| 117 | 27 Nov 2026 | `COMMIT117` | The Spires' far ends, eight screens: the Way Down past his cairn (a cleft he drops down and cannot climb; the wall at its foot keeps off the wind that carries him back) and the Crevasse past the Seated (a crack in the glacier; one fire at its head melts the plug in its floor, forty rows below) | no (a save follows the level) | yes (now) |
+| 116 | 27 Nov 2026 | `220224b` | The far ends of the Roots and of the Cloister, twenty-one screens. The Roots: the Drawing-Place past the weir (a bucket-chain he sets going and rides; the Well sounded three screens down) and the Unsorted (a pit, one scale with its stack in three, the first tomb under it). The Cloister: the Empty Shelves past the copying hall (two ladders that roll on rails when struck; the binders' loft) and the Cull past the slag runs (a casting crane sent from a winch on the pit's floor). The keepers' words in the Drowned Galleries are said at last | no (a save follows the level, build 115) | replaced by 117 |
 | 115 | 27 Nov 2026 | `a7a3e87` | Every level lifted: two rooms of rock under each (and a room more over those with a roof of rock), so there is somewhere to build down and up. A save now follows its level when it grows. Nothing he can reach is changed | **moved** (every place 46 tiles up; done as the save is read) | replaced by 116 |
 | 114 | 27 Nov 2026 | `a9c2759` | The Pilgrims' Cairns' wind-breaks: two walls of slate; knocked down, the wind rises somewhere else. A thread on a horn too tall to climb; the scree climbed from below | no | replaced by 115 |
 | 113 | 27 Nov 2026 | `8d3a3b2` | The Ossuary's scales: two grave-slabs, each lifted by weight in a pan that is in another room. His own weight, a stack of bones knocked in, and a Tallyman who takes them out again | no | replaced by 114 |
@@ -132,6 +133,63 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 117: the Spires' far ends
+
+*The third of the levels' edges (`docs/edges-sheet.md`, section 3 and "As built: build 117"). Pictures:
+`docs/spires-far-build117.png`. Nothing new in the engine: both are made of what the two wings had.*
+
+**For the player**
+
+- **West, past his cairn: the Way Down.** Four screens. For one who has the Seated's Wind, as the Cairns are.
+  - **A doorway in the west wall of his cairn's room.** Beyond it a cleft down the mountain's shoulder: four ledges,
+    one side and the other, each seventeen rows under the last. He drops unhurt. He cannot climb back.
+  - **Words scratched on stones on the way,** as in the Cairns: the reasons of those going down.
+  - **At the bottom, the look-back:** a window in the mountain's west face, a thread, a chest, and a wall of slates.
+  - **Knock the wall down** (three blows) and the wind rises the whole height of the cleft, back to his cairn. It is
+    the only way back, and it is at the far end.
+- **East, past the Seated: the Crevasse.** Four screens. Behind the last fire's ice in the Seated's hall.
+  - **A passage to the head of a crack in the glacier,** ten tiles wide, three screens deep, sills of ice down it one
+    side and the other.
+  - **One fire, at its head.** What it melts is the plug in the crack's floor, forty rows below.
+  - **Under the plug, the bottom:** one who sat down there, in the ice of a second fire; a thread in the same ice; a
+    chest; a line scratched on a stone.
+- **To try:**
+  1. In the Cairns, go into his cairn's room as before, and on west through the new doorway.
+  2. Drop down the cleft. Try to climb back.
+  3. At the bottom, knock the wall down and ride the wind up.
+  4. In the Glacier Galleries, free the Seated, melt the ice behind him, and go on east.
+  5. Light the fire at the head of the crack, then go down and see what it did.
+
+**What is weaker than it should be**
+
+- **The cleft is the same drop four times.** Ledge, drop, ledge, drop. Two cairns stand on it and come after him
+  when his back is turned; nothing else happens on the way.
+- **Until the wall is down he is shut in at the bottom.** It cannot be missed (it is in the one room there) and
+  takes three blows. But a player who goes down with one heart and meets a cairn has no way out but through.
+- **The crevasse's fire is at the door.** He lights it before he knows what it is for. The sheet had a second fire
+  at the bottom opening a ledge near the top; that one is not built.
+- **Its west side is a ruled line.** The crack runs down inside the glacier's face at the level's east end, and the
+  open sky beside it begins at a straight edge.
+- **Neither goes into the two rows of rock under the level.** Both stop screens over them.
+- **Not played by a person.**
+
+- **Save: not moved by hand.** The Spires are a column wider to the west; a save from before is moved by that as he
+  comes into the level. Adds nothing new (the wall is kept with the Cairns' other walls, the fires with the
+  Galleries' other fires).
+- **Checked:** 548 automated checks, four new (in `tests/side-edges.test.mjs`): where the four rooms are, and
+  that the new column west is rock beside the field and the reasons; the cleft (each drop more than he can climb
+  and no more than he takes unhurt, the wall, its wind dead and risen, nothing in the wind's way, the window); the
+  crevasse (the one fire, the plug its only ice and forty rows from it, the sills a leap apart, the second fire, the
+  drop through the plug); played with the real motor: down the cleft with the wall standing and no way back until it
+  is down, and from every place in the new rooms a way back. Two older checks changed: the Cairns' count of its
+  walls, and the list of platforms allowed to stand on nothing, which is now moved with a level that has grown.
+  In the test browser: every new room seen, the wall knocked down, both fires lit, the plug gone.
+- **Not checked:** not played by hand; the ride up the cleft by hand; the sounds.
+- **Mistakes caught before it went out:**
+  - **The coarse map check could not get out of the bottom of the crevasse** (the way back up went under the
+    crack's floor). The plug is the west six tiles of the floor now, with a flue under it and two sills in the flue.
+  - **A sill set under the plug hung in the air.** It stands against the flue's wall now.
 
 ### Build 116: the far ends of the Roots and of the Cloister
 

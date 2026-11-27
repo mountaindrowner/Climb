@@ -72,7 +72,7 @@ test('his own cairn is not a creature; the Pilgrim\'s Stone is a relic, and leng
 });
 
 // ---- the wind-breaks (build 114; docs/bare-wings-sheet.md)
-const walls = L.marks.filter(m => m.type === 'windbreak'), winds = L.updrafts.filter(u => u.wall);
+const ours = k => k === 'horn' || k === 'scree' /* (the wall at the foot of the Way Down, past his cairn, is held in side-edges: build 117) */, walls = L.marks.filter(m => m.type === 'windbreak' && ours(m.key)), winds = L.updrafts.filter(u => u.wall && ours(u.wall));
 test('two walls of slate, each across the foot of a wind that comes out somewhere else', () => {
   assert.deepEqual(walls.map(w => w.key).sort(), ['horn', 'scree']); assert.deepEqual(winds.map(u => u.wall).sort(), ['horn', 'scree']);
   const horn = walls.find(w => w.key === 'horn'), hw = winds.find(u => u.wall === 'horn'), re = room('reasons'), fi = room('field');

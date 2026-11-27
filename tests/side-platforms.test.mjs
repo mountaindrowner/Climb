@@ -5,6 +5,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadLevel, LEVELS } from '../src/side/level.js';
+import { ORG115 } from '../src/side/state.js';
 import { tally, islands, platforms } from './helpers/platforms.mjs';
 
 //                planks, of them touching nothing, rock in the air, has had its pass
@@ -33,7 +34,7 @@ function bridged(all, p, tiles, W){
   return left && right;
 }
 // one board in the air, by design and approved: the Wyrm's slab over the broken pass (docs/wyrm-sheet.md)
-const ALLOWED = [{ level: 'The Spires', x0: 153, y: 336 }];   // (290 before every level was lifted 46 rows, build 115)
+const ALLOWED = [{ level: 'The Spires', x0: 153, y: 336 }];   // (290 before every level was lifted 46 rows, build 115. x0 as build 115 had the level: what it has grown west by since is added, state.js ORG115)
 const screens = N => { const { rooms } = { ...loadLevel(N) }; let s = 0; for (const r of rooms) s += Math.round((r.tx1 - r.tx0) / 40) * Math.round((r.ty1 - r.ty0) / 23); return s; };
 
 for (let N = 0; N < LEVELS.length; N++){ const name = LEVELS[N].name, B = BUDGET[name];
@@ -51,8 +52,8 @@ for (let N = 0; N < LEVELS.length; N++){ const name = LEVELS[N].name, B = BUDGET
     if (B[3] === true) assert.ok(t.all < sc, `${t.all} platforms in ${sc} screens`);
     // what is left is a rung (set from wall to wall), a step off a wall, a staging on posts, or a board of a rope
     // bridge: never bare in the air
-    const { W, tiles } = { ...loadLevel(N) }, rockUnder = (i, j) => { for (let d = 1; d <= 8; d++){ const v = tiles[(j - d) * W + i]; if (v === 1) return true; if (v !== 0) return false; } return false; };
-    const all = platforms(N), held = p => p.kind !== 'free' || rockUnder(p.x0, p.y) && rockUnder(p.x1, p.y) || bridged(all, p, tiles, W) || ALLOWED.some(a => a.level === name && a.x0 === p.x0 && a.y === p.y);
+    const LN = loadLevel(N), GREW = [(LN.X0 || 0) - ORG115[N][0], (LN.Y0 || 0) - ORG115[N][1]], { W, tiles } = { ...LN }, rockUnder = (i, j) => { for (let d = 1; d <= 8; d++){ const v = tiles[(j - d) * W + i]; if (v === 1) return true; if (v !== 0) return false; } return false; };
+    const all = platforms(N), held = p => p.kind !== 'free' || rockUnder(p.x0, p.y) && rockUnder(p.x1, p.y) || bridged(all, p, tiles, W) || ALLOWED.some(a => a.level === name && a.x0 + GREW[0] === p.x0 && a.y + GREW[1] === p.y);
     for (const p of all) assert.ok(held(p), `the platform at ${p.x0}-${p.x1}, ${p.y} stands on nothing (a post needs ground within eight tiles under each end)`);
   });
 }
