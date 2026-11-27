@@ -487,6 +487,9 @@ then dresses the new shapes. One level a build, each held to a budget by a check
 
 ## Phase 18: the Shard, and the end of the story
 
+*Its sheet: `docs/phase18-sheet.md` (27 Nov). It takes in the throw into the Deep (0.26) and the rough faces carried
+from phase 17. Waiting on your word: nothing is built.*
+
 - **The Shard,** reached with the grip, last.
 - **The ending, in both orders:** the Source found before the Fallen or after reads differently, and never needs it.
 - **The three people's last pages:**
