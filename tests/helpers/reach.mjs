@@ -103,11 +103,16 @@ export function graph(N, gifts = []){
   const raise = k => { RULE.gates.add(k); delete RULE.held[k]; };
   setGates(); for (const g of has) if (g.startsWith('gate:')) raise(g.slice(5));
   if (CACHE.has(key)){ const c = CACHE.get(key); for (const k of c.gates) raise(k); return { ...base, ...c }; }
-  const windlasses = L.marks.filter(m => m.type === 'windlass'); let found = null;
-  for (let round = 0; round < 8; round++){
-  const sp = L.marks.find(m => m.type === 'spawn'), start = sp.y * W + sp.x, pos = new Map([[start, [(sp.x + 0.5) * T, sp.y * T]]]);
-  const seen = new Set([start]), q = [start], edges = new Map();
+  const windlasses = L.marks.filter(m => m.type === 'windlass' || m.type === 'ring'); let found = null;
+  // (a gate that goes up changes only what is near it, and the water it held: the places within forty-five tiles of either
+  // are played again with it up, and the search goes on from them. Nothing further off could have told the difference.
+  // REACH_SCRATCH=1: every round from the spawn again, the slow way, to hold this one to)
+  const SCRATCH = !!process.env.REACH_SCRATCH, NEAR = 45;
+  const sp = L.marks.find(m => m.type === 'spawn'), start = sp.y * W + sp.x; let pos = new Map([[start, [(sp.x + 0.5) * T, sp.y * T]]]);
+  let seen = new Set([start]), q = [start], edges = new Map();
   const progs = has.has('dash') ? PROGS.concat(DASH) : PROGS, rough = LEVEL.tiles.includes(20), breathing = LEVEL.waters.some(w => w.key === 'breath');
+  for (let round = 0; round < 8; round++){
+  if (SCRATCH && round){ pos = new Map([[start, pos.get(start)]]); seen = new Set([start]); q = [start]; edges = new Map(); }
   while (q.length){
     const k = q.pop(), [x, y] = pos.get(k), nx = new Map();
     const take = (c, at) => { if (c === k) return; if (!nx.has(c)) nx.set(c, Math.hypot(at[0] - x, at[1] - y)); if (!pos.has(c)) pos.set(c, at); };
@@ -124,6 +129,8 @@ export function graph(N, gifts = []){
   found = { seen, edges, pos };
   const more = has.has('shut') ? [] : windlasses.filter(m => !RULE.gates.has(m.key) && [...seen].some(k => Math.abs(k % W - m.x) <= 3 && Math.abs(Math.floor(k / W) - m.y) <= 2));
   if (!more.length) break; for (const m of more) raise(m.key);
+  if (!SCRATCH){ const boxes = []; for (const m of more){ for (const g of L.marks) if (g.type === 'gate' && g.key === m.key) boxes.push([g.x, g.y, g.x + (g.w || 1), g.y + (g.h || 1)]); for (const w of LEVEL.waters) if (w.held === m.key) boxes.push([w.x0 / T, w.y0 / T, w.x1 / T, w.y1 / T]); }
+    for (const k of seen){ const i = k % W, j = Math.floor(k / W); if (boxes.some(b => i >= b[0] - NEAR && i <= b[2] + NEAR && j >= b[1] - NEAR && j <= b[3] + NEAR)) q.push(k); } }
   }
   const out = { ...found, gates: [...RULE.gates] };
   CACHE.set(key, out);

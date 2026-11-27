@@ -270,6 +270,24 @@ out of: he waited for the water. Now it can.
 a blue serpent with a white horned head. Any of them could be the undercroft's, or another water's. Say if you like
 one better for the weir.
 
+## As built: build 112 (the undercroft)
+
+*The last piece of this sheet. Pictures: `docs/drowned-build112.png`.*
+
+- **The undercroft is the keepers' store:** two screens under the hall's floor, always under water, lit green by
+  lamps that went under still burning. Great sealed jars stand along its floor. Three bays: a wall hangs between the
+  first and second (the way is under it), a wall stands between the second and third (the way is over it).
+- **It is for one who has the Seated's Wind.** Without it the water will not let him under. With it: dive in the
+  hall's west pool. There is a shaft in the pool's floor.
+- **The hatch.** In the hall's floor there is a slab with no chain and no windlass. Under it, in a shaft, hangs a
+  ring. Struck from below, the hatch lifts, and after that the hall's floor is the short way down. It cannot be
+  lifted from above.
+- **In it:** a thread, a chest, and a line cut in the wall: "WHAT WE COULD NOT CARRY UP, WE SANK."
+- **Nothing lives in it yet.**
+
+**With this the sheet is built:** the rooms, the water, the three gates and the hatch, the skimmer, the Squid, the
+relic, the culvert, the undercroft. Fourteen screens.
+
 ## The same rule, in the wings already built
 
 Looking at the ten that are built, by what is in them today:

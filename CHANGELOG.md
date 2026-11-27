@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Drowned Galleries, the Squid (latest; build 111).** The weir's fight is no longer a pike but a squid: long, violet, one pale blind eye. It fights as the pike did (afloat it cannot be hurt and takes what is in its water; on the bed at low water it can be struck). The pike's drawing is out of the game. 519 checks. No save is moved.
+**The Drowned Galleries, the undercroft (latest; build 112).** The keepers' store, two screens under the hall's floor and under water always, for one who has the Seated's Wind: down through the floor of the hall's west pool. A hatch in the hall's floor has no chain, only a ring on its underside; struck from below it lifts. A thread, a chest, a line on the wall. The wing's sheet is built. 522 checks. No save is moved.
+
+**The Drowned Galleries, the Squid (build 111).** The weir's fight is no longer a pike but a squid: long, violet, one pale blind eye. It fights as the pike did (afloat it cannot be hurt and takes what is in its water; on the bed at low water it can be struck). The pike's drawing is out of the game. 519 checks. No save is moved.
 
 **The Drowned Galleries, the Pike (build 110).** The wing's fight: a great pale-eyed pike in the weir. While the water bears it, it bites whatever is in that water and a blow glances off it; when the water falls away it is left on the bed, where it can be struck, snaps at what is before its head and turns on what is behind. Two sills on each bank go down to the bed and back. 519 checks. No save is moved.
 

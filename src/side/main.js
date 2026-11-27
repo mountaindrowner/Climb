@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 111, date: '27 NOV 2026', phase: 17, phases: 22, last: 'THE GALLERIES: THE SQUID' };
+const VERSION = { build: 112, date: '27 NOV 2026', phase: 17, phases: 22, last: 'THE GALLERIES: THE UNDERCROFT' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -1348,7 +1348,8 @@ function onEvent(e){
       ((G.gates = G.gates || {})[LEVEL.index] = G.gates[LEVEL.index] || {})[e.key] = up ? 1 : { held: holds ? RULE.held[e.key] : null }; store(); PROPS.show();
       sfx.creak(); sfx.door(); sfx.rumble(); fx.burst(e.at, 12, 0xc0cbdc); R.glint(e.at.x, e.at.y, 0xc0cbdc, 0.9, 5, 0.3); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.18);
       for (const B of PROPS.sluices || []) if (B.key === e.key) fx.dust({ x: B.x, y: B.y }, 14, 3);
-      if (!G.gateTold){ G.gateTold = 1; store(); banner('A windlass', up ? 'Somewhere a gate has gone up. The chain on the wall shows where.' : 'Its gate has come down again.', 5); }
+      if (e.key === 'hatch') banner('', up ? 'The hatch in the hall\'s floor has lifted.' : 'The hatch has shut.', 3);
+      else if (!G.gateTold){ G.gateTold = 1; store(); banner('A windlass', up ? 'Somewhere a gate has gone up. The chain on the wall shows where.' : 'Its gate has come down again.', 5); }
       else banner('', up ? 'A gate has gone up.' : holds ? 'Its gate has come down. The water behind it will stay as it is.' : 'Its gate has come down.', 2.6); break; }
     case 'arc': if (Math.hypot(e.at.x - P.x, e.at.y - P.y) < 16) sfx.zap(); break;
     // the Aqueducts: a sluice wheel turned (by him, or put back by its keeper); a keeper's arm come down; the Lock letting go

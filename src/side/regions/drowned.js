@@ -9,6 +9,9 @@
 //   weir         where the keepers held the water back: a pond between two banks (two screens tall)
 //   cuproom      behind the weir, up a stair from its east bank. Dry always
 //   culvert      the hall's drain: under the stair, and up a shaft into the pool he woke in
+//   keepstore    the undercroft, under the hall's floor (build 112): the keepers' store, always under water. For one who has
+//                the Seated's Wind: down through the bottom of the hall's west pool. A hatch in the hall's floor has no
+//                chain to it, only a ring on its underside: struck from below, it is the short way after
 // Its rule: the water breathes (level.js BREATH; a body of water with key 'breath'). It rises sixteen tiles, stands,
 // falls and stands, the same every time. At low water the floors are dry; at high water it bears him up to what the
 // floor cannot reach. He cannot drown, and without the Wyrm's wind he cannot go under.
@@ -27,7 +30,7 @@ import { room, rect, door, ledge, mark, shelf, EMPTY, ROCK, LEDGE, SLUICE } from
 
 const TITLE = 'THE DROWNED GALLERIES';
 export const DROWNED = { floor: 8, low: 8, high: 24, weirLow: 2, weirHigh: 18 };
-const named = fn => { const f = () => { const r = fn(); r.title = TITLE; r.gate = ''; return r; }; Object.defineProperty(f, 'name', { value: fn.name }); return f; };
+const named = (fn, gate = '') => { const f = () => { const r = fn(); r.title = TITLE; r.gate = gate; return r; }; Object.defineProperty(f, 'name', { value: fn.name }); return f; };
 const deco = (r, kind, x, y, more) => mark(r, 'deco', x, y, { kind, ...more });
 const keep = (r, x, y) => mark(r, 'keep', x, y);
 const mass = (cw = 1, ch = 1) => { const r = room(cw, ch); rect(r, 0, 0, r.w - 1, r.h - 1); return r; };
@@ -61,6 +64,8 @@ function drownedhall(){
   door(r, 'right', 8, 13); door(r, 'left', 24, 29); door(r, 'left', 8, 12);   // (the low one: the cells' sluice)
   // the two pools that never empty, cut in the floor
   rect(r, 14, 3, 22, 7, EMPTY); rect(r, 48, 3, 56, 7, EMPTY);
+  // under the west pool, a shaft down to the undercroft; and the hatch's shaft, shut at the floor by the hatch itself
+  rect(r, 17, 0, 19, 2, EMPTY); rect(r, 34, 0, 37, 6, EMPTY); mark(r, 'ring', 35, 1, { key: 'hatch' });   // (it hangs low in the shaft: where one who has swum up under the hatch has his hands)
   // the galleries, where high water comes to: one on either wall
   shelf(r, 'L', 9, 23); shelf(r, 'R', 70, 23);
   // the drain in the floor, and the culvert east from it
@@ -74,7 +79,7 @@ function drownedhall(){
   for (const x of [15, 35, 55]) deco(r, 'chainh', x, 34); deco(r, 'chain', 70, 25); deco(r, 'chain', 3, 14);
   mark(r, 'torch', 5, 32); mark(r, 'torch', 74, 32); mark(r, 'crystal', 30, 8); mark(r, 'crystal', 60, 8); mark(r, 'crystal', 18, 3); mark(r, 'crystal', 52, 3); mark(r, 'crystal', 77, 24);   // (no flame where the water comes: the floor is lit by what grows in it)
   mark(r, 'urn', 75, 24); mark(r, 'urn', 4, 8); mark(r, 'urn', 33, 8); mark(r, 'urn', 44, 8); mark(r, 'chest', 73, 24, { holds: 'shards' }); mark(r, 'thread', 76, 25);
-  keeps(r, 2, 8, 77, 22); keeps(r, 2, 24, 77, 30); keeps(r, 10, 23, 69, 23); keeps(r, 14, 3, 22, 7); keeps(r, 48, 3, 56, 7); keeps(r, 64, 2, 79, 7); 
+  keeps(r, 2, 8, 77, 22); keeps(r, 2, 24, 77, 30); keeps(r, 10, 23, 69, 23); keeps(r, 14, 3, 22, 7); keeps(r, 48, 3, 56, 7); for (const y of [0, 1, 2]) keep(r, 18, y); for (let y = 0; y <= 6; y++) for (const x of [34, 36]) keep(r, x, y); keeps(r, 64, 2, 79, 7); 
   return r;
 }
 function keepcells(){
@@ -126,6 +131,21 @@ function cuproom(){
   keeps(r, 0, 2, 21, 7); keeps(r, 22, 2, 37, 13);
   return r;
 }
+function keepstore(){
+  const r = mass(2, 1);
+  // the store: three bays under the hall's floor, all of it under water always. A wall hangs between the first and the
+  // second (the way is under it); a wall stands between the second and the third (the way is over it)
+  rect(r, 2, 2, 57, 18, EMPTY); rect(r, 22, 9, 23, 18); rect(r, 40, 2, 41, 12);
+  rect(r, 17, 19, 19, 22, EMPTY); rect(r, 34, 19, 37, 22, EMPTY);      // up to the west pool's floor, and up to the hatch
+  // its water: the store itself, and each shaft to its top (the pool's floor; the hall's floor). Not one sheet over all of
+  // it: that lay over the rock of the hall's floor too, and showed through it
+  water(r, 2, 2, 56, 17, { deep: true }); water(r, 17, 19, 3, 7, { deep: true }); water(r, 34, 19, 4, 12, { deep: true });
+  for (const x of [8, 12, 28, 32, 46, 50, 54]) deco(r, 'greatjar', x, 2); deco(r, 'keepline', 30, 2, { says: 'WHAT WE COULD NOT CARRY UP, WE SANK.' });
+  mark(r, 'thread', 4, 12); mark(r, 'chest', 52, 2, { holds: 'shards' }); mark(r, 'urn', 44, 2); mark(r, 'urn', 15, 2);
+  mark(r, 'dlamp', 10, 12); mark(r, 'dlamp', 31, 6); mark(r, 'dlamp', 48, 13); mark(r, 'crystal', 20, 2); mark(r, 'crystal', 37, 2); mark(r, 'crystal', 56, 2);
+  keeps(r, 2, 2, 57, 18); for (let y = 19; y <= 22; y++){ keep(r, 18, y); keep(r, 35, y); keep(r, 36, y); }
+  return r;
+}
 function culvert(){
   const r = mass();
   // the drain's last stretch, and the shaft up into the pool: three rungs in it, and the boards in the pool's floor
@@ -143,8 +163,9 @@ export const wing = { left: 4, down: 2, build(X){
   // the gates, set in after the rock's wear: the hall's, in the stair's foot; the cells' sluice (it holds their water, and
   // holds it low until he first raises it); the grate in the hall's drain
   const gate = (R, x, y, w, h, key, more = {}) => { for (let b = y; b < y + h; b++) for (let a = x; a < x + w; a++) X.set(R.tx0 + a, R.ty0 + b, SLUICE); X.marks.push({ type: 'gate', x: R.tx0 + x, y: R.ty0 + y, w, h, key, ...more }); };
-  gate(stair, 0, 8, 2, 6, 'hall'); gate(cells, 38, 8, 2, 5, 'cells', { holds: true, at: 0 }); gate(hall, 64, 7, 4, 1, 'culvert');
+  gate(stair, 0, 8, 2, 6, 'hall'); gate(cells, 38, 8, 2, 5, 'cells', { holds: true, at: 0 }); gate(hall, 64, 7, 4, 1, 'culvert'); gate(hall, 34, 7, 4, 1, 'hatch');
   X.addRoom(-4, 1, named(weir), more); X.addRoom(-3, 2, named(cuproom), { wing: true }); X.addRoom(0, -1, named(culvert), more);
+  X.addRoom(-3, -2, named(keepstore, 'glide'), { wing: true });
   // the door in the pool room's west wall, at its floor (a row lower than most: the room's torch keeps its wall); and the boards in the pool's floor, over the culvert's shaft
   for (let y = st.ty0 + 2; y <= st.ty0 + 6; y++) for (let x = st.tx0; x < st.tx0 + 6; x++){ if (x >= st.tx0 + 2 && X.at(x, y) !== ROCK) break; X.set(x, y, EMPTY); }
   for (let x = st.tx0 + 3; x <= st.tx0 + 6; x++) X.set(x, st.ty0, LEDGE);
@@ -164,6 +185,8 @@ export const decoDef = (px, PAL) => ({
   // a chain on the wall, from a windlass to its gate: ten tiles of it upright, or twenty along
   chain(g, x, y){ for (let k = 0; k < 80; k += 4){ px(g, PAL.ink, x - 2, y - k - 4, 4, 4); px(g, k % 8 ? PAL.light : PAL.mid, x - 1, y - k - 3, 2, 2); } },
   chainh(g, x, y){ for (let k = -80; k < 80; k += 4){ const sag = Math.round(3 * Math.cos(k / 80 * Math.PI / 2 * 2)); px(g, PAL.ink, x + k, y - 4 + sag, 4, 4); px(g, k % 8 ? PAL.light : PAL.mid, x + k + 1, y - 3 + sag, 2, 2); } },
+  // a great jar of the keepers' store: taller than he is, sealed, and green with the water
+  greatjar(g, x, y, r){ const h = 30 + Math.floor(r() * 8); px(g, PAL.ink, x - 8, y - h, 16, h); px(g, PAL.ink, x - 10, y - h + 6, 20, h - 12); px(g, '#3f6f62', x - 9, y - h + 7, 18, h - 14); px(g, '#2f5f52', x - 7, y - h + 1, 14, h - 2); px(g, '#6fa392', x - 8, y - h + 8, 3, h - 18); px(g, PAL.ink, x - 5, y - h - 4, 10, 5); px(g, '#8b9bb4', x - 4, y - h - 3, 8, 3); px(g, '#1f3f38', x - 9, y - 6, 18, 2); },
   // where the cup stood: a plinth, with nothing on it
   plinth(g, x, y){ px(g, PAL.ink, x - 7, y - 12, 14, 12); px(g, PAL.mid, x - 6, y - 11, 12, 10); px(g, PAL.light, x - 6, y - 11, 12, 1); px(g, PAL.ink, x - 9, y - 14, 18, 3); px(g, PAL.pale, x - 8, y - 13, 16, 1); px(g, PAL.ink, x - 9, y - 2, 18, 2); px(g, '#2f6f62', x - 3, y - 13, 6, 1); },
   // a line cut in the wall, in the keepers' hand (main.js says it when he stands by it)
@@ -178,6 +201,7 @@ let TEX = null;
 const texes = T3 => TEX || (TEX = {
   // its frame: two stone posts and a sill; and its drum, with four handspikes, seen end on
   frame: pix(T3, 18, 16, f => { f('#181425', 0, 0, 5, 16); f('#181425', 13, 0, 5, 16); f('#5a6988', 1, 1, 3, 15); f('#5a6988', 14, 1, 3, 15); f('#8b9bb4', 1, 1, 1, 15); f('#8b9bb4', 14, 1, 1, 15); f('#181425', 0, 13, 18, 3); f('#3a4466', 1, 14, 16, 2); }),
+  ring: pix(T3, 12, 16, f => { f('#181425', 5, 0, 2, 5); f('#8b9bb4', 5, 0, 1, 4); for (let y = 0; y < 12; y++) for (let x = 0; x < 12; x++){ const d = Math.hypot(x - 5.5, y - 5.5); if (d < 5.6 && d > 2.6) f(d > 4.6 || d < 3.4 ? '#181425' : '#c0cbdc', x, y + 4, 1, 1); } }),
   drum: pix(T3, 14, 14, f => { for (let y = 0; y < 14; y++) for (let x = 0; x < 14; x++){ const d = Math.hypot(x - 6.5, y - 6.5); if (d < 4.6) f(d > 3.4 ? '#181425' : d > 1.4 ? '#b86f50' : '#733e39', x, y, 1, 1); } f('#181425', 6, 0, 2, 14); f('#181425', 0, 6, 14, 2); f('#c0cbdc', 6, 0, 2, 3); f('#c0cbdc', 6, 11, 2, 3); f('#c0cbdc', 0, 6, 3, 2); f('#c0cbdc', 11, 6, 3, 2); }),
 });
 export const enemies = {
@@ -195,6 +219,8 @@ export const enemies = {
   // falls, out again as it rises
   squid: { ai: 'squid', hp: 16, w: 2.6, h: 1.4, color: 0x7a4a9a, fly: true, name: 'The Squid', swim: 0.8, lunge: 10, shallow: 1.5, reach: 2.4, windup: 0.6, art: 'px_squid', word: 'Seized',
     guard(e){ return e.beached === false; } },
+  // the ring on the underside of the hall's hatch: struck from below, the hatch lifts; struck again, it shuts
+  ring: { ai: 'windlass', own: true, prop: true, look: 'ring', hp: 99, w: 0.6, h: 1.2, color: 0xc0cbdc, fly: false, guard(e){ e.struck = true; return true; }, onHit(e){ e.hp = e.d.hp; e.struck = true; } },
   // a windlass: struck, its gate goes up; struck again, it comes down. Not a creature
   windlass: { ai: 'windlass', own: true, prop: true, hp: 99, w: 0.6, h: 1.4, color: 0xb86f50, fly: false, guard(e){ e.struck = true; return true; }, onHit(e){ e.hp = e.d.hp; e.struck = true; } },
 };
@@ -250,7 +276,8 @@ export const ai = {
     const m = e.mk || {}; e.st = 'idle'; e.cool = Math.max(0, (e.cool || 0) - dt);
     if (e.struck){ e.struck = false; if (e.cool <= 0){ e.cool = 0.8; c.events.push({ type: 'windlass', e, key: m.key, at: { x: e.x, y: e.y + 1 } }); } }
     const T3 = three(); if (!T3) return;
-    if (!e.g){ const X = texes(T3), g = new T3.Group(), fr = mesh(T3, X.frame, 18 / 16, 1), dr = mesh(T3, X.drum, 14 / 16, 14 / 16); fr.position.y = 0.5; dr.position.set(0, 0.62, 0.001); g.add(fr); g.add(dr); g.position.set(e.x, e.y, 0.04); c.E.scene.add(g); e.g = g; e.dr = dr; }
-    const up = c.RULE.gates.has(m.key); e.dr.rotation.z += (e.cool > 0 ? dt * 9 * (up ? -1 : 1) : 0); e.dr.material.color.setHex(e.flash > 0 ? 0xffffff : up ? 0xffffff : 0xb8bfd0);
+    if (!e.g){ const X = texes(T3), g = new T3.Group(), ring = e.d.look === 'ring', dr = ring ? mesh(T3, X.ring, 12 / 16, 1) : mesh(T3, X.drum, 14 / 16, 14 / 16);
+      if (!ring){ const fr = mesh(T3, X.frame, 18 / 16, 1); fr.position.y = 0.5; g.add(fr); } dr.position.set(0, ring ? 0.9 : 0.62, 0.001); g.add(dr); g.position.set(e.x, e.y, 0.04); c.E.scene.add(g); e.g = g; e.dr = dr; }
+    const up = c.RULE.gates.has(m.key); if (e.d.look === 'ring') e.dr.rotation.z = e.cool > 0 ? Math.sin(e.cool * 20) * 0.3 : 0; else e.dr.rotation.z += (e.cool > 0 ? dt * 9 * (up ? -1 : 1) : 0); e.dr.material.color.setHex(e.flash > 0 ? 0xffffff : up ? 0xffffff : 0xb8bfd0);
   },
 };

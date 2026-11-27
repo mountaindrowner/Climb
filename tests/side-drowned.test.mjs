@@ -84,7 +84,7 @@ test('a save from before the wing: what it had found and broken in the Roots is 
 });
 
 // ---- the gates and their windlasses (build 108)
-const gates = L.marks.filter(m => m.type === 'gate'), lasses = L.marks.filter(m => m.type === 'windlass'), roomOf = m => L.rooms.find(r => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1);
+const gates = L.marks.filter(m => m.type === 'gate' && m.key !== 'hatch'), lasses = L.marks.filter(m => m.type === 'windlass'), roomOf = m => L.rooms.find(r => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1);
 test('three gates of stone, each with a windlass that is somewhere else', () => {
   assert.deepEqual(gates.map(g => g.key).sort(), ['cells', 'culvert', 'hall']); assert.deepEqual(lasses.map(g => g.key).sort(), ['cells', 'culvert', 'hall']);
   for (const g of gates){ for (let y = g.y; y < g.y + g.h; y++) for (let x = g.x; x < g.x + g.w; x++){ assert.equal(L.tiles[y * L.W + x], LV.SLUICE); assert.equal(L.gateOf.get(y * L.W + x), g.key); }
@@ -166,4 +166,24 @@ test('the Squid left on the bed: it can be struck; it lashes at one before its a
   const up = pikeAt(0.5, { x: 15.2, y: 9 }); assert.equal(up.hits.length, 0, 'one up on a sill or a bank is out of its reach');
   assert.equal(L.marks.filter(m => m.type === 'squid').length, 1); assert.equal(roomOf(L.marks.find(m => m.type === 'squid')).name, 'weir'); assert.ok(DR.enemies.squid.name === 'The Squid' && DR.enemies.squid.hp >= 12);
   assert.ok(!DR.enemies.pike && !L.marks.some(m => m.type === 'pike'), 'no fish in the weir (27 Nov: "not fish for the water")');
+});
+
+// ---- the undercroft (build 112): the keepers' store, under the hall's floor
+test('the undercroft: two screens under the hall, always under water, for one who has the Seated\'s Wind', () => {
+  const st = room('keepstore'), hall = room('drownedhall'); assert.ok(st && st.title === 'THE DROWNED GALLERIES' && st.wing && st.gate === 'glide');
+  assert.equal((st.tx1 - st.tx0) * (st.ty1 - st.ty0) / (40 * 23), 2); assert.equal(st.ty1, hall.ty0, 'under the hall'); assert.equal(st.tx0, hall.tx0);
+  R.loadLevel(0); for (const b of [0, 1]){ LV.BREATH.hold = b; assert.ok(LV.waterAt((st.tx0 + 30.5) * LV.T, (st.ty0 + 10) * LV.T), 'under water at low water and at high'); } LV.BREATH.hold = 0;
+  const none = R.graph(0, []); assert.ok(!R.reached(none.seen, st, none.W), 'not come to without the wind: the water will not let him under');
+  const all = R.graph(0, R.GIFTS); assert.ok(R.reached(all.seen, st, all.W), 'with it, down through the west pool');
+  for (const [x0, x1] of [[2, 21], [24, 39], [42, 57]]) assert.ok(stoodIn(all.seen, st, x0, 2, x1, 14), 'each of its three bays');
+  const th = L.marks.filter(m => m.type === 'thread' && m.x >= st.tx0 && m.x < st.tx1 && m.y >= st.ty0 && m.y < st.ty1); assert.equal(th.length, 1, 'its thread');
+  assert.ok([...all.seen].some(k => Math.abs(k % all.W - th[0].x) <= 2 && Math.abs(Math.floor(k / all.W) - th[0].y) <= 2), 'which he comes to');
+});
+test('the hatch in the hall\'s floor: no chain, only a ring on its underside. It is lifted from below, and not from above', () => {
+  const hall = room('drownedhall'), h = L.marks.find(m => m.type === 'gate' && m.key === 'hatch'), ring = L.marks.find(m => m.type === 'ring'); assert.ok(h && ring && ring.key === 'hatch');
+  assert.equal(h.y - hall.ty0, 7, 'in the hall\'s floor'); assert.ok(ring.y < h.y && ring.x >= h.x && ring.x < h.x + h.w, 'the ring under it'); assert.ok(!L.marks.some(m => m.type === 'windlass' && m.key === 'hatch'), 'no windlass for it');
+  for (let x = h.x; x < h.x + h.w; x++) assert.equal(L.tiles[h.y * L.W + x], LV.SLUICE);
+  const none = R.graph(0, []); assert.ok(!none.gates.includes('hatch'), 'one without the wind never lifts it'); assert.ok(stoodIn(none.seen, hall, 34, 8, 37, 8), 'he walks over it');
+  const all = R.graph(0, R.GIFTS); assert.ok(all.gates.includes('hatch'), 'one with it does');
+  assert.ok(DR.enemies.ring.prop && DR.enemies.ring.ai === 'windlass');
 });

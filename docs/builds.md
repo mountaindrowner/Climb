@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 111 | 27 Nov 2026 | `23ee1e0` | The weir's fight is a squid, not a pike: long, violet, blind. It fights as the pike did | no | yes (now) |
+| 112 | 27 Nov 2026 | `COMMIT112` | The Drowned Galleries, the undercroft: the keepers' store under the hall, for one with the Seated's Wind; a hatch lifted from below. The wing's sheet is built | no | yes (now) |
+| 111 | 27 Nov 2026 | `23ee1e0` | The weir's fight is a squid, not a pike: long, violet, blind. It fights as the pike did | no | replaced by 112 |
 | 110 | 27 Nov 2026 | `6a68cde` | The Drowned Galleries, fourth build: the Pike, the wing's fight. Afloat it bites and cannot be hurt; left on the bed at low water it can | no | replaced by 111 |
 | 109 | 27 Nov 2026 | `bb2f832` | The Drowned Galleries, third build: the skimmer (a new creature, the first drawn by the new way), two of them over the hall's pools; two leeches in the cells' flue | no | replaced by 110 |
 | 108 | 27 Nov 2026 | `504ced0` | The Drowned Galleries, second build: three gates of stone, each raised by a windlass somewhere else. The cells' gate holds their water | no | replaced by 109 |
@@ -127,6 +128,47 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 112: the Drowned Galleries, the undercroft
+
+*Your word, 27 Nov: "Next keep going." The last piece of the wing's sheet (`docs/drowned-sheet.md`, "As built: build
+112").*
+
+**For the player** (he needs the Seated's Wind: before that, only the hatch shows)
+
+- **A slab in the hall's floor** with no chain to it. Until he has the wind there is nothing to do with it.
+- **With the wind: dive in the hall's west pool.** A shaft in its floor goes down to the keepers' store: two screens
+  under the hall, under water always, green lamps still lit, great jars along the floor
+  (`docs/drowned-build112.png`).
+- **A ring hangs under the hatch.** Strike it from below and the hatch lifts: the hall's floor is the way down
+  after that.
+- **In the store:** a thread, a chest, a line on the wall.
+- **To try** (in Try a place, with the wind):
+  1. In the hall, stand on the slab. Nothing.
+  2. Dive in the west pool, down the shaft, into the store.
+  3. Go under the hung wall and over the standing one, to the far bay.
+  4. Swim up under the hatch and strike the ring. Go up through it.
+
+**What is weaker than it should be**
+
+- **Nothing lives in it.** It is rooms, a thread and a hatch. Four of the five drawings from build 111 are unused
+  and any of them could go here.
+- **It is small:** two screens, three bays. "The second half of the wing" in the sheet was more than this is.
+- **He can only see it late:** the wind is the Spires' keeper's. A new player meets a slab he cannot explain for a
+  long time. That may be good; I have not played it.
+- **Not played by a person.**
+
+- **Save: not moved.** Adds: the hatch, kept with the other gates.
+- **Checked:** 522 automated checks, two new (the store is under water at low water and at high, is not come to
+  without the wind and is with it, all three bays and its thread; the hatch is not lifted by one without the wind
+  and is by one with it). In the test browser: the three bays seen, the hatch seen down and up, no errors.
+- **Not checked:** not played by hand; the sounds.
+- **Mistakes caught before it went out:** one sheet of water for the whole store lay over the rock of the hall's
+  floor and showed through it; the ring hung higher than a swimmer under the hatch could be said to reach.
+- **Also in this build:** the checks' player, when a gate goes up, plays again only the places near that gate and
+  the water it held, not the whole region. The Roots' checks are about a third quicker for it.
+- **Underneath:** `src/side/regions/drowned.js` (`keepstore`, the ring, the hatch); `src/side/props.js`;
+  `src/side/main.js`; `tests/helpers/reach.mjs`.
 
 ### Build 111: the Drowned Galleries, the Squid in place of the Pike
 
