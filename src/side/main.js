@@ -9,7 +9,7 @@ import { sfx, ac, musicBus, ambience, setMix, MIX, warm, manifestReady, say, bea
 import { voiceOf } from '../audio/voice.js';
 import { makeScore } from '../audio/score.js';
 import '../ui/feel.js';
-import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE, MEETINGS, SILL, prepare, RULE, SPIKES } from './level.js';
+import { LEVEL, LEVELS, loadLevel, T, spawnPoint, roomAt, solidAt, PHASE, REGION_DATA, resetLevels, CLIMB_TOP, tileAt, LEDGE, MEETINGS, SILL, prepare, RULE, SPIKES, setGates, breath } from './level.js';
 import { makeTeach, keyName, fill, INTRO, CARDS, drawIcon } from './teach.js';
 import { makeProps } from './props.js';
 import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE, ARTS, startArt, hurt, isRollInv, ARMS, POGO, pogo, BOW } from './motor.js';
@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 107, date: '26 NOV 2026', phase: 17, phases: 22, last: 'THE DROWNED GALLERIES' };
+const VERSION = { build: 108, date: '27 NOV 2026', phase: 17, phases: 22, last: 'THE GALLERIES: GATES AND WINDLASSES' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -101,6 +101,7 @@ const WAY = { was: false, said: new Map(), fall: [] }; let SHUTSAID = false, LOO
 // `walked`: he has walked in from the next region (cross): he and his scarf are as they were
 function setup(walked = false){
   RULE.upset = 0; RULE.unkept = !!(G.unkept && G.unkept[LEVEL.index]);   // the Keepers' Houses: everything in its place; and whether their keeper is broken (its own switch: the Gardens have two wing keepers, and the Lock's is `still`)
+  setGates((G.gates && G.gates[LEVEL.index]) || {});   // the Drowned Galleries: each gate as he left it, and the water it holds
   RULE.wetAll = false; RULE.wet = new Set(LEVEL.marks.filter(m => m.type === 'wheel' && m.open !== false).map(m => m.key)); { const W0 = G.wet && G.wet[LEVEL.index]; if (W0) for (const k of Object.keys(W0)){ if (W0[k]) RULE.wet.add(k); else RULE.wet.delete(k); } }   // the Aqueducts: each sluice wheel as he left it (or as its keeper did)
   RULE.hush = 0; RULE.open = 0; RULE.calmFree = false; EYE.door = EYE.held = null; EYE.p = 0;   // the Eye of the Storm: its doors of cloud shut
   RULE.sw = (G.sw && G.sw[LEVEL.index]) || 0; RULE.surge = 0; RULE.swFree = false;   // the Wreck of the Works: the lever as he left it
@@ -1340,6 +1341,15 @@ function onEvent(e){
     case 'switch': { if (RULE.still) break; RULE.sw = RULE.sw ? 0 : 1; (G.sw = G.sw || {})[LEVEL.index] = RULE.sw; store(); PROPS.show(); sfx.creak(); sfx.zap(); fx.burst(e.at, 14, 0xbfe8ff); R.glint(e.at.x, e.at.y, 0xbfe8ff, 0.9, 6, 0.3); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.1);
       for (const D of PROPS.decks) if (D.works && Math.hypot(D.x - P.x, D.y - P.y) < 24) R.glint(D.x, D.y, 0xbfe8ff, 0.5, 2.5, 0.2);
       if (!G.swSaid){ G.swSaid = 1; store(); banner('', 'The lever moves the current to the other half of the iron.', 3.4); } break; }
+    // the Drowned Galleries: a windlass turned. Its gate goes up, or comes down; a gate that comes down holds the water
+    // behind it at the height it has now. His save keeps both
+    case 'windlass': { const up = !RULE.gates.has(e.key), holds = LEVEL.marks.some(m => m.type === 'gate' && m.key === e.key && m.holds);
+      if (up){ RULE.gates.add(e.key); delete RULE.held[e.key]; } else { RULE.gates.delete(e.key); if (holds) RULE.held[e.key] = breath(); }
+      ((G.gates = G.gates || {})[LEVEL.index] = G.gates[LEVEL.index] || {})[e.key] = up ? 1 : { held: holds ? RULE.held[e.key] : null }; store(); PROPS.show();
+      sfx.creak(); sfx.door(); sfx.rumble(); fx.burst(e.at, 12, 0xc0cbdc); R.glint(e.at.x, e.at.y, 0xc0cbdc, 0.9, 5, 0.3); FEEL_FX.shake = Math.max(FEEL_FX.shake, 0.18);
+      for (const B of PROPS.sluices || []) if (B.key === e.key) fx.dust({ x: B.x, y: B.y }, 14, 3);
+      if (!G.gateTold){ G.gateTold = 1; store(); banner('A windlass', up ? 'Somewhere a gate has gone up. The chain on the wall shows where.' : 'Its gate has come down again.', 5); }
+      else banner('', up ? 'A gate has gone up.' : holds ? 'Its gate has come down. The water behind it will stay as it is.' : 'Its gate has come down.', 2.6); break; }
     case 'arc': if (Math.hypot(e.at.x - P.x, e.at.y - P.y) < 16) sfx.zap(); break;
     // the Aqueducts: a sluice wheel turned (by him, or put back by its keeper); a keeper's arm come down; the Lock letting go
     case 'sluice': { const on = !RULE.wet.has(e.key); if (on) RULE.wet.add(e.key); else RULE.wet.delete(e.key); ((G.wet = G.wet || {})[LEVEL.index] = G.wet[LEVEL.index] || {})[e.key] = on ? 1 : 0; store();

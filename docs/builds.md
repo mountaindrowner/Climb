@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 107 | 26 Nov 2026 | `c17d1fd` | The Drowned Galleries, first build: the Roots' west wing, twelve screens, and water that rises and falls. The Roots moved to make room | **yes** (once) | yes (now) |
+| 108 | 27 Nov 2026 | `COMMIT108` | The Drowned Galleries, second build: three gates of stone, each raised by a windlass somewhere else. The cells' gate holds their water | no | yes (now) |
+| 107 | 26 Nov 2026 | `c17d1fd` | The Drowned Galleries, first build: the Roots' west wing, twelve screens, and water that rises and falls. The Roots moved to make room | **yes** (once) | replaced by 108 |
 | 106 | 26 Nov 2026 | `4ac1531` | The Deep's map pass, its five levels: 122 planks to 39, none bare in the air. The map pass is done | no | replaced by 107 |
 | 105 | 26 Nov 2026 | `24171a1` | The Firmament's map pass: 68 planks to 30 in 40 screens, none bare in the air; people hint and do not instruct | no | replaced by 106 |
 | 104 | 26 Nov 2026 | `d936c12` | The Gardens' map pass: 117 planks to 46 in 47 screens, none bare in the air; a bloom under each quick way | no | replaced by 105 |
@@ -123,6 +124,57 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 108: the Drowned Galleries, the gates and their windlasses
+
+*Your word, 26 Nov: "we should probably have gates and lever kind of functions that require the players to explore."
+The second of the wing's four builds (`docs/drowned-sheet.md`, "As built: build 108").*
+
+**For the player**
+
+- **The hall is shut when he first comes:** a gate of stone stands in the foot of the stair. A chain goes up the wall
+  from it to a ledge. On the ledge is a windlass. Strike it and the gate goes up (`docs/drowned-build108.png`).
+- **Three gates, three windlasses, none beside its gate.** The hall's: on the ledge over it, which only the top of
+  the rise reaches. The cells': on the hall's east gallery, across the hall. The culvert's grate: in the cup room, at
+  the far end.
+- **The cells' pit is dry until its gate is up,** however long he waits, and a wall hangs in the middle of it. With
+  the gate up the water comes in, and carries him up the far side.
+- **A gate let down again holds the water behind it.** Let the cells' gate down at high water and the pit stays full.
+- **The drain from the pool is a dead end** under a grate in the hall's floor, until he has been all the way round.
+- **To try:**
+  1. Go down the stair. The way into the hall is shut. Find out why, and open it.
+  2. In the hall, get to the west gallery and into the cells. Look down: a dry pit, and a wall across it.
+  3. Wait a whole rise. The pit stays dry. Find its windlass.
+  4. Drop into the pit, go under the hung wall, and wait for the water.
+  5. From the pool, drop through the boards and follow the drain before you have opened its grate: a dead end.
+  6. Strike a windlass twice. Its gate should come down again.
+
+**What is weaker than it should be**
+
+- **The chains do not run the whole way** from windlass to gate. A length of chain is painted by each, and a long
+  one along the hall's wall. He may not read them as a trail.
+- **Letting a gate down to hold water is real but hardly needed.** Only the cells' gate has water to hold, and with
+  it up the pit fills every rise anyway. It saves a wait; it opens nothing new.
+- **A windlass is struck, not worked:** it uses the Aqueducts' wheel's way of doing things, with its own picture.
+- **The crossing of the pit can be beaten later** by the air dash or the glide. That is as meant, but I have not
+  measured it.
+- **Still no skimmer, leech or Pike,** and no undercroft.
+- **Not played by a person.**
+
+- **Save: not moved.** A save from build 107 finds every gate down, as a new game does. Adds: which gates are up,
+  and the height each holds (`G.gates`).
+- **Checked:** 515 automated checks, six new: the gates and where their windlasses are; what each gate shuts
+  when it is down (played with the real motor at every height of the water); that the dry pit is not a trap; that
+  the cells' water is held; that one who plays it through opens all three in their order. In the test browser: each
+  windlass struck, its gate seen up and down, the pit seen dry, full, and held full at low water.
+- **Not checked:** not played by hand; the sounds; a windlass struck with the hammer, the tooth, the bow or thorns.
+- **Mistakes caught before it went out:** the windlass ledge was leapt to from the stair at low water; a ladder in
+  the rock, and the wall between two doorways, each made a piece of rock that touched nothing; a note of mine in the
+  middle of a line swallowed code again (in a test helper this time).
+- **Underneath:** `src/side/rooms.js` (tile 23, a gate); `src/side/level.js` (`RULE.gates`, `RULE.held`,
+  `setGates`, `LEVEL.gateOf`, water `held` by a gate); `src/side/props.js` (a gate drawn while it is down);
+  `src/side/main.js` (the `windlass` event); `src/side/regions/drowned.js`; `tests/helpers/reach.mjs` (the checks'
+  player turns windlasses and goes round again); `tests/helpers/platforms.mjs` (a gate is stone).
 
 ### Build 107: the Drowned Galleries, the rooms and the water
 

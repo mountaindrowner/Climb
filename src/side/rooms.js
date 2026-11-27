@@ -31,6 +31,9 @@ export const EMPTY = 0, ROCK = 1, LEDGE = 2, SPIKES = 3, CRACKED = 4, GLASS_A = 
 // 21, 22 the floors of the bore (phase 17, the Auger's hall; level.js RULE.bore): rock, until the Auger bores each
 //     away in turn (21 the first to go, 22 the second), or is still
 export const ROUGH = 20, TIER_A = 21, TIER_B = 22;
+// 23 a gate of the Drowned Galleries (build 108; level.js RULE.gates, LEVEL.gateOf): rock while it is down. A windlass
+//     somewhere else raises it, and lets it down again
+export const SLUICE = 23;
 export const HOLD = 7, DOOR = 8, GIVEN = 9, LIVE = 10, VELLUM = 11, SHUTTER = 12, STILLED = 13, FACED = 14, MELT = 15, IRON_A = 16, IRON_B = 17, CALM = 18, KEPT = 19;   // 19 the door of his house (phase 13, the Keepers' Houses; level.js RULE.upset): rock while anything in the houses is out of its place, until their keeper is broken
 //   // 18 a door of cloud (phase 12, the Eye of the Storm; level.js RULE.open): rock, until he has stood still before it long enough; then nothing, a little while
 // a room spans cw x ch screens (most are one)

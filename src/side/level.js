@@ -4,7 +4,7 @@
 // other: the Roots (caves), the Cloister (a ruined monastery), the Spires (ice, and the high pass), then, each in its own
 // file under regions/, the Tempest (the storm round the mountain), the Gardens (above the cloud) and the Firmament (the
 // summit, among the stars). One is in play at a time (LEVEL; loadLevel changes it).
-import { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, room, put, rect, walls, door, ledge, stairs, mark, open, den, ROUGH, TIER_A, TIER_B, shelf, pier, hung, corbel, stone, keepOver, flue } from './rooms.js';
+import { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, room, put, rect, walls, door, ledge, stairs, mark, open, den, SLUICE, ROUGH, TIER_A, TIER_B, shelf, pier, hung, corbel, stone, keepOver, flue } from './rooms.js';
 import tempest from './regions/tempest.js';
 import gardens from './regions/gardens.js';
 import firmament from './regions/firmament.js';
@@ -29,7 +29,7 @@ import * as DROWNED from './regions/drowned.js';
 // the wings set into a region after it is built (so the region itself is not changed): by region, { left: columns added
 // to its west, build(X) }
 const WINGS = { 0: [DROWNED.wing], 1: [SCRIPTORIUM.wing, FOUNDRY.wing, REFECTORY.wing], 2: [CAIRNS.wing, GLACIER.wing], 3: [WORKS.wing, EYE.wing], 4: [AQUEDUCTS.wing, HOUSES.wing], 5: [ORRERY.wing] };   // a region's wings: each `left` columns added west of it or `right` columns east, and what it builds there
-export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, ROUGH, TIER_A, TIER_B };
+export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, ROUGH, TIER_A, TIER_B, SLUICE };
 
 // ---- the first region: up from the bottom of the mountain
 function start(){
@@ -419,7 +419,7 @@ function crown(){
 // the regions, from the bottom of the mountain up: rooms on a grid, [column, row, builder, columns wide, rows tall].
 // `fill` is what is between the rooms; `wear` is how hard the organic pass works the rock
 const REGIONS = [
-  { name: 'The Roots', theme: 'roots', sub: 'the caves at the bottom of the mountain', card: '', epithet: 'IT HAS FORGOTTEN WHAT IT GUARDS', quiet: ['arena', ...OSSUARY.QUIET, ...DROWNED.QUIET], deco: DROWNED.decoDef, seed: 1234567, wear: { sag: 1, swell: 1, humps: 0.8 },
+  { name: 'The Roots', theme: 'roots', sub: 'the caves at the bottom of the mountain', card: '', epithet: 'IT HAS FORGOTTEN WHAT IT GUARDS', quiet: ['arena', ...OSSUARY.QUIET, ...DROWNED.QUIET], deco: DROWNED.decoDef, enemies: DROWNED.enemies, ai: DROWNED.ai, seed: 1234567, wear: { sag: 1, swell: 1, humps: 0.8 },
     layout: [[0, 0, start], [1, 0, corridor], [2, 0, pithead], [2, 1, oldshaft], [1, 1, shaft], [0, 1, tunnel], [0, 2, chamber], [1, 2, ascent], [2, 2, gallery], [3, 2, well, 1, 2], [0, 3, roost], [1, 3, bridge], [2, 3, grotto], [2, 4, arena, 2, 2], ...OSSUARY.LAYOUT], looks: OSSUARY.LOOKS },
   { name: 'The Cloister', theme: 'cloister', sub: 'a monastery that rang its bell for the flame', card: 'The caves are below you. Keep climbing.', epithet: 'IT RINGS FOR A LIGHT IT CANNOT SEE', quiet: ['chapel', ...SCRIPTORIUM.QUIET, ...FOUNDRY.QUIET, ...REFECTORY.QUIET], enemies: { ...SCRIPTORIUM.enemies, ...FOUNDRY.enemies }, ai: { ...SCRIPTORIUM.ai, ...FOUNDRY.ai }, deco: (px, PAL) => ({ ...SCRIPTORIUM.decoDef(px, PAL), ...FOUNDRY.decoDef(px, PAL), ...REFECTORY.decoDef(px, PAL) }), looksDef: { ...SCRIPTORIUM.looks, ...FOUNDRY.looks }, seed: 7654321, wear: { sag: 0.55, swell: 0.5, humps: 0.4 },
     layout: [[0, 0, undercroft], [1, 0, nave, 2, 1], [3, 0, belfry, 1, 3], [0, 1, stairwell, 1, 2], [1, 1, cells], [2, 1, library], [1, 2, cloister, 2, 1], [1, 3, chapel, 2, 1]] },
@@ -659,7 +659,7 @@ function build(n){
         if (j1 - j >= 3){ for (let y = j; y <= j1; y++) for (const d of [-1, 0]) set(bx + d, y, v); out.push({ x: bx, y: j, top: j1 }); } j = j1; }
       return out; };
     const addMarks = list => { mountTorches(tiles, W, H, list); marks.push(...list); };
-    const X = { set, at, W, H, X0, Y0, rooms, marks, roomOf, addRoom, lintel, doorway, addMarks, tile: { EMPTY, ROCK, LEDGE, SPIKES, CRACKED, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, ROUGH, TIER_A, TIER_B } };
+    const X = { set, at, W, H, X0, Y0, rooms, marks, roomOf, addRoom, lintel, doorway, addMarks, tile: { EMPTY, ROCK, LEDGE, SPIKES, CRACKED, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, ROUGH, TIER_A, TIER_B, SLUICE } };
     if (WING) for (const w of WING) w.build(X);
     if (RULES[n]) RULES[n](X);
   }
@@ -680,7 +680,7 @@ function finish(L){
     if (m.type === 'mover') movers.push({ kind: m.kind || 'arm', cx: (m.x + 0.5) * T, cy: m.y * T, r: (m.r || 8) * T, ax: (m.ax || 0) * T, ay: (m.ay || 0) * T, period: m.period || 8, ph: m.ph || 0, dir: m.dir || 1, w: (m.w || 5) * T, x: 0, y: 0, px: 0, py: 0, at: -1 });   // a thing that moves and can be stood on (the Orrery Wing): a planet on an arm (round cx, cy at r), or a pallet that slides (by ax, ay either side of cx, cy). Its place is the world's clock's (PHASE.t), nothing else's
     // deep water (phase 16, the Flooded Levels; motor.js SWIM): a body of it, from its bottom-left tile. It bears him up;
     // with the Wyrm's wind it carries him under. key 'tide': the Pump moves it (RULE.tide, 0 its floor to 1 its top)
-    if (m.type === 'water') waters.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 4)) * T, key: m.key || '', lo: (m.y + (m.up || 0)) * T, deep: !!m.deep, gain: m.gain || 1 });   // lo: where the Pump's water stands at its lowest (`up` rows over its bottom)
+    if (m.type === 'water') waters.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 4)) * T, key: m.key || '', lo: (m.y + (m.up || 0)) * T, deep: !!m.deep, gain: m.gain || 1, held: m.held || '' });   // held: the gate (by its key) that holds this water at the height it had when the gate came down   // lo: where the Pump's water stands at its lowest (`up` rows over its bottom)
     // a raft (the Flooded Levels): planks on the water. Stood on, it goes down under him; left, it comes back up
     if (m.type === 'raft') movers.push({ kind: 'raft', cx: (m.x + 0.5) * T, cy: m.y * T, r: 0, ax: 0, ay: 0, period: 1, ph: 0, dir: 1, w: (m.w || 5) * T, x: 0, y: 0, px: 0, py: 0, at: -1, sink: 0, load: 0, deep: (m.deep || 7) * T });
     if (m.type === 'gust') gusts.push({ x0: m.x * T, y0: m.y * T, x1: (m.x + (m.w || 4)) * T, y1: (m.y + (m.h || 12)) * T });   // the wind the Wyrm holds: it bears down there in beats; when the Wyrm falls it turns, and lifts
@@ -691,7 +691,9 @@ function finish(L){
   const nearest = (x, y) => { const R0 = roomAt(x, y); let best = null, bd = 1e9; for (const b of braziers){ if (roomAt(b.x, b.y) !== R0) continue; const d = Math.hypot(b.x - x, b.y - y); if (d < bd){ bd = d; best = b; } } return best && best.x + ',' + best.y; };
   if (braziers.length){ for (let k = 0; k < L.tiles.length; k++) if (L.tiles[k] === MELT){ const key = nearest(k % L.W, Math.floor(k / L.W)); if (key) meltOf.set(k, key); }
     for (const m of L.marks) if (m.ice) m.fire = nearest(m.x, m.y); }
-  return { joins: {}, X0: 0, Y0: 0, ...L, pads, updrafts, gusts, flows, movers, waters, meltOf, tiles0: L.tiles.slice() };
+  // the gates (rooms.js SLUICE): each tile of one answers to its gate's key
+  const gateOf = new Map(); for (const m of L.marks) if (m.type === 'gate') for (let y = m.y; y < m.y + (m.h || 1); y++) for (let x = m.x; x < m.x + (m.w || 1); x++) if (L.tiles[y * L.W + x] === SLUICE) gateOf.set(y * L.W + x, m.key);
+  return { joins: {}, X0: 0, Y0: 0, ...L, pads, updrafts, gusts, flows, movers, waters, meltOf, gateOf, tiles0: L.tiles.slice() };
 }
 // ---- where the three who climb are found in each region: a room each, never the first, spread through it. Each stands
 // at a station of their own (items.js draws it and lights it): Ordric at a flame, Mirel at a fire, Corwen at a desk
@@ -763,7 +765,7 @@ function nooks(tiles, W, H, marks, rooms, S, M, n){
 }
 // each is moved to the best place in its room: a flat floor seven tiles wide with six of air over it, clear of the other
 // markers. Ordric stands four tiles from the room's flame (on the side with room); the others as near the room's middle as fits
-const NOT_FOE = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust', 'rod', 'flow', 'mover', 'glamp', 'water', 'raft', 'dlamp', 'valve']);
+const NOT_FOE = new Set(['spawn', 'torch', 'crystal', 'shrine', 'boss', 'exit', 'npc', 'pass', 'arrive', 'urn', 'chest', 'thread', 'bloom', 'updraft', 'pool', 'bell', 'keep', 'deco', 'runnel', 'gust', 'rod', 'flow', 'mover', 'glamp', 'water', 'raft', 'dlamp', 'valve', 'gate']);
 function stations(tiles, W, H, marks, rooms, S){
   if (!S) return;
   const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i], solid = t => t === ROCK || t === LEDGE;
@@ -925,7 +927,7 @@ function organic(tiles, W, H, marks, rooms, seed0 = 1234567, wear = { sag: 1, sw
 export const PHASE = { t: 0, period: 2.4, all: false };
 // the region's keeper: has it fallen (what it held is let go); are the doors on its bell's beat shut just now (props.js
 // turns them; in a test they are open: he waits)
-export const RULE = { fallen: false, shut: false, tearing: false, ring: 0, still: false, turned: false, lit: new Set(), litAll: false, sw: 0, surge: 0, swFree: false, hush: 0, open: 0, ox0: 0, ox1: -1, oy0: 0, oy1: -1, calmFree: false, wet: new Set(), wetAll: false, upset: 0, unkept: false, tide: 1, bore: 0 };   // upset: how many things in the Keepers' Houses are out of their place (and 9 while their keeper is after him)
+export const RULE = { fallen: false, shut: false, tearing: false, ring: 0, still: false, turned: false, lit: new Set(), litAll: false, sw: 0, surge: 0, swFree: false, hush: 0, open: 0, ox0: 0, ox1: -1, oy0: 0, oy1: -1, calmFree: false, wet: new Set(), wetAll: false, upset: 0, unkept: false, tide: 1, bore: 0, gates: new Set(), held: {} };   // upset: how many things in the Keepers' Houses are out of their place (and 9 while their keeper is after him)
 //   // wet: the sluice wheels that are open, by key (the Aqueducts: their water runs); wetAll: every one (a test)   // hush: how long he has stood still (the Eye of the Storm); open: seconds its doors of cloud stay open; calmFree: they are open (the tests' player waits as he must)
 //   // sw: which half of the works' iron the current is in (0, 1); surge: seconds of the Jar's discharge left (all of it live); swFree: the tests' player throws every lever as he needs it (none of it shocks)   // lit: the braziers that burn in this region, each by its place 'x,y' (the Glacier Galleries); litAll: every one (the tests' player lights what he comes to)
 //   // turned: on the stones of the way he has turned round (motor.js): they are gone until he stands on the ground   // ring: seconds of ringing left in the Bell-Foundry (iron was touched); still: its Cracked Bell has fallen, and nothing there rings again
@@ -934,7 +936,7 @@ export const glassOn = k => PHASE.all || ((PHASE.t / PHASE.period) % 2 < 1) === 
 // the tile as it is drawn into the level (cracked rock and star-glass as themselves)
 export const rawAt = (tx, ty) => tx < 0 || ty < 0 || tx >= LEVEL.W || ty >= LEVEL.H ? ROCK : LEVEL.tiles[ty * LEVEL.W + tx];
 // the tile as he meets it now: cracked rock is rock, star-glass a ledge while it is there
-export const tileAt = (tx, ty) => { if (tx < 0 || ty < 0 || tx >= LEVEL.W || ty >= LEVEL.H) return ROCK; const t = LEVEL.tiles[ty * LEVEL.W + tx]; return t < CRACKED ? t : t === CRACKED || t === ROUGH ? ROCK : t === TIER_A ? (RULE.fallen || RULE.bore >= 1 ? EMPTY : ROCK) : t === TIER_B ? (RULE.fallen || RULE.bore >= 2 ? EMPTY : ROCK) : t === HOLD ? (RULE.fallen ? EMPTY : ROCK) : t === GIVEN ? (RULE.fallen ? LEDGE : ROCK) : t === DOOR ? (RULE.shut && !RULE.fallen ? ROCK : EMPTY) : t === LIVE ? LEDGE : t === VELLUM ? (RULE.tearing ? EMPTY : ROCK) : t === SHUTTER ? (RULE.ring > 0 && !RULE.still ? ROCK : EMPTY) : t === STILLED ? (RULE.still ? EMPTY : ROCK) : t === FACED ? (RULE.turned ? EMPTY : LEDGE) : t === IRON_A || t === IRON_B ? LEDGE : t === KEPT ? (RULE.upset > 0 && !RULE.unkept ? ROCK : EMPTY) : t === CALM ? (RULE.calmFree || (RULE.open > 0 && tx >= RULE.ox0 && tx <= RULE.ox1 && ty >= RULE.oy0 && ty <= RULE.oy1) ? EMPTY : ROCK) : t === MELT ? (RULE.litAll || RULE.lit.has(LEVEL.meltOf.get(ty * LEVEL.W + tx)) ? EMPTY : ROCK) : glassOn(t) ? LEDGE : EMPTY; };
+export const tileAt = (tx, ty) => { if (tx < 0 || ty < 0 || tx >= LEVEL.W || ty >= LEVEL.H) return ROCK; const t = LEVEL.tiles[ty * LEVEL.W + tx]; return t < CRACKED ? t : t === CRACKED || t === ROUGH ? ROCK : t === TIER_A ? (RULE.fallen || RULE.bore >= 1 ? EMPTY : ROCK) : t === TIER_B ? (RULE.fallen || RULE.bore >= 2 ? EMPTY : ROCK) : t === HOLD ? (RULE.fallen ? EMPTY : ROCK) : t === GIVEN ? (RULE.fallen ? LEDGE : ROCK) : t === DOOR ? (RULE.shut && !RULE.fallen ? ROCK : EMPTY) : t === LIVE ? LEDGE : t === VELLUM ? (RULE.tearing ? EMPTY : ROCK) : t === SHUTTER ? (RULE.ring > 0 && !RULE.still ? ROCK : EMPTY) : t === STILLED ? (RULE.still ? EMPTY : ROCK) : t === FACED ? (RULE.turned ? EMPTY : LEDGE) : t === IRON_A || t === IRON_B ? LEDGE : t === KEPT ? (RULE.upset > 0 && !RULE.unkept ? ROCK : EMPTY) : t === CALM ? (RULE.calmFree || (RULE.open > 0 && tx >= RULE.ox0 && tx <= RULE.ox1 && ty >= RULE.oy0 && ty <= RULE.oy1) ? EMPTY : ROCK) : t === SLUICE ? (RULE.gates.has(LEVEL.gateOf.get(ty * LEVEL.W + tx)) ? EMPTY : ROCK) : t === MELT ? (RULE.litAll || RULE.lit.has(LEVEL.meltOf.get(ty * LEVEL.W + tx)) ? EMPTY : ROCK) : glassOn(t) ? LEDGE : EMPTY; };
 // a stone of the way, whether or not it is there now (motor.js: he is standing on the way)
 // rough rock (the Auger's grip climbs it)
 export const roughAt = (tx, ty) => tx >= 0 && ty >= 0 && tx < LEVEL.W && ty < LEVEL.H && LEVEL.tiles[ty * LEVEL.W + tx] === ROUGH;
@@ -962,7 +964,12 @@ export const RAFT = { sink: 1.5, rise: 1.1 };   // a raft under him: how fast it
 export const BREATH = { low: 4, rise: 15, high: 5, fall: 15, hold: null };
 export const breath = (t = PHASE.t) => { if (BREATH.hold != null) return BREATH.hold; const all = BREATH.low + BREATH.rise + BREATH.high + BREATH.fall, ease = x => x * x * (3 - 2 * x); let u = ((t % all) + all) % all;
   if (u < BREATH.low) return 0; u -= BREATH.low; if (u < BREATH.rise) return ease(u / BREATH.rise); u -= BREATH.rise; if (u < BREATH.high) return 1; return 1 - ease((u - BREATH.high) / BREATH.fall); };
-export const waterTop = w => w.key === 'tide' ? (RULE.still ? w.lo : w.lo + (w.y1 - w.lo) * RULE.tide) : w.key === 'breath' ? w.lo + (w.y1 - w.lo) * Math.min(1, breath() * w.gain) : w.y1;   // (gain: a drain under a floor is full long before the room over it)
+export const waterTop = w => w.key === 'tide' ? (RULE.still ? w.lo : w.lo + (w.y1 - w.lo) * RULE.tide) : w.key === 'breath' ? w.lo + (w.y1 - w.lo) * Math.min(1, (w.held && RULE.held[w.held] != null ? RULE.held[w.held] : breath()) * w.gain) : w.y1;   // (gain: a drain under a floor is full long before the room over it)
+// the gates as they are before he has touched any: all down, and each water a gate holds at the height its mark gives
+// (`at`, 0 low to 1 high). `left`: what a save remembers for this region ({ key: 1 } up; { key: { held } } down, and
+// the height it holds)
+export function setGates(left = {}){ RULE.gates = new Set(); RULE.held = {};
+  for (const m of LEVEL.marks || []) if (m.type === 'gate'){ const v = left[m.key]; if (v === 1) RULE.gates.add(m.key); else if (m.holds) RULE.held[m.key] = v && v.held != null ? v.held : (m.at || 0); } }
 export const waterAt = (x, y) => { for (const w of LEVEL.waters || []) if (x >= w.x0 && x < w.x1 && y >= w.y0 && y < waterTop(w)) return w; return null; };
 // the top of the water over a point (bodies of it stand one on another: a sump under a flooded room), or null out of it
 export const waterOver = (x, y) => { const w = waterAt(x, y); if (!w) return null; let top = waterTop(w); for (let k = 0; k < 6; k++){ const u = waterAt(x, top + 0.01); if (!u) break; top = waterTop(u); } return top; };

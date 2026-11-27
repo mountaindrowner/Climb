@@ -85,9 +85,10 @@ per keeper, and **everything explained** to the player, plainly, the first time 
 
 | 0.32 | What a wing is | **Interesting, contextual, complex.** Each wing is its own place with its own workings, made of what that place was, and with enough in it to be worked out (26 Nov) |
 | 0.33 | Gates and levers | **Gates, and the levers that open them, placed so that he has to explore:** the lever is not beside its gate. In each place they are that place's own things (a windlass, a wheel, a brazier), not one switch used everywhere (26 Nov) |
-| 0.34 | The Drowned Galleries | **Built in four builds** (26 Nov: "Go"). Build 107: the rooms and the water. Then the gates and windlasses; the skimmer and the leech; the Pike. Twelve screens, the water rising sixteen tiles: both more than the sheet said, and why is in `docs/drowned-sheet.md` ("As built") |
+| 0.34 | The Drowned Galleries | **Built in four builds** (26 Nov: "Go"). Build 107: the rooms and the water. Build 108: the gates and windlasses. Then the skimmer and the leech; the Pike; the undercroft. Twelve screens, the water rising sixteen tiles: both more than the sheet said, and why is in `docs/drowned-sheet.md` ("As built") |
+| 0.35 | The three wings with nothing to work | **Sheets written, not approved:** `docs/bare-wings-sheet.md`. The Ossuary: scales (weight in a pan lifts a slab somewhere else). The Scriptorium: rolling ladders. The Pilgrims' Cairns: wind-breaks knocked down. Nothing is built until you say |
 
-(The table above is continued by 0.21 to 0.25: answers given on 22 Nov; and 0.26 to 0.34: 26 Nov.)
+(The table above is continued by 0.21 to 0.25: answers given on 22 Nov; and 0.26 to 0.35: 26 Nov.)
 
 **Where the gifts sheet stands (22 Nov, build 88):** step 1 built (86, the hammer; its drawings await a yes); step 2
 half built (87, the air dash from the Cracked Bell; the glide, the heart and the drink wait on what a keeper leaves

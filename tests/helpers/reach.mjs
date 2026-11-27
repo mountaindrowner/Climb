@@ -10,7 +10,7 @@
 //   GIFTS, giftName  -> the gifts in the order he is given them, and what each is called
 //   reached(seen, room, W), goalOf(marks), nearGoal(goal), runback(...)
 import { clock } from './browser.mjs';
-const { LEVEL, LEVELS, loadLevel, T, PHASE, REGION_DATA, RULE, waterAt, BREATH } = await import('../../src/side/level.js');
+const { LEVEL, LEVELS, loadLevel, T, PHASE, REGION_DATA, RULE, waterAt, BREATH, setGates } = await import('../../src/side/level.js');
 const M = await import('../../src/side/motor.js');
 const I = await import('../../src/core/input.js');
 const { TEACH, ABILITY, ARRIVES } = await import('../../src/side/state.js');
@@ -97,7 +97,14 @@ export function graph(N, gifts = []){
   if (has.has('breaker')) LEVEL.tiles = LEVEL.tiles.map(t => t === 4 ? 0 : t);
   if (has.has('dash')) LEVEL.tiles = LEVEL.tiles.map(t => t === 11 ? 0 : t);   // vellum torn (the Toll's step goes through it)   // the cracked stone broken (a copy: the next load is whole again)
   const base = { W: L.W, H: L.H, marks: L.marks, rooms: L.rooms };
-  if (CACHE.has(key)) return { ...base, ...CACHE.get(key) };
+  // the gates of the Drowned Galleries: all down as he finds them, each water a gate holds standing where its mark puts it.
+  // The tests' player turns every windlass he comes to, and goes round again with its gate up, until nothing more opens
+  // ('shut': he turns none; 'gate:<key>': that one is up from the first)
+  const raise = k => { RULE.gates.add(k); delete RULE.held[k]; };
+  setGates(); for (const g of has) if (g.startsWith('gate:')) raise(g.slice(5));
+  if (CACHE.has(key)){ const c = CACHE.get(key); for (const k of c.gates) raise(k); return { ...base, ...c }; }
+  const windlasses = L.marks.filter(m => m.type === 'windlass'); let found = null;
+  for (let round = 0; round < 8; round++){
   const sp = L.marks.find(m => m.type === 'spawn'), start = sp.y * W + sp.x, pos = new Map([[start, [(sp.x + 0.5) * T, sp.y * T]]]);
   const seen = new Set([start]), q = [start], edges = new Map();
   const progs = has.has('dash') ? PROGS.concat(DASH) : PROGS, rough = LEVEL.tiles.includes(20), breathing = LEVEL.waters.some(w => w.key === 'breath');
@@ -114,8 +121,13 @@ export function graph(N, gifts = []){
     edges.set(k, nx);
     for (const c of nx.keys()) if (!seen.has(c)){ seen.add(c); q.push(c); }
   }
-  CACHE.set(key, { seen, edges, pos });
-  return { ...base, seen, edges, pos };
+  found = { seen, edges, pos };
+  const more = has.has('shut') ? [] : windlasses.filter(m => !RULE.gates.has(m.key) && [...seen].some(k => Math.abs(k % W - m.x) <= 3 && Math.abs(Math.floor(k / W) - m.y) <= 2));
+  if (!more.length) break; for (const m of more) raise(m.key);
+  }
+  const out = { ...found, gates: [...RULE.gates] };
+  CACHE.set(key, out);
+  return { ...base, ...out };
 }
 
 export const reached = (seen, r, W) => { for (const k of seen){ const i = k % W, j = (k - i) / W; if (i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1) return true; } return false; };

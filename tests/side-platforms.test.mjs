@@ -9,7 +9,7 @@ import { tally, islands, platforms } from './helpers/platforms.mjs';
 
 //                planks, of them touching nothing, rock in the air, has had its pass
 const BUDGET = {
-  'The Roots':          [21, 2, 1, true],   // (build 107: the culvert's three rungs, and the boards in the pool's floor. The one piece of rock counted as in the air is the water stair: the culvert runs under it from the hall to the pool, so it stands on the culvert's roof and touches nothing else)
+  'The Roots':          [21, 2, 0, true],   // (build 107: the culvert's three rungs, and the boards in the pool's floor. The water stair stands over the culvert, joined to the walls by the stone of the gates at either end of it: build 108)
   'The Cloister':       [49, 10, 2, true],     // (build 101, its pass: 122 planks became 49. The two pieces of rock in the air are the pit's tongues' brackets: each tongue swings from the first rock over it)
   'The Spires':         [90, 28, 3, 'reasons'],   // (build 102, its pass: 116 planks became 90 and every one has a reason, but it is NOT under one a screen (56): what is left is ladders in the towers' clefts and two rope bridges. The three pieces of rock in the air are walls over doorways and the rock adrift that holds a thread: docs/map-pass-sheet.md, "The Spires, room by room")
   'The Tempest':        [50, 9, 7, true],   // (build 103, its pass: 72 planks became 50, in 51 screens; bare in the air, 29 became none. The seven pieces of rock in the air are named in docs/map-pass-sheet.md, "The Tempest, room by room")

@@ -179,8 +179,43 @@ at five heights (low, a quarter, half, three quarters, high) and play every plac
 him to, where it sets him down, what he reaches from either, and that nowhere traps him at any height. A separate
 check holds the water low and proves the galleries, the cells, the weir and the cup room are **not** reached.
 
-**Not in it yet** (the next three builds): the three gates and their windlasses; the hatch and the undercroft; the
-skimmer and the leech; the Pike.
+**Not in it yet:** the hatch and the undercroft; the skimmer and the leech; the Pike. (The gates came in build 108:
+below.)
+
+## As built: build 108 (the gates and their windlasses)
+
+*The second of the four builds. Pictures: `docs/drowned-build108.png`.*
+
+**In it now**
+
+- **Three gates of stone, down when he first comes.** Each has a windlass somewhere else and a chain on the wall
+  between the two. Struck, a windlass turns its gate over. It stays as he left it, and his save remembers.
+- **The hall's gate** stands in the foot of the water stair, so the hall is shut. Its windlass is on a ledge over the
+  gate, four tiles above high water. Only the top of the rise brings him to it, and then by a leap out of the water.
+- **The cells' gate** is a sluice at the foot of the cells' pit, and **it holds the pit's water.** Down, as he finds
+  it, the pit is dry however long he waits. A wall hangs in the middle of the pit from its roof, so the only way
+  across is under that wall on the pit's floor, and then up the far side on the water. So the cells cannot be crossed
+  until the gate is up. Its windlass is on the hall's east gallery, across the hall.
+- **The culvert's grate** lies over the hall's drain. Until it is up, the drain from the pool is a dead end under the
+  hall's floor. Its windlass is in the cup room, at the far end of everything.
+- **Let a gate down again and it holds what is behind it.** The cells' gate, let down at high water, keeps the pit
+  full while the hall empties. (Of the three, only the cells' gate has water of its own to hold.)
+- **The order it makes:** stair, wait for the rise, the ledge, the hall, wait for the rise, the east gallery, back
+  across to the west gallery, down into the pit, under the hung wall, wait for the rise, the cells, the weir, the cup
+  room, and then the grate is up and the pool is a minute away.
+
+**Where it differs from the sheet**
+
+| The sheet said | It is | Why |
+|---|---|---|
+| The cells' gate, shut at low water, lets him walk into a bottom cell that is "otherwise always under" | **The gate, down, keeps the pit dry; up, lets it breathe** | Water that is "always under" and also dry when shut needs a second source of water. One rule is easier to read: a gate that is down holds what is behind it |
+| The top cell has the third windlass's chain running through it | **Not built** | The chains are painted on the walls near each windlass and gate; they do not yet run the whole way between |
+| A hatch with a ring, for the Wyrm's wind: the undercroft | **Not built** | It is the far half of the wing and wants its own build |
+
+**How the checks play it.** The checks' player turns every windlass he comes to and goes round again, until nothing
+more opens: he opens all three, in that order. Separate checks hold the gates down and prove what each one shuts.
+A gate that is down counts as stone in the map check, which joins the water stair to its walls: the Roots have no
+rock in the air again.
 
 ## The same rule, in the wings already built
 

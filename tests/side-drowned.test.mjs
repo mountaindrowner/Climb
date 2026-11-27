@@ -33,13 +33,13 @@ test('the water breathes: low, a slow rise, high, a fall, the same every time', 
   const w = ws.find(w => w.gain === 1); B.hold = 0; assert.equal(LV.waterTop(w), w.lo); B.hold = 1; assert.equal(LV.waterTop(w), w.y1); B.hold = 0.5; assert.equal(LV.waterTop(w), (w.lo + w.y1) / 2); B.hold = 0;
 });
 test('at low water he walks the hall\'s floor and no more; the galleries, the cells, the weir and the cup room want the rise', () => {
-  const low = R.graph(0, ['lowwater']), hall = room('drownedhall'), stair = room('waterstair');
+  const low = R.graph(0, ['lowwater', 'gate:hall']), hall = room('drownedhall'), stair = room('waterstair');   // (the hall's gate up: its windlass wants the rise too)
   assert.ok(stoodIn(low.seen, hall, 2, 8, 13, 8) && stoodIn(low.seen, hall, 60, 8, 77, 8), 'the hall\'s floor, end to end, on his feet');
   assert.ok(!stoodIn(low.seen, hall, 2, 24, 9, 25), 'not its west gallery'); assert.ok(!stoodIn(low.seen, hall, 70, 24, 77, 25), 'nor its east');
-  assert.ok(!stoodIn(low.seen, stair, 2, 25, 5, 26), 'nor the ledge over the hall\'s door');
+  assert.ok(!stoodIn(low.seen, stair, 2, 28, 5, 29), 'nor the ledge over the hall\'s door');
   for (const n of ['keepcells', 'weir', 'cuproom']) assert.ok(!R.reached(low.seen, room(n), low.W), n + ' is not come to at low water');
   const all = R.graph(0, []);
-  assert.ok(stoodIn(all.seen, hall, 2, 24, 9, 25) && stoodIn(all.seen, hall, 70, 24, 77, 25) && stoodIn(all.seen, stair, 2, 25, 5, 26), 'the rise brings him to all three');
+  assert.ok(stoodIn(all.seen, hall, 2, 24, 9, 25) && stoodIn(all.seen, hall, 70, 24, 77, 25) && stoodIn(all.seen, stair, 2, 28, 5, 29), 'the rise brings him to all three');
   for (const n of NAMES) assert.ok(R.reached(all.seen, room(n), all.W), n);
 });
 test('the thread is on the east gallery, where only the rise brings him; and the weir\'s banks want its water too', () => {
@@ -56,7 +56,7 @@ test('the culvert: from the hall\'s drain, under the stair, and up through the b
   assert.ok(sp.x > st.tx0 + 6, 'he does not wake on them');
   assert.equal(L.tiles.filter((t, k) => t === LV.LEDGE && k % L.W >= cu.tx0 && k % L.W < cu.tx1 && Math.floor(k / L.W) >= cu.ty0 && Math.floor(k / L.W) < cu.ty1).length, 12, 'three rungs in its shaft');
   // with the water held low, and the door in the pool room's wall never used, the boards are still a way down and back
-  const low = R.graph(0, ['lowwater']); assert.ok(stoodIn(low.seen, cu, 0, 2, 8, 2), 'the culvert\'s floor');
+  const low = R.graph(0, ['lowwater', 'shut']); assert.ok(stoodIn(low.seen, cu, 0, 2, 8, 2), 'the culvert\'s floor');
   LV.BREATH.hold = 0; let up = false; const from = [(cu.tx0 + 4.5) * LV.T, (cu.ty0 + 20) * LV.T];
   for (const p of R.PROGS) for (const [c] of R.run(from[0], from[1], p)) if (Math.floor(c / L.W) === st.ty0 + 1) up = true;
   assert.ok(up, 'from the top rung he comes up through the boards, into the pool');
@@ -78,4 +78,50 @@ test('a save from before the wing: what it had found and broken in the Roots is 
   if (G.began){ assert.deepEqual(G.got[0], ['t184,59', 'c193,61']); assert.deepEqual(G.broke[0], ['170,51']); assert.deepEqual(G.got[1], ['c200,80'], 'the Cloister\'s is left alone'); assert.equal(G.winged, 5);
     store['climb-side'] = JSON.stringify(G); const again = ST.loadSave(); assert.deepEqual(again.got[0], ['t184,59', 'c193,61'], 'and not moved twice'); }
   else assert.fail('the save was not read: its key is not one this test knows');
+});
+
+// ---- the gates and their windlasses (build 108)
+const gates = L.marks.filter(m => m.type === 'gate'), lasses = L.marks.filter(m => m.type === 'windlass'), roomOf = m => L.rooms.find(r => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1);
+test('three gates of stone, each with a windlass that is somewhere else', () => {
+  assert.deepEqual(gates.map(g => g.key).sort(), ['cells', 'culvert', 'hall']); assert.deepEqual(lasses.map(g => g.key).sort(), ['cells', 'culvert', 'hall']);
+  for (const g of gates){ for (let y = g.y; y < g.y + g.h; y++) for (let x = g.x; x < g.x + g.w; x++){ assert.equal(L.tiles[y * L.W + x], LV.SLUICE); assert.equal(L.gateOf.get(y * L.W + x), g.key); }
+    const w = lasses.find(q => q.key === g.key); assert.ok(Math.hypot(w.x - g.x, w.y - g.y) >= 14, `the ${g.key} windlass is not beside its gate`); }
+  assert.equal(roomOf(lasses.find(q => q.key === 'hall')).name, 'waterstair'); assert.equal(roomOf(lasses.find(q => q.key === 'cells')).name, 'drownedhall'); assert.equal(roomOf(lasses.find(q => q.key === 'culvert')).name, 'cuproom');
+  assert.ok(DR.enemies.windlass.prop && DR.enemies.windlass.own, 'a windlass is a thing, not a creature');
+  // down, a gate is rock; up, nothing
+  R.loadLevel(0); LV.setGates(); const g = gates.find(q => q.key === 'hall'); assert.equal(LV.tileAt(g.x, g.y), LV.ROCK); LV.RULE.gates.add('hall'); assert.equal(LV.tileAt(g.x, g.y), LV.EMPTY); LV.setGates();
+});
+test('as he finds it: every gate down. The hall is shut, and the drain under it is a dead end', () => {
+  const G = R.graph(0, ['shut']), hall = room('drownedhall'), cu = room('culvert');
+  assert.ok(!stoodIn(G.seen, hall, 2, 8, 63, 8) && !stoodIn(G.seen, hall, 2, 24, 77, 25), 'neither the hall\'s floor nor its galleries');
+  assert.ok(stoodIn(G.seen, room('waterstair'), 2, 28, 5, 29), 'the ledge over the hall\'s gate, and its windlass: the rise brings him');
+  const few = R.graph(0, ['shut', 'shallow']); assert.ok(!stoodIn(few.seen, room('waterstair'), 2, 28, 5, 29), 'and a quarter of the rise does not');
+  assert.ok(stoodIn(G.seen, cu, 0, 2, 8, 2) && stoodIn(G.seen, hall, 68, 2, 79, 2), 'the drain, from the pool as far as under the grate');
+});
+test('the hall\'s gate up: the hall and its galleries; the cells\' pit stays dry, and its far side is not come to', () => {
+  const G = R.graph(0, ['shut', 'gate:hall']), hall = room('drownedhall'), ce = room('keepcells');
+  assert.ok(stoodIn(G.seen, hall, 2, 8, 13, 8) && stoodIn(G.seen, hall, 2, 24, 9, 25) && stoodIn(G.seen, hall, 70, 24, 77, 25));
+  assert.ok(stoodIn(G.seen, ce, 26, 24, 39, 24) && stoodIn(G.seen, ce, 14, 8, 25, 8), 'the way in, and the pit\'s floor (he may drop in)');
+  assert.ok(!stoodIn(G.seen, ce, 2, 24, 13, 25), 'not the top cell, across the pit'); for (const n of ['weir', 'cuproom']) assert.ok(!R.reached(G.seen, room(n), G.W), n);
+  // the dry pit is not a trap: from its floor, on the far side of the hung wall, he gets back to the way in
+  const start = [...G.seen].find(k => k % G.W - ce.tx0 >= 14 && k % G.W - ce.tx0 <= 18 && Math.floor(k / G.W) - ce.ty0 === 8); assert.ok(start != null);
+  const seen = new Set([start]), q = [start]; let out = false;
+  while (q.length && !out){ const k = q.pop(); for (const c of (G.edges.get(k) || new Map()).keys()) if (!seen.has(c)){ seen.add(c); q.push(c); const i = c % G.W - ce.tx0, j = Math.floor(c / G.W) - ce.ty0; if (i >= 26 && j === 24) out = true; } }
+  assert.ok(out, 'out of the pit by the ladder in the rock');
+});
+test('the cells\' gate up: the water comes into the pit, and carries him up its far side to the cells, the weir and the cup room', () => {
+  const G = R.graph(0, ['shut', 'gate:hall', 'gate:cells']), ce = room('keepcells');
+  assert.ok(stoodIn(G.seen, ce, 2, 24, 13, 25), 'the top cell'); for (const n of ['weir', 'cuproom']) assert.ok(R.reached(G.seen, room(n), G.W), n);
+  const dry = R.graph(0, ['shut', 'gate:hall', 'gate:cells', 'lowwater']); assert.ok(!stoodIn(dry.seen, ce, 2, 24, 13, 25), 'and not without the rise');
+});
+test('a gate that is down holds the water behind it; the cells\' is held dry until he raises it, and his save keeps how he left it', () => {
+  R.loadLevel(0); const w = L.waters.find(q => q.held === 'cells'), g = gates.find(q => q.key === 'cells'); assert.ok(w && g.holds && g.at === 0);
+  LV.setGates(); for (const b of [0, 0.5, 1]){ LV.BREATH.hold = b; assert.equal(LV.waterTop(w), w.lo, 'down: dry, whatever the rest does'); }
+  LV.setGates({ cells: 1 }); LV.BREATH.hold = 1; assert.equal(LV.waterTop(w), w.y1, 'up: it breathes with the rest'); LV.BREATH.hold = 0; assert.equal(LV.waterTop(w), w.lo);
+  LV.setGates({ cells: { held: 1 } }); assert.equal(LV.waterTop(w), w.y1, 'let down at high water: it stays full'); LV.BREATH.hold = 0.5; assert.equal(LV.waterTop(w), w.y1);
+  LV.setGates({ hall: 1, culvert: { held: null } }); assert.ok(LV.RULE.gates.has('hall') && !LV.RULE.gates.has('culvert') && LV.RULE.held.cells === 0); LV.setGates(); LV.BREATH.hold = 0;
+});
+test('the one who plays it through turns all three, in their order: the hall\'s, the cells\', the culvert\'s', () => {
+  const G = R.graph(0, []); assert.deepEqual([...G.gates].sort(), ['cells', 'culvert', 'hall']);
+  const cup = lasses.find(q => q.key === 'culvert'), shut = R.graph(0, ['shut', 'gate:hall']); assert.ok(![...shut.seen].some(k => Math.abs(k % shut.W - cup.x) <= 3 && Math.abs(Math.floor(k / shut.W) - cup.y) <= 2), 'the culvert\'s windlass is the last: behind the cells and the weir');
 });

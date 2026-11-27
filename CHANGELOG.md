@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Drowned Galleries, the rooms and the water (latest; build 107).** The Roots' west wing: a door in the pool room's west wall, and twelve screens beyond it whose water rises and falls on a clock. At low water he walks the floors; at high water it floats him to the galleries, which is the only way to them. A stair, a great hall, a pit and flue of cells, a weir, a dry room with a relic (the Keepers' Cup: one more drink), and a drain that comes up through the floor of the pool he woke in. Gates, creatures and the wing's fight are the next builds. 509 checks. **A save is moved, once:** the Roots are 160 tiles east and 46 up.
+**The Drowned Galleries, the gates and their windlasses (latest; build 108).** Three gates of stone stand in the wing, down when he first comes, each raised by a windlass that is somewhere else: the hall's on a ledge only the top of the rise reaches, the cells' across the hall on the east gallery, the culvert's grate in the cup room at the far end. The cells' gate holds their water: the pit is dry until it is up, and stays full if it is let down at high water. 515 checks. No save is moved.
+
+**The Drowned Galleries, the rooms and the water (build 107).** The Roots' west wing: a door in the pool room's west wall, and twelve screens beyond it whose water rises and falls on a clock. At low water he walks the floors; at high water it floats him to the galleries, which is the only way to them. A stair, a great hall, a pit and flue of cells, a weir, a dry room with a relic (the Keepers' Cup: one more drink), and a drain that comes up through the floor of the pool he woke in. Gates, creatures and the wing's fight are the next builds. 509 checks. **A save is moved, once:** the Roots are 160 tiles east and 46 up.
 
 **The Deep in stone (build 106).** The map pass for the Deep's five levels: 122 planks became 39, none bare in the air, each level under one a screen. The map pass is done for all eleven levels. The creatures pass has its sheet. 501 checks. No save is moved.
 
