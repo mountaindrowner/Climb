@@ -33,6 +33,7 @@ import * as TEMPESTFAR from './regions/tempestfar.js';
 import * as GARDENSFAR from './regions/gardensfar.js';
 import * as FIRMAMENTFAR from './regions/firmamentfar.js';
 import * as WORKINGSFAR from './regions/workingsfar.js';
+import * as FACES from './regions/faces.js';
 import * as VEINFAR from './regions/veinfar.js';
 import * as FLOODEDFAR from './regions/floodedfar.js';
 import * as SHAFTFAR from './regions/shaftfar.js';
@@ -42,7 +43,7 @@ import * as HOLLOWFAR from './regions/hollowfar.js';
 const WINGS = { 0: [DROWNED.wing, OSSUARY.after], 1: [SCRIPTORIUM.wing, FOUNDRY.wing, REFECTORY.wing], 2: [CAIRNS.wing, GLACIER.wing], 3: [WORKS.wing, EYE.wing], 4: [AQUEDUCTS.wing, HOUSES.wing], 5: [ORRERY.wing] };   // a region's wings: each `left` columns added west of it or `right` columns east, and what it builds there
 // (build 116) what is built past a wing's far end, or under or over a region, in the rows the lift left for it (docs/edges-sheet.md).
 // Built last, after the keeper's rule, so that the rooms there were keep their order (a save keeps the rooms he has seen by it)
-const EDGES = { 0: [ROOTSFAR.far], 1: [CLOISTERFAR.far], 2: [SPIRESFAR.far], 3: [TEMPESTFAR.far], 4: [GARDENSFAR.far], 5: [FIRMAMENTFAR.far], 6: [WORKINGSFAR.far], 7: [VEINFAR.far], 8: [FLOODEDFAR.far], 9: [SHAFTFAR.far], 10: [HOLLOWFAR.far] };
+const EDGES = { 0: [ROOTSFAR.far], 1: [CLOISTERFAR.far, FACES.far], 2: [SPIRESFAR.far, FACES.far], 3: [TEMPESTFAR.far, FACES.far], 4: [GARDENSFAR.far, FACES.far], 5: [FIRMAMENTFAR.far, FACES.far], 6: [WORKINGSFAR.far], 7: [VEINFAR.far], 8: [FLOODEDFAR.far], 9: [SHAFTFAR.far], 10: [HOLLOWFAR.far] };
 export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, ROUGH, TIER_A, TIER_B, SLUICE };
 
 // ---- the first region: up from the bottom of the mountain
@@ -583,6 +584,7 @@ export function sill(k){
   const J = JOINS[k], t = []; for (let y = 0; y < SILL.h; y++) t.push(new Array(SILL.w).fill(ROCK));
   for (let x = 0; x < SILL.w; x++){ const d = J.dir > 0 ? x : SILL.w - 1 - x, f = Math.min(SILL.floor, J.a + Math.max(0, (d - 2) >> 1));   // d: tiles in from the hall's side
     for (let y = f; y < SILL.floor + SILL.tall; y++) t[y][x] = EMPTY; }   // one roof all along: over the stair it is a tall mouth, narrowing
+  FACES.cutSill(t, J.dir, SILL.w, { EMPTY, ROCK, ROUGH });   // (build 123) a rough face in every passage: a chimney in its roof, on the upper region's side (regions/faces.js)
   return t;
 }
 // the region as built, set in its place: rows added under it for the join from below (the sill, and the passage's
@@ -688,7 +690,7 @@ function build(n){
         if (j1 - j >= 3){ for (let y = j; y <= j1; y++) for (const d of [-1, 0]) set(bx + d, y, v); out.push({ x: bx, y: j, top: j1 }); } j = j1; }
       return out; };
     const addMarks = list => { mountTorches(tiles, W, H, list); marks.push(...list); };
-    const X = { set, at, W, H, X0, Y0, rooms, marks, roomOf, addRoom, lintel, doorway, addMarks, tile: { EMPTY, ROCK, LEDGE, SPIKES, CRACKED, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, ROUGH, TIER_A, TIER_B, SLUICE } };
+    const X = { index: n, set, at, W, H, X0, Y0, rooms, marks, roomOf, addRoom, lintel, doorway, addMarks, tile: { EMPTY, ROCK, LEDGE, SPIKES, CRACKED, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, ROUGH, TIER_A, TIER_B, SLUICE } };
     if (WING) for (const w of WING) w.build(X);
     if (RULES[n]) RULES[n](X);
     if (EDGE) for (const w of EDGE) w.build(X);

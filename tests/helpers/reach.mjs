@@ -76,6 +76,8 @@ const CLIMBP = [];
 for (const d of ['left', 'right']){ CLIMBP.push((t, I) => { I.hold(d, true); }); CLIMBP.push((t, I) => { I.hold(d, true); if (t < 0.01) I.tap('jump'); I.hold('jump', t < 0.4); });
   // part of the way up one, and off it (onto whatever is beside it there)
   for (const up of [2.2, 3.2, 4.2, 5.2]) CLIMBP.push((t, I) => { I.hold(d, t < up); I.hold(d === 'left' ? 'right' : 'left', t >= up && t < up + 0.25); });
+  // (build 123) a face whose foot is over his head (a chimney in a roof): a jump at it, up it, and off it
+  for (const up of [2.4, 3.2, 4.0]) CLIMBP.push((t, I) => { if (t < 0.01) I.tap('jump'); I.hold('jump', t < 0.4); I.hold(d, t < up); I.hold(d === 'left' ? 'right' : 'left', t >= up && t < up + 0.25); });
   // and down one: off its top the other way, back onto its face, and down it
   for (const back of [0.16, 0.3]) CLIMBP.push((t, I) => { I.hold(d === 'left' ? 'right' : 'left', t < back); I.hold(d, t >= back && t < back + 0.7); I.hold('down', t >= back + 0.7); }); }
 // water that breathes (the Drowned Galleries; level.js BREATH): it is the same every time, so he can wait for any height
@@ -111,6 +113,9 @@ export function graph(N, gifts = []){
   const sp = L.marks.find(m => m.type === 'spawn'), start = sp.y * W + sp.x; let pos = new Map([[start, [(sp.x + 0.5) * T, sp.y * T]]]);
   let seen = new Set([start]), q = [start], edges = new Map();
   const progs = has.has('dash') ? PROGS.concat(DASH) : PROGS, rough = LEVEL.tiles.includes(20), breathing = LEVEL.waters.some(w => w.key === 'breath');
+  // (build 123) the rough faces of this level, and whether one is in his reach from a place: within nine tiles to either side, from three rows under his feet to nine over them
+  const ROUGHS = []; if (rough) LEVEL.tiles.forEach((t, k) => { if (t === 20) ROUGHS.push([k % W, Math.floor(k / W)]); });
+  const nearRough = (x, y) => { const i = x / T, j = y / T; return ROUGHS.some(([a, b]) => Math.abs(a + 0.5 - i) <= 9 && b - j >= -3 && b - j <= 9); };
   for (let round = 0; round < 8; round++){
   if (SCRATCH && round){ pos = new Map([[start, pos.get(start)]]); seen = new Set([start]); q = [start]; edges = new Map(); }
   while (q.length){
@@ -119,7 +124,7 @@ export function graph(N, gifts = []){
     for (const b of breathing && breathRoom(x, y) ? (has.has('lowwater') ? [0] : has.has('shallow') ? BREATHS.slice(0, 2) : BREATHS) : [0]){ BREATH.hold = b;   // ('lowwater': it never rises; 'shallow': it comes a quarter of the way and no more)
     const inWater = LEVEL.waters.length && (waterAt(x, y + 0.9) || waterAt(x, y + 0.05));
     if (!inWater || tileSupport(x, y)) for (const p of progs) for (const [c, at] of run(x, y, p)) take(c, at);
-    if (rough && has.has('grip')) for (const p of CLIMBP) for (const [c, at] of run(x, y, p, 900)) take(c, at);   // up a rough face: a long way
+    if (rough && has.has('grip') && nearRough(x, y)) for (const p of CLIMBP) for (const [c, at] of run(x, y, p, 900)) take(c, at);   // up a rough face: a long way (only from where one is in his reach: build 123, when every region of the climb came to have one)
     if (inWater) for (const p of SWIMP) for (const [c, at] of run(x, y, p, 200)) take(c, at);
     if (has.has('glide') && (LEVEL.updrafts.length || (RULE.fallen && (LEVEL.gusts || []).length))) for (const p of LONG) for (const [c, at] of run(x, y, p, 420)) take(c, at);   // where there is rising air to ride
     } BREATH.hold = 0;

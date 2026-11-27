@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Deep climbed from the bottom (latest; build 122).** The one place on the long way out that only went down is mended: under the Assayer's grate, in the flue, a ring hangs on its bar. Struck, the grate is open, whether the Assayer stands or not, and he comes up into its hall from behind. Hob has his own lines for one climbing out, in the Vein and in the Workings. 581 checks. No save is moved.
+**Rough faces in the passages (latest; build 123).** In the roof of each of the five passages between regions there is a chimney, and its far wall is the pale rough rock of the Hollow. He walks under every one on the way up and can do nothing with them. With the grip he climbs it to a nook at its head, sixteen rows over the passage: a chest. 587 checks. No save is moved.
+
+**The Deep climbed from the bottom (build 122).** The one place on the long way out that only went down is mended: under the Assayer's grate, in the flue, a ring hangs on its bar. Struck, the grate is open, whether the Assayer stands or not, and he comes up into its hall from behind. Hob has his own lines for one climbing out, in the Vein and in the Workings. 581 checks. No save is moved.
 
 **The throw (build 121; phase 18 begun).** When he first comes up into the Firmament, what he left at the top is waiting. It says one thing and throws him off the mountain: the fall again, through the water this time, to the Hollow at the bottom of the Deep. He climbs out. Until he has, the Deep's doors in the climb stay shut and no water takes him up; after, they are open both ways. A save already in the Firmament is not thrown. Starting a new game now clears everything (it kept raised gates and the like). 578 checks. No save is moved.
 

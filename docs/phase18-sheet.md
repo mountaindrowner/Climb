@@ -101,6 +101,26 @@ Carried from phase 17: "rough faces in every region from the Roots on, seen long
 - **One of them is the way to the Shard:** the west face under the summit.
 - **Which walls** is a list for its own build, room by room, with pictures before it goes in.
 
+### As built: build 123 (part 3, the rough faces)
+
+*Pictures: `docs/rough-faces-build123.png`.*
+
+| The sheet said | It is | Why |
+|---|---|---|
+| "One or two in each of the six regions, cut into walls that are there. About ten in all" | **Five: one in each passage between regions.** The Crypt Stair, the Bell Road, the Last Hut, the Breach, the Long Stair | A face has to rise sixteen rows before anything but the grip is needed. Of the six regions only the Tempest and the Spires have walls that tall with rock behind them. Every passage has seventeen rows of its own rock over its roof |
+| "Each is seen from the main way" | **He walks under every one of them on the way up,** from the first passage on | It is the same thing in the same place five times: a chimney in the roof, its far wall the pale rough rock of the Hollow |
+| "...and leads somewhere small: a thread, a chest, a short way round" | **A nook at the chimney's head, and a chest of shards in each** | A thread in a passage would be a third on that region's climb, and the rule is two. Question 7, below |
+| "One of them is the way to the Shard: the west face under the summit" | **Not in this build.** It comes with the Shard | |
+| "Which walls is a list for its own build... with pictures before it goes in" | **Built, and the pictures sent with it** | You said to go on with the phases |
+| Not said | **The Roots have none.** | There is no passage under them |
+
+**Added to "To decide":**
+
+7. **May a nook hold a thread?** Then each is worth going back for, and a region's climb would have three. As built
+   they hold shards.
+8. **More of them, inside the regions?** The Tempest's masts and the Spires' cliffs could take one each without
+   being rebuilt. The Roots, the Cloister and the Gardens could not.
+
 ## 4. The Shard
 
 From `docs/world.md`: "It broke from the top the night he fell and has not come down. Unexplained, and it stays so...

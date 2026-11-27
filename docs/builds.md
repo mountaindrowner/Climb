@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 122 | 27 Nov 2026 | `1ed6379` | Phase 18, part 2: the Deep climbed from the bottom. A ring under the Assayer's grate unbars it from below; Hob's lines for one climbing out | no | yes (now) |
+| 123 | 27 Nov 2026 | `COMMIT123` | Phase 18, part 3: a rough face in each of the five passages between regions. A chimney in the passage's roof, a nook at its head; climbed with the grip and by nothing else | no | yes (now) |
+| 122 | 27 Nov 2026 | `1ed6379` | Phase 18, part 2: the Deep climbed from the bottom. A ring under the Assayer's grate unbars it from below; Hob's lines for one climbing out | no | replaced by 123 |
 | 121 | 27 Nov 2026 | `42b234c` | Phase 18 begun: the throw. At the door of the last region he is thrown down to the Hollow, at the bottom of the Deep, and climbs out; the Deep's doors open when he does. A new game clears everything | no | replaced by 122 |
 | 120 | 27 Nov 2026 | `b5d7543` | The Deep's far ends, seventeen screens: the Winding-House (the Workings: a cage that runs once its engine is started), the False Lode (the Vein: a ring with the guild's air-door across it), the Drowned Stope (the Flooded Levels: a windlass in the air, a grate under two screens of water), the Adit (the Great Shaft: a wall against the cold, and the cold up a raise), the Far Wall (the Hollow: a rough face four screens tall). Every level has its far ends | no (a save follows the level) | replaced by 121 |
 | 119 | 27 Nov 2026 | `6170aab` | The Firmament's far end, six screens: the Outer Ring past the arms (a ring of two planets that turns from the first; a second arm, the outermost, that stands until it is wound from the winding room, and then carries him to the head of a tower) | no | replaced by 120 |
@@ -138,6 +139,62 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 123: rough faces in the passages
+
+*Phase 18, part 3 (`docs/phase18-sheet.md`, and "As built: build 123" in it). Carried from phase 17: "rough faces in
+every region from the Roots on, seen long before they can be climbed." Pictures: `docs/rough-faces-build123.png`. No
+new drawings: rough rock is drawn as it is in the Hollow.*
+
+**For the player**
+
+- **In each of the five passages between regions** (the Crypt Stair, the Bell Road, the Last Hut, the Breach, the
+  Long Stair), past its middle on the way up, there is a chimney in the roof. Six tiles wide. Its far wall is pale,
+  chisel-bitten rock.
+- **Without the grip it is nothing:** he can jump up into its mouth and come down again.
+- **With the grip:** a jump at the wall and he takes hold. He climbs it. At the top he lets go toward the near
+  side and comes down on a lip of stone, and past the lip is a nook: a torch, a chest of shards.
+- **It is sixteen rows from the passage's floor to the nook.** Coming down is a drop he takes unhurt.
+- **To try:**
+  1. On any way up between regions, look at the roof a little past the passage's middle.
+  2. With the grip (from the Auger), jump at the pale wall holding toward it. Keep holding.
+  3. At the top, press the other way.
+
+**What is weaker than it should be**
+
+- **It is the same thing five times,** with the same chest in it.
+- **The face begins at the roof, six rows over his head.** In the Hollow every face begins at the floor, and walking
+  into it is enough. Nothing teaches that these want a jump first.
+- **Letting go at the top is the only way on to the lip,** and it wants the other direction pressed. A player who
+  only holds on will hang there.
+- **The torch and the chest are the upper region's.** Seen from the lower end of the passage, before the regions
+  change, the nook is there and dark and empty.
+- **None is inside a region.** The sheet said one or two in each.
+- **Not played by a person.**
+
+- **Save: not moved.** Adds nothing new.
+- **Checked:** 587 automated checks (the full run found one fault, five times over: the nook's torch had no bracket
+  or stand, having been set after torches are given theirs; mended, and the files it touches run again), six new
+  (`tests/side-faces.test.mjs`): the chimney, its rough wall, the
+  nook and its lip in every passage, the same stone in both of the regions that hold it, on the upper region's
+  side of the middle, roofed inside the passage's own stone; one chest of shards in each and no thread; and each
+  passage played with the real motor: the nook with the grip, nothing above the passage's floor with everything
+  else he could have, and from the nook a way back down. The tests' player learned one move for this: a jump at
+  a face that begins over his head. It now tries a face only from where one is near, since every region has one.
+  In the test browser: the Bell Road and the Crypt Stair (the two ways a passage runs), each seen from under,
+  jumped at without the grip, and climbed to the nook with the real keys.
+- **Not checked:** not played by hand; the other three passages in the browser (they are the same stone).
+- **Mistakes caught before it went out:**
+  - **The chimney was first cut in one region's copy of the passage only.** A passage is held by both the region
+    under it and the one over it, and the two must be the same, tile for tile. It is cut in the passage's own stone
+    now.
+  - **It was first at the passage's middle,** which is where the regions change: he would have changed region
+    while climbing. It is past the middle.
+  - **It was first open at its top.** Over a region's copy of the passage above it there is sometimes only sky,
+    and he climbed out into it. It is roofed in the passage's own last row.
+  - **The nook was first six tiles from the face,** and letting go he fell past it. The lip, and a chimney that
+    goes on two rows over it.
+  - **A thread in two of the nooks** broke the rule of two a region. Shards.
 
 ### Build 122: the Deep climbed from the bottom
 
