@@ -272,3 +272,18 @@ itch.io page on your phone.
    it. I would bring the itch.io page up to date now (it is public already) and leave "Released" until they are done.
 10. **The page's text: does it give away the throw and the Deep?** I would show the Deep's look and not say how he
    comes to be there.
+
+### Decided (28 Nov)
+
+*Left to my judgment (decision 0.37): "decide on your own based on your own understanding and your estimation of what I would want." Any of these can still be changed.*
+
+1. **The buzz as built.** The option is renamed "Rumble and vibration".
+2. **On itch.io only, for now.** The Home Screen tags, the manifest and the icon go into `side.html`, since they cost nothing. An address of its own (GitHub Pages) waits: switching it on is in the repository's settings, and it puts the game somewhere new.
+3. **Yes:** "Copy save" and "Paste save" in Options.
+4. **Yes:** the three steps by themselves, with "Drawing: auto, full, light" in Options. The pictures of each step go in the build's pictures.
+5. **Wait for your phone's numbers.**
+6. **(b): two layouts and three sizes.** The keys and the pad are changeable after.
+7. **Yes:** normal and large.
+8. **Yes:** the playthrough check as a test. The person's part is your brother's playtest.
+9. **The itch.io page is brought up to date now;** "Released" waits for phases 21 and 22.
+10. **The Deep's look is shown, and how he comes there is not told.**

@@ -249,3 +249,19 @@ without her shell (one drawing); Corwen's open book (one drawing). About $0.40. 
    I would do (a), with one thread on the way across.
 5. **May he walk the mountain after the end,** or does the game return to the title, as now?
 6. **The second climb:** leave it out of this phase?
+
+### Decided (28 Nov)
+
+*Left to my judgment (decision 0.37): "decide on your own based on your own understanding and your estimation of what I would want." Any of these can still be changed.*
+
+1. **The Deep on the main way: yes,** as built.
+2. **Both ways out, and the Assayer may be slipped past,** as built. Making it fall would shut the hall's own way in. The long way gets its fights from phase 21 (the Shot-firer, the Hoistman, the Geode).
+3. **The throw in the Firmament's first room,** as built.
+4. **(a): the light and the view,** with the one thread on the way across, as built.
+5. **After the end, as now:** the title, with the light down the scar, and Continue takes him back to the mountain to walk.
+6. **The second climb: left out.** It stays in the ideas kept for later.
+7. **The nooks keep shards.** Two threads a region stands.
+8. **Yes: one more face each,** on the Tempest's masts and the Spires' cliffs. A small build.
+9. **Yes, as built:** he sees the Shard before he can reach it. That is what a Metroidvania does.
+10. **Ordric is drawn again with his lantern dark,** for the summit only. He keeps his lit one everywhere else.
+- **Hob's lines for one climbing out** (build 122): as written.

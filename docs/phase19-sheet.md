@@ -341,3 +341,18 @@ One build each, published as it is done, each with what to listen for:
 9. **Does the Fallen speak aloud?** Its words at the throw are written only. **I would leave them silent:** he never
    speaks, and a voice for his shape would be the first.
 10. **Real voices:** decision 0.9 stands? **I would keep the mumble voices.**
+
+### Decided (28 Nov)
+
+*Left to my judgment (decision 0.37): "decide on your own based on your own understanding and your estimation of what I would want." Any of these can still be changed.*
+
+1. **(a) for the wings and far ends, (b) for the Deep, the passages and the moments.** The pilot is still built and the listening page still made, so you can hear it and change it.
+2. **Yes:** the Last Hut's hut, the Eye, the Great Shaft and the Shard's gap are nearly silent, each with its ambience.
+3. **One fight piece for the six keepers,** with each keeper's own sounds and the step up when it rages.
+4. **The wing's piece is driven while a wing keeper or elite is awake.** No pieces of their own.
+5. **Yes:** a piece for each passage, faded by height.
+6. **The intro has its own quiet piece.**
+7. **Yes:** the music stops dead for the Fallen's words.
+8. **The flame and one held chord, very quiet.**
+9. **The Fallen stays silent.**
+10. **Decision 0.9 stands:** the mumble voices.

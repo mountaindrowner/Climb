@@ -560,3 +560,18 @@ Besides each one's own checks above, every one of them:
 7. **How each comes in:** its name and a beat of quiet when it wakes, no seal; or a keeper's entrance, shorter? *The
    name and a beat of quiet.*
 8. **The seven drawings in one batch, first,** shown to you together? *Yes.*
+
+### Decided (28 Nov)
+
+*Left to my judgment (decision 0.37): "decide on your own based on your own understanding and your estimation of what I would want." Any of these can still be changed.*
+
+1. **The Night-Lantern,** in place of the Orrery.
+2. **The order he meets them.**
+3. **Yes:** the Geode and the Lid are fights of their own, between those levels' creatures and their keepers.
+4. **The Hoistman.** The drop's head and the Adit stay empty.
+5. **A relic each,** in a prize chest. The near ones (the Vane-pin and A Breath of the Eye) are made unlike each other before they go in.
+6. **As proposed.**
+7. **The name and a beat of quiet.**
+8. **Yes, the drawings in one batch, first;** with the Topiary drawn too, at its four sizes (about $0.25), not made in code.
+- **Not sure 9:** the ruts are cut deeper, so a crouch is under the blast.
+- **Not sure 12:** if the Hollow's water is too far behind the Hoistman, a leak at the drop's foot.

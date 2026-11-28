@@ -317,3 +317,20 @@ its own drawing. About $0.
 11. **The floor's picture:** changed to show the five stones and the long one? *Yes:* it is the only place that shows
     what is done with them.
 12. **The two puzzles that go when their keeper falls:** allowed? *Yes:* a fallen keeper's place is meant to be easier.
+
+### Decided (28 Nov)
+
+*Left to my judgment (decision 0.37): "decide on your own based on your own understanding and your estimation of what I would want." Any of these can still be changed.*
+
+1. **The Keepers' Bowl.**
+2. **About six, as written.**
+3. **The Deep's sections here.**
+4. **Yes:** both kinds are in the release.
+5. **After phase 21.**
+6. **None in the Shard.**
+7. **Nothing new in the far ends and the passages.**
+8. **Yes:** chests of shards, and a thread only where a section's count has room.
+9. **As written,** and its name is the Keepers' Bowl. Its own short sheet is still written before it is built.
+10. **Yes, and the words as written.**
+11. **Yes:** the floor's picture shows the five stones and the long one.
+12. **Yes.**
