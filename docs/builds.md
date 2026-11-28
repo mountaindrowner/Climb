@@ -55,6 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 133 | 28 Nov 2026 | `COMMIT133` | Phase 19, build 3: the Deep's five pieces, made in code, and its air made as it plays; under the water all the music muffled; at the Source the tune whole | no | yes (now) |
 | 132 | 28 Nov 2026 | `4405c72` | Phase 19, build 2, the pilot: the Scriptorium as the Cloister's piece through a wall, with a harpsichord figure that starts over before its end; the other way (made whole in code) in Listen | no | yes (now) |
 | 131 | 28 Nov 2026 | `d5e4577` | Phase 19, build 1: no section silent (every wing and far end its region's piece and ambience, as a stand-in; the Eye and the Shard's room nearly silent on purpose); the Auger's made piece; Options, Listen | no | yes (now) |
 | 130 | 28 Nov 2026 | `39ef989` | Phase 20: less drawn when the phone is slow (three steps, by itself; Options, Drawing: auto, full, light); the touch buttons in two layouts and three sizes; the whole game checked in order; the itch.io page kit brought up to date | no | yes (now) |
@@ -148,6 +149,71 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 133: the Deep has music of its own
+
+*Phase 19, its third build (`docs/phase19-sheet.md`, "The order" 3, the Deep's table, and "As built: build 133").
+Made in code (the sheet's way b), as decided (0.37) for the Deep. No pictures. I cannot hear it: what I measured is
+below, and what to listen for.*
+
+**For the player**
+
+- **The Workings:** slow and low. A drone under it; a pick on stone, a way off, every other bar; now and then the
+  climb's tune on a thin pipe, an octave down and far away. Its air: drips, timbers creaking, small ticks.
+- **The Flooded Levels:** its beat is the pump's stroke, a low thump and the water drawn after it; everything as if
+  heard from under the water. Its air: water slapping, bubbles, the pump.
+- **Under the water, anywhere,** all the music is muffled further, and a little quieter, until he comes up.
+- **The Vein:** high glassy bells. Each phrase of the tune is played, then again a beat late and softer: the Echo,
+  who goes where he went. Its air: a thin ringing in the crystal, small ticks.
+- **The Great Shaft:** almost nothing. One low held note, and the air coming up the shaft; ropes creaking on the
+  hanging camp. The quietest place in the game, by a long way.
+- **The Hollow:** deep and slow, older than anything; the tune in long bells two octaves down, every other time
+  round. Its air: water pouring through the roof in long threads, drips, a far grinding.
+- **At the Source:** the tune whole, warm, in the major as the ending is, for the first time in the Deep.
+- **Options, Listen:** the five pieces are under Made, and the five airs under Places ("made air").
+- **What to listen for:**
+  1. Going down from the Roots to the Workings: does the Deep sound unlike everything above, and like one place?
+  2. The Flooded Levels, then dive: is the muffling under the water right, or too much?
+  3. The Vein: is the echo heard as the Echo, or as a mistake in the music?
+  4. The Great Shaft: too quiet to know anything is playing? That is the aim; is it right?
+  5. The Source: does the tune, whole, land?
+
+**Measured** (rendered offline in the test browser, 24 seconds each; loudness as RMS, brightness as high to whole,
+"sounding" the share of tenths of a second with anything audible):
+
+| | Loudness | Brightness | Sounding |
+|---|---|---|---|
+| The Roots (for comparison) | 0.129 | 0.069 | 0.98 |
+| The Workings | 0.100 | 0.050 | 0.82 |
+| The Flooded Levels (through its wall) | 0.090 | 0.048 | 0.87 |
+| The Vein | 0.044 | 0.316 | 0.86 |
+| The Great Shaft | 0.031 | 0.095 | 1.00 |
+| The Hollow | 0.101 | 0.033 | 0.94 |
+| The Source | 0.111 | 0.081 | 0.95 |
+
+The Shaft first came out at 0.079, nearly as loud as the Workings: its note and its air were turned down to a third.
+The airs first came out at a tenth or less of the music; they were doubled. The Vein is the only bright one, on
+purpose (glass).
+
+**What is weaker than it should be**
+
+- **The far ends play their level's piece.** The sheet's changes for them (the Winding-House's engine, the Drowned
+  Stope with the pump gone, the False Lode with no echo, the Adit's held note, the Far Wall's climb toward the Roots)
+  are not made.
+- **The Shaft's four notes at its floor, once,** and **the Hollow's grinding stopping when the Auger falls,** are not
+  made.
+- **With the recorded score, the Deep plays the made pieces** (there are no recordings of them), so it sounds like the
+  made score down there whichever is chosen.
+
+- **Save: not moved.**
+- **Checked:** the 74 checks that read the music, the sound or the game's main file (13 files), one new and two changed (`tests/side-sound.test.mjs`: each level of the
+  Deep its own piece and air, slow and with no drums; the Workings' pick and pipe, the pump, the Echo, the Shaft's one
+  note and its quiet, the Source in the major; under the water muffled; every air's events at random, never on a
+  loop). Every file of the game compiles; the game opened in the Workings, the Flooded Levels and at the Source: no
+  errors. **Not the full suite:** this build touches only the music and the lines that choose it, which nothing in the
+  level, reach or physics checks reads. From here, a build that changes only sound is checked so, and the full suite
+  runs every third build and before any that touches the levels, the creatures or the engine.
+- **Not checked:** heard.
 
 ### Build 132: the Scriptorium heard through its wall (the pilot)
 

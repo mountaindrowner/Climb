@@ -22,6 +22,20 @@ export const SONGS = {
   roots:    { set: MINOR, shift: 0, bpm: 66, pad: { g: 0.34, cut: 650 }, bass: { g: 0.34, at: [0, 10] }, arp: { inst: 'pluck', g: 0.16, oct: 12, pat: [0, _, _, _, _, _, 2, _, _, _, 1, _, _, _, _, _] }, lead: { inst: 'bell', g: 0.16, oct: -12, every: 2 }, drip: 0.05 },
   cloister: { set: MINOR, shift: 7, bpm: 92, pad: { g: 0.26, cut: 1500, organ: true }, bass: { g: 0.3, at: [0, 8], walk: [0, 2] }, arp: { inst: 'harpsi', g: 0.13, oct: 12, pat: [0, 1, 2, 3, 2, 1, 2, 3, 0, 1, 2, 3, 4, 3, 2, 1] }, lead: { inst: 'bell', g: 0.2, oct: 0, every: 2 } },
   spires:   { set: MINOR, shift: 2, bpm: 80, pad: { g: 0.3, cut: 2000 }, bass: { g: 0.22, at: [0] }, arp: { inst: 'bell', g: 0.1, oct: 24, pat: [2, _, 4, _, 3, _, 5, _, 2, _, 4, _, 6, _, 4, _] }, lead: { inst: 'pluck', g: 0.2, oct: 12, every: 2 }, wind: 0.35 },
+  // ---- (build 133) the Deep: each level made in code (the sheet's way b), each darker and sparer than the one above it,
+  // and unlike anything above. The tune is the climb's, heard far off and changed
+  // the Workings: slow and low; a pick on stone every other bar; a drone; the tune on a thin pipe now and then, far off
+  workings: { set: MINOR, shift: -2, bpm: 54, drone: { g: 0.2, every: 2 }, bass: { g: 0.18, at: [0] }, knock: { inst: 'pick', at: [6], every: 2, g: 0.5 }, lead: { inst: 'pipe', g: 0.09, oct: -12, every: 2 }, drip: 0.05 },
+  // the Flooded Levels: its beat the pump's stroke; all of it as if from under the water (a wall: music.js TREAT)
+  flooded: { set: MINOR, shift: -4, bpm: 46, drone: { g: 0.18, every: 4, oct: 0 }, pad: { g: 0.16, cut: 380 }, knock: { inst: 'pump', at: [0, 8], g: 0.42 }, drip: 0.08 },
+  // the Vein: glassy high bells, each phrase played and then again a beat late, as the Echo does
+  vein: { set: MINOR, shift: 3, bpm: 62, drone: { g: 0.1, every: 4, oct: 24 }, arp: { inst: 'bell', g: 0.05, oct: 24, pat: [4, _, _, _, _, _, 5, _, _, _, _, _, 3, _, _, _] }, lead: { inst: 'bell', g: 0.16, oct: 12, every: 1, echo: { steps: 4, g: 0.55 } } },
+  // the Great Shaft: almost nothing. One low held note, and the cold air coming up
+  shaft: { set: MINOR, shift: -7, bpm: 40, drone: { g: 0.05, every: 8, oct: 0 }, wind: 0.3 },
+  // the Hollow: deep and slow, older than anything; the tune in long bells, two octaves down, every other time round
+  hollow: { set: MINOR, shift: -9, bpm: 44, drone: { g: 0.2, every: 4, oct: 0 }, pad: { g: 0.14, cut: 300 }, bass: { g: 0.22, at: [0] }, lead: { inst: 'bell', g: 0.1, oct: -12, every: 2 }, drip: 0.1 },
+  // at the Source: the tune whole and warm, for the first time in the Deep
+  source: { set: MAJOR, shift: -9, bpm: 50, pad: { g: 0.3, cut: 1100, organ: true }, bass: { g: 0.22, at: [0, 8] }, lead: { inst: 'bell', g: 0.24, oct: 0, every: 1 } },
   // (build 132) the Scriptorium's layer, over the Cloister's piece through the wall: the harpsichord figure rising to its
   // last note and starting over before it (fifteen steps of sixteen), and the quills (a dry scratch, off the beat)
   layer_scriptorium: { set: MINOR, shift: 7, bpm: 92, arp: { inst: 'harpsi', g: 0.3, oct: 12, len: 15, pat: [0, 1, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 8, 9] }, drums: { g: 0.5, kick: [], snare: [], hat: [3, 6, 7, 11, 14] } },
@@ -49,15 +63,59 @@ export const HUSHED = { eye: 'wind', shardlight: 'wind' };
 // piece through a wall (wall: how muffled, the cut of a low-pass in Hz), with a layer of its own over it, made in code.
 // The Scriptorium: the Cloister's piece heard from the stacks, and a harpsichord figure that never reaches its end: on
 // the last note but one it starts over, as the copyists do at a blot. Its red rooms (the rubric's) the same
-export const TREAT = { scriptorium: { wall: 640, layer: 'layer_scriptorium' }, rubric: { wall: 520, layer: 'layer_scriptorium' } };
+export const TREAT = { scriptorium: { wall: 640, layer: 'layer_scriptorium' }, rubric: { wall: 520, layer: 'layer_scriptorium' }, flooded: { wall: 900 } };
+// ---- (build 133) the air of a place, made as it plays (the sheet: "made in the browser from noise and tones with things
+// that happen now and then, so it never goes round audibly"): a bed of filtered noise, and events at random. The Deep's
+// five; the four recordings stay where they fit
+export const AIR = {
+  workings: { bed: [ 'lowpass', 300, 0.05 ], ev: [ ['drip', 2, 6, 0.5], ['creak', 7, 16, 0.35], ['tick', 4, 9, 0.25] ] },
+  flooded: { bed: [ 'lowpass', 420, 0.09 ], ev: [ ['slap', 1.5, 4, 0.45], ['bubble', 2, 5, 0.4], ['thump', 6, 6.5, 0.3] ] },
+  vein: { bed: [ 'highpass', 5200, 0.012 ], ev: [ ['ring', 3, 8, 0.25], ['tick', 1, 3, 0.18] ] },
+  shaft: { bed: [ 'bandpass', 380, 0.07 ], ev: [ ['creak', 5, 12, 0.3] ] },
+  hollow: { bed: [ 'lowpass', 600, 0.06 ], ev: [ ['pour', 3, 7, 0.4], ['drip', 2, 5, 0.4], ['grind', 9, 18, 0.22] ] },
+};
+// makeAir(ctx, out) -> { play(name), tick(), volume(v) }
+export function makeAir(ctx, out){
+  const nb = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate); { const d = nb.getChannelData(0); let s = 4242; for (let i = 0; i < d.length; i++){ s = (s * 16807) % 2147483647; d[i] = s / 2147483647 * 2 - 1; } }
+  const master = ctx.createGain(); master.gain.value = 1.6; master.connect(out);
+  const A = { name: '', bus: null, bed: null, next: {} };
+  const env = (g, t, p, a, d) => { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(Math.max(0.0002, p), t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d); };
+  const noise = (t, g, len, type, f, q = 1) => { const s = ctx.createBufferSource(); s.buffer = nb; const fl = ctx.createBiquadFilter(); fl.type = type; fl.frequency.value = f; fl.Q.value = q; const v = ctx.createGain(); env(v, t, g, 0.005, len); s.connect(fl).connect(v).connect(A.bus); s.start(t, Math.random()); s.stop(t + len + 0.1); };
+  const tone = (t, f, g, len, type = 'sine', slide = 0) => { const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, t); if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, f + slide), t + len); const v = ctx.createGain(); env(v, t, g, 0.004, len); o.connect(v).connect(A.bus); o.start(t); o.stop(t + len + 0.1); };
+  const EV = {
+    drip: (t, g) => tone(t, 900 + Math.random() * 900, g * 0.12, 0.12, 'sine', -500),
+    creak: (t, g) => tone(t, 70 + Math.random() * 40, g * 0.1, 0.6 + Math.random() * 0.6, 'sawtooth', 25),
+    tick: (t, g) => noise(t, g * 0.25, 0.02, 'highpass', 4000),
+    slap: (t, g) => noise(t, g * 0.3, 0.25, 'lowpass', 700),
+    bubble: (t, g) => { for (let k = 0; k < 3; k++) tone(t + k * 0.07, 300 + Math.random() * 400, g * 0.06, 0.06, 'sine', 300); },
+    thump: (t, g) => tone(t, 55, g * 0.3, 0.3, 'sine', -15),
+    ring: (t, g) => { const f = 2400 + Math.random() * 1600; tone(t, f, g * 0.05, 2.5); tone(t, f * 1.5, g * 0.025, 2); },
+    pour: (t, g) => noise(t, g * 0.18, 2 + Math.random() * 2, 'bandpass', 1400, 0.6),
+    grind: (t, g) => tone(t, 38, g * 0.25, 2.5, 'sawtooth', 6),
+  };
+  A.play = name => { if (name === A.name) return; const now = ctx.currentTime;
+    if (A.bus){ const o = A.bus, b = A.bed; o.gain.setTargetAtTime(0, now, 0.6); if (b) try { b.stop(now + 3); } catch (e){} }
+    A.name = name; A.bus = null; A.bed = null; const D = AIR[name]; if (!D) return;
+    A.bus = ctx.createGain(); A.bus.gain.value = 0; A.bus.gain.setTargetAtTime(1, now, 0.8); A.bus.connect(master);
+    const [type, f, g] = D.bed, s = ctx.createBufferSource(); s.buffer = nb; s.loop = true; const fl = ctx.createBiquadFilter(); fl.type = type; fl.frequency.value = f; const v = ctx.createGain(); v.gain.value = g; s.connect(fl).connect(v).connect(A.bus); s.start(now); A.bed = s;
+    A.next = {}; for (const [k, lo] of D.ev) A.next[k] = now + lo * Math.random(); };
+  A.tick = () => { const D = AIR[A.name]; if (!D || !A.bus) return; const now = ctx.currentTime;
+    for (const [k, lo, hi, g] of D.ev) if (A.next[k] <= now + 0.3){ EV[k](Math.max(now, A.next[k]), g); A.next[k] = Math.max(now, A.next[k]) + lo + Math.random() * (hi - lo); } };
+  A.volume = v => master.gain.setTargetAtTime(v * 1.6, ctx.currentTime, 0.3);
+  return A;
+}
 // look: the room's; region: REGION_DATA's entry for the level he is in; has(piece): is there such a piece to play
-export function placeSound(look, region, has){
-  const of = l => { const R = REGION_DATA.find(q => q.theme === l); return (R && R.musicOf) || l; }, home = region.musicOf || region.theme;
+// (build 133: room, for a room with a piece of its own: the Source)
+export const ROOMS = { source: 'source' };
+export function placeSound(look, region, has, room = ''){
+  const of = l => { if (has(l)) return l; const R = REGION_DATA.find(q => q.theme === l); return (R && R.musicOf) || l; }, home = has(region.theme) ? region.theme : region.musicOf || region.theme;
+  if (ROOMS[room] && has(ROOMS[room])) return { piece: ROOMS[room], amb: AIR[region.theme] ? '' : AMB[region.theme] || '', air: AIR[region.theme] ? region.theme : '', hushed: false, wall: 0, layer: '' };
   if (look in HUSHED) return { piece: '', amb: HUSHED[look], hushed: true };
-  const own = of(look), piece = has(own) ? own : has(home) ? home : '', T = TREAT[look] || {};
-  return { piece, amb: AMB[look] || AMB[region.theme] || AMB[home] || '', hushed: false, wall: T.wall || 0, layer: T.layer || '' };
+  const own = of(look), piece = has(own) ? own : has(home) ? home : '', T = TREAT[look] || {}, air = AIR[look] ? look : '';
+  return { piece, amb: air ? '' : AMB[look] || AMB[region.theme] || AMB[home] || '', air, hushed: false, wall: T.wall || 0, layer: T.layer || '' };
 }
 
+const later = (I, inst, bus, n, t, g, len) => inst === 'bell' ? I.bell(bus, n, t, g, len) : inst === 'pipe' ? I.pipe(bus, n, t, g, Math.min(2.4, len)) : I.pluck(bus, n, t, g);
 export function makeMusic(ctx, out){
   const master = ctx.createGain(); master.gain.value = 0.5; const wall = ctx.createBiquadFilter(); wall.type = 'lowpass'; wall.Q.value = 0.5; wall.frequency.value = 20000; master.connect(wall).connect(out);
   // a room for it to sound in: noise dying away
@@ -84,6 +142,16 @@ export function makeMusic(ctx, out){
       osc('sawtooth', mtof(n), t, t + len + 0.2, -5).connect(f); osc('sawtooth', mtof(n), t, t + len + 0.2, 5).connect(f); f.connect(v); send(v, bus, 0.25); },
     bell(bus, n, t, g, len = 2.2){ const v = ctx.createGain(); env(v, t, g, 0.003, len); const c = osc('sine', mtof(n), t, t + len + 0.2), m = osc('sine', mtof(n) * 3.5, t, t + len + 0.2), mg = ctx.createGain();
       mg.gain.setValueAtTime(mtof(n) * 1.6, t); mg.gain.exponentialRampToValueAtTime(1, t + len * 0.5); m.connect(mg).connect(c.frequency); c.connect(v); send(v, bus, 0.7); },
+    // (build 133, the Deep) a drone: two sines a hair apart, a slow filter breathing on them; held
+    drone(bus, n, t, dur, g){ const v = ctx.createGain(); env(v, t, g, Math.min(2, dur * 0.3), dur * 0.5, dur * 0.4); const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.setValueAtTime(220, t); f.frequency.linearRampToValueAtTime(420, t + dur * 0.5); f.frequency.linearRampToValueAtTime(220, t + dur);
+      osc('sine', mtof(n), t, t + dur + 1, -4).connect(f); osc('sine', mtof(n), t, t + dur + 1, 4).connect(f); osc('triangle', mtof(n + 7), t, t + dur + 1).connect(f); f.connect(v); send(v, bus, 0.4); },
+    // a thin pipe, far off: a sine with breath and a slow vibrato
+    pipe(bus, n, t, g, len = 1){ const v = ctx.createGain(); env(v, t, g, 0.08, len * 0.6, len * 0.4); const o = osc('sine', mtof(n), t, t + len + 0.6), lfo = osc('sine', 5.2, t, t + len + 0.6), lg = ctx.createGain(); lg.gain.value = 6; lfo.connect(lg).connect(o.frequency);
+      o.connect(v); const s = ctx.createBufferSource(); s.buffer = noiseBuf; const bf = ctx.createBiquadFilter(); bf.type = 'bandpass'; bf.frequency.value = mtof(n) * 2; bf.Q.value = 6; const bg = ctx.createGain(); bg.gain.value = 0.25; s.connect(bf).connect(bg).connect(v); s.start(t); s.stop(t + len + 0.6); send(v, bus, 0.8); },
+    // a pick on stone, a way off: a click and a short knock
+    pick(bus, t, g){ I.noise(bus, t, g * 0.5, 0.05, 'bandpass', 2400); const v = ctx.createGain(); env(v, t, g * 0.4, 0.002, 0.09); osc('square', 180, t, t + 0.15).connect(v); send(v, bus, 0.5); },
+    // the pump's stroke: a low thump, and the water drawn after it
+    pump(bus, t, g){ I.kick(bus, t, g * 0.8); I.noise(bus, t + 0.12, g * 0.35, 0.7, 'lowpass', 500); },
     kick(bus, t, g){ const v = ctx.createGain(); env(v, t, g, 0.002, 0.16); const o = ctx.createOscillator(); o.frequency.setValueAtTime(130, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.12); o.start(t); o.stop(t + 0.25); o.connect(v); v.connect(bus); },
     noise(bus, t, g, len, type, freq){ const s = ctx.createBufferSource(); s.buffer = noiseBuf; const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = 0.8; const v = ctx.createGain(); env(v, t, g, 0.002, len); s.connect(f).connect(v); send(v, bus, 0.15); s.start(t, (t * 7.3) % 1.5); s.stop(t + len + 0.1); },
   };
@@ -95,8 +163,11 @@ export function makeMusic(ctx, out){
     const as = S.arp && S.arp.len ? step % S.arp.len : s;   // (a figure shorter than its bar: it starts over before it ends)
     if (S.arp && S.arp.pat[as] != null){ const k = S.arp.pat[as], n = ch.n[k % 3] + 12 * Math.floor(k / 3) + S.arp.oct + sh; I[S.arp.inst](bus, n, t, S.arp.g * (s % 4 === 0 ? 1.25 : 1)); }
     if (S.lead && cyc % S.lead.every === 0) for (const [b, st, n, len] of S.set.tune) if (b === loop && st === s){ const L = Math.max(0.4, len * stepDur * 1.1), note = n + sh + S.lead.oct;
-      if (S.lead.inst === 'bell') I.bell(bus, note, t, S.lead.g, Math.max(1.6, L)); else if (S.lead.inst === 'saw'){ I.saw(bus, note, t, S.lead.g, L); if (S.lead.octaves) I.saw(bus, note - 12, t, S.lead.g * 0.8, L); } else I.pluck(bus, note, t, S.lead.g * 1.3); }
+      if (S.lead.echo){ const e = S.lead.echo; later(I, S.lead.inst, bus, note + (e.up || 0), t + e.steps * stepDur, S.lead.g * e.g, Math.max(1.6, L)); }   // played again a beat late: the Vein's Echo
+      if (S.lead.inst === 'pipe') I.pipe(bus, note, t, S.lead.g, Math.min(2.4, L)); else if (S.lead.inst === 'bell') I.bell(bus, note, t, S.lead.g, Math.max(1.6, L)); else if (S.lead.inst === 'saw'){ I.saw(bus, note, t, S.lead.g, L); if (S.lead.octaves) I.saw(bus, note - 12, t, S.lead.g * 0.8, L); } else I.pluck(bus, note, t, S.lead.g * 1.3); }
     if (S.drums){ const D = S.drums; if (D.kick.includes(s)) I.kick(bus, t, D.g); if (D.snare.includes(s)) I.noise(bus, t, D.g * 0.32, 0.14, 'bandpass', 1900); if (D.hat.includes(s)) I.noise(bus, t, D.g * 0.12, 0.04, 'highpass', 7000); else if (s % 2 === 1) I.noise(bus, t, D.g * 0.05, 0.03, 'highpass', 8000); }
+    if (S.drone && s === 0 && bar % (S.drone.every || 2) === 0) I.drone(bus, ch.b + sh + (S.drone.oct || 12), t, barDur * (S.drone.every || 2), S.drone.g);
+    if (S.knock && S.knock.at.includes(s) && bar % (S.knock.every || 1) === 0) I[S.knock.inst](bus, t, S.knock.g);
     if (S.drip && ((step * 7919 + 13) % 97) / 97 < S.drip) I.pluck(bus, ch.n[(step * 31) % 3] + 36 + sh, t, 0.07);   // water, somewhere, now and then
   }
   M.schedule = until => { if (!M.song) return; const stepDur = 60 / M.song.bpm / 4; while (M.at < until){ write(M.song, M.bus, M.step, M.at); M.step++; M.at += stepDur; } };

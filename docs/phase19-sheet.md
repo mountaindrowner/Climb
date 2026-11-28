@@ -175,6 +175,16 @@ its sounds as recordings. About 50 KB each.
 | "The Cloister's piece through a wall, and a harpsichord figure over it that never reaches its end: near the last note it starts over" | **So:** a low-pass at 640 Hz (520 in the red rooms) and 3 dB down; the figure fifteen steps of sixteen | |
 | "You hear both beside the Cloister and choose (question 1)" | **Still yours:** what to listen for is in the build log | I cannot hear them; what I could measure is there |
 
+### As built: build 133 (the order, 3: the Deep)
+
+| The sheet said | It is | Why |
+|---|---|---|
+| The five pieces (the Deep's table) | **So,** each made in code, slow, no drums: the Workings' pick and pipe, the pump's stroke, the Vein's echo, the Shaft's one note, the Hollow's long bells | |
+| "When he is under the water, all the music is muffled further" | **So, anywhere** | |
+| "At the Source, the tune whole, warm" | **So,** in the major | |
+| The five ambiences, made as they play | **So:** a bed of noise and events at random | |
+| The far ends' changes; the Shaft's four notes at its floor; the grinding stopping when the Auger falls | **Not yet** | Each wants a trigger of its own; they come with the keepers' build (8) |
+
 ## The pieces, one for each section
 
 Each piece, and each ambience, in plain words, tied to what the place was and what it is now (`docs/world.md`). The
