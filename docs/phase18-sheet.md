@@ -209,6 +209,16 @@ drawings, shown to you first.*
 10. **Ordric's lantern.** His standing drawing holds a lit lantern, at the summit too, while he says he has not lit
     his lamp. A new drawing of him with it dark, or set down, would mend it. As built, it is as it was.
 
+### As built: build 129 (questions 8 and 10, as decided)
+
+*Pictures: `docs/faces-and-lantern-build129.png`.*
+
+| Decided (0.37) | It is | Why |
+|---|---|---|
+| "One more face each, on the Tempest's masts and the Spires' cliffs" | **So:** at the Spires' mouth and the foot of the Tempest's rigging. Each a tunnel in from the floor, a chimney at its end with its far wall rough, a nook at its head over the tunnel, nineteen and twenty-one rows up | The rigging's own tall wall could not take one: its nook would be reached by dropping from the planks over it. Cut into the rock beside the floor, nothing else is near |
+| (the nook holds shards) | **A chest of shards in each** | Two threads a region stands |
+| "Ordric is drawn again with his lantern dark, for the summit only" | **His own drawing, its lantern's glass painted dark,** in every frame; the lamp on the ground is gone | A new drawing would not have been the same Ordric |
+
 ## The order
 
 One build each, published as it is done:

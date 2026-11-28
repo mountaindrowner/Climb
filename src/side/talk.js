@@ -19,7 +19,7 @@ export const SUMMIT = {
   scribe: src => src ? ['The last page.', 'One line on it. How far down the water goes, under the mountain.', 'Nothing else.'] : ['The last page.', 'I have nothing to put on it.'],
   lamplighter: () => ['I brought a lamp up.', 'I have not lit it. It was never mine to light.'],
 };
-export const PEOPLE = { lamplighter: { name: 'ORDRIC OF THE VIGIL', art: 'px_moth', col: '#feae34' }, wren: { name: 'MIREL THE PENITENT', art: 'px_hermit', col: '#63c74d', late: { from: 4, art: 'px_hermit_free' } }, scribe: { name: 'CORWEN THE ANNALIST', art: 'px_rook', col: '#2ce8f5' }, hob: { name: 'HOB OF THE GUILD', art: 'px_mole2', col: '#feae34' } };
+export const PEOPLE = { lamplighter: { name: 'ORDRIC OF THE VIGIL', art: 'px_moth', col: '#feae34', summit: 'px_moth_dark' }, wren: { name: 'MIREL THE PENITENT', art: 'px_hermit', col: '#63c74d', late: { from: 4, art: 'px_hermit_free' } }, scribe: { name: 'CORWEN THE ANNALIST', art: 'px_rook', col: '#2ce8f5' }, hob: { name: 'HOB OF THE GUILD', art: 'px_mole2', col: '#feae34' } };
 // `late`: from that region up, another drawing (Mirel has put her shell down by the Gardens).
 // They are the mountain's own folk, not people: Ordric an old moth, Mirel a hermit crab, Corwen a rook (docs/cast.md). The
 // only human shapes on the mountain are he and the Fallen, and what is left of the peoples who tried to carry the light.
@@ -30,7 +30,7 @@ export const PEOPLE = { lamplighter: { name: 'ORDRIC OF THE VIGIL', art: 'px_mot
 //   Corwen records the mountain exactly and cannot account for it.
 // where each one's face is in their standing drawing (its top-left, and how many pixels square: 32 is shown 1:1): the box shows the head, not the
 // middle of the figure (Mirel's middle is her shell)
-const FACES = { px_mole: [14, 8, 32], px_mole2: [12, 0, 32], px_moth: [18, 7, 32], px_hermit: [22, 10, 32], px_hermit_free: [22, 10, 32], px_rook: [20, 8, 32] };
+const FACES = { px_mole: [14, 8, 32], px_mole2: [12, 0, 32], px_moth: [18, 7, 32], px_moth_dark: [18, 7, 32], px_hermit: [22, 10, 32], px_hermit_free: [22, 10, 32], px_rook: [20, 8, 32] };
 // Hob is met only in the Deep, so his lines are by region index from the Workings (6) down
 const HOB = []; HOB[7] = ['The dark down here is not empty. I have never worked out what is in it.', 'It keeps to where you have already been. Watch the lamps. They seem to matter to it.', 'I do not turn back in the Vein. I could not tell you why.'];   // (26 Nov, decision 0.27: he hints, he does not say what to do)
 HOB[8] = ['The pump was my grandfather\'s. It has never stopped.', 'There are holes in the walls along here, and something in them. I have not seen what sets it off. Watch how you pass.', 'There is a lamp on the chapel altar that I never filled. It may be worth a look.'];

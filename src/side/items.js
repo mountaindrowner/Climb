@@ -114,11 +114,9 @@ export const SUMMIT_STATION = {
     px(g, PAL.ink, 3, 2, 18, 5); px(g, PAL.bone, 4, 3, 7, 3); px(g, PAL.bone, 13, 3, 7, 3); px(g, PAL.white, 4, 3, 7, 1); px(g, PAL.white, 13, 3, 7, 1);   // the leaves
     px(g, PAL.wood1, 11, 2, 2, 5); px(g, PAL.red0, 12, 6, 1, 3);   // its spine, and the ribbon at the last page
     if (o.written) px(g, PAL.ink, 14, 4, 4, 1); } },   // the depth of the water, and nothing else
-  // Ordric's: a lamp on the ground beside him. Its glass is dark
-  lamplighter: { name: 'THE UNLIT LAMP', col: 0x5a6988, w: 10, h: 16, at: 5, glow: [5, 8], draw(g){
-    px(g, PAL.ink, 4, 0, 2, 3); px(g, PAL.ink, 1, 3, 8, 2); px(g, PAL.dark, 2, 3, 6, 1);   // its ring and cap
-    px(g, PAL.ink, 1, 5, 8, 9); px(g, PAL.deep, 2, 6, 6, 7); px(g, PAL.dark, 2, 6, 1, 7); px(g, PAL.ink, 4, 6, 2, 7);   // its glass, dark
-    px(g, PAL.ink, 0, 14, 10, 2); px(g, PAL.dark, 1, 14, 8, 1); } },
+  // Ordric's: the lamp he brought up, unlit. Until build 129 it stood on the ground beside him while the lantern in his
+  // hand was lit (his drawing's); now his drawing at the summit holds it dark (px_moth_dark), and nothing is on the ground
+  lamplighter: { name: 'THE UNLIT LAMP', col: 0x262b44, w: 2, h: 2, at: 1, glow: [1, 1], draw(){} },
 };
 export const STATION_NAMES = Object.fromEntries(Object.entries(STATION).map(([k, v]) => [k, v.name]));
 export function makeItems(scene, R, n){
@@ -141,7 +139,7 @@ export function makeItems(scene, R, n){
     }
   }
   function person(mk, x, y){ {
-      const who = mk.who, P0 = PEOPLE[who]; if (!P0) return; const P = P0.late && n >= P0.late.from ? { ...P0, art: P0.late.art } : P0;
+      const who = mk.who, P0 = PEOPLE[who]; if (!P0) return; const P = mk.summit && P0.summit ? { ...P0, art: P0.summit } : P0.late && n >= P0.late.from ? { ...P0, art: P0.late.art } : P0;   // (at the summit, Ordric's own drawing with his lantern dark: build 129)
       // the station beside them, toward the middle of the room
       const ST = mk.summit ? SUMMIT_STATION[who] : STATION[who], room = LEVEL.rooms.find(r => x >= r.x0 && x < r.x1 && y >= r.y0 && y < r.y1), side = mk.side || (room && x > (room.x0 + room.x1) / 2 ? -1 : 1),   // (mk.side: which side of them it stands, when it matters: Mirel's cradle, toward the beacon)
          sx = x + side * (ST.at / 16 + 1.3);   // far enough that its light is beside them, not on their faces

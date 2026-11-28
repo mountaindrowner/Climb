@@ -44,7 +44,7 @@ import * as HOLLOWFAR from './regions/hollowfar.js';
 const WINGS = { 0: [DROWNED.wing, OSSUARY.after], 1: [SCRIPTORIUM.wing, FOUNDRY.wing, REFECTORY.wing], 2: [CAIRNS.wing, GLACIER.wing], 3: [WORKS.wing, EYE.wing], 4: [AQUEDUCTS.wing, HOUSES.wing], 5: [ORRERY.wing] };   // a region's wings: each `left` columns added west of it or `right` columns east, and what it builds there
 // (build 116) what is built past a wing's far end, or under or over a region, in the rows the lift left for it (docs/edges-sheet.md).
 // Built last, after the keeper's rule, so that the rooms there were keep their order (a save keeps the rooms he has seen by it)
-const EDGES = { 0: [ROOTSFAR.far], 1: [CLOISTERFAR.far, FACES.far], 2: [SPIRESFAR.far, FACES.far], 3: [TEMPESTFAR.far, FACES.far], 4: [GARDENSFAR.far, FACES.far], 5: [FIRMAMENTFAR.far, FACES.far, SHARD.far], 6: [WORKINGSFAR.far], 7: [VEINFAR.far], 8: [FLOODEDFAR.far], 9: [SHAFTFAR.far], 10: [HOLLOWFAR.far] };
+const EDGES = { 0: [ROOTSFAR.far], 1: [CLOISTERFAR.far, FACES.far], 2: [SPIRESFAR.far, FACES.far, FACES.cliffs], 3: [TEMPESTFAR.far, FACES.far, FACES.cliffs], 4: [GARDENSFAR.far, FACES.far], 5: [FIRMAMENTFAR.far, FACES.far, SHARD.far], 6: [WORKINGSFAR.far], 7: [VEINFAR.far], 8: [FLOODEDFAR.far], 9: [SHAFTFAR.far], 10: [HOLLOWFAR.far] };
 export { T, ROOM, EMPTY, ROCK, LEDGE, SPIKES, CRACKED, GLASS_A, GLASS_B, HOLD, DOOR, GIVEN, LIVE, VELLUM, SHUTTER, STILLED, FACED, MELT, IRON_A, IRON_B, CALM, KEPT, ROUGH, TIER_A, TIER_B, SLUICE };
 
 // ---- the first region: up from the bottom of the mountain

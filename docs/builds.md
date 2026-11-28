@@ -55,6 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 129 | 28 Nov 2026 | `COMMIT129` | Phase 18's last two questions, as decided (0.37): a rough face in the Spires' cliffs (the mouth) and one in the Tempest's masts (the rigging), each a tunnel, a chimney and a nook; Ordric at the summit holding his lantern dark | no | yes (now) |
 | 128 | 28 Nov 2026 | `4b081f4` | Phase 20: large text, Copy save and Paste save, "Rumble and vibration", the frames a second beside the place, the Home Screen icon and tags; the phone's top-left buttons under the weapon's box; menus fitted to a short screen. Every open question of phases 18 to 22 decided (0.37) | no | yes (now) |
 | 127 | 28 Nov 2026 | `ef5fa26` | Phase 20's first two items: the save kept twice (a copy, read if the save is lost), and the phone's buzz on Android. Watching the keepers no longer writes over the save. The sheets for phases 19 to 22 | no (a copy is added beside it) | yes (now) |
 | 126 | 28 Nov 2026 | `244987f` | Phase 18, part 5 (second half): the three at the summit after the Fallen: Corwen's last page, Ordric's unlit lamp, Mirel's empty cradle. Phase 18 is built | no | replaced by 127 |
@@ -144,6 +145,50 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 129: two more rough faces, and Ordric's lamp dark
+
+*Phase 18, its questions 8 and 10 as I decided them (decision 0.37; `docs/phase18-sheet.md`, "As built: build 129").
+Pictures: `docs/faces-and-lantern-build129.png` (the Spires' nook; the Tempest's; Ordric lit, then dark in two of his
+frames). No new drawing was made: Ordric's is his own with the lantern's glass painted out, frame by frame.*
+
+**For the player**
+
+- **A rough face in the Spires' cliffs.** At the mouth, where he comes up out of the Bell Road into the region, a low
+  tunnel goes west into the rock beside the floor. At its end a chimney goes up, its far wall the pale rough rock the
+  grip holds. Nineteen rows up, a nook off the chimney's head, back over the tunnel: a chest of shards, a crystal, a
+  torch. The torch that hung where the tunnel now goes is moved up over it.
+- **A rough face in the Tempest's masts.** The same, east into the rock at the foot of the rigging; its nook twenty-one
+  rows up.
+- **Both are seen from the first visit,** and climbed only with the grip. Nothing else he has reaches either nook:
+  there are two tiles of rock between each nook and the room beside it.
+- **Ordric at the summit holds his lantern dark.** He says he brought a lamp up and has not lit it; until now his
+  drawing held it lit, with a dark lamp on the ground beside him. Now the lantern in his hand is dark, in his standing
+  drawing, in every frame of his idle, and in his face in the talk box. Everywhere else his lantern is lit as before.
+- **To try:**
+  1. In the Spires, at the mouth: the tunnel west beside the floor; the chimney at its end. Without the grip it cannot
+     be climbed; with it, the nook and its chest.
+  2. In the Tempest, at the foot of the rigging: the same, east.
+  3. Beat the Fallen and talk to Ordric at the summit: his lantern is dark.
+
+**What is weaker than it should be**
+
+- **The two new faces are the same shape,** and the same as each other, though not as the passages'. They are cut
+  from the floor, where the passages' are cut from a roof.
+- **They are drawn in two new small rooms each,** named "The Cleft" on the screen, because the rock they are cut in
+  was in no room.
+- **The nooks are higher than the passages' (sixteen rows):** nineteen and twenty-one. Each nook's floor is the first
+  row of the room drawn for it, which is the grip's; at sixteen it fell in the room below, open to anyone, and the
+  checks found the grip's room was a place he could never stand. Higher only makes them surer to want the grip.
+- **The dark lantern is painted over his drawing in code,** not drawn new: its glass is a blue-grey where it was gold.
+
+- **Save: not moved.**
+- **Checked:** 626 automated checks, four new (`tests/side-cliffs.test.mjs`, three: one in the Spires and one in
+  the Tempest and none elsewhere; each one's shape, tile by tile; played: the nook not reached with everything but
+  the grip, reached with it, its chest, and a way back down; `tests/side-summit.test.mjs`, one more: Ordric's dark
+  drawing at the summit, its frames and feet the same as his own). The game opened at both faces in the test browser:
+  no errors.
+- **Not checked:** played through by a person.
 
 ### Build 128: large text, and the save copied and pasted
 

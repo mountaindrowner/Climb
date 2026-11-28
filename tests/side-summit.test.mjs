@@ -46,3 +46,13 @@ test('what they say: said in full once, then the last line; no shop, no tally; n
   for (const l of all){ assert.ok(!/^(Go|Find|Look|Take|Climb|Break|Strike|Listen|Wait)\b/.test(l), 'no one tells him what to do: ' + l); assert.ok(l.length < 80, 'short'); assert.ok(!/—/.test(l)); }
   assert.ok(TK.SUMMIT.wren().every(l => !/count/i.test(l) || /did not count/.test(l)), 'she has stopped counting');
 });
+
+test('Ordric at the summit holds his own lantern dark (build 129): his drawing, with only the glass painted out', async () => {
+  const TK = await import('../src/side/talk.js'), { readFileSync } = await import('node:fs');
+  assert.equal(TK.PEOPLE.lamplighter.summit, 'px_moth_dark'); assert.equal(TK.PEOPLE.lamplighter.art, 'px_moth', 'everywhere else, lit');
+  const items = readFileSync(new URL('../src/side/items.js', import.meta.url), 'utf8'); assert.match(items, /mk\.summit && P0\.summit \? \{ \.\.\.P0, art: P0\.summit \}/);
+  const a = JSON.parse(readFileSync(new URL('../assets/side/px_moth/sprite.json', import.meta.url))), b = JSON.parse(readFileSync(new URL('../assets/side/px_moth_dark/sprite.json', import.meta.url)));
+  assert.deepEqual(Object.keys(b.anims), Object.keys(a.anims)); for (const k of Object.keys(a.anims)) assert.deepEqual(b.anims[k], a.anims[k], k + ': the same frames, the same feet');
+  for (const k of Object.keys(a.anims)) for (const f of [k + '.png', k + '_n.png']) assert.ok(readFileSync(new URL('../assets/side/px_moth_dark/' + f, import.meta.url)).length > 0, f);
+  assert.ok(/px_moth_dark: \[18, 7, 32\]/.test(readFileSync(new URL('../src/side/talk.js', import.meta.url), 'utf8')), 'his face in the talk box from the same place');
+});
