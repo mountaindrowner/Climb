@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 133 | 28 Nov 2026 | `COMMIT133` | Phase 19, build 3: the Deep's five pieces, made in code, and its air made as it plays; under the water all the music muffled; at the Source the tune whole | no | yes (now) |
+| 133 | 28 Nov 2026 | `153c435` | Phase 19, build 3: the Deep's five pieces, made in code, and its air made as it plays; under the water all the music muffled; at the Source the tune whole | no | yes (now) |
 | 132 | 28 Nov 2026 | `4405c72` | Phase 19, build 2, the pilot: the Scriptorium as the Cloister's piece through a wall, with a harpsichord figure that starts over before its end; the other way (made whole in code) in Listen | no | yes (now) |
 | 131 | 28 Nov 2026 | `d5e4577` | Phase 19, build 1: no section silent (every wing and far end its region's piece and ambience, as a stand-in; the Eye and the Shard's room nearly silent on purpose); the Auger's made piece; Options, Listen | no | yes (now) |
 | 130 | 28 Nov 2026 | `39ef989` | Phase 20: less drawn when the phone is slow (three steps, by itself; Options, Drawing: auto, full, light); the touch buttons in two layouts and three sizes; the whole game checked in order; the itch.io page kit brought up to date | no | yes (now) |
