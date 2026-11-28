@@ -16,7 +16,7 @@ import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE
 import { width as textWidth, width as pxWidth, text as pxText } from './pixelfont.js';
 const wrapText = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };
 const wrapFine = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t, 1, true) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };   // (the small print's widths)
-import { G, OPT, loadSave, store, storeOpt, wipe, rebase, TRY, fresh, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, ABILITY, ARRIVES, BOON, THREADS_A_HEART, DIFF } from './state.js';
+import { G, OPT, loadSave, store, storeOpt, wipe, rebase, TRY, WATCHING, fresh, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, ABILITY, ARRIVES, BOON, THREADS_A_HEART, DIFF } from './state.js';
 import { makeItems } from './items.js';
 import { makeTalk, SCRIPT, HOB_UP, SUMMIT } from './talk.js';
 import { ANNALS, PEOPLE_PAGE } from './annals.js';
@@ -30,6 +30,7 @@ import { makeHud } from './hud.js';
 import { makeScarf, SCARF } from './scarf.js';
 import { makeMusic } from './music.js';
 import { DEVICE } from '../core/prompts.js';
+import { vibrate } from './vibrate.js';
 import { WEAPONS } from '../config/weapons.js';
 const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
@@ -358,7 +359,7 @@ function keepers(){
   for (const k of list) grid.appendChild(menuButton(k.keeper, () => watch([k.n]), true)); rows.push(grid);
   rows.push(menuButton('Back', title, true)); menuShow(rows, false, title);
 }
-function watch(list){ if (!VIEW.on){ VIEW.snap = JSON.stringify(G); VIEW.on = true; } VIEW.list = list.slice(); SIDE.watching = true; nextView(); }
+function watch(list){ if (!VIEW.on){ VIEW.snap = JSON.stringify(G); VIEW.on = true; WATCHING.on = true; } VIEW.list = list.slice(); SIDE.watching = true; nextView(); }
 function nextView(){
   if (!VIEW.list.length){ VIEW.wait = true; VIEW.n = -1; setTimeout(() => { title(); keepers(); }, 0); return; }   // after this frame is done (it would wake the keeper again)
   const n = VIEW.list.shift(); VIEW.n = n; VIEW.wait = true; VIEW.done = false; G.keepers = {};   // as if it were the first time
@@ -374,7 +375,7 @@ function viewStep(dt){
   if (!VIEW.done && ENT.title && ENT.title.t > 4.2){ VIEW.done = true; VIEW.t = 0.8; }
   if (VIEW.done && (VIEW.t -= dt) <= 0){ VIEW.done = false; nextView(); }
 }
-function endView(){ VIEW.on = false; VIEW.list = []; SIDE.watching = false; ENT.reset(); if (BOSS) BOSS.reset(); for (const k of Object.keys(G)) delete G[k]; Object.assign(G, JSON.parse(VIEW.snap)); store(); }
+function endView(){ VIEW.on = false; WATCHING.on = false; VIEW.list = []; SIDE.watching = false; ENT.reset(); if (BOSS) BOSS.reset(); for (const k of Object.keys(G)) delete G[k]; Object.assign(G, JSON.parse(VIEW.snap)); store(); }
 // ---- trying a place (from the title): any level from its start, or one of a few moments, with what he would have by
 // then. It is for looking at the game, a level at a time. It is not his save: that is put by when a trial begins and
 // is back, untouched, when he returns to the title (state.js TRY: what a trial stores is written beside it)
@@ -447,7 +448,7 @@ function options(back){
     cyc('Difficulty', 'diff', [0, 1, 2], DIFF.map((d, i) => d + [' (two hearts more)', '', ' (two hearts fewer)'][i]), () => { P.maxHp = maxHearts(); P.hp = Math.min(P.hp, P.maxHp); }),
     cyc('Phone mode', 'phone', ['auto', true, false], [phoneNow() && OPT.phone === 'auto' ? 'auto (on)' : 'auto', 'on', 'off'], () => { LOW.on = phoneNow(); banner('', 'phone mode ' + (LOW.on ? 'on' : 'off') + ': from the next region', 2.4); }),
     cyc('Place', 'place', [false, true], ['hidden', 'shown (for notes)']),
-    cyc('Rumble', 'rumble', [true, false], ['on', 'off'], () => { SET.rumble = OPT.rumble; saveSettings(); if (OPT.rumble) rumble(0.5, 0.5, 160); })]),
+    cyc('Rumble', 'rumble', [true, false], ['on', 'off'], () => { SET.rumble = OPT.rumble; saveSettings(); if (OPT.rumble) buzz(0.5, 0.5, 160); })]),
     menuButton('Back', back, true)], false, back); MENU.style.top = '34%';
 }
 // ---- Corwen's Annals: a page for each region (its keeper and its creatures) and one for the three who climb. Drawn on
@@ -715,8 +716,11 @@ function padUI(){
   if (edge(9) && !GO.st) pause(!PAUSE);
   if (edge(8) && !GO.st && !STORY.active()){ if (SCREEN === 'map') pause(false); else mapScreen(); }   // Select: the map
 }
-// a buzz in the hands, for a blow that lands, one taken, and the big moments (Options: Rumble)
-const buzz = (s, w, ms) => { if (OPT.rumble !== false) rumble(s, w, ms); };
+// a buzz in the hands, for a blow that lands, one taken, and the big moments (Options: Rumble): a pad's, or the phone's (vibrate.js)
+const buzz = (s, w, ms) => { if (OPT.rumble !== false){ rumble(s, w, ms); vibrate(s, w, ms); } };
+// (phase 20) a save still waiting to be written when the page is put away (the phone locked, another app, the tab shut) is written then
+const flush = () => { if (DIRTY > 0 && !VIEW.on){ DIRTY = 0; store(); } };
+addEventListener('pagehide', flush); document.addEventListener('visibilitychange', () => { if (document.hidden) flush(); });
 // a press while someone is speaking, or a card is up: on with it
 function press(){ if (TALK.on) TALK.press(); else if (NOTE && NOTE.t > 0.7){ NOTE = null; } }
 addEventListener('pointerdown', () => { if (TALK.on || NOTE) press(); else if (STORY.active()) STORY.press(); });

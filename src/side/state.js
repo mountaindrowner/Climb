@@ -68,17 +68,37 @@ function joined(S){
 // (build 87) what he can do is no longer read off which keepers have fallen: the air dash is the Cracked Bell's. A save
 // from before keeps what it had
 function gifted(S){ if (S.can) return; const b = n => !!(S.beat && S.beat[n]) || (S.top || 0) > n; S.can = {}; if (b(1)) S.can.dash = 1; if (b(2)) S.can.glide = 1; }
-export function loadSave(){ const s = read(KEY); Object.assign(G, blank()); if (s && typeof s === 'object'){ seamed(s); joined(s); winged(s); knotted(s); gifted(s); Object.assign(G, s); G.top = Math.max(G.top || 0, G.level || 0); G.began = true; } const o = read(OKEY); if (o) Object.assign(OPT, o); return G; }
+// (phase 20) the save is kept twice: under KEY, and the same again under BACKUP, written only once KEY has been read back
+// whole. If KEY is missing or does not parse (cleared, or spoiled), the copy is read instead. A save from before has
+// no copy: it is read from KEY as it always was, and has one from its next write
+const BACKUP = KEY + '-backup';
+const usable = s => !!s && typeof s === 'object' && !Array.isArray(s);
+export function readSave(){ const s = read(KEY); if (usable(s)) return s; const b = read(BACKUP); return usable(b) ? b : s; }
+export function loadSave(){ const s = readSave(); Object.assign(G, blank()); if (s && typeof s === 'object'){ seamed(s); joined(s); winged(s); knotted(s); gifted(s); Object.assign(G, s); G.top = Math.max(G.top || 0, G.level || 0); G.began = true; } const o = read(OKEY); if (o) Object.assign(OPT, o); return G; }
 // trying a place from the title (main.js tryStart): what happens then is not his save. It is written beside it, and his
 // own is not touched
 export const TRY = { on: false };
-export function store(){ if (HERE) (G.org = G.org || {})[HERE[0]] = [HERE[1], HERE[2]]; try { localStorage.setItem(TRY.on ? KEY + '-try' : KEY, JSON.stringify(G)); } catch (e){} }
+// watching the keepers from the title (main.js watch): nothing is written while it plays, so a game shut in the middle of
+// it keeps his own save (before phase 20 the browser held what the watching had made of it: no keepers faced, and the
+// watched region to continue from). His save is put back when the watching ends (endView), and written then
+export const WATCHING = { on: false };
+export function store(){ if (WATCHING.on) return; if (HERE) (G.org = G.org || {})[HERE[0]] = [HERE[1], HERE[2]];
+  let s; try { s = JSON.stringify(G); } catch (e){ return; }   // (nothing is written that cannot be read back)
+  const put = (k, v) => { try { localStorage.setItem(k, v); } catch (e){ return 'full'; } try { return localStorage.getItem(k) === v ? 'ok' : 'bad'; } catch (e){ return 'bad'; } };
+  if (TRY.on){ put(KEY + '-try', s); return; }
+  // the copy is written only after the save itself has gone in whole. A write the browser refuses leaves what was there.
+  // If the storage is too full to take the save beside its copy, the copy is let go: never the progress for the copy
+  const got = put(KEY, s);
+  if (got === 'ok') put(BACKUP, s);
+  else if (got === 'full'){ let was = null; try { was = localStorage.getItem(BACKUP); localStorage.removeItem(BACKUP); } catch (e){}
+    if (put(KEY, s) === 'full' && was != null) put(BACKUP, was); }   // (and if even that is refused, the copy goes back as it was)
+}
 // the save in hand made new, the one in the browser left as it is
 export function fresh(){ for (const k of Object.keys(G)) delete G[k]; Object.assign(G, blank()); }
 export function storeOpt(){ try { localStorage.setItem(OKEY, JSON.stringify(OPT)); } catch (e){} }
 // (build 121: everything he had is gone, not only what a blank save names. Before, what was kept under any other name
 // came into the new game with him: gates he had raised, walls he had knocked down, lamps he had lit, that he had won)
-export function wipe(){ for (const k of Object.keys(G)) delete G[k]; Object.assign(G, blank()); try { localStorage.removeItem(KEY); } catch (e){} }
+export function wipe(){ for (const k of Object.keys(G)) delete G[k]; Object.assign(G, blank()); try { localStorage.removeItem(KEY); localStorage.removeItem(BACKUP); } catch (e){} }   // (and its copy, or the old save would come back)
 // a relic works only while it is tied into the scarf; he can carry more than he can wear, and chooses at a flame
 export const has = id => (G.worn || []).includes(id);
 export const owns = id => G.relics.includes(id);
