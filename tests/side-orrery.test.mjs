@@ -13,9 +13,9 @@ const ST = await import('../src/side/state.js');
 const L = { ...R.loadLevel(5) }, room = n => L.rooms.find(r => r.name === n), NAMES = ['escapement', 'hours', 'arms', 'almanac', 'winding'], T = 0.5, ARR = R.arrival(5);
 const inRoom = (m, r) => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1;
 
-test('nine screens east of the orrery room, open to anyone; the winding room behind the Almanac; the Firmament not moved', () => {
+test('nine screens east of the orrery room, open to anyone; the winding room behind the Almanac; the Firmament not moved by it', () => {
   const rs = NAMES.map(room); assert.ok(rs.every(Boolean)); assert.equal(rs.reduce((n, r) => n + (r.tx1 - r.tx0) * (r.ty1 - r.ty0) / (40 * 23), 0), 9);
-  assert.ok(rs.every(r => !r.gate && r.wing && r.title === 'THE ORRERY WING' && r.tx0 >= room('orrery').tx1)); assert.ok(room('winding').after && !room('almanac').after); assert.equal(R.loadLevel(5).X0, 0, 'a save is not moved');
+  assert.ok(rs.every(r => !r.gate && r.wing && r.title === 'THE ORRERY WING' && r.tx0 >= room('orrery').tx1)); assert.ok(room('winding').after && !room('almanac').after); assert.equal(R.loadLevel(5).X0, 4 * 40, 'the wing moved no save; the Shard\'s four columns to the west did, later, and a save follows (build 124)');
   const own = L.movers.filter(m => m.cx < room('arms').x1) /* (not the Outer Ring's three, past the arms: build 119, held in side-edges) */; assert.equal(own.length, 5, 'two pallets and three planets'); assert.equal(own.filter(m => m.kind === 'arm').length, OR.ARMS.length);
 });
 // the world's clock run by hand, he on a mover: what the game does, a step at a time

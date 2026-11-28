@@ -218,7 +218,7 @@ world. Three screens down into the new rock.
   far side.
 - **A thread, a chest.**
 
-**West** is where the Shard will be, and the Shard wants its own sheet. Not here.
+**West** is the Shard's (built, build 124: `docs/phase18-sheet.md` 4). Not here.
 
 #### As built: build 119
 

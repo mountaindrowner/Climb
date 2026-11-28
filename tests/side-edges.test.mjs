@@ -368,11 +368,11 @@ test('the Gardens\' far ends, played: down the main and back with the falls shut
 const FF = await import('../src/side/regions/firmamentfar.js');
 const L5 = { ...R.loadLevel(5) }, room5 = n => L5.rooms.find(r => r.name === n);
 
-test('the Firmament: two columns further east, six screens, in off the arms\' floor; nothing to the west', () => {
+test('the Firmament: two columns further east, six screens, in off the arms\' floor; the west is the Shard\'s (tests/side-shard)', () => {
   const ou = room5('outer'), ar = room5('arms'); assert.ok(ou && ou.far && ou.wing); assert.equal(ou.title, 'THE OUTER RING'); assert.equal(ou.look, 'orrery'); assert.equal(ou.gate, '', 'open, as the wing is');
   assert.equal((ou.tx1 - ou.tx0) * (ou.ty1 - ou.ty0) / (ROOM.w * ROOM.h), 6);
   assert.equal(ou.tx0, ar.tx1, 'east of the arms'); assert.equal(ou.tx1, L5.W, 'to the level\'s east edge'); assert.equal(ou.ty0, ar.ty0, 'from their floor'); assert.equal(ou.ty1, ar.ty1 + ROOM.h, 'a screen higher than they go');
-  assert.equal(L5.X0, ST.ORG115[5][0], 'the Firmament is not moved: the west is the Shard\'s');
+  assert.equal(L5.X0 - ST.ORG115[5][0], 4 * ROOM.w, 'the Firmament is moved by the Shard\'s four columns to its west, and by nothing else (build 124)');
   for (let y = 2; y <= 7; y++) for (const x of [ar.tx1 - 2, ar.tx1 - 1, ou.tx0, ou.tx0 + 1]) assert.equal(L5.tiles[(ar.ty0 + y) * L5.W + x], LV.EMPTY, 'the way in, at the floor');
   assert.equal(L5.tiles[(ar.ty0 + 1) * L5.W + ou.tx0], LV.ROCK, 'on one floor with the arms');
 });

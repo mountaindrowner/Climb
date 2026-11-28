@@ -9,9 +9,9 @@ const LV = await import('../src/side/level.js'), R = await import('./helpers/rea
 const F = FC.FACE, NAMES = { 1: 'THE CRYPT STAIR', 2: 'THE BELL ROAD', 3: 'THE LAST HUT', 4: 'THE BREACH', 5: 'THE LONG STAIR' };
 const built = n => { const L = LV.loadLevel(n); return { W: L.W, H: L.H, tiles: L.tiles.slice(), marks: L.marks.map(m => ({ ...m })), rooms: L.rooms.map(r => ({ ...r })) }; };
 
-test('a rough face in each of the five passages, and nowhere else on the climb: a chimney in the roof, a nook at its head, sixteen rows over the floor', () => {
+test('a rough face in each of the five passages, and nowhere else on the climb but the Shard: a chimney in the roof, a nook at its head, sixteen rows over the floor', () => {
   for (let n = 0; n <= LV.CLIMB_TOP; n++){
-    const L0 = LV.loadLevel(n), L = { ...built(n), joins: L0.joins }, rough = []; for (let j = 0; j < L.H; j++) for (let i = 0; i < L.W; i++) if (L.tiles[j * L.W + i] === LV.ROUGH) rough.push([i, j]);
+    const L0 = LV.loadLevel(n), L = { ...built(n), joins: L0.joins }, rough = [], far = L.rooms.filter(r => r.far), inFar = (i, j) => far.some(r => i >= r.tx0 && i < r.tx1 && j >= r.ty0 && j < r.ty1); for (let j = 0; j < L.H; j++) for (let i = 0; i < L.W; i++) if (L.tiles[j * L.W + i] === LV.ROUGH && !inFar(i, j)) rough.push([i, j]);   // (the Shard's, in the Firmament's far end, is its own: tests/side-shard)
     // a region holds the passage under it (its 'sill' room) and a copy of the one over it, at its top: the same stone. So its rough tiles are one face's for each
     const copies = (n >= 1 ? 1 : 0) + (n < LV.CLIMB_TOP ? 1 : 0); assert.equal(rough.length, copies * (F.top - F.roof + 1), LV.LEVELS[n].name + ': one face a passage');
     if (n < LV.CLIMB_TOP){ const J = L0.joins.up, dirU = LV.JOINS[n + 1].dir, col = J.x + (dirU > 0 ? F.way[1] + 1 : LV.SILL.w - 1 - (F.way[1] + 1)); assert.ok(rough.filter(([i]) => i === col).length === F.top - F.roof + 1, 'the copy over it has its face too');

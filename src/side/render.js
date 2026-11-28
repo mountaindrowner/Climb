@@ -240,7 +240,7 @@ export function makeRenderer(canvas){
   const glowAt = (x, y, kind, fixed) => {   // canvas pixels of the play layer to a glow in the world (fixed: a sill's, its beat and its light given, the same in both its regions)
     const wx = x / PPU, wy = (LEVEL.H * CELL - y) / PPU, warm = kind === 'lamp';
     const gl = new THREE.Mesh(new THREE.PlaneGeometry(warm ? 1.4 : 1.2, warm ? 1.4 : 1.2), new THREE.MeshBasicMaterial({ map: warm ? torchGlow : crystalGlow, transparent: true, depthWrite: false, color: warm ? 0xffb060 : 0x60e8ff, blending: THREE.AdditiveBlending, opacity: warm ? 0.7 : 0.4 }));
-    const ph = fixed && fixed.ph != null ? fixed.ph : rnd() * 9, lit = fixed && fixed.ph != null ? fixed.lit : rnd() < 0.5;
+    const ph = fixed && fixed.ph != null ? fixed.ph : rnd() * 9, lit = fixed && fixed.ph != null ? fixed.lit : rnd() < 0.5 || !!(fixed && fixed.sure);
     gl.position.set(wx, wy, 1); scene.add(gl); flames.push({ m: gl, ph, slow: !warm });
     if (lit) lights.push({ x: wx, y: wy, color: warm ? 0xff9a40 : 0x40e0ff, power: warm ? 1.0 : 0.7, range: 5, ph: fixed && fixed.ph != null ? fixed.ph : rnd() * 9 });
   };

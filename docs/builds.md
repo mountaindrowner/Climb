@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 123 | 27 Nov 2026 | `d0eed06` | Phase 18, part 3: a rough face in each of the five passages between regions. A chimney in the passage's roof, a nook at its head; climbed with the grip and by nothing else | no | yes (now) |
+| 124 | 27 Nov 2026 | `COMMIT124` | Phase 18, part 4: the Shard, twelve screens west of the summit. The underside (four rough faces up a shaft, a pane), the gap (the longest glide), the Shard (hanging; a keel to catch, a crust, one bare room, the old light). No fight, no one, nothing written | no (a save follows the level) | yes (now) |
+| 123 | 27 Nov 2026 | `d0eed06` | Phase 18, part 3: a rough face in each of the five passages between regions. A chimney in the passage's roof, a nook at its head; climbed with the grip and by nothing else | no | replaced by 124 |
 | 122 | 27 Nov 2026 | `1ed6379` | Phase 18, part 2: the Deep climbed from the bottom. A ring under the Assayer's grate unbars it from below; Hob's lines for one climbing out | no | replaced by 123 |
 | 121 | 27 Nov 2026 | `42b234c` | Phase 18 begun: the throw. At the door of the last region he is thrown down to the Hollow, at the bottom of the Deep, and climbs out; the Deep's doors open when he does. A new game clears everything | no | replaced by 122 |
 | 120 | 27 Nov 2026 | `b5d7543` | The Deep's far ends, seventeen screens: the Winding-House (the Workings: a cage that runs once its engine is started), the False Lode (the Vein: a ring with the guild's air-door across it), the Drowned Stope (the Flooded Levels: a windlass in the air, a grate under two screens of water), the Adit (the Great Shaft: a wall against the cold, and the cold up a raise), the Far Wall (the Hollow: a rough face four screens tall). Every level has its far ends | no (a save follows the level) | replaced by 121 |
@@ -139,6 +140,85 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 124: the Shard
+
+*Phase 18, part 4 (`docs/phase18-sheet.md`, and "As built: build 124" in it). `docs/world.md`: "It broke from the top
+the night he fell and has not come down. Unexplained, and it stays so." Pictures: `docs/the-shard-build124.png`. One
+new drawing, made in code: the old light (half the beacon's bowl, and a flame). What is in the Shard is question 4 of
+the sheet and still open: this is its (a).*
+
+**For the player**
+
+- **In the Firmament, the room under the summit has a way out west at its floor.** It goes under a shaft and on,
+  out of the mountain, along a low walk of stone in the open sky. Anyone can walk it. Far over the walk's west end a
+  piece of the mountain hangs in the air.
+- **The Underside.** The shaft has pale rough rock up its walls: one wall, then an alcove, then the other wall. Four
+  faces. With the grip he climbs each and throws himself across to the next.
+- **At its head, a pane across the way out.** The air dash goes through it. Past it, a shelf out of the mountain's
+  side.
+- **The Gap.** Sixty-four tiles of air and nothing in it. A jump off the shelf, the second jump at its top, and the
+  wind held. He comes to the Shard's keel, which hangs down into the gap, a few rows under its head. It is rough: he
+  takes hold and climbs.
+- **On the keel's head:** a thread, and a doorway stopped with cracked stone. The hammer.
+- **The Shard.** One room, bare, lit warm. Half of the beacon's bowl on its drum, and in it a flame of pale gold.
+  Nothing happens there.
+- **Whoever misses the keel** comes down on the walk and goes back east to the underside's foot.
+- **To try:**
+  1. From the room under the summit, go west at the floor. Walk out under the Shard and look up.
+  2. Come back to the shaft. Jump at the pale wall on its east side, holding toward it. In each alcove, jump across
+     to the other wall.
+  3. At the top, west: jump and dash at once through the pane.
+  4. From the shelf's lip: jump, jump again at the top, hold jump. Keep holding toward the Shard when you meet it.
+  5. Break the crust. Go down to the light.
+  6. From the keel's head, jump up on to the Shard's back.
+
+**What is weaker than it should be**
+
+- **The light does nothing.** No sound of its own, no word, nothing kept in the save. That is (a), and it may be
+  too little for the hardest place to get to in the game.
+- **The flame is painted and does not move.** Only its glow breathes.
+- **A miss in the gap costs the whole underside again:** four faces and the pane, most of a minute.
+- **The glide is one move.** Nothing has to be done in the air. The sheet's "one thing for each gift" are in a
+  row, before and after it.
+- **The best glide there is needs no catch.** In the test browser he met the keel under two rows from its head and
+  was up at once. A plain one meets it five rows down; the face is rough for sixteen.
+- **The Shard is built of the summit's dressed stone,** as the whole Firmament is. It reads as a piece of a tower.
+- **"Nothing under him" is not so.** The walk is far enough down to be off the screen for most of the glide.
+- **The pane wants a jump and the dash together in a low doorway,** as the one into the Spires does. A dash from
+  the ground rolls into it.
+- **The top third of the underside's room is solid stone.**
+- **The music does not change in it.**
+- **Not played by a person.**
+
+- **Save: not moved by hand.** The Firmament is four columns wider to the west, and a save made in it follows
+  (build 115's rule; `tests/side-edges`). Adds nothing new.
+- **Checked:** 594 automated checks, six new (`tests/side-shard.test.mjs`): where the five rooms are and
+  which of them are gated; that the Shard's stone touches the level's west edge and nothing else, with sky under
+  and over it and nothing in the gap; the four faces and their alcoves, the pane, no other rough rock; the keel
+  rough only from well over anything he comes up to off the walk; a plain glide measured with the real motor
+  (it meets the face five rows under the head); what is in the rooms (one thread, the light, no creature, no
+  writing); and the whole of it played by the tests' player four times: with everything, without the grip
+  (nothing over the walk), without the air dash (no further than the pane), without the hammer (not inside); and
+  from the light a way back to the room under the summit. The older map walker (`tests/side-level`) learned to
+  leap or glide on to a rough face. In the test browser: every part walked, the faces climbed, the pane gone
+  through, the gap glided and the keel caught and climbed, all with the real keys.
+- **Not checked:** not played by hand; the crust broken with the real hammer in the browser (the tests' player
+  breaks it); how it sounds.
+- **Mistakes caught before it went out:**
+  - **The keel was first rough to its foot,** and he could climb it from the walk below, with no underside and no
+    glide. Its rough rock begins twenty-two rows over the walk.
+  - **A plain glide first sailed over the keel and landed on the Shard.** The shelf is ten rows lower.
+  - **The Firmament's dressing put a bookcase and star charts on the Shard's walls.** A room can now be marked
+    bare (`paint.js`).
+  - **The old light was first a small triangle on a plinth,** lit one time in two. Redrawn, and its glow is sure
+    (`render.js`).
+  - **All five rooms were first marked as the grip's.** A room's gate is what he needs to set foot in it, and
+    anyone walks three of them.
+  - **The pane the sheet promised was left out.**
+  - **The passages' check counted the Shard's rough rock as theirs.** It counts only what is on the climb.
+- **And in build 123, found by its full run:** the torch in each nook had no bracket or stand. Mended before 123
+  went out.
 
 ### Build 123: rough faces in the passages
 

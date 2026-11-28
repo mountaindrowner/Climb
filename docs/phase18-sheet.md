@@ -138,6 +138,28 @@ purpose."
 - **It can be gone to before the Fallen or after,** by whoever has the grip.
 - **What is in it** is yours to say (question 4).
 
+### As built: build 124 (part 4, the Shard)
+
+*Pictures: `docs/the-shard-build124.png`. Built to (a) of question 4, which is still yours.*
+
+| The sheet said | It is | Why |
+|---|---|---|
+| "Six screens, three places, west of the summit and above it" | **Twelve screens, west of the summit and level with it.** The underside three, the gap six, and the Shard's own column three: its room, a screen of sky under it and one over it | The gap had to be wide enough to be the longest glide, and the Shard needed sky on every side to hang. The Firmament does not grow upward |
+| "The underside. Rough faces under the summit's west lip, with air between them. He climbs one, throws himself off it, and takes hold of the next" | **So.** A shaft eight tiles wide, in at the floor of the room under the summit. Four faces, one wall and then the other, each ending in an alcove | |
+| "The gap. Nothing under him" | **There is a walk of stone far under him,** forty-eight rows below the shelf, running from the mountain out under the Shard | Whoever misses has to land somewhere and get back. He walks back east to the underside's foot |
+| "...with one thing in it for each gift he has: a pane to go through with the dash, a crust to break with the hammer, a face to catch at the far end" | **All three, one after another, not in the air.** The pane across the way out of the underside; then sixty-four tiles of air; then the face, which is the Shard's own keel, hanging down into the gap, rough for sixteen rows under its head; then the crust across the Shard's door | A pane hanging in open air is a thing in the gap, and the gap has nothing in it |
+| "The shard. A piece of the mountain, the right way up, with a room in it lit warm" | **So. It touches nothing but the edge of the world.** One room, bare. In it half of the beacon's bowl, broken, on its drum, and a flame of pale gold | It broke from the top: what it carried was the beacon |
+| "No fight. No one. Nothing written" | **So.** No creature in any of the twelve screens. The Firmament's bookcases and star charts are kept off its walls | |
+| "It can be gone to before the Fallen or after, by whoever has the grip" | **By whoever has the grip, the air dash, the wind and the hammer.** In practice: after the throw | The grip is the Auger's, at the bottom of the Deep |
+| "What is in it is yours to say (question 4)" | **(a): the light, and nothing else.** One thread, outside, on the keel's head | What I recommended. Standing at the light does nothing and is not remembered |
+| Not said | **Anyone can walk under it.** The foot of the underside and the walk under the Shard are open from his first time in the Firmament. He sees the faces, and the Shard hanging, long before he can do anything about either | Question 9, below |
+| Not said | **He can stand on its back,** from the keel's head | It is harmless and it is the top of the world |
+
+**Added to "To decide":**
+
+9. **May he walk under the Shard before he has the grip?** As built, yes: he sees it and cannot reach it. The other
+   way is a door that stays shut until the Auger falls.
+
 ## 5. The end
 
 - **The Fallen's fight stays as it is.**

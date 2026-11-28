@@ -334,9 +334,11 @@ export function paintBack(TM){
   }
   const openAt = (wx, wy) => { const i = Math.floor(wx / T), j = Math.floor(wy / T); if (LEVEL.sky && j >= Hc) return 99; if (i < 0 || j < 0 || i >= Wc || j >= Hc) return 0; return open[j * Wc + i]; };   // over the top of a region under the sky: sky
   const n1 = noise2(51), n2 = noise2(77), n3 = noise2(91);
-  const BK = TM.back, skyT = new Uint8Array(Wc * Hc);   // tiles out under the sky: the wall behind is only a fringe of rock there
-  for (let j = 0; j < Hc; j++) for (let i = 0; i < Wc; i++){ const rm = LEVEL.rooms.find(q => i >= q.tx0 && i < q.tx1 && j >= q.ty0 && j < q.ty1); skyT[j * Wc + i] = rm ? (rm.open ? 1 : 0) : (LEVEL.sky ? 1 : 0); }
+  const BK = TM.back, skyT = new Uint8Array(Wc * Hc), bareT = new Uint8Array(Wc * Hc);   // tiles out under the sky: the wall behind is only a fringe of rock there
+  for (let j = 0; j < Hc; j++) for (let i = 0; i < Wc; i++){ const rm = LEVEL.rooms.find(q => i >= q.tx0 && i < q.tx1 && j >= q.ty0 && j < q.ty1); skyT[j * Wc + i] = rm ? (rm.open ? 1 : 0) : (LEVEL.sky ? 1 : 0); if (rm && rm.bare) bareT[j * Wc + i] = 1; }
   const skyAt = (wx, wy) => { const i = Math.floor(wx / T), j = Math.floor(wy / T); return i < 0 || j < 0 || i >= Wc ? 0 : j >= Hc ? (LEVEL.sky ? 1 : 0) : skyT[j * Wc + i]; };
+  // a bare room (level.js: a room marked `bare`; the Shard, build 124): nothing stands, hangs or is fixed on the wall behind it
+  const bareAt = (x, py) => { const i = Math.floor((x / PPU - MARGIN_X) / FB / T), j = Math.floor(((bh - py) / PPU - MARGIN_Y) / FB / T); return i >= 0 && j >= 0 && i < Wc && j < Hc && bareT[j * Wc + i] === 1; };
   const cnv = newCanvas(bw, bh); const g = cnv.getContext('2d', { willReadFrequently: true });
   const out = g.createImageData(bw, bh), o = out.data, hole = new Uint8Array(bw * bh), ink = rgb(PAL[BK.cols[0]]), deep = rgb(PAL[BK.cols[1]]), dark = rgb(PAL[BK.cols[2]]);
   for (let py = 0; py < bh; py++) for (let x = 0; x < bw; x++){
@@ -361,9 +363,9 @@ export function paintBack(TM){
   const r = rng(321);
   for (let py = 6; py < bh - 6; py += 2) for (let x = 0; x < bw; x += 2){
     const k = py * bw + x;
-    if (hole[k] && !hole[k + bw * 2] && r() < BK.pStand) DECO[pickOf(BK.stand, r())](g, x, py + 2, r);
-    if (hole[k] && !hole[k - bw * 2] && r() < BK.pHang){ const p = r(); g.globalAlpha = 1; DECO[pickOf(BK.hang, p)](g, x, py - 1, r); }
-    if (BK.wall && !hole[k] && r() < BK.pWall){ const wx = (x / PPU - MARGIN_X) / FB, wy = ((bh - py) / PPU - MARGIN_Y) / FB; if (openAt(wx, wy) > 4 && openAt(wx, wy - 2) > 2) DECO[pickOf(BK.wall, r())](g, x, py, r); }   // on the wall itself, where a room is in front of it
+    if (hole[k] && !hole[k + bw * 2] && r() < BK.pStand && !bareAt(x, py)) DECO[pickOf(BK.stand, r())](g, x, py + 2, r);
+    if (hole[k] && !hole[k - bw * 2] && r() < BK.pHang && !bareAt(x, py)){ const p = r(); g.globalAlpha = 1; DECO[pickOf(BK.hang, p)](g, x, py - 1, r); }
+    if (BK.wall && !hole[k] && r() < BK.pWall && !bareAt(x, py)){ const wx = (x / PPU - MARGIN_X) / FB, wy = ((bh - py) / PPU - MARGIN_Y) / FB; if (openAt(wx, wy) > 4 && openAt(wx, wy - 2) > 2) DECO[pickOf(BK.wall, r())](g, x, py, r); }   // on the wall itself, where a room is in front of it
   }
   // the back is behind: everything on it pushed toward the dark
   const d2 = g.getImageData(0, 0, bw, bh), p2 = d2.data, cache = new Map();
@@ -431,7 +433,7 @@ export function paintRegion(n, own = true){
   const TM = THEMES[LEVEL.theme] || THEMES.roots;
   const ALT = [...new Set(LEVEL.rooms.map(r => r.look).filter(l => l && THEMES[l] && THEMES[l] !== TM))];
   const lookAt = (wx, wy) => { const r = LEVEL.rooms.find(q => wx >= q.x0 && wx < q.x1 && wy >= q.y0 && wy < q.y1); return r && r.look && ALT.includes(r.look) ? r.look : null; };
-  const pxLook = (x, y) => lookAt(x / PPU, (LEVEL.H * CELL - y) / PPU), glows = [], glow = (x, y, kind) => glows.push({ x, y, kind });
+  const pxLook = (x, y) => lookAt(x / PPU, (LEVEL.H * CELL - y) / PPU), glows = [], glow = (x, y, kind, sure) => glows.push(sure ? { x, y, kind, sure: 1 } : { x, y, kind });   // (sure: it lights what is round it, always; else one in two do)
   const back = paintBack(TM);
   for (const l of ALT) blend(back.cnv, paintBack(THEMES[l]).cnv, LEVEL.rooms.filter(r => r.look === l).map(r => [(r.x0 * FB + MARGIN_X) * PPU, back.bh - (r.y1 * FB + MARGIN_Y) * PPU, (r.x1 * FB + MARGIN_X) * PPU, back.bh - (r.y0 * FB + MARGIN_Y) * PPU]), 44);
   const play = paintPlay((x, y, kind) => { if (!pxLook(x, y)) glow(x, y, kind); }, TM), g = play.getContext('2d', { willReadFrequently: true }), Y = j => (LEVEL.H - j) * CELL, rr = rng(5);

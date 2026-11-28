@@ -636,7 +636,7 @@ engraved on the floor, hundreds of them, all past.
 winding room* (a shortcut).
 
 ### The Shard
-*Above the summit · 6 screens · everything he has learned, and the grip*
+*West of the summit · 12 screens · everything he has learned, and the grip · built (build 124; `docs/phase18-sheet.md` 4)*
 
 **History.** It broke from the top the night he fell and has not come down.
 
@@ -647,7 +647,9 @@ nothing to it. It is a piece of the mountain hanging in the air with a little of
 
 **Underneath.** Left alone on purpose.
 
-**Rooms.** *the underside* · *the gap* · *the shard*.
+**Rooms.** *the underside* · *the gap* · *the shard*. As built: the underside is four rough faces up a shaft and a pane at its head; the gap is
+sixty-four tiles of air with a walk of stone far below; the Shard hangs at the world's west edge, its keel rough to
+catch, its door stopped with cracked stone, and in its one bare room the broken bowl of the beacon and a flame.
 
 ---
 

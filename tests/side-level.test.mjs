@@ -83,6 +83,15 @@ function reach(edges){
     if (BROKE) for (const dir of [-1, 1]){ let y0 = j; while (y0 <= j + 7 && tiles[y0 * W + i + dir] !== 20) y0++; if (y0 > j + 7 || !clear(i, i, j, y0 + BODY - 1)) continue;   // (a jump, to where the rough begins)
       let tj = y0; while (tj + 1 < H && tiles[(tj + 1) * W + i + dir] === 20 && !solid(i, tj + 1 + BODY - 1)) tj++;
       for (let y = j; y <= tj + 1; y++){ if (stand(i + dir, y) && clear(i, i + dir, y, y + BODY - 1)) push(i + dir, y); for (let dx = 1; dx <= 6; dx++){ const ti = i - dir * dx; for (let dy = -10; dy <= 2; dy++) if (stand(ti, y + dy) && clear(i, ti, Math.max(y, y + dy), Math.max(y, y + dy) + BODY - 1) && clear(ti, ti, y + dy, Math.max(y, y + dy) + BODY - 1)) push(ti, y + dy); } } }
+    // and a rough face he leaps to, or comes to on the wind (the Shard, build 124): across open air, at his own height
+    // for a leap's width, then a tile lower for every two and a half across (a glide falls less: tests/side-shard
+    // measures it). He takes hold where he meets it, climbs to its top, and may step or leap off it on the way
+    if (BROKE) for (const dir of [-1, 1]) for (let dx = 1; dx <= 70; dx++){ const c = i + dir * dx, y = j - (dx <= 9 ? 0 : Math.ceil((dx - 9) / 2.5)); if (y < 1 || c < 1 || c >= W - 1) break;
+      let held = false; for (let b = 0; b < BODY; b++) if (tiles[(y + b) * W + c] === 20) held = true;
+      if (!held){ if (!clear(c, c, y, y + BODY - 1)) break; continue; }
+      if (dx < 2) break; const a = c - dir; let tj = y; while (tj + 1 < H && tiles[(tj + 1) * W + c] === 20 && !solid(a, tj + 1 + BODY - 1)) tj++;
+      for (let yy = y; yy <= tj + 1; yy++){ if (stand(c, yy) && clear(a, c, yy, yy + BODY - 1)) push(c, yy); for (let d2 = 1; d2 <= 6; d2++){ const ti = a - dir * d2; for (let dy = -10; dy <= 2; dy++) if (stand(ti, yy + dy) && clear(a, ti, Math.max(yy, yy + dy), Math.max(yy, yy + dy) + BODY - 1) && clear(ti, ti, yy + dy, Math.max(yy, yy + dy) + BODY - 1)) push(ti, yy + dy); } }
+      break; }
     // drop through the ledge underfoot
     if (at(i, j - 1) === LEDGE){ const fj = fall(i, j - 1); push(i, fj); }
   }
