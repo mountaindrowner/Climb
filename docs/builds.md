@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 127 | 28 Nov 2026 | `COMMIT127` | Phase 20's first two items: the save kept twice (a copy, read if the save is lost), and the phone's buzz on Android. Watching the keepers no longer writes over the save. The sheets for phases 19 to 22 | no (a copy is added beside it) | yes (now) |
+| 127 | 28 Nov 2026 | `ef5fa26` | Phase 20's first two items: the save kept twice (a copy, read if the save is lost), and the phone's buzz on Android. Watching the keepers no longer writes over the save. The sheets for phases 19 to 22 | no (a copy is added beside it) | yes (now) |
 | 126 | 28 Nov 2026 | `244987f` | Phase 18, part 5 (second half): the three at the summit after the Fallen: Corwen's last page, Ordric's unlit lamp, Mirel's empty cradle. Phase 18 is built | no | replaced by 127 |
 | 125 | 28 Nov 2026 | `1d0294f` | Phase 18, part 5 (first half): the end read two ways, by whether he has stood at the Source; and the title after the end shows the light down the scar | no | replaced by 126 |
 | 124 | 27 Nov 2026 | `17250a5` | Phase 18, part 4: the Shard, twelve screens west of the summit. The underside (four rough faces up a shaft, a pane), the gap (the longest glide), the Shard (hanging; a keel to catch, a crust, one bare room, the old light). No fight, no one, nothing written | no (a save follows the level) | replaced by 125 |
