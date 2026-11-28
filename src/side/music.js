@@ -27,9 +27,26 @@ export const SONGS = {
 // a region's file can bring its own pieces (songs: { <theme>: {...}, boss_<theme>: {...} })
 for (const R of REGION_DATA) if (R.songs) Object.assign(SONGS, R.songs);
 // a boss's piece, where a region has not written one: its region's, driven
-for (const [name, from] of REGION_DATA.map(R => ['boss_' + R.theme, R.theme])){ const S = SONGS[from]; if (!S || SONGS[name]) continue;
+// (build 131) by the music the region plays: the Hollow's is the Roots', so the Auger's fight is the Roots' piece driven.
+// Until then, made as it plays, the Auger's fight was silent
+for (const [name, from] of REGION_DATA.map(R => ['boss_' + R.theme, R.musicOf || R.theme])){ const S = SONGS[from]; if (!S || SONGS[name]) continue;
   SONGS[name] = { set: MINOR, shift: S.shift, bpm: Math.round(S.bpm * (from === 'cloister' ? 1.3 : 1.5)), pad: { g: 0.22, cut: 1300, stab: true }, bass: { g: 0.34, at: [0, 2, 4, 6, 8, 10, 12, 14], drive: true },
     arp: { inst: 'saw', g: 0.09, oct: 12, pat: [0, 2, 1, 2, 3, 2, 1, 2, 0, 2, 1, 2, 4, 3, 2, 1] }, lead: { inst: 'saw', g: 0.15, oct: 0, every: 1, octaves: true }, drums: { kick: [0, 4, 8, 11, 12], snare: [4, 12], hat: [2, 6, 10, 14], g: 0.5 } }; }
+
+// ---- (phase 19, build 131) what a place plays. The piece is picked by the look of the room he is in; a look with no
+// piece of its own (most wings and far ends: the Scriptorium, the Bell-Foundry, the Glacier, the Aqueducts, the
+// Houses, the Orrery Wing) plays its region's, as a stand-in, until it has its own. Before, it played nothing.
+// Nearly silent on purpose (decision 0.37, phase 19's question 2): no music, the ambience low (HUSHED: which one). The
+// Eye of the Storm, and the Shard's room
+export const AMB = { hollow: 'cave', flooded: 'cave', shaft: 'wind', vein: 'cave', workings: 'cave', roots: 'cave', cloister: 'cave', spires: 'wind', tempest: 'storm', gardens: 'garden', firmament: 'wind' };
+export const HUSHED = { eye: 'wind', shardlight: 'wind' };
+// look: the room's; region: REGION_DATA's entry for the level he is in; has(piece): is there such a piece to play
+export function placeSound(look, region, has){
+  const of = l => { const R = REGION_DATA.find(q => q.theme === l); return (R && R.musicOf) || l; }, home = region.musicOf || region.theme;
+  if (look in HUSHED) return { piece: '', amb: HUSHED[look], hushed: true };
+  const own = of(look), piece = has(own) ? own : has(home) ? home : '';
+  return { piece, amb: AMB[look] || AMB[region.theme] || AMB[home] || '', hushed: false };
+}
 
 export function makeMusic(ctx, out){
   const master = ctx.createGain(); master.gain.value = 0.5; master.connect(out);

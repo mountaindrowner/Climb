@@ -55,6 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 131 | 28 Nov 2026 | `COMMIT131` | Phase 19, build 1: no section silent (every wing and far end its region's piece and ambience, as a stand-in; the Eye and the Shard's room nearly silent on purpose); the Auger's made piece; Options, Listen | no | yes (now) |
 | 130 | 28 Nov 2026 | `39ef989` | Phase 20: less drawn when the phone is slow (three steps, by itself; Options, Drawing: auto, full, light); the touch buttons in two layouts and three sizes; the whole game checked in order; the itch.io page kit brought up to date | no | yes (now) |
 | 129 | 28 Nov 2026 | `e3901cf` | Phase 18's last two questions, as decided (0.37): a rough face in the Spires' cliffs (the mouth) and one in the Tempest's masts (the rigging), each a tunnel, a chimney and a nook; Ordric at the summit holding his lantern dark | no | yes (now) |
 | 128 | 28 Nov 2026 | `4b081f4` | Phase 20: large text, Copy save and Paste save, "Rumble and vibration", the frames a second beside the place, the Home Screen icon and tags; the phone's top-left buttons under the weapon's box; menus fitted to a short screen. Every open question of phases 18 to 22 decided (0.37) | no | yes (now) |
@@ -146,6 +147,46 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 131: no section silent, and Options, Listen
+
+*Phase 19, its first build (`docs/phase19-sheet.md`, "The order" 1 and "As built: build 131"), on its questions as
+decided (0.37: some places nearly silent on purpose; the recorded pieces stand in until the new ones are made).
+Pictures: `docs/listen-build131.png` (Listen's four pages). **What to listen for** is below; I cannot hear any of it.*
+
+**For the player**
+
+- **Fourteen sections that played nothing now play their region's music and ambience:** the Scriptorium and the Empty
+  Shelves, the Bell-Foundry and the Cull (the Cloister's); the Glacier Galleries and the Crevasse (the Spires'); the
+  Aqueducts and the Rising Main, the Keepers' Houses and the Last House (the Gardens'); the Orrery Wing and the Outer
+  Ring (the Firmament's). Until each has a piece of its own (later builds of this phase), its region's stands in.
+- **Nearly silent on purpose:** the Eye of the Storm and the Blue (the calm in the storm), and the Shard's room. No
+  music; the wind, low. (The Last Hut's hut and the Great Shaft come with the passages and the Deep.)
+- **The Auger's fight,** with Score: made as it plays, had no music. It has the Roots' piece, driven, as the other
+  keepers have their regions'.
+- **Options, Listen:** four pages. Music (the ten recorded pieces), Made (every piece made as it plays), Places (the
+  four ambiences, and one creature of each family crying: it sees you, it strikes, it dies), Sounds (every recorded
+  sound). Each plays by itself; Stop; Back gives the game its music again.
+- **What to listen for:**
+  1. The Scriptorium: the Cloister's music, under the caves' air. Does it sit right in the stacks, or want quiet?
+  2. The Glacier Galleries: the Spires' music, under the wind.
+  3. The Eye of the Storm: no music; only a low wind. Calm, or empty?
+  4. Options, Listen, Made, boss hollow: the Auger's fight as it is made.
+  5. Options, Listen, Places: which of the eight families of cries is too loud, too thin, or like another.
+
+**What is weaker than it should be**
+
+- **A stand-in is a stand-in.** A wing that played nothing now plays its region's piece; whether that is better than
+  nothing in each is yours to say. The pieces of their own are the next builds.
+- **The Listen pages are in the game for everyone,** under Options: a sound test.
+
+- **Save: not moved.**
+- **Checked:** 643 automated checks, four new (`tests/side-sound.test.mjs`: every room of every level has a piece
+  made as it plays and with the recordings, and an ambience that is a recording there is, but for the two places meant
+  to be quiet and no others; a wing with none of its own plays its region's; every keeper's fight a made piece, the
+  Auger's among them; Listen's pages, and the game's music waiting while it is open). The game opened at the
+  Scriptorium and on each of Listen's pages: no errors.
+- **Not checked:** heard. Nothing in this build has been heard by anyone.
 
 ### Build 130: less drawn when the phone is slow, and the buttons laid out
 

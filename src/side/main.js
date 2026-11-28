@@ -5,7 +5,7 @@
 import { TUNE } from '../config/tuning.js';
 import { IN, bindInput, endFrame, pollPads, release, rumble } from '../core/input.js';
 import { SET, saveSettings } from '../core/settings.js';
-import { sfx, ac, musicBus, ambience, setMix, MIX, warm, manifestReady, say, beast } from '../audio/sfx.js';
+import { sfx, ac, musicBus, ambience, setMix, MIX, warm, manifestReady, say, beast, MANIFEST, BEASTS } from '../audio/sfx.js';
 import { voiceOf } from '../audio/voice.js';
 import { makeScore } from '../audio/score.js';
 import '../ui/feel.js';
@@ -28,7 +28,7 @@ import { makeEntrance } from './entrance.js';
 import { makeStory, REGION_SPAN, storyImages } from './story.js';
 import { makeHud } from './hud.js';
 import { makeScarf, SCARF } from './scarf.js';
-import { makeMusic } from './music.js';
+import { makeMusic, SONGS, placeSound, AMB } from './music.js';
 import { DEVICE } from '../core/prompts.js';
 import { vibrate } from './vibrate.js';
 import { WEAPONS } from '../config/weapons.js';
@@ -36,7 +36,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 130, date: '28 NOV 2026', phase: 20, phases: 22, last: 'LESS DRAWN WHEN THE PHONE IS SLOW; THE BUTTONS LAID OUT' };
+const VERSION = { build: 131, date: '28 NOV 2026', phase: 19, phases: 22, last: 'NO SECTION SILENT; OPTIONS, LISTEN' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -461,8 +461,31 @@ function options(back){
     cyc('Place', 'place', [false, true], ['hidden', 'shown (for notes)']),
     cyc('Rumble and vibration', 'rumble', [true, false], ['on', 'off'], () => { SET.rumble = OPT.rumble; saveSettings(); if (OPT.rumble) buzz(0.5, 0.5, 160); }),
     cyc('Buttons', 'pad', ['jump', 'attack'], ['jump bottom right', 'attack bottom right'], padLayout), cyc('Button size', 'ring', ['small', 'mid', 'large'], ['small', 'middle', 'large'], padLayout),
+    menuButton('Listen', () => listenMenu(() => options(back)), true),
     menuButton('Copy save', () => copySave(() => options(back)), true), menuButton('Paste save', () => pasteSave(() => options(back)), true)]),
     menuButton('Back', back, true)], false, back); MENU.style.top = '34%';
+}
+// ---- (phase 19, build 131) Listen: every sound in the game, one at a time, to hear each by itself and note it. The
+// music as recorded and as made, the four ambiences, the creatures' cries (one of each family: it sees him, it strikes,
+// it dies), and every recorded sound. While it is open the game's own music waits
+const LISTEN_TABS = ['Music', 'Made', 'Places', 'Sounds'];
+function listenMenu(back, tab = 0){
+  const leave = () => { LISTEN.piece = null; LISTEN.amb = null; back(); };
+  const grid = () => { const d = document.createElement('div'); d.style.cssText = 'display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px 8px;max-width:min(94vw,640px)'; return d; };
+  const add = (g, name, f) => { const b = menuButton(name, () => { f(); for (const x of g.children) x.style.outline = ''; b.style.outline = '2px solid #fee761'; }, true); b.style.minWidth = '0'; b.style.whiteSpace = 'normal'; b.style.fontSize = '12px'; g.appendChild(b); };
+  const tabs = document.createElement('div'); tabs.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;justify-content:center';
+  LISTEN_TABS.forEach((t, i) => { const b = menuButton(t, () => listenMenu(back, i), true); if (i === tab) b.style.borderColor = '#fee761'; tabs.appendChild(b); });
+  const g = grid(), rows = [menuLabel('LISTEN: EVERY SOUND, BY ITSELF'), tabs];
+  if (tab === 0){ rows.push(menuLabel('THE MUSIC AS RECORDED')); for (const k of Object.keys(MANIFEST.music).sort()) add(g, k.replace('_', ' '), () => { LISTEN.piece = k; LISTEN.made = false; LISTEN.amb = ''; }); }
+  if (tab === 1){ rows.push(menuLabel('THE MUSIC AS MADE WHILE IT PLAYS')); for (const k of Object.keys(SONGS).sort()) add(g, k.replace('_', ' '), () => { LISTEN.piece = k; LISTEN.made = true; LISTEN.amb = ''; }); }
+  if (tab === 2){ rows.push(menuLabel('THE AMBIENCES, AND THE CREATURES\' CRIES (IT SEES YOU, IT STRIKES, IT DIES)'));
+    for (const a of [...new Set(Object.values(AMB))]) add(g, 'air: ' + a, () => { LISTEN.piece = ''; LISTEN.amb = a; });
+    const fam = {}; for (const [type, [f]] of Object.entries(BEASTS)) if (!fam[f]) fam[f] = type;
+    for (const [f, type] of Object.entries(fam)) add(g, f + ' (' + type + ')', () => { LISTEN.piece = ''; LISTEN.amb = ''; beast(type, 'notice'); setTimeout(() => beast(type, 'attack'), 700); setTimeout(() => beast(type, 'death'), 1500); }); }
+  if (tab === 3){ rows.push(menuLabel('EVERY RECORDED SOUND')); for (const k of Object.keys(MANIFEST.sfx).filter(k => !k.startsWith('amb_')).sort()) add(g, k.replace('_', ' '), () => { LISTEN.piece = ''; LISTEN.amb = ''; sfx[k](); }); }
+  if (LISTEN.piece === null){ LISTEN.piece = ''; LISTEN.amb = ''; }   // opened: the game's music stops
+  rows.push(g, menuButton('Stop', () => { LISTEN.piece = ''; LISTEN.amb = ''; }, true), menuButton('Back', leave, true));
+  menuShow(rows, false, leave); MENU.style.top = '6%';
 }
 // ---- a copy of the save the player holds (phase 20): the save as one line of text, to keep, or to paste into the game
 // somewhere else (Safari to the Home Screen, one phone to another). Pasted, it takes the place of the save here
@@ -767,15 +790,17 @@ const hear = () => { HEARD = true; ac(); }; STORY.quiet = () => !HEARD; for (con
 document.addEventListener('fullscreenchange', () => { try { const kb = navigator.keyboard; if (kb && kb.lock){ if (document.fullscreenElement) kb.lock(['Escape']).catch(() => {}); else if (kb.unlock) kb.unlock(); } } catch (err){} });
 addEventListener('keydown', e => { if (e.code === 'F2'){ e.preventDefault(); OPT.place = !OPT.place; storeOpt(); banner('', OPT.place ? 'place shown: read it out with your notes' : 'place hidden', 2); } });
 addEventListener('keydown', e => { if (e.code === 'KeyN'){ MUTED = !MUTED; try { localStorage.setItem('climb-side-mute', MUTED ? '1' : '0'); } catch (err){} banner('', MUTED ? 'music off' : 'music on', 1.6); } });
-// a region with no music of its own has another's (musicOf: the Workings, the Roots')
-const alias = theme => { const R = REGION_DATA.find(q => q.theme === theme); return (R && R.musicOf) || theme; };
-const SCORE = makeScore(), AMB = { hollow: 'cave', flooded: 'cave', shaft: 'wind', vein: 'cave', workings: 'cave', roots: 'cave', cloister: 'cave', spires: 'wind', tempest: 'storm', gardens: 'garden', firmament: 'wind' };
+const SCORE = makeScore();
+// (build 131) Options, Listen: a piece, an ambience, a sound or a creature's cry, played by itself (null: the game's own)
+const LISTEN = { piece: null, made: false, amb: null };
 function score(){
   if (!HEARD) return; const A = ac(); if (!A) return; if (!MUSIC) MUSIC = makeMusic(A, musicBus() || A.destination);
   const k = STORY.kind, fight = BOSS && BOSS.active() && BOSS.st !== 'die', inHall = BOSS && BOSS.room && P.x >= BOSS.room.x0 && P.x < BOSS.room.x1 && P.y >= BOSS.room.y0 - 1 && P.y < BOSS.room.y1, quiet = ENT.hush || (BOSS && (BOSS.st === 'die' || (BOSS.st === 'dead' && !WON && inHall)));   // (a fallen keeper's hall is silent; the rest of its region has its music again. Until build 78 the whole region stayed silent until he left it)
+  if (LISTEN.piece !== null){ const p = LISTEN.piece; if (!LISTEN.made && SCORE.has(p)){ SCORE.play(p); MUSIC.play(''); } else { SCORE.play(''); MUSIC.play(p); } SCORE.duck(1); MUSIC.volume(0.7); MUSIC.tick(); ambience(LISTEN.amb || '', 0.5); return; }
   const here = R.look(), door = !fight && R.exits.find(x => x.on && x.next && Math.hypot(P.x - x.x, P.y - x.y) < 7);   // by an open way on, the next region can be heard
-  const rec = k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? (LEVEL.index === CLIMB_TOP ? 'boss_final' : 'boss') : alias(here);
-  const gen = k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? 'boss_' + LEVEL.theme : alias(here);
+  const PL = placeSound(here, REGION_DATA[LEVEL.index], p => SCORE.has(p) || !!SONGS[p]);   // (build 131: a wing with no piece of its own plays its region's; music.js)
+  const rec = k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? (LEVEL.index === CLIMB_TOP ? 'boss_final' : 'boss') : PL.piece;
+  const gen = k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? 'boss_' + LEVEL.theme : PL.piece;
   // the recording of the piece if there is one; else the score made as it plays
   const cue = ENT.cue; ENT.cue = false;   // a keeper's name: its music in on the beat, not faded up
   // (a recording that is slow to come, or failed, is not waited for in silence: the made score plays until it is in)
@@ -784,7 +809,8 @@ function score(){
   else if (waiting){ SCORE.play(''); MUSIC.play(quiet ? '' : gen); }   // not another place's piece: this place's, made
   else { SCORE.play(''); MUSIC.play(quiet ? '' : gen, cue ? 0.05 : undefined); }
   const v = MUTED ? 0 : PAUSE || TALK.on ? 0.35 : 1; SCORE.duck(v); MUSIC.volume(v * 0.7); MUSIC.tick();
-  const amb = door ? door.next : here; ambience(k || MUTED || ENT.hush ? '' : AMB[amb] || '', amb === 'tempest' ? 0.5 : door ? 0.45 : 0.3);
+  const amb = door ? AMB[door.next] || '' : PL.amb, loud = door ? (door.next === 'tempest' ? 0.5 : 0.45) : PL.hushed ? 0.22 : here === 'tempest' ? 0.5 : 0.3;
+  ambience(k || MUTED || ENT.hush ? '' : amb, loud);
 }
 function hudBegin(){ const w = hud.clientWidth, h = hud.clientHeight, dpr = devicePixelRatio || 1; if (hud.width !== Math.round(w * dpr)){ hud.width = Math.round(w * dpr); hud.height = Math.round(h * dpr); } hx.setTransform(dpr, 0, 0, dpr, 0, 0); hx.clearRect(0, 0, w, h); }
 const banner = (a, b, t = 3.2) => { BANNER = { a, b, t, life: t }; };
@@ -1651,7 +1677,7 @@ function drawHud(dt){
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { TRYING, DRAW, options, copySave, pasteSave, FPS, get arrows(){ return ARROWS; }, knotMenu, tryMenu, tryStart, TRIES, MOMENTS, TRY, waterMenu, goUnder, waterList, get under(){ return UNDER; }, set atWater(v){ ATWATER = v; }, get shrines(){ return SHRINES; }, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, RULE, VERSION, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { TRYING, DRAW, LISTEN, listenMenu, options, copySave, pasteSave, FPS, get arrows(){ return ARROWS; }, knotMenu, tryMenu, tryStart, TRIES, MOMENTS, TRY, waterMenu, goUnder, waterList, get under(){ return UNDER; }, set atWater(v){ ATWATER = v; }, get shrines(){ return SHRINES; }, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, RULE, VERSION, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

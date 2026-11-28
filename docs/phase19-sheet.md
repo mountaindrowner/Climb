@@ -157,6 +157,16 @@ its sounds as recordings. About 50 KB each.
 
 **Cost: nothing,** if the music is made by (a) and (b). If (c), whatever PixelLab asks, shown to you first.
 
+### As built: build 131 (the order, 1)
+
+| The sheet said | It is | Why |
+|---|---|---|
+| "Every wing and far end plays its region's piece, as a stand-in, with its region's ambience" | **So:** fourteen sections that played nothing | |
+| "The Auger's fight gets a made piece" | **So:** the Roots' piece driven, as each keeper's is its region's | The Hollow has no piece of its own; its music is the Roots' |
+| "A check that no room is silent unless this sheet says so" | **So** (`tests/side-sound`) | |
+| Nearly silent (question 2) | **The Eye and the Blue, and the Shard's room, now.** The Last Hut's hut and the Great Shaft with their builds (7 and 3) | Those two play a piece today; changing them belongs with the passages and the Deep |
+| "The page with every sound on it" | **In the game: Options, Listen** | A page outside the game would not open on a phone in itch.io, where you play |
+
 ## The pieces, one for each section
 
 Each piece, and each ambience, in plain words, tied to what the place was and what it is now (`docs/world.md`). The
