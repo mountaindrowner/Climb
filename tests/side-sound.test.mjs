@@ -46,3 +46,16 @@ test('Options, Listen: every piece, ambience, cry and sound by itself, and the g
   assert.match(main, /if \(LISTEN\.piece !== null\)\{/); assert.match(main, /const leave = \(\) => \{ LISTEN\.piece = null; LISTEN\.amb = null; back\(\); \};/);
   for (const k of ['MANIFEST.music', 'SONGS', 'BEASTS', 'MANIFEST.sfx']) assert.ok(main.includes(k), k);
 });
+
+test('the pilot (build 132): the Scriptorium is the Cloister\'s piece through a wall, with a figure that never reaches its end', () => {
+  const at = LV.REGION_DATA[1], P = MU.placeSound('scriptorium', at, made), red = MU.placeSound('rubric', at, made);
+  assert.equal(P.piece, 'cloister', 'its region\'s piece, the one already playing: walking in, it does not stop and another start');
+  assert.ok(P.wall > 0 && P.wall < 2000, 'heard through a wall'); assert.equal(P.layer, 'layer_scriptorium'); assert.equal(red.layer, 'layer_scriptorium'); assert.ok(red.wall <= P.wall, 'the red rooms further in');
+  const L = MU.SONGS.layer_scriptorium; assert.ok(L.arp.len < L.arp.pat.length, 'the figure starts over before its last note'); assert.equal(L.arp.pat.length - L.arp.len, 1, 'one note short');
+  assert.ok(!L.pad && !L.bass && !L.lead, 'a layer only: the piece under it is the Cloister\'s');
+  assert.ok(MU.SONGS.scriptorium_b, 'the other way, made whole in code, to hear beside it (Listen, Made)');
+  assert.equal(MU.placeSound('cloister', at, made).wall, 0, 'the Cloister itself: no wall'); assert.equal(MU.placeSound('foundry', at, made).layer, '', 'the Foundry: not yet');
+  const score = readFileSync(new URL('../src/audio/score.js', import.meta.url), 'utf8'), mus = readFileSync(new URL('../src/side/music.js', import.meta.url), 'utf8');
+  assert.match(score, /S\.wall = cut => \{/); assert.match(mus, /M\.wall = cut => \{ wall\.frequency\.setTargetAtTime\(cut, ctx\.currentTime, 0\.6\); \}/, 'the change is smooth');
+  assert.match(main, /thru = tr\.wall \? 0\.7 : 1/, 'quieter through the wall'); assert.match(main, /LAYER\.play\(tr\.layer \|\| ''\)/);
+});

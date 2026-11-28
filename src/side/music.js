@@ -22,6 +22,11 @@ export const SONGS = {
   roots:    { set: MINOR, shift: 0, bpm: 66, pad: { g: 0.34, cut: 650 }, bass: { g: 0.34, at: [0, 10] }, arp: { inst: 'pluck', g: 0.16, oct: 12, pat: [0, _, _, _, _, _, 2, _, _, _, 1, _, _, _, _, _] }, lead: { inst: 'bell', g: 0.16, oct: -12, every: 2 }, drip: 0.05 },
   cloister: { set: MINOR, shift: 7, bpm: 92, pad: { g: 0.26, cut: 1500, organ: true }, bass: { g: 0.3, at: [0, 8], walk: [0, 2] }, arp: { inst: 'harpsi', g: 0.13, oct: 12, pat: [0, 1, 2, 3, 2, 1, 2, 3, 0, 1, 2, 3, 4, 3, 2, 1] }, lead: { inst: 'bell', g: 0.2, oct: 0, every: 2 } },
   spires:   { set: MINOR, shift: 2, bpm: 80, pad: { g: 0.3, cut: 2000 }, bass: { g: 0.22, at: [0] }, arp: { inst: 'bell', g: 0.1, oct: 24, pat: [2, _, 4, _, 3, _, 5, _, 2, _, 4, _, 6, _, 4, _] }, lead: { inst: 'pluck', g: 0.2, oct: 12, every: 2 }, wind: 0.35 },
+  // (build 132) the Scriptorium's layer, over the Cloister's piece through the wall: the harpsichord figure rising to its
+  // last note and starting over before it (fifteen steps of sixteen), and the quills (a dry scratch, off the beat)
+  layer_scriptorium: { set: MINOR, shift: 7, bpm: 92, arp: { inst: 'harpsi', g: 0.3, oct: 12, len: 15, pat: [0, 1, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 8, 9] }, drums: { g: 0.5, kick: [], snare: [], hat: [3, 6, 7, 11, 14] } },
+  // the other way, (b), for you to hear beside it (Options, Listen, Made): the Scriptorium made whole in code
+  scriptorium_b: { set: MINOR, shift: 7, bpm: 76, pad: { g: 0.22, cut: 800, organ: true }, bass: { g: 0.2, at: [0] }, arp: { inst: 'harpsi', g: 0.11, oct: 12, len: 15, pat: [0, 1, 2, 3, 4, 3, 4, 5, 4, 5, 6, 5, 6, 7, 8, 9] }, drums: { g: 0.45, kick: [], snare: [], hat: [3, 6, 7, 11, 14] } },
   ending:   { set: MAJOR, shift: 0, bpm: 66, pad: { g: 0.4, cut: 1600 }, bass: { g: 0.3, at: [0, 8] }, arp: { inst: 'pluck', g: 0.12, oct: 12, pat: [0, _, 1, _, 2, _, 3, _, 2, _, 1, _, 2, _, 3, _] }, lead: { inst: 'bell', g: 0.3, oct: 0, every: 1 } },
 };
 // a region's file can bring its own pieces (songs: { <theme>: {...}, boss_<theme>: {...} })
@@ -40,16 +45,21 @@ for (const [name, from] of REGION_DATA.map(R => ['boss_' + R.theme, R.musicOf ||
 // Eye of the Storm, and the Shard's room
 export const AMB = { hollow: 'cave', flooded: 'cave', shaft: 'wind', vein: 'cave', workings: 'cave', roots: 'cave', cloister: 'cave', spires: 'wind', tempest: 'storm', gardens: 'garden', firmament: 'wind' };
 export const HUSHED = { eye: 'wind', shardlight: 'wind' };
+// (build 132: the pilot, phase 19's order 2) a place's piece made from its region's, as the sheet's way (a): the region's
+// piece through a wall (wall: how muffled, the cut of a low-pass in Hz), with a layer of its own over it, made in code.
+// The Scriptorium: the Cloister's piece heard from the stacks, and a harpsichord figure that never reaches its end: on
+// the last note but one it starts over, as the copyists do at a blot. Its red rooms (the rubric's) the same
+export const TREAT = { scriptorium: { wall: 640, layer: 'layer_scriptorium' }, rubric: { wall: 520, layer: 'layer_scriptorium' } };
 // look: the room's; region: REGION_DATA's entry for the level he is in; has(piece): is there such a piece to play
 export function placeSound(look, region, has){
   const of = l => { const R = REGION_DATA.find(q => q.theme === l); return (R && R.musicOf) || l; }, home = region.musicOf || region.theme;
   if (look in HUSHED) return { piece: '', amb: HUSHED[look], hushed: true };
-  const own = of(look), piece = has(own) ? own : has(home) ? home : '';
-  return { piece, amb: AMB[look] || AMB[region.theme] || AMB[home] || '', hushed: false };
+  const own = of(look), piece = has(own) ? own : has(home) ? home : '', T = TREAT[look] || {};
+  return { piece, amb: AMB[look] || AMB[region.theme] || AMB[home] || '', hushed: false, wall: T.wall || 0, layer: T.layer || '' };
 }
 
 export function makeMusic(ctx, out){
-  const master = ctx.createGain(); master.gain.value = 0.5; master.connect(out);
+  const master = ctx.createGain(); master.gain.value = 0.5; const wall = ctx.createBiquadFilter(); wall.type = 'lowpass'; wall.Q.value = 0.5; wall.frequency.value = 20000; master.connect(wall).connect(out);
   // a room for it to sound in: noise dying away
   const verb = ctx.createConvolver(); { const len = Math.floor(ctx.sampleRate * 2.4), buf = ctx.createBuffer(2, len, ctx.sampleRate); let s = 12345;
     for (let c = 0; c < 2; c++){ const d = buf.getChannelData(c); for (let i = 0; i < len; i++){ s = (s * 16807) % 2147483647; d[i] = (s / 2147483647 * 2 - 1) * Math.pow(1 - i / len, 2.6); } } verb.buffer = buf; }
@@ -82,7 +92,8 @@ export function makeMusic(ctx, out){
     const stepDur = 60 / S.bpm / 4, bar = Math.floor(step / 16), s = step % 16, loop = bar % 8, cyc = Math.floor(bar / 8), ch = S.set.prog[Math.floor(loop / 2)], sh = S.shift, barDur = stepDur * 16;
     if (S.pad && (s === 0 || (S.pad.stab && s === 8))) I.pad(bus, ch.n.map(n => n + sh), t, S.pad.stab ? barDur * 0.3 : barDur, S.pad.g, S.pad.cut, S.pad.organ);
     if (S.bass && S.bass.at.includes(s)){ const k = S.bass.at.indexOf(s), n = S.bass.walk && k ? ch.n[S.bass.walk[k] % 3] - 12 : ch.b; I.bass(bus, n + sh, t, S.bass.drive ? stepDur * 1.7 : stepDur * 7, S.bass.g, S.bass.drive); }
-    if (S.arp && S.arp.pat[s] != null){ const k = S.arp.pat[s], n = ch.n[k % 3] + 12 * Math.floor(k / 3) + S.arp.oct + sh; I[S.arp.inst](bus, n, t, S.arp.g * (s % 4 === 0 ? 1.25 : 1)); }
+    const as = S.arp && S.arp.len ? step % S.arp.len : s;   // (a figure shorter than its bar: it starts over before it ends)
+    if (S.arp && S.arp.pat[as] != null){ const k = S.arp.pat[as], n = ch.n[k % 3] + 12 * Math.floor(k / 3) + S.arp.oct + sh; I[S.arp.inst](bus, n, t, S.arp.g * (s % 4 === 0 ? 1.25 : 1)); }
     if (S.lead && cyc % S.lead.every === 0) for (const [b, st, n, len] of S.set.tune) if (b === loop && st === s){ const L = Math.max(0.4, len * stepDur * 1.1), note = n + sh + S.lead.oct;
       if (S.lead.inst === 'bell') I.bell(bus, note, t, S.lead.g, Math.max(1.6, L)); else if (S.lead.inst === 'saw'){ I.saw(bus, note, t, S.lead.g, L); if (S.lead.octaves) I.saw(bus, note - 12, t, S.lead.g * 0.8, L); } else I.pluck(bus, note, t, S.lead.g * 1.3); }
     if (S.drums){ const D = S.drums; if (D.kick.includes(s)) I.kick(bus, t, D.g); if (D.snare.includes(s)) I.noise(bus, t, D.g * 0.32, 0.14, 'bandpass', 1900); if (D.hat.includes(s)) I.noise(bus, t, D.g * 0.12, 0.04, 'highpass', 7000); else if (s % 2 === 1) I.noise(bus, t, D.g * 0.05, 0.03, 'highpass', 8000); }
@@ -99,6 +110,7 @@ export function makeMusic(ctx, out){
       const lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.frequency.value = 0.13; lg.gain.value = 260; lfo.connect(lg).connect(f.frequency); lfo.start(now); s.connect(f).connect(g).connect(M.bus); s.start(now); M.wind = s; }
   };
   M.volume = v => { master.gain.setTargetAtTime(v, ctx.currentTime, 0.2); };
+  M.wall = cut => { wall.frequency.setTargetAtTime(cut, ctx.currentTime, 0.6); };   // (build 132) heard through a wall
   M.stop = () => M.play('', 0.6);
   return M;
 }

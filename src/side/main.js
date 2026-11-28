@@ -36,7 +36,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 131, date: '28 NOV 2026', phase: 19, phases: 22, last: 'NO SECTION SILENT; OPTIONS, LISTEN' };
+const VERSION = { build: 132, date: '28 NOV 2026', phase: 19, phases: 22, last: 'THE SCRIPTORIUM HEARD THROUGH ITS WALL' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -784,7 +784,7 @@ addEventListener('pagehide', flush); document.addEventListener('visibilitychange
 function press(){ if (TALK.on) TALK.press(); else if (NOTE && NOTE.t > 0.7){ NOTE = null; } }
 addEventListener('pointerdown', () => { if (TALK.on || NOTE) press(); else if (STORY.active()) STORY.press(); });
 // ---- the score (music.js): which piece, by where he is; it starts with the first key or touch (a browser's rule)
-let MUSIC = null, HEARD = false, MUTED = (() => { try { return localStorage.getItem('climb-side-mute') === '1'; } catch (e){ return false; } })();
+let MUSIC = null, LAYER = null, HEARD = false, MUTED = (() => { try { return localStorage.getItem('climb-side-mute') === '1'; } catch (e){ return false; } })();
 // the title says to press for sound until there has been a press; a phone lets sound start on a tap's end
 const hear = () => { HEARD = true; ac(); }; STORY.quiet = () => !HEARD; for (const ev of ['pointerdown', 'keydown', 'click', 'touchend']) addEventListener(ev, hear);
 document.addEventListener('fullscreenchange', () => { try { const kb = navigator.keyboard; if (kb && kb.lock){ if (document.fullscreenElement) kb.lock(['Escape']).catch(() => {}); else if (kb.unlock) kb.unlock(); } } catch (err){} });
@@ -794,9 +794,9 @@ const SCORE = makeScore();
 // (build 131) Options, Listen: a piece, an ambience, a sound or a creature's cry, played by itself (null: the game's own)
 const LISTEN = { piece: null, made: false, amb: null };
 function score(){
-  if (!HEARD) return; const A = ac(); if (!A) return; if (!MUSIC) MUSIC = makeMusic(A, musicBus() || A.destination);
+  if (!HEARD) return; const A = ac(); if (!A) return; if (!MUSIC){ MUSIC = makeMusic(A, musicBus() || A.destination); LAYER = makeMusic(A, musicBus() || A.destination); }   // (LAYER: a place's own layer over its region's piece, build 132)
   const k = STORY.kind, fight = BOSS && BOSS.active() && BOSS.st !== 'die', inHall = BOSS && BOSS.room && P.x >= BOSS.room.x0 && P.x < BOSS.room.x1 && P.y >= BOSS.room.y0 - 1 && P.y < BOSS.room.y1, quiet = ENT.hush || (BOSS && (BOSS.st === 'die' || (BOSS.st === 'dead' && !WON && inHall)));   // (a fallen keeper's hall is silent; the rest of its region has its music again. Until build 78 the whole region stayed silent until he left it)
-  if (LISTEN.piece !== null){ const p = LISTEN.piece; if (!LISTEN.made && SCORE.has(p)){ SCORE.play(p); MUSIC.play(''); } else { SCORE.play(''); MUSIC.play(p); } SCORE.duck(1); MUSIC.volume(0.7); MUSIC.tick(); ambience(LISTEN.amb || '', 0.5); return; }
+  if (LISTEN.piece !== null){ SCORE.wall(20000); MUSIC.wall(20000); LAYER.play(''); const p = LISTEN.piece; if (!LISTEN.made && SCORE.has(p)){ SCORE.play(p); MUSIC.play(''); } else { SCORE.play(''); MUSIC.play(p); } SCORE.duck(1); MUSIC.volume(0.7); MUSIC.tick(); ambience(LISTEN.amb || '', 0.5); return; }
   const here = R.look(), door = !fight && R.exits.find(x => x.on && x.next && Math.hypot(P.x - x.x, P.y - x.y) < 7);   // by an open way on, the next region can be heard
   const PL = placeSound(here, REGION_DATA[LEVEL.index], p => SCORE.has(p) || !!SONGS[p]);   // (build 131: a wing with no piece of its own plays its region's; music.js)
   const rec = k === 'title' || k === 'intro' ? 'title' : k === 'ending' ? 'ending' : fight ? (LEVEL.index === CLIMB_TOP ? 'boss_final' : 'boss') : PL.piece;
@@ -808,7 +808,11 @@ function score(){
   if (recOk && !waiting){ SCORE.play(quiet ? '' : rec, cue); MUSIC.play(''); }
   else if (waiting){ SCORE.play(''); MUSIC.play(quiet ? '' : gen); }   // not another place's piece: this place's, made
   else { SCORE.play(''); MUSIC.play(quiet ? '' : gen, cue ? 0.05 : undefined); }
-  const v = MUTED ? 0 : PAUSE || TALK.on ? 0.35 : 1; SCORE.duck(v); MUSIC.volume(v * 0.7); MUSIC.tick();
+  // a place's own: its region's piece through a wall (quieter as well as duller: 3 dB down), and its layer over it
+  // (music.js TREAT). Not in a fight, a story screen or a hush
+  const tr = !k && !fight && !quiet ? PL : {}, cut = tr.wall || 20000, thru = tr.wall ? 0.7 : 1;
+  const v = MUTED ? 0 : PAUSE || TALK.on ? 0.35 : 1; SCORE.duck(v * thru); MUSIC.volume(v * 0.7 * thru); MUSIC.tick();
+  SCORE.wall(cut); MUSIC.wall(cut); LAYER.play(tr.layer || ''); LAYER.volume(v * 0.7); LAYER.tick();
   const amb = door ? AMB[door.next] || '' : PL.amb, loud = door ? (door.next === 'tempest' ? 0.5 : 0.45) : PL.hushed ? 0.22 : here === 'tempest' ? 0.5 : 0.3;
   ambience(k || MUTED || ENT.hush ? '' : amb, loud);
 }

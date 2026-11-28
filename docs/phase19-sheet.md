@@ -167,6 +167,14 @@ its sounds as recordings. About 50 KB each.
 | Nearly silent (question 2) | **The Eye and the Blue, and the Shard's room, now.** The Last Hut's hut and the Great Shaft with their builds (7 and 3) | Those two play a piece today; changing them belongs with the passages and the Deep |
 | "The page with every sound on it" | **In the game: Options, Listen** | A page outside the game would not open on a phone in itch.io, where you play |
 
+### As built: build 132 (the order, 2: the pilot)
+
+| The sheet said | It is | Why |
+|---|---|---|
+| "The pilot: the Scriptorium, two ways. Made as (a), the Cloister's piece changed, and as (b), a piece made in code" | **Both made.** (a) plays in the game; (b) is in Options, Listen, Made, "scriptorium b" | Decided (0.37): (a) for the wings. (b) is there for you to change that |
+| "The Cloister's piece through a wall, and a harpsichord figure over it that never reaches its end: near the last note it starts over" | **So:** a low-pass at 640 Hz (520 in the red rooms) and 3 dB down; the figure fifteen steps of sixteen | |
+| "You hear both beside the Cloister and choose (question 1)" | **Still yours:** what to listen for is in the build log | I cannot hear them; what I could measure is there |
+
 ## The pieces, one for each section
 
 Each piece, and each ambience, in plain words, tied to what the place was and what it is now (`docs/world.md`). The

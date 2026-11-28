@@ -55,6 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 132 | 28 Nov 2026 | `COMMIT132` | Phase 19, build 2, the pilot: the Scriptorium as the Cloister's piece through a wall, with a harpsichord figure that starts over before its end; the other way (made whole in code) in Listen | no | yes (now) |
 | 131 | 28 Nov 2026 | `d5e4577` | Phase 19, build 1: no section silent (every wing and far end its region's piece and ambience, as a stand-in; the Eye and the Shard's room nearly silent on purpose); the Auger's made piece; Options, Listen | no | yes (now) |
 | 130 | 28 Nov 2026 | `39ef989` | Phase 20: less drawn when the phone is slow (three steps, by itself; Options, Drawing: auto, full, light); the touch buttons in two layouts and three sizes; the whole game checked in order; the itch.io page kit brought up to date | no | yes (now) |
 | 129 | 28 Nov 2026 | `e3901cf` | Phase 18's last two questions, as decided (0.37): a rough face in the Spires' cliffs (the mouth) and one in the Tempest's masts (the rigging), each a tunnel, a chimney and a nook; Ordric at the summit holding his lantern dark | no | yes (now) |
@@ -147,6 +148,51 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 132: the Scriptorium heard through its wall (the pilot)
+
+*Phase 19, its second build (`docs/phase19-sheet.md`, "The order" 2, and "As built: build 132"). The pilot: one wing
+made both ways the sheet offers, so the way chosen for the other wings is heard before they are made. Decided (0.37):
+(a) for the wings. So (a) is what plays; (b) is in Listen to compare. No pictures: there is nothing to see.*
+
+**For the player**
+
+- **The Scriptorium's own music,** made from the Cloister's: the piece already playing does not stop as he walks in.
+  It turns dull, as if heard through the wall of the stacks, and three decibels quieter, over about a second. Over it,
+  bright and near, a harpsichord figure climbs toward the tonic and starts over one note before it gets there; and
+  the quills, a dry scratch off the beat. In the red rooms (the rubric's) the wall is thicker.
+- **Leaving,** the wall lifts and the figure goes; the Cloister's piece is as it was.
+- **Options, Listen, Made, "scriptorium b":** the same wing made the other way, whole in code: an organ held under the
+  same figure, slower. "layer scriptorium" is the figure alone.
+- **What to listen for:**
+  1. Walk from the Cloister into the Scriptorium and back. Is the change smooth, or does it lurch?
+  2. Is the figure starting over heard as meant (the copyist beginning again), or as a mistake?
+  3. Listen, Made: "scriptorium b" beside the Scriptorium in the game. Which is the wing? If (b), the wings are made
+     that way instead, and the next builds change with it.
+
+**Measured, since I cannot hear it** (rendered offline in the test browser, sixteen seconds, made as it plays):
+
+| | Loudness (RMS) | Brightness (high to whole) |
+|---|---|---|
+| The Cloister's piece, as in the Cloister | 0.104 | 0.162 |
+| The same through the Scriptorium's wall | 0.106 before the 3 dB drop; 0.074 after | 0.102 |
+| The harpsichord figure and the quills alone | 0.024 (about 10 dB under the walled piece) | 0.633 |
+| "scriptorium b", made whole | 0.072 | 0.145 |
+
+The wall takes the top off (brightness down by a third). The first try left the figure 21 dB under the piece, too
+quiet to be heard over it; it was raised to about 10 dB under.
+
+**What is weaker than it should be**
+
+- **With the recorded score, the wall is a filter on a recording,** not a performance: what it does to the Cloister's
+  recording has been measured on the made score only.
+- **The Scriptorium's air is still the caves'.** Its own (quills, pages, the furnace) comes with the ambiences.
+
+- **Save: not moved.**
+- **Checked:** 644 automated checks, one new (`tests/side-sound.test.mjs`: the Scriptorium and its red rooms play
+  the Cloister's piece through a wall with its layer; the figure one note short of its end; a layer only; the other
+  way there to hear; nowhere else walled yet; the change smooth and quieter). No errors in the test browser.
+- **Not checked:** heard.
 
 ### Build 131: no section silent, and Options, Listen
 
