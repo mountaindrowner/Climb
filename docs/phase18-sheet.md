@@ -192,6 +192,23 @@ drawings, shown to you first.*
 | "After the end: the title shows the light down the scar" | **So,** for as long as the save is one that has reached the beacon. And the flame at the water, if he had stood at the Source | |
 | "And he wakes at the summit's water with the mountain his to walk (question 5)" | **Not changed.** After the ending the title comes up; Continue takes him back where he was | Question 5 is still yours |
 
+### As built: build 126 (part 5, the three at the summit)
+
+*Pictures: `docs/the-three-at-the-summit-build126.png`. Shown to you first (28 Nov); "Go on".*
+
+| The sheet said | It is | Why |
+|---|---|---|
+| "The three, once more each, at the summit, after the Fallen and before the beacon" | **So.** Not there before; they come up on to the summit the moment it falls. Corwen behind him on the way he came, Ordric on the way on, Mirel at the beacon | |
+| "Mirel, sitting by the empty cradle, without her shell. Unhurried. She has stopped counting" | **By an empty stone cradle at the foot of the beacon,** frost on its brass lip. Her drawing without the shell, as from the Gardens up. Her lines do not count | Her drawing stands; it does not sit |
+| "Corwen, his book open on the stone at its last page, and nothing on it. (If he has stood at the Source: the depth of it, and nothing else.)" | **So.** One inked line on the page if he has stood at the Source, and he says what it is | |
+| "Ordric, with a lamp he has not lit" | **A lamp on the ground beside him, its glass dark** | His own drawing still holds a lit lantern. Question 10 |
+| Drawings: "Mirel without her shell (one drawing); Corwen's open book (one drawing)" | **None new.** Mirel's was already drawn (build 81); the book, the cradle and the lamp are painted in code | |
+
+**Added to "To decide":**
+
+10. **Ordric's lantern.** His standing drawing holds a lit lantern, at the summit too, while he says he has not lit
+    his lamp. A new drawing of him with it dark, or set down, would mend it. As built, it is as it was.
+
 ## The order
 
 One build each, published as it is done:

@@ -18,7 +18,7 @@ const wrapText = (str, w) => { const out = []; let line = ''; for (const word of
 const wrapFine = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t, 1, true) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };   // (the small print's widths)
 import { G, OPT, loadSave, store, storeOpt, wipe, rebase, TRY, fresh, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, ABILITY, ARRIVES, BOON, THREADS_A_HEART, DIFF } from './state.js';
 import { makeItems } from './items.js';
-import { makeTalk, SCRIPT, HOB_UP } from './talk.js';
+import { makeTalk, SCRIPT, HOB_UP, SUMMIT } from './talk.js';
 import { ANNALS, PEOPLE_PAGE } from './annals.js';
 import { makeRenderer, makeSprite, VIEW_H, makeSwingFx, LOW, MOOD } from './render.js';
 import { spawnFx, stepFx } from './fx.js';
@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 125, date: '28 NOV 2026', phase: 18, phases: 22, last: 'THE END, READ TWO WAYS; THE LIGHT ON THE TITLE AFTER IT' };
+const VERSION = { build: 126, date: '28 NOV 2026', phase: 18, phases: 22, last: 'THE THREE AT THE SUMMIT, ONCE MORE EACH, AFTER THE FALLEN' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -1264,6 +1264,8 @@ function breakRock(x, y, r, dig = false){
 // someone is spoken to: all they have to say here the first time, the last of it after; the Scribe counts what is unfound,
 // the Lamplighter trades when he has spoken
 function talkTo(N){
+  if (N.summit){   // (build 126) at the summit, after the Fallen: their last words, said in full once, then the last again; no shop, no tally
+    const k = 'summit:' + N.who, n = G.met[k] || 0, S0 = SUMMIT[N.who](!!G.source); G.met[k] = n + 1; store(); release(); sfx.ui(); TALK.start(N.who, n === 0 ? S0.slice() : [S0[S0.length - 1]], null, N.art); return; }
   const climbing = N.who === 'hob' && G.thrown && !G.out && HOB_UP[LEVEL.index];   // (build 122) Hob, met by one climbing out of the Deep: his lines for that
   const k = LEVEL.index + ':' + N.who, n = G.met[k] || 0, S0 = climbing || (SCRIPT[N.who] || [])[LEVEL.index] || ['...'], lines = n === 0 ? S0.slice() : [S0[S0.length - 1]];
   // a story beat he walked past (phase 8): the first time they speak here, they say what he missed of the last one
@@ -1471,7 +1473,8 @@ function onEvent(e){
     case 'bossPhase': sfx.roar(); FEEL_FX.shake = 0.6; banner(BOSS.name + ' rages', BOSS.rage); break;
     case 'bossDie': buzz(1, 0.9, 700); sfx.roar(); sfx.bossDie(); FEEL_FX.hitstop = 0.3; FEEL_FX.shake = 0.8; SLOW = 1.3; FLASH = 0.5; break;
     case 'bossDead': { ENT.open(); for (const x of R.exits) x.set(true); sfx.door();
-      RULE.fallen = true; for (const C of PROPS.release()) if (Math.hypot(C.x - P.x, C.y - P.y) < 30){ sfx.break(); fx.dust({ x: C.x, y: C.y - C.h / 2 }, 30, 5); fx.burst({ x: C.x, y: C.y }, 26, 0xc0cbdc); R.shock(C.x, C.y, true); }   // what it held is let go: the stone over the way out comes down
+      RULE.fallen = true; ITEMS.wake();   // (build 126: at the summit, the three come up on to it)
+      for (const C of PROPS.release()) if (Math.hypot(C.x - P.x, C.y - P.y) < 30){ sfx.break(); fx.dust({ x: C.x, y: C.y - C.h / 2 }, 30, 5); fx.burst({ x: C.x, y: C.y }, 26, 0xc0cbdc); R.shock(C.x, C.y, true); }   // what it held is let go: the stone over the way out comes down
       // (its banner and what it spills were inside that comment from build 56 to 77, and never happened)
       banner(BOSS.name + ' is beaten', BOSS.fell, 5); ITEMS.spill(BOSS.cx, BOSS.stageY + 2, 60);
       // what it leaves him, the first time

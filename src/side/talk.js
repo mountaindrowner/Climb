@@ -12,6 +12,13 @@ import { INTRO } from './teach.js';
 // the text speed (Options): how long each wait is, or the whole line at once (and then no voice)
 export const TEXT_SPEED = { slow: 1.6, normal: 1, fast: 0.5, now: 0 };
 import { text, width, fine } from './pixelfont.js';
+// (build 126) the three, once more each, at the summit after the Fallen (docs/phase18-sheet.md 5). These words are for
+// the designer's yes. Corwen's last page has one line on it if he has stood at the Source, and nothing if not
+export const SUMMIT = {
+  wren: () => ['I came up behind you. I did not count the falls.', 'This is where it stood. I thought I would feel something, being here.', 'I will sit a while.'],
+  scribe: src => src ? ['The last page.', 'One line on it. How far down the water goes, under the mountain.', 'Nothing else.'] : ['The last page.', 'I have nothing to put on it.'],
+  lamplighter: () => ['I brought a lamp up.', 'I have not lit it. It was never mine to light.'],
+};
 export const PEOPLE = { lamplighter: { name: 'ORDRIC OF THE VIGIL', art: 'px_moth', col: '#feae34' }, wren: { name: 'MIREL THE PENITENT', art: 'px_hermit', col: '#63c74d', late: { from: 4, art: 'px_hermit_free' } }, scribe: { name: 'CORWEN THE ANNALIST', art: 'px_rook', col: '#2ce8f5' }, hob: { name: 'HOB OF THE GUILD', art: 'px_mole2', col: '#feae34' } };
 // `late`: from that region up, another drawing (Mirel has put her shell down by the Gardens).
 // They are the mountain's own folk, not people: Ordric an old moth, Mirel a hermit crab, Corwen a rook (docs/cast.md). The

@@ -143,7 +143,10 @@ function zenith(){
   rect(r, 0, 2, 3, 30); rect(r, 76, 2, 79, 30);                    // a horn of rock at either end
   ledge(r, 20, 26, 6, A); ledge(r, 53, 59, 6, B); ledge(r, 36, 43, 10, A);
   mark(r, 'boss', 40, 2); mark(r, 'exit', 68, 2);
-  mark(r, 'torch', 18, 3); mark(r, 'torch', 61, 3); mark(r, 'crystal', 30, 2); mark(r, 'crystal', 49, 2);
+  // the three, once more each, after the Fallen and before the beacon (build 126; docs/phase18-sheet.md 5): not here
+  // until it has fallen (items.js). Corwen behind him on the way he came; Ordric on the way on; Mirel by the beacon
+  mark(r, 'npc', 31, 2, { who: 'scribe', station: 'zenith', summit: true }); mark(r, 'npc', 49, 2, { who: 'lamplighter', station: 'zenith', summit: true }); mark(r, 'npc', 62, 2, { who: 'wren', station: 'zenith', summit: true, side: 1 });
+  mark(r, 'torch', 18, 3); mark(r, 'torch', 56, 3); mark(r, 'crystal', 30, 2); mark(r, 'crystal', 49, 2);   // (build 126: the east torch five tiles west of where it was: Mirel stands at 62 after the Fallen, and a torch where one of them stands is moved, once into her empty cradle)
   return r;
 }
 // the mountain's last shoulder, beside the summit

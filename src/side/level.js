@@ -771,7 +771,7 @@ function nooks(tiles, W, H, marks, rooms, S, M, n){
   const at = (i, j) => i < 0 || j < 0 || i >= W || j >= H ? ROCK : tiles[j * W + i], set = (i, j, v) => { tiles[j * W + i] = v; };
   const inRoom = (q, x, y) => x >= q.tx0 && x < q.tx1 && y >= q.ty0 && y < q.ty1, roomAt = (x, y) => rooms.find(q => inRoom(q, x, y)), boss = marks.find(k => k.type === 'boss');
   for (const m of marks){
-    if (m.type !== 'npc' || M[m.who] !== 'extra') continue;
+    if (m.type !== 'npc' || M[m.who] !== 'extra' || m.summit) continue;
     const order = [].concat(S[m.who] || []).map(n => rooms.find(q => q.name === (n.room || n))).filter(Boolean).concat(rooms).filter(r => !r.gate && r.name !== 'nook' && !(boss && inRoom(r, boss.x, boss.y)));
     const want = NOOK.row[n], sol = v => v === ROCK || v === LEDGE; let pick = null, pd = 1e9;
     order.forEach((r, k) => { for (const d of [1, -1]){

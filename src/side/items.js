@@ -8,7 +8,7 @@
 // Events pushed for the game to act on: shard { v }, thread, relic { id }, chest, urn, each with `at`.
 import { T, LEVEL, tileAt, ROCK, LEDGE, RULE } from './level.js';
 import { PPU, PAL, makeSprite } from './render.js';
-import { took, take, has } from './state.js';
+import { took, take, has, G } from './state.js';
 import { PEOPLE } from './talk.js';
 const THREE = window.THREE;
 const cnv = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
@@ -99,12 +99,33 @@ const STATION = {
 function fireTex(){ const c = cnv(24, 9), g = c.getContext('2d');
   for (let f = 0; f < 4; f++) for (let y = 0; y < 9; y++) for (let x = 0; x < 6; x++){ const half = [3, 3, 2.6, 2.2, 2, 1.5, 1, 0.6, 0.3][y] + (f % 2 && y > 4 ? -0.4 : 0), sway = Math.sin(f * 1.6 + y * 0.7) * y / 8 * 1.2, d = Math.abs(x + 0.5 - 3 - sway); if (d > half) continue; px(g, d < half * 0.4 && y < 5 ? (y < 2 ? PAL.white : PAL.fire3) : d < half * 0.75 ? PAL.fire2 : PAL.fire1, f * 6 + x, 8 - y); }
   const t = texOf(c); t.repeat.set(0.25, 1); return t; }
+// at the summit, after the Fallen (build 126; docs/phase18-sheet.md 5), none of them has a station: each has one thing
+// with them. Painted here, like the stations
+export const SUMMIT_STATION = {
+  // Mirel's: the cradle the flame stood in, at the foot of the beacon. Stone, a ring of brass, cold, and empty
+  wren: { name: 'THE EMPTY CRADLE', col: 0x8b9bb4, w: 28, h: 14, at: 10, glow: [14, 5], draw(g){
+    px(g, PAL.ink, 7, 9, 14, 5); px(g, PAL.dark, 8, 10, 12, 4); px(g, PAL.mid, 8, 10, 12, 1);   // its drum
+    for (let k = 0; k < 6; k++){ const half = [13, 12, 11, 10, 8, 6][k]; px(g, PAL.ink, 14 - half - 1, 3 + k, half * 2 + 2, 1); px(g, k ? PAL.mid : PAL.light, 14 - half, 3 + k, half * 2, 1); }
+    px(g, PAL.fire2, 2, 4, 24, 1); px(g, PAL.deep, 5, 3, 18, 1);   // a ring of brass round its lip; inside, nothing
+    for (const x of [6, 11, 17, 22]) px(g, PAL.white, x, 3, 1, 1); } },   // frost on the lip
+  // Corwen's: his book, open on a stone at its last page. Both leaves blank; if he has stood at the Source, one line
+  scribe: { name: "CORWEN'S LAST PAGE", col: 0xc0cbdc, w: 24, h: 12, at: 9, glow: [12, 4], draw(g, o = {}){
+    px(g, PAL.ink, 1, 6, 22, 6); px(g, PAL.dark, 2, 7, 20, 5); px(g, PAL.mid, 2, 7, 20, 1);   // the stone
+    px(g, PAL.ink, 3, 2, 18, 5); px(g, PAL.bone, 4, 3, 7, 3); px(g, PAL.bone, 13, 3, 7, 3); px(g, PAL.white, 4, 3, 7, 1); px(g, PAL.white, 13, 3, 7, 1);   // the leaves
+    px(g, PAL.wood1, 11, 2, 2, 5); px(g, PAL.red0, 12, 6, 1, 3);   // its spine, and the ribbon at the last page
+    if (o.written) px(g, PAL.ink, 14, 4, 4, 1); } },   // the depth of the water, and nothing else
+  // Ordric's: a lamp on the ground beside him. Its glass is dark
+  lamplighter: { name: 'THE UNLIT LAMP', col: 0x5a6988, w: 10, h: 16, at: 5, glow: [5, 8], draw(g){
+    px(g, PAL.ink, 4, 0, 2, 3); px(g, PAL.ink, 1, 3, 8, 2); px(g, PAL.dark, 2, 3, 6, 1);   // its ring and cap
+    px(g, PAL.ink, 1, 5, 8, 9); px(g, PAL.deep, 2, 6, 6, 7); px(g, PAL.dark, 2, 6, 1, 7); px(g, PAL.ink, 4, 6, 2, 7);   // its glass, dark
+    px(g, PAL.ink, 0, 14, 10, 2); px(g, PAL.dark, 1, 14, 8, 1); } },
+};
 export const STATION_NAMES = Object.fromEntries(Object.entries(STATION).map(([k, v]) => [k, v.name]));
 export function makeItems(scene, R, n){
   const list = [], people = [], shards = [], rnd = Math.random;
   const flat = (map, w, h, o = {}) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w / PPU, h / PPU), new THREE.MeshBasicMaterial({ map, transparent: true, alphaTest: 0.5, ...o })); m.geometry.translate(0, h / PPU / 2, 0); scene.add(m); return m; };
   const halo = (color, size, opacity) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(size, size), new THREE.MeshBasicMaterial({ map: glowTex(), color, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending })); scene.add(m); return m; };
-  const ut = urnTex(), tt = threadTex();
+  const ut = urnTex(), tt = threadTex(), later = [];
   for (const mk of LEVEL.marks){
     const x = (mk.x + 0.5) * T, y = mk.y * T, id = mk.type[0] + mk.x + ',' + mk.y;
     if (mk.type === 'urn'){ if (took(n, id)) continue; const m = flat(ut, 9, 11); m.position.set(x, y, 0.025); list.push({ type: 'urn', id, x, y, m, w: 0.4, h: 0.7 }); }
@@ -115,13 +136,19 @@ export function makeItems(scene, R, n){
     }
     else if (mk.type === 'thread'){ if (took(n, id)) continue; const m = flat(tt, 9, 13), gl = halo(0xff5040, 1.6, 0.45); m.position.set(x, y + 0.5, 0.04); gl.position.set(x, y + 0.9, 0.03); list.push({ type: 'thread', id, x, y, m, gl, ph: rnd() * 6 }); }
     else if (mk.type === 'npc'){
-      const who = mk.who, P0 = PEOPLE[who]; if (!P0) continue; const P = P0.late && n >= P0.late.from ? { ...P0, art: P0.late.art } : P0;
+      if (mk.summit && !RULE.fallen){ later.push(mk); continue; }   // the three at the summit: once the Fallen has fallen (I.wake)
+      person(mk, x, y);
+    }
+  }
+  function person(mk, x, y){ {
+      const who = mk.who, P0 = PEOPLE[who]; if (!P0) return; const P = P0.late && n >= P0.late.from ? { ...P0, art: P0.late.art } : P0;
       // the station beside them, toward the middle of the room
-      const ST = STATION[who], room = LEVEL.rooms.find(r => x >= r.x0 && x < r.x1 && y >= r.y0 && y < r.y1), side = room && x > (room.x0 + room.x1) / 2 ? -1 : 1, sx = x + side * (ST.at / 16 + 1.3);   // far enough that its light is beside them, not on their faces
-      const sc = cnv(ST.w, ST.h); ST.draw(sc.getContext('2d')); const sm = flat(texOf(sc), ST.w, ST.h); sm.position.set(Math.round(sx * PPU) / PPU, y, 0.015);
+      const ST = mk.summit ? SUMMIT_STATION[who] : STATION[who], room = LEVEL.rooms.find(r => x >= r.x0 && x < r.x1 && y >= r.y0 && y < r.y1), side = mk.side || (room && x > (room.x0 + room.x1) / 2 ? -1 : 1),   // (mk.side: which side of them it stands, when it matters: Mirel's cradle, toward the beacon)
+         sx = x + side * (ST.at / 16 + 1.3);   // far enough that its light is beside them, not on their faces
+      const sc = cnv(ST.w, ST.h); ST.draw(sc.getContext('2d'), { written: mk.summit && G.source }); const sm = flat(texOf(sc), ST.w, ST.h); sm.position.set(Math.round(sx * PPU) / PPU, y, 0.015);
       // Ordric's lamp-store, behind him (phase 8): the same in every region, so it is known at a glance. Two shelves of
       // lamps on iron brackets (some lit, some waiting), oil jars and a crate under them, a coil of wick on a peg
-      if (who === 'lamplighter'){ const W2 = 56, H2 = 40, bc = cnv(W2, H2), bg = bc.getContext('2d');
+      if (who === 'lamplighter' && !mk.summit){ const W2 = 56, H2 = 40, bc = cnv(W2, H2), bg = bc.getContext('2d');
         for (const sy of [10, 22]){ px(bg, PAL.ink, 2, sy, W2 - 4, 3); px(bg, PAL.wood1, 3, sy, W2 - 6, 2); px(bg, PAL.wood3, 3, sy, W2 - 6, 1); for (const bx of [6, W2 - 9]){ px(bg, PAL.ink, bx, sy + 3, 3, 4); px(bg, PAL.dark, bx + 1, sy + 3, 1, 3); } }
         [[8, 10, 1], [18, 10, 0], [28, 10, 1], [40, 10, 0], [13, 22, 0], [24, 22, 1], [35, 22, 1], [45, 22, 0]].forEach(([lx, sy, lit]) => { px(bg, PAL.ink, lx, sy - 8, 6, 8); px(bg, PAL.ink, lx + 2, sy - 10, 2, 2); px(bg, lit ? PAL.fire2 : PAL.dark, lx + 1, sy - 7, 4, 6); if (lit){ px(bg, PAL.fire3, lx + 2, sy - 6, 2, 3); px(bg, PAL.white, lx + 2, sy - 5, 1, 1); } else px(bg, PAL.mid, lx + 1, sy - 7, 1, 6); });
         for (const [jx, jh] of [[5, 9], [13, 7]]){ px(bg, PAL.ink, jx, H2 - jh - 1, 7, jh + 1); px(bg, PAL.rust, jx + 1, H2 - jh, 5, jh); px(bg, PAL.fire2, jx + 1, H2 - jh, 5, 1); px(bg, PAL.ink, jx + 2, H2 - jh - 3, 3, 2); }
@@ -130,12 +157,11 @@ export function makeItems(scene, R, n){
         const bm = flat(texOf(bc), W2, H2); bm.position.set(Math.round((x - side * 0.9) * PPU) / PPU, y, 0.011); }
       let fm = null; if (ST.fire){ fm = new THREE.Mesh(new THREE.PlaneGeometry(6 / PPU, 9 / PPU), new THREE.MeshBasicMaterial({ map: fireTex(), transparent: true, alphaTest: 0.5 })); fm.position.set(Math.round((sx - ST.w / 2 / PPU + (ST.fire[0] + 0.5) / PPU) * PPU) / PPU, y + (ST.h - ST.fire[1]) / PPU + 4.5 / PPU, 0.02); scene.add(fm); }
       const lx = sx - ST.w / 2 / PPU + ST.glow[0] / PPU, ly = y + (ST.h - ST.glow[1]) / PPU, halo = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 3.4), new THREE.MeshBasicMaterial({ map: glowTex(), color: ST.col, transparent: true, opacity: 0.32, depthWrite: false, blending: THREE.AdditiveBlending })); halo.position.set(lx, ly, 0.01); scene.add(halo);
-      const N = { type: 'npc', who, extra: !!mk.extra, art: P.art, station: { name: ST.name, x: sx, y, lx, ly, col: ST.col, fm, halo, room: mk.station }, x, y, face: -1, sprite: null, meta: null, stand: null, ph: rnd() * 6 };
+      const N = { type: 'npc', who, summit: !!mk.summit, extra: !!mk.extra, art: P.art, station: { name: ST.name, x: sx, y, lx, ly, col: ST.col, fm, halo, room: mk.station }, x, y, face: -1, sprite: null, meta: null, stand: null, ph: rnd() * 6 };
       N.stand = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 1.9), new THREE.MeshBasicMaterial({ color: 0x262b44 })); N.stand.position.set(x, y + 0.95, 0.02); scene.add(N.stand);
       fetch(`assets/side/${P.art}/sprite.json`).then(r => r.ok ? r.json() : null).then(meta => { if (meta){ N.meta = meta; N.sprite = makeSprite(scene, `assets/side/${P.art}`, meta); N.stand.visible = false; } }).catch(() => {});
       people.push(N);
-    }
-  }
+  } }
   // the shards: a pool of small bright pieces
   const SN = 90, sgeo = new THREE.PlaneGeometry(3 / PPU, 3 / PPU); let sk = 0;
   for (let i = 0; i < SN; i++){ const m = new THREE.Mesh(sgeo, new THREE.MeshBasicMaterial({ color: 0x2ce8f5 })); m.rotation.z = Math.PI / 4; m.visible = false; scene.add(m); shards.push({ m, on: false }); }
@@ -151,6 +177,8 @@ export function makeItems(scene, R, n){
       if (it.holds.startsWith('gift:')) evs.push({ type: 'gift', id: it.holds.slice(5), at }); else if (it.holds.startsWith('relic:')) evs.push({ type: 'relic', id: it.holds.slice(6), at }); else if (it.holds === 'thread') evs.push({ type: 'thread', at }); else spill(it.x, it.y + 0.4, 26 + Math.floor(rnd() * 12)); }
   };
   const I = { list, people, spill };
+  // the Fallen has fallen (main.js): the three come up on to the summit
+  I.wake = () => { const n0 = later.length; for (const mk of later.splice(0)) person(mk, (mk.x + 0.5) * T, mk.y * T); return n0; };
   I.step = (dt, t, P, evs) => {
     for (const it of list){
       if (it.gone) continue;

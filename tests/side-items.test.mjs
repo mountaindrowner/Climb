@@ -21,7 +21,7 @@ for (let N = 0; N < LEVELS.length; N++){
     assert.equal(marks.filter(m => m.type === 'thread' && !wingOf(m)).length + chests.filter(m => m.holds === 'thread' && !wingOf(m)).length, 2, 'two threads on the climb');
     const deep = !marks.some(m => m.type === 'exit');   // the Deep has its own people (Hob); the climb has the three
     if (!REGION_DATA[N].empty && !REGION_DATA[N].alone)   // (nobody is in the Great Shaft, and no one to speak to in the Hollow: Hob does not go down that far)
-    for (const who of Object.keys(PEOPLE).filter(w => (w === 'hob') === deep)){ assert.equal(marks.filter(m => m.type === 'npc' && m.who === who).length, 1, `${who} once`); assert.ok((SCRIPT[who][N] || []).length, `${who} has something to say here`); }
+    for (const who of Object.keys(PEOPLE).filter(w => (w === 'hob') === deep)){ assert.equal(marks.filter(m => m.type === 'npc' && m.who === who && !m.summit).length, 1, `${who} once`); assert.ok((SCRIPT[who][N] || []).length, `${who} has something to say here`); }
     for (const m of chests) assert.ok(!m.holds || m.holds === 'shards' || m.holds === 'thread' || /^relic:/.test(m.holds) || (/^gift:/.test(m.holds) && (ABILITY[m.holds.slice(5)] || BOON[m.holds.slice(5)]) && wingOf(m)), `a chest holds ${m.holds}`);   // (a wing's prize: an ability, in a wing)
   });
   test(`${NAME}: every urn, chest and person stands on something, with room over it`, () => {
@@ -48,7 +48,7 @@ test('the three who climb each have a station, in a room each (where they are an
   for (let N = 0; N < LEVELS.length; N++){
     if (!loadLevel(N).marks.some(m => m.type === 'exit')) continue;   // the Deep: Hob alone, at his lamp
     const { marks, rooms } = loadLevel(N);
-    const where = marks.filter(m => m.type === 'npc').map(m => { assert.ok(m.station, `${m.who} in ${LEVELS[N].name} has no station`); return rooms.find(r => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1); });
+    const where = marks.filter(m => m.type === 'npc' && !m.summit).map(m => { assert.ok(m.station, `${m.who} in ${LEVELS[N].name} has no station`); return rooms.find(r => m.x >= r.tx0 && m.x < r.tx1 && m.y >= r.ty0 && m.y < r.ty1); });
     assert.equal(new Set(where).size, 3, `${LEVELS[N].name}: two of them share a room`);
   }
 });

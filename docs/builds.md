@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 125 | 28 Nov 2026 | `1d0294f` | Phase 18, part 5 (first half): the end read two ways, by whether he has stood at the Source; and the title after the end shows the light down the scar | no | yes (now) |
+| 126 | 28 Nov 2026 | `COMMIT126` | Phase 18, part 5 (second half): the three at the summit after the Fallen: Corwen's last page, Ordric's unlit lamp, Mirel's empty cradle. Phase 18 is built | no | yes (now) |
+| 125 | 28 Nov 2026 | `1d0294f` | Phase 18, part 5 (first half): the end read two ways, by whether he has stood at the Source; and the title after the end shows the light down the scar | no | replaced by 126 |
 | 124 | 27 Nov 2026 | `17250a5` | Phase 18, part 4: the Shard, twelve screens west of the summit. The underside (four rough faces up a shaft, a pane), the gap (the longest glide), the Shard (hanging; a keel to catch, a crust, one bare room, the old light). No fight, no one, nothing written | no (a save follows the level) | replaced by 125 |
 | 123 | 27 Nov 2026 | `d0eed06` | Phase 18, part 3: a rough face in each of the five passages between regions. A chimney in the passage's roof, a nook at its head; climbed with the grip and by nothing else | no | replaced by 124 |
 | 122 | 27 Nov 2026 | `1ed6379` | Phase 18, part 2: the Deep climbed from the bottom. A ring under the Assayer's grate unbars it from below; Hob's lines for one climbing out | no | replaced by 123 |
@@ -141,6 +142,55 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 126: the three at the summit
+
+*Phase 18, part 5, its second half (`docs/phase18-sheet.md`, and "As built: build 126" in it). Pictures:
+`docs/the-three-at-the-summit-build126.png`, shown to you before it went in. No new drawings: the book, the lamp
+and the cradle are painted in code; Mirel's drawing without her shell was made in build 81. The lines are mine and
+yours to change. With this build phase 18 is built.*
+
+**For the player**
+
+- **When the Fallen falls, three come up on to the summit:** Corwen on the way he came, Ordric on the way on, Mirel
+  at the foot of the beacon. Before it falls they are not there.
+- **Corwen** has his book open on a stone at its last page. "The last page." "I have nothing to put on it." If he has
+  stood at the Source the page has one line on it, and he says what it is.
+- **Ordric** has a lamp on the ground beside him, its glass dark. "I brought a lamp up." "I have not lit it. It was
+  never mine to light."
+- **Mirel** is beside the empty cradle the flame stood in. "I came up behind you. I did not count the falls." "This
+  is where it stood. I thought I would feel something, being here." "I will sit a while."
+- **Each says it once in full,** then the last line again. No shop, no list of what is left, nobody says what to do.
+- **To try:**
+  1. Beat the Fallen. Before going to the beacon, walk back west and east along the summit.
+  2. Talk to each.
+  3. With a save that has stood at the Source, talk to Corwen again.
+
+**What is weaker than it should be**
+
+- **Ordric holds a lit lantern** in his own drawing while he says he has not lit his lamp (question 10).
+- **They appear at once,** while the gift the Fallen leaves is coming to him. Nothing shows them arriving.
+- **The book and the cradle are small,** and stand beside Corwen and Mirel, partly behind them and behind him.
+- **Mirel stands.** The sheet said she sits.
+- **No music of their own.** Phase 19.
+- **Not played by a person.**
+
+- **Save: not moved.** Adds that each was spoken to at the summit.
+- **Checked:** 601 automated checks (the full run was cut short by the machine restarting after 336, all passed; the
+  twenty files it had not reached were run again on their own, 200 checks, all passed), four new (`tests/side-summit.test.mjs`): the three on the summit floor,
+  between the stage and the beacon, with room to stand and no torch at their elbow; held back until the Fallen has
+  fallen and made the moment it does; their three things, Corwen's page written only with the Source and no
+  lamp-store behind Ordric; and their lines, said once then the last, with no shop and none telling him what to do.
+  Three older checks count each of the three once a region; they now count the climb's, not the summit's.
+  In the test browser: the summit with the Fallen beaten, each of the three spoken to, both with and without the
+  Source.
+- **Not checked:** the moment they come up, in the browser (the tests' save starts with the Fallen beaten); not
+  played by hand.
+- **Mistakes caught before it went out:**
+  - **The summit's east torch was moved into Mirel's empty cradle** (a torch where one of them stands is moved
+    aside), and it read as lit. The torch is further west, and the cradle is on her beacon side.
+  - **A test save that reached the summit with Mother Thorn beaten was thrown down** (build 121 doing its work):
+    the pictures now start from a save that has been thrown and climbed out.
 
 ### Build 125: the end, read two ways
 

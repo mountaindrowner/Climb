@@ -22,7 +22,7 @@ for (let n = 0; n < LEVELS.length; n++){
       assert.ok(kind === 'wall' ? wall : roof || wall, `${m.type} at ${m.x},${m.y} has nothing to cling to`); }
   });
   test(`${LEVELS[n].name}: every gargoyle perches on stone, away from the people`, () => {
-    const people = L.marks.filter(k => k.type === 'npc');
+    const people = L.marks.filter(k => k.type === 'npc' && !k.summit);   // (the three at the summit after the Fallen: tests/side-summit)
     for (const m of L.marks.filter(k => k.type === 'gargoyle')){
       const p = m.perch; assert.ok(p, `gargoyle at ${m.x},${m.y} has no perch`);
       if (p.side) assert.ok(rock(p.wall, p.y - 1), `its corbel at ${p.x},${p.y} comes out of rock`);
