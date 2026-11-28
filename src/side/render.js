@@ -33,6 +33,10 @@ const THREE = window.THREE;
 // in is kept painted and nothing is painted ahead; fewer motes in the air, fewer lights at once. Not done yet: smaller
 // paintings, a lower frame rate on a hot phone, a layout for a phone held upright (docs/side.md)
 export const LOW = { on: false };
+// (phase 20, build 130) how much is drawn, in steps, when a phone cannot keep up (main.js steps it, by the frames a second;
+// Options, Drawing). 0: everything. 1: the last pass (the lights, the glow, the dither) drawn at the world's own 248 rows
+// and stretched, not at the screen's size. 2: and no glow round bright things. 3: and thirty frames a second (main.js)
+export const DRAW = { step: 0 };
 // the mood of the moment (entrance.js): dark dims the region's ambient and its lights; flicker makes the lights stutter
 export const MOOD = { dark: 0, flicker: 0, calm: 0 };   // calm: the storm has broken (the Tempest, its keeper fallen): no rain, and more of the sky's light
 const PAINTED = new Map(), ASKED = new Map(), keep = () => LOW.on ? 1 : 3;
@@ -328,7 +332,8 @@ export function makeRenderer(canvas){
 
   // ---- the frame: the scene into the small target, glow added, then up to the screen whole
   const rt = (w, h) => new THREE.WebGLRenderTarget(w, h, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter });
-  let main = rt(4, 4), b1 = rt(2, 2), b2 = rt(2, 2), size = { w: 4, h: TH };
+  let main = rt(4, 4), b1 = rt(2, 2), b2 = rt(2, 2), fin = rt(4, 4), size = { w: 4, h: TH };
+  const copy = new THREE.ShaderMaterial({ uniforms: { tex: { value: null } }, vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }', fragmentShader: 'uniform sampler2D tex; varying vec2 vUv; void main(){ gl_FragColor = vec4(texture2D(tex, vUv).rgb, 1.); }' });
   const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2)); const qScene = new THREE.Scene(); qScene.add(quad); const qCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
   const vs = 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }';
   const bright = new THREE.ShaderMaterial({ uniforms: { tex: { value: null }, th: { value: 0.7 } }, vertexShader: vs,
@@ -354,16 +359,16 @@ export function makeRenderer(canvas){
         L = floor(L * 9.0 + 0.25 + b4(floor(vUv * res)) * 0.5) / 9.0;    // steps of light, half dithered between: banded like the art, not noisy
         vec3 c = texture2D(tex, uv).rgb * min(L, vec3(1.45)) + texture2D(glow, uv).rgb * amt; c = c / (1.0 + 0.1 * c); gl_FragColor = vec4(c, 1.);
       }` });
-  const bloom = () => { const b = TM.bloom || [0.7, 1.1]; bright.uniforms.th.value = b[0]; comp.uniforms.amt.value = b[1]; }; bloom();   // how much bright things shine, by region
+  let AMT = 1.1; const bloom = () => { const b = TM.bloom || [0.7, 1.1]; bright.uniforms.th.value = b[0]; comp.uniforms.amt.value = AMT = b[1]; }; bloom();   // how much bright things shine, by region
   const shocks = [{ t: 9, x: 0, y: 0, big: false }, { t: 9, x: 0, y: 0, big: false }]; let shockK = 0;
-  main.texture.minFilter = main.texture.magFilter = THREE.NearestFilter;
+  main.texture.minFilter = main.texture.magFilter = THREE.NearestFilter; fin.texture.minFilter = fin.texture.magFilter = THREE.NearestFilter;
   function pass(mat, target){ quad.material = mat; renderer.setRenderTarget(target); renderer.clear(); renderer.render(qScene, qCam); }
   function resize(){
     const cw = canvas.clientWidth || innerWidth, ch = canvas.clientHeight || innerHeight;
     const w = Math.round(TH * cw / ch / 2) * 2;
     if (w === size.w && cw === size.cw && ch === size.ch) return;
     size = { w, h: TH, cw, ch }; renderer.setSize(cw, ch, false);
-    main.setSize(w, TH); b1.setSize(w >> 1, TH >> 1); b2.setSize(w >> 1, TH >> 1);
+    main.setSize(w, TH); b1.setSize(w >> 1, TH >> 1); b2.setSize(w >> 1, TH >> 1); fin.setSize(w, TH);
     const hw = w / 2 / PPU; camera.left = -hw; camera.right = hw; camera.top = VIEW_H / 2; camera.bottom = -VIEW_H / 2; camera.updateProjectionMatrix();
   }
   addEventListener('resize', resize); resize();
@@ -421,14 +426,18 @@ export function makeRenderer(canvas){
         for (let k = 0; k < NL; k++){ const l = list[k]; if (!l){ lc[k].set(0, 0, 0); lp[k].set(0, 0, 0.001); continue; }
           lp[k].set(0.5 + (l.x - cam.x) / (hw * 2), 0.5 + (l.y - cam.y) / (hh * 2), l.range / VIEW_H); lc[k].set((l.color >> 16 & 255) / 255 * l.power, (l.color >> 8 & 255) / 255 * l.power, (l.color & 255) / 255 * l.power); } }
       renderer.setRenderTarget(main); renderer.clear(); renderer.render(scene, camera);
-      bright.uniforms.tex.value = main.texture; pass(bright, b1);
-      blur.uniforms.tex.value = b1.texture; blur.uniforms.dir.value.set(1 / b1.width, 0); pass(blur, b2);
-      blur.uniforms.tex.value = b2.texture; blur.uniforms.dir.value.set(0, 1 / b1.height); pass(blur, b1);
+      if (DRAW.step < 2){   // the glow: bright things picked out, blurred both ways (step 2 and on: none, and three passes saved)
+        bright.uniforms.tex.value = main.texture; pass(bright, b1);
+        blur.uniforms.tex.value = b1.texture; blur.uniforms.dir.value.set(1 / b1.width, 0); pass(blur, b2);
+        blur.uniforms.tex.value = b2.texture; blur.uniforms.dir.value.set(0, 1 / b1.height); pass(blur, b1); }
+      comp.uniforms.amt.value = DRAW.step < 2 ? AMT : 0;
             // the rings: where in the picture, how far out, how strong
       shocks.forEach((S, k) => { S.t += 1 / 60; const u = S.t / (S.big ? 0.32 : 0.24), hw = size.w / 2 / PPU, hh = VIEW_H / 2;
         comp.uniforms['sh' + k].value.set(0.5 + (S.x - cam.x) / (hw * 2), 0.5 + (S.y - cam.y) / (hh * 2), (S.big ? 0.2 : 0.14) * Math.sqrt(Math.min(1, u)), u >= 1 ? 0 : (S.big ? 0.012 : 0.007) * (1 - u)); });
       comp.uniforms.aspect.value = size.w / size.h;
-      comp.uniforms.tex.value = main.texture; comp.uniforms.glow.value = b1.texture; pass(comp, null);
+      comp.uniforms.tex.value = main.texture; comp.uniforms.glow.value = b1.texture;
+      if (DRAW.step >= 1){ pass(comp, fin); copy.uniforms.tex.value = fin.texture; pass(copy, null); }   // drawn at the world's size, then stretched up whole
+      else pass(comp, null);
     },
   };
 }

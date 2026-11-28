@@ -211,6 +211,16 @@ on.
 **Risk.** It is slow: the throw's test, which checks four joins this way, takes about a minute and a half. It would be run with the full
 tests, not on every change.
 
+### As built: build 130
+
+| The sheet said | It is | Why |
+|---|---|---|
+| "If it stays slow (under about 45 frames a second) for three seconds, it steps down once, and again if it is still slow" | **So,** three steps, with two seconds' grace after each | Without the grace the next three seconds are counted from frames drawn before the step |
+| "It never steps back up in the same region" | **It never steps back up while the game is open** | Stepping back up at each region would bring the stutter back each time |
+| "In Options: Drawing: auto, full, light" | **So** | |
+| "Pictures of each step before it goes in" | **In the build's pictures** (decision 0.37) | |
+| "(b) Two layouts (jump bottom right, as now; or attack bottom right) and three sizes of ring" | **So** | |
+
 ## The release
 
 ### 11. The itch.io page

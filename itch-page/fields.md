@@ -13,7 +13,7 @@ nothing to hold back by keeping it in Draft.*
 | Short description or tagline | You fell from the top of the mountain. Climb back to the flame. *(the title screen's own line; 63 characters)* |
 | Classification | Games |
 | Kind of project | HTML |
-| Release status | In development *(the build says phase 17 of 22)* |
+| Release status | In development *(the build says phase 20 of 22)* |
 | Pricing | $0 or donate **(guess: the page's minimum price is 0 today)** |
 | Uploads | `the-climb-html.zip`, pushed by `tools/push-itch.sh`. "This file will be played in the browser" ticked. Nothing else to upload. |
 | Embed options | **Embed in page, 960 x 540** (today: 640 x 360). The page's column is 960 wide and the game fits any size, so this is the largest that needs no scrolling. |

@@ -20,7 +20,7 @@ import { G, OPT, loadSave, store, storeOpt, wipe, saveText, readSaveText, takeSa
 import { makeItems } from './items.js';
 import { makeTalk, SCRIPT, HOB_UP, SUMMIT } from './talk.js';
 import { ANNALS, PEOPLE_PAGE } from './annals.js';
-import { makeRenderer, makeSprite, VIEW_H, makeSwingFx, LOW, MOOD } from './render.js';
+import { makeRenderer, makeSprite, VIEW_H, makeSwingFx, LOW, MOOD, DRAW } from './render.js';
 import { spawnFx, stepFx } from './fx.js';
 import { spawnEnemies, stepEnemies, strikeEnemies, slamEnemies, hitBox, keepOut } from './enemies.js';
 import { KEEPERS } from './keepers.js';
@@ -36,13 +36,15 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 129, date: '28 NOV 2026', phase: 20, phases: 22, last: 'TWO MORE ROUGH FACES; ORDRIC\'S LAMP DARK' };
+const VERSION = { build: 130, date: '28 NOV 2026', phase: 20, phases: 22, last: 'LESS DRAWN WHEN THE PHONE IS SLOW; THE BUTTONS LAID OUT' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
 const R = makeRenderer(canvas);
 const sp = spawnPoint();
 loadSave();
+// (build 130) the touch buttons as Options has them: which ring is bottom right, and how big they are (side.html)
+const padLayout = () => { document.body.dataset.pad = OPT.pad; document.body.dataset.ring = OPT.ring; }; padLayout();
 // ---- the throw, and the Deep's doors (build 121, docs/phase18-sheet.md 1; decision 0.26). G.due: he has come to the
 // door of the last region and is about to be thrown. G.thrown: he has been. G.out: he has climbed out of the Deep
 // since. The Deep's doors in the climb are shut until he is out (level.js DEEP.shut), and open after, both ways.
@@ -449,6 +451,7 @@ function options(back){
     cyc('Voices', 'voice', [0, 0.4, 0.8, 1], ['off', 'low', 'mid', 'full'], () => { setMix('voice', OPT.voice); say(voiceOf('lamplighter'), { v: 'a', p: 1, g: 1 }); }),
     cyc('Text', 'text', ['slow', 'normal', 'fast', 'now'], ['slow', 'normal', 'fast', 'at once']),
     cyc('Text size', 'big', [false, true], ['normal', 'large'], () => requestAnimationFrame(menuFit)),
+    cyc('Drawing', 'draw', ['auto', 'full', 'light'], [DRAW.step && OPT.draw === 'auto' ? `auto (lighter: ${DRAW.step})` : 'auto', 'full', 'light'], () => { if (OPT.draw === 'auto') DRAW.step = 0; }),
     cyc('Hints', 'hints', [true, false], ['on', 'off']),
     cyc('Score', 'synth', [false, true], ['recorded', 'made as it plays']),
     cyc('Shake', 'shake', [0, 0.5, 1], ['off', 'soft', 'full']),
@@ -457,6 +460,7 @@ function options(back){
     cyc('Phone mode', 'phone', ['auto', true, false], [phoneNow() && OPT.phone === 'auto' ? 'auto (on)' : 'auto', 'on', 'off'], () => { LOW.on = phoneNow(); banner('', 'phone mode ' + (LOW.on ? 'on' : 'off') + ': from the next region', 2.4); }),
     cyc('Place', 'place', [false, true], ['hidden', 'shown (for notes)']),
     cyc('Rumble and vibration', 'rumble', [true, false], ['on', 'off'], () => { SET.rumble = OPT.rumble; saveSettings(); if (OPT.rumble) buzz(0.5, 0.5, 160); }),
+    cyc('Buttons', 'pad', ['jump', 'attack'], ['jump bottom right', 'attack bottom right'], padLayout), cyc('Button size', 'ring', ['small', 'mid', 'large'], ['small', 'middle', 'large'], padLayout),
     menuButton('Copy save', () => copySave(() => options(back)), true), menuButton('Paste save', () => pasteSave(() => options(back)), true)]),
     menuButton('Back', back, true)], false, back); MENU.style.top = '34%';
 }
@@ -919,10 +923,19 @@ let last = 0, acc = 0, time = 0;
 const CAPTURE = { on: false, left: 0, dt: 1 / 24 };
 // frames a second, as they come (Options, Place: shown beside the place), so what a phone does is a number. Read off
 // the time between frames before it is capped; a gap of more than half a second (the page put away) is left out
-const FPS = { n: 60 };
+const FPS = { n: 60, slow: 0, odd: false };
+// (build 130) when the phone cannot keep up, less is drawn (render.js DRAW): under 45 frames a second for three seconds
+// together, one step down; and again if it is still slow. Never back up while the game is open: it does not flicker
+// between the two. Options, Drawing: auto (this), full (never), light (all three steps at once)
+function drawStep(gap){
+  if (OPT.draw === 'full'){ DRAW.step = 0; return; } if (OPT.draw === 'light'){ DRAW.step = 3; return; }
+  if (PAUSE || STORY.active() || GO.st || DRAW.step >= 3) { FPS.slow = 0; return; }   // (a menu, a story screen or a region being made is not play)
+  FPS.slow = FPS.n < 45 ? FPS.slow + gap : 0; if (FPS.slow >= 3){ DRAW.step++; FPS.slow = -2; FPS.n = 60; }   // (and two seconds' grace after a step, to see what it does)
+}
 function frame(ts){
-  const now = ts / 1000, gap = last ? now - last : 0; let dt = last ? Math.min(0.05, gap) : 1 / 60; last = now;
-  if (gap > 0 && gap < 0.5) FPS.n += (1 / gap - FPS.n) * 0.05;
+  if (DRAW.step >= 3 && (FPS.odd = !FPS.odd)){ requestAnimationFrame(frame); return; }   // thirty frames a second: every other one is let go
+  const now = ts / 1000, gap = last ? now - last : 0; let dt = last ? Math.min(DRAW.step >= 3 ? 0.07 : 0.05, gap) : 1 / 60; last = now;
+  if (gap > 0 && gap < 0.5){ FPS.n += (1 / gap - FPS.n) * 0.05; drawStep(gap); }
   if (CAPTURE.on){ if (CAPTURE.left <= 0){ requestAnimationFrame(frame); return; } CAPTURE.left--; dt = CAPTURE.dt; }
   pollPads(); padUI(); score();
   PBTN.style.display = STORY.active() || DEVICE.kind !== 'touch' ? 'none' : 'block'; artButton();
@@ -1594,7 +1607,7 @@ function drawHud(dt){
     HUD.lesson(L.show.map(([a, word]) => [kname(a), word]), sx, sy > HH - 30 ? sy - 52 : sy + 6, L.a, time); } }   // under him (over him, if he is low on the screen)
   HUD.label(TRY.on ? 'TRYING - NOT KEPT - ' + BUILD : BUILD);
   // where he is, for telling someone exactly: the room's name and his tile in it (Options: Place, or the F2 key)
-  if (OPT.place){ const r = roomAt(P.x, P.y), s = r ? `${r.name.toUpperCase()} ${Math.floor(P.x / T) - r.tx0},${Math.floor(P.y / T) - r.ty0}` : `${Math.floor(P.x / T)},${Math.floor(P.y / T)}`; HUD.fine(`${Math.round(FPS.n)} FPS · ${LEVEL.index + 1} ${s}`, Math.round(HUD.W / 2), HH - 9, '#fee761', 'center'); }
+  if (OPT.place){ const r = roomAt(P.x, P.y), s = r ? `${r.name.toUpperCase()} ${Math.floor(P.x / T) - r.tx0},${Math.floor(P.y / T) - r.ty0}` : `${Math.floor(P.x / T)},${Math.floor(P.y / T)}`; HUD.fine(`${Math.round(FPS.n)} FPS${DRAW.step ? ' D' + DRAW.step : ''} · ${LEVEL.index + 1} ${s}`, Math.round(HUD.W / 2), HH - 9, '#fee761', 'center'); }
   if (FLIGHT){ const u = FLIGHT.t / FLIGHT.dur; HUD.dark(0.16 + u * 0.3, '#cfe6ff'); HUD.g.globalAlpha = 0.35; for (let k = 0; k < 14; k++){ const y = (k * 37 + Math.floor(time * 60) * 13) % HH, x = (k * 71 + Math.floor(time * 60) * 29) % W; HUD.px('#ffffff', x, y, 18 + (k * 13) % 50, 1); } HUD.g.globalAlpha = 1; if (u > 0.82) HUD.dark((u - 0.82) / 0.18, '#ffffff'); }
   // a fall: the dark comes down after the drops have sunk, and lifts off him rising out of the water; the word over him
   if (DISS){ const t = DISS.t, k = t < DISS_T.dark ? 0 : t < DISS_T.raise ? (t - DISS_T.dark) / (DISS_T.raise - DISS_T.dark) : 1 - (t - DISS_T.raise) / (DISS_T.end - DISS_T.raise); if (k > 0) HUD.dark(Math.min(1, k), '#0b0810'); }
@@ -1638,7 +1651,7 @@ function drawHud(dt){
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { TRYING, options, copySave, pasteSave, FPS, get arrows(){ return ARROWS; }, knotMenu, tryMenu, tryStart, TRIES, MOMENTS, TRY, waterMenu, goUnder, waterList, get under(){ return UNDER; }, set atWater(v){ ATWATER = v; }, get shrines(){ return SHRINES; }, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, RULE, VERSION, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { TRYING, DRAW, options, copySave, pasteSave, FPS, get arrows(){ return ARROWS; }, knotMenu, tryMenu, tryStart, TRIES, MOMENTS, TRY, waterMenu, goUnder, waterList, get under(){ return UNDER; }, set atWater(v){ ATWATER = v; }, get shrines(){ return SHRINES; }, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, RULE, VERSION, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

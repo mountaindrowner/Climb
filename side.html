@@ -28,6 +28,12 @@
 #pad .mid .btn.flask.on{transform:scale(.93);background:rgba(234,212,170,.3)}
 #pad{z-index:5;grid-template-columns:1fr 1fr minmax(190px,26vw)}
 #pad .right{grid-column:3}
+/* (build 130) Options, Buttons: attack bottom right, jump beside it. Options, Button size: a quarter smaller or a fifth bigger */
+body[data-pad="attack"] #pad .col.right .a{grid-column:2;grid-row:2}
+body[data-pad="attack"] #pad .col.right .jump{grid-column:1;grid-row:2}
+body[data-ring="small"] #pad{height:clamp(116px,29vh,176px);grid-template-columns:1fr 1fr minmax(146px,20vw)}
+body[data-ring="small"] #pad .round{font-size:18px} body[data-ring="small"] #pad .round small{font-size:8px}
+body[data-ring="large"] #pad{height:clamp(180px,46vh,276px);grid-template-columns:1fr 1fr minmax(228px,31vw)}
 #pad .col.left{pointer-events:none}
 /* no stick on the screen: the left of it is the stick. A ring comes up where the thumb lands and goes when it lifts */
 #stick.float{position:absolute;left:0;top:28%;bottom:0;width:46%;z-index:4;touch-action:none;display:none}

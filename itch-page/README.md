@@ -1,13 +1,13 @@
 # The Climb: itch.io page kit
 
-Made from the game as it is at build 80. Work down this list; each line says where the thing goes.
+Made from the game as it is at build 80; brought up to date at build 130 (the description, four more screenshots, the release status's phase). Work down this list; each line says where the thing goes.
 
 | # | Item | File or value | Where |
 |---|---|---|---|
 | 1 | Cover | `images/cover.png` (630 x 500; `cover@2x.png` is the same at double size). `cover-alt.png` is a second choice: the title screen's mountain | Edit game > Upload Cover Image |
 | 2 | Title, tagline | `fields.md` | Edit game |
 | 3 | Embed settings | 960 x 540, fullscreen button, click to play, landscape (`fields.md`) | Edit game > Embed options |
-| 4 | Screenshots | `images/screenshot-1.png` to `-5.png`, in that order: the Gardens, the Warden, a fight in the Cloister, the Spires, talking to Ordric | Edit game > Add Screenshots |
+| 4 | Screenshots | `images/screenshot-1.png` to `-9.png`, in that order: the Gardens, the Warden, a fight in the Cloister, the Spires, talking to Ordric; and from build 130: the Pump under the water of the Flooded Levels, the Workings' long hall, the Shard from below, the game on a phone held sideways (with its buttons) | Edit game > Add Screenshots |
 | 5 | Trailer | none; a shot list is in `fields.md` | Edit game |
 | 6 | Banner | `images/banner.png` | Edit Theme > Banner |
 | 7 | Colours | `theme.md` | Edit Theme |

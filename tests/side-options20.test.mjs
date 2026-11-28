@@ -61,9 +61,9 @@ test('large text: the picture over the play drawn 144 tall (a quarter bigger), t
 });
 
 test('the frames a second, beside the place, measured before the step is capped', () => {
-  assert.match(main, /const FPS = \{ n: 60 \}/);
-  assert.match(main, /if \(gap > 0 && gap < 0\.5\) FPS\.n \+= \(1 \/ gap - FPS\.n\) \* 0\.05;/);
-  assert.match(main, /\$\{Math\.round\(FPS\.n\)\} FPS · /);
+  assert.match(main, /const FPS = \{ n: 60, slow: 0, odd: false \}/);
+  assert.match(main, /if \(gap > 0 && gap < 0\.5\)\{ FPS\.n \+= \(1 \/ gap - FPS\.n\) \* 0\.05; drawStep\(gap\); \}/);
+  assert.match(main, /\$\{Math\.round\(FPS\.n\)\} FPS\$\{DRAW\.step \? ' D' \+ DRAW\.step : ''\} · /);
 });
 
 test('the Home Screen: the tags, the manifest, the icons, and all of them in the itch.io build', () => {

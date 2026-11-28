@@ -55,6 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 130 | 28 Nov 2026 | `COMMIT130` | Phase 20: less drawn when the phone is slow (three steps, by itself; Options, Drawing: auto, full, light); the touch buttons in two layouts and three sizes; the whole game checked in order; the itch.io page kit brought up to date | no | yes (now) |
 | 129 | 28 Nov 2026 | `e3901cf` | Phase 18's last two questions, as decided (0.37): a rough face in the Spires' cliffs (the mouth) and one in the Tempest's masts (the rigging), each a tunnel, a chimney and a nook; Ordric at the summit holding his lantern dark | no | yes (now) |
 | 128 | 28 Nov 2026 | `4b081f4` | Phase 20: large text, Copy save and Paste save, "Rumble and vibration", the frames a second beside the place, the Home Screen icon and tags; the phone's top-left buttons under the weapon's box; menus fitted to a short screen. Every open question of phases 18 to 22 decided (0.37) | no | yes (now) |
 | 127 | 28 Nov 2026 | `ef5fa26` | Phase 20's first two items: the save kept twice (a copy, read if the save is lost), and the phone's buzz on Android. Watching the keepers no longer writes over the save. The sheets for phases 19 to 22 | no (a copy is added beside it) | yes (now) |
@@ -145,6 +146,52 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 130: less drawn when the phone is slow, and the buttons laid out
+
+*Phase 20, items 3 and 8, as decided (0.37: the steps by themselves, with "Drawing: auto, full, light"; the buttons as
+(b), two layouts and three sizes). Pictures: `docs/drawing-and-buttons-build130.png` (the three steps, close up: full,
+step 1, step 2; then attack bottom right at the large size, and jump bottom right at the small). No new drawings.*
+
+**For the player**
+
+- **When the phone cannot keep up, less is drawn.** The game counts the frames a second as it plays. Under 45 for
+  three seconds together, and it steps down once; still slow, again; three steps at most:
+  1. the last pass (the lights, the glow, the dither) is drawn at the world's own size and stretched, not at the
+     screen's. It looks nearly the same; the edges of the light are blockier;
+  2. no glow round torches, crystals and flames. This one changes the look;
+  3. thirty frames a second. He plays the same, less smoothly.
+  It never steps back up while the game is open, so it does not flicker between two. A menu, a story screen or a
+  region being made is not counted, and after a step it waits two seconds before counting again.
+- **Options, Drawing:** auto (as above), full (never steps down), light (all three at once).
+- **With Place shown,** the readout says the step: `40 FPS D1`.
+- **Options, Buttons:** jump bottom right (as before), or attack bottom right with jump beside it.
+- **Options, Button size:** small, middle (as before), large.
+- **To try:**
+  1. On your phone, Options, Place: shown. Play the Tempest ten minutes: does `D1` or more come up? Is it smoother
+     after?
+  2. Options, Drawing: light. Does it feel better, or worse?
+  3. Options, Buttons and Button size: find the ones your thumb likes.
+
+**What is weaker than it should be**
+
+- **The steps have not been felt on a phone.** The test browser draws without a graphics card, so its numbers say
+  nothing about one.
+- **Step 1 saves least.** On most phones the last pass is already drawn at a third of the real pixels each way.
+- **The small buttons' words are small.**
+
+- **Save: not moved.**
+- **Checked:** 639 automated checks, thirteen new (`tests/side-drawing.test.mjs`: auto stepping run over made-up
+  frames (fast: nothing; slow for three seconds: one step; the grace after; three at most; menus and region changes
+  not counted; never back up); full and light; what each step leaves out of the drawing; the button layouts and
+  sizes). The game opened at a phone's size in the test browser at each step and each layout: no errors.
+  And nine more (`tests/side-playthrough.test.mjs`, phase 20 item 10): the whole game in order from a new save. What
+  each region asks for, he has been given by the time he comes to it; each region of the climb to its keeper and on up;
+  the last region without the grip; the Shard only with it. (The Deep from the bottom up is `tests/side-throw`.)
+- **Not checked:** on a real phone.
+- **The itch.io page kit, brought up to date** (`itch-page/`): the description (six weapons, about 210 rooms, the save's
+  copy, the phone's options; the Deep's look and nothing of how he comes there), four more screenshots (the Pump under
+  the water, the Workings, the Shard from below, a phone), the release status's phase. For you to put on the page.
 
 ### Build 129: two more rough faces, and Ordric's lamp dark
 
