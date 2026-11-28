@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 124 | 27 Nov 2026 | `17250a5` | Phase 18, part 4: the Shard, twelve screens west of the summit. The underside (four rough faces up a shaft, a pane), the gap (the longest glide), the Shard (hanging; a keel to catch, a crust, one bare room, the old light). No fight, no one, nothing written | no (a save follows the level) | yes (now) |
+| 125 | 28 Nov 2026 | `COMMIT125` | Phase 18, part 5 (first half): the end read two ways, by whether he has stood at the Source; and the title after the end shows the light down the scar | no | yes (now) |
+| 124 | 27 Nov 2026 | `17250a5` | Phase 18, part 4: the Shard, twelve screens west of the summit. The underside (four rough faces up a shaft, a pane), the gap (the longest glide), the Shard (hanging; a keel to catch, a crust, one bare room, the old light). No fight, no one, nothing written | no (a save follows the level) | replaced by 125 |
 | 123 | 27 Nov 2026 | `d0eed06` | Phase 18, part 3: a rough face in each of the five passages between regions. A chimney in the passage's roof, a nook at its head; climbed with the grip and by nothing else | no | replaced by 124 |
 | 122 | 27 Nov 2026 | `1ed6379` | Phase 18, part 2: the Deep climbed from the bottom. A ring under the Assayer's grate unbars it from below; Hob's lines for one climbing out | no | replaced by 123 |
 | 121 | 27 Nov 2026 | `42b234c` | Phase 18 begun: the throw. At the door of the last region he is thrown down to the Hollow, at the bottom of the Deep, and climbs out; the Deep's doors open when he does. A new game clears everything | no | replaced by 122 |
@@ -140,6 +141,47 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 125: the end, read two ways
+
+*Phase 18, part 5, its first half (`docs/phase18-sheet.md`, and "As built: build 125" in it). Pictures:
+`docs/the-end-two-ways-build125.png`. No new drawings: the light, the ring in the water and the small flame are
+painted in code, in the ending's own picture. The three at the summit (Mirel, Corwen, Ordric) want two new drawings,
+which come to you first.*
+
+**For the player**
+
+- **At the end, the light goes down the scar to the water,** as it did.
+- **If he has stood at the Source** (at the bottom of the Hollow): the light runs on along the water to a small flame
+  standing on it, and it stays there to the end.
+- **If he has not:** at the water a ring widens and goes, and the light fades. Nothing shows where it ends.
+- **The lines are the same,** word for word.
+- **After the end, the title** shows the light down the scar for as long as the save is one that reached the beacon;
+  and the small flame at the water if he had found the Source.
+- **To try:**
+  1. Reach the beacon without going down to the Source, and watch the water at the mountain's foot.
+  2. Again, having stood at the Source. (Or "Try a place" with a save that has.)
+  3. After either, look at the title.
+
+**What is weaker than it should be**
+
+- **The flame is four pixels tall** in a picture 320 wide. It is easy to miss, and the difference between the two
+  endings is that flame.
+- **Nothing says which ending it was.** By design (the sheet: "never needing the second"), but a player who has not
+  found the Source has no way to know there was more.
+- **The three at the summit are not there yet.**
+- **Question 5 is unchanged:** after the ending, Continue takes him back where he was.
+- **Not watched by a person.**
+
+- **Save: not moved.** Reads two things it already had: that he reached the beacon, and that he stood at the Source.
+- **Checked:** 597 automated checks, three new (`tests/side-end.test.mjs`): the beacon starts the ending with
+  whether he has stood at the Source; the ending keeps the light and shows the flame with it, and without it a ring
+  and nothing after; the lines are unchanged; and the title, after the end, shows the light and (with the Source) the
+  flame, read from the save each time it is up. In the test browser: the whole ending played both ways, and the
+  title after each.
+- **Not checked:** not watched by hand; how it sounds.
+- **Mistakes caught before it went out:**
+  - **The flame's glow was first a square box** round it. Round, in three golds.
 
 ### Build 124: the Shard
 

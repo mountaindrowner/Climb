@@ -35,7 +35,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 124, date: '27 NOV 2026', phase: 18, phases: 22, last: 'THE SHARD: THE UNDERSIDE, THE GAP, AND THE OLD LIGHT' };
+const VERSION = { build: 125, date: '28 NOV 2026', phase: 18, phases: 22, last: 'THE END, READ TWO WAYS; THE LIGHT ON THE TITLE AFTER IT' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -419,6 +419,7 @@ function tryStart(t){
 function endTry(){ const back = () => { for (const k of Object.keys(G)) delete G[k]; Object.assign(G, JSON.parse(TRYING.snap)); }; ENT.reset(); back(); resetLevels(); enter(Math.min(G.level || 0, LEVELS.length - 1)); back(); TRY.on = false; TRYING.snap = null; BANNER = null; LATER.length = 0; }
 function resume(n){ menuHide(); STORY.kind = null; SCREEN = ''; PAUSE = false; if (LEVEL.index !== n) enter(n); else { const s = spawnPoint(); P = born(s.x, s.y); CHECK = null; if (BOSS) BOSS.reset(); ENT.reset(); banner(LEVEL.name, SUB[n] || '', 4); G.level = n; store(); } }
 function title(){
+  STORY.after = () => ({ done: !!G.done, source: !!G.source });   // the title after the end shows the light down the scar (story.js)
   if (VIEW.on) endView();   // back from watching: the save as it was
   if (TRY.on) endTry();     // back from trying a place: his own save, as it was
   // until the opening is in hand the title is shown without its buttons, a thin bar filling under it
@@ -969,7 +970,7 @@ function frame(ts){
 
   if ((!BOSS || BOSS.st === 'dead') && !WON && R.exits.some(x => Math.abs(P.x - x.x) < 1 && Math.abs(P.y - x.y) < 1.5)){
     WON = true; sfx.gold();
-    if (LEVEL.index < CLIMB_TOP) go(LEVEL.index + 1); else { G.done = true; store(); STORY.start('ending', {}, title); }   // the beacon: the end of the climb
+    if (LEVEL.index < CLIMB_TOP) go(LEVEL.index + 1); else { G.done = true; store(); STORY.start('ending', { source: !!G.source }, title); }   // the beacon: the end of the climb
   }
   if (GO.st){
     GO.t += dt;

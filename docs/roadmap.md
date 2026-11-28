@@ -488,7 +488,7 @@ then dresses the new shapes. One level a build, each held to a budget by a check
 ## Phase 18: the Shard, and the end of the story
 
 *Its sheet: `docs/phase18-sheet.md` (27 Nov). It takes in the throw into the Deep (0.26) and the rough faces carried
-from phase 17. **Part 4, the Shard: built (build 124),** to the sheet's (a): the light and nothing else. **Part 3, the rough faces: built (build 123), one in each passage.** **Part 2, the Deep upward: built (build 122).** **Part 1, the throw: built (build 121),** to what the sheet proposed (27 Nov: "continue with the phases"). The
+from phase 17. **Part 5, the end: the two readings and the title built (build 125); the three at the summit wait on two drawings.** **Part 4, the Shard: built (build 124),** to the sheet's (a): the light and nothing else. **Part 3, the rough faces: built (build 123), one in each passage.** **Part 2, the Deep upward: built (build 122).** **Part 1, the throw: built (build 121),** to what the sheet proposed (27 Nov: "continue with the phases"). The
 sheet's six questions are still open, and each can be changed.*
 
 - **The Shard,** reached with the grip, last.

@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The Shard (latest; build 124).** West of the room under the summit: four rough faces up a shaft, a pane, the longest glide in the game, and a piece of the mountain hanging in the sky with its keel rough to catch. Inside, behind a crust of cracked stone, one bare room and the old light. Nothing to fight, no one, nothing written. Anyone can walk under it and look up. 594 checks. The Firmament is four columns wider to the west; a save follows.
+**The end, read two ways (latest; build 125).** At the end the light comes down the scar to the water. If he has stood at the Source it runs on along the water to a small flame there, and stays; if he has not, it goes into the water and nothing shows where it ends. After the end, the title keeps the light down the scar, and the flame if he found it. The five lines are unchanged. 597 checks. No save is moved.
+
+**The Shard (build 124).** West of the room under the summit: four rough faces up a shaft, a pane, the longest glide in the game, and a piece of the mountain hanging in the sky with its keel rough to catch. Inside, behind a crust of cracked stone, one bare room and the old light. Nothing to fight, no one, nothing written. Anyone can walk under it and look up. 594 checks. The Firmament is four columns wider to the west; a save follows.
 
 **Rough faces in the passages (build 123).** In the roof of each of the five passages between regions there is a chimney, and its far wall is the pale rough rock of the Hollow. He walks under every one on the way up and can do nothing with them. With the grip he climbs it to a nook at its head, sixteen rows over the passage: a chest. 587 checks. No save is moved.
 

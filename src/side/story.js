@@ -168,6 +168,7 @@ export function makeStory(hud, heroBase){
   const px = (col, x, y, w = 1, h = 1) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), w, h); };
   S.maps = MAPS;
   S.active = () => !!S.kind;
+  S.after = () => ({});   // what the title shows of how the climb ended (main.js sets it: { done, source })
   S.start = (kind, opts = {}, done = null) => { S.kind = kind; S.t = 0; S.opts = opts; S.done = done; S.said = -1; S.shot = -1; };
   const end = () => { const d = S.done; S.kind = null; S.done = null; if (d) d(); };
   // a press: the title waits for its buttons; the rest can be hurried on once they have begun
@@ -251,7 +252,10 @@ export function makeStory(hud, heroBase){
   const say = (text, y, size, alpha, col = '#fff2d0', x = null) => words.push({ text, y, size, alpha, col, x });
 
   function title(dt){
-    g.drawImage(night, 0, 0); beacon(false, S.t); marker(0, S.t); snowfall(dt, -8);
+    g.drawImage(night, 0, 0); beacon(false, S.t); marker(0, S.t);
+    // after the end (build 125): the light down the scar, as he left it; and if he had stood at the Source, its flame
+    const after = S.after(); if (after.done){ scar(1, S.t); if (after.source) source(1, S.t); }
+    snowfall(dt, -8);
     say('THE CLIMB', 0.115, 0.08, Math.min(1, S.t / 1.2), '#fff2d0', 12);
     say('you fell. climb back to the flame.', 0.262, 0.032, ease((S.t - 0.8) / 1.2) * 0.85, '#cfe6ff', 13);
     // while the opening is still coming in: a thin bar where the buttons will be
@@ -377,14 +381,28 @@ export function makeStory(hud, heroBase){
     say(o.line, 0.262, 0.034, Math.min(1, (t - 0.3) / 0.5, (LEN.card - t) / 0.5), '#cfe6ff', 13);
     if (t >= LEN.card) end();
   }
+  // the scar's light: down the way he fell, from under the beacon to the water, u of the way (0 to 1)
+  function scar(u, t){ for (let y = APEX + 4; y < APEX + 4 + u * 152; y += 2){ const F = flank(y); if (F.l > 2) px(y % 4 ? PAL.fire3 : PAL.white, F.l + 4 + Math.round(Math.sin(y * 0.4 + t * 0.6) * 1.5), y); } }
+  const WATER = () => { const P = ridge(0); return { x0: flank(176).l + 4, x: P.x + 9, y: 175 }; };
+  // the light reaches the water and goes on along it, to a small flame standing on it (k: 0 to 1, how far it has come)
+  function source(k, t){ const W = WATER(), xe = Math.round(W.x0 + (W.x - W.x0) * k); for (let x = W.x0; x <= xe; x += 2) px(x % 4 ? PAL.fire3 : PAL.white, x, W.y + 1);
+    if (k < 1) return; const fl = Math.round(Math.sin(t * 9) * 0.6), br = 0.8 + Math.sin(t * 2.3) * 0.2;
+    for (const [r, al, c] of [[6, 0.14, PAL.fire2], [4, 0.3, '#feae34'], [2, 0.5, '#fee761']]){ g.globalAlpha = al * br; for (let dy = -r; dy <= r; dy++){ const half = Math.round(Math.sqrt(r * r - dy * dy)); px(c, W.x - half, W.y - 2 + dy, half * 2 + 1, 1); } } g.globalAlpha = 1;   // its glow, round
+    px('#feae34', W.x - 1, W.y - 2, 3, 2); px('#fee761', W.x - 1, W.y - 3, 3, 1); px('#fee761', W.x, W.y - 5 + fl, 1, 3 - fl); px(PAL.white, W.x, W.y - 2, 1, 1); }
+  // it goes into the water: a ring, widening, and nothing after
+  function ripple(k){ const W = WATER(), r = Math.round(1 + k * 7); g.globalAlpha = 1 - k; px(PAL.white, W.x0 - r, W.y + 1, 1, 1); px(PAL.white, W.x0 + r, W.y + 1, 1, 1); px(PAL.cyan, W.x0 - r + 1, W.y + 1, 2 * r - 1, 1); g.globalAlpha = 1; }
   function ending(dt){
     const t = S.t, k = ease((t - 9) / 9);
     g.drawImage(night, 0, 0); if (k > 0){ g.globalAlpha = k; g.drawImage(dawn, 0, 0); g.globalAlpha = 1; }
     beacon(t > 1.5, t); if (t < 1.8) marker(1, t); if (k < 0.5) snowfall(dt, -6);
     figure(hero.stand, 0, PEAK_X - 5, APEX - 8, 0, 14);
     if (t > 1.5 && S.said < 0){ S.said = 0; sfx.shrine && sfx.shrine(); }
-    // the light goes down the way he fell, to the water: it was never only at the top
-    if (t > 6 && t < 16){ const u = ease((t - 6) / 6); for (let y = APEX + 4; y < APEX + 4 + u * 152; y += 2){ const F = flank(y); if (F.l > 2) px(y % 4 ? PAL.fire3 : PAL.white, F.l + 4 + Math.round(Math.sin(y * 0.4) * 1.5), y); } }
+    // the light goes down the way he fell, to the water: it was never only at the top (build 125: read two ways). He has
+    // stood at the Source: it runs on along the water to the small flame there, which he has seen, and stays. He has
+    // not: it goes into the water, and the picture does not show where it ends
+    const src = !!S.opts.source;
+    if (t > 6 && (src || t < 16)){ const u = ease((t - 6) / 6), fade = src ? 1 : Math.min(1, (16 - t) / 2); g.globalAlpha = fade; scar(u, t); g.globalAlpha = 1; }
+    if (t > 12){ const w = t - 12; if (src) source(Math.min(1, w / 1.2), t); else if (w < 2.4) ripple(w / 2.4); }
     const L = [[2.2, 5.6, 'The flame you let die was burning.'], [6.2, 9.4, 'It had never gone out.'], [9.8, 13.6, 'It had gone down into the dark to find you.'], [14.2, 18.4, 'Below lay the whole mountain: the garden, the storm, the ice, the stone, the water.'], [19.0, 22.6, 'You did not climb it alone.']];
     for (const [a, b, text] of L) if (t > a && t < b) say(text, 0.88, 0.042, Math.min(1, (t - a) / 0.6, (b - t) / 0.6));
     if (t > 23.4){ say('THE CLIMB', 0.115, 0.08, ease((t - 23.4) / 1.5), '#fff2d0', 12); say('thank you for playing', 0.262, 0.03, ease((t - 24.6) / 1.5) * 0.85, '#c0cbdc', 13); }

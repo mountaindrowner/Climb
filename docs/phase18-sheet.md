@@ -177,6 +177,21 @@ purpose."
   his to walk (question 5).
 - **A second climb with something changed:** not in this phase. It stays an idea (`docs/circle.md`).
 
+### As built: build 125 (part 5, the end: the two readings and the title)
+
+*Pictures: `docs/the-end-two-ways-build125.png`. The three at the summit are not in this build: they want two new
+drawings, shown to you first.*
+
+| The sheet said | It is | Why |
+|---|---|---|
+| "The Fallen's fight stays as it is" | **So** | |
+| "He has stood at the Source: the light comes down the scar to the bottom, and the picture shows the small flame it reaches, which he has seen" | **So.** The light comes down the scar to the water at the mountain's foot, runs on along it, and comes to a small flame standing on the water. It stays to the end of the ending | |
+| "He has not: the light goes down into the water and the picture does not show where it ends" | **So.** At the water a ring widens and is gone; the light down the scar fades after it | |
+| "The five lines stay" | **They stay,** word for word | |
+| "The three, once more each, at the summit" | **Not yet** | Mirel without her shell and Corwen's open book are new drawings, and those are shown to you before they go in |
+| "After the end: the title shows the light down the scar" | **So,** for as long as the save is one that has reached the beacon. And the flame at the water, if he had stood at the Source | |
+| "And he wakes at the summit's water with the mountain his to walk (question 5)" | **Not changed.** After the ending the title comes up; Continue takes him back where he was | Question 5 is still yours |
+
 ## The order
 
 One build each, published as it is done:
