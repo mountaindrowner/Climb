@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 130 | 28 Nov 2026 | `COMMIT130` | Phase 20: less drawn when the phone is slow (three steps, by itself; Options, Drawing: auto, full, light); the touch buttons in two layouts and three sizes; the whole game checked in order; the itch.io page kit brought up to date | no | yes (now) |
+| 130 | 28 Nov 2026 | `39ef989` | Phase 20: less drawn when the phone is slow (three steps, by itself; Options, Drawing: auto, full, light); the touch buttons in two layouts and three sizes; the whole game checked in order; the itch.io page kit brought up to date | no | yes (now) |
 | 129 | 28 Nov 2026 | `e3901cf` | Phase 18's last two questions, as decided (0.37): a rough face in the Spires' cliffs (the mouth) and one in the Tempest's masts (the rigging), each a tunnel, a chimney and a nook; Ordric at the summit holding his lantern dark | no | yes (now) |
 | 128 | 28 Nov 2026 | `4b081f4` | Phase 20: large text, Copy save and Paste save, "Rumble and vibration", the frames a second beside the place, the Home Screen icon and tags; the phone's top-left buttons under the weapon's box; menus fitted to a short screen. Every open question of phases 18 to 22 decided (0.37) | no | yes (now) |
 | 127 | 28 Nov 2026 | `ef5fa26` | Phase 20's first two items: the save kept twice (a copy, read if the save is lost), and the phone's buzz on Android. Watching the keepers no longer writes over the save. The sheets for phases 19 to 22 | no (a copy is added beside it) | yes (now) |
