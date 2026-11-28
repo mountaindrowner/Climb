@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#0d0b12">
+<!-- (phase 20) opened from the Home Screen, it is the game alone: no browser bars. These do nothing inside itch.io's
+     frame; they work wherever the game is its own page -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="The Climb">
+<link rel="apple-touch-icon" href="assets/side/app/icon-180.png">
+<link rel="manifest" href="side.webmanifest">
 <title>The Climb: Side View</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,7 +20,9 @@
 </head>
 <body>
 <style>/* the side view: the hero stands low and in the middle, so the flask goes up under the hearts */
-#pad .mid{position:fixed;left:calc(env(safe-area-inset-left,0px) + 14px);top:calc(env(safe-area-inset-top,0px) + 62px);height:auto;align-items:flex-start;z-index:6}
+/* (build 128) set by the picture over the play's own rows (--hud-row: one of its rows, in the page's pixels), under the weapon's box
+   at either text size: placed by the page's pixels, on a short phone they lay over it */
+#pad .mid{position:fixed;left:calc(env(safe-area-inset-left,0px) + 14px);top:calc(env(safe-area-inset-top,0px) + var(--hud-row,2.2px) * 51);height:auto;align-items:flex-start;z-index:6}
 #pad .mid{gap:8px;flex-wrap:nowrap}
 #pad .mid .btn.flask{flex:none;width:auto;height:auto;min-height:30px;white-space:nowrap;padding:5px 10px;font-size:12px;background:rgba(24,20,37,.38);box-shadow:none;border:2px solid rgba(234,212,170,.5);border-radius:14px;color:#fff2d0;flex-direction:row;gap:6px}
 #pad .mid .btn.flask.on{transform:scale(.93);background:rgba(234,212,170,.3)}

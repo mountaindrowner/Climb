@@ -11,7 +11,7 @@ export function makeHud(hud){
   const px = (c, x, y, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), w, h); };
   const H = { W: 320, Hh: 180, bossLag: 1, bars: 0, hintT: 0 };
   // start a frame: the small canvas cleared, sized to the game's picture
-  H.begin = (w) => { const W = Math.max(160, Math.round(w)); if (lo.width !== W || lo.height !== 180){ lo.width = W; lo.height = 180; } H.W = W; g.clearRect(0, 0, W, 180); g.globalAlpha = 1; g.imageSmoothingEnabled = false; return g; };
+  H.begin = (w, hh = 180) => { const W = Math.max(160, Math.round(w)); if (lo.width !== W || lo.height !== hh){ lo.width = W; lo.height = hh; } H.W = W; H.Hh = hh; g.clearRect(0, 0, W, hh); g.globalAlpha = 1; g.imageSmoothingEnabled = false; return g; };
   // end it: up onto the screen, whole pixels
   H.end = () => {
     const w = hud.clientWidth, h = hud.clientHeight, dpr = devicePixelRatio || 1; if (hud.width !== Math.round(w * dpr) || hud.height !== Math.round(h * dpr)){ hud.width = Math.round(w * dpr); hud.height = Math.round(h * dpr); }
@@ -93,7 +93,7 @@ export function makeHud(hud){
   // the boss's bar: its name, its health, and behind that what it has just lost, running down after
   H.boss = (b, dt) => {
     if (!b){ H.bossLag = 1; return; }
-    H.bossLag = Math.max(b.frac, H.bossLag - dt * 0.35); const w = Math.min(170, H.W - 150), x = Math.round((H.W - w) / 2), y = 160;   // at the foot of the picture, over where a hint goes (build 87: at the top its name lay over his shards and its bar ran under the map)
+    H.bossLag = Math.max(b.frac, H.bossLag - dt * 0.35); const w = Math.min(170, H.W - 150), x = Math.round((H.W - w) / 2), y = H.Hh - 20;   // at the foot of the picture, over where a hint goes (build 87: at the top its name lay over his shards and its bar ran under the map)
     g.globalAlpha = 0.55; px(C.ink, x - 12, y - 14, w + 24, 22); g.globalAlpha = 1; text(g, b.name, H.W / 2, y - 11, C.cream, 1, 'center');
     px(C.ink, x - 2, y - 2, w + 4, 8); px(C.deep, x, y, w, 4); px(C.white, x, y, Math.round(w * H.bossLag), 4); px(b.phase === 2 ? C.fire1 : C.red1, x, y, Math.round(w * b.frac), 4); px(b.phase === 2 ? C.fire3 : '#f6757a', x, y, Math.round(w * b.frac), 1);
     px(b.phase === 2 ? C.fire2 : C.pale, x + Math.round(w / 2), y - 1, 1, 6);   // the mark at half: where it turns
@@ -164,16 +164,16 @@ export function makeHud(hud){
   // a boss comes: black closes in above and below, and its name is set out
   H.cinema = (on, dt, name, epithet, t) => {
     H.bars += ((on ? 1 : 0) - H.bars) * Math.min(1, dt * 5); const hgt = Math.round(H.bars * 16);
-    if (hgt > 0){ px(C.ink, 0, 0, H.W, hgt); px(C.ink, 0, 180 - hgt, H.W, hgt); }
-    if (on && name && t > 0.5){ const a = Math.min(1, (t - 0.5) / 0.5); g.globalAlpha = a; text(g, name, H.W / 2, 122, C.cream, 3, 'center'); H.rule(Math.round(H.W / 2), 148, 80, C.bone); text(g, epithet, H.W / 2, 154, C.pale, 1, 'center'); g.globalAlpha = 1; }
+    if (hgt > 0){ px(C.ink, 0, 0, H.W, hgt); px(C.ink, 0, H.Hh - hgt, H.W, hgt); }
+    if (on && name && t > 0.5){ const a = Math.min(1, (t - 0.5) / 0.5); g.globalAlpha = a; text(g, name, H.W / 2, H.Hh - 58, C.cream, 3, 'center'); H.rule(Math.round(H.W / 2), H.Hh - 32, 80, C.bone); text(g, epithet, H.W / 2, H.Hh - 26, C.pale, 1, 'center'); g.globalAlpha = 1; }
   };
   H.tell = (sx, sy, col = C.red1) => { for (let y = -5; y <= 5; y++) for (let x = -5; x <= 5; x++) if (Math.hypot(x, y) < 5.2) px(Math.hypot(x, y) > 4 ? col : C.ink, sx + x, sy + y); px(col, sx, sy - 3, 1, 4); px(col, sx, sy + 2, 1, 1); };   // red: it is about to strike; yellow: it has seen him
   // (a line too long for the picture is broken at one of its dots: build 78)
   H.hint = (lines, alpha) => { if (alpha <= 0) return; const out = [];
     for (const l of lines){ let cur = ''; for (const part of String(l).split(' · ')){ const t = cur ? cur + ' · ' + part : part; if (cur && H.richW(t) > H.W - 8){ out.push(cur); cur = part; } else cur = t; } if (cur) out.push(cur); }
-    g.globalAlpha = alpha * 0.6; px(C.ink, 0, 180 - 5 - out.length * 11, H.W, out.length * 11 + 5); g.globalAlpha = alpha; out.forEach((l, i) => H.rich(l, H.W / 2, 180 - 10 - (out.length - 1 - i) * 11, C.pale, 'center')); g.globalAlpha = 1; };
+    g.globalAlpha = alpha * 0.6; px(C.ink, 0, H.Hh - 5 - out.length * 11, H.W, out.length * 11 + 5); g.globalAlpha = alpha; out.forEach((l, i) => H.rich(l, H.W / 2, H.Hh - 10 - (out.length - 1 - i) * 11, C.pale, 'center')); g.globalAlpha = 1; };
   // the edges of the picture closing in (a keeper's entrance): bands of its colour (ink; the Wyrm's, frost), thickest at the edge
-  H.vignette = (a, col = C.ink) => { if (a <= 0) return; for (let k = 0; k < 12; k++){ g.globalAlpha = Math.min(1, a) * 0.5 * (1 - k / 12); const w = 4; px(col, k * w, 0, w, 180); px(col, H.W - (k + 1) * w, 0, w, 180); px(col, 0, k * 3, H.W, 3); px(col, 0, 180 - (k + 1) * 3, H.W, 3); } g.globalAlpha = 1; };
+  H.vignette = (a, col = C.ink) => { if (a <= 0) return; for (let k = 0; k < 12; k++){ g.globalAlpha = Math.min(1, a) * 0.5 * (1 - k / 12); const w = 4; px(col, k * w, 0, w, H.Hh); px(col, H.W - (k + 1) * w, 0, w, H.Hh); px(col, 0, k * 3, H.W, 3); px(col, 0, H.Hh - (k + 1) * 3, H.W, 3); } g.globalAlpha = 1; };
   // something huge passing over (the Wyrm, before it comes): a shadow across the top of the picture, f 0 to 1
   H.sweep = f => { if (f < 0 || f > 1) return; const cx = -H.W * 0.6 + f * H.W * 2.2, a = 0.7 * Math.sin(f * Math.PI);
     // a long body and two swept wings, soft-edged: three passes, each smaller and darker
@@ -183,13 +183,13 @@ export function makeHud(hud){
   // out under it and its words come up; held, then gone. Scaled whole pixels to fit the width
   H.title = T => {
     if (!T || T.t < 0 || T.t > 4.4) return;   // t < 0: the blow it comes on is seen first
-    const t = T.t, a = t < 3.6 ? 1 : Math.max(0, 1 - (t - 3.6) / 0.8), cx = Math.round(H.W / 2);
-    const s = Math.max(2, Math.min(5, Math.floor((H.W - 24) / Math.max(1, width(T.name, 1))))), slam = t < 0.16 ? 1 - t / 0.16 : 0, sc = s + (slam > 0.5 ? 1 : 0), y = 92 - Math.round(slam * 4);
-    g.globalAlpha = a * 0.6; px(C.ink, 0, 78, H.W, 7 * s + 40);                                         // a band to set it on
+    const t = T.t, a = t < 3.6 ? 1 : Math.max(0, 1 - (t - 3.6) / 0.8), cx = Math.round(H.W / 2), up = Math.round((180 - H.Hh) / 2);   // large text: the picture is shorter, so it is set higher
+    const s = Math.max(2, Math.min(5, Math.floor((H.W - 24) / Math.max(1, width(T.name, 1))))), slam = t < 0.16 ? 1 - t / 0.16 : 0, sc = s + (slam > 0.5 ? 1 : 0), y = 92 - up - Math.round(slam * 4);
+    g.globalAlpha = a * 0.6; px(C.ink, 0, 78 - up, H.W, 7 * s + 40);                                         // a band to set it on
     if (t < 0.3){ g.globalAlpha = (1 - t / 0.3) * 0.85; px('#ffffff', 0, y - 3, H.W, 7 * sc + 6); }     // the flash it comes in on
     g.globalAlpha = a * 0.45; for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1], [-2, 0], [2, 0]]) text(g, T.name, cx + dx, y + dy, T.glow, sc, 'center', null);   // its glow
     g.globalAlpha = a; text(g, T.name, cx, y, T.color, sc, 'center', C.ink);
-    g.globalAlpha = a * Math.min(1, t / 0.35); fine(g, T.role, cx, 82, C.light, 'center');
+    g.globalAlpha = a * Math.min(1, t / 0.35); fine(g, T.role, cx, 82 - up, C.light, 'center');
     const half = Math.round(Math.min(1, Math.max(0, (t - 0.12) / 0.45)) * Math.min(H.W / 2 - 16, width(T.name, sc) / 2 + 16)); g.globalAlpha = a; if (half > 6) H.rule(cx, y + 7 * sc + 6, half, T.glow);
     g.globalAlpha = a * Math.min(1, Math.max(0, (t - 0.5) / 0.5)); text(g, T.epithet, cx, y + 7 * sc + 12, C.pale, 1, 'center');
     g.globalAlpha = 1;
@@ -197,9 +197,9 @@ export function makeHud(hud){
   // Corwen's seal on a full page: red wax, pressed, a star in it
   H.seal = (cx, cy) => { for (let y = -8; y <= 8; y++) for (let x = -8; x <= 8; x++){ const d = Math.hypot(x, y) + ((x * 7 + y * 13) % 3 === 0 ? 0.6 : 0); if (d < 8.3) px(d > 7 ? C.ink : d > 5.6 ? C.red0 : C.red1, cx + x, cy + y); }
     for (const [x, y, w, h] of [[-1, -5, 3, 11], [-5, -1, 11, 3], [-3, -3, 7, 7]]) px(C.red0, cx + x, cy + y, w, h); px(C.fire3, cx - 1, cy - 4, 3, 9); px(C.fire3, cx - 4, cy - 1, 9, 3); px(C.cream, cx, cy, 1, 1); };
-  H.dark = (alpha, col = C.ink) => { if (alpha <= 0) return; g.globalAlpha = Math.min(1, alpha); px(col, 0, 0, H.W, 180); g.globalAlpha = 1; };
+  H.dark = (alpha, col = C.ink) => { if (alpha <= 0) return; g.globalAlpha = Math.min(1, alpha); px(col, 0, 0, H.W, H.Hh); g.globalAlpha = 1; };
   // where the game is: two small lines (over the pause screen; the title and the opening draw their own, story.js)
   H.version = (lines, alpha = 0.8, x = H.W - 4, align = 'right', y = 4) => { g.globalAlpha = alpha; lines.forEach((s, k) => fine(g, s, x, y + k * 7, k ? C.light : C.pale, align)); g.globalAlpha = 1; };
-  H.label = (str) => { g.globalAlpha = 0.35; fine(g, str, H.W - 3, 180 - 7, C.light, 'right'); g.globalAlpha = 1; };
+  H.label = (str) => { g.globalAlpha = 0.35; fine(g, str, H.W - 3, H.Hh - 7, C.light, 'right'); g.globalAlpha = 1; };
   return H;
 }

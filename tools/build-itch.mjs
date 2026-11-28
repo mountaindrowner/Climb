@@ -11,7 +11,7 @@ execFileSync(process.execPath, [join(root, 'tools/build-side-artifact.mjs')], { 
 // each file at the path the page asks for (the map's key, less the build folder), from its source (the value: not always the
 // same file, e.g. his sprite.json is the trimmed copy the build writes to dist/)
 const map = Object.entries(JSON.parse(readFileSync(join(root, 'dist/side-files.json'), 'utf8'))).map(([to, from]) => [to.replace(/^[^/]+\//, ''), from]);
-const files = [...new Map([...map, ['src/ui/styles.css', 'src/ui/styles.css']])];
+const files = [...new Map([...map, ['src/ui/styles.css', 'src/ui/styles.css'], ['side.webmanifest', 'side.webmanifest'], ...[180, 192, 512].map(n => [`assets/side/app/icon-${n}.png`, `assets/side/app/icon-${n}.png`])])];
 rmSync(stage, { recursive: true, force: true });
 for (const [to, from] of files){ if (!existsSync(join(root, from))) throw new Error('missing ' + from); mkdirSync(dirname(join(stage, to)), { recursive: true }); copyFileSync(join(root, from), join(stage, to)); }
 copyFileSync(join(root, 'side.html'), join(stage, 'index.html'));

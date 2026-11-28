@@ -55,6 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
+| 128 | 28 Nov 2026 | `COMMIT128` | Phase 20: large text, Copy save and Paste save, "Rumble and vibration", the frames a second beside the place, the Home Screen icon and tags; the phone's top-left buttons under the weapon's box; menus fitted to a short screen. Every open question of phases 18 to 22 decided (0.37) | no | yes (now) |
 | 127 | 28 Nov 2026 | `ef5fa26` | Phase 20's first two items: the save kept twice (a copy, read if the save is lost), and the phone's buzz on Android. Watching the keepers no longer writes over the save. The sheets for phases 19 to 22 | no (a copy is added beside it) | yes (now) |
 | 126 | 28 Nov 2026 | `244987f` | Phase 18, part 5 (second half): the three at the summit after the Fallen: Corwen's last page, Ordric's unlit lamp, Mirel's empty cradle. Phase 18 is built | no | replaced by 127 |
 | 125 | 28 Nov 2026 | `1d0294f` | Phase 18, part 5 (first half): the end read two ways, by whether he has stood at the Source; and the title after the end shows the light down the scar | no | replaced by 126 |
@@ -143,6 +144,56 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 128: large text, and the save copied and pasted
+
+*Phase 20, items 6 (the readout), 2 (the Home Screen, as far as itch.io allows), 3 (the save as text) and 9 (text
+size), and question 1's new name for the buzz (`docs/phase20-sheet.md`, "As built: build 128"). Built on my own
+answers to every question in the sheets for phases 18 to 22, which you left to me (28 Nov; decision 0.37). Pictures:
+`docs/options-build128.png` (at a phone's size: normal text with the readout; large text; Options; Copy save). No new
+drawings: the Home Screen icon is cut from the cover.*
+
+**For the player**
+
+- **Text size: large** (Options). Everything over the play (the hearts, the place, the banners, the hints, the
+  keepers' names, what is said) is a quarter bigger, and the menus with it. The pages over a pause (the map, the
+  Annals, the shop) keep their size: they are laid out to fill the screen.
+- **Copy save** (Options) shows the save as one line of text, selected, with a button that copies it. **Paste save**
+  takes such a line and makes it the save here, after asking once more if there is a save to replace. Anything that
+  is not a save is turned down and changes nothing. It carries a save from one phone to another, or from Safari to
+  the Home Screen.
+- **"Rumble" is "Rumble and vibration".**
+- **With Place shown** (Options, or F2), the frames a second are at the foot of the screen, beside the room and the
+  tile. That is the number to note on a phone.
+- **On a phone, the flask, embers and swap buttons** sit under the weapon's box. On a short phone held sideways they
+  lay over it, and over the swap key's mark, which is no longer drawn by touch (the swap button is there).
+- **A menu too tall for the screen** (Options, on a phone held sideways) is moved up, and made smaller only if it
+  still does not fit. Before, its last rows were off the foot of the screen.
+- **From a phone's Home Screen** the game has its own icon and opens without the browser's bars, wherever it is its
+  own page. Inside itch.io's frame these do nothing (the sheet says why).
+- **To try:**
+  1. Options, Text size: large. Play: the words are bigger. Pause: the map is as it was.
+  2. Options, Copy save, Copy it. Begin again in another browser, Options, Paste save, paste, Load this save: Continue
+     goes where you were.
+  3. Options, Place: shown. Ten minutes in the Tempest on your phone: note the frames a second.
+  4. Paste something that is not a save: it says so, and the save here is as it was.
+
+**What is weaker than it should be**
+
+- **Copying on an iPhone inside itch.io** may be refused by the frame. Then the line is shown selected, to copy by
+  hand.
+- **Large text covers more of the play.** The talk box and the hints are a quarter taller.
+- **The Home Screen inside itch.io does nothing.** An address of its own waits (decision 0.37).
+- **The readout's number in the test browser is not a phone's.** It draws without a graphics card.
+
+- **Save: not moved.** Pasting a save writes it and its copy, and reads it as any save is read.
+- **Checked:** 620 automated checks, seven new (`tests/side-options20.test.mjs`: a save copied and pasted comes back
+  the same, letters outside plain English and line breaks included; what is not a save is turned down and the save
+  is not touched; a pasted save is written with its copy; the options are there by their new names; the overlay
+  drawn 144 tall with large text and 180 over a pause, nothing in it placed by the old fixed height; the readout;
+  the Home Screen tags, manifest and icons, and all of them in the itch.io build). The game was opened at a phone's
+  size in the test browser, normal and large, Options and Copy save: no errors.
+- **Not checked:** on a real phone; the paste on an iPhone.
 
 ### Build 127: the save kept twice, and the phone's buzz
 

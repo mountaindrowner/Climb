@@ -120,6 +120,19 @@ is hunting him stays awake.
   5. Close the tab and open the game again: "Continue" takes you to where you were.
 - What it shows decides 3, 4 and 5.
 
+### As built: build 128
+
+| The sheet said | It is | Why |
+|---|---|---|
+| "A readout: the frames a second, beside the place (Options, Place: shown)" | **So,** at the foot of the screen in the middle | Beside the place, at the right, it was under the touch rings |
+| "Add the tags, a manifest (full screen, held sideways) and an icon to `side.html`" | **So.** The icon is cut from the cover round him, not the cover whole | The cover's title does not fit a square |
+| "Give the game an address of its own as well as itch.io" | **Not done** | Decided against for now (0.37): it is switched on in the repository's settings, and it puts the game somewhere new |
+| "Copy save and Paste save in Options, as a line of text" | **So.** The line starts `CLIMB-SAVE-1:`; a paste is asked about once more before it replaces a save | |
+| "Text size: normal, large. Large draws that picture 144 rows tall... and the menus' letters a quarter bigger with it" | **So,** over the play. The pages over a pause stay at 180 | They are laid out to fill the picture; at 144 they would not fit |
+| "Rumble" renamed (question 1) | **"Rumble and vibration"** | |
+| Not said | **The phone's flask, embers and swap buttons set by the picture's rows,** under the weapon's box | On a short phone they lay over it |
+| Not said | **A menu too tall for the screen is moved up to fit** | Options ran off the foot of a phone held sideways |
+
 ## The polish
 
 ### 7. The save made robust (built)

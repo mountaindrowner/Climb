@@ -16,7 +16,7 @@ import { newPlayer, stepPlayer, BODY, HOOKS, BLADE, swingOf, weaponOf, CAN, SIDE
 import { width as textWidth, width as pxWidth, text as pxText } from './pixelfont.js';
 const wrapText = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };
 const wrapFine = (str, w) => { const out = []; let line = ''; for (const word of String(str).split(' ')){ const t = line ? line + ' ' + word : word; if (textWidth(t, 1, true) > w && line){ out.push(line); line = word; } else line = t; } if (line) out.push(line); return out; };   // (the small print's widths)
-import { G, OPT, loadSave, store, storeOpt, wipe, rebase, TRY, WATCHING, fresh, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, ABILITY, ARRIVES, BOON, THREADS_A_HEART, DIFF } from './state.js';
+import { G, OPT, loadSave, store, storeOpt, wipe, saveText, readSaveText, takeSaveText, rebase, TRY, WATCHING, fresh, has, owns, wear, knots, KNOTS, maxHearts, maxFlask, RELICS, TEACH, ABILITY, ARRIVES, BOON, THREADS_A_HEART, DIFF } from './state.js';
 import { makeItems } from './items.js';
 import { makeTalk, SCRIPT, HOB_UP, SUMMIT } from './talk.js';
 import { ANNALS, PEOPLE_PAGE } from './annals.js';
@@ -36,7 +36,7 @@ const MV = TUNE.move;
 // Where the game is, set with every build: the build's number, the day, which phase of the plan (docs/roadmap.md) it
 // is in, and the last thing built. Shown on the title and the opening (top right), over the pause screen, and (the
 // number alone) in the corner in play, so a stale copy is easy to spot
-const VERSION = { build: 127, date: '28 NOV 2026', phase: 20, phases: 22, last: 'THE SAVE KEPT TWICE; THE PHONE BUZZES ON ANDROID' };
+const VERSION = { build: 128, date: '28 NOV 2026', phase: 20, phases: 22, last: 'LARGE TEXT; THE SAVE COPIED AND PASTED' };
 const BUILD = 'SIDE ' + VERSION.build, VERSION_LINES = [`BUILD ${VERSION.build} - ${VERSION.date}`, `PHASE ${VERSION.phase} OF ${VERSION.phases} - ${VERSION.last}`];
 
 const canvas = document.getElementById('gl'), hud = document.getElementById('hud'), hx = hud.getContext('2d');
@@ -339,7 +339,14 @@ const menuLabel = text => { const d = document.createElement('div'); d.textConte
 let MSEL = 0;
 const menuItems = () => [...MENU.querySelectorAll('button')];
 const menuMark = () => menuItems().forEach((b, i) => { const on = i === MSEL; if (b.dataset.ghost) return; if (b.dataset.edge == null) b.dataset.edge = b.style.borderColor; b.style.outline = 'none'; b.style.borderColor = on ? '#fff2d0' : b.dataset.edge; b.style.boxShadow = on ? 'inset 5px 0 0 #e43b44, inset 6px 0 0 #a22633, 3px 3px 0 #0b0810' : '3px 3px 0 #0b0810'; b.style.color = on ? '#fff2d0' : (b.dataset.ink || (b.dataset.ink = b.style.color)); });   // the chosen one wears a piece of his ribbon down its left edge
-const menuShow = (rows, left = false, back = null) => { MENU.back = back; MENU.innerHTML = ''; MENU.style.bottom = ''; MENU.style.gap = '10px'; MENU.style.width = ''; MENU.style.right = '0'; MENU.style.display = 'flex'; MENU.style.alignItems = left ? 'flex-start' : 'center'; MENU.style.paddingLeft = left ? '4%' : '0'; MENU.style.top = left ? '36%' : '56%'; for (const r of rows) if (r) MENU.appendChild(r); MSEL = 0; menuMark(); };
+const menuShow = (rows, left = false, back = null) => { MENU.back = back; MENU.innerHTML = ''; MENU.style.transform = ''; MENU.style.bottom = ''; MENU.style.gap = '10px'; MENU.style.width = ''; MENU.style.right = '0'; MENU.style.display = 'flex'; MENU.style.alignItems = left ? 'flex-start' : 'center'; MENU.style.paddingLeft = left ? '4%' : '0'; MENU.style.top = left ? '36%' : '56%'; for (const r of rows) if (r) MENU.appendChild(r); MSEL = 0; menuMark(); requestAnimationFrame(menuFit); };
+// (build 128) a menu a quarter bigger with large text; and any menu taller than the screen (Options, on a phone held
+// sideways) moved up, and made smaller only if it still does not fit, so that all of it can be reached
+function menuFit(){ if (MENU.style.display === 'none') return; MENU.style.transform = ''; const par = MENU.offsetParent || document.body, pr = par.getBoundingClientRect(), r = MENU.getBoundingClientRect();
+  const H = pr.height || innerHeight, sc = Math.min(OPT.big ? 1.25 : 1, (H - 8) / Math.max(1, r.height)), top = r.top - pr.top;
+  MENU.style.transformOrigin = MENU.style.alignItems === 'flex-start' ? 'top left' : 'top center'; if (sc !== 1) MENU.style.transform = `scale(${sc.toFixed(3)})`;
+  if (top + r.height * sc > H - 4) MENU.style.top = Math.max(4, H - 4 - r.height * sc) + 'px'; }
+addEventListener('resize', () => requestAnimationFrame(menuFit));
 const menuHide = () => { MENU.style.display = 'none'; MENU.innerHTML = ''; MENU.back = null; release(); };   // and nothing pressed in it carries into play
 function begin(){   // from the start: the fall, then he gets up at the bottom
   // a first climb finds the Roots already made (they were made behind the title, as they are at the first): made again
@@ -441,6 +448,7 @@ function options(back){
     cyc('Sound', 'sfx', [0, 0.4, 0.7, 1], ['off', 'low', 'mid', 'full'], () => { setMix('sfx', OPT.sfx); sfx.shard(); }),
     cyc('Voices', 'voice', [0, 0.4, 0.8, 1], ['off', 'low', 'mid', 'full'], () => { setMix('voice', OPT.voice); say(voiceOf('lamplighter'), { v: 'a', p: 1, g: 1 }); }),
     cyc('Text', 'text', ['slow', 'normal', 'fast', 'now'], ['slow', 'normal', 'fast', 'at once']),
+    cyc('Text size', 'big', [false, true], ['normal', 'large'], () => requestAnimationFrame(menuFit)),
     cyc('Hints', 'hints', [true, false], ['on', 'off']),
     cyc('Score', 'synth', [false, true], ['recorded', 'made as it plays']),
     cyc('Shake', 'shake', [0, 0.5, 1], ['off', 'soft', 'full']),
@@ -448,8 +456,32 @@ function options(back){
     cyc('Difficulty', 'diff', [0, 1, 2], DIFF.map((d, i) => d + [' (two hearts more)', '', ' (two hearts fewer)'][i]), () => { P.maxHp = maxHearts(); P.hp = Math.min(P.hp, P.maxHp); }),
     cyc('Phone mode', 'phone', ['auto', true, false], [phoneNow() && OPT.phone === 'auto' ? 'auto (on)' : 'auto', 'on', 'off'], () => { LOW.on = phoneNow(); banner('', 'phone mode ' + (LOW.on ? 'on' : 'off') + ': from the next region', 2.4); }),
     cyc('Place', 'place', [false, true], ['hidden', 'shown (for notes)']),
-    cyc('Rumble', 'rumble', [true, false], ['on', 'off'], () => { SET.rumble = OPT.rumble; saveSettings(); if (OPT.rumble) buzz(0.5, 0.5, 160); })]),
+    cyc('Rumble and vibration', 'rumble', [true, false], ['on', 'off'], () => { SET.rumble = OPT.rumble; saveSettings(); if (OPT.rumble) buzz(0.5, 0.5, 160); }),
+    menuButton('Copy save', () => copySave(() => options(back)), true), menuButton('Paste save', () => pasteSave(() => options(back)), true)]),
     menuButton('Back', back, true)], false, back); MENU.style.top = '34%';
+}
+// ---- a copy of the save the player holds (phase 20): the save as one line of text, to keep, or to paste into the game
+// somewhere else (Safari to the Home Screen, one phone to another). Pasted, it takes the place of the save here
+function saveBox(text, ro){ const ta = document.createElement('textarea'); ta.value = text; ta.readOnly = !!ro; ta.spellcheck = false; ta.rows = 4;
+  ta.style.cssText = 'width:min(88vw,520px);background:#0b0810;color:#fff2d0;border:2px solid #3a4466;font:12px monospace;padding:6px;resize:none;word-break:break-all;text-transform:none';
+  for (const k of ['keydown', 'keyup']) ta.addEventListener(k, e => { if (e.key !== 'Escape') e.stopPropagation(); });   // typing is not play
+  return ta; }
+function copySave(back){
+  const ta = saveBox(G.began ? saveText() : '', true), said = menuLabel(G.began ? 'YOUR SAVE, AS ONE LINE. KEEP IT, OR PASTE IT INTO THE GAME ON ANOTHER PHONE' : 'THERE IS NO SAVE YET');
+  const copy = menuButton('Copy it', () => { ta.select(); let ok = false; try { ok = document.execCommand('copy'); } catch (e){}
+    const done = y => { copy.textContent = y ? 'Copied' : 'Select it and copy it yourself'; }; if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ta.value).then(() => done(true), () => done(ok)); else done(ok); }, true);
+  menuShow([menuLabel('COPY SAVE'), said, G.began ? ta : null, G.began ? copy : null, menuButton('Back', back, true)], false, back); MENU.style.top = '24%';
+  if (G.began){ ta.focus(); ta.select(); }
+}
+function pasteSave(back){
+  const ta = saveBox('', false), said = menuLabel('PASTE A SAVE YOU COPIED. IT TAKES THE PLACE OF THE SAVE HERE'); ta.placeholder = 'CLIMB-SAVE-1:...';
+  let sure = false; const take = menuButton('Load this save', () => {
+    if (!readSaveText(ta.value)){ take.textContent = 'That is not a save. Try copying it again'; sure = false; return; }
+    if (G.began && !sure){ sure = true; take.textContent = 'Load it? The save here will be replaced'; return; }
+    if (!takeSaveText(ta.value)){ take.textContent = 'It could not be written here'; return; }
+    deepDoors(); resetLevels(); enter(Math.min(G.level || 0, LEVELS.length - 1)); title(); banner('', 'Save loaded', 2.4); }, true);
+  ta.addEventListener('input', () => { sure = false; take.textContent = 'Load this save'; });
+  menuShow([menuLabel('PASTE SAVE'), said, ta, take, menuButton('Back', back, true)], false, back); MENU.style.top = '24%'; ta.focus();
 }
 // ---- Corwen's Annals: a page for each region (its keeper and its creatures) and one for the three who climb. Drawn on
 // the HUD (drawAnnals); the buttons under it turn the pages; so do left and right (and the shoulder buttons)
@@ -885,8 +917,12 @@ function heroPose(P, t){
 let last = 0, acc = 0, time = 0;
 // capture: for recording play frame by frame (tools), the game moves only when asked, a fixed step each time
 const CAPTURE = { on: false, left: 0, dt: 1 / 24 };
+// frames a second, as they come (Options, Place: shown beside the place), so what a phone does is a number. Read off
+// the time between frames before it is capped; a gap of more than half a second (the page put away) is left out
+const FPS = { n: 60 };
 function frame(ts){
-  const now = ts / 1000; let dt = last ? Math.min(0.05, now - last) : 1 / 60; last = now;
+  const now = ts / 1000, gap = last ? now - last : 0; let dt = last ? Math.min(0.05, gap) : 1 / 60; last = now;
+  if (gap > 0 && gap < 0.5) FPS.n += (1 / gap - FPS.n) * 0.05;
   if (CAPTURE.on){ if (CAPTURE.left <= 0){ requestAnimationFrame(frame); return; } CAPTURE.left--; dt = CAPTURE.dt; }
   pollPads(); padUI(); score();
   PBTN.style.display = STORY.active() || DEVICE.kind !== 'touch' ? 'none' : 'block'; artButton();
@@ -1522,14 +1558,19 @@ function hudTips(dt){
   if (!TIP){ if (PLAYED < 2.5) return; const next = TIPS.find(t => !T2['hud_' + t[0]] && t[1]()); if (!next) return; T2['hud_' + next[0]] = 1; store(); TIP = { tip: next, t: 0 }; }
   TIP.t += dt; const a = Math.max(0, Math.min(1, TIP.t / 0.3, (6 - TIP.t) / 0.6)), [x, y, w, h] = TIP.tip[2](); HUD.point(x, y, w, h, TIP.tip[3], a, TIP.t); if (TIP.t > 6) TIP = null;
 }
+const HUDEL = document.getElementById('hud'); let HUDROW = 0;
 function drawHud(dt){
   // the HUD's own picture is 180 tall, and as wide as that makes the window: its pixels are square. (Until build 78 it
   // took the world's width, which grew each time the view was drawn back, to 440 by 180 on a 16:9 screen: everything
   // in it was drawn 37% taller than wide. A playtest saw it in the portraits.) Never narrower than 288: a 16:10 screen
-  HUD.begin(Math.max(288, R.size().w * 180 / R.size().h)); const W = HUD.W, v = new window.THREE.Vector3();
+  // Large text (Options, Text size) draws it 144 tall over the play, so all of it is a quarter bigger; the pages
+  // over a pause (the map, the Annals, the shop) are laid out for 180 and keep it
+  const HH = OPT.big && !PAUSE && !NOTE ? 144 : 180;
+  HUD.begin(Math.max(288 * HH / 180, R.size().w * HH / R.size().h), HH); const W = HUD.W, v = new window.THREE.Vector3();
+  { const k = (HUDEL.clientHeight || 1) / HH; if (Math.abs(k - HUDROW) > 0.01){ HUDROW = k; document.documentElement.style.setProperty('--hud-row', k.toFixed(3) + 'px'); } }   // the touch buttons are set by it (side.html)
   // a red ! over a creature winding up
-  for (const e of E.list){ if (e.alive && e.noticeT > 0 && !(e.tellT > 0)){ e.noticeT -= dt; v.set(e.x, e.y + e.d.h + 0.7, 0).project(R.camera); HUD.tell(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180), '#fee761'); }
-    if (!e.alive || !(e.tellT > 0)) continue; e.tellT -= dt; v.set(e.x, e.y + e.d.h + 0.7, 0).project(R.camera); HUD.tell(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180)); }
+  for (const e of E.list){ if (e.alive && e.noticeT > 0 && !(e.tellT > 0)){ e.noticeT -= dt; v.set(e.x, e.y + e.d.h + 0.7, 0).project(R.camera); HUD.tell(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * HH), '#fee761'); }
+    if (!e.alive || !(e.tellT > 0)) continue; e.tellT -= dt; v.set(e.x, e.y + e.d.h + 0.7, 0).project(R.camera); HUD.tell(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * HH)); }
   const rising = !!(BOSS && BOSS.st === 'rise');
   HUD.dark((ENT.vig || 0) * 0.32, ENT.tint); HUD.vignette(ENT.vig || 0, ENT.vigCol); HUD.sweep(ENT.sweep);   // the hall darkens, the sky too, and closes in; something passes over
   HUD.cinema(rising && ENT.st !== 'seal', dt, '', '', 0);   // the bars; its name is the entrance's (HUD.title)
@@ -1537,7 +1578,7 @@ function drawHud(dt){
   if (BOSS && BOSS.st === 'fight' && !BOSS.shown && !ENT.title){ BOSS.shown = true; banner('', BOSS.hint, 3.5); }   // once it is up: how it is hurt
   if (!rising && !TALK.on && !FLIGHT){
     const onKeys = DEVICE.kind !== 'touch';
-    HUD.status(P, EMBER.n, EMBER.cap, P.flaskMax, time, ARTS.cost, embersKnown(), { art: onKeys ? kname('art') : null }); HUD.weapon(weaponOf(P).icon, (G.arms || []).length ? kname('swap') : null, drawIcon); PURSE = Math.max(0, PURSE - dt);
+    HUD.status(P, EMBER.n, EMBER.cap, P.flaskMax, time, ARTS.cost, embersKnown(), { art: onKeys ? kname('art') : null }); HUD.weapon(weaponOf(P).icon, (G.arms || []).length && onKeys ? kname('swap') : null, drawIcon); PURSE = Math.max(0, PURSE - dt);
     HUD.purse(P, P.flaskMax, G.shards, PURSE, G.threads % THREADS_A_HEART, THREADS_A_HEART, onKeys && P.hp < P.maxHp && P.flask > 0 ? kname('flask') : null);   // the flask's key stands by it while a drink would help
     hudTips(dt);
     const room = roomAt(P.x, P.y); if (room && !MAP.seen.has(room)){ MAP.seen.add(room); const k = LEVEL.rooms.indexOf(room), list = ((G.rooms = G.rooms || {})[LEVEL.index] = G.rooms[LEVEL.index] || []); if (k >= 0 && !list.includes(k)){ list.push(k); DIRTY = DIRTY > 0 ? DIRTY : 2; } }
@@ -1549,12 +1590,12 @@ function drawHud(dt){
     HUD.map(MAP.c, LEVEL.W, LEVEL.H, MAP.seen, room, T, dots, heightHere(), SPANS, LEVEL.index, time, P, clouds());
   }
   if (BANNER && !TALK.on && !NOTE && !(PAUSE && SCREEN && SCREEN !== 'pause')){ BANNER.t -= dt; HUD.banner(BANNER.a, BANNER.b, Math.max(0, Math.min(1, BANNER.t, (BANNER.life - BANNER.t) * 3))); if (BANNER.t <= 0) BANNER = null; }
-  { const L = TEACHER.shown(); if (L && !PAUSE && !TALK.on && !NOTE && !rising){ v.set(P.x, P.y, 0).project(R.camera); const sx = Math.round((v.x + 1) / 2 * W), sy = Math.round((1 - v.y) / 2 * 180);
-    HUD.lesson(L.show.map(([a, word]) => [kname(a), word]), sx, sy > 150 ? sy - 52 : sy + 6, L.a, time); } }   // under him (over him, if he is low on the screen)
+  { const L = TEACHER.shown(); if (L && !PAUSE && !TALK.on && !NOTE && !rising){ v.set(P.x, P.y, 0).project(R.camera); const sx = Math.round((v.x + 1) / 2 * W), sy = Math.round((1 - v.y) / 2 * HH);
+    HUD.lesson(L.show.map(([a, word]) => [kname(a), word]), sx, sy > HH - 30 ? sy - 52 : sy + 6, L.a, time); } }   // under him (over him, if he is low on the screen)
   HUD.label(TRY.on ? 'TRYING - NOT KEPT - ' + BUILD : BUILD);
   // where he is, for telling someone exactly: the room's name and his tile in it (Options: Place, or the F2 key)
-  if (OPT.place){ const r = roomAt(P.x, P.y), s = r ? `${r.name.toUpperCase()} ${Math.floor(P.x / T) - r.tx0},${Math.floor(P.y / T) - r.ty0}` : `${Math.floor(P.x / T)},${Math.floor(P.y / T)}`; HUD.fine(`${LEVEL.index + 1} ${s}`, HUD.W - 3, 172 - 9, '#fee761', 'right'); }
-  if (FLIGHT){ const u = FLIGHT.t / FLIGHT.dur; HUD.dark(0.16 + u * 0.3, '#cfe6ff'); HUD.g.globalAlpha = 0.35; for (let k = 0; k < 14; k++){ const y = (k * 37 + Math.floor(time * 60) * 13) % 180, x = (k * 71 + Math.floor(time * 60) * 29) % W; HUD.px('#ffffff', x, y, 18 + (k * 13) % 50, 1); } HUD.g.globalAlpha = 1; if (u > 0.82) HUD.dark((u - 0.82) / 0.18, '#ffffff'); }
+  if (OPT.place){ const r = roomAt(P.x, P.y), s = r ? `${r.name.toUpperCase()} ${Math.floor(P.x / T) - r.tx0},${Math.floor(P.y / T) - r.ty0}` : `${Math.floor(P.x / T)},${Math.floor(P.y / T)}`; HUD.fine(`${Math.round(FPS.n)} FPS · ${LEVEL.index + 1} ${s}`, Math.round(HUD.W / 2), HH - 9, '#fee761', 'center'); }
+  if (FLIGHT){ const u = FLIGHT.t / FLIGHT.dur; HUD.dark(0.16 + u * 0.3, '#cfe6ff'); HUD.g.globalAlpha = 0.35; for (let k = 0; k < 14; k++){ const y = (k * 37 + Math.floor(time * 60) * 13) % HH, x = (k * 71 + Math.floor(time * 60) * 29) % W; HUD.px('#ffffff', x, y, 18 + (k * 13) % 50, 1); } HUD.g.globalAlpha = 1; if (u > 0.82) HUD.dark((u - 0.82) / 0.18, '#ffffff'); }
   // a fall: the dark comes down after the drops have sunk, and lifts off him rising out of the water; the word over him
   if (DISS){ const t = DISS.t, k = t < DISS_T.dark ? 0 : t < DISS_T.raise ? (t - DISS_T.dark) / (DISS_T.raise - DISS_T.dark) : 1 - (t - DISS_T.raise) / (DISS_T.end - DISS_T.raise); if (k > 0) HUD.dark(Math.min(1, k), '#0b0810'); }
   if (RISEN){ RISEN.t += dt; const t = RISEN.t, a = Math.max(0, Math.min(1, (t - 0.5) / 0.6, (3.4 - t) / 0.8));
@@ -1562,7 +1603,7 @@ function drawHud(dt){
     if (t > 3.4) RISEN = null; }
   if (FLASH > 0 && OPT.flash) HUD.dark(FLASH * 1.4, '#ffffff');
   // over what he can use: the key for it
-  if (USE && !PAUSE && !TALK.on && !NOTE){ v.set(USE.x, USE.y + (USE.type === 'npc' ? 2.6 : 1.5), 0).project(R.camera); HUD.prompt(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * 180), USE.type === 'npc' ? 'TALK' : USE.type === 'flame' ? (G.under ? 'THE WATER' : 'TIE KNOTS') : 'OPEN', time, kname('down')); }
+  if (USE && !PAUSE && !TALK.on && !NOTE){ v.set(USE.x, USE.y + (USE.type === 'npc' ? 2.6 : 1.5), 0).project(R.camera); HUD.prompt(Math.round((v.x + 1) / 2 * W), Math.round((1 - v.y) / 2 * HH), USE.type === 'npc' ? 'TALK' : USE.type === 'flame' ? (G.under ? 'THE WATER' : 'TIE KNOTS') : 'OPEN', time, kname('down')); }
   TALK.draw(HUD, dt, time);
   if (NOTE) drawCard(NOTE, W, true); else if (!(PAUSE && (SCREEN === 'carry' || SCREEN === 'shop'))) flavour('');
   if (PAUSE && SCREEN === 'annals') drawAnnals(W);
@@ -1597,7 +1638,7 @@ function drawHud(dt){
   HUD.end();
   const pips = document.getElementById('pips'), pv = '●'.repeat(P.flask) + '○'.repeat(Math.max(0, P.flaskMax - P.flask)); if (pips && pips.textContent !== pv) pips.textContent = pv;
 }
-window.__side = { TRYING, get arrows(){ return ARROWS; }, knotMenu, tryMenu, tryStart, TRIES, MOMENTS, TRY, waterMenu, goUnder, waterList, get under(){ return UNDER; }, set atWater(v){ ATWATER = v; }, get shrines(){ return SHRINES; }, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, RULE, VERSION, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
+window.__side = { TRYING, options, copySave, pasteSave, FPS, get arrows(){ return ARROWS; }, knotMenu, tryMenu, tryStart, TRIES, MOMENTS, TRY, waterMenu, goUnder, waterList, get under(){ return UNDER; }, set atWater(v){ ATWATER = v; }, get shrines(){ return SHRINES; }, giftStart, get gift(){ return GIFT; }, teach: TEACHER, card, carryScreen, onEvent: e => onEvent(e), get music(){ return MUSIC; }, get GO(){ return GO; }, get ENT(){ return ENT; }, low: LOW, entered: ENTERED, crossed: CROSSED, gate: GATE, annals, score: SCORE, get P(){ return P; }, set P(v){ P = v; }, R, LEVEL, RULE, VERSION, CAN, PHASE, G, OPT, get props(){ return PROPS; }, get items(){ return ITEMS; }, talk: TALK, shop, pause, learn, get note(){ return NOTE; }, weapons: null, CAM, input: null, get E(){ return E; }, get BOSS(){ return BOSS; }, capture: CAPTURE, go, enter, story: STORY, title, get scarf(){ return SCF; }, ember: EMBER };
 import('../core/input.js').then(m => { window.__side.input = m; });
 import('../config/weapons.js').then(m => { window.__side.weapons = m.WEAPONS.sword; });
 addEventListener('pointerdown', () => ac(), { once: true });

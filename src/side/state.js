@@ -17,7 +17,7 @@ import { TUNE } from '../config/tuning.js';
 const KEY = 'climb-side', OKEY = 'climb-side-opts';
 const blank = () => ({ can: {}, seamed: 1, level: 0, top: 0, beat: [], shards: 0, threads: 0, hearts: 0, flasks: 0, edge: 0, relics: [], worn: [], knots: 0, arms: [], wield: 'blade', got: {}, broke: {}, met: {}, charts: [], began: false, falls: 0, seen: {}, slain: {}, keepers: {}, blocked: {}, fallsBy: {}, sealed: {}, rooms: {}, joined: 1, winged: 6 });
 export const G = blank();
-export const OPT = { music: 0.7, sfx: 1, voice: 0.8, text: 'normal', shake: 1, flash: 1, diff: 1, synth: false, rumble: true, phone: 'auto', hints: true };   // hints: the opening's help when he struggles (teach.js)   // phone: 'auto' (by the device), true, false   // diff: 0 story, 1 climber, 2 summit
+export const OPT = { music: 0.7, sfx: 1, voice: 0.8, text: 'normal', shake: 1, flash: 1, diff: 1, synth: false, rumble: true, phone: 'auto', hints: true, big: false };   // hints: the opening's help when he struggles (teach.js)   // phone: 'auto' (by the device), true, false   // diff: 0 story, 1 climber, 2 summit
 const read = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e){ return null; } };
 // the seams (build 30) moved the Cloister and the regions above it up three rooms (69 tiles): what a save had found and
 // broken there is by tile, so it is moved up with them, once
@@ -75,6 +75,18 @@ const BACKUP = KEY + '-backup';
 const usable = s => !!s && typeof s === 'object' && !Array.isArray(s);
 export function readSave(){ const s = read(KEY); if (usable(s)) return s; const b = read(BACKUP); return usable(b) ? b : s; }
 export function loadSave(){ const s = readSave(); Object.assign(G, blank()); if (s && typeof s === 'object'){ seamed(s); joined(s); winged(s); knotted(s); gifted(s); Object.assign(G, s); G.top = Math.max(G.top || 0, G.level || 0); G.began = true; } const o = read(OKEY); if (o) Object.assign(OPT, o); return G; }
+// (phase 20) a copy of the save the player holds: one line of text (Options, Copy save), and that line given back
+// (Paste save). It carries a save from Safari to the Home Screen, or to another phone. The line is the save itself,
+// marked so that nothing else pasted is taken for one
+const MARK = 'CLIMB-SAVE-1:';
+export function saveText(){ const s = JSON.stringify(G); return MARK + btoa(unescape(encodeURIComponent(s))); }
+export function readSaveText(text){ const t = String(text || '').replace(/\s+/g, ''); if (!t.startsWith(MARK)) return null;
+  let s; try { s = JSON.parse(decodeURIComponent(escape(atob(t.slice(MARK.length))))); } catch (e){ return null; }
+  return usable(s) && Array.isArray(s.beat) && typeof s.level === 'number' ? s : null; }
+// the pasted save becomes his: written under KEY and its copy, then read as any save is
+export function takeSaveText(text){ const s = readSaveText(text); if (!s) return false; const v = JSON.stringify(s);
+  try { localStorage.setItem(KEY, v); localStorage.setItem(BACKUP, v); } catch (e){ return false; }
+  for (const k of Object.keys(G)) delete G[k]; loadSave(); return true; }
 // trying a place from the title (main.js tryStart): what happens then is not his save. It is written beside it, and his
 // own is not touched
 export const TRY = { on: false };
