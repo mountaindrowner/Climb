@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 132 | 28 Nov 2026 | `COMMIT132` | Phase 19, build 2, the pilot: the Scriptorium as the Cloister's piece through a wall, with a harpsichord figure that starts over before its end; the other way (made whole in code) in Listen | no | yes (now) |
+| 132 | 28 Nov 2026 | `4405c72` | Phase 19, build 2, the pilot: the Scriptorium as the Cloister's piece through a wall, with a harpsichord figure that starts over before its end; the other way (made whole in code) in Listen | no | yes (now) |
 | 131 | 28 Nov 2026 | `d5e4577` | Phase 19, build 1: no section silent (every wing and far end its region's piece and ambience, as a stand-in; the Eye and the Shard's room nearly silent on purpose); the Auger's made piece; Options, Listen | no | yes (now) |
 | 130 | 28 Nov 2026 | `39ef989` | Phase 20: less drawn when the phone is slow (three steps, by itself; Options, Drawing: auto, full, light); the touch buttons in two layouts and three sizes; the whole game checked in order; the itch.io page kit brought up to date | no | yes (now) |
 | 129 | 28 Nov 2026 | `e3901cf` | Phase 18's last two questions, as decided (0.37): a rough face in the Spires' cliffs (the mouth) and one in the Tempest's masts (the rigging), each a tunnel, a chimney and a nook; Ordric at the summit holding his lantern dark | no | yes (now) |
