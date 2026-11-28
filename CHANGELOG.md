@@ -2,7 +2,9 @@
 
 ## Side view (branch `claude/climb-2d`, unreleased)
 
-**The three at the summit (latest; build 126).** When the Fallen falls, Ordric, Mirel and Corwen come up on to the summit, once more each. Corwen has his book open at its last page; Ordric a lamp he has not lit; Mirel sits by the empty cradle at the foot of the beacon. Each says a few words, then the last of them again. No shop, nothing to find, nobody says what to do. 601 checks. No save is moved.
+**The save kept twice, and the phone's buzz (latest; build 127).** The save is written a second time as a copy, once the first has gone in whole; if the save is ever missing or spoiled, the copy is read. On an Android phone, the game's buzz now runs the phone's motor (Options, Rumble). Watching the keepers from the title no longer writes over the save. The sheets for phases 19 to 22 are written, for your yes. 613 checks. A save from before loads as it did.
+
+**The three at the summit (build 126).** When the Fallen falls, Ordric, Mirel and Corwen come up on to the summit, once more each. Corwen has his book open at its last page; Ordric a lamp he has not lit; Mirel sits by the empty cradle at the foot of the beacon. Each says a few words, then the last of them again. No shop, nothing to find, nobody says what to do. 601 checks. No save is moved.
 
 **The end, read two ways (build 125).** At the end the light comes down the scar to the water. If he has stood at the Source it runs on along the water to a small flame there, and stays; if he has not, it goes into the water and nothing shows where it ends. After the end, the title keeps the light down the scar, and the flame if he found it. The five lines are unchanged. 597 checks. No save is moved.
 

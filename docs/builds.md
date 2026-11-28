@@ -55,7 +55,8 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 126 | 28 Nov 2026 | `244987f` | Phase 18, part 5 (second half): the three at the summit after the Fallen: Corwen's last page, Ordric's unlit lamp, Mirel's empty cradle. Phase 18 is built | no | yes (now) |
+| 127 | 28 Nov 2026 | `COMMIT127` | Phase 20's first two items: the save kept twice (a copy, read if the save is lost), and the phone's buzz on Android. Watching the keepers no longer writes over the save. The sheets for phases 19 to 22 | no (a copy is added beside it) | yes (now) |
+| 126 | 28 Nov 2026 | `244987f` | Phase 18, part 5 (second half): the three at the summit after the Fallen: Corwen's last page, Ordric's unlit lamp, Mirel's empty cradle. Phase 18 is built | no | replaced by 127 |
 | 125 | 28 Nov 2026 | `1d0294f` | Phase 18, part 5 (first half): the end read two ways, by whether he has stood at the Source; and the title after the end shows the light down the scar | no | replaced by 126 |
 | 124 | 27 Nov 2026 | `17250a5` | Phase 18, part 4: the Shard, twelve screens west of the summit. The underside (four rough faces up a shaft, a pane), the gap (the longest glide), the Shard (hanging; a keel to catch, a crust, one bare room, the old light). No fight, no one, nothing written | no (a save follows the level) | replaced by 125 |
 | 123 | 27 Nov 2026 | `d0eed06` | Phase 18, part 3: a rough face in each of the five passages between regions. A chimney in the passage's roof, a nook at its head; climbed with the grip and by nothing else | no | replaced by 124 |
@@ -142,6 +143,47 @@ here. The rows from 54 down were filled in from the commit history when this log
 gone over again.
 
 ## The entries
+
+### Build 127: the save kept twice, and the phone's buzz
+
+*Phase 20, its two items that needed no decision (`docs/phase20-sheet.md`, items 1 and 7). With it, the sheets for
+phases 19 to 22, written by four agents working at once, each on its own branch, for your yes: nothing else in them
+is built. No new drawings.*
+
+**For the player**
+
+- **The save is kept twice.** Each time the game saves, it writes the save, reads it back, and only then writes the
+  same again as a copy. If the save is ever missing or spoiled, the copy is read instead. If the phone's storage is
+  too full for both, the copy is let go, never the progress. "Begin again" clears both.
+- **A save still waiting to be written** (up to two seconds of shards and rooms) is written when the game is put
+  away: the phone locked, another app, the tab shut.
+- **On an Android phone the game buzzes** wherever a pad would rumble: a tap for a hit, longer for a blow taken, a
+  long one for a death. Only while he is played by touch and no pad is in the hands. Options, Rumble, turns it off,
+  and buzzes once when turned on. An iPhone's browser has no buzz.
+- **Watching the keepers from the title** no longer writes over the save while it plays. Before, shutting the game in
+  the middle of watching lost which keepers he had faced, and changed where Continue went.
+- **To try:**
+  1. On an Android phone: strike something, take a blow, fall.
+  2. Options, Rumble: off, then on.
+  3. Play, then shut the tab at once, open it again: the last shard is still there.
+  4. From the title, watch a keeper, shut the tab in the middle, open it again: Continue goes where it went before.
+
+**What is weaker than it should be**
+
+- **The buzz has not been felt by a person.** Its lengths are guesses.
+- **The option is still called "Rumble".** The sheet asks to call it "Rumble and vibration".
+- **The copy is in the same storage as the save.** A browser that clears one clears both. The sheet proposes a save
+  that can be copied out as text.
+- **The old 3D game still writes its own empty save** when the page is hidden (`core/input.js`). Harmless; left.
+
+- **Save: not moved.** A copy of it is added beside it; a save from build 126 loads exactly as before.
+- **Checked:** 613 automated checks, twelve new (`tests/side-save.test.mjs`, eight: the copy written only after
+  the save reads back whole, read when the save is missing or spoiled, the copy let go when storage is full, a
+  refused write leaving both as they were, "Begin again" clearing both, a save from before loading as it did, nothing
+  written while watching; `tests/side-vibrate.test.mjs`, four: only by touch with no pad, shorter for a lighter blow,
+  never cutting a longer buzz short, nothing where the browser has none). The game was opened at phone size in the
+  test browser: no errors, a hit buzzed, both copies written.
+- **Not checked:** on a real phone.
 
 ### Build 126: the three at the summit
 

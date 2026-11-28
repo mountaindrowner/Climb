@@ -503,12 +503,16 @@ sheet's six questions are still open, and each can be changed.*
 
 ## Phase 19: sound and music, complete
 
+*28 Nov 2026: its sheet is written (`docs/phase19-sheet.md`), for your yes.*
+
 - A piece for every section (the wings, the passages, the Deep), the intro's music, an ambience for each.
 - Every creature's sound (from phase 6) mixed.
 - The voices tuned from your listening notes.
 - Real voices only if decision 0.9 changes.
 
 ## Phase 20: phone, polish and release
+
+*28 Nov 2026: its sheet is written (`docs/phase20-sheet.md`), for your yes. Two of its items needed no decision and are built (build 127): the save kept twice, and the phone's buzz on Android.*
 
 **Phone:**
 - vibration on Android;
@@ -529,6 +533,8 @@ sheet's six questions are still open, and each can be changed.*
 - the zip inspected, as before.
 
 ## Phase 21: a miniboss in every level
+
+*28 Nov 2026: its sheet is written (`docs/phase21-sheet.md`), for your yes. It proposes eleven, and the Night-Lantern in place of the Orrery.*
 
 *Added 2026-11-18, on your word: "interesting minibosses to every level, each unique and contextually designed".*
 
@@ -563,6 +569,8 @@ the wings' own (the Sexton, the Corrector, the Cracked Bell, and those still to 
 of phase 20 (the phone, the polish passes) does not depend on it.
 
 ## Phase 22: a puzzle in every section, and one great one
+
+*28 Nov 2026: its sheet is written (`docs/phase22-sheet.md`), for your yes. The great puzzle it proposes is the keepers' stones.*
 
 *Added 2026-11-19, on your word: "I'd like to have some puzzles... every section to have a puzzle", and "some big
 puzzles that unlock really cool stuff... a more cryptic, hinted-at puzzle that has to be pieced together".*

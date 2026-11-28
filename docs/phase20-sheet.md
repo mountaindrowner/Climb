@@ -14,6 +14,8 @@ and nothing of it is built.*
   twice. The touch buttons can be moved about and the words made bigger. A check walks the whole game in order. The
   itch.io page shows the game as it is now, with a short clip.
 
+*As built: items 1 and 7 in build 127 (`docs/builds.md`). The rest waits for your yes.*
+
 ## The phone
 
 ### 1. Vibration on Android (built)
