@@ -55,7 +55,7 @@ The plain summary for a reader is in `CHANGELOG.md`.
 
 | Build | Day | Commit | What it is | Save | On the itch page |
 |---|---|---|---|---|---|
-| 124 | 27 Nov 2026 | `COMMIT124` | Phase 18, part 4: the Shard, twelve screens west of the summit. The underside (four rough faces up a shaft, a pane), the gap (the longest glide), the Shard (hanging; a keel to catch, a crust, one bare room, the old light). No fight, no one, nothing written | no (a save follows the level) | yes (now) |
+| 124 | 27 Nov 2026 | `17250a5` | Phase 18, part 4: the Shard, twelve screens west of the summit. The underside (four rough faces up a shaft, a pane), the gap (the longest glide), the Shard (hanging; a keel to catch, a crust, one bare room, the old light). No fight, no one, nothing written | no (a save follows the level) | yes (now) |
 | 123 | 27 Nov 2026 | `d0eed06` | Phase 18, part 3: a rough face in each of the five passages between regions. A chimney in the passage's roof, a nook at its head; climbed with the grip and by nothing else | no | replaced by 124 |
 | 122 | 27 Nov 2026 | `1ed6379` | Phase 18, part 2: the Deep climbed from the bottom. A ring under the Assayer's grate unbars it from below; Hob's lines for one climbing out | no | replaced by 123 |
 | 121 | 27 Nov 2026 | `42b234c` | Phase 18 begun: the throw. At the door of the last region he is thrown down to the Hollow, at the bottom of the Deep, and climbs out; the Deep's doors open when he does. A new game clears everything | no | replaced by 122 |
